@@ -49,7 +49,7 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
   ];
 
   return (
-    <div className="animate-slide-in">
+    <div className="animate-slide-in transition-all duration-700 ease-in-out">
       {/* Progress Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
@@ -70,14 +70,14 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
         <p className="text-sm text-gray-500">Step 2 of 3</p>
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
         Secure your account, {firstName}! 🔒
       </h2>
-      <p className="text-gray-600 mb-8 text-center">
+      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
         Choose a strong password to keep your data safe
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Password Input */}
         <div>
           <div className="relative">
@@ -98,7 +98,7 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-1 transition-all duration-500 ease-in-out cursor-pointer"
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -159,10 +159,10 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between mt-8">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer"
         >
           ← Back
         </button>
@@ -170,9 +170,9 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
         <button
           onClick={onNext}
           disabled={!isValid}
-          className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
+          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto ${
             isValid
-              ? 'bg-blue-500 text-white hover:bg-blue-600 transform hover:scale-105 active:scale-95'
+              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >

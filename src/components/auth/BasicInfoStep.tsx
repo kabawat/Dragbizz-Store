@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, AlertCircle, CheckCircle } from 'lucide-react';
+import { Input } from '../common';
 
 interface BasicInfoStepProps {
   firstName: string;
@@ -27,10 +28,23 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
   // Smart contact detection
   const detectContactType = (value: string) => {
-    if (value.includes('@')) {
+    const cleanValue = value.replace(/\s+/g, '');
+    
+    // Check for email pattern
+    if (value.includes('@') && value.includes('.')) {
       onUpdate('contactType', 'email');
-    } else if (/^\d+$/.test(value.replace(/\s+/g, ''))) {
+    } 
+    // Check for phone pattern (digits, +, -, spaces, parentheses)
+    else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
       onUpdate('contactType', 'phone');
+    }
+    // If user starts typing numbers, assume phone
+    else if (/^\d/.test(cleanValue)) {
+      onUpdate('contactType', 'phone');
+    }
+    // If user starts typing letters or @, assume email
+    else if (/^[a-zA-Z@]/.test(cleanValue)) {
+      onUpdate('contactType', 'email');
     }
   };
 
@@ -61,7 +75,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   const isFormValid = firstName.trim() && lastName.trim() && contact.trim() && !errors.firstName && !errors.lastName && !errors.contact && validationStatus === 'available';
 
   return (
-    <div className="animate-slide-in">
+    <div className="animate-slide-in transition-all duration-700 ease-in-out">
       {/* Progress Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
@@ -82,29 +96,25 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <p className="text-sm text-gray-500">Step 1 of 3</p>
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
         Nice to meet you! 👋
       </h2>
-      <p className="text-gray-600 mb-8 text-center">
+      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
         Let's start with some basic information
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* First Name */}
         <div>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => onUpdate('firstName', e.target.value)}
-              autoFocus
-              className={`w-full pl-10 pr-4 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-blue-500'
-              }`}
-            />
-          </div>
+          <Input
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(value) => onUpdate('firstName', value)}
+            leftIcon={User}
+            error={errors.firstName}
+            autoFocus
+          />
           {errors.firstName && (
             <p className="text-red-500 text-sm mt-2 flex items-center">
               <AlertCircle className="w-4 h-4 mr-1" />
@@ -115,18 +125,14 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
         {/* Last Name */}
         <div>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => onUpdate('lastName', e.target.value)}
-              className={`w-full pl-10 pr-4 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-blue-500'
-              }`}
-            />
-          </div>
+          <Input
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(value) => onUpdate('lastName', value)}
+            leftIcon={User}
+            error={errors.lastName}
+          />
           {errors.lastName && (
             <p className="text-red-500 text-sm mt-2 flex items-center">
               <AlertCircle className="w-4 h-4 mr-1" />
@@ -137,38 +143,57 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
         {/* Smart Contact Field */}
         <div>
-          <div className="relative">
-            {contactType === 'email' ? (
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            ) : (
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            )}
-            <input
-              type={contactType === 'email' ? 'email' : 'tel'}
-              placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
-              value={contact}
-              onChange={(e) => handleContactChange(e.target.value)}
-              className={`w-full pl-10 pr-12 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                errors.contact ? 'border-red-500 bg-red-50' : 
-                validationStatus === 'available' ? 'border-green-500 bg-green-50' :
-                validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
-                'border-gray-200 focus:border-blue-500'
-              }`}
-            />
-            
-            {/* Validation Status Icon */}
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              {isValidating && (
-                <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              )}
-              {validationStatus === 'available' && (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              )}
-              {validationStatus === 'taken' && (
-                <AlertCircle className="w-5 h-5 text-red-500" />
-              )}
+          {/* Contact Type Indicator */}
+          {contact && (
+            <div className="mb-2">
+              <div className="flex items-center justify-center">
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                  contactType === 'email' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-green-100 text-green-700'
+                }`}>
+                  {contactType === 'email' ? (
+                    <>
+                      <Mail className="w-3 h-3 mr-1" />
+                      Email
+                    </>
+                  ) : (
+                    <>
+                      <Phone className="w-3 h-3 mr-1" />
+                      Phone
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+          
+          <Input
+            type={contactType === 'email' ? 'email' : 'tel'}
+            placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
+            value={contact}
+            onChange={handleContactChange}
+            leftIcon={contactType === 'email' ? Mail : Phone}
+            error={errors.contact}
+            rightElement={
+              <div>
+                {isValidating && (
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                )}
+                {validationStatus === 'available' && (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                )}
+                {validationStatus === 'taken' && (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                )}
+              </div>
+            }
+            className={
+              validationStatus === 'available' ? 'border-green-500 bg-green-50' :
+              validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
+              ''
+            }
+          />
           
           {/* Helper Text */}
           <div className="mt-2">
@@ -185,8 +210,8 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               </p>
             )}
             {validationStatus === 'idle' && (
-              <p className="text-gray-500 text-sm">
-                We'll use this to keep your account secure
+              <p className="text-gray-500 text-sm text-center">
+                Enter your email or phone number - we'll detect the type automatically
               </p>
             )}
             {errors.contact && (
@@ -200,10 +225,10 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between mt-8">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer"
         >
           ← Back
         </button>
@@ -211,9 +236,9 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <button
           onClick={onNext}
           disabled={!isFormValid}
-          className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
+          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto ${
             isFormValid
-              ? 'bg-blue-500 text-white hover:bg-blue-600 transform hover:scale-105 active:scale-95'
+              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
