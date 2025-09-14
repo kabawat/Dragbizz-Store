@@ -16,7 +16,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   onVerificationComplete,
   onChangeContact
 }) => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -69,7 +69,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
 
     // Simulate API call
     setTimeout(() => {
-      if (code === '123456') { // Demo code
+      if (code === '12345') { // Demo code
         onVerificationComplete();
       } else {
         setAttempts(prev => prev + 1);
@@ -111,7 +111,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   };
 
   return (
-    <div className="animate-slide-in">
+    <div className="animate-slide-in transition-all duration-700 ease-in-out">
       {/* Progress Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
@@ -141,24 +141,43 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
           )}
         </div>
         
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
           Almost there, {firstName}! 🎯
         </h2>
         
-        <p className="text-gray-600 mb-2">
-          We've sent a 6-digit code to
+        <p className="text-sm sm:text-base text-gray-600 mb-2">
+          We've sent a 5-digit code to
         </p>
         
         <div className="flex items-center justify-center mb-4">
-          <p className="font-semibold text-gray-800 mr-2">
-            {formatContact(contact, contactType)}
-          </p>
-          <button
-            onClick={onChangeContact}
-            className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
+          <div className="flex items-center">
+            <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-3 ${
+              contactType === 'email' 
+                ? 'bg-blue-100 text-blue-700' 
+                : 'bg-green-100 text-green-700'
+            }`}>
+              {contactType === 'email' ? (
+                <>
+                  <Mail className="w-3 h-3 mr-1" />
+                  Email
+                </>
+              ) : (
+                <>
+                  <Phone className="w-3 h-3 mr-1" />
+                  Phone
+                </>
+              )}
+            </div>
+            <p className="font-semibold text-gray-800 mr-2">
+              {formatContact(contact, contactType)}
+            </p>
+            <button
+              onClick={onChangeContact}
+              className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -172,7 +191,9 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
             {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
+                ref={(el) => {
+                  if (el) inputRefs.current[index] = el;
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -213,7 +234,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
           {canResend ? (
             <button
               onClick={handleResendCode}
-              className="flex items-center justify-center mx-auto px-4 py-2 text-blue-500 hover:text-blue-600 font-medium transition-all duration-200 hover:bg-blue-50 rounded-lg"
+              className="flex items-center justify-center mx-auto px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-500 ease-in-out rounded-lg cursor-pointer"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Resend Code
@@ -226,7 +247,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
           
           <button
             onClick={onChangeContact}
-            className="mt-3 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            className="mt-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-500 ease-in-out cursor-pointer"
           >
             Change {contactType}?
           </button>
@@ -235,7 +256,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
         {/* Demo Hint */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
           <p className="text-yellow-700 text-sm">
-            💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-2 py-1 rounded">123456</code> to continue
+            💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-2 py-1 rounded">12345</code> to continue
           </p>
         </div>
       </div>

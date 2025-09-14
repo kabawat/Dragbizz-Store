@@ -47,16 +47,23 @@ function App() {
     }
     
     if (!formData.contact.trim()) {
-      newErrors.contact = `${formData.contactType === 'email' ? 'Email' : 'Phone'} is required`;
+      newErrors.contact = 'Email or phone number is required';
     } else if (formData.contactType === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.contact)) {
         newErrors.contact = 'Please enter a valid email address';
       }
-    } else {
-      const phoneRegex = /^[6-9]\d{9}$/;
-      if (!phoneRegex.test(formData.contact.replace(/\D/g, ''))) {
-        newErrors.contact = 'Please enter a valid 10-digit phone number';
+    } else if (formData.contactType === 'phone') {
+      // More flexible phone validation - accepts various formats
+      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      const cleanPhone = formData.contact.replace(/\D/g, '');
+      
+      if (!phoneRegex.test(formData.contact)) {
+        newErrors.contact = 'Please enter a valid phone number';
+      } else if (cleanPhone.length < 10) {
+        newErrors.contact = 'Phone number must be at least 10 digits';
+      } else if (cleanPhone.length > 15) {
+        newErrors.contact = 'Phone number is too long';
       }
     }
     
@@ -98,8 +105,15 @@ function App() {
     setCurrentState('complete');
   };
 
+  const handleSocialLogin = (provider: string) => {
+    console.log(`Social login with ${provider}`);
+    // Handle social login logic here
+    // For now, just show a message
+    alert(`Social login with ${provider} - This would integrate with OAuth providers`);
+  };
+
   if (currentState === 'welcome') {
-    return <WelcomeScreen onGetStarted={handleGetStarted} />;
+    return <WelcomeScreen onGetStarted={handleGetStarted} onSocialLogin={handleSocialLogin} />;
   }
 
   if (currentState === 'success') {
@@ -114,19 +128,19 @@ function App() {
   if (currentState === 'complete') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl text-center transition-all duration-700 ease-in-out">
           <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-white text-2xl font-bold">🚀</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mb-6">
             Welcome to your new account, {formData.firstName}! Start exploring all the amazing features we have to offer.
           </p>
-          <div className="space-y-3">
-            <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 transform hover:scale-105">
+          <div className="space-y-2 sm:space-y-3">
+            <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 hover:shadow-xl transition-all duration-500 ease-in-out transform hover:scale-105 cursor-pointer">
               Explore Features
             </button>
-            <button className="w-full border-2 border-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200">
+            <button className="w-full border-2 border-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all duration-500 ease-in-out cursor-pointer">
               Complete Profile
             </button>
           </div>
@@ -137,7 +151,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl transition-all duration-700 ease-in-out">
         {currentState === 'basic-info' && (
           <BasicInfoStep
             firstName={formData.firstName}

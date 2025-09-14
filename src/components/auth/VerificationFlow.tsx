@@ -187,7 +187,7 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({
         <div className="mt-8 pt-6 border-t border-gray-200">
           <button
             onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to registration

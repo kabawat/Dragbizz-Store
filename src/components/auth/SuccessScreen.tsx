@@ -62,7 +62,7 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ firstName, onContinue }) 
         </div>
       )}
 
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center relative z-10">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl text-center relative z-10 transition-all duration-700 ease-in-out">
         {/* Success Icon with Animation */}
         <div className="relative mb-6">
           <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
@@ -79,20 +79,20 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ firstName, onContinue }) 
         </div>
 
         {/* Success Message */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
           You're all set, {firstName}! 🎉
         </h1>
         
-        <p className="text-xl text-gray-600 mb-2">
+        <p className="text-lg sm:text-xl text-gray-600 mb-2">
           Welcome aboard
         </p>
         
-        <p className="text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-8">
+        <p className="text-base sm:text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6 sm:mb-8">
           Account created successfully! 👋
         </p>
 
         {/* Features Preview */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
           <div className="flex items-center justify-center text-gray-600">
             <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
             <span className="text-sm">Account verified & secured</span>
@@ -123,7 +123,7 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ firstName, onContinue }) 
         {/* Manual Continue Button */}
         <button
           onClick={onContinue}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center"
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl active:scale-95 flex items-center justify-center cursor-pointer"
         >
           <span>Continue to Dashboard</span>
           <ArrowRight className="w-5 h-5 ml-2" />

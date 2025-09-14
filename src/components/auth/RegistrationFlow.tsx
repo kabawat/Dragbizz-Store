@@ -192,7 +192,7 @@ const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ onComplete }) => {
                 <button
                   type="button"
                   onClick={() => updateFormData('contactType', 'email')}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${
                     formData.contactType === 'email'
                       ? 'bg-white shadow text-blue-600'
                       : 'text-gray-600'
@@ -204,7 +204,7 @@ const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ onComplete }) => {
                 <button
                   type="button"
                   onClick={() => updateFormData('contactType', 'phone')}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${
                     formData.contactType === 'phone'
                       ? 'bg-white shadow text-blue-600'
                       : 'text-gray-600'
@@ -255,7 +255,7 @@ const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ onComplete }) => {
             <button
               type="button"
               onClick={handleBack}
-              className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+              className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -266,7 +266,7 @@ const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ onComplete }) => {
             onClick={handleNext}
             disabled={isLoading}
             className={`ml-auto flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
             {isLoading ? (
