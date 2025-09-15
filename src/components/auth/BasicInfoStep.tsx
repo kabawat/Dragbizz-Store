@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 import { Input } from '../common';
+import styles from './BasicInfoStep.module.scss';
 
 interface BasicInfoStepProps {
   firstName: string;
@@ -75,37 +76,37 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   const isFormValid = firstName.trim() && lastName.trim() && contact.trim() && !errors.firstName && !errors.lastName && !errors.contact && validationStatus === 'available';
 
   return (
-    <div className="animate-slide-in transition-all duration-700 ease-in-out">
+    <div className={styles.container}>
       {/* Progress Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+      <div className={styles.progressHeader}>
+        <div className={styles.progressSteps}>
+          <div className={styles.progressSteps}>
+            <div className={`${styles.stepCircle} ${styles.stepCircleActive}`}>
               1
             </div>
-            <div className="w-16 h-1 bg-gray-200 mx-2"></div>
-            <div className="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-semibold">
+            <div className={`${styles.stepConnector} ${styles.stepConnectorInactive}`}></div>
+            <div className={`${styles.stepCircle} ${styles.stepCircleInactive}`}>
               2
             </div>
-            <div className="w-16 h-1 bg-gray-200 mx-2"></div>
-            <div className="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-semibold">
+            <div className={`${styles.stepConnector} ${styles.stepConnectorInactive}`}></div>
+            <div className={`${styles.stepCircle} ${styles.stepCircleInactive}`}>
               3
             </div>
           </div>
         </div>
-        <p className="text-sm text-gray-500">Step 1 of 3</p>
+        <p className={styles.stepText}>Step 1 of 3</p>
       </div>
 
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
+      <h2 className={styles.mainHeading}>
         Nice to meet you! 👋
       </h2>
-      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
+      <p className={styles.subHeading}>
         Let's start with some basic information
       </p>
 
-      <div className="space-y-4 sm:space-y-6">
+      <div className={styles.formContainer}>
         {/* First Name */}
-        <div>
+        <div className={styles.inputGroup}>
           <Input
             type="text"
             placeholder="First Name"
@@ -116,15 +117,15 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             autoFocus
           />
           {errors.firstName && (
-            <p className="text-red-500 text-sm mt-2 flex items-center">
-              <AlertCircle className="w-4 h-4 mr-1" />
+            <p className={styles.errorMessage}>
+              <AlertCircle className={styles.errorIcon} />
               {errors.firstName}
             </p>
           )}
         </div>
 
         {/* Last Name */}
-        <div>
+        <div className={styles.inputGroup}>
           <Input
             type="text"
             placeholder="Last Name"
@@ -134,32 +135,32 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             error={errors.lastName}
           />
           {errors.lastName && (
-            <p className="text-red-500 text-sm mt-2 flex items-center">
-              <AlertCircle className="w-4 h-4 mr-1" />
+            <p className={styles.errorMessage}>
+              <AlertCircle className={styles.errorIcon} />
               {errors.lastName}
             </p>
           )}
         </div>
 
         {/* Smart Contact Field */}
-        <div>
+        <div className={styles.inputGroup}>
           {/* Contact Type Indicator */}
           {contact && (
-            <div className="mb-2">
-              <div className="flex items-center justify-start">
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+            <div className={styles.contactTypeIndicator}>
+              <div className="d-flex align-items-center justify-content-start">
+                <div className={`${styles.contactTypeBadge} ${
                   contactType === 'email' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-green-100 text-green-700'
+                    ? styles.contactTypeBadgeEmail
+                    : styles.contactTypeBadgePhone
                 }`}>
                   {contactType === 'email' ? (
                     <>
-                      <Mail className="w-3 h-3 mr-1" />
+                      <Mail className={styles.contactTypeIcon} />
                       Email
                     </>
                   ) : (
                     <>
-                      <Phone className="w-3 h-3 mr-1" />
+                      <Phone className={styles.contactTypeIcon} />
                       Phone
                     </>
                   )}
@@ -178,45 +179,45 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             rightElement={
               <div>
                 {isValidating && (
-                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className={styles.validationSpinner}></div>
                 )}
                 {validationStatus === 'available' && (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle className={`${styles.validationIcon} ${styles.validationIconSuccess}`} />
                 )}
                 {validationStatus === 'taken' && (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <AlertCircle className={`${styles.validationIcon} ${styles.validationIconError}`} />
                 )}
               </div>
             }
             className={
-              validationStatus === 'available' ? 'border-green-500 bg-green-50' :
-              validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
+              validationStatus === 'available' ? styles.inputSuccess :
+              validationStatus === 'taken' ? styles.inputError :
               ''
             }
           />
           
           {/* Helper Text */}
-          <div className="mt-2">
+          <div className={styles.helperText}>
             {validationStatus === 'available' && (
-              <p className="text-green-600 text-sm flex items-center">
-                <CheckCircle className="w-4 h-4 mr-1" />
+              <p className={styles.helperTextSuccess}>
+                <CheckCircle className={styles.helperIcon} />
                 Great! This {contactType} is available
               </p>
             )}
             {validationStatus === 'taken' && (
-              <p className="text-red-500 text-sm flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
+              <p className={styles.helperTextError}>
+                <AlertCircle className={styles.helperIcon} />
                 This {contactType} is already registered
               </p>
             )}
             {validationStatus === 'idle' && (
-              <p className="text-gray-500 text-sm text-left">
+              <p className={styles.helperTextIdle}>
                 Enter your email or phone number - we'll detect the type automatically
               </p>
             )}
             {errors.contact && (
-              <p className="text-red-500 text-sm flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
+              <p className={styles.helperTextError}>
+                <AlertCircle className={styles.helperIcon} />
                 {errors.contact}
               </p>
             )}
@@ -225,10 +226,10 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
+      <div className={styles.navigationContainer}>
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer"
+          className={styles.backButton}
         >
           ← Back
         </button>
@@ -236,10 +237,10 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <button
           onClick={onNext}
           disabled={!isFormValid}
-          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto ${
+          className={`${styles.continueButton} ${
             isFormValid
-              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              ? styles.continueButtonEnabled
+              : styles.continueButtonDisabled
           }`}
         >
           Continue →
