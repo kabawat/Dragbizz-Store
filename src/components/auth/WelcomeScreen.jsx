@@ -3,12 +3,7 @@ import { Rocket, Users, Shield, Zap, Github, Chrome } from 'lucide-react';
 import Link from 'next/link';
 import styles from './WelcomeScreen.module.css';
 
-interface WelcomeScreenProps {
-  onGetStarted: () => void;
-  onSocialLogin?: (provider: string) => void;
-}
-
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted, onSocialLogin }) => {
+const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
   return (
     <div className={styles.container}>
       <div className={styles.card}>

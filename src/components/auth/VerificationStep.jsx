@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle } from 'lucide-react';
 
-interface VerificationStepProps {
-  contactType: 'email' | 'phone';
-  contact: string;
-  firstName: string;
-  onVerificationComplete: () => void;
-  onChangeContact: () => void;
-}
-
-const VerificationStep: React.FC<VerificationStepProps> = ({
+const VerificationStep = ({
   contactType,
   contact,
   firstName,
@@ -22,7 +14,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
   const [attempts, setAttempts] = useState(0);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = useRef([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -38,7 +30,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  const handleOtpChange = (index: number, value: string) => {
+  const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
     
     const newOtp = [...otp];
@@ -57,13 +49,13 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleVerification = async (code: string) => {
+  const handleVerification = async (code) => {
     setIsVerifying(true);
     setError('');
 
@@ -99,7 +91,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
     inputRefs.current[0]?.focus();
   };
 
-  const formatContact = (contact: string, type: 'email' | 'phone') => {
+  const formatContact = (contact, type) => {
     if (type === 'email') {
       const [username, domain] = contact.split('@');
       if (username.length <= 3) return contact;

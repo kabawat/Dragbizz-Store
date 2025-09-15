@@ -6,28 +6,18 @@ import PasswordStep from '@/components/auth/PasswordStep';
 import VerificationStep from '@/components/auth/VerificationStep';
 import SuccessScreen from '@/components/auth/SuccessScreen';
 
-type AppState = 'welcome' | 'basic-info' | 'password' | 'verification' | 'success' | 'complete';
-
-interface FormData {
-  firstName: string;
-  lastName: string;
-  contact: string;
-  contactType: 'email' | 'phone';
-  password: string;
-}
-
 function App() {
-  const [currentState, setCurrentState] = useState<AppState>('welcome');
-  const [formData, setFormData] = useState<FormData>({
+  const [currentState, setCurrentState] = useState('welcome');
+  const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     contact: '',
     contactType: 'email',
     password: ''
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
-  const updateFormData = (field: string, value: string) => {
+  const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -36,7 +26,7 @@ function App() {
   };
 
   const validateBasicInfo = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors = {};
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
@@ -66,7 +56,6 @@ function App() {
         newErrors.contact = 'Phone number is too long';
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -105,7 +94,7 @@ function App() {
     setCurrentState('complete');
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = (provider) => {
     console.log(`Social login with ${provider}`);
     // Handle social login logic here
     // For now, just show a message
