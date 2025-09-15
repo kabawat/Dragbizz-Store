@@ -44,11 +44,11 @@ export default function LoginPage() {
   // Smart contact detection
   const detectContactType = (value) => {
     const cleanValue = value.replace(/\s+/g, '');
-    
+
     // Check for email pattern
     if (value.includes('@') && value.includes('.')) {
       setContactType('email');
-    } 
+    }
     // Check for phone pattern (digits, +, -, spaces, parentheses)
     else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
       setContactType('phone');
@@ -68,7 +68,7 @@ export default function LoginPage() {
     if (formData.contact && formData.contact.length > 3) {
       setIsValidating(true);
       setValidationStatus('checking');
-      
+
       const timer = setTimeout(() => {
         // Simulate API call to check if contact exists - always valid for demo
         const isValid = true; // Always valid for demo purposes
@@ -87,7 +87,7 @@ export default function LoginPage() {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
-    
+
     if (field === 'contact') {
       detectContactType(value);
     }
@@ -95,7 +95,7 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.contact.trim()) {
       newErrors.contact = 'Email or phone number is required';
     } else if (contactType === 'email') {
@@ -106,7 +106,7 @@ export default function LoginPage() {
     } else if (contactType === 'phone') {
       const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
       const cleanPhone = formData.contact.replace(/\D/g, '');
-      
+
       if (!phoneRegex.test(formData.contact)) {
         newErrors.contact = 'Please enter a valid phone number';
       } else if (cleanPhone.length < 10) {
@@ -115,7 +115,7 @@ export default function LoginPage() {
         newErrors.contact = 'Phone number is too long';
       }
     }
-    
+
     if (loginMethod === 'password') {
       if (!formData.password.trim()) {
         newErrors.password = 'Password is required';
@@ -129,7 +129,7 @@ export default function LoginPage() {
         newErrors.otp = 'OTP must be 5 digits';
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -137,7 +137,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
+
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
@@ -152,7 +152,7 @@ export default function LoginPage() {
       setErrors({ contact: 'Email or phone number is required' });
       return;
     }
-    
+
     setIsLoading(true);
     // Simulate OTP sending
     setTimeout(() => {
@@ -169,7 +169,7 @@ export default function LoginPage() {
 
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otpDigits];
     newOtp[index] = value;
     setOtpDigits(newOtp);
@@ -273,7 +273,7 @@ export default function LoginPage() {
                 <Chrome className="w-5 h-5 mr-3 text-red-500" />
                 <span className="font-medium text-gray-700">Continue with Google</span>
               </button>
-              
+
               <button
                 onClick={() => handleSocialLogin('github')}
                 className="w-full flex items-center justify-center px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-md transition-all duration-500 ease-in-out hover:bg-gray-50 cursor-pointer"
@@ -301,11 +301,10 @@ export default function LoginPage() {
           {formData.contact && !otpSent && (
             <div className="mb-2">
               <div className="flex items-center justify-start">
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                  contactType === 'email' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-green-100 text-green-700'
-                }`}>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-green-100 text-green-700'
+                  }`}>
                   {contactType === 'email' ? (
                     <>
                       <Mail className="w-3 h-3 mr-1" />
@@ -347,11 +346,11 @@ export default function LoginPage() {
                 }
                 className={
                   validationStatus === 'valid' ? 'border-green-500 bg-green-50' :
-                  validationStatus === 'invalid' ? 'border-red-500 bg-red-50' :
-                  ''
+                    validationStatus === 'invalid' ? 'border-red-500 bg-red-50' :
+                      ''
                 }
               />
-              
+
               {/* Helper Text */}
               <div className="mt-2">
                 {validationStatus === 'valid' && (
@@ -407,7 +406,7 @@ export default function LoginPage() {
                   {errors.password}
                 </p>
               )}
-              
+
               {/* OTP Option Checkbox - Below password field, only show when OTP not sent */}
               {!otpSent && (
                 <div className="flex items-center justify-start mt-3">
@@ -433,11 +432,10 @@ export default function LoginPage() {
               type="button"
               onClick={handleSendOTP}
               disabled={isLoading || !formData.contact.trim()}
-              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${
-                isLoading || !formData.contact.trim()
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-500 to-blue-600 text-white hover:from-green-600 hover:to-blue-700 hover:shadow-xl cursor-pointer'
-              }`}
+              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${isLoading || !formData.contact.trim()
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-500 to-blue-600 text-white hover:from-green-600 hover:to-blue-700 hover:shadow-xl cursor-pointer'
+                }`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -464,22 +462,21 @@ export default function LoginPage() {
                     <Phone className="w-8 h-8 text-blue-500" />
                   )}
                 </div>
-                
+
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
                   Almost there! 🎯
                 </h2>
-                
+
                 <p className="text-sm sm:text-base text-gray-600 mb-2">
                   We've sent a 5-digit code to
                 </p>
-                
+
                 <div className="flex items-center justify-center mb-4">
                   <div className="flex items-center">
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-3 ${
-                      contactType === 'email' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-green-100 text-green-700'
-                    }`}>
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-3 ${contactType === 'email'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-green-100 text-green-700'
+                      }`}>
                       {contactType === 'email' ? (
                         <>
                           <Mail className="w-3 h-3 mr-1" />
@@ -518,9 +515,8 @@ export default function LoginPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                          otpError ? 'border-red-500 bg-red-50 animate-shake' : 'border-gray-300'
-                        }`}
+                        className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${otpError ? 'border-red-500 bg-red-50 animate-shake' : 'border-gray-300'
+                          }`}
                         autoFocus={index === 0}
                       />
                     ))}
@@ -548,7 +544,7 @@ export default function LoginPage() {
                   <p className="text-gray-600 mb-3">
                     Didn't receive the code?
                   </p>
-                  
+
                   {canResend ? (
                     <button
                       type="button"
@@ -568,28 +564,17 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Forgot Password - Only show for password method */}
-          {loginMethod === 'password' && (
-            <div className="text-right">
-              <button
-                type="button"
-                className="text-sm text-blue-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-all duration-500 ease-in-out cursor-pointer"
-              >
-                Forgot password?
-              </button>
-            </div>
-          )}
+
 
           {/* Submit Button - Only show for password method */}
           {loginMethod === 'password' && (
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${
-                isLoading
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 hover:shadow-xl cursor-pointer'
-              }`}
+              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${isLoading
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 hover:shadow-xl cursor-pointer'
+                }`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -615,6 +600,21 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        {/* Forgot Password - Only show for password method */}
+        {
+          loginMethod === 'password' ? <>
+            <div className="text-center mt-4">
+              <Link
+                href="/forgot-password"
+                className="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors duration-200 cursor-pointer"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          </> : <></>
+        }
+
       </div>
     </div>
   );

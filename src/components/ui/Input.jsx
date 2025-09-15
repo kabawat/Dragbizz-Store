@@ -38,7 +38,7 @@ const Input = forwardRef(({
   const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200';
   
   // Padding classes
-  const paddingClasses = LeftIcon ? 'pl-16' : 'pl-4';
+  const paddingClasses = LeftIcon ? 'pl-12' : 'pl-4';
   const rightPaddingClasses = (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-12' : 'pr-4';
   
   // State classes - Original styling
@@ -63,7 +63,7 @@ const Input = forwardRef(({
       )}
         {/* Left Icon */}
         {LeftIcon && (
-          <LeftIcon className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+          <LeftIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
         )}
         
         {/* Input Field */}

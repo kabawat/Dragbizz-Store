@@ -15,7 +15,9 @@ export function middleware(request) {
   // Define auth routes that should redirect if already authenticated
   const authRoutes = [
     '/login',
-    '/register'
+    '/register',
+    '/forgot-password',
+    '/reset-password'
   ];
 
   // Check if the current path is a protected route
@@ -28,7 +30,7 @@ export function middleware(request) {
     pathname.startsWith(route)
   );
 
-  // Get the token from cookies (you can also check localStorage, but cookies are more reliable for SSR)
+  // Get the token from cookies
   const token = request.cookies.get('auth-token')?.value;
 
   // If accessing a protected route without a token, redirect to login
