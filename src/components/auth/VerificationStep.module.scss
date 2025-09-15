@@ -1,0 +1,409 @@
+/* VerificationStep.module.scss */
+
+.container {
+  animation: slideIn 0.7s ease-in-out;
+  transition: all 0.7s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.progressHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.progressSteps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.stepCircle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.stepCircleCompleted {
+  background-color: #10b981;
+  color: white;
+}
+
+.stepCircleActive {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.stepConnector {
+  width: 4rem;
+  height: 0.25rem;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.stepConnectorCompleted {
+  background-color: #10b981;
+}
+
+.stepText {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.headerSection {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.iconContainer {
+  width: 4rem;
+  height: 4rem;
+  background-color: #dbeafe;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: #3b82f6;
+}
+
+.mainHeading {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .mainHeading {
+    font-size: 1.5rem;
+  }
+}
+
+.subHeading {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .subHeading {
+    font-size: 1rem;
+  }
+}
+
+.contactInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.contactTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.75rem;
+}
+
+.contactTypeBadgeEmail {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.contactTypeBadgePhone {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.contactTypeIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.25rem;
+}
+
+.contactText {
+  font-weight: 600;
+  color: #1f2937;
+  margin-right: 0.5rem;
+}
+
+.editButton {
+  color: #3b82f6;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.editButton:hover {
+  color: #2563eb;
+}
+
+.editIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.otpLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.otpInputs {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.otpInput {
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border: 2px solid;
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.otpInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.otpInputError {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  animation: shake 0.5s ease-in-out;
+}
+
+.otpInputDefault {
+  border-color: #d1d5db;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.errorMessage {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.errorIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.verifyingMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.verifyingSpinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.verifyingText {
+  color: #4b5563;
+}
+
+.resendSection {
+  text-align: center;
+}
+
+.resendText {
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+}
+
+.resendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  color: #3b82f6;
+  background: none;
+  border: none;
+  font-weight: 500;
+  transition: all 0.5s ease-in-out;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.resendButton:hover {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.resendIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+.resendTimer {
+  color: #6b7280;
+}
+
+.changeContactButton {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.changeContactButton:hover {
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+.demoHint {
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.demoText {
+  color: #92400e;
+  font-size: 0.875rem;
+}
+
+.demoCode {
+  background-color: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* Bootstrap responsive utilities */
+@media (max-width: 575.98px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .mainHeading {
+    font-size: 1.125rem;
+  }
+  
+  .subHeading {
+    font-size: 0.8125rem;
+  }
+  
+  .otpInput {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+  
+  .otpInputs {
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .container {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    padding: 2.5rem;
+  }
+}
