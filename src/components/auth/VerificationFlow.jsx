@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, CheckCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 
-interface VerificationFlowProps {
-  contactType: 'email' | 'phone';
-  contact: string;
-  onVerificationComplete: () => void;
-  onBack: () => void;
-}
-
-const VerificationFlow: React.FC<VerificationFlowProps> = ({
+const VerificationFlow = ({
   contactType,
   contact,
   onVerificationComplete,
   onBack
 }) => {
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -35,7 +28,7 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  const handleCodeChange = (index: number, value: string) => {
+  const handleCodeChange = (index, value) => {
     if (value.length > 1) return;
     
     const newCode = [...verificationCode];
@@ -49,34 +42,34 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({
     }
     
     // Auto-verify when all fields are filled
-    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
+    if (newCode.every(digit => digit !== '') && newCode.join('').length === 5) {
       handleVerification(newCode.join(''));
     }
     
     setError('');
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
       const prevInput = document.getElementById(`code-${index - 1}`);
       prevInput?.focus();
     }
   };
 
-  const handleVerification = async (code: string) => {
+  const handleVerification = async (code) => {
     setIsLoading(true);
     setError('');
     
     // Simulate API call
     setTimeout(() => {
-      if (code === '123456') { // Demo code for testing
+      if (code === '12345') { // Demo code for testing
         setIsVerified(true);
         setTimeout(() => {
           onVerificationComplete();
         }, 1500);
       } else {
         setError('Invalid verification code. Please try again.');
-        setVerificationCode(['', '', '', '', '', '']);
+        setVerificationCode(['', '', '', '', '']);
         document.getElementById('code-0')?.focus();
       }
       setIsLoading(false);
@@ -88,7 +81,7 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({
     
     setCanResend(false);
     setTimeLeft(60);
-    setVerificationCode(['', '', '', '', '', '']);
+    setVerificationCode(['', '', '', '', '']);
     setError('');
     
     // Simulate API call

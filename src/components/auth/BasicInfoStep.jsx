@@ -1,19 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, AlertCircle, CheckCircle } from 'lucide-react';
-import { Input } from '../common';
+import { User, Mail, Phone, AlertCircle, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Input } from '../ui';
 
-interface BasicInfoStepProps {
-  firstName: string;
-  lastName: string;
-  contact: string;
-  contactType: 'email' | 'phone';
-  onUpdate: (field: string, value: string) => void;
-  onNext: () => void;
-  onBack: () => void;
-  errors: Record<string, string>;
-}
-
-const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
+const BasicInfoStep = ({
   firstName,
   lastName,
   contact,
@@ -24,16 +13,16 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   errors
 }) => {
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [validationStatus, setValidationStatus] = useState('idle');
 
   // Smart contact detection
-  const detectContactType = (value: string) => {
+  const detectContactType = (value) => {
     const cleanValue = value.replace(/\s+/g, '');
-    
+
     // Check for email pattern
     if (value.includes('@') && value.includes('.')) {
       onUpdate('contactType', 'email');
-    } 
+    }
     // Check for phone pattern (digits, +, -, spaces, parentheses)
     else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
       onUpdate('contactType', 'phone');
@@ -53,10 +42,10 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     if (contact && contact.length > 3) {
       setIsValidating(true);
       setValidationStatus('checking');
-      
+
       const timer = setTimeout(() => {
-        // Simulate API call
-        const isAvailable = Math.random() > 0.3; // 70% chance available
+        // Simulate API call - always available for demo
+        const isAvailable = true; // Always available for demo purposes
         setValidationStatus(isAvailable ? 'available' : 'taken');
         setIsValidating(false);
       }, 1000);
@@ -67,7 +56,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     }
   }, [contact]);
 
-  const handleContactChange = (value: string) => {
+  const handleContactChange = (value) => {
     onUpdate('contact', value);
     detectContactType(value);
   };
@@ -147,11 +136,10 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           {contact && (
             <div className="mb-2">
               <div className="flex items-center justify-start">
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                  contactType === 'email' 
-                    ? 'bg-blue-100 text-blue-700' 
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
+                    ? 'bg-blue-100 text-blue-700'
                     : 'bg-green-100 text-green-700'
-                }`}>
+                  }`}>
                   {contactType === 'email' ? (
                     <>
                       <Mail className="w-3 h-3 mr-1" />
@@ -167,7 +155,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               </div>
             </div>
           )}
-          
+
           <Input
             type={contactType === 'email' ? 'email' : 'tel'}
             placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
@@ -190,11 +178,11 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             }
             className={
               validationStatus === 'available' ? 'border-green-500 bg-green-50' :
-              validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
-              ''
+                validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
+                  ''
             }
           />
-          
+
           {/* Helper Text */}
           <div className="mt-2">
             {validationStatus === 'available' && (
@@ -228,21 +216,22 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer"
+          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center"
         >
-          ← Back
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
         </button>
-        
+
         <button
           onClick={onNext}
           disabled={!isFormValid}
-          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto ${
-            isFormValid
+          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${isFormValid
               ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
+            }`}
         >
-          Continue →
+          Continue
+          <ArrowRight className="w-4 h-4 ml-2" />
         </button>
       </div>
     </div>

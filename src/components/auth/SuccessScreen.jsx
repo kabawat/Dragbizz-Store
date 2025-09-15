@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
 
-interface SuccessScreenProps {
-  firstName: string;
-  onContinue: () => void;
-}
-
-const SuccessScreen: React.FC<SuccessScreenProps> = ({ firstName, onContinue }) => {
+const SuccessScreen = ({ firstName, onContinue }) => {
   const [countdown, setCountdown] = useState(3);
   const [showConfetti, setShowConfetti] = useState(true);
 
@@ -126,7 +121,7 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ firstName, onContinue }) 
           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl active:scale-95 flex items-center justify-center cursor-pointer"
         >
           <span>Continue to Dashboard</span>
-          <ArrowRight className="w-5 h-5 ml-2" />
+          <ArrowRight className="w-4 h-4 ml-2" />
         </button>
 
         <p className="text-xs text-gray-500 mt-4">

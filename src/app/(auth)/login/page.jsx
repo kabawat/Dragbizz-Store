@@ -1,11 +1,8 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3 } from 'lucide-react';
-import { Input } from '@/components/common';
+import { Input } from '@/components/ui';
 import Link from 'next/link';
-
-type LoginMethod = 'password' | 'otp';
-type ContactType = 'email' | 'phone';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -13,19 +10,19 @@ export default function LoginPage() {
     password: '',
     otp: ''
   });
-  const [contactType, setContactType] = useState<ContactType>('email');
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
+  const [contactType, setContactType] = useState('email');
+  const [loginMethod, setLoginMethod] = useState('password');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  const [validationStatus, setValidationStatus] = useState('idle');
   const [otpSent, setOtpSent] = useState(false);
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [otpError, setOtpError] = useState('');
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = useRef([]);
 
   // OTP Timer Effect
   useEffect(() => {
@@ -45,7 +42,7 @@ export default function LoginPage() {
   }, [otpSent, timeLeft]);
 
   // Smart contact detection
-  const detectContactType = (value: string) => {
+  const detectContactType = (value) => {
     const cleanValue = value.replace(/\s+/g, '');
     
     // Check for email pattern
@@ -73,8 +70,8 @@ export default function LoginPage() {
       setValidationStatus('checking');
       
       const timer = setTimeout(() => {
-        // Simulate API call to check if contact exists
-        const isValid = Math.random() > 0.2; // 80% chance valid
+        // Simulate API call to check if contact exists - always valid for demo
+        const isValid = true; // Always valid for demo purposes
         setValidationStatus(isValid ? 'valid' : 'invalid');
         setIsValidating(false);
       }, 1000);
@@ -85,7 +82,7 @@ export default function LoginPage() {
     }
   }, [formData.contact]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -97,7 +94,7 @@ export default function LoginPage() {
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors = {};
     
     if (!formData.contact.trim()) {
       newErrors.contact = 'Email or phone number is required';
@@ -137,7 +134,7 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     
@@ -170,7 +167,7 @@ export default function LoginPage() {
     }, 1000);
   };
 
-  const handleOtpChange = (index: number, value: string) => {
+  const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
     
     const newOtp = [...otpDigits];
@@ -189,13 +186,13 @@ export default function LoginPage() {
     }
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleOtpKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleOtpVerification = async (code: string) => {
+  const handleOtpVerification = async (code) => {
     setIsLoading(true);
     // Simulate OTP verification
     setTimeout(() => {
@@ -220,7 +217,7 @@ export default function LoginPage() {
     handleSendOTP();
   };
 
-  const formatContact = (contact: string, type: 'email' | 'phone') => {
+  const formatContact = (contact, type) => {
     if (type === 'email') {
       const [username, domain] = contact.split('@');
       if (username.length <= 3) return contact;
@@ -243,7 +240,7 @@ export default function LoginPage() {
     setCanResend(false);
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = (provider) => {
     console.log(`Login with ${provider}`);
     // Handle social login logic here
   };
@@ -416,7 +413,7 @@ export default function LoginPage() {
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(loginMethod as string) === 'otp'}
+                      checked={loginMethod === 'otp'}
                       onChange={toggleLoginMethod}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                     />

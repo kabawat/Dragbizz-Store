@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, Shield, AlertCircle, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 
-interface PasswordStepProps {
-  password: string;
-  onUpdate: (field: string, value: string) => void;
-  onNext: () => void;
-  onBack: () => void;
-  firstName: string;
-}
-
-const PasswordStep: React.FC<PasswordStepProps> = ({
+const PasswordStep = ({
   password,
   onUpdate,
   onNext,
@@ -20,7 +12,7 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
   const [focused, setFocused] = useState(false);
 
   // Password strength calculation
-  const getPasswordStrength = (pwd: string) => {
+  const getPasswordStrength = (pwd) => {
     let score = 0;
     const checks = {
       length: pwd.length >= 8,
@@ -162,21 +154,23 @@ const PasswordStep: React.FC<PasswordStepProps> = ({
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer"
+          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center"
         >
-          ← Back
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
         </button>
         
         <button
           onClick={onNext}
           disabled={!isValid}
-          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto ${
+          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${
             isValid
               ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Continue →
+          Continue
+          <ArrowRight className="w-4 h-4 ml-2" />
         </button>
       </div>
     </div>
