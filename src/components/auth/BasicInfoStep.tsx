@@ -146,7 +146,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           {/* Contact Type Indicator */}
           {contact && (
             <div className="mb-2">
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-start">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                   contactType === 'email' 
                     ? 'bg-blue-100 text-blue-700' 
@@ -210,7 +210,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               </p>
             )}
             {validationStatus === 'idle' && (
-              <p className="text-gray-500 text-sm text-center">
+              <p className="text-gray-500 text-sm text-left">
                 Enter your email or phone number - we'll detect the type automatically
               </p>
             )}
