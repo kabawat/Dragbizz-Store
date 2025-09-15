@@ -134,13 +134,13 @@ const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ onComplete }) => {
   }) => (
     <div className="mb-4">
       <div className={`relative transition-all duration-200 ${error ? 'shake' : ''}`}>
-        <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <Icon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+          className={`w-full pl-14 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
             error ? 'border-red-500 bg-red-50' : 'border-gray-300'
           }`}
         />

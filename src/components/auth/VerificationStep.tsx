@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle } from 'lucide-react';
-import styles from './VerificationStep.module.scss';
 
 interface VerificationStepProps {
   contactType: 'email' | 'phone';
@@ -112,79 +111,83 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   };
 
   return (
-    <div className={styles.container}>
+    <div className="animate-slide-in transition-all duration-700 ease-in-out">
       {/* Progress Header */}
-      <div className={styles.progressHeader}>
-        <div className={styles.progressSteps}>
-          <div className={`${styles.stepCircle} ${styles.stepCircleCompleted}`}>
-            ✓
-          </div>
-          <div className={`${styles.stepConnector} ${styles.stepConnectorCompleted}`}></div>
-          <div className={`${styles.stepCircle} ${styles.stepCircleCompleted}`}>
-            ✓
-          </div>
-          <div className={`${styles.stepConnector} ${styles.stepConnectorCompleted}`}></div>
-          <div className={`${styles.stepCircle} ${styles.stepCircleActive}`}>
-            3
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              ✓
+            </div>
+            <div className="w-16 h-1 bg-green-500 mx-2"></div>
+            <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              ✓
+            </div>
+            <div className="w-16 h-1 bg-green-500 mx-2"></div>
+            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              3
+            </div>
           </div>
         </div>
-        <p className={styles.stepText}>Step 3 of 3</p>
+        <p className="text-sm text-gray-500">Step 3 of 3</p>
       </div>
 
-      <div className={styles.headerSection}>
-        <div className={styles.iconContainer}>
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           {contactType === 'email' ? (
-            <Mail className={styles.icon} />
+            <Mail className="w-8 h-8 text-blue-500" />
           ) : (
-            <Phone className={styles.icon} />
+            <Phone className="w-8 h-8 text-blue-500" />
           )}
         </div>
         
-        <h2 className={styles.mainHeading}>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
           Almost there, {firstName}! 🎯
         </h2>
         
-        <p className={styles.subHeading}>
+        <p className="text-sm sm:text-base text-gray-600 mb-2">
           We've sent a 5-digit code to
         </p>
         
-        <div className={styles.contactInfo}>
-          <div className={`${styles.contactTypeBadge} ${
-            contactType === 'email' 
-              ? styles.contactTypeBadgeEmail
-              : styles.contactTypeBadgePhone
-          }`}>
-            {contactType === 'email' ? (
-              <>
-                <Mail className={styles.contactTypeIcon} />
-                Email
-              </>
-            ) : (
-              <>
-                <Phone className={styles.contactTypeIcon} />
-                Phone
-              </>
-            )}
+        <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center">
+            <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-3 ${
+              contactType === 'email' 
+                ? 'bg-blue-100 text-blue-700' 
+                : 'bg-green-100 text-green-700'
+            }`}>
+              {contactType === 'email' ? (
+                <>
+                  <Mail className="w-3 h-3 mr-1" />
+                  Email
+                </>
+              ) : (
+                <>
+                  <Phone className="w-3 h-3 mr-1" />
+                  Phone
+                </>
+              )}
+            </div>
+            <p className="font-semibold text-gray-800 mr-2">
+              {formatContact(contact, contactType)}
+            </p>
+            <button
+              onClick={onChangeContact}
+              className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
           </div>
-          <p className={styles.contactText}>
-            {formatContact(contact, contactType)}
-          </p>
-          <button
-            onClick={onChangeContact}
-            className={styles.editButton}
-          >
-            <Edit3 className={styles.editIcon} />
-          </button>
         </div>
       </div>
 
-      <div className={styles.formContainer}>
+      <div className="space-y-6">
         {/* OTP Input */}
         <div>
-          <label className={styles.otpLabel}>
+          <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
             Enter verification code
           </label>
-          <div className={styles.otpInputs}>
+          <div className="flex justify-center space-x-3 mb-4">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -197,8 +200,8 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`${styles.otpInput} ${
-                  error ? styles.otpInputError : styles.otpInputDefault
+                className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  error ? 'border-red-500 bg-red-50 animate-shake' : 'border-gray-300'
                 }`}
                 autoFocus={index === 0}
               />
@@ -206,54 +209,54 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
           </div>
 
           {error && (
-            <div className={styles.errorMessage}>
-              <p className={styles.errorText}>
-                <AlertCircle className={styles.errorIcon} />
+            <div className="text-center mb-4">
+              <p className="text-red-500 text-sm flex items-center justify-center animate-fade-in">
+                <AlertCircle className="w-4 h-4 mr-1" />
                 {error}
               </p>
             </div>
           )}
 
           {isVerifying && (
-            <div className={styles.verifyingMessage}>
-              <div className={styles.verifyingSpinner}></div>
-              <span className={styles.verifyingText}>Verifying...</span>
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+              <span className="text-gray-600">Verifying...</span>
             </div>
           )}
         </div>
 
         {/* Resend Section */}
-        <div className={styles.resendSection}>
-          <p className={styles.resendText}>
+        <div className="text-center">
+          <p className="text-gray-600 mb-3">
             Didn't receive the code?
           </p>
           
           {canResend ? (
             <button
               onClick={handleResendCode}
-              className={styles.resendButton}
+              className="flex items-center justify-center mx-auto px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-500 ease-in-out rounded-lg cursor-pointer"
             >
-              <RefreshCw className={styles.resendIcon} />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Resend Code
             </button>
           ) : (
-            <p className={styles.resendTimer}>
+            <p className="text-gray-500">
               Resend in {timeLeft}s
             </p>
           )}
           
           <button
             onClick={onChangeContact}
-            className={styles.changeContactButton}
+            className="mt-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-500 ease-in-out cursor-pointer"
           >
             Change {contactType}?
           </button>
         </div>
 
         {/* Demo Hint */}
-        <div className={styles.demoHint}>
-          <p className={styles.demoText}>
-            💡 <strong>Demo:</strong> Use code <code className={styles.demoCode}>12345</code> to continue
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+          <p className="text-yellow-700 text-sm">
+            💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-2 py-1 rounded">12345</code> to continue
           </p>
         </div>
       </div>
