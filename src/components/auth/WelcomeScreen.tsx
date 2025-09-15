@@ -86,7 +86,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted, onSocialLog
           {/* CTA Button */}
           <button
             onClick={onGetStarted}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl active:scale-95 relative overflow-hidden group cursor-pointer"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold text-base hover:from-blue-600 hover:to-purple-700 transition-all duration-500 ease-in-out hover:shadow-xl relative overflow-hidden group cursor-pointer"
           >
             <span className="relative z-10">Get Started</span>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out"></div>

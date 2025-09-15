@@ -37,15 +37,15 @@ function App() {
 
   const validateBasicInfo = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     }
-    
+
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
     }
-    
+
     if (!formData.contact.trim()) {
       newErrors.contact = 'Email or phone number is required';
     } else if (formData.contactType === 'email') {
@@ -57,7 +57,7 @@ function App() {
       // More flexible phone validation - accepts various formats
       const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
       const cleanPhone = formData.contact.replace(/\D/g, '');
-      
+
       if (!phoneRegex.test(formData.contact)) {
         newErrors.contact = 'Please enter a valid phone number';
       } else if (cleanPhone.length < 10) {
@@ -66,7 +66,7 @@ function App() {
         newErrors.contact = 'Phone number is too long';
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

@@ -14,6 +14,7 @@ interface InputProps {
   disabled?: boolean;
   name?: string;
   id?: string;
+  maxLength?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -28,7 +29,8 @@ const Input: React.FC<InputProps> = ({
   autoFocus = false,
   disabled = false,
   name,
-  id
+  id,
+  maxLength
 }) => {
   const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200';
   
@@ -60,6 +62,7 @@ const Input: React.FC<InputProps> = ({
         disabled={disabled}
         name={name}
         id={id}
+        maxLength={maxLength}
         className={inputClasses}
       />
       
