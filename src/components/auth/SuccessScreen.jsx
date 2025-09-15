@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { AnimatedBackground } from '../ui';
 
 const SuccessScreen = ({ firstName, onContinue }) => {
   const [countdown, setCountdown] = useState(3);
@@ -29,6 +30,7 @@ const SuccessScreen = ({ firstName, onContinue }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <AnimatedBackground variant="success" />
       {/* Confetti Animation */}
       {showConfetti && (
         <div className="absolute inset-0 pointer-events-none">
@@ -118,7 +120,7 @@ const SuccessScreen = ({ firstName, onContinue }) => {
         {/* Manual Continue Button */}
         <button
           onClick={onContinue}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl active:scale-95 flex items-center justify-center cursor-pointer"
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-500 ease-in-out hover:shadow-xl flex items-center justify-center cursor-pointer"
         >
           <span>Continue to Dashboard</span>
           <ArrowRight className="w-4 h-4 ml-2" />

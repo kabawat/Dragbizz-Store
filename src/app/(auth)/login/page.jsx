@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3 } from 'lucide-react';
-import { Input } from '@/components/ui';
+import { Input, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -246,7 +246,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative">
+      <AnimatedBackground variant="login" />
       <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl transition-all duration-700 ease-in-out">
         {/* Header */}
         <div className="text-center mb-8">
@@ -435,7 +436,7 @@ export default function LoginPage() {
               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${
                 isLoading || !formData.contact.trim()
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-500 to-blue-600 text-white hover:from-green-600 hover:to-blue-700 hover:shadow-xl transform hover:scale-105 active:scale-95 cursor-pointer'
+                  : 'bg-gradient-to-r from-green-500 to-blue-600 text-white hover:from-green-600 hover:to-blue-700 hover:shadow-xl cursor-pointer'
               }`}
             >
               {isLoading ? (
@@ -587,7 +588,7 @@ export default function LoginPage() {
               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${
                 isLoading
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 hover:shadow-xl transform hover:scale-105 active:scale-95 cursor-pointer'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 hover:shadow-xl cursor-pointer'
               }`}
             >
               {isLoading ? (

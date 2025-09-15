@@ -2,10 +2,12 @@ import React from 'react';
 import { Rocket, Users, Shield, Zap, Github, Chrome } from 'lucide-react';
 import Link from 'next/link';
 import styles from './WelcomeScreen.module.css';
+import { AnimatedBackground } from '../ui';
 
 const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
   return (
     <div className={styles.container}>
+      <AnimatedBackground variant="default" />
       <div className={styles.card}>
         {/* Background decoration */}
         <div className={styles.backgroundDecoration1}></div>
