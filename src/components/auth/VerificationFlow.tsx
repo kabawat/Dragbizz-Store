@@ -125,7 +125,7 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Verify Your {contactType === 'email' ? 'Email' : 'Phone'}</h1>
           <p className="text-gray-600 mb-4">
-            We've sent a 6-digit verification code to
+            We've sent a 5-digit verification code to
           </p>
           <p className="font-semibold text-gray-800">{contact}</p>
         </div>

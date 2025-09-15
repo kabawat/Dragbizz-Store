@@ -1,6 +1,5 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
-import styles from './Input.module.scss';
 
 interface InputProps {
   type?: 'text' | 'email' | 'tel' | 'password' | 'number';
@@ -33,21 +32,24 @@ const Input: React.FC<InputProps> = ({
   id,
   maxLength
 }) => {
-  const inputClasses = `${styles.input} ${
-    LeftIcon ? styles.inputWithLeftIcon : ''
-  } ${
-    rightElement ? styles.inputWithRightElement : ''
-  } ${
-    error ? styles.inputError : ''
-  } ${
-    disabled ? styles.inputDisabled : ''
-  } ${className}`;
+  const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200';
+  
+  const paddingClasses = LeftIcon ? 'pl-16' : 'pl-4';
+  const rightPaddingClasses = rightElement ? 'pr-12' : 'pr-4';
+  
+  const stateClasses = error 
+    ? 'border-red-500 bg-red-50' 
+    : 'border-gray-200 focus:border-blue-500';
+
+  const disabledClasses = disabled ? 'bg-gray-100 cursor-not-allowed' : '';
+
+  const inputClasses = `${baseClasses} ${paddingClasses} ${rightPaddingClasses} ${stateClasses} ${disabledClasses} ${className}`;
 
   return (
-    <div className={styles.inputContainer}>
+    <div className="relative">
       {/* Left Icon */}
       {LeftIcon && (
-        <LeftIcon className={styles.leftIcon} />
+        <LeftIcon className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
       )}
       
       {/* Input Field */}
@@ -66,7 +68,7 @@ const Input: React.FC<InputProps> = ({
       
       {/* Right Element */}
       {rightElement && (
-        <div className={styles.rightElement}>
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
           {rightElement}
         </div>
       )}

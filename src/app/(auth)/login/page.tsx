@@ -128,8 +128,8 @@ export default function LoginPage() {
     } else if (loginMethod === 'otp') {
       if (!formData.otp.trim()) {
         newErrors.otp = 'OTP is required';
-      } else if (formData.otp.length !== 6) {
-        newErrors.otp = 'OTP must be 6 digits';
+      } else if (formData.otp.length !== 5) {
+        newErrors.otp = 'OTP must be 5 digits';
       }
     }
     
