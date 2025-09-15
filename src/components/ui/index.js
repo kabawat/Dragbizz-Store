@@ -12,6 +12,8 @@ import Badge, { BadgeGroup, StatusBadge, NotificationBadge } from './Badge';
 import Loading, { Spinner, Skeleton, SkeletonText, SkeletonCard, ProgressBar, CircularProgress } from './Loading';
 import Tabs, { TabPanel } from './Tabs';
 import Accordion, { AccordionItem } from './Accordion';
+import AnimatedBackground from './AnimatedBackground';
+import SVGBackground from './SVGBackground';
 
 // Named exports
 export {
@@ -49,7 +51,9 @@ export {
   Tabs,
   TabPanel,
   Accordion,
-  AccordionItem
+  AccordionItem,
+  AnimatedBackground,
+  SVGBackground
 };
 
 // Default export
@@ -88,5 +92,7 @@ export default {
   Tabs,
   TabPanel,
   Accordion,
-  AccordionItem
+  AccordionItem,
+  AnimatedBackground,
+  SVGBackground
 };

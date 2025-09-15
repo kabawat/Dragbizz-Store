@@ -452,6 +452,48 @@ import { Divider } from '@/components/ui';
 <Divider color="blue" thickness="thick" />
 ```
 
+### Background Components
+
+#### AnimatedBackground
+Beautiful animated background elements for forms and pages.
+
+```jsx
+import { AnimatedBackground } from '@/components/ui';
+
+// Different variants for different contexts
+<AnimatedBackground variant="default" />
+<AnimatedBackground variant="login" />
+<AnimatedBackground variant="register" />
+<AnimatedBackground variant="success" />
+
+// Usage in a form
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 relative">
+  <AnimatedBackground variant="login" />
+  <div className="relative z-10">
+    {/* Your form content */}
+  </div>
+</div>
+```
+
+#### SVGBackground
+SVG-based animated backgrounds with geometric shapes and waves.
+
+```jsx
+import { SVGBackground } from '@/components/ui';
+
+// Different SVG variants
+<SVGBackground variant="default" />
+<SVGBackground variant="waves" />
+
+// Usage
+<div className="min-h-screen relative">
+  <SVGBackground variant="waves" />
+  <div className="relative z-10">
+    {/* Your content */}
+  </div>
+</div>
+```
+
 ## Usage Examples
 
 ### Complete Form Example

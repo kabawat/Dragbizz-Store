@@ -165,7 +165,7 @@ const PasswordStep = ({
           disabled={!isValid}
           className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${
             isValid
-              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg transform hover:scale-105 active:scale-95 cursor-pointer'
+              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
