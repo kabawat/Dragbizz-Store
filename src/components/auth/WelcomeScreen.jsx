@@ -1,7 +1,7 @@
 import React from 'react';
 import { Rocket, Users, Shield, Zap, Github, Chrome } from 'lucide-react';
 import Link from 'next/link';
-import styles from './WelcomeScreen.module.css';
+import styles from './style/WelcomeScreen.module.scss';
 import { AnimatedBackground } from '../ui';
 
 const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {

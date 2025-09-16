@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3 } from 'lucide-react';
 import { Input, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
+import styles from '@/page/style/Login.module.scss';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -246,18 +247,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative">
+    <div className={styles.container}>
       <AnimatedBackground variant="login" />
-      <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl transition-all duration-700 ease-in-out">
+      <div className={styles.card}>
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className={styles.header}>
+          <div className={styles.headerIcon}>
             <Lock className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+          <h1 className={styles.mainHeading}>
             Welcome back! 👋
           </h1>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className={styles.subHeading}>
             Sign in to your account to continue
           </p>
         </div>
@@ -265,46 +266,41 @@ export default function Login() {
         {/* Social Login Buttons - Only show when OTP not sent */}
         {!otpSent && (
           <>
-            <div className="space-y-3 mb-6">
+            <div className={styles.socialButtons}>
               <button
                 onClick={() => handleSocialLogin('google')}
-                className="w-full flex items-center justify-center px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-md transition-all duration-500 ease-in-out hover:bg-gray-50 cursor-pointer"
+                className={styles.socialButton}
               >
-                <Chrome className="w-5 h-5 mr-3 text-red-500" />
-                <span className="font-medium text-gray-700">Continue with Google</span>
+                <Chrome className={styles.googleIcon} />
+                <span className={styles.socialButtonText}>Continue with Google</span>
               </button>
 
               <button
                 onClick={() => handleSocialLogin('github')}
-                className="w-full flex items-center justify-center px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-md transition-all duration-500 ease-in-out hover:bg-gray-50 cursor-pointer"
+                className={styles.socialButton}
               >
-                <Github className="w-5 h-5 mr-3 text-gray-800" />
-                <span className="font-medium text-gray-700">Continue with GitHub</span>
+                <Github className={styles.githubIcon} />
+                <span className={styles.socialButtonText}>Continue with GitHub</span>
               </button>
             </div>
 
             {/* Divider */}
-            <div className="relative mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Or continue with email/phone</span>
+            <div className={styles.divider}>
+              <div className={styles.dividerLine}></div>
+              <div className={styles.dividerText}>
+                <span>Or continue with email/phone</span>
               </div>
             </div>
           </>
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className={styles.form}>
           {/* Contact Type Indicator - Only show when OTP not sent */}
           {formData.contact && !otpSent && (
-            <div className="mb-2">
+            <div className={styles.contactTypeIndicator}>
               <div className="flex items-center justify-start">
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-green-100 text-green-700'
-                  }`}>
+                <div className={`${styles.contactTypeBadge} ${contactType === 'email' ? styles.contactTypeBadgeEmail : styles.contactTypeBadgePhone}`}>
                   {contactType === 'email' ? (
                     <>
                       <Mail className="w-3 h-3 mr-1" />
@@ -352,26 +348,26 @@ export default function Login() {
               />
 
               {/* Helper Text */}
-              <div className="mt-2">
+              <div className={styles.helperText}>
                 {validationStatus === 'valid' && (
-                  <p className="text-green-600 text-sm flex items-center">
+                  <p className={styles.helperTextValid}>
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Account found
                   </p>
                 )}
                 {validationStatus === 'invalid' && (
-                  <p className="text-red-500 text-sm flex items-center">
+                  <p className={styles.helperTextInvalid}>
                     <AlertCircle className="w-4 h-4 mr-1" />
                     No account found with this {contactType}
                   </p>
                 )}
                 {validationStatus === 'idle' && (
-                  <p className="text-gray-500 text-sm text-left">
+                  <p className={styles.helperTextIdle}>
                     Enter your email or phone number
                   </p>
                 )}
                 {errors.contact && (
-                  <p className="text-red-500 text-sm flex items-center">
+                  <p className={styles.helperTextError}>
                     <AlertCircle className="w-4 h-4 mr-1" />
                     {errors.contact}
                   </p>
@@ -382,7 +378,7 @@ export default function Login() {
 
           {/* Password Field - Only show when password method is selected */}
           {loginMethod === 'password' && (
-            <div>
+            <div className={styles.passwordField}>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
@@ -393,7 +389,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200 cursor-pointer"
+                    className={styles.passwordToggle}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -401,7 +397,7 @@ export default function Login() {
                 error={errors.password}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-2 flex items-center">
+                <p className={styles.helperTextError}>
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.password}
                 </p>
@@ -409,17 +405,15 @@ export default function Login() {
 
               {/* OTP Option Checkbox - Below password field, only show when OTP not sent */}
               {!otpSent && (
-                <div className="flex items-center justify-start mt-3">
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                <div className={styles.otpOption}>
+                  <label className={styles.otpLabel}>
                     <input
                       type="checkbox"
                       checked={loginMethod === 'otp'}
                       onChange={toggleLoginMethod}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                      className={styles.otpCheckbox}
                     />
-                    <span className="text-sm text-gray-700">
-                      Login with OTP instead of password
-                    </span>
+                    Login with OTP instead of password
                   </label>
                 </div>
               )}
@@ -432,14 +426,11 @@ export default function Login() {
               type="button"
               onClick={handleSendOTP}
               disabled={isLoading || !formData.contact.trim()}
-              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${isLoading || !formData.contact.trim()
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-500 to-blue-600 text-white hover:from-green-600 hover:to-blue-700 hover:shadow-xl cursor-pointer'
-                }`}
+              className={`${styles.sendOtpButton} ${isLoading || !formData.contact.trim() ? styles.sendOtpButtonDisabled : styles.sendOtpButtonEnabled}`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className={styles.sendOtpLoading} />
                   Sending OTP...
                 </div>
               ) : (
@@ -453,9 +444,9 @@ export default function Login() {
 
           {/* OTP Input Section - Only show when OTP is sent */}
           {loginMethod === 'otp' && otpSent && (
-            <div className="animate-slide-in transition-all duration-700 ease-in-out">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className={styles.otpSection}>
+              <div className={styles.otpHeader}>
+                <div className={styles.otpHeaderIcon}>
                   {contactType === 'email' ? (
                     <Mail className="w-8 h-8 text-blue-500" />
                   ) : (
@@ -463,20 +454,17 @@ export default function Login() {
                   )}
                 </div>
 
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+                <h2 className={styles.otpTitle}>
                   Almost there! 🎯
                 </h2>
 
-                <p className="text-sm sm:text-base text-gray-600 mb-2">
+                <p className={styles.otpDescription}>
                   We've sent a 5-digit code to
                 </p>
 
-                <div className="flex items-center justify-center mb-4">
+                <div className={styles.otpContactInfo}>
                   <div className="flex items-center">
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-3 ${contactType === 'email'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-green-100 text-green-700'
-                      }`}>
+                    <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
                       {contactType === 'email' ? (
                         <>
                           <Mail className="w-3 h-3 mr-1" />
@@ -489,20 +477,20 @@ export default function Login() {
                         </>
                       )}
                     </div>
-                    <p className="font-semibold text-gray-800 mr-2">
+                    <p className={styles.otpContactText}>
                       {formatContact(formData.contact, contactType)}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className={styles.otpInputSection}>
                 {/* OTP Input */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+                  <label className={styles.otpLabel}>
                     Enter verification code
                   </label>
-                  <div className="flex justify-center space-x-3 mb-4">
+                  <div className={styles.otpInputs}>
                     {otpDigits.map((digit, index) => (
                       <input
                         key={index}
@@ -515,16 +503,15 @@ export default function Login() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${otpError ? 'border-red-500 bg-red-50 animate-shake' : 'border-gray-300'
-                          }`}
+                        className={`${styles.otpInput} ${otpError ? styles.otpInputError : ''}`}
                         autoFocus={index === 0}
                       />
                     ))}
                   </div>
 
                   {otpError && (
-                    <div className="text-center mb-4">
-                      <p className="text-red-500 text-sm flex items-center justify-center animate-fade-in">
+                    <div className={styles.otpError}>
+                      <p className={styles.otpErrorMessage}>
                         <AlertCircle className="w-4 h-4 mr-1" />
                         {otpError}
                       </p>
@@ -532,16 +519,16 @@ export default function Login() {
                   )}
 
                   {isLoading && (
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
-                      <span className="text-gray-600">Verifying...</span>
+                    <div className={styles.otpLoading}>
+                      <div className={styles.otpLoadingSpinner}></div>
+                      <span className={styles.otpLoadingText}>Verifying...</span>
                     </div>
                   )}
                 </div>
 
                 {/* Resend Section */}
-                <div className="text-center">
-                  <p className="text-gray-600 mb-3">
+                <div className={styles.resendSection}>
+                  <p className={styles.resendText}>
                     Didn't receive the code?
                   </p>
 
@@ -549,13 +536,13 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={handleResendOTP}
-                      className="flex items-center justify-center mx-auto px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-500 ease-in-out rounded-lg cursor-pointer"
+                      className={styles.resendButton}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Resend Code
                     </button>
                   ) : (
-                    <p className="text-gray-500">
+                    <p className={styles.resendTimer}>
                       Resend in {timeLeft}s
                     </p>
                   )}
@@ -571,14 +558,11 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out ${isLoading
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 hover:shadow-xl cursor-pointer'
-                }`}
+              className={`${styles.submitButton} ${isLoading ? styles.submitButtonDisabled : styles.submitButtonEnabled}`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className={styles.submitButtonLoading} />
                   Signing in...
                 </div>
               ) : (
@@ -589,12 +573,12 @@ export default function Login() {
         </form>
 
         {/* Sign Up Link */}
-        <div className="text-center mt-6">
-          <p className="text-gray-600 text-sm">
+        <div className={styles.signUpSection}>
+          <p className={styles.signUpText}>
             Don't have an account?{' '}
             <Link
               href="/register"
-              className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200 cursor-pointer"
+              className={styles.signUpLink}
             >
               Sign up here
             </Link>
@@ -602,18 +586,16 @@ export default function Login() {
         </div>
 
         {/* Forgot Password - Only show for password method */}
-        {
-          loginMethod === 'password' ? <>
-            <div className="text-center mt-4">
-              <Link
-                href="/forgot-password"
-                className="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors duration-200 cursor-pointer"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </> : <></>
-        }
+        {loginMethod === 'password' && (
+          <div className={styles.forgotPasswordSection}>
+            <Link
+              href="/forgot-password"
+              className={styles.forgotPasswordLink}
+            >
+              Forgot your password?
+            </Link>
+          </div>
+        )}
 
       </div>
     </div>

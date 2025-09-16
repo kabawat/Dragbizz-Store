@@ -1,0 +1,209 @@
+/* SuccessScreen.module.scss */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f0fdf4, #ecfdf5, #f0fdfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card {
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  transition: all 0.7s ease-in-out;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 2rem;
+    max-width: 28rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    max-width: 32rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    max-width: 36rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .card {
+    max-width: 42rem;
+  }
+}
+
+.mainHeading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .mainHeading {
+    font-size: 1.875rem;
+  }
+}
+
+.subHeading {
+  font-size: 1.125rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .subHeading {
+    font-size: 1.25rem;
+  }
+}
+
+.gradientText {
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(to right, #16a34a, #059669);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .gradientText {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .features {
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5563;
+}
+
+.featureDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  animation: pulse 2s infinite;
+}
+
+.featureDotGreen {
+  background-color: #10b981;
+}
+
+.featureDotBlue {
+  background-color: #3b82f6;
+  animation-delay: 0.2s;
+}
+
+.featureDotPurple {
+  background-color: #8b5cf6;
+  animation-delay: 0.4s;
+}
+
+.featureText {
+  font-size: 0.875rem;
+}
+
+.redirectInfo {
+  background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+  border: 1px solid #bbf7d0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.redirectText {
+  color: #15803d;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.progressBar {
+  width: 100%;
+  background-color: #bbf7d0;
+  border-radius: 9999px;
+  height: 0.5rem;
+}
+
+.progressFill {
+  background: linear-gradient(to right, #10b981, #059669);
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 1s ease-in-out;
+}
+
+.continueButton {
+  width: 100%;
+  background: linear-gradient(to right, #10b981, #059669);
+  color: white;
+  padding: 1rem 0;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.continueButton:hover {
+  background: linear-gradient(to right, #059669, #047857);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+}
+
+.thankYouText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 1rem;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
