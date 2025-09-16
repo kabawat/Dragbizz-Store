@@ -6,9 +6,10 @@ import PasswordStep from '@/components/auth/PasswordStep';
 import VerificationStep from '@/components/auth/VerificationStep';
 import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
+import styles from '@/page/style/Register.module.scss';
 
 export default function Register() {
-  const [currentState, setCurrentState] = useState('success');
+  const [currentState, setCurrentState] = useState('welcome');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -117,20 +118,20 @@ export default function Register() {
 
   if (currentState === 'complete') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl text-center transition-all duration-700 ease-in-out">
-          <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-white text-2xl font-bold">🚀</span>
+      <div className={styles.dashboardContainer}>
+        <div className={styles.dashboardCard}>
+          <div className={styles.dashboardIcon}>
+            <span className={styles.dashboardIconText}>🚀</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-600 mb-6">
+          <h1 className={styles.dashboardHeading}>Dashboard</h1>
+          <p className={styles.dashboardDescription}>
             Welcome to your new account, {formData.firstName}! Start exploring all the amazing features we have to offer.
           </p>
-          <div className="space-y-2 sm:space-y-3">
-            <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 hover:shadow-xl transition-all duration-500 ease-in-out cursor-pointer">
+          <div className={styles.dashboardButtons}>
+            <button className={styles.exploreButton}>
               Explore Features
             </button>
-            <button className="w-full border-2 border-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all duration-500 ease-in-out cursor-pointer">
+            <button className={styles.profileButton}>
               Complete Profile
             </button>
           </div>
@@ -140,9 +141,9 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative">
+    <div className={styles.container}>
       <AnimatedBackground variant="register" />
-      <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl transition-all duration-700 ease-in-out">
+      <div className={styles.card}>
         {currentState === 'basic-info' && (
           <BasicInfoStep
             firstName={formData.firstName}

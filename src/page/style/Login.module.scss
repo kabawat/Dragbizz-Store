@@ -1,0 +1,682 @@
+/* Login.module.scss */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #eff6ff, #e0e7ff, #faf5ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.card {
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 24rem;
+  transition: all 0.7s ease-in-out;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 2rem;
+    max-width: 28rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    max-width: 32rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    max-width: 36rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .card {
+    max-width: 42rem;
+  }
+}
+
+/* Header Styles */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.headerIcon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.headerIcon svg {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.mainHeading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .mainHeading {
+    font-size: 1.875rem;
+  }
+}
+
+.subHeading {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+@media (min-width: 640px) {
+  .subHeading {
+    font-size: 1rem;
+  }
+}
+
+/* Social Login Styles */
+.socialButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.socialButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+}
+
+.socialButton:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: #f9fafb;
+}
+
+.socialButton svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.googleIcon {
+  color: #ef4444;
+}
+
+.githubIcon {
+  color: #1f2937;
+}
+
+.socialButtonText {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Divider Styles */
+.divider {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.dividerLine {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+
+.dividerLine::before {
+  content: '';
+  width: 100%;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dividerText {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+.dividerText span {
+  padding: 0 1rem;
+  background-color: white;
+  color: #6b7280;
+}
+
+/* Contact Type Indicator */
+.contactTypeIndicator {
+  margin-bottom: 0.5rem;
+}
+
+.contactTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.contactTypeBadgeEmail {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.contactTypeBadgePhone {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.contactTypeBadge svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.25rem;
+}
+
+/* Form Styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .form {
+    gap: 1.5rem;
+  }
+}
+
+/* Helper Text Styles */
+.helperText {
+  margin-top: 0.5rem;
+}
+
+.helperTextValid {
+  color: #059669;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.helperTextInvalid {
+  color: #dc2626;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.helperTextIdle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.helperTextError {
+  color: #dc2626;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.helperText svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+/* Password Field Styles */
+.passwordField {
+  margin-bottom: 0.75rem;
+}
+
+.passwordToggle {
+  color: #9ca3af;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.passwordToggle:hover {
+  color: #4b5563;
+}
+
+.passwordToggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* OTP Option Checkbox */
+.otpOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0.75rem;
+}
+
+.otpCheckbox {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  border-radius: 0.25rem;
+  margin-right: 0.5rem;
+}
+
+.otpCheckbox:focus {
+  ring: 2px;
+  ring-color: #3b82f6;
+}
+
+.otpLabel {
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+/* Send OTP Button */
+.sendOtpButton {
+  width: 100%;
+  padding: 0.75rem 0;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sendOtpButtonDisabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.sendOtpButtonEnabled {
+  background: linear-gradient(to right, #10b981, #2563eb);
+  color: white;
+  cursor: pointer;
+}
+
+.sendOtpButtonEnabled:hover {
+  background: linear-gradient(to right, #059669, #1d4ed8);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.sendOtpButton svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+.sendOtpLoading {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+/* OTP Section Styles */
+.otpSection {
+  animation: slideIn 0.7s ease-in-out;
+  transition: all 0.7s ease-in-out;
+}
+
+.otpHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.otpHeaderIcon {
+  width: 4rem;
+  height: 4rem;
+  background-color: #dbeafe;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.otpHeaderIcon svg {
+  width: 2rem;
+  height: 2rem;
+  color: #3b82f6;
+}
+
+.otpTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .otpTitle {
+    font-size: 1.5rem;
+  }
+}
+
+.otpDescription {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .otpDescription {
+    font-size: 1rem;
+  }
+}
+
+.otpContactInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.otpContactBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.75rem;
+}
+
+.otpContactBadgeEmail {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.otpContactBadgePhone {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.otpContactBadge svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.25rem;
+}
+
+.otpContactText {
+  font-weight: 600;
+  color: #1f2937;
+  margin-right: 0.5rem;
+}
+
+/* OTP Input Styles */
+.otpInputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.otpLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.otpInputs {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.otpInput {
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border: 2px solid #d1d5db;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.otpInput:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+  border-color: transparent;
+}
+
+.otpInputError {
+  border-color: #dc2626;
+  background-color: #fef2f2;
+  animation: shake 0.5s ease-in-out;
+}
+
+.otpError {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.otpErrorMessage {
+  color: #dc2626;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.otpErrorMessage svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.otpLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.otpLoadingSpinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+.otpLoadingText {
+  color: #4b5563;
+}
+
+/* Resend Section */
+.resendSection {
+  text-align: center;
+}
+
+.resendText {
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+}
+
+.resendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  color: #3b82f6;
+  font-weight: 500;
+  transition: all 0.5s ease-in-out;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.resendButton:hover {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.resendButton svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+.resendTimer {
+  color: #6b7280;
+}
+
+/* Submit Button */
+.submitButton {
+  width: 100%;
+  padding: 0.75rem 0;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submitButtonDisabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.submitButtonEnabled {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  cursor: pointer;
+}
+
+.submitButtonEnabled:hover {
+  background: linear-gradient(to right, #2563eb, #7c3aed);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.submitButtonLoading {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #9ca3af;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+/* Sign Up Link */
+.signUpSection {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.signUpText {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.signUpLink {
+  color: #3b82f6;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.signUpLink:hover {
+  color: #2563eb;
+}
+
+/* Forgot Password Link */
+.forgotPasswordSection {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.forgotPasswordLink {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.forgotPasswordLink:hover {
+  color: #374151;
+}
+
+/* Animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
