@@ -10,7 +10,6 @@ const SuccessScreen = ({ firstName, onContinue }) => {
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          onContinue();
           return 0;
         }
         return prev - 1;
@@ -26,7 +25,14 @@ const SuccessScreen = ({ firstName, onContinue }) => {
       clearInterval(timer);
       clearTimeout(confettiTimer);
     };
-  }, [onContinue]);
+  }, []);
+
+  // Handle countdown completion
+  useEffect(() => {
+    if (countdown === 0) {
+      onContinue();
+    }
+  }, [countdown, onContinue]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
