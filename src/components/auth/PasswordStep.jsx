@@ -6,7 +6,9 @@ const PasswordStep = ({
   onUpdate,
   onNext,
   onBack,
-  firstName
+  firstName,
+  isLoading = false,
+  errors = {}
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -68,6 +70,16 @@ const PasswordStep = ({
       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
         Choose a strong password to keep your data safe
       </p>
+
+      {/* Error Display */}
+      {errors.general && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+            <span className="text-red-700 text-sm">{errors.general}</span>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4 sm:space-y-6">
         {/* Password Input */}
@@ -162,15 +174,24 @@ const PasswordStep = ({
         
         <button
           onClick={onNext}
-          disabled={!isValid}
+          disabled={!isValid || isLoading}
           className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${
-            isValid
+            isValid && !isLoading
               ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Continue
-          <ArrowRight className="w-4 h-4 ml-2" />
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Creating Account...
+            </>
+          ) : (
+            <>
+              Continue
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </>
+          )}
         </button>
       </div>
     </div>

@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle } from 'lucide-react';
+import { authService } from '@/service/auth';
+import { ENV_CONFIG } from '@/config';
 
 const VerificationStep = ({
   contactType,
   contact,
   firstName,
   onVerificationComplete,
-  onChangeContact
+  onChangeContact,
+  registrationToken,
+  registrationData,
+  onTokenUpdate
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -59,36 +64,82 @@ const VerificationStep = ({
     setIsVerifying(true);
     setError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      if (code === '12345') { // Demo code
-        onVerificationComplete();
-      } else {
+    try {
+      const result = await authService.verifyRegistrationOTP(code, registrationToken);
+
+              if (result.success) {
+                // OTP verified, pass the token to success screen
+                onVerificationComplete(result.token);
+              } else {
+        // OTP verification failed
         setAttempts(prev => prev + 1);
-        if (attempts >= 2) {
+        if (attempts >= 10) {
           setError('Too many failed attempts. Please request a new code.');
-          setOtp(['', '', '', '', '', '']);
+          setOtp(['', '', '', '', '']);
           setCanResend(true);
           setTimeLeft(0);
         } else {
-          setError('That code didn\'t work, try again.');
-          setOtp(['', '', '', '', '', '']);
+          setError(result.message || 'Invalid OTP. Please try again.');
+          setOtp(['', '', '', '', '']);
           inputRefs.current[0]?.focus();
         }
       }
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      setAttempts(prev => prev + 1);
+      if (attempts >= 10) {
+        setError('Too many failed attempts. Please request a new code.');
+        setOtp(['', '', '', '', '']);
+        setCanResend(true);
+        setTimeLeft(0);
+      } else {
+        setError('An error occurred. Please try again.');
+        setOtp(['', '', '', '', '']);
+        inputRefs.current[0]?.focus();
+      }
+    } finally {
       setIsVerifying(false);
-    }, 1500);
+    }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     if (!canResend) return;
     
-    setCanResend(false);
-    setTimeLeft(60);
-    setOtp(['', '', '', '', '', '']);
+    setIsVerifying(true);
     setError('');
-    setAttempts(0);
-    inputRefs.current[0]?.focus();
+    
+    try {
+      // Prepare registration data in the correct format
+      const resendData = {
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        identifier: registrationData.contact, // Map contact to identifier
+        pwds: registrationData.password // Map password to pwds
+      };
+      
+      console.log('Resending OTP with data:', resendData);
+      
+      // Call the registration API again to resend OTP
+      const result = await authService.resendRegistrationOTP(resendData);
+      
+      if (result.success) {
+        // Update the token with the new one
+        onTokenUpdate(result.token);
+        setCanResend(false);
+        setTimeLeft(60);
+        setOtp(['', '', '', '', '']);
+        setError('');
+        setAttempts(0);
+        inputRefs.current[0]?.focus();
+      } else {
+        setError(result.message || 'Failed to resend OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      setError('An error occurred while resending OTP. Please try again.');
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const formatContact = (contact, type) => {
@@ -226,10 +277,24 @@ const VerificationStep = ({
           {canResend ? (
             <button
               onClick={handleResendCode}
-              className="flex items-center justify-center mx-auto px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-500 ease-in-out rounded-lg cursor-pointer"
+              disabled={isVerifying}
+              className={`flex items-center justify-center mx-auto px-4 py-2 font-medium transition-all duration-500 ease-in-out rounded-lg ${
+                isVerifying 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'text-blue-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer'
+              }`}
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Resend Code
+              {isVerifying ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-2"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Resend Code
+                </>
+              )}
             </button>
           ) : (
             <p className="text-gray-500">
@@ -237,20 +302,16 @@ const VerificationStep = ({
             </p>
           )}
           
-          <button
-            onClick={onChangeContact}
-            className="mt-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-500 ease-in-out cursor-pointer"
-          >
-            Change {contactType}?
-          </button>
         </div>
 
-        {/* Demo Hint */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
-          <p className="text-yellow-700 text-sm">
-            💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-2 py-1 rounded">12345</code> to continue
-          </p>
-        </div>
+          {/* Demo Hint - Only show in development */}
+          {ENV_CONFIG.ENV.IS_DEVELOPMENT && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+              <p className="text-yellow-700 text-sm">
+                💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-2 py-1 rounded">00000</code> to continue
+              </p>
+            </div>
+          )}
       </div>
     </div>
   );
