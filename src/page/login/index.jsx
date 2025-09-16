@@ -2,10 +2,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3 } from 'lucide-react';
 import { Input, AnimatedBackground } from '@/components/ui';
+import { authService } from '@/service/auth';
+import { cookieManager } from '@/utils/cookieManager';
+import { useLocation } from '@/app/(auth)/layout';
+import { handleApiError } from '@/utils/errorHandler';
 import Link from 'next/link';
 import styles from '@/page/style/Login.module.scss';
 
 export default function Login() {
+  // Get location from context
+  const { userLocation } = useLocation();
+  
   const [formData, setFormData] = useState({
     contact: '',
     password: '',
@@ -14,7 +21,6 @@ export default function Login() {
   const [contactType, setContactType] = useState('email');
   const [loginMethod, setLoginMethod] = useState('password');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState('idle');
@@ -22,7 +28,13 @@ export default function Login() {
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [otpError, setOtpError] = useState('');
+  const [loginToken, setLoginToken] = useState(null);
+  const [errors, setErrors] = useState({
+    contact: '',
+    password: '',
+    otp: '',
+    general: ''
+  });
   const inputRefs = useRef([]);
 
   // OTP Timer Effect
@@ -71,8 +83,7 @@ export default function Login() {
       setValidationStatus('checking');
 
       const timer = setTimeout(() => {
-        // Simulate API call to check if contact exists - always valid for demo
-        const isValid = true; // Always valid for demo purposes
+        const isValid = true;
         setValidationStatus(isValid ? 'valid' : 'invalid');
         setIsValidating(false);
       }, 1000);
@@ -85,8 +96,10 @@ export default function Login() {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    
+    // Clear specific field error and general error when user starts typing
+    if (errors[field] || errors.general) {
+      setErrors(prev => ({ ...prev, [field]: '', general: '' }));
     }
 
     if (field === 'contact') {
@@ -140,12 +153,42 @@ export default function Login() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      // Call login API with password
+      const loginData = {
+        identifier: formData.contact,
+        password: formData.password,
+        useOtp: false,
+        deviceId: 'web_device_' + Date.now(),
+        platform: 'web',
+        deviceToken: '',
+        location: userLocation
+      };
+
+      const result = await authService.login(loginData);
+      console.log('Login result:', result);
+
+      if (result.success) {
+        console.log('Login successful');
+        // Save authentication token
+        if (result.data.token) {
+          cookieManager.setAuthToken(result.data.token);
+          console.log('Token saved successfully');
+        }
+        // Handle successful login - redirect to dashboard or store auth token
+        // You can add your success logic here
+      } else {
+        console.log('Login failed, setting error:', result.message);
+        setErrors({ general: result.message || 'Login failed. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors({ general: handleApiError(error, 'login') });
+    } finally {
       setIsLoading(false);
-      // Handle login logic here
-      console.log('Login data:', { ...formData, contactType, loginMethod });
-    }, 1500);
+    }
   };
 
   const handleSendOTP = async () => {
@@ -155,17 +198,40 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    // Simulate OTP sending
-    setTimeout(() => {
+    setErrors(prev => ({ ...prev, otp: '' }));
+
+    try {
+      // Call login API with OTP option
+      const loginData = {
+        identifier: formData.contact,
+        password: '', // Empty for OTP login
+        useOtp: true,
+        deviceId: 'web_device_' + Date.now(),
+        platform: 'web',
+        deviceToken: '',
+        location: userLocation
+      };
+
+      const result = await authService.login(loginData);
+
+      if (result.success) {
+        // Store the verification token
+        setLoginToken(result.token);
+        setOtpSent(true);
+        setTimeLeft(60);
+        setCanResend(false);
+        setOtpDigits(['', '', '', '', '']);
+        setErrors(prev => ({ ...prev, otp: '' }));
+        console.log(`OTP sent to ${contactType}: ${formData.contact}`);
+      } else {
+        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to send OTP. Please try again.' }));
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-send') }));
+    } finally {
       setIsLoading(false);
-      setOtpSent(true);
-      setTimeLeft(60);
-      setCanResend(false);
-      setOtpDigits(['', '', '', '', '']);
-      setOtpError('');
-      console.log(`OTP sent to ${contactType}: ${formData.contact}`);
-      // In real app, this would send OTP via email/SMS
-    }, 1000);
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -174,7 +240,11 @@ export default function Login() {
     const newOtp = [...otpDigits];
     newOtp[index] = value;
     setOtpDigits(newOtp);
-    setOtpError('');
+    
+    // Clear OTP error when user starts typing
+    if (errors.otp) {
+      setErrors(prev => ({ ...prev, otp: '' }));
+    }
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -195,27 +265,92 @@ export default function Login() {
 
   const handleOtpVerification = async (code) => {
     setIsLoading(true);
-    // Simulate OTP verification
-    setTimeout(() => {
-      setIsLoading(false);
-      if (code === '12345') { // Demo code - same as registration
+    setErrors(prev => ({ ...prev, otp: '' }));
+
+    try {
+      // Call OTP verification API
+      const verifyData = {
+        code: code,
+        token: loginToken,
+        deviceId: 'web_device_' + Date.now(),
+        platform: 'web',
+        deviceToken: '',
+        location: userLocation
+      };
+
+      const result = await authService.verifyLoginOTP(verifyData);
+      setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
+
+      if (result.success) {
         console.log('OTP verified successfully');
-        // Handle successful login
+        // Save authentication token
+        if (result.data.token) {
+          cookieManager.setAuthToken(result.data.token);
+          console.log('Token saved successfully');
+        }
+        // Handle successful login - redirect to dashboard or store auth token
+        // You can add your success logic here
       } else {
-        setOtpError('Invalid OTP. Please try again.');
+        setErrors(prev => ({ ...prev, otp: result.message || 'Invalid OTP. Please try again.' }));
         setOtpDigits(['', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
-    }, 1500);
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp') }));
+      setOtpDigits(['', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResendOTP = () => {
-    if (!canResend) return;
-    setCanResend(false);
+  const handleChangeContact = () => {
+    setOtpSent(false);
+    setOtpDigits(['', '', '', '', '']);
+    setLoginToken(null); 
     setTimeLeft(60);
-    setOtpDigits(['', '', '', '', '', '']);
-    setOtpError('');
-    handleSendOTP();
+    setCanResend(false);        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
+
+    setErrors({ contact: '', password: '', otp: '', general: '' });
+  };
+
+  const handleResendOTP = async () => {
+    if (!canResend) return;
+    
+    setIsLoading(true);
+    setErrors(prev => ({ ...prev, otp: '' }));
+
+    try {
+      const loginData = {
+        identifier: formData.contact,
+        password: '',
+        useOtp: true,
+        deviceId: 'web_device_' + Date.now(),
+        platform: 'web',
+        deviceToken: '',
+        location: userLocation
+      };
+
+      const result = await authService.login(loginData);
+
+      if (result.success) {
+        // Update the verification 
+        setLoginToken(result.token);
+        setCanResend(false);
+        setTimeLeft(60);
+        setOtpDigits(['', '', '', '', '']);
+        setErrors(prev => ({ ...prev, otp: '' }));
+        inputRefs.current[0]?.focus();
+      } else {
+        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-resend') }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatContact = (contact, type) => {
@@ -233,10 +368,9 @@ export default function Login() {
     setLoginMethod(prev => prev === 'password' ? 'otp' : 'password');
     // Clear related fields when switching
     setFormData(prev => ({ ...prev, password: '', otp: '' }));
-    setErrors(prev => ({ ...prev, password: '', otp: '' }));
+    setErrors({ contact: '', password: '', otp: '', general: '' });
     setOtpSent(false);
-    setOtpDigits(['', '', '', '', '', '']);
-    setOtpError('');
+    setOtpDigits(['', '', '', '', '']);
     setTimeLeft(60);
     setCanResend(false);
   };
@@ -463,23 +597,32 @@ export default function Login() {
                 </p>
 
                 <div className={styles.otpContactInfo}>
-                  <div className="flex items-center">
-                    <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
-                      {contactType === 'email' ? (
-                        <>
-                          <Mail className="w-3 h-3 mr-1" />
-                          Email
-                        </>
-                      ) : (
-                        <>
-                          <Phone className="w-3 h-3 mr-1" />
-                          Phone
-                        </>
-                      )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
+                        {contactType === 'email' ? (
+                          <>
+                            <Mail className="w-3 h-3 mr-1" />
+                            Email
+                          </>
+                        ) : (
+                          <>
+                            <Phone className="w-3 h-3 mr-1" />
+                            Phone
+                          </>
+                        )}
+                      </div>
+                      <p className={styles.otpContactText}>
+                        {formatContact(formData.contact, contactType)}
+                      </p>
                     </div>
-                    <p className={styles.otpContactText}>
-                      {formatContact(formData.contact, contactType)}
-                    </p>
+                    <button
+                      onClick={handleChangeContact}
+                      className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
+                      title="Change contact"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -503,17 +646,17 @@ export default function Login() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className={`${styles.otpInput} ${otpError ? styles.otpInputError : ''}`}
+                        className={`${styles.otpInput} ${errors.otp ? styles.otpInputError : ''}`}
                         autoFocus={index === 0}
                       />
                     ))}
                   </div>
 
-                  {otpError && (
+                  {errors.otp && (
                     <div className={styles.otpError}>
                       <p className={styles.otpErrorMessage}>
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {otpError}
+                        {errors.otp}
                       </p>
                     </div>
                   )}
@@ -552,6 +695,16 @@ export default function Login() {
           )}
 
 
+
+          {/* General Error Display - Above submit button */}
+          {errors.general && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex items-center">
+                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+                <span className="text-red-700 text-sm">{errors.general}</span>
+              </div>
+            </div>
+          )}
 
           {/* Submit Button - Only show for password method */}
           {loginMethod === 'password' && (
@@ -601,3 +754,4 @@ export default function Login() {
     </div>
   );
 }
+

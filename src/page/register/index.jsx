@@ -6,9 +6,14 @@ import PasswordStep from '@/components/auth/PasswordStep';
 import VerificationStep from '@/components/auth/VerificationStep';
 import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
+import { authService } from '@/service/auth';
+import { useLocation } from '@/app/(auth)/layout';
 import styles from '@/page/style/Register.module.scss';
 
 export default function Register() {
+  // Get location from context
+  const { userLocation } = useLocation();
+  
   const [currentState, setCurrentState] = useState('welcome');
   const [formData, setFormData] = useState({
     firstName: '',
@@ -18,10 +23,12 @@ export default function Register() {
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [registrationToken, setRegistrationToken] = useState(null);
+  const [authToken, setAuthToken] = useState(null);
 
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -72,11 +79,44 @@ export default function Register() {
     }
   };
 
-  const handlePasswordNext = () => {
-    setCurrentState('verification');
+  const handlePasswordNext = async () => {
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      // Prepare registration data
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        identifier: formData.contact,
+        pwds: formData.password
+      };
+
+      // Call the registration API
+      const result = await authService.register(registrationData);
+
+      if (result.success) {
+        // Registration successful, store the token and move to verification step
+        setRegistrationToken(result.token);
+        setCurrentState('verification');
+      } else {
+        // Registration failed, show error
+        setErrors({
+          general: result.message || 'Registration failed. Please try again.'
+        });
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrors({
+        general: 'An unexpected error occurred. Please try again.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleVerificationComplete = () => {
+  const handleVerificationComplete = (token) => {
+    setAuthToken(token);
     setCurrentState('success');
   };
 
@@ -112,6 +152,7 @@ export default function Register() {
       <SuccessScreen
         firstName={formData.firstName}
         onContinue={handleSuccessContinue}
+        authToken={authToken}
       />
     );
   }
@@ -164,6 +205,8 @@ export default function Register() {
             onNext={handlePasswordNext}
             onBack={handleBackToBasicInfo}
             firstName={formData.firstName}
+            isLoading={isLoading}
+            errors={errors}
           />
         )}
 
@@ -174,6 +217,9 @@ export default function Register() {
             firstName={formData.firstName}
             onVerificationComplete={handleVerificationComplete}
             onChangeContact={handleChangeContact}
+            registrationToken={registrationToken}
+            registrationData={formData}
+            onTokenUpdate={setRegistrationToken}
           />
         )}
       </div>

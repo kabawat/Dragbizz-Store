@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { AnimatedBackground } from '../ui';
+import { cookieManager } from '@/utils/cookieManager';
 import confetti from 'canvas-confetti';
 import styles from './style/SuccessScreen.module.scss';
 
-const SuccessScreen = ({ firstName, onContinue }) => {
+const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   const [countdown, setCountdown] = useState(5);
   const [showConfetti, setShowConfetti] = useState(true);
 
@@ -167,9 +168,14 @@ const SuccessScreen = ({ firstName, onContinue }) => {
   // Handle countdown completion
   useEffect(() => {
     if (countdown === 0) {
+      // Save authentication token before redirecting
+      if (authToken) {
+        cookieManager.setAuthToken(authToken);
+        console.log('Registration token saved successfully');
+      }
       onContinue();
     }
-  }, [countdown, onContinue]);
+  }, [countdown, onContinue, authToken]);
 
   return (
     <div className={styles.container}>
@@ -221,7 +227,14 @@ const SuccessScreen = ({ firstName, onContinue }) => {
 
         {/* Manual Continue Button */}
         <button
-          onClick={onContinue}
+          onClick={() => {
+            // Save authentication token before redirecting
+            if (authToken) {
+              cookieManager.setAuthToken(authToken);
+              console.log('Registration token saved successfully');
+            }
+            onContinue();
+          }}
           className={styles.continueButton}
         >
           <span>Continue to Dashboard</span>
