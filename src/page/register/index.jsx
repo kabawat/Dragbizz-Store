@@ -8,7 +8,7 @@ import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
 
 export default function Register() {
-  const [currentState, setCurrentState] = useState('welcome');
+  const [currentState, setCurrentState] = useState('success');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
