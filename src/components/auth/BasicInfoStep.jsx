@@ -137,8 +137,8 @@ const BasicInfoStep = ({
             <div className="mb-2">
               <div className="flex items-center justify-start">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-green-100 text-green-700'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-green-100 text-green-700'
                   }`}>
                   {contactType === 'email' ? (
                     <>
@@ -214,10 +214,7 @@ const BasicInfoStep = ({
 
       {/* Navigation */}
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center"
-        >
+        <button onClick={onBack} className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </button>
@@ -226,8 +223,8 @@ const BasicInfoStep = ({
           onClick={onNext}
           disabled={!isFormValid}
           className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${isFormValid
-              ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer'
+            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
         >
           Continue
