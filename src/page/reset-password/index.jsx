@@ -1,9 +1,10 @@
+"use client"
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '../ui';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
 
-const ResetPasswordScreen = () => {
+const ResetPassword = () => {
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
@@ -242,4 +243,4 @@ const ResetPasswordScreen = () => {
   );
 };
 
-export default ResetPasswordScreen;
+export default ResetPassword;
