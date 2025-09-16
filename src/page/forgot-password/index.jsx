@@ -1,9 +1,10 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle, Phone } from 'lucide-react';
-import { Input, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '../ui';
+import { Input, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
 
-const ForgotPasswordScreen = () => {
+const ForgotPassword = () => {
   const [contact, setContact] = useState('');
   const [contactType, setContactType] = useState('email');
   const [isLoading, setIsLoading] = useState(false);
@@ -304,4 +305,5 @@ const ForgotPasswordScreen = () => {
   );
 };
 
-export default ForgotPasswordScreen;
+export default ForgotPassword;
+
