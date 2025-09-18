@@ -1,4 +1,3 @@
-// src/utils/cookieManager.js
 import Cookies from 'js-cookie';
 import { ENV_CONFIG } from '@/config';
 

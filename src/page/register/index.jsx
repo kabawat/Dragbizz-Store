@@ -96,11 +96,9 @@ export default function Register() {
       const result = await authService.register(registrationData);
 
       if (result.success) {
-        // Registration successful, store the token and move to verification step
         setRegistrationToken(result.token);
         setCurrentState('verification');
       } else {
-        // Registration failed, show error
         setErrors({
           general: result.message || 'Registration failed. Please try again.'
         });
