@@ -2,20 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { AnimatedBackground } from '../ui';
 import { cookieManager } from '@/utils/cookieManager';
+import { useTheme } from '@/contexts/ThemeContext';
 import confetti from 'canvas-confetti';
-import styles from './style/SuccessScreen.module.scss';
 
 const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   const [countdown, setCountdown] = useState(5);
   const [showConfetti, setShowConfetti] = useState(true);
+  const { themeConfig } = useTheme();
 
-  // Rainbow palette
+  // Rainbow palette using theme colors
   const RAINBOW = [
-    "#ef4444",
-    "#f97316", 
+    themeConfig.primary,
+    themeConfig.secondary,
     "#facc15",
     "#22c55e",
-    "#3b82f6",
+    themeConfig.primary,
     "#8b5cf6",
     "#ec4899"
   ];
@@ -178,48 +179,48 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   }, [countdown, onContinue, authToken]);
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
       <AnimatedBackground variant="success" />
 
-      <div className={styles.card}>
+      <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto text-center">
 
         {/* Success Message */}
-        <h1 className={styles.mainHeading}>
+        <h1 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
           You're all set, {firstName}!
         </h1>
         
-        <p className={styles.subHeading}>
+        <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-2">
           Welcome aboard
         </p>
         
-        <p className={styles.gradientText}>
+        <p className="text-sm sm:text-base font-semibold gradient-text mb-6">
           Account created successfully! 👋
         </p>
 
         {/* Features Preview */}
-        <div className={styles.features}>
-          <div className={styles.featureItem}>
-            <div className={`${styles.featureDot} ${styles.featureDotGreen}`}></div>
-            <span className={styles.featureText}>Account verified & secured</span>
+        <div className="flex flex-col gap-2 sm:gap-3 mb-6">
+          <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+            <span className="text-sm">Account verified & secured</span>
           </div>
-          <div className={styles.featureItem}>
-            <div className={`${styles.featureDot} ${styles.featureDotBlue}`}></div>
-            <span className={styles.featureText}>Profile setup complete</span>
+          <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
+            <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mr-3 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+            <span className="text-sm">Profile setup complete</span>
           </div>
-          <div className={styles.featureItem}>
-            <div className={`${styles.featureDot} ${styles.featureDotPurple}`}></div>
-            <span className={styles.featureText}>Ready to explore</span>
+          <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
+            <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            <span className="text-sm">Ready to explore</span>
           </div>
         </div>
 
         {/* Auto-redirect Info */}
-        <div className={styles.redirectInfo}>
-          <p className={styles.redirectText}>
+        <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 mb-6">
+          <p className="text-[rgb(var(--color-text-secondary))] text-sm mb-2">
             🚀 <strong>Redirecting to dashboard in {countdown}s</strong>
           </p>
-          <div className={styles.progressBar}>
+          <div className="w-full bg-[rgb(var(--color-bg-tertiary))] rounded-full h-2">
             <div
-              className={styles.progressFill}
+              className="bg-[rgb(var(--color-primary))] h-2 rounded-full transition-all duration-1000 ease-in-out"
               style={{ width: `${((5 - countdown) / 5) * 100}%` }}
             ></div>
           </div>
@@ -235,13 +236,13 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
             }
             onContinue();
           }}
-          className={styles.continueButton}
+          className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out flex items-center justify-center mb-4"
         >
           <span>Continue to Dashboard</span>
-          <ArrowRight className={styles.buttonIcon} />
+          <ArrowRight className="w-4 h-4 ml-2" />
         </button>
 
-        <p className={styles.thankYouText}>
+        <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-4">
           Thank you for joining our community! 💙
         </p>
       </div>
