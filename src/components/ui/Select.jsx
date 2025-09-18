@@ -124,7 +124,7 @@ const Select = ({
     <div className={`relative ${className}`}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -133,13 +133,13 @@ const Select = ({
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative cursor-pointer border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+        className={`relative cursor-pointer border border-[rgb(var(--color-border-primary))] rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] ${
           error
             ? 'border-red-500 focus:ring-red-500'
             : isOpen
-            ? 'border-blue-500 focus:ring-blue-500'
-            : 'border-gray-300 focus:ring-blue-500'
-        } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
+            ? 'border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]'
+            : 'border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]'
+        } ${disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed' : 'bg-[rgb(var(--color-bg-primary))]'}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? -1 : 0}
@@ -156,17 +156,17 @@ const Select = ({
                   selectedOption.map(option => (
                     <span
                       key={option.value}
-                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))]"
                     >
                       {option.label}
                     </span>
                   ))
                 ) : (
-                  <span className="text-gray-500">{placeholder}</span>
+                  <span className="text-[rgb(var(--color-text-tertiary))]">{placeholder}</span>
                 )}
               </div>
             ) : (
-              <span className={selectedOption ? 'text-gray-900' : 'text-gray-500'}>
+              <span className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}>
                 {selectedOption?.label || placeholder}
               </span>
             )}
@@ -178,7 +178,7 @@ const Select = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors duration-200"
                 tabIndex={-1}
               >
                 ×
@@ -187,7 +187,7 @@ const Select = ({
             
             {/* Dropdown Arrow */}
             <ChevronDown 
-              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+              className={`w-5 h-5 text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${
                 isOpen ? 'rotate-180' : ''
               }`} 
             />
@@ -196,19 +196,19 @@ const Select = ({
         
         {/* Dropdown Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden">
             {/* Search Input */}
             {searchable && (
-              <div className="p-2 border-b border-gray-200">
+              <div className="p-2 border-b border-[rgb(var(--color-border-primary))]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                   <input
                     ref={searchRef}
                     type="text"
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
                   />
                 </div>
               </div>
@@ -227,22 +227,22 @@ const Select = ({
                     <div
                       key={option.value}
                       className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
-                        isHighlighted ? 'bg-blue-50' : 'hover:bg-gray-50'
-                      } ${isSelected ? 'bg-blue-50' : ''}`}
+                        isHighlighted ? 'bg-[rgb(var(--color-primary))] bg-opacity-10' : 'hover:bg-[rgb(var(--color-bg-secondary))]'
+                      } ${isSelected ? 'bg-[rgb(var(--color-primary))] bg-opacity-10' : ''}`}
                       onClick={() => handleSelect(option)}
                       onMouseEnter={() => setHighlightedIndex(index)}
                     >
-                      <span className={isSelected ? 'font-medium text-blue-900' : 'text-gray-900'}>
+                      <span className={isSelected ? 'font-medium text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-primary))]'}>
                         {option.label}
                       </span>
                       {isSelected && (
-                        <Check className="w-4 h-4 text-blue-600" />
+                        <Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />
                       )}
                     </div>
                   );
                 })
               ) : (
-                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                <div className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center">
                   No options found
                 </div>
               )}
@@ -258,7 +258,7 @@ const Select = ({
             <p className="text-sm text-red-600 animate-fade-in">{errorMessage}</p>
           )}
           {!error && helperText && (
-            <p className="text-sm text-gray-500">{helperText}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{helperText}</p>
           )}
         </div>
       )}

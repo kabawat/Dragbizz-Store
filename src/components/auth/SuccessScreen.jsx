@@ -174,9 +174,10 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
         cookieManager.setAuthToken(authToken);
         console.log('Registration token saved successfully');
       }
-      onContinue();
+      // Redirect to agency creation instead of dashboard
+      window.location.href = '/onboarding/agency';
     }
-  }, [countdown, onContinue, authToken]);
+  }, [countdown, authToken]);
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
@@ -216,7 +217,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
         {/* Auto-redirect Info */}
         <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 mb-6">
           <p className="text-[rgb(var(--color-text-secondary))] text-sm mb-2">
-            🚀 <strong>Redirecting to dashboard in {countdown}s</strong>
+            🚀 <strong>Redirecting to agency setup in {countdown}s</strong>
           </p>
           <div className="w-full bg-[rgb(var(--color-bg-tertiary))] rounded-full h-2">
             <div
@@ -234,11 +235,12 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
               cookieManager.setAuthToken(authToken);
               console.log('Registration token saved successfully');
             }
-            onContinue();
+            // Redirect to agency creation instead of dashboard
+            window.location.href = '/onboarding/agency';
           }}
           className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out flex items-center justify-center mb-4"
         >
-          <span>Continue to Dashboard</span>
+          <span>Continue to Agency Setup</span>
           <ArrowRight className="w-4 h-4 ml-2" />
         </button>
 

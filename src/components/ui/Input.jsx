@@ -37,9 +37,9 @@ const Input = forwardRef(({
   // Base classes - Theme aware
   const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
   
-  // Padding classes
-  const paddingClasses = LeftIcon ? 'pl-12' : 'pl-4';
-  const rightPaddingClasses = (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-12' : 'pr-4';
+  // Padding classes - More precise spacing
+  const paddingClasses = LeftIcon ? 'pl-14' : 'pl-4';
+  const rightPaddingClasses = (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-14' : 'pr-4';
   
   // State classes - Theme aware
   const stateClasses = error 
@@ -63,7 +63,7 @@ const Input = forwardRef(({
       )}
         {/* Left Icon */}
         {LeftIcon && (
-          <LeftIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[rgb(var(--color-text-tertiary))] w-5 h-5 pointer-events-none" />
+          <LeftIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-tertiary))] w-5 h-5 pointer-events-none z-10" />
         )}
         
         {/* Input Field */}
@@ -87,7 +87,7 @@ const Input = forwardRef(({
         />
         
         {/* Right Elements */}
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">
           {/* Password Toggle */}
           {showPasswordToggle && type === 'password' && (
             <button

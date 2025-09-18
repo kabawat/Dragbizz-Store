@@ -190,25 +190,35 @@ class AuthService {
     }
   }
 
-  async resendVerification(identifier) {
+  async createAgency(agencyData, token) {
     try {
-      const response = await unauthAxios.post(API_CONFIG.AUTH.RESEND_VERIFICATION, {
-        identifier
+      console.log('AuthService - Creating agency:', agencyData);
+      
+      const response = await unauthAxios.post('/agencies/', agencyData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
-      return {
-        success: true,
-        data: response.data,
-        message: 'Verification email sent'
-      };
+      return handleApiSuccess(response, 'Agency created successfully');
     } catch (error) {
-      console.error('Resend verification error:', error);
+      return handleApiErrorResponse(error, 'agency-creation');
+    }
+  }
+
+  async createStore(storeData, token) {
+    try {
+      console.log('AuthService - Creating store:', storeData);
       
-      return {
-        success: false,
-        error: error.response?.data || error.message,
-        message: error.response?.data?.message || 'Failed to resend verification email'
-      };
+      const response = await unauthAxios.post('/store/', storeData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      return handleApiSuccess(response, 'Store created successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'store-creation');
     }
   }
 }
