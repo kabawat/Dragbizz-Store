@@ -14,6 +14,7 @@ import Tabs, { TabPanel } from './Tabs';
 import Accordion, { AccordionItem } from './Accordion';
 import AnimatedBackground from './AnimatedBackground';
 import SVGBackground from './SVGBackground';
+import SettingsPanel from './ThemeSelector';
 
 // Named exports
 export {
@@ -53,7 +54,8 @@ export {
   Accordion,
   AccordionItem,
   AnimatedBackground,
-  SVGBackground
+  SVGBackground,
+  SettingsPanel
 };
 
 // Default export
@@ -94,5 +96,6 @@ export default {
   Accordion,
   AccordionItem,
   AnimatedBackground,
-  SVGBackground
+  SVGBackground,
+  SettingsPanel
 };

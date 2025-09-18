@@ -1,80 +1,84 @@
+"use client"
 import React from 'react';
 import { Rocket, Users, Shield, Zap, Github, Chrome } from 'lucide-react';
 import Link from 'next/link';
-import styles from './style/WelcomeScreen.module.scss';
 import { AnimatedBackground } from '../ui';
 
 const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
       <AnimatedBackground variant="default" />
-      <div className={styles.card}>
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
         {/* Background decoration */}
-        <div className={styles.backgroundDecoration1}></div>
-        <div className={styles.backgroundDecoration2}></div>
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[rgb(var(--color-primary))] opacity-10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-[rgb(var(--color-secondary))] opacity-10 rounded-full blur-3xl"></div>
         
-        <div className={styles.content}>
+        <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm">
           {/* Hero Icon */}
-          <div className={styles.heroIcon}>
-            <Rocket />
+          <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-6 flex items-center justify-center">
+            <Rocket className="w-8 h-8 text-white" />
           </div>
 
           {/* Main Heading */}
-          <h1 className={styles.mainHeading}>
+          <h1 className="text-3xl font-bold text-center mb-4 text-[rgb(var(--color-text-primary))]">
             Welcome! 👋
           </h1>
           
-          <p className={styles.subHeading}>
+          <p className="text-center text-[rgb(var(--color-text-secondary))] mb-2">
             Create your account in
           </p>
           
-          <p className={styles.gradientText}>
+          <p className="text-center text-2xl font-bold mb-8 gradient-text">
             less than a minute 🚀
           </p>
 
           {/* Features */}
-          <div className={styles.features}>
-            <div className={styles.featureItem}>
-              <Users />
-              <span className={styles.featureText}>Join 10M+ happy users</span>
+          <div className="space-y-3 mb-8">
+            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+              <Users className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+              <span>Join 10M+ happy users</span>
             </div>
-            <div className={styles.featureItem}>
-              <Shield />
-              <span className={styles.featureText}>100% secure & private</span>
+            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+              <Shield className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+              <span>100% secure & private</span>
             </div>
-            <div className={styles.featureItem}>
-              <Zap />
-              <span className={styles.featureText}>Quick & easy setup</span>
+            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+              <Zap className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+              <span>Quick & easy setup</span>
             </div>
           </div>
 
           {/* Social Login Buttons */}
           {onSocialLogin && (
-            <div className={styles.socialButtons}>
+            <div className="space-y-3 mb-6">
               <button
                 onClick={() => onSocialLogin('google')}
-                className={styles.socialButton}
+                className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
               >
-                <Chrome className={styles.googleIcon} />
-                <span className={styles.socialButtonText}>Continue with Google</span>
+                <Chrome className="w-5 h-5 text-red-500" />
+                <span>Continue with Google</span>
               </button>
               
               <button
                 onClick={() => onSocialLogin('github')}
-                className={styles.socialButton}
+                className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
               >
-                <Github className={styles.githubIcon} />
-                <span className={styles.socialButtonText}>Continue with GitHub</span>
+                <Github className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+                <span>Continue with GitHub</span>
               </button>
             </div>
           )}
 
           {/* Divider */}
           {onSocialLogin && (
-            <div className={styles.divider}>
-              <div className={styles.dividerLine}></div>
-              <div className={styles.dividerText}>
-                <span>Or create account with email</span>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[rgb(var(--color-border-primary))]"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-secondary))]">
+                  Or create account with email
+                </span>
               </div>
             </div>
           )}
@@ -82,23 +86,22 @@ const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
           {/* CTA Button */}
           <button
             onClick={onGetStarted}
-            className={styles.ctaButton}
+            className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity mb-4"
           >
-            <span className={styles.ctaButtonText}>Get Started</span>
-            <div className={styles.ctaButtonOverlay}></div>
+            Get Started
           </button>
 
-          <p className={styles.privacyText}>
+          <p className="text-center text-sm text-[rgb(var(--color-text-secondary))] mb-6">
             No spam, ever. We respect your privacy.
           </p>
 
           {/* Login Link */}
-          <div className={styles.loginSection}>
-            <p className={styles.loginText}>
+          <div className="text-center">
+            <p className="text-[rgb(var(--color-text-secondary))]">
               Already have an account?{' '}
               <Link
                 href="/login"
-                className={styles.loginLink}
+                className="text-[rgb(var(--color-primary))] hover:underline font-medium"
               >
                 Sign in here
               </Link>
