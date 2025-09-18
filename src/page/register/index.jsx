@@ -8,12 +8,11 @@ import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
 import { authService } from '@/service/auth';
 import { useLocation } from '@/app/(auth)/layout';
-import styles from '@/page/style/Register.module.scss';
 
 export default function Register() {
   // Get location from context
   const { userLocation } = useLocation();
-  
+
   const [currentState, setCurrentState] = useState('welcome');
   const [formData, setFormData] = useState({
     firstName: '',
@@ -157,20 +156,23 @@ export default function Register() {
 
   if (currentState === 'complete') {
     return (
-      <div className={styles.dashboardContainer}>
-        <div className={styles.dashboardCard}>
-          <div className={styles.dashboardIcon}>
-            <span className={styles.dashboardIconText}>🚀</span>
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
+        <AnimatedBackground variant="success" />
+        <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto text-center">
+          <div className="w-20 h-20 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-white text-2xl font-bold">🚀</span>
           </div>
-          <h1 className={styles.dashboardHeading}>Dashboard</h1>
-          <p className={styles.dashboardDescription}>
+          <h1 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
+            Dashboard
+          </h1>
+          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6">
             Welcome to your new account, {formData.firstName}! Start exploring all the amazing features we have to offer.
           </p>
-          <div className={styles.dashboardButtons}>
-            <button className={styles.exploreButton}>
+          <div className="flex flex-col gap-3">
+            <button className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out">
               Explore Features
             </button>
-            <button className={styles.profileButton}>
+            <button className="w-full border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] py-3 px-6 rounded-xl font-semibold bg-transparent hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-500 ease-in-out">
               Complete Profile
             </button>
           </div>
@@ -180,9 +182,10 @@ export default function Register() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
+      {/* <AnimatedBackground variant="default" /> */}
       <AnimatedBackground variant="register" />
-      <div className={styles.card}>
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
         {currentState === 'basic-info' && (
           <BasicInfoStep
             firstName={formData.firstName}

@@ -12,7 +12,7 @@ const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
         {/* Background decoration */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-[rgb(var(--color-primary))] opacity-10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-[rgb(var(--color-secondary))] opacity-10 rounded-full blur-3xl"></div>
-        
+
         <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm">
           {/* Hero Icon */}
           <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-6 flex items-center justify-center">
@@ -23,26 +23,26 @@ const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
           <h1 className="text-3xl font-bold text-center mb-4 text-[rgb(var(--color-text-primary))]">
             Welcome! 👋
           </h1>
-          
+
           <p className="text-center text-[rgb(var(--color-text-secondary))] mb-2">
             Create your account in
           </p>
-          
+
           <p className="text-center text-2xl font-bold mb-8 gradient-text">
             less than a minute 🚀
           </p>
 
           {/* Features */}
           <div className="space-y-3 mb-8">
-            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+            <div className="flex items-center justify-center gap-3 text-[rgb(var(--color-text-secondary))]">
               <Users className="w-5 h-5 text-[rgb(var(--color-primary))]" />
               <span>Join 10M+ happy users</span>
             </div>
-            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+            <div className="flex items-center justify-center gap-3 text-[rgb(var(--color-text-secondary))]">
               <Shield className="w-5 h-5 text-[rgb(var(--color-primary))]" />
               <span>100% secure & private</span>
             </div>
-            <div className="flex items-center gap-3 text-[rgb(var(--color-text-secondary))]">
+            <div className="flex items-center justify-center gap-3 text-[rgb(var(--color-text-secondary))]">
               <Zap className="w-5 h-5 text-[rgb(var(--color-primary))]" />
               <span>Quick & easy setup</span>
             </div>
@@ -58,7 +58,7 @@ const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
                 <Chrome className="w-5 h-5 text-red-500" />
                 <span>Continue with Google</span>
               </button>
-              
+
               <button
                 onClick={() => onSocialLogin('github')}
                 className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"

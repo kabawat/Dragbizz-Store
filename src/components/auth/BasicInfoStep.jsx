@@ -65,33 +65,32 @@ const BasicInfoStep = ({
   const isFormValid = firstName.trim() && lastName.trim() && contact.trim() && !errors.firstName && !errors.lastName && !errors.contact && validationStatus === 'available';
 
   return (
-    <div className="animate-slide-in transition-all duration-700 ease-in-out min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] flex items-center justify-center p-4">
-      <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
-        {/* Progress Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                1
-              </div>
-              <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
-              <div className="w-8 h-8 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] rounded-full flex items-center justify-center text-sm font-semibold">
-                2
-              </div>
-              <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
-              <div className="w-8 h-8 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] rounded-full flex items-center justify-center text-sm font-semibold">
-                3
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
+        <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm">
+          {/* Progress Header */}
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center mb-3">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  1
+                </div>
+                <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
+                <div className="w-8 h-8 bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] rounded-full flex items-center justify-center text-sm font-semibold">
+                  2
+                </div>
+                <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
+                <div className="w-8 h-8 bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] rounded-full flex items-center justify-center text-sm font-semibold">
+                  3
+                </div>
               </div>
             </div>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Step 1 of 3</p>
           </div>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Step 1 of 3</p>
-        </div>
-
-        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg">
           <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2 text-center">
             Nice to meet you! 👋
           </h2>
-          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6 sm:mb-8 text-center">
+          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6 text-center">
             Let's start with some basic information
           </p>
 
@@ -140,8 +139,8 @@ const BasicInfoStep = ({
             <div className="mb-2">
               <div className="flex items-center justify-start">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                  : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                  ? 'bg-blue-600 text-white dark:bg-blue-600 dark:text-white'
+                  : 'bg-green-600 text-white dark:bg-green-600 dark:text-white'
                   }`}>
                   {contactType === 'email' ? (
                     <>
@@ -216,7 +215,7 @@ const BasicInfoStep = ({
       </div>
 
           {/* Navigation */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6">
             <button onClick={onBack} className="px-6 py-3 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -225,9 +224,9 @@ const BasicInfoStep = ({
             <button
               onClick={onNext}
               disabled={!isFormValid}
-              className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${isFormValid
-                ? 'bg-[rgb(var(--color-primary))] text-white hover:opacity-90 hover:shadow-lg cursor-pointer'
-                : 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-tertiary))] cursor-not-allowed'
+              className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${isFormValid
+                ? 'hover:opacity-90 hover:shadow-lg cursor-pointer'
+                : 'opacity-70 cursor-not-allowed'
                 }`}
             >
               Continue
