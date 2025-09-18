@@ -1,7 +1,5 @@
-// current location using browser geolocation API
 export const getCurrentLocation = () => {
   return new Promise((resolve, reject) => {
-    // Check if geolocation is supported
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by this browser'));
       return;
@@ -11,25 +9,24 @@ export const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        // Return coordinates in format "lat,lng"
+        // "lat,lng"
         resolve(`${latitude},${longitude}`);
       },
       (error) => {
         console.error('Geolocation error:', error);
-        // Fallback to default location
         resolve('0,0');
       },
       {
-        timeout: 10000, // 10 seconds timeout
+        timeout: 10000,
         enableHighAccuracy: true,
-        maximumAge: 300000 // 5 minutes cache
+        maximumAge: 300000
       }
     );
   });
 };
 
 
-// Location string in format "latitude,longitude"
+// "latitude,longitude"
 export const getUserLocation = async () => {
   try {
     const location = await getCurrentLocation();

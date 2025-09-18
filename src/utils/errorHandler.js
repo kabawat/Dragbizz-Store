@@ -1,6 +1,6 @@
 export const handleApiError = (error, context = 'general') => {
   console.error(`${context} error:`, error);
-  
+
   // Handle specific HTTP status codes
   if (error.response?.status === 401) {
     switch (context) {
@@ -18,11 +18,11 @@ export const handleApiError = (error, context = 'general') => {
         return 'Invalid credentials. Please check your information.';
     }
   }
-  
+
   if (error.response?.status === 400) {
     return error.response?.data?.message || 'Invalid request. Please check your input.';
   }
-  
+
   if (error.response?.status === 429) {
     switch (context) {
       case 'login':
@@ -37,15 +37,15 @@ export const handleApiError = (error, context = 'general') => {
         return 'Too many requests. Please try again later.';
     }
   }
-  
+
   if (error.response?.status >= 500) {
     return 'Server error. Please try again later.';
   }
-  
+
   if (error.code === 'NETWORK_ERROR' || !navigator.onLine) {
     return 'Network error. Please check your internet connection.';
   }
-  
+
   // Default error message
   switch (context) {
     case 'login':
@@ -54,7 +54,7 @@ export const handleApiError = (error, context = 'general') => {
       return 'An error occurred during verification. Please try again.';
     case 'otp-send':
       return 'An error occurred while sending OTP. Please try again.';
-    case 'otp-resend':    message: backendMessage || handleApiError(error, context) // User-friendly message
+    case 'otp-resend': message: backendMessage || handleApiError(error, context)
 
       return 'An error occurred while resending OTP. Please try again.';
     case 'register':
@@ -76,11 +76,11 @@ export const handleApiSuccess = (response, defaultMessage = 'Operation successfu
 
 export const handleApiErrorResponse = (error, context = 'general') => {
   const backendMessage = error.response?.data?.message || error.response?.data?.error;
-  
+
   return {
     success: false,
-    error: error.response?.data || error.message, // For developer debugging
-    message: backendMessage || handleApiError(error, context) // User-friendly message
+    error: error.response?.data || error.message,
+    message: backendMessage || handleApiError(error, context)
   };
 };
 

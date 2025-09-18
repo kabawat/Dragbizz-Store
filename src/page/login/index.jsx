@@ -310,8 +310,7 @@ export default function Login() {
     setOtpDigits(['', '', '', '', '']);
     setLoginToken(null); 
     setTimeLeft(60);
-    setCanResend(false);        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
-
+    setCanResend(false);
     setErrors({ contact: '', password: '', otp: '', general: '' });
   };
 
