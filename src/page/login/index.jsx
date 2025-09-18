@@ -402,7 +402,7 @@ export default function Login() {
               <div className="space-y-3 mb-6">
                 <button
                   onClick={() => handleSocialLogin('google')}
-                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
                 >
                   <Chrome className="w-5 h-5 text-red-500" />
                   <span>Continue with Google</span>
@@ -410,7 +410,7 @@ export default function Login() {
 
                 <button
                   onClick={() => handleSocialLogin('github')}
-                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
                 >
                   <Github className="w-5 h-5 text-gray-800 dark:text-gray-200" />
                   <span>Continue with GitHub</span>
@@ -529,7 +529,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors"
+                      className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -567,7 +567,7 @@ export default function Login() {
                 onClick={handleSendOTP}
                 disabled={isLoading || !formData.contact.trim()}
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
-                  isLoading || !formData.contact.trim() ? 'opacity-70' : 'hover:opacity-90'
+                  isLoading || !formData.contact.trim() ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
                 }`}
               >
                 {isLoading ? (
@@ -720,7 +720,7 @@ export default function Login() {
                 type="submit"
                 disabled={isLoading}
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
-                  isLoading ? 'opacity-70' : 'hover:opacity-90'
+                  isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
                 }`}
               >
                 {isLoading ? (

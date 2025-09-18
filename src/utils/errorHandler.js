@@ -54,13 +54,14 @@ export const handleApiError = (error, context = 'general') => {
       return 'An error occurred during verification. Please try again.';
     case 'otp-send':
       return 'An error occurred while sending OTP. Please try again.';
-    case 'otp-resend': message: backendMessage || handleApiError(error, context)
-
+    case 'otp-resend':
       return 'An error occurred while resending OTP. Please try again.';
     case 'register':
       return 'An error occurred during registration. Please try again.';
-    default:
-      return 'An unexpected error occurred. Please try again.';
+    case 'agency-creation':
+      return 'An error occurred while creating agency. Please try again.';
+    case 'store-creation':
+      return 'An error occurred while creating store. Please try again.';
   }
 };
 

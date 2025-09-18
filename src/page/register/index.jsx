@@ -130,7 +130,8 @@ export default function Register() {
   };
 
   const handleSuccessContinue = () => {
-    setCurrentState('complete');
+    // Redirect to agency creation instead of showing complete state
+    window.location.href = '/onboarding/agency';
   };
 
   const handleSocialLogin = (provider) => {
@@ -169,10 +170,10 @@ export default function Register() {
             Welcome to your new account, {formData.firstName}! Start exploring all the amazing features we have to offer.
           </p>
           <div className="flex flex-col gap-3">
-            <button className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out">
+            <button className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out cursor-pointer">
               Explore Features
             </button>
-            <button className="w-full border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] py-3 px-6 rounded-xl font-semibold bg-transparent hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-500 ease-in-out">
+            <button className="w-full border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] py-3 px-6 rounded-xl font-semibold bg-transparent hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-500 ease-in-out cursor-pointer">
               Complete Profile
             </button>
           </div>
