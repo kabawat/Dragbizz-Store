@@ -7,7 +7,6 @@ import { cookieManager } from '@/utils/cookieManager';
 import { useLocation } from '@/app/(auth)/layout';
 import { handleApiError } from '@/utils/errorHandler';
 import Link from 'next/link';
-import styles from '@/page/style/Login.module.scss';
 
 export default function Login() {
   // Get location from context
@@ -380,75 +379,83 @@ export default function Login() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
       <AnimatedBackground variant="login" />
-      <div className={styles.card}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerIcon}>
-            <Lock className="w-8 h-8 text-white" />
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-6 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
+              Welcome back! 👋
+            </h1>
+            <p className="text-[rgb(var(--color-text-secondary))]">
+              Sign in to your account to continue
+            </p>
           </div>
-          <h1 className={styles.mainHeading}>
-            Welcome back! 👋
-          </h1>
-          <p className={styles.subHeading}>
-            Sign in to your account to continue
-          </p>
-        </div>
 
-        {/* Social Login Buttons - Only show when OTP not sent */}
-        {!otpSent && (
-          <>
-            <div className={styles.socialButtons}>
-              <button
-                onClick={() => handleSocialLogin('google')}
-                className={styles.socialButton}
-              >
-                <Chrome className={styles.googleIcon} />
-                <span className={styles.socialButtonText}>Continue with Google</span>
-              </button>
+          {/* Social Login Buttons - Only show when OTP not sent */}
+          {!otpSent && (
+            <>
+              <div className="space-y-3 mb-6">
+                <button
+                  onClick={() => handleSocialLogin('google')}
+                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                >
+                  <Chrome className="w-5 h-5 text-red-500" />
+                  <span>Continue with Google</span>
+                </button>
 
-              <button
-                onClick={() => handleSocialLogin('github')}
-                className={styles.socialButton}
-              >
-                <Github className={styles.githubIcon} />
-                <span className={styles.socialButtonText}>Continue with GitHub</span>
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className={styles.divider}>
-              <div className={styles.dividerLine}></div>
-              <div className={styles.dividerText}>
-                <span>Or continue with email/phone</span>
+                <button
+                  onClick={() => handleSocialLogin('github')}
+                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                >
+                  <Github className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+                  <span>Continue with GitHub</span>
+                </button>
               </div>
-            </div>
-          </>
-        )}
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Contact Type Indicator - Only show when OTP not sent */}
-          {formData.contact && !otpSent && (
-            <div className={styles.contactTypeIndicator}>
-              <div className="flex items-center justify-start">
-                <div className={`${styles.contactTypeBadge} ${contactType === 'email' ? styles.contactTypeBadgeEmail : styles.contactTypeBadgePhone}`}>
-                  {contactType === 'email' ? (
-                    <>
-                      <Mail className="w-3 h-3 mr-1" />
-                      Email
-                    </>
-                  ) : (
-                    <>
-                      <Phone className="w-3 h-3 mr-1" />
-                      Phone
-                    </>
-                  )}
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[rgb(var(--color-border-primary))]"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-secondary))]">
+                    Or continue with email/phone
+                  </span>
                 </div>
               </div>
-            </div>
+            </>
           )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Contact Type Indicator - Only show when OTP not sent */}
+            {formData.contact && !otpSent && (
+              <div className="mb-2">
+                <div className="flex items-center justify-start">
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
+                    ? 'bg-blue-600 text-white dark:bg-blue-600 dark:text-white'
+                    : 'bg-green-600 text-white dark:bg-green-600 dark:text-white'
+                    }`}>
+                    {contactType === 'email' ? (
+                      <>
+                        <Mail className="w-3 h-3 mr-1" />
+                        Email
+                      </>
+                    ) : (
+                      <>
+                        <Phone className="w-3 h-3 mr-1" />
+                        Phone
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
           {/* Contact Field - Only show when OTP not sent */}
           {!otpSent && (
@@ -481,26 +488,26 @@ export default function Login() {
               />
 
               {/* Helper Text */}
-              <div className={styles.helperText}>
+              <div className="mt-2">
                 {validationStatus === 'valid' && (
-                  <p className={styles.helperTextValid}>
+                  <p className="text-green-600 text-sm flex items-center">
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Account found
                   </p>
                 )}
                 {validationStatus === 'invalid' && (
-                  <p className={styles.helperTextInvalid}>
+                  <p className="text-red-500 text-sm flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     No account found with this {contactType}
                   </p>
                 )}
                 {validationStatus === 'idle' && (
-                  <p className={styles.helperTextIdle}>
+                  <p className="text-[rgb(var(--color-text-secondary))] text-sm">
                     Enter your email or phone number
                   </p>
                 )}
                 {errors.contact && (
-                  <p className={styles.helperTextError}>
+                  <p className="text-red-500 text-sm flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     {errors.contact}
                   </p>
@@ -509,71 +516,73 @@ export default function Login() {
             </div>
           )}
 
-          {/* Password Field - Only show when password method is selected */}
-          {loginMethod === 'password' && (
-            <div className={styles.passwordField}>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(value) => handleInputChange('password', value)}
-                leftIcon={Lock}
-                rightElement={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className={styles.passwordToggle}
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                }
-                error={errors.password}
-              />
-              {errors.password && (
-                <p className={styles.helperTextError}>
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  {errors.password}
-                </p>
-              )}
+            {/* Password Field - Only show when password method is selected */}
+            {loginMethod === 'password' && (
+              <div>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={(value) => handleInputChange('password', value)}
+                  leftIcon={Lock}
+                  rightElement={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  }
+                  error={errors.password}
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-sm flex items-center mt-2">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.password}
+                  </p>
+                )}
 
-              {/* OTP Option Checkbox - Below password field, only show when OTP not sent */}
-              {!otpSent && (
-                <div className={styles.otpOption}>
-                  <label className={styles.otpLabel}>
-                    <input
-                      type="checkbox"
-                      checked={loginMethod === 'otp'}
-                      onChange={toggleLoginMethod}
-                      className={styles.otpCheckbox}
-                    />
-                    Login with OTP instead of password
-                  </label>
-                </div>
-              )}
-            </div>
-          )}
+                {/* OTP Option Checkbox - Below password field, only show when OTP not sent */}
+                {!otpSent && (
+                  <div className="mt-3">
+                    <label className="flex items-center text-sm text-[rgb(var(--color-text-secondary))] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={loginMethod === 'otp'}
+                        onChange={toggleLoginMethod}
+                        className="mr-2 rounded border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+                      />
+                      Login with OTP instead of password
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Send OTP Button - Only show when OTP method is selected and OTP not sent yet */}
-          {loginMethod === 'otp' && !otpSent && (
-            <button
-              type="button"
-              onClick={handleSendOTP}
-              disabled={isLoading || !formData.contact.trim()}
-              className={`${styles.sendOtpButton} ${isLoading || !formData.contact.trim() ? styles.sendOtpButtonDisabled : styles.sendOtpButtonEnabled}`}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className={styles.sendOtpLoading} />
-                  Sending OTP...
-                </div>
-              ) : (
-                <div className="flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Send OTP to {contactType}
-                </div>
-              )}
-            </button>
-          )}
+            {/* Send OTP Button - Only show when OTP method is selected and OTP not sent yet */}
+            {loginMethod === 'otp' && !otpSent && (
+              <button
+                type="button"
+                onClick={handleSendOTP}
+                disabled={isLoading || !formData.contact.trim()}
+                className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
+                  isLoading || !formData.contact.trim() ? 'opacity-70' : 'hover:opacity-90'
+                }`}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Sending OTP...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    Send OTP to {contactType}
+                  </div>
+                )}
+              </button>
+            )}
 
           {/* OTP Input Section - Only show when OTP is sent */}
           {loginMethod === 'otp' && otpSent && (
@@ -705,50 +714,52 @@ export default function Login() {
             </div>
           )}
 
-          {/* Submit Button - Only show for password method */}
-          {loginMethod === 'password' && (
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`${styles.submitButton} ${isLoading ? styles.submitButtonDisabled : styles.submitButtonEnabled}`}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className={styles.submitButtonLoading} />
-                  Signing in...
-                </div>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          )}
-        </form>
+            {/* Submit Button - Only show for password method */}
+            {loginMethod === 'password' && (
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
+                  isLoading ? 'opacity-70' : 'hover:opacity-90'
+                }`}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Signing in...
+                  </div>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+            )}
+          </form>
 
-        {/* Sign Up Link */}
-        <div className={styles.signUpSection}>
-          <p className={styles.signUpText}>
-            Don't have an account?{' '}
-            <Link
-              href="/register"
-              className={styles.signUpLink}
-            >
-              Sign up here
-            </Link>
-          </p>
-        </div>
-
-        {/* Forgot Password - Only show for password method */}
-        {loginMethod === 'password' && (
-          <div className={styles.forgotPasswordSection}>
-            <Link
-              href="/forgot-password"
-              className={styles.forgotPasswordLink}
-            >
-              Forgot your password?
-            </Link>
+          {/* Sign Up Link */}
+          <div className="text-center mt-6">
+            <p className="text-[rgb(var(--color-text-secondary))]">
+              Don't have an account?{' '}
+              <Link
+                href="/register"
+                className="text-[rgb(var(--color-primary))] hover:underline font-medium"
+              >
+                Sign up here
+              </Link>
+            </p>
           </div>
-        )}
 
+          {/* Forgot Password - Only show for password method */}
+          {loginMethod === 'password' && (
+            <div className="text-center mt-4">
+              <Link
+                href="/forgot-password"
+                className="text-[rgb(var(--color-primary))] hover:underline text-sm"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

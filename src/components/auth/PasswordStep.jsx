@@ -1,5 +1,7 @@
+"use client"
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Shield, AlertCircle, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Input } from '../ui';
 
 const PasswordStep = ({
   password,
@@ -43,33 +45,35 @@ const PasswordStep = ({
   ];
 
   return (
-    <div className="animate-slide-in transition-all duration-700 ease-in-out">
-      {/* Progress Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-              ✓
-            </div>
-            <div className="w-16 h-1 bg-green-500 mx-2"></div>
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-              2
-            </div>
-            <div className="w-16 h-1 bg-gray-200 mx-2"></div>
-            <div className="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-semibold">
-              3
+    <div className="animate-slide-in transition-all duration-700 ease-in-out min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+        {/* Progress Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                ✓
+              </div>
+              <div className="w-16 h-1 bg-green-500 mx-2"></div>
+              <div className="w-8 h-8 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                2
+              </div>
+              <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
+              <div className="w-8 h-8 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] rounded-full flex items-center justify-center text-sm font-semibold">
+                3
+              </div>
             </div>
           </div>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Step 2 of 3</p>
         </div>
-        <p className="text-sm text-gray-500">Step 2 of 3</p>
-      </div>
 
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
-        Secure your account, {firstName}! 🔒
-      </h2>
-      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
-        Choose a strong password to keep your data safe
-      </p>
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg">
+          <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2 text-center">
+            Secure your account, {firstName}! 🔒
+          </h2>
+          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6 sm:mb-8 text-center">
+            Choose a strong password to keep your data safe
+          </p>
 
       {/* Error Display */}
       {errors.general && (
@@ -193,6 +197,8 @@ const PasswordStep = ({
             </>
           )}
         </button>
+      </div>
+        </div>
       </div>
     </div>
   );

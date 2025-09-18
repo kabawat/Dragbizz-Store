@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 
 const Card = ({
@@ -11,13 +12,13 @@ const Card = ({
   onClick,
   ...props
 }) => {
-  // Variant classes
+  // Variant classes - Theme aware
   const variantClasses = {
-    default: 'bg-white border border-gray-200',
-    elevated: 'bg-white border-0',
-    outlined: 'bg-white border-2 border-gray-200',
-    filled: 'bg-gray-50 border border-gray-200',
-    glass: 'bg-white bg-opacity-80 backdrop-blur-sm border border-white border-opacity-20'
+    default: 'bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]',
+    elevated: 'bg-[rgb(var(--color-bg-primary))] border-0',
+    outlined: 'bg-[rgb(var(--color-bg-primary))] border-2 border-[rgb(var(--color-border-primary))]',
+    filled: 'bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]',
+    glass: 'bg-[rgb(var(--color-bg-primary))] bg-opacity-80 backdrop-blur-sm border border-[rgb(var(--color-border-primary))] border-opacity-20'
   };
   
   // Padding classes

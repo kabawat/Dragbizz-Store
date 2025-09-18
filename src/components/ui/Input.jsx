@@ -34,21 +34,21 @@ const Input = forwardRef(({
     ? (showPassword ? 'text' : 'password') 
     : type;
   
-  // Base classes - Original common folder styling
-  const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200';
+  // Base classes - Theme aware
+  const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
   
   // Padding classes
   const paddingClasses = LeftIcon ? 'pl-12' : 'pl-4';
   const rightPaddingClasses = (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-12' : 'pr-4';
   
-  // State classes - Original styling
+  // State classes - Theme aware
   const stateClasses = error 
     ? 'border-red-500 bg-red-50' 
     : success
     ? 'border-green-500 bg-green-50'
-    : 'border-gray-200 focus:border-blue-500';
+    : 'border-[rgb(var(--color-border-primary))] focus:border-[rgb(var(--color-primary))]';
   
-  const disabledClasses = disabled ? 'bg-gray-100 cursor-not-allowed' : '';
+  const disabledClasses = disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed opacity-50' : '';
   
   const inputClasses = `${baseClasses} ${paddingClasses} ${rightPaddingClasses} ${stateClasses} ${disabledClasses} ${className}`;
   
@@ -56,14 +56,14 @@ const Input = forwardRef(({
     <div className="relative">
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
         {/* Left Icon */}
         {LeftIcon && (
-          <LeftIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+          <LeftIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[rgb(var(--color-text-tertiary))] w-5 h-5 pointer-events-none" />
         )}
         
         {/* Input Field */}
@@ -106,7 +106,7 @@ const Input = forwardRef(({
           
           {/* Right Icon */}
           {RightIcon && !showPasswordToggle && (
-            <RightIcon className="w-5 h-5 text-gray-400 pointer-events-none" />
+            <RightIcon className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] pointer-events-none" />
           )}
           
           {/* Legacy rightElement support */}
@@ -132,7 +132,7 @@ const Input = forwardRef(({
             <p className="text-sm text-green-600 animate-fade-in">{successMessage}</p>
           )}
           {!error && !success && helperText && (
-            <p className="text-sm text-gray-500">{helperText}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{helperText}</p>
           )}
         </div>
       )}

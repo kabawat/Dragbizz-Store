@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, AlertCircle, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Input } from '../ui';
@@ -64,33 +65,35 @@ const BasicInfoStep = ({
   const isFormValid = firstName.trim() && lastName.trim() && contact.trim() && !errors.firstName && !errors.lastName && !errors.contact && validationStatus === 'available';
 
   return (
-    <div className="animate-slide-in transition-all duration-700 ease-in-out">
-      {/* Progress Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-              1
-            </div>
-            <div className="w-16 h-1 bg-gray-200 mx-2"></div>
-            <div className="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-semibold">
-              2
-            </div>
-            <div className="w-16 h-1 bg-gray-200 mx-2"></div>
-            <div className="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-semibold">
-              3
+    <div className="animate-slide-in transition-all duration-700 ease-in-out min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+        {/* Progress Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                1
+              </div>
+              <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
+              <div className="w-8 h-8 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] rounded-full flex items-center justify-center text-sm font-semibold">
+                2
+              </div>
+              <div className="w-16 h-1 bg-[rgb(var(--color-border-primary))] mx-2"></div>
+              <div className="w-8 h-8 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] rounded-full flex items-center justify-center text-sm font-semibold">
+                3
+              </div>
             </div>
           </div>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Step 1 of 3</p>
         </div>
-        <p className="text-sm text-gray-500">Step 1 of 3</p>
-      </div>
 
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
-        Nice to meet you! 👋
-      </h2>
-      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center">
-        Let's start with some basic information
-      </p>
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg">
+          <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2 text-center">
+            Nice to meet you! 👋
+          </h2>
+          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6 sm:mb-8 text-center">
+            Let's start with some basic information
+          </p>
 
       <div className="space-y-4 sm:space-y-6">
         {/* First Name */}
@@ -137,8 +140,8 @@ const BasicInfoStep = ({
             <div className="mb-2">
               <div className="flex items-center justify-start">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-green-100 text-green-700'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                  : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                   }`}>
                   {contactType === 'email' ? (
                     <>
@@ -198,7 +201,7 @@ const BasicInfoStep = ({
               </p>
             )}
             {validationStatus === 'idle' && (
-              <p className="text-gray-500 text-sm text-left">
+              <p className="text-[rgb(var(--color-text-secondary))] text-sm text-left">
                 Enter your email or phone number - we'll detect the type automatically
               </p>
             )}
@@ -212,24 +215,26 @@ const BasicInfoStep = ({
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
-        <button onClick={onBack} className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </button>
+          {/* Navigation */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6 sm:mt-8">
+            <button onClick={onBack} className="px-6 py-3 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-all duration-500 ease-in-out cursor-pointer flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </button>
 
-        <button
-          onClick={onNext}
-          disabled={!isFormValid}
-          className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${isFormValid
-            ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-        >
-          Continue
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </button>
+            <button
+              onClick={onNext}
+              disabled={!isFormValid}
+              className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-500 ease-in-out w-full sm:w-auto flex items-center justify-center ${isFormValid
+                ? 'bg-[rgb(var(--color-primary))] text-white hover:opacity-90 hover:shadow-lg cursor-pointer'
+                : 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-tertiary))] cursor-not-allowed'
+                }`}
+            >
+              Continue
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -163,14 +163,14 @@ const RegistrationFlow = ({ onComplete }) => {
                 <button
                   type="button"
                   onClick={() => updateFormData('contactType', 'email')}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${formData.contactType === 'email' ? 'bg-white shadow text-blue-600' : 'text-gray-600'}`}>
+                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${formData.contactType === 'email' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}>
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </button>
                 <button
                   type="button"
                   onClick={() => updateFormData('contactType', 'phone')}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${formData.contactType === 'phone' ? 'bg-white shadow text-blue-600' : 'text-gray-600'}`}>
+                  className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all duration-200 cursor-pointer ${formData.contactType === 'phone' ? 'bg-green-600 text-white' : 'text-gray-600'}`}>
                   <Phone className="w-4 h-4 mr-2" />
                   Phone
                 </button>

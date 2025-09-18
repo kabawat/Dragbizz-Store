@@ -1,6 +1,8 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserLocation } from '@/utils/locationUtils';
+import { ThemeProvider } from '../../contexts/ThemeContext';
+import { SettingsPanel } from '../../components/ui';
 
 // Create Location Context
 const LocationContext = createContext();
@@ -58,8 +60,11 @@ export const useLocation = () => {
 // Auth Layout Component
 export default function AuthLayout({ children }) {
   return (
-    <LocationProvider>
-      {children}
-    </LocationProvider>
+    <ThemeProvider>
+      <LocationProvider>
+        {children}
+                <SettingsPanel />
+      </LocationProvider>
+    </ThemeProvider>
   );
 }
