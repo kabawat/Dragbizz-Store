@@ -1,5 +1,6 @@
+"use client"
 import React from 'react';
-import { Button, Card, Input, Badge } from '../components/ui';
+import { Button, Card, Input, Badge } from '@/components/ui';
 
 export default function ThemeDemo() {
   return (

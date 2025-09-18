@@ -52,6 +52,50 @@ class AuthService {
     }
   }
 
+  async sendOTP(credentials) {
+    try {
+      const loginData = {
+        identifier: credentials.identifier,
+        pwds: '', // Empty for OTP login
+        useOtp: true,
+        deviceId: credentials.deviceId || 'web_device_' + Date.now(),
+        platform: credentials.platform || 'web',
+        token: credentials.deviceToken || '',
+        location: credentials.location || '0,0'
+      };
+
+      console.log('AuthService - Send OTP request:', loginData);
+
+      const response = await unauthAxios.post(API_CONFIG.AUTH.LOGIN, loginData);
+
+      return handleApiSuccess(response, 'OTP sent successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'otp-send');
+    }
+  }
+
+  /**
+   * Get retailer service token using auth service token
+   * This is called after successful auth service login
+   * Acts as a refresh token mechanism for retailer service
+   */
+  async getRetailerToken(authServiceToken) {
+    try {
+      console.log('AuthService - Refreshing retailer token with auth service token');
+      
+      const response = await unauthAxios.post('/retailer/auth/', {}, {
+        headers: { 
+          'Authorization': `Bearer ${authServiceToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return handleApiSuccess(response, 'Retailer token refreshed successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'retailer-auth');
+    }
+  }
+
 
   async verifyLoginOTP(otpData) {
     try {
