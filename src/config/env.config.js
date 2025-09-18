@@ -2,12 +2,6 @@
 // Environment configuration
 
 const ENV_CONFIG = {
-  // API Configuration
-  API: {
-    URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
-    TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
-  },
-  
   // App Configuration
   APP: {
     NAME: process.env.NEXT_PUBLIC_APP_NAME || 'DragBizz Store',
@@ -21,9 +15,9 @@ const ENV_CONFIG = {
   
   // Environment Checks
   ENV: {
-    IS_DEVELOPMENT: process.env.APP_ENV === 'development',
-    IS_PRODUCTION: process.env.APP_ENV === 'production',
-    IS_TEST: process.env.APP_ENV === 'test',
+    IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
+    IS_PRODUCTION: process.env.NODE_ENV === 'production',
+    IS_TEST: process.env.NODE_ENV === 'test',
   },
 };
 
@@ -31,6 +25,7 @@ const ENV_CONFIG = {
 const validateEnv = () => {
   const requiredVars = [
     'NEXT_PUBLIC_API_URL',
+    'NEXT_PUBLIC_APP_NAME',
   ];
 
   const missingVars = requiredVars.filter(varName => !process.env[varName]);

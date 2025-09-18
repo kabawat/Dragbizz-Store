@@ -4,7 +4,7 @@
 const API_CONFIG = {
   // Base API Configuration
   BASE: {
-    URL: process.env.NEXT_PUBLIC_API_URL || 'https://dcb2beff0735.ngrok-free.app',
+    URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api',
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
     VERSION: process.env.NEXT_PUBLIC_API_VERSION || 'v1',
   },

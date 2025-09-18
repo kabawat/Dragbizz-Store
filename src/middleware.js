@@ -8,7 +8,8 @@ export function middleware(request) {
     '/dashboard',
     '/profile',
     '/settings',
-    '/admin'
+    '/admin',
+    '/onboarding'
   ];
 
   // Define auth routes that should redirect if already authenticated
@@ -30,17 +31,23 @@ export function middleware(request) {
   );
 
   // Get the token from cookies
-  const token = request.cookies.get('auth-token')?.value;
+  const authToken = request.cookies.get('db_session_id')?.value;
+  
+  // Debug logging
+  console.log('Middleware - Path:', pathname);
+  console.log('Middleware - Auth Token:', authToken ? 'Present' : 'Missing');
+  console.log('Middleware - Is Protected Route:', isProtectedRoute);
+  console.log('Middleware - Is Auth Route:', isAuthRoute);
 
   // If accessing a protected route without a token, redirect to login
-  if (isProtectedRoute && !token) {
+  if (isProtectedRoute && !authToken) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // If accessing auth routes with a token, redirect to dashboard
-  if (isAuthRoute && token) {
+  if (isAuthRoute && authToken) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

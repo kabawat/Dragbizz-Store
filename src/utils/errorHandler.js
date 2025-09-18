@@ -14,6 +14,8 @@ export const handleApiError = (error, context = 'general') => {
         return 'Session expired. Please start login again.';
       case 'register':
         return 'Invalid registration data. Please check your information.';
+      case 'retailer-auth':
+        return 'Invalid or missing authentication token. Please login again.';
       default:
         return 'Invalid credentials. Please check your information.';
     }
@@ -58,6 +60,8 @@ export const handleApiError = (error, context = 'general') => {
       return 'An error occurred while resending OTP. Please try again.';
     case 'register':
       return 'An error occurred during registration. Please try again.';
+    case 'retailer-auth':
+      return 'An error occurred during retailer authentication. Please try again.';
     case 'agency-creation':
       return 'An error occurred while creating agency. Please try again.';
     case 'store-creation':

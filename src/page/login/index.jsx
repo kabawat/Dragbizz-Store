@@ -6,7 +6,9 @@ import { authService } from '@/service/auth';
 import { cookieManager } from '@/utils/cookieManager';
 import { useLocation } from '@/app/(auth)/layout';
 import { handleApiError } from '@/utils/errorHandler';
+import LoginSuccessScreen from '@/components/auth/LoginSuccessScreen';
 import Link from 'next/link';
+import styles from '../style/Login.module.scss';
 
 export default function Login() {
   // Get location from context
@@ -28,6 +30,8 @@ export default function Login() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [loginToken, setLoginToken] = useState(null);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({
     contact: '',
     password: '',
@@ -173,11 +177,15 @@ export default function Login() {
         console.log('Login successful');
         // Save authentication token
         if (result.data.token) {
-          cookieManager.setAuthToken(result.data.token);
-          console.log('Token saved successfully');
+          console.log('Auth service token received');
+          
+          // Set success data and show success screen
+          setSuccessData({
+            firstName: result.data.user?.firstName || 'User',
+            authToken: result.data.token
+          });
+          setShowSuccessScreen(true);
         }
-        // Handle successful login - redirect to dashboard or store auth token
-        // You can add your success logic here
       } else {
         console.log('Login failed, setting error:', result.message);
         setErrors({ general: result.message || 'Login failed. Please try again.' });
@@ -211,7 +219,7 @@ export default function Login() {
         location: userLocation
       };
 
-      const result = await authService.login(loginData);
+      const result = await authService.sendOTP(loginData);
 
       if (result.success) {
         // Store the verification token
@@ -279,16 +287,20 @@ export default function Login() {
 
       const result = await authService.verifyLoginOTP(verifyData);
       setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
-
+      console.log('OTP verification result:', result);
       if (result.success) {
         console.log('OTP verified successfully');
         // Save authentication token
         if (result.data.token) {
-          cookieManager.setAuthToken(result.data.token);
-          console.log('Token saved successfully');
+          console.log('Auth service token received');
+          
+          // Set success data and show success screen
+          setSuccessData({
+            firstName: result.data.user?.firstName || 'User',
+            authToken: result.data.token
+          });
+          setShowSuccessScreen(true);
         }
-        // Handle successful login - redirect to dashboard or store auth token
-        // You can add your success logic here
       } else {
         setErrors(prev => ({ ...prev, otp: result.message || 'Invalid OTP. Please try again.' }));
         setOtpDigits(['', '', '', '', '']);
@@ -330,7 +342,7 @@ export default function Login() {
         location: userLocation
       };
 
-      const result = await authService.login(loginData);
+      const result = await authService.sendOTP(loginData);
 
       if (result.success) {
         // Update the verification 
@@ -377,6 +389,16 @@ export default function Login() {
     console.log(`Login with ${provider}`);
     // Handle social login logic here
   };
+
+  // Show success screen if login was successful
+  if (showSuccessScreen && successData) {
+    return (
+      <LoginSuccessScreen
+        firstName={successData.firstName}
+        authToken={successData.authToken}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
