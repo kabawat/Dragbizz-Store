@@ -34,7 +34,7 @@ const Header = ({ selectedStore = 'Main Store' }) => {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <header className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-b border-[rgb(var(--color-border-primary))]/50 px-6 py-4 shadow-sm relative z-[100]">
+    <header className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-b border-[rgb(var(--color-border-primary))]/50 px-6 py-3 shadow-sm relative z-[100]">
       <div className="flex items-center justify-between">
         {/* Left side - Page Title and Welcome Message */}
         <div>

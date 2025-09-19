@@ -25,7 +25,9 @@ import {
   User,
   MessageSquare,
   Code,
-  Zap
+  Zap,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -90,25 +92,29 @@ const Sidebar = ({ onStoreChange }) => {
   }, []);
 
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[50] transition-all duration-300`}>
+    <div className={`${isCollapsed ? 'w-20' : 'w-72'} bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] transition-all duration-500 ease-in-out`}>
       {/* Logo Section */}
-      <div className="p-6 border-b border-[rgb(var(--color-border-primary))]">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-[rgb(var(--color-primary))] rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-[rgb(var(--color-text-primary))]">RetailManager</span>
+      <div className="px-6 py-6 border-b border-[rgb(var(--color-border-primary))]">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-[rgb(var(--color-primary))] rounded-lg flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-white" />
             </div>
-          )}
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
-          >
-            {isCollapsed ? <Menu className="w-5 h-5 text-[rgb(var(--color-text-primary))]" /> : <X className="w-5 h-5 text-[rgb(var(--color-text-primary))]" />}
-          </button>
+            {!isCollapsed && (
+              <span className="text-xl font-bold text-[rgb(var(--color-text-primary))]">RetailManager</span>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* Toggle Button */}
+      <div className="relative flex justify-end">
+        <button
+          onClick={toggleSidebar}
+          className="absolute cursor-pointer  w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center shadow-sm translate-x-4 -translate-y-4"
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4 text-gray-600" /> : <ChevronLeft className="w-4 h-4 text-gray-600" />}
+        </button>
       </div>
 
       {/* Store Selection */}
@@ -175,21 +181,35 @@ const Sidebar = ({ onStoreChange }) => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {navigationItems.map((item) => {
+        {navigationItems.map((item, index) => {
           const Icon = item.icon;
+          const delay = 10
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-colors ${
+              className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out ${
                 item.active
                   ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                   : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
               }`}
               title={isCollapsed ? item.name : ''}
+              style={{
+                transitionDelay: `${delay}ms`,
+                transform: isCollapsed ? 'translateX(0)' : 'translateX(0)',
+                opacity: 1
+              }}
             >
-              <Icon className={`w-5 h-5 ${item.active ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
-              {!isCollapsed && <span className="font-medium">{item.name}</span>}
+              <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${item.active ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+              <span 
+                className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`} 
+                style={{ 
+                  transitionDelay: `${delay + 50}ms`,
+                  transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
+                }}
+              >
+                {item.name}
+              </span>
             </Link>
           );
         })}
@@ -198,17 +218,31 @@ const Sidebar = ({ onStoreChange }) => {
       {/* Bottom Section */}
       <div className="p-4 border-t border-[rgb(var(--color-border-primary))]">
         {/* Settings Option */}
-        {bottomItems.map((item) => {
+        {bottomItems.map((item, index) => {
           const Icon = item.icon;
+          const delay = 0; // Continue staggered delay
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-colors text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]`}
+              className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]`}
               title={isCollapsed ? item.name : ''}
+              style={{
+                transitionDelay: `${delay}ms`,
+                transform: isCollapsed ? 'translateX(0)' : 'translateX(0)',
+                opacity: 1
+              }}
             >
-              <Icon className="w-5 h-5 text-[rgb(var(--color-text-tertiary))]" />
-              {!isCollapsed && <span className="font-medium">{item.name}</span>}
+              <Icon className="w-6 h-6 text-[rgb(var(--color-text-tertiary))] transition-all duration-500 ease-in-out" />
+              <span 
+                className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`} 
+                style={{ 
+                  transitionDelay: `${delay + 50}ms`,
+                  transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
+                }}
+              >
+                {item.name}
+              </span>
             </Link>
           );
         })}
