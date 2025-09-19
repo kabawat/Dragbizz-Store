@@ -1,13 +1,13 @@
 "use client"
 import React from 'react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { SettingsPanel } from '@/components/ui';
 
 export default function DashboardLayout({ children }) {
   return (
     <ThemeProvider>
-      {children}
-      <SettingsPanel />
+      <div className="min-h-screen">
+        {children}
+      </div>
     </ThemeProvider>
   );
 }
