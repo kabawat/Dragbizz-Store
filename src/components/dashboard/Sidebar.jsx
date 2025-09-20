@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
@@ -31,6 +32,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
+  const pathname = usePathname();
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [selectedStore, setSelectedStore] = useState('Main Store');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -43,16 +45,16 @@ const Sidebar = ({ onStoreChange }) => {
   ];
 
   const navigationItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard', active: true },
-    { name: 'Customers', icon: Users, href: '/customers' },
-    { name: 'Wholesalers', icon: Building2, href: '/wholesalers' },
-    { name: 'Products', icon: Package, href: '/products' },
-    { name: 'Inventory', icon: Warehouse, href: '/inventory' },
-    { name: 'Billing', icon: Receipt, href: '/billing' },
-    { name: 'AI Analytics', icon: TrendingUp, href: '/analytics' },
-    { name: 'Ledger', icon: BookOpen, href: '/ledger' },
-    { name: 'Journal Entry', icon: FileText, href: '/journal' },
-    { name: 'Daily Expenses', icon: DollarSign, href: '/expenses' },
+    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+    { name: 'Customers', icon: Users, href: '/dashboard/customers' },
+    { name: 'Wholesalers', icon: Building2, href: '/dashboard/wholesalers' },
+    { name: 'Products', icon: Package, href: '/dashboard/products' },
+    { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory' },
+    { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
+    { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
+    { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
+    { name: 'Journal Entry', icon: FileText, href: '/dashboard/journal' },
+    { name: 'Daily Expenses', icon: DollarSign, href: '/dashboard/expenses' },
   ];
 
   const bottomItems = [
@@ -111,9 +113,9 @@ const Sidebar = ({ onStoreChange }) => {
       <div className="relative flex justify-end">
         <button
           onClick={toggleSidebar}
-          className="absolute cursor-pointer  w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center shadow-sm translate-x-4 -translate-y-4"
+          className="absolute cursor-pointer w-8 h-8 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-4 -translate-y-4"
         >
-          {isCollapsed ? <ChevronRight className="w-4 h-4 text-gray-600" /> : <ChevronLeft className="w-4 h-4 text-gray-600" />}
+          {isCollapsed ? <ChevronRight className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> : <ChevronLeft className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
         </button>
       </div>
 
@@ -183,13 +185,14 @@ const Sidebar = ({ onStoreChange }) => {
       <nav className="flex-1 p-4 space-y-2">
         {navigationItems.map((item, index) => {
           const Icon = item.icon;
-          const delay = 10
+          const delay = 10;
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.name}
               href={item.href}
               className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out ${
-                item.active
+                isActive
                   ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                   : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
               }`}
@@ -200,7 +203,7 @@ const Sidebar = ({ onStoreChange }) => {
                 opacity: 1
               }}
             >
-              <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${item.active ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+              <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
               <span 
                 className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`} 
                 style={{ 
