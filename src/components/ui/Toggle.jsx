@@ -10,6 +10,12 @@ const Toggle = ({
   variant = 'default',
   disabled = false,
   className = '',
+  // Checkbox-style toggle props
+  label,
+  checked,
+  helperText,
+  error,
+  errorMessage,
   ...props
 }) => {
   const sizeClasses = {
@@ -29,9 +35,65 @@ const Toggle = ({
       onChange?.(optionValue);
     }
   };
+
+  const handleCheckboxToggle = () => {
+    if (!disabled) {
+      onChange?.(!checked);
+    }
+  };
+
+  // Checkbox-style toggle
+  if (label !== undefined) {
+    return (
+      <div className={`space-y-2 ${className}`}>
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={handleCheckboxToggle}
+            disabled={disabled}
+            className={`
+              relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2
+              ${checked 
+                ? 'bg-[rgb(var(--color-primary))]' 
+                : 'bg-[rgb(var(--color-bg-tertiary))]'
+              }
+              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            `}
+            aria-pressed={checked}
+            aria-label={label}
+            {...props}
+          >
+            <span
+              className={`
+                inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out
+                ${checked ? 'translate-x-6' : 'translate-x-1'}
+              `}
+            />
+          </button>
+          {label && (
+            <label className="ml-3 text-sm font-medium text-[rgb(var(--color-text-primary))] cursor-pointer" onClick={handleCheckboxToggle}>
+              {label}
+            </label>
+          )}
+        </div>
+        
+        {(helperText || errorMessage) && (
+          <div className="ml-14">
+            {error && errorMessage && (
+              <p className="text-sm text-[rgb(var(--color-danger))]">{errorMessage}</p>
+            )}
+            {!error && helperText && (
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">{helperText}</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
   
+  // Option-based toggle
   return (
-    <div className={`inline-flex rounded-lg border ${variantClasses[variant]} ${className}`} {...props}>
+    <div className={`inline-flex rounded-lg border ${variantClasses[variant]} ${className}`}>
       {options.map((option, index) => {
         const isSelected = value === option.value;
         const isFirst = index === 0;
