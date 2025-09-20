@@ -15,6 +15,9 @@ import Accordion, { AccordionItem } from './Accordion';
 import AnimatedBackground from './AnimatedBackground';
 import SVGBackground from './SVGBackground';
 import SettingsPanel from './ThemeSelector';
+import Dropdown from './Dropdown';
+import Pagination from './Pagination';
+import Toggle, { ViewToggle } from './Toggle';
 
 // Named exports
 export {
@@ -55,7 +58,11 @@ export {
   AccordionItem,
   AnimatedBackground,
   SVGBackground,
-  SettingsPanel
+  SettingsPanel,
+  Dropdown,
+  Pagination,
+  Toggle,
+  ViewToggle
 };
 
 // Default export
@@ -97,5 +104,9 @@ export default {
   AccordionItem,
   AnimatedBackground,
   SVGBackground,
-  SettingsPanel
+  SettingsPanel,
+  Dropdown,
+  Pagination,
+  Toggle,
+  ViewToggle
 };
