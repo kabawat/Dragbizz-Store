@@ -376,7 +376,7 @@ const ProductsPage = () => {
             
             {/* Product Table */}
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden">
-              <div className="max-h-[calc(100vh-300px)] overflow-y-auto" ref={scrollRef}>
+              <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
                 <ProductTable
                   products={displayedProducts}
                   selectedProducts={selectedProducts}
