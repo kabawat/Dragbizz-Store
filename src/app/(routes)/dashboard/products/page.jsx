@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, SettingsPanel } from '@/components/ui';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui';
 import { ProductTable } from '@/components/product';
 
 const ProductsPage = () => {
+  const router = useRouter();
   // State management
   const [selectedStore, setSelectedStore] = useState('Main Store');
   const [searchValue, setSearchValue] = useState('');
@@ -217,8 +219,8 @@ const ProductsPage = () => {
   };
   
   const handleAddProduct = () => {
-    // Navigate to add product page or open modal
-    console.log('Add new product');
+    // Navigate to add product page
+    router.push('/dashboard/products/add');
   };
   
   const handleExport = () => {

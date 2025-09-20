@@ -18,6 +18,12 @@ import SettingsPanel from './ThemeSelector';
 import Dropdown from './Dropdown';
 import Pagination from './Pagination';
 import Toggle, { ViewToggle } from './Toggle';
+import FileUpload from './FileUpload';
+import MultiSelect from './MultiSelect';
+import TagInput from './TagInput';
+import NumberInput from './NumberInput';
+import RichTextEditor from './RichTextEditor';
+import StepProgress from './StepProgress';
 
 // Named exports
 export {
@@ -62,7 +68,13 @@ export {
   Dropdown,
   Pagination,
   Toggle,
-  ViewToggle
+  ViewToggle,
+  FileUpload,
+  MultiSelect,
+  TagInput,
+  NumberInput,
+  RichTextEditor,
+  StepProgress
 };
 
 // Default export
@@ -108,5 +120,11 @@ export default {
   Dropdown,
   Pagination,
   Toggle,
-  ViewToggle
+  ViewToggle,
+  FileUpload,
+  MultiSelect,
+  TagInput,
+  NumberInput,
+  RichTextEditor,
+  StepProgress
 };
