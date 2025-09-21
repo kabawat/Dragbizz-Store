@@ -1,13 +1,15 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, ChevronDown, User } from 'lucide-react';
-import { useAppSelector } from '@/store/hooks';
 import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
+import { useAppSelector } from '@/store/hooks';
 
 const Header = ({ selectedStore = 'Main Store' }) => {
-  const { user, isLoading } = useAppSelector(state => state.auth);
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
+  
+  // Get user data from Redux
+  const { user, agency, stores } = useAppSelector((state) => state.profile);
   
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
@@ -119,9 +121,11 @@ const Header = ({ selectedStore = 'Main Store' }) => {
                 {/* User Info */}
                 <div className="text-left">
                   <div className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'User'}
+                    {user?.name || user?.email || 'User'}
                   </div>
-                  <div className="text-xs text-[rgb(var(--color-text-secondary))]">Admin</div>
+                  <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                    {agency?.agencyName || 'Admin'}
+                  </div>
                 </div>
 
                 {/* Dropdown Arrow */}
@@ -146,10 +150,9 @@ const Header = ({ selectedStore = 'Main Store' }) => {
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                     <button 
                       onClick={handleLogout}
-                      disabled={isLoading}
-                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 disabled:opacity-50"
+                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10"
                     >
-                      {isLoading ? 'Signing Out...' : 'Sign Out'}
+                      Sign Out
                     </button>
                   </div>
                 </div>
@@ -166,7 +169,6 @@ const Header = ({ selectedStore = 'Main Store' }) => {
             isOpen={isModalOpen}
             onClose={hideLogoutModal}
             onConfirm={confirmLogout}
-            isLoading={isLoading}
           />
         ):<></>
       }

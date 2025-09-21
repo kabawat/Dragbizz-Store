@@ -26,12 +26,12 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <ThemeProvider>
-          <ReduxProvider>
+        <ReduxProvider>
+          <ThemeProvider>
             {children}
             <SettingsPanel />
-          </ReduxProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

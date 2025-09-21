@@ -90,7 +90,17 @@ const initialState = {
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
-  reducers: {},
+  reducers: {
+    // Clear profile data
+    clearAuth: (state) => {
+      state.user = null;
+      state.agency = null;
+      state.stores = [];
+      state.isAuthenticated = false;
+      state.error = null;
+      state.redirectTo = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get retailer details
@@ -131,5 +141,7 @@ const profileSlice = createSlice({
       });
   },
 });
+
+export const { clearAuth } = profileSlice.actions;
 
 export default profileSlice.reducer;

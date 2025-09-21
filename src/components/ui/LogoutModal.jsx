@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, X } from 'lucide-react';
 
-export default function LogoutModal({ onClose, onConfirm, isLoading }) {
+export default function LogoutModal({ onClose, onConfirm }) {
   const modalContent = (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
@@ -76,24 +76,15 @@ export default function LogoutModal({ onClose, onConfirm, isLoading }) {
           <div className="flex space-x-3">
             <button
               onClick={onClose}
-              disabled={isLoading}
-              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              disabled={isLoading}
-              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/90 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/90 text-white rounded-lg font-medium transition-colors"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Signing Out...</span>
-                </>
-              ) : (
-                <span>Sign Out</span>
-              )}
+              Sign Out
             </button>
           </div>
         </div>

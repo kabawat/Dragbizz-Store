@@ -74,29 +74,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Get retailer service token using auth service token
-   * This is called after successful auth service login
-   * Acts as a refresh token mechanism for retailer service
-   */
-  async getRetailerToken(authServiceToken) {
-    try {
-      console.log('AuthService - Refreshing retailer token with auth service token');
-      
-      const response = await unauthAxios.post('/retailer/auth/', {}, {
-        headers: { 
-          'Authorization': `Bearer ${authServiceToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      return handleApiSuccess(response, 'Retailer token refreshed successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'retailer-auth');
-    }
-  }
-
-
+  // veirfy otp 
   async verifyLoginOTP(otpData) {
     try {
       const verifyData = {

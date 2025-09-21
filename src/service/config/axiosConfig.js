@@ -20,13 +20,13 @@ export const unauthAxios = axios.create({
   baseURL: BASE_URL,
 });
 
-// Authenticated axios instance
+// Authenticated axios instance (for auth service)
 export const authAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
 });
 
-// Request interceptor for authenticated requests
+// Request interceptor for authenticated requests (auth service)
 authAxios.interceptors.request.use(
   (config) => {
     const token = cookieManager.getAuthToken();
@@ -59,6 +59,46 @@ authAxios.interceptors.response.use(
   }
 );
 
+// Retailer authenticated axios instance (for retailer service)
+export const retailerAxios = axios.create({
+  ...commonConfig,
+  baseURL: BASE_URL,
+});
+
+// Request interceptor for retailer authenticated requests
+retailerAxios.interceptors.request.use(
+  (config) => {
+    const token = cookieManager.getRetailerToken();
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+retailerAxios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      cookieManager.clearAuth();
+      
+      // Redirect to login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor for unauthenticated requests
 unauthAxios.interceptors.response.use(
   (response) => {
@@ -71,5 +111,6 @@ unauthAxios.interceptors.response.use(
 
 export default {
   authAxios,
+  retailerAxios,
   unauthAxios,
 };

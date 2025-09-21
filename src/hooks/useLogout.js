@@ -1,29 +1,11 @@
-
 import { useState } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { logoutUser } from '@/store/slices/authSlice';
-import { useRouter } from 'next/navigation';
-import { performCompleteLogout } from '@/utils/logoutUtils';
+import { cookieManager } from '../utils/cookieManager';
+import { useAppDispatch } from '../store/hooks';
+import { clearAuth } from '../store/slices/profileSlice';
 
 export function useLogout() {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const logout = async () => {
-    try {
-      // Use complete logout utility
-      const result = await performCompleteLogout(dispatch, logoutUser);
-      return result;
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Force redirect even on error
-      if (typeof window !== 'undefined') {
-        window.location.replace('/');
-      }
-      return { success: false, error };
-    }
-  };
+  const dispatch = useAppDispatch();
 
   const showLogoutModal = () => {
     setIsModalOpen(true);
@@ -33,32 +15,25 @@ export function useLogout() {
     setIsModalOpen(false);
   };
 
-  const confirmLogout = async () => {
+  const confirmLogout = () => {
     try {
-      // Perform complete logout
-      const result = await performCompleteLogout(dispatch, logoutUser);
+      // Clear Redux store
+      dispatch(clearAuth());
       
-      if (result.success) {
-        console.log('Logout completed successfully with page replacement');
-      } else {
-        console.warn('Logout completed but with warnings:', result.error);
-      }
+      // Clear cookies
+      cookieManager.clearAuth();
+
+      // Clear sessionStorage
+      sessionStorage.clear();
       
-      setIsModalOpen(false);
-      
+      window.location.href = '/';
+
     } catch (error) {
-      console.error('Logout error:', error);
-      setIsModalOpen(false);
-      
-      // Force redirect even on error
-      if (typeof window !== 'undefined') {
-        window.location.replace('/');
-      }
+      window.location.href = '/';
     }
   };
 
   return { 
-    logout, 
     showLogoutModal, 
     hideLogoutModal, 
     confirmLogout,

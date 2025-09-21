@@ -2,21 +2,20 @@
 import { authService } from '@/service/auth';
 import { cookieManager } from '@/utils/cookieManager';
 
-/**
- * Complete authentication flow:
- * 1. Auth service login is already complete
- * 2. Refresh retailer token using auth service token
- * 3. Store both tokens
- * 4. Return success/error
- * 
- * This acts as a refresh token mechanism for retailer service
- */
-export const completeAuthFlow = async (authServiceToken) => {
+export const refreshRetailerToken = async () => {
   try {
-    console.log('Starting retailer token refresh flow with auth service token');
+    const authToken = cookieManager.getAuthToken();
     
-    // Refresh retailer token using auth service token
-    const retailerResult = await authService.getRetailerToken(authServiceToken);
+    if (!authToken) {
+      return {
+        success: false,
+        message: 'No auth service token found. Please login again.',
+        redirectTo: '/login'
+      };
+    }
+    
+    console.log('Manually refreshing retailer token...');
+    const retailerResult = await authService.getRetailerToken(authToken);
     
     if (retailerResult.success) {
       console.log('Retailer token refresh successful');
@@ -27,103 +26,52 @@ export const completeAuthFlow = async (authServiceToken) => {
         console.log('Retailer token refreshed and saved successfully');
       }
       
+      // Check for onboarding requirements
+      const { agency, stores } = retailerResult.data;
+      
+      // If no agency data, redirect to agency onboarding
+      if (!agency) {
+        console.log('No agency data found, redirecting to agency onboarding');
+        return {
+          success: false,
+          message: 'Agency details required',
+          redirectTo: '/onboarding/agency'
+        };
+      }
+      
+      // If agency exists but no stores, redirect to store onboarding
+      if (agency && (!stores || stores.length === 0)) {
+        console.log('Agency exists but no stores found, redirecting to store onboarding');
+        return {
+          success: false,
+          message: 'Store details required',
+          redirectTo: '/onboarding/store'
+        };
+      }
+      
       return {
         success: true,
-        data: {
-          authToken: authServiceToken,
-          retailerToken: retailerResult.data.token,
-          user: retailerResult.data.user
-        },
+        data: retailerResult.data,
         message: 'Retailer token refreshed successfully'
       };
     } else {
       console.error('Retailer token refresh failed:', retailerResult.message);
       return {
         success: false,
-        message: retailerResult.message || 'Failed to refresh retailer token'
+        message: retailerResult.message || 'Failed to refresh retailer token',
+        redirectTo: '/login'
       };
     }
-  } catch (error) {
-    console.error('Retailer token refresh flow error:', error);
-    return {
-      success: false,
-      message: 'Retailer token refresh failed. Please try again.'
-    };
-  }
-};
-
-/**
- * Check if user has both tokens (auth service + retailer)
- */
-export const hasValidTokens = () => {
-  const authToken = cookieManager.getAuthToken();
-  const retailerToken = cookieManager.getRetailerToken();
-  
-  return {
-    hasAuthToken: !!authToken,
-    hasRetailerToken: !!retailerToken,
-    hasBothTokens: !!(authToken && retailerToken)
-  };
-};
-
-/**
- * Clear all authentication tokens
- */
-export const clearAllAuth = () => {
-  cookieManager.clearAuth();
-  console.log('All authentication tokens cleared');
-};
-
-/**
- * Manually refresh retailer token using existing auth service token
- * This can be called when retailer token expires
- */
-export const refreshRetailerToken = async () => {
-  try {
-    const authToken = cookieManager.getAuthToken();
-    
-    if (!authToken) {
-      return {
-        success: false,
-        message: 'No auth service token found. Please login again.'
-      };
-    }
-    
-    console.log('Manually refreshing retailer token...');
-    const result = await completeAuthFlow(authToken);
-    
-    if (result.success) {
-      console.log('Retailer token manually refreshed successfully');
-    }
-    
-    return result;
   } catch (error) {
     console.error('Manual retailer token refresh error:', error);
     return {
       success: false,
-      message: 'Failed to refresh retailer token. Please login again.'
+      message: 'Failed to refresh retailer token. Please login again.',
+      redirectTo: '/login'
     };
   }
 };
 
-/**
- * Check if retailer token needs refresh (basic check)
- */
-export const needsTokenRefresh = () => {
-  const retailerToken = cookieManager.getRetailerToken();
-  const authToken = cookieManager.getAuthToken();
-  
-  return {
-    hasRetailerToken: !!retailerToken,
-    hasAuthToken: !!authToken,
-    needsRefresh: !retailerToken && !!authToken
-  };
-};
-
 export default {
-  completeAuthFlow,
-  hasValidTokens,
-  clearAllAuth,
-  refreshRetailerToken,
-  needsTokenRefresh
+  refreshRetailerToken
 };

@@ -2,58 +2,60 @@ import Cookies from 'js-cookie';
 import { ENV_CONFIG } from '@/config';
 
 export const cookieManager = {
+  // Auth Microservice Token (from login/register)
   setAuthToken: (token, expiresInDays = 7) => {
     const options = {
       expires: expiresInDays,
-      secure: false, // Always false for development
-      sameSite: 'lax', // Changed from 'strict' to 'lax'
+      secure: false,
+      sameSite: 'lax',
       path: '/',
-      httpOnly: false, // Allow client-side access for js-cookie
+      httpOnly: false,
     };
     
-    console.log('Setting auth token:', token);
-    console.log('Cookie options:', options);
-    console.log('Token key:', ENV_CONFIG.AUTH.TOKEN_KEY);
-    
-    Cookies.set(ENV_CONFIG.AUTH.TOKEN_KEY, token, options);
-    
-    // Also set a backup cookie with a simpler name for middleware
-    Cookies.set('db_session_id', token, options);
-    
+    // Set auth token cookie
+    Cookies.set(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, token, options);
     // Verify cookie was set
-    const savedToken = Cookies.get(ENV_CONFIG.AUTH.TOKEN_KEY);
-    console.log('Token saved successfully:', !!savedToken);
-    console.log('Saved token value:', savedToken);
+    const savedToken = Cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY);
   },
 
   getAuthToken: () => {
-    const token = Cookies.get(ENV_CONFIG.AUTH.TOKEN_KEY) || null;
-    console.log('Getting auth token:', token);
-    console.log('Token key:', ENV_CONFIG.AUTH.TOKEN_KEY);
-    console.log('All cookies:', document.cookie);
+    const token = Cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY) || null;
+    console.log('Getting auth microservice token:', token);
+    console.log('Auth token key:', ENV_CONFIG.AUTH.AUTH_TOKEN_KEY);
     return token;
   },
 
+  // Retailer Microservice Token (from retailer service)
   setRetailerToken: (token, expiresInDays = 7) => {
     const options = {
       expires: expiresInDays,
-      secure: false, // Always false for development
-      sameSite: 'lax', // Changed from 'strict' to 'lax'
+      secure: false,
+      sameSite: 'lax',
       path: '/',
+      httpOnly: false,
     };
     
-    Cookies.set('retailer_token', token, options);
+    // Set retailer token cookie
+    Cookies.set(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, token, options);
+    
+    // Verify cookie was set
+    const savedToken = Cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY);
   },
 
   getRetailerToken: () => {
-    return Cookies.get('retailer_token') || null;
+    const token = Cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY) || null;
+    return token;
   },
 
-  clearAuth: () => {
-    Cookies.remove(ENV_CONFIG.AUTH.TOKEN_KEY, { path: '/' });
-    Cookies.remove('db_session_id', { path: '/' });
-    Cookies.remove('retailer_token', { path: '/' });
+  // Clear all authentication tokens
+  clearAuth: () => {    
+    // Clear auth microservice tokens
+    Cookies.remove(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, { path: '/' });
+    
+    // Clear retailer microservice tokens
+    Cookies.remove(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, { path: '/' });
   },
+
 };
 
 export default cookieManager;

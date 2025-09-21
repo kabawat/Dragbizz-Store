@@ -10,7 +10,8 @@ const ENV_CONFIG = {
   
   // Authentication
   AUTH: {
-    TOKEN_KEY: process.env.NEXT_PUBLIC_AUTH_TOKEN_KEY || 'db_session_id',
+    AUTH_TOKEN_KEY: process.env.NEXT_PUBLIC_AUTH_TOKEN_KEY || 'db_auth_token',
+    RETAILER_TOKEN_KEY: process.env.NEXT_PUBLIC_RETAILER_TOKEN_KEY || 'db_retailer_token',
   },
   
   // Environment Checks
