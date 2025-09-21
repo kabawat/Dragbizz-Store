@@ -37,13 +37,14 @@ const AddProductPage = () => {
   };
 
   // Handle save as draft
-  const handleSaveDraft = async (data) => {
+  const handleSaveDraft = async (apiPayload) => {
     setLoading(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Saving draft:', data);
+      console.log('💾 Draft Save API Call Successful!');
+      console.log('📤 Draft Payload Sent:', apiPayload);
       
       // Show success message
       setShowUnsavedChanges(false);
@@ -52,7 +53,7 @@ const AddProductPage = () => {
       // You can add a toast notification here
       alert('Draft saved successfully!');
     } catch (error) {
-      console.error('Error saving draft:', error);
+      console.error('❌ Error saving draft:', error);
       alert('Error saving draft. Please try again.');
     } finally {
       setLoading(false);
@@ -60,13 +61,14 @@ const AddProductPage = () => {
   };
 
   // Handle save and publish
-  const handleSaveAndPublish = async (data) => {
+  const handleSaveAndPublish = async (apiPayload) => {
     setLoading(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      console.log('Saving and publishing:', data);
+      console.log('✅ Product Creation API Call Successful!');
+      console.log('📤 API Payload Sent:', apiPayload);
       
       // Show success message
       alert('Product saved and published successfully!');
@@ -74,7 +76,7 @@ const AddProductPage = () => {
       // Redirect to products page
       router.push('/dashboard/products');
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('❌ Error saving product:', error);
       alert('Error saving product. Please try again.');
     } finally {
       setLoading(false);

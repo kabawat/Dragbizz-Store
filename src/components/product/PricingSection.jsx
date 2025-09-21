@@ -3,6 +3,7 @@ import React from 'react';
 import { Input, NumberInput, Select } from '../ui';
 import { DollarSign, Percent, Package } from 'lucide-react';
 import { SectionCard } from '../layout';
+import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
 
 const PricingSection = ({
   formData,
@@ -30,40 +31,9 @@ const PricingSection = ({
     onChange(newData);
   };
 
-  // Currency options
-  const currencyOptions = [
-    { value: 'INR', label: 'Indian Rupee (₹)' },
-    { value: 'USD', label: 'US Dollar ($)' },
-    { value: 'EUR', label: 'Euro (€)' },
-    { value: 'GBP', label: 'British Pound (£)' },
-    { value: 'JPY', label: 'Japanese Yen (¥)' },
-    { value: 'CAD', label: 'Canadian Dollar (C$)' },
-    { value: 'AUD', label: 'Australian Dollar (A$)' }
-  ];
-
-  // Unit of Measure options
-  const uomOptions = [
-    { value: 'piece', label: 'Piece' },
-    { value: 'kg', label: 'Kilogram (kg)' },
-    { value: 'g', label: 'Gram (g)' },
-    { value: 'lb', label: 'Pound (lb)' },
-    { value: 'oz', label: 'Ounce (oz)' },
-    { value: 'liter', label: 'Liter (L)' },
-    { value: 'ml', label: 'Milliliter (ml)' },
-    { value: 'meter', label: 'Meter (m)' },
-    { value: 'cm', label: 'Centimeter (cm)' },
-    { value: 'inch', label: 'Inch (in)' },
-    { value: 'ft', label: 'Foot (ft)' },
-    { value: 'box', label: 'Box' },
-    { value: 'pack', label: 'Pack' },
-    { value: 'set', label: 'Set' },
-    { value: 'pair', label: 'Pair' },
-    { value: 'dozen', label: 'Dozen' },
-    { value: 'gross', label: 'Gross' },
-    { value: 'ream', label: 'Ream' },
-    { value: 'roll', label: 'Roll' },
-    { value: 'sheet', label: 'Sheet' }
-  ];
+  // Use imported options from data constants
+  const currencyOptions = CURRENCY_OPTIONS;
+  const uomOptions = UOM_OPTIONS;
 
   return (
     <>
@@ -157,16 +127,20 @@ const PricingSection = ({
             error={errors.currency}
             errorMessage={errors.currency}
             required
+          searchable
+          placeholder="Select currency"
           />
           <Select
             label="Unit of Measure"
             options={uomOptions}
-            value={formData.uom || 'piece'}
+          value={formData.uom || 'PCS'}
             onChange={(value) => handleFieldChange('uom', value)}
             error={errors.uom}
             errorMessage={errors.uom}
             required
             leftIcon={Package}
+          searchable
+          placeholder="Select unit of measure"
           />
       </div>
 
@@ -186,64 +160,44 @@ const PricingSection = ({
           {/* Left Column - Prices */}
           <div className="space-y-3">
             {formData.basePrice ? (
-              <div className="flex justify-between items-center p-3 rounded-lg" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50 - lighter than white
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(71 85 105)'}}>Base Price:</span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(15 23 42)'}}>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Base Price:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   ₹{parseFloat(formData.basePrice).toFixed(2)}
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg opacity-50" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(107 114 128)'}}>Base Price:</span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(107 114 128)'}}>₹0.00</span>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Base Price:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
             
             {formData.mrp ? (
-              <div className="flex justify-between items-center p-3 rounded-lg" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50 - lighter than white
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(71 85 105)'}}>MRP:</span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(15 23 42)'}}>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">MRP:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   ₹{parseFloat(formData.mrp).toFixed(2)}
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg opacity-50" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(107 114 128)'}}>MRP:</span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(107 114 128)'}}>₹0.00</span>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">MRP:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
             
             {formData.sellingPrice ? (
-              <div className="flex justify-between items-center p-3 rounded-lg border" style={{
-                backgroundColor: 'rgb(59 130 246)', // blue-500
-                borderColor: 'rgb(37 99 235)', // blue-600
-                borderWidth: '1px'
-              }}>
+              <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]">
                 <span className="text-sm font-medium text-white">Selling Price:</span>
                 <span className="text-sm font-bold text-white">
                   ₹{parseFloat(formData.sellingPrice).toFixed(2)}
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg border opacity-50" style={{
-                backgroundColor: 'rgb(239 246 255)', // blue-50
-                borderColor: 'rgb(191 219 254)', // blue-200
-                borderWidth: '1px'
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(107 114 128)'}}>Selling Price:</span>
-                <span className="text-sm font-bold" style={{color: 'rgb(107 114 128)'}}>₹0.00</span>
+              <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Selling Price:</span>
+                <span className="text-sm font-bold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
           </div>
@@ -251,47 +205,36 @@ const PricingSection = ({
           {/* Right Column - Discount & Savings */}
           <div className="space-y-3">
             {formData.discount && parseFloat(formData.discount) > 0 ? (
-              <div className="flex justify-between items-center p-3 rounded-lg border" style={{
-                backgroundColor: 'rgb(240 253 244)', // green-50 equivalent
-                borderColor: 'rgb(187 247 208)', // green-200 equivalent
-                borderWidth: '1px'
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(22 101 52)'}}>Discount:</span>
-                <span className="text-sm font-bold" style={{color: 'rgb(21 128 61)'}}>
+              <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">Discount:</span>
+                <span className="text-sm font-bold text-green-600 dark:text-green-400">
                   {parseFloat(formData.discount).toFixed(2)}%
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Discount:</span>
+              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Discount:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">0%</span>
               </div>
             )}
             
             {formData.mrp && formData.sellingPrice && parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
-              <div className="flex justify-between items-center p-3 rounded-lg border" style={{
-                backgroundColor: 'rgb(239 246 255)', // blue-50 equivalent
-                borderColor: 'rgb(191 219 254)', // blue-200 equivalent
-                borderWidth: '1px'
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(30 64 175)'}}>You Save:</span>
-                <span className="text-sm font-bold" style={{color: 'rgb(29 78 216)'}}>
+              <div className="flex justify-between items-center p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">You Save:</span>
+                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                   ₹{(parseFloat(formData.mrp) - parseFloat(formData.sellingPrice)).toFixed(2)}
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">You Save:</span>
+              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">You Save:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
             
             {formData.basePrice && formData.sellingPrice ? (
-              <div className="flex justify-between items-center p-3 rounded-lg" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50 - lighter than white
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(71 85 105)'}}>Profit Margin:</span>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Profit Margin:</span>
                 <span className={`text-sm font-semibold ${
                   parseFloat(formData.sellingPrice) > parseFloat(formData.basePrice) 
                     ? 'text-green-600 dark:text-green-400' 
@@ -302,12 +245,9 @@ const PricingSection = ({
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg opacity-50" style={{
-                backgroundColor: 'rgb(248 250 252)', // slate-50
-                border: '1px solid rgb(226 232 240)' // slate-200 border
-              }}>
-                <span className="text-sm font-medium" style={{color: 'rgb(107 114 128)'}}>Profit Margin:</span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(107 114 128)'}}>₹0.00</span>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Profit Margin:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
           </div>

@@ -49,11 +49,11 @@ const SectionCard = ({
             </div>
           )}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] leading-tight">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] leading-tight" style={{color: 'rgb(var(--color-text-primary))'}}>
               {title}
             </h3>
             {subtitle && (
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 leading-relaxed">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 leading-relaxed" style={{color: 'rgb(var(--color-text-secondary))'}}>
                 {subtitle}
               </p>
             )}

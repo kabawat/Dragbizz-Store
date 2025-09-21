@@ -1,8 +1,9 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreHorizontal, Edit, Copy, Trash2, Eye, Package, Tag, Calendar } from 'lucide-react';
 import Image from 'next/image';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const ProductCard = ({
   product,
@@ -12,11 +13,27 @@ const ProductCard = ({
   onViewDetails,
   onSelect,
   selected = false,
-  viewMode = 'grid',
   className = '',
   ...props
 }) => {
   const [imageError, setImageError] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
+  const { currentVariant, themeConfig } = useTheme();
+  
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -48,6 +65,21 @@ const ProductCard = ({
   
   const discount = calculateDiscount(product.sellingPrice, product.mrp);
   
+  const getCategoryBadgeStyle = (color) => {
+    if (currentVariant === 'dark') {
+      return {
+        backgroundColor: `${color}20`,
+        color: `${color}CC`,
+        border: `1px solid ${color}50`
+      };
+    } else {
+      return {
+        backgroundColor: `${color}20`,
+        color: `${color}CC`
+      };
+    }
+  };
+  
   const actionMenuItems = [
     {
       value: 'view',
@@ -75,135 +107,33 @@ const ProductCard = ({
     }
   ];
   
-  if (viewMode === 'list') {
-    return (
-      <tr className={`bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200 ${selected ? 'bg-blue-50' : ''} ${className}`} {...props}>
-        {/* Checkbox */}
-        <td className="px-4 py-3">
-          {onSelect && (
-            <input
-              type="checkbox"
-              checked={selected}
-              onChange={(e) => onSelect(product.id, e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-          )}
-        </td>
-        
-        {/* Product Image & Info */}
-        <td className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
-              {product.image && !imageError ? (
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={48}
-                  height={48}
-                  className="object-cover"
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <Package className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-sm">
-                {product.name}
-              </h3>
-              <p className="text-xs text-gray-600">
-                {product.brand}
-              </p>
-            </div>
-          </div>
-        </td>
-        
-        {/* Last Updated */}
-        <td className="px-4 py-3">
-          <span className="text-sm text-gray-900 font-medium">{product.lastUpdated}</span>
-        </td>
-        
-        {/* Performance */}
-        <td className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-24 bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, (product.stock / 25) * 100)}%` }}
-              ></div>
-            </div>
-            <span className="text-sm font-semibold text-gray-700">
-              {Math.min(100, Math.round((product.stock / 25) * 100))}%
-            </span>
-          </div>
-        </td>
-        
-        {/* Categories */}
-        <td className="px-4 py-3">
-          <div className="flex flex-wrap gap-1">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-              {product.category.split(' > ')[0]}
-            </span>
-            {product.category.split(' > ')[1] && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {product.category.split(' > ')[1]}
-              </span>
-            )}
-            {product.stock > 0 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                In Stock
-              </span>
-            )}
-          </div>
-        </td>
-        
-        {/* Price */}
-        <td className="px-4 py-3 text-right">
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-bold text-gray-900">
-              ₹{product.sellingPrice.toLocaleString()}
-            </span>
-            {product.mrp > product.sellingPrice && (
-              <span className="text-xs text-gray-500 line-through">
-                ₹{product.mrp.toLocaleString()}
-              </span>
-            )}
-            {discount > 0 && (
-              <span className="text-xs text-green-600 font-medium">
-                {discount}% off
-              </span>
-            )}
-          </div>
-        </td>
-        
-        {/* Actions */}
-        <td className="px-4 py-3 text-left">
-          <div className="flex items-center gap-2">
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors duration-200">
-              <Edit className="w-4 h-4 text-gray-600" />
-            </button>
-            <Dropdown
-              options={actionMenuItems}
-              value=""
-              onChange={(action) => {
-                const item = actionMenuItems.find(item => item.value === action);
-                item?.onClick();
-              }}
-              trigger={
-                <button className="p-1 hover:bg-gray-100 rounded transition-colors duration-200">
-                  <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                </button>
-              }
-            />
-          </div>
-        </td>
-      </tr>
-    );
-  }
+  const handleMenuToggle = (productId) => {
+    setOpenMenuId(openMenuId === productId ? null : productId);
+  };
+  
+  const handleMenuAction = (productId, action) => {
+    setOpenMenuId(null);
+    switch (action) {
+      case 'view':
+        onViewDetails?.(productId);
+        break;
+      case 'edit':
+        onEdit?.(productId);
+        break;
+      case 'duplicate':
+        onDuplicate?.(productId);
+        break;
+      case 'delete':
+        onDelete?.(productId);
+        break;
+      default:
+        break;
+    }
+  };
   
   // Grid view - Modern Card Design
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div className={`rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -211,24 +141,30 @@ const ProductCard = ({
             type="checkbox"
             checked={selected}
             onChange={(e) => onSelect(product.id, e.target.checked)}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 rounded focus:ring-blue-500"
+            style={{
+              color: themeConfig.primary,
+              borderColor: themeConfig.border,
+              backgroundColor: themeConfig.background
+            }}
           />
         </div>
       )}
       
       {/* Product Image with Gradient Overlay */}
-      <div className="w-full h-56 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
+      <div 
+        className="w-full h-56 bg-gradient-to-br overflow-hidden relative">
         {product.image && !imageError ? (
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-300"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <Package className="w-20 h-20 text-orange-500" />
+          <div className="w-full h-full flex items-center justify-center" style={{ color: themeConfig.textSecondary }}>
+            <Package className="w-20 h-20" style={{ color: themeConfig.textSecondary }} />
           </div>
         )}
         
@@ -237,19 +173,52 @@ const ProductCard = ({
         
         {/* Action Menu */}
         <div className="absolute top-4 right-4">
-          <Dropdown
-            options={actionMenuItems}
-            value=""
-            onChange={(action) => {
-              const item = actionMenuItems.find(item => item.value === action);
-              item?.onClick();
-            }}
-            trigger={
-              <button className="p-2 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 backdrop-blur-sm">
-                <MoreHorizontal className="w-4 h-4 text-gray-600" />
-              </button>
-            }
-          />
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => handleMenuToggle(product.id)}
+              className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer backdrop-blur-sm bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]"
+              title="More Actions"
+            >
+              <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+            
+            {/* Popup Menu */}
+            {openMenuId === product.id && (
+              <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                <button
+                  onClick={() => handleMenuAction(product.id, 'view')}
+                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                >
+                  <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  View Details
+                </button>
+                <button
+                  onClick={() => handleMenuAction(product.id, 'edit')}
+                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                >
+                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleMenuAction(product.id, 'duplicate')}
+                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                >
+                  <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  Duplicate
+                </button>
+                <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                <button
+                  onClick={() => handleMenuAction(product.id, 'delete')}
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Status Badge */}
@@ -278,21 +247,27 @@ const ProductCard = ({
       <div className="p-6 space-y-4">
         {/* Product Name */}
         <div>
-          <h3 className="font-bold text-gray-900 text-xl mb-1">
+          <h3 className="font-bold text-xl mb-1" style={{ color: themeConfig.text }}>
             {product.name}
           </h3>
-          <p className="text-sm text-gray-500 font-medium">
+          <p className="text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
             {product.brand}
           </p>
         </div>
         
         {/* Category Tags */}
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+          <span 
+            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+            style={getCategoryBadgeStyle('#8b5cf6')}
+          >
             {product.category.split(' > ')[0]}
           </span>
           {product.category.split(' > ')[1] && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <span 
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+              style={getCategoryBadgeStyle('#3b82f6')}
+            >
               {product.category.split(' > ')[1]}
             </span>
           )}
@@ -300,34 +275,34 @@ const ProductCard = ({
         
         {/* Stock Info */}
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm" style={{ color: themeConfig.textSecondary }}>
             <span className="font-medium">Stock:</span> {product.stock} units
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm" style={{ color: themeConfig.textSecondary }}>
             <span className="font-medium">SKU:</span> {product.sku}
           </div>
         </div>
         
         {/* Pricing Section */}
-        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+        <div className="rounded-lg p-4 space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Selling Price</span>
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>Selling Price</span>
+            <span className="text-lg font-bold" style={{ color: themeConfig.text }}>
               ₹{product.sellingPrice.toLocaleString()}
             </span>
           </div>
           {product.mrp > product.sellingPrice && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">MRP</span>
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-sm" style={{ color: themeConfig.textSecondary }}>MRP</span>
+              <span className="text-sm line-through" style={{ color: themeConfig.textSecondary }}>
                 ₹{product.mrp.toLocaleString()}
               </span>
             </div>
           )}
           {discount > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-green-600 font-medium">Discount</span>
-              <span className="text-sm text-green-600 font-medium">
+              <span className="text-sm text-green-500 font-medium">Discount</span>
+              <span className="text-sm text-green-500 font-medium">
                 {discount}% off
               </span>
             </div>
@@ -335,7 +310,13 @@ const ProductCard = ({
         </div>
         
         {/* Last Updated */}
-        <div className="text-xs text-gray-400 text-center pt-2 border-t border-gray-200">
+        <div 
+          className="text-xs text-center pt-2 border-t" 
+          style={{ 
+            color: themeConfig.textSecondary,
+            borderColor: themeConfig.border
+          }}
+        >
           Last updated: {product.lastUpdated}
         </div>
       </div>
