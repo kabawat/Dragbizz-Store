@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { cookieManager } from '@/utils/cookieManager';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getRetailerDetails } from '@/store/slices/profileSlice';
@@ -55,10 +54,8 @@ export default function DashboardLayout({ children }) {
 
   // Render dashboard
   return (
-    <ThemeProvider>
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
         {children}
       </div>
-    </ThemeProvider>
   );
 }

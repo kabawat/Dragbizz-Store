@@ -34,7 +34,7 @@ const SectionCard = ({
   
   return (
     <Card
-      className={`${className}`}
+      className={`bg-transparent border-[rgb(var(--color-border-primary))]/30 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 ${className}`}
       {...props}
     >
       {/* Section Header */}

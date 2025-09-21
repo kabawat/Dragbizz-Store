@@ -26,7 +26,7 @@ const AddProductPage = () => {
   const handleFormDataChange = (newData) => {
     setFormData(newData);
     setIsDirty(true);
-    
+
     // Update step completion data if available
     if (newData.stepCompletion) {
       setStepCompletion(newData.stepCompletion);
@@ -42,11 +42,11 @@ const AddProductPage = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Show success message
       setShowUnsavedChanges(false);
       setIsDirty(false);
-      
+
     } catch (error) {
       console.error('❌ Error saving draft:', error);
     } finally {
@@ -60,13 +60,7 @@ const AddProductPage = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('✅ Product Creation API Call Successful!');
-      console.log('📤 API Payload Sent:', apiPayload);
-      
-      // Show success message
-      alert('Product saved and published successfully!');
-      
+
       // Redirect to products page
       router.push('/dashboard/products');
     } catch (error) {
@@ -103,16 +97,16 @@ const AddProductPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
+    <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
       <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
-      
+
       {/* Main Content */}
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+      <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
         <Header />
-        
+
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
@@ -135,7 +129,7 @@ const AddProductPage = () => {
                     showIcons={true}
                   />
                 </div>
-                
+
               </div>
             </div>
 
@@ -152,16 +146,12 @@ const AddProductPage = () => {
                   loading={loading}
                 />
               </div>
-              
+
               {/* Fixed Action Bar */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={loading}
-                    >
+                    <Button variant="outline" onClick={handleCancel} disabled={loading} >
                       Cancel
                     </Button>
                     <Button
@@ -174,7 +164,7 @@ const AddProductPage = () => {
                       Save as Draft
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3">
                     <Button
                       variant="outline"
@@ -251,13 +241,13 @@ const AddProductPage = () => {
             <Alert variant="info">
               This is a preview of how your product will appear to customers.
             </Alert>
-            
+
             {/* Preview Content */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
               <h4 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                 {formData.name || 'Product Name'}
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h5 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">Basic Information</h5>
@@ -267,7 +257,7 @@ const AddProductPage = () => {
                     <div><strong>Description:</strong> {formData.description || 'No description'}</div>
                   </div>
                 </div>
-                
+
                 <div>
                   <h5 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">Pricing</h5>
                   <div className="space-y-2 text-sm">

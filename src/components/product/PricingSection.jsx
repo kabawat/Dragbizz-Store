@@ -2,7 +2,7 @@
 import React from 'react';
 import { Input, NumberInput, Select } from '../ui';
 import { DollarSign, Percent, Package } from 'lucide-react';
-import { SectionCard } from '../layout';
+import { SectionCard, FieldGroup } from '../layout';
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
 
 const PricingSection = ({
@@ -37,9 +37,9 @@ const PricingSection = ({
 
   return (
     <>
-      {/* Price Input Fields */}
-      <div className="space-y-6">
-        {/* Base Price */}
+      {/* Price Input Fields - Divided into 2 groups */}
+      <FieldGroup columns={2} className="">
+        {/* First Group: Base Price & MRP */}
         <div className="group">
           <NumberInput
             label="Base Price"
@@ -58,7 +58,6 @@ const PricingSection = ({
           />
         </div>
 
-        {/* MRP */}
         <div className="group">
           <NumberInput
             label="MRP (Maximum Retail Price)"
@@ -77,7 +76,7 @@ const PricingSection = ({
           />
         </div>
 
-        {/* Selling Price */}
+        {/* Second Group: Selling Price & Discount */}
         <div className="group">
           <NumberInput
             label="Selling Price"
@@ -96,7 +95,6 @@ const PricingSection = ({
           />
         </div>
 
-        {/* Discount - Auto-calculated */}
         <div className="group">
           <NumberInput
             label="Discount Percentage"
@@ -115,10 +113,10 @@ const PricingSection = ({
             disabled={true}
           />
         </div>
-      </div>
+      </FieldGroup>
 
       {/* Currency and UOM */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
           <Select
             label="Currency"
             options={currencyOptions}
