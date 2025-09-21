@@ -4,7 +4,7 @@
 const API_CONFIG = {
   // Base API Configuration
   BASE: {
-    URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api',
+    URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost',
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
     VERSION: process.env.NEXT_PUBLIC_API_VERSION || 'v1',
   },

@@ -43,18 +43,12 @@ const AddProductPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('💾 Draft Save API Call Successful!');
-      console.log('📤 Draft Payload Sent:', apiPayload);
-      
       // Show success message
       setShowUnsavedChanges(false);
       setIsDirty(false);
       
-      // You can add a toast notification here
-      alert('Draft saved successfully!');
     } catch (error) {
       console.error('❌ Error saving draft:', error);
-      alert('Error saving draft. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,21 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authSlice from './slices/authSlice';
-import productSlice from './slices/productSlice';
+import profileSlice from './slices/profileSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authSlice,
-    product: productSlice,
+    profile: profileSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredActions: ['persist/PERSIST'],
       },
     }),
-  devTools: process.env.NODE_ENV !== 'production',
 });
-
-// Export types for TypeScript users (if needed)
-// export type RootState = ReturnType<typeof store.getState>;
-// export type AppDispatch = typeof store.dispatch;

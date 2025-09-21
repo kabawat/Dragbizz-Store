@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import ENV_CONFIG from './config/env.config';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
@@ -8,7 +9,11 @@ export function middleware(request) {
     '/dashboard',
     '/profile',
     '/settings',
-    '/admin',
+    '/admin'
+  ];
+
+  // Define onboarding routes that require auth token
+  const onboardingRoutes = [
     '/onboarding'
   ];
 
@@ -25,28 +30,37 @@ export function middleware(request) {
     pathname.startsWith(route)
   );
 
+  // Check if the current path is an onboarding route
+  const isOnboardingRoute = onboardingRoutes.some(route => 
+    pathname.startsWith(route)
+  );
+
   // Check if the current path is an auth route
   const isAuthRoute = authRoutes.some(route => 
     pathname.startsWith(route)
   );
 
-  // Get the token from cookies
-  const authToken = request.cookies.get('db_session_id')?.value;
-  
-  // Debug logging
-  console.log('Middleware - Path:', pathname);
-  console.log('Middleware - Auth Token:', authToken ? 'Present' : 'Missing');
-  console.log('Middleware - Is Protected Route:', isProtectedRoute);
-  console.log('Middleware - Is Auth Route:', isAuthRoute);
+  // Get both tokens from cookies
+  const authToken = request.cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY)?.value;
+  const retailerToken = request.cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY)?.value;
 
-  // If accessing a protected route without a token, redirect to login
+
+  // For protected routes, we need at least the auth token
+  // Retailer token is optional and can be refreshed later
   if (isProtectedRoute && !authToken) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If accessing auth routes with a token, redirect to dashboard
+  // For onboarding routes, we need auth token
+  if (isOnboardingRoute && !authToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // If accessing auth routes with auth token, redirect to dashboard
   if (isAuthRoute && authToken) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
