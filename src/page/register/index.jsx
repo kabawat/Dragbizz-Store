@@ -7,7 +7,7 @@ import VerificationStep from '@/components/auth/VerificationStep';
 import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
 import { authService } from '@/service/auth';
-import { useLocation } from '@/app/(auth)/layout';
+import { useLocation } from '@/app/LocationProvider';
 
 export default function Register() {
   // Get location from context

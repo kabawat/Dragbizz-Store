@@ -21,6 +21,11 @@ const API_CONFIG = {
     RESEND_VERIFICATION: '/auth/resend-verification',
     PROFILE: '/auth/profile',
   },
+  RETAILER: {
+    PROFILE: '/retailer/profile',
+    AGENCY: '/retailer/agencies',
+    STORE: '/retailer/store',
+  },
     
   // External Services
   EXTERNAL: {
