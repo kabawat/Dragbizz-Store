@@ -6,6 +6,7 @@ import Select from './Select';
 import Textarea from './Textarea';
 import Card, { CardHeader, CardTitle, CardDescription, CardBody, CardFooter, CardImage, CardActions } from './Card';
 import Modal, { ModalHeader, ModalBody, ModalFooter } from './Modal';
+import LogoutModal from './LogoutModal';
 import Divider from './Divider';
 import Alert from './Alert';
 import Badge, { BadgeGroup, StatusBadge, NotificationBadge } from './Badge';
@@ -45,6 +46,7 @@ export {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  LogoutModal,
   Divider,
   Alert,
   Badge,
@@ -97,6 +99,7 @@ export default {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  LogoutModal,
   Divider,
   Alert,
   Badge,

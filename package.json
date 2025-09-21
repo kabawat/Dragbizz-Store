@@ -13,6 +13,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
     "js-cookie": "^3.0.5",
@@ -20,6 +21,7 @@
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-redux": "^9.2.0",
     "sass": "^1.92.1"
   },
   "devDependencies": {

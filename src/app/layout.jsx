@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.scss";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { SettingsPanel } from "../components/ui";
+import { ReduxProvider } from "../store/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,8 +27,10 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
       >
         <ThemeProvider>
-          {children}
-                  <SettingsPanel />
+          <ReduxProvider>
+            {children}
+            <SettingsPanel />
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>
