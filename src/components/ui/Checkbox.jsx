@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Checkbox = ({
   checked = false,
@@ -18,6 +19,8 @@ const Checkbox = ({
   value,
   ...props
 }) => {
+  const { currentVariant, themeConfig } = useTheme();
+  
   // Size variants
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -38,8 +41,8 @@ const Checkbox = ({
   const stateClasses = error
     ? 'border-red-500 focus:ring-red-500'
     : checked
-    ? 'border-blue-500 bg-blue-500 focus:ring-blue-500'
-    : 'border-gray-300 focus:ring-blue-500';
+    ? 'focus:ring-blue-500'
+    : 'focus:ring-blue-500';
   
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
   
@@ -67,9 +70,19 @@ const Checkbox = ({
           {...props}
         />
         
-        <div className={checkboxClasses}>
+        <div 
+          className={checkboxClasses}
+          style={{
+            backgroundColor: checked ? themeConfig.primary : themeConfig.background,
+            borderColor: error ? '#ef4444' : checked ? themeConfig.primary : themeConfig.border,
+            color: checked ? '#ffffff' : themeConfig.text
+          }}
+        >
           {checked && (
-            <Check className={`${iconSizes[size]} text-white animate-bounce-in`} />
+            <Check 
+              className={`${iconSizes[size]} animate-bounce-in`}
+              style={{ color: '#ffffff' }}
+            />
           )}
         </div>
       </div>
@@ -79,7 +92,10 @@ const Checkbox = ({
           {label && (
             <label 
               htmlFor={id}
-              className={`text-sm font-medium cursor-pointer ${disabled ? 'text-gray-400' : 'text-gray-700'}`}
+              className="text-sm font-medium cursor-pointer"
+              style={{ 
+                color: disabled ? themeConfig.textSecondary : themeConfig.text 
+              }}
             >
               {label}
               {required && <span className="text-red-500 ml-1">*</span>}
@@ -87,7 +103,12 @@ const Checkbox = ({
           )}
           
           {description && (
-            <p className={`text-sm mt-1 ${disabled ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p 
+              className="text-sm mt-1"
+              style={{ 
+                color: disabled ? themeConfig.textSecondary : themeConfig.textSecondary 
+              }}
+            >
               {description}
             </p>
           )}

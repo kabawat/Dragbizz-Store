@@ -1,7 +1,8 @@
 "use client"
 import React from 'react';
-import { Toggle, Select, NumberInput, Input } from '../ui';
-import { Receipt, Calculator, Hash } from 'lucide-react';
+import { Toggle, Select } from '../ui';
+import { Calculator } from 'lucide-react';
+import { GST_RATE_OPTIONS } from '../../data';
 
 const GSTSection = ({
   formData,
@@ -10,77 +11,14 @@ const GSTSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    const newData = {
+    onChange({
       ...formData,
       [field]: value
-    };
-
-    // Auto-calculate CGST/SGST/IGST rates when GST rate changes
-    if (field === 'gstRate' && formData.gstType) {
-      const gstRate = parseFloat(value) || 0;
-      const halfRate = gstRate / 2;
-      
-      if (formData.gstType === 'CGST_SGST') {
-        newData.cgstRate = halfRate;
-        newData.sgstRate = halfRate;
-        newData.igstRate = 0;
-        newData.utgstRate = 0;
-      } else if (formData.gstType === 'IGST') {
-        newData.igstRate = gstRate;
-        newData.cgstRate = 0;
-        newData.sgstRate = 0;
-        newData.utgstRate = 0;
-      } else if (formData.gstType === 'UTGST') {
-        newData.utgstRate = halfRate;
-        newData.cgstRate = halfRate;
-        newData.sgstRate = 0;
-        newData.igstRate = 0;
-      }
-    }
-
-    // Auto-calculate rates when GST type changes
-    if (field === 'gstType' && formData.gstRate) {
-      const gstRate = parseFloat(formData.gstRate) || 0;
-      const halfRate = gstRate / 2;
-      
-      if (value === 'CGST_SGST') {
-        newData.cgstRate = halfRate;
-        newData.sgstRate = halfRate;
-        newData.igstRate = 0;
-        newData.utgstRate = 0;
-      } else if (value === 'IGST') {
-        newData.igstRate = gstRate;
-        newData.cgstRate = 0;
-        newData.sgstRate = 0;
-        newData.utgstRate = 0;
-      } else if (value === 'UTGST') {
-        newData.utgstRate = halfRate;
-        newData.cgstRate = halfRate;
-        newData.sgstRate = 0;
-        newData.igstRate = 0;
-      }
-    }
-
-    onChange(newData);
+    });
   };
 
-  // GST Rate options
-  const gstRateOptions = [
-    { value: 0, label: '0% - Exempt' },
-    { value: 0.25, label: '0.25% - Gold' },
-    { value: 3, label: '3% - Gold Jewellery' },
-    { value: 5, label: '5% - Essential Items' },
-    { value: 12, label: '12% - Standard Rate' },
-    { value: 18, label: '18% - Standard Rate' },
-    { value: 28, label: '28% - Luxury Items' }
-  ];
-
-  // GST Type options
-  const gstTypeOptions = [
-    { value: 'CGST_SGST', label: 'CGST + SGST (Intra-state)' },
-    { value: 'IGST', label: 'IGST (Inter-state)' },
-    { value: 'UTGST', label: 'CGST + UTGST (Union Territory)' }
-  ];
+  // Use imported GST rate options from data constants
+  const gstRateOptions = GST_RATE_OPTIONS;
 
   // Calculate total GST amount
   const calculateGSTAmount = () => {
@@ -117,126 +55,8 @@ const GSTSection = ({
               errorMessage={errors.gstRate}
               required
               leftIcon={Calculator}
-            />
-          </div>
-
-          {/* GST Type */}
-          <div className="mb-6">
-            <Select
-              label="GST Type"
-              options={gstTypeOptions}
-              value={formData.gstType || ''}
-              onChange={(value) => handleFieldChange('gstType', value)}
-              error={errors.gstType}
-              errorMessage={errors.gstType}
-              required
-              leftIcon={Receipt}
-            />
-          </div>
-
-          {/* HSN Code */}
-          <div className="mb-6">
-            <Input
-              label="HSN Code"
-              placeholder="Enter HSN code"
-              value={formData.hsnCode || ''}
-              onChange={(value) => handleFieldChange('hsnCode', value)}
-              error={errors.hsnCode}
-              errorMessage={errors.hsnCode}
-              leftIcon={Hash}
-              helperText="Harmonized System of Nomenclature code"
-            />
-          </div>
-
-          {/* SAC Code */}
-          <div className="mb-6">
-            <Input
-              label="SAC Code"
-              placeholder="Enter SAC code (for services)"
-              value={formData.sacCode || ''}
-              onChange={(value) => handleFieldChange('sacCode', value)}
-              error={errors.sacCode}
-              errorMessage={errors.sacCode}
-              leftIcon={Hash}
-              helperText="Service Accounting Code (only for services)"
-            />
-          </div>
-
-          {/* GST Rate Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <NumberInput
-              label="CGST Rate"
-              placeholder="0"
-              value={formData.cgstRate || ''}
-              onChange={(value) => handleFieldChange('cgstRate', value)}
-              error={errors.cgstRate}
-              errorMessage={errors.cgstRate}
-              min={0}
-              max={100}
-              step={0.01}
-              precision={2}
-              helperText="Central GST Rate (%)"
-            />
-            
-            <NumberInput
-              label="SGST Rate"
-              placeholder="0"
-              value={formData.sgstRate || ''}
-              onChange={(value) => handleFieldChange('sgstRate', value)}
-              error={errors.sgstRate}
-              errorMessage={errors.sgstRate}
-              min={0}
-              max={100}
-              step={0.01}
-              precision={2}
-              helperText="State GST Rate (%)"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <NumberInput
-              label="IGST Rate"
-              placeholder="0"
-              value={formData.igstRate || ''}
-              onChange={(value) => handleFieldChange('igstRate', value)}
-              error={errors.igstRate}
-              errorMessage={errors.igstRate}
-              min={0}
-              max={100}
-              step={0.01}
-              precision={2}
-              helperText="Integrated GST Rate (%)"
-            />
-            
-            <NumberInput
-              label="UTGST Rate"
-              placeholder="0"
-              value={formData.utgstRate || ''}
-              onChange={(value) => handleFieldChange('utgstRate', value)}
-              error={errors.utgstRate}
-              errorMessage={errors.utgstRate}
-              min={0}
-              max={100}
-              step={0.01}
-              precision={2}
-              helperText="Union Territory GST Rate (%)"
-            />
-          </div>
-
-          {/* CESS Rate */}
-          <div className="mb-6">
-            <NumberInput
-              label="CESS Rate"
-              placeholder="0"
-              value={formData.cessRate || ''}
-              onChange={(value) => handleFieldChange('cessRate', value)}
-              error={errors.cessRate}
-              errorMessage={errors.cessRate}
-              min={0}
-              max={100}
-              step={0.01}
-              precision={2}
-              helperText="Compensation CESS Rate (%) - Optional"
+              searchable
+              placeholder="Select GST rate"
             />
           </div>
 

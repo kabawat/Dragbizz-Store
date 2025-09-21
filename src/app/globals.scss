@@ -416,6 +416,85 @@
   color: rgb(var(--color-text-primary)) !important;
 }
 
+/* Specific fixes for section headers */
+[data-variant="dark"] h1,
+[data-variant="dark"] h2,
+[data-variant="dark"] h3,
+[data-variant="dark"] h4,
+[data-variant="dark"] h5,
+[data-variant="dark"] h6 {
+  color: rgb(var(--color-text-primary)) !important;
+}
+
+[data-variant="dark"] p {
+  color: rgb(var(--color-text-secondary)) !important;
+}
+
+/* Specific fixes for Select component - Both Light and Dark modes */
+[data-variant="dark"] .select-option,
+[data-variant="dark"] .select-option span,
+[data-variant="dark"] .select-dropdown span,
+[data-variant="dark"] .select-search input {
+  color: rgb(var(--color-text-primary)) !important;
+}
+
+[data-variant="dark"] .select-placeholder {
+  color: rgb(var(--color-text-tertiary)) !important;
+}
+
+/* Light mode text visibility fixes */
+[data-variant="light"] .select-option,
+[data-variant="light"] .select-option span,
+[data-variant="light"] .select-dropdown span,
+[data-variant="light"] .select-search input {
+  color: rgb(var(--color-text-primary)) !important;
+}
+
+[data-variant="light"] .select-placeholder {
+  color: rgb(var(--color-text-tertiary)) !important;
+}
+
+/* Enhanced hover effects for Select options - REMOVED BROAD RULES */
+/* [data-variant="dark"] .select-option:hover {
+  background-color: rgb(var(--color-bg-secondary)) !important;
+} */
+
+[data-variant="dark"] .select-option:focus {
+  background-color: rgba(var(--color-primary), 0.1) !important;
+}
+
+[data-variant="light"] .select-option:focus {
+  background-color: rgba(var(--color-primary), 0.1) !important;
+}
+
+/* Specific hover for dropdown items only - Hardcoded colors for dark mode */
+[data-variant="dark"] .px-4.py-2.cursor-pointer:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* More specific hover for individual option items - Hardcoded colors */
+[data-variant="dark"] .select-dropdown .px-4.py-2.cursor-pointer:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Ensure only individual items get hover effect - Hardcoded colors */
+[data-variant="dark"] .max-h-48 .px-4.py-2:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Light mode hover effects for Select dropdown options - Hardcoded colors */
+[data-variant="light"] .px-4.py-2.cursor-pointer:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-variant="light"] .select-dropdown .px-4.py-2.cursor-pointer:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-variant="light"] .max-h-48 .px-4.py-2:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

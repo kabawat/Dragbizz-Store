@@ -2,6 +2,7 @@
 import React from 'react';
 import { Select, Toggle } from '../ui';
 import { Star, Award, Sparkles } from 'lucide-react';
+import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS } from '@/data';
 
 const StatusSection = ({
   formData,
@@ -16,20 +17,9 @@ const StatusSection = ({
     });
   };
 
-  // Product Status options
-  const statusOptions = [
-    { value: 'DRAFT', label: 'Draft - Not ready for sale' },
-    { value: 'PENDING', label: 'Pending - Awaiting approval' },
-    { value: 'ACTIVE', label: 'Active - Available for sale' },
-    { value: 'INACTIVE', label: 'Inactive - Not available' }
-  ];
-
-  // Visibility options
-  const visibilityOptions = [
-    { value: 'PUBLIC', label: 'Public - Visible to everyone' },
-    { value: 'PRIVATE', label: 'Private - Only visible to you' },
-    { value: 'CATALOG', label: 'Catalog - Visible in catalog only' }
-  ];
+  // Use imported options from data constants
+  const statusOptions = PRODUCT_STATUS_OPTIONS;
+  const visibilityOptions = PRODUCT_VISIBILITY_OPTIONS;
 
   return (
     <>
@@ -44,6 +34,8 @@ const StatusSection = ({
           errorMessage={errors.status}
           required
           helperText="Current status of the product"
+          searchable
+          placeholder="Select product status"
         />
       </div>
 
@@ -58,6 +50,8 @@ const StatusSection = ({
           errorMessage={errors.visibility}
           required
           helperText="Who can see this product"
+          searchable
+          placeholder="Select visibility"
         />
       </div>
 

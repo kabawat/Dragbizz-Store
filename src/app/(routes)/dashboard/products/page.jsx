@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Grid3X3, List, Package, Eye, Edit, Copy, Trash2, MoreVertical, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, Smartphone, Laptop, Headphones, Footprints, Camera, Gamepad2, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -10,7 +10,7 @@ import { AnimatedBackground, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import product components
-import { ProductTable } from '@/components/product';
+import { ProductTable, ProductGrid } from '@/components/product';
 
 const ProductsPage = () => {
   const router = useRouter();
@@ -23,6 +23,7 @@ const ProductsPage = () => {
   const [pageSize] = useState(10);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
   const [filters, setFilters] = useState({
     status: '',
     category: '',
@@ -31,7 +32,7 @@ const ProductsPage = () => {
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const scrollRef = useRef(null);
-  
+
   // Mock data
   const mockProducts = [
     {
@@ -163,7 +164,22 @@ const ProductsPage = () => {
       image: '/api/placeholder/300/300'
     }
   ];
-  
+
+  // Load saved view mode from localStorage
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('products-view-mode');
+    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+      setViewMode(savedViewMode);
+    }
+  }, []);
+
+  // Save view mode to localStorage
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('products-view-mode', mode);
+  };
+
+
   // Initialize displayed products
   useEffect(() => {
     const initialProducts = mockProducts.slice(0, pageSize);
@@ -171,43 +187,43 @@ const ProductsPage = () => {
     setCurrentPage(1);
     setHasMore(true); // Always has more since we're repeating data
   }, []);
-  
+
   // Infinite scroll detection
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollRef.current || isLoadingMore) return;
-      
+
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const threshold = 100; // Load more when 100px from bottom
-      
+
       if (scrollTop + clientHeight >= scrollHeight - threshold) {
         handleLoadMore();
       }
     };
-    
+
     const scrollElement = scrollRef.current;
     if (scrollElement) {
       scrollElement.addEventListener('scroll', handleScroll);
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
   }, [isLoadingMore]);
-  
+
   const handleStoreChange = (storeName) => {
     setSelectedStore(storeName);
   };
-  
+
   // Check if there are active filters
   const hasActiveFilters = searchValue || filters.status || filters.category || filters.brand || filters.priceRange.min || filters.priceRange.max;
-  
+
   // Event handlers
   const handleSearchChange = (value) => {
     setSearchValue(value);
   };
-  
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
-  
+
   const handleClearFilters = () => {
     setFilters({
       status: '',
@@ -217,61 +233,80 @@ const ProductsPage = () => {
     });
     setSearchValue('');
   };
-  
+
   const handleAddProduct = () => {
     // Navigate to add product page
     router.push('/dashboard/products/add');
   };
-  
+
   const handleExport = () => {
     console.log('Export products');
   };
-  
+
   const handleImport = () => {
     console.log('Import products');
   };
-  
+
   // ProductTable event handlers
   const handleProductSelect = (productIds) => {
-    setSelectedProducts(productIds);
+    // Ensure productIds is always an array
+    const idsArray = Array.isArray(productIds) ? productIds : [productIds];
+    setSelectedProducts(idsArray);
   };
-  
-  const handleSelectAll = (productIds) => {
-    setSelectedProducts(productIds);
+
+  const handleCardSelect = (productId) => {
+    setSelectedProducts(prev => {
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId);
+      } else {
+        return [...prev, productId];
+      }
+    });
   };
-  
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      // Select all products
+      const allProductIds = displayedProducts.map(product => product.id);
+      setSelectedProducts(allProductIds);
+    } else {
+      // Deselect all products
+      setSelectedProducts([]);
+    }
+  };
+
   const handleEditProduct = (productId) => {
     console.log('Edit product:', productId);
     // Add your edit logic here
   };
-  
+
   const handleDeleteProduct = (productId) => {
     console.log('Delete product:', productId);
     // Add your delete logic here
   };
-  
+
   const handleDuplicateProduct = (productId) => {
     console.log('Duplicate product:', productId);
     // Add your duplicate logic here
   };
-  
+
   const handleViewProductDetails = (productId) => {
     console.log('View product details:', productId);
     // Add your view details logic here
   };
-  
+
   // Infinite scroll logic - repeat same data
   const handleLoadMore = () => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
-    
+
     // Simulate API call delay
     setTimeout(() => {
       const nextPage = currentPage + 1;
       const startIndex = (nextPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
-      
+
       // Cycle through the same products by using modulo
       const newProducts = [];
       for (let i = startIndex; i < endIndex; i++) {
@@ -283,18 +318,18 @@ const ProductsPage = () => {
           id: `${product.id}_page_${nextPage}_item_${i}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         });
       }
-      
+
       setDisplayedProducts(prev => [...prev, ...newProducts]);
       setCurrentPage(nextPage);
       setIsLoadingMore(false);
     }, 1000); // 1 second delay to simulate API call
   };
-  
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
       <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
-      
+
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
@@ -322,17 +357,9 @@ const ProductsPage = () => {
                     </svg>
                   </div>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button
-                    variant="primary"
-                    onClick={handleAddProduct}
-                    leftIcon={Plus}
-                  >
-                    Add Product
-                  </Button>
-                  
                   <Button
                     variant="outline"
                     onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -348,7 +375,38 @@ const ProductsPage = () => {
                       </span>
                     )}
                   </Button>
-                  
+                  {/* View Toggle */}
+                  <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg ">
+                    <button
+                      onClick={() => handleViewModeChange('table')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                        }`}
+                    >
+                      <List className="w-4 h-4" />
+                      Table
+                    </button>
+                    <button
+                      onClick={() => handleViewModeChange('card')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                        }`}
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                      Cards
+                    </button>
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    onClick={handleAddProduct}
+                    leftIcon={Plus}
+                  >
+                    Add Product
+                  </Button>
+
                   <Button
                     variant="outline"
                     onClick={handleExport}
@@ -360,7 +418,7 @@ const ProductsPage = () => {
                   >
                     Export
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     onClick={handleImport}
@@ -375,27 +433,47 @@ const ProductsPage = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Product Table */}
+
+            {/* Product Display */}
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden">
-              <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
-                <ProductTable
-                  products={displayedProducts}
-                  selectedProducts={selectedProducts}
-                  onSelect={handleProductSelect}
-                  onSelectAll={handleSelectAll}
-                  onEdit={handleEditProduct}
-                  onDelete={handleDeleteProduct}
-                  onDuplicate={handleDuplicateProduct}
-                  onViewDetails={handleViewProductDetails}
-                  loading={false}
-                  emptyMessage="No products found"
-                  hasMore={true}
-                  onLoadMore={handleLoadMore}
-                  isLoadingMore={isLoadingMore}
-                />
-              </div>
-              
+              {viewMode === 'table' ? (
+                <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
+                  <ProductTable
+                    products={displayedProducts}
+                    selectedProducts={selectedProducts}
+                    onSelect={handleProductSelect}
+                    onSelectAll={handleSelectAll}
+                    onEdit={handleEditProduct}
+                    onDelete={handleDeleteProduct}
+                    onDuplicate={handleDuplicateProduct}
+                    onViewDetails={handleViewProductDetails}
+                    loading={false}
+                    emptyMessage="No products found"
+                    hasMore={true}
+                    onLoadMore={handleLoadMore}
+                    isLoadingMore={isLoadingMore}
+                  />
+                </div>
+              ) : (
+                <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
+                  <ProductGrid
+                    products={displayedProducts}
+                    selectedProducts={selectedProducts}
+                    onSelect={handleProductSelect}
+                    onSelectAll={handleSelectAll}
+                    onEdit={handleEditProduct}
+                    onDelete={handleDeleteProduct}
+                    onDuplicate={handleDuplicateProduct}
+                    onViewDetails={handleViewProductDetails}
+                    loading={false}
+                    emptyMessage="No products found"
+                    hasMore={true}
+                    onLoadMore={handleLoadMore}
+                    isLoadingMore={isLoadingMore}
+                  />
+                </div>
+              )}
+
               {/* Fixed Footer */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                 <div className="flex items-center justify-between">
@@ -415,7 +493,7 @@ const ProductsPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Theme Selector */}
       <SettingsPanel />
     </div>

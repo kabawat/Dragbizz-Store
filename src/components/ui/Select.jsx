@@ -111,9 +111,11 @@ const Select = ({
       }
     };
     
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
   
   // Reset highlighted index when options change
   useEffect(() => {
@@ -157,16 +159,20 @@ const Select = ({
                     <span
                       key={option.value}
                       className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))]"
+                      style={{color: 'rgb(var(--color-primary))'}}
                     >
                       {option.label}
                     </span>
                   ))
                 ) : (
-                  <span className="text-[rgb(var(--color-text-tertiary))]">{placeholder}</span>
+                  <span className="text-[rgb(var(--color-text-tertiary))]" style={{color: 'rgb(var(--color-text-tertiary))'}}>{placeholder}</span>
                 )}
               </div>
             ) : (
-              <span className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}>
+              <span 
+                className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}
+                style={{color: selectedOption ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-tertiary))'}}
+              >
                 {selectedOption?.label || placeholder}
               </span>
             )}
@@ -196,10 +202,10 @@ const Select = ({
         
         {/* Dropdown Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Search Input */}
             {searchable && (
-              <div className="p-2 border-b border-[rgb(var(--color-border-primary))]">
+              <div className="p-2 border-b border-[rgb(var(--color-border-primary))]" onClick={(e) => e.stopPropagation()}>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                   <input
@@ -208,14 +214,24 @@ const Select = ({
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Escape') {
+                        setIsOpen(false);
+                        setSearchTerm('');
+                        setHighlightedIndex(-1);
+                      }
+                    }}
                     className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    style={{color: 'rgb(var(--color-text-primary))'}}
                   />
                 </div>
               </div>
             )}
             
             {/* Options List */}
-            <div className="max-h-48 overflow-y-auto">
+            <div className="max-h-48 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option, index) => {
                   const isSelected = multiple 
@@ -227,22 +243,34 @@ const Select = ({
                     <div
                       key={option.value}
                       className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
-                        isHighlighted ? 'bg-[rgb(var(--color-primary))] bg-opacity-10' : 'hover:bg-[rgb(var(--color-bg-secondary))]'
-                      } ${isSelected ? 'bg-[rgb(var(--color-primary))] bg-opacity-10' : ''}`}
+                        (isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
+                      } hover:bg-blue-500 hover:bg-opacity-10`}
+                      style={{
+                        backgroundColor: (isHighlighted || isSelected)
+                          ? 'rgba(59, 130, 246, 0.1)' 
+                          : 'transparent'
+                      }}
                       onClick={() => handleSelect(option)}
                       onMouseEnter={() => setHighlightedIndex(index)}
+                      onMouseLeave={() => setHighlightedIndex(-1)}
                     >
-                      <span className={isSelected ? 'font-medium text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-primary))]'}>
+                      <span 
+                        className={(isHighlighted || isSelected) ? 'font-medium text-blue-500' : 'text-gray-900 dark:text-white'}
+                        style={{color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit'}}
+                      >
                         {option.label}
                       </span>
-                      {isSelected && (
-                        <Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                      {(isHighlighted || isSelected) && (
+                        <Check className="w-4 h-4 text-blue-500" />
                       )}
                     </div>
                   );
                 })
               ) : (
-                <div className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center">
+                <div 
+                  className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center"
+                  style={{color: 'rgb(var(--color-text-secondary))'}}
+                >
                   No options found
                 </div>
               )}
