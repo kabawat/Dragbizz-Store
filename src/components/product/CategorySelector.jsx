@@ -148,25 +148,23 @@ const CategorySelector = ({
   return (
     <div {...props}>
       {/* Category Selection */}
-      <div className="mb-6">
-        <Select
-          label="Category"
-          options={categories}
-          value={formData.category || ''}
-          onChange={(value) => handleFieldChange('category', value)}
-          error={errors.category}
-          errorMessage={errors.category}
-          required
-          leftIcon={Package}
-          searchable
-          placeholder="Select a category"
-          helperText="Choose the main category for your product"
-        />
-      </div>
+      <Select
+        label="Category"
+        options={categories}
+        value={formData.category || ''}
+        onChange={(value) => handleFieldChange('category', value)}
+        error={errors.category}
+        errorMessage={errors.category}
+        required
+        leftIcon={Package}
+        searchable
+        placeholder="Select a category"
+        helperText="Choose the main category for your product"
+      />
 
       {/* Subcategories Selection */}
       {subcategories.length > 0 && (
-        <div className="mb-6">
+        <div className="mt-4">
           <MultiSelect
             label="Subcategories"
             options={subcategories}

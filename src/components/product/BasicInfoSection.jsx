@@ -20,52 +20,60 @@ const BasicInfoSection = ({
 
   return (
     <>
-          {/* Product Name */}
-          <div className="mb-1">
-            <Input
-              label="Product Name"
-              placeholder="Enter product name"
-              value={formData.name || ''}
-              onChange={(value) => handleFieldChange('name', value)}
-              error={errors.name}
-              errorMessage={errors.name}
-              required
-              leftIcon={Package}
-            />
-          </div>
+      {/* First Section - Product Name & Brand */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Product Name */}
+        <div>
+          <Input
+            label="Product Name"
+            placeholder="Enter product name"
+            value={formData.name || ''}
+            onChange={(value) => handleFieldChange('name', value)}
+            error={errors.name}
+            errorMessage={errors.name}
+            required
+            leftIcon={Package}
+          />
+        </div>
 
-          {/* Brand */}
-          <div className="mb-6">
-            <Input
-              label="Brand"
-              placeholder="Enter brand name"
-              value={formData.brand || ''}
-              onChange={(value) => handleFieldChange('brand', value)}
-              error={errors.brand}
-              errorMessage={errors.brand}
-              leftIcon={Tag}
-            />
-          </div>
+        {/* Brand */}
+        <div>
+          <Input
+            label="Brand"
+            placeholder="Enter brand name"
+            value={formData.brand || ''}
+            onChange={(value) => handleFieldChange('brand', value)}
+            error={errors.brand}
+            errorMessage={errors.brand}
+            leftIcon={Tag}
+          />
+        </div>
+      </div>
 
-          {/* Category Selection */}
+      {/* Second Section - Category & Barcode */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Category Selection */}
+        <div>
           <CategorySelector
             formData={formData}
             onChange={handleFieldChange}
             errors={errors}
           />
+        </div>
 
-          {/* Barcode */}
-          <div className="mb-6">
-            <Input
-              label="Barcode"
-              placeholder="Enter barcode (optional)"
-              value={formData.barcode || ''}
-              onChange={(value) => handleFieldChange('barcode', value)}
-              error={errors.barcode}
-              errorMessage={errors.barcode}
-              leftIcon={Barcode}
-            />
-          </div>
+        {/* Barcode */}
+        <div>
+          <Input
+            label="Barcode"
+            placeholder="Enter barcode (optional)"
+            value={formData.barcode || ''}
+            onChange={(value) => handleFieldChange('barcode', value)}
+            error={errors.barcode}
+            errorMessage={errors.barcode}
+            leftIcon={Barcode}
+          />
+        </div>
+      </div>
 
           {/* Product Description */}
           <div className="mb-6">

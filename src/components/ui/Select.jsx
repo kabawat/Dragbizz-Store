@@ -135,7 +135,7 @@ const Select = ({
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative cursor-pointer border border-[rgb(var(--color-border-primary))] rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] ${
+        className={`relative z-[99999] cursor-pointer border-2 border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${
           error
             ? 'border-red-500 focus:ring-red-500'
             : isOpen
@@ -150,7 +150,7 @@ const Select = ({
         aria-haspopup="listbox"
       >
         {/* Selected Value Display */}
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between px-4 py-4">
           <div className="flex-1 min-w-0">
             {multiple ? (
               <div className="flex flex-wrap gap-1">
@@ -169,7 +169,7 @@ const Select = ({
                 )}
               </div>
             ) : (
-              <span 
+              <span
                 className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}
                 style={{color: selectedOption ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-tertiary))'}}
               >
@@ -202,7 +202,7 @@ const Select = ({
         
         {/* Dropdown Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute z-[9999] w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Search Input */}
             {searchable && (
               <div className="p-2 border-b border-[rgb(var(--color-border-primary))]" onClick={(e) => e.stopPropagation()}>
@@ -223,7 +223,7 @@ const Select = ({
                         setHighlightedIndex(-1);
                       }
                     }}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
                     style={{color: 'rgb(var(--color-text-primary))'}}
                   />
                 </div>

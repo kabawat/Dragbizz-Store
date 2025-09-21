@@ -142,7 +142,7 @@ const MultiSelect = ({
       <div
         ref={selectRef}
         className={`
-          relative cursor-pointer border border-[rgb(var(--color-border-primary))] rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))]
+          relative cursor-pointer border-2 border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent
           ${error
             ? 'border-red-500 focus:ring-red-500'
             : isOpen
@@ -159,7 +159,7 @@ const MultiSelect = ({
         aria-haspopup="listbox"
       >
         {/* Selected Values Display */}
-        <div className="flex items-center justify-between px-4 py-3 min-h-[48px]">
+        <div className="flex items-center justify-between px-4 py-4">
           <div className="flex-1 min-w-0">
             {selectedOptions.length > 0 ? (
               <div className="flex flex-wrap gap-1">
@@ -215,7 +215,7 @@ const MultiSelect = ({
         
         {/* Dropdown Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden">
             {/* Search Input */}
             {searchable && (
               <div className="p-2 border-b border-[rgb(var(--color-border-primary))]">
@@ -227,7 +227,7 @@ const MultiSelect = ({
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
                   />
                 </div>
               </div>

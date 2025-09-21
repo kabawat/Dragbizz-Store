@@ -22,9 +22,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Sortable Section Component
@@ -41,7 +39,7 @@ const SortableSection = ({ id, children, title, subtitle, icon: Icon }) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.8 : 1,
   };
 
   return (
@@ -85,7 +83,7 @@ const ProductForm = ({
     subcategories: [],
     barcode: '',
     tags: [],
-    
+
     // Pricing
     basePrice: '',
     mrp: '',
@@ -93,11 +91,11 @@ const ProductForm = ({
     discount: '',
     currency: 'INR',
     uom: 'PCS',
-    
+
     // GST
     gstApplicable: false,
     gstRate: '',
-    
+
     // SEO Content
     metaTitle: '',
     metaDescription: '',
@@ -107,21 +105,21 @@ const ProductForm = ({
     twitterTitle: '',
     twitterDescription: '',
     canonicalUrl: '',
-    
+
     // Content
     shortDescription: '',
     longDescription: '',
     features: [],
     specifications: [],
     highlights: [],
-    
+
     // Status
     status: 'ACTIVE',
     visibility: 'PUBLIC',
     featured: false,
     bestSeller: false,
     newArrival: false,
-    
+
     ...initialData
   });
 
@@ -191,14 +189,14 @@ const ProductForm = ({
         const value = formData[field];
         return value !== '' && value !== null && value !== undefined;
       });
-      
-      const isCompleted = step.requiredFields.length === 0 || 
+
+      const isCompleted = step.requiredFields.length === 0 ||
         completedFields.length === step.requiredFields.length;
-      
+
       return {
         ...step,
         completed: isCompleted,
-        progress: step.requiredFields.length > 0 ? 
+        progress: step.requiredFields.length > 0 ?
           Math.round((completedFields.length / step.requiredFields.length) * 100) : 100
       };
     });
@@ -226,7 +224,7 @@ const ProductForm = ({
   const handleFormDataChange = (newData) => {
     setFormData(newData);
     setIsDirty(true);
-    
+
     // Clear errors for changed fields
     const changedFields = Object.keys(newData);
     const newErrors = { ...errors };
@@ -366,11 +364,6 @@ const ProductForm = ({
 
     // Transform form data to API payload
     const apiPayload = transformToApiPayload(formData, isDraft);
-    
-    // Console log the API payload
-    console.log('🚀 API Payload for Product Creation:', apiPayload);
-    console.log('📊 Form Data (Raw):', formData);
-    console.log('📋 Payload Structure:', JSON.stringify(apiPayload, null, 2));
 
     if (isDraft) {
       onSaveDraft?.(apiPayload);
@@ -420,18 +413,8 @@ const ProductForm = ({
             {sections.map((section, index) => {
               const SectionComponent = section.component;
               return (
-                <SortableSection
-                  key={section.id}
-                  id={section.id}
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  icon={section.icon}
-                >
-                  <SectionComponent
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    errors={errors}
-                  />
+                <SortableSection subtitle={section.subtitle} title={section.title} icon={section.icon} key={section.id} id={section.id} >
+                  <SectionComponent formData={formData} onChange={handleFormDataChange} errors={errors} />
                 </SortableSection>
               );
             })}
