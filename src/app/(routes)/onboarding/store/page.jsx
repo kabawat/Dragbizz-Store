@@ -2,11 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { Store, MapPin, Phone, Mail, ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Building2 } from 'lucide-react';
 import { Input, Button, Card, AnimatedBackground, Select } from '@/components/ui';
-// API integration removed for now
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { createStore } from '@/store/slices/profileSlice';
+import { useLocation } from '@/app/LocationProvider';
 import { useRouter } from 'next/navigation';
+import StoreCreationSuccess from '@/components/auth/StoreCreationSuccess';
 
 export default function StoreCreation() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { agency, isLoading: profileLoading, error } = useAppSelector((state) => state.profile);
+  const { userLocation } = useLocation();
+  console.log('agency from Redux:', agency);
+  console.log('user location:', userLocation);
   const [formData, setFormData] = useState({
     agency: '',
     name: '',
@@ -26,21 +34,18 @@ export default function StoreCreation() {
     pan: ''
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [createdAgency, setCreatedAgency] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
 
-  // Load created agency data
+  // Load agency data from Redux
   useEffect(() => {
-    const agencyData = localStorage.getItem('created_agency');
-    if (agencyData) {
-      const agency = JSON.parse(agencyData);
-      setCreatedAgency(agency);
-      setFormData(prev => ({ ...prev, agency: agency.id }));
+    if (agency?.agencyId) {
+      setFormData(prev => ({ ...prev, agency: agency.agencyId }));
     } else {
       // If no agency data, redirect to agency creation
       router.push('/onboarding/agency');
     }
-  }, [router]);
+  }, [agency, router]);
 
   const updateFormData = (field, value) => {
     if (field.includes('.')) {
@@ -98,26 +103,45 @@ export default function StoreCreation() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setErrors({});
 
-    // Simulate API call delay
-    setTimeout(() => {
-      console.log('Store data:', formData);
+    try {
+      // Prepare store data with location
+      const storeData = {
+        ...formData,
+        location: userLocation
+      };
+
+      console.log('Submitting store data:', storeData);
+
+      const result = await dispatch(createStore(storeData));
       
-      // Clear onboarding data and redirect to dashboard
-      localStorage.removeItem('created_agency');
-      setIsLoading(false);
-      router.push('/dashboard');
-    }, 1000);
+      if (createStore.fulfilled.match(result)) {
+        console.log('Store created successfully');
+        setShowSuccessScreen(true);
+      } else if (createStore.rejected.match(result)) {
+        console.log('Store creation failed:', result.payload);
+        setErrors({ general: result.payload?.message || 'Failed to create store' });
+      }
+    } catch (error) {
+      console.error('Store creation error:', error);
+      setErrors({ general: 'An error occurred while creating store. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
     router.push('/onboarding/agency');
+  };
+
+  const handleContinue = () => {
+    window.location.href = '/dashboard';
   };
 
   const storeCategories = [
@@ -133,7 +157,12 @@ export default function StoreCreation() {
     { value: 'other', label: 'Other' }
   ];
 
-  if (!createdAgency) {
+  // Show success screen if store creation was successful
+  if (showSuccessScreen) {
+    return <StoreCreationSuccess onContinue={handleContinue} />;
+  }
+
+  if (profileLoading || !agency) {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
         <div className="text-center">
@@ -184,17 +213,17 @@ export default function StoreCreation() {
             <div className="flex items-center justify-center mb-2">
               <Building2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] mr-2" />
               <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Agency: <span className="font-semibold text-[rgb(var(--color-text-primary))]">{createdAgency.name}</span>
+                Agency: <span className="font-semibold text-[rgb(var(--color-text-primary))]">{agency.agencyName}</span>
               </span>
             </div>
           </div>
 
           {/* Error Display */}
-          {errors.general && (
+          {(errors.general || error) && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
               <div className="flex items-center">
                 <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-                <span className="text-red-700 text-sm">{errors.general}</span>
+                <span className="text-red-700 text-sm">{errors.general || error}</span>
               </div>
             </div>
           )}
@@ -414,12 +443,12 @@ export default function StoreCreation() {
               <Button
                 type="submit"
                 variant="primary"
-                disabled={isLoading || !formData.name.trim() || !formData.phone.trim() || !formData.address.city.trim()}
+                disabled={isSubmitting || !formData.name.trim() || !formData.phone.trim() || !formData.address.city.trim()}
                 rightIcon={ArrowRight}
-                loading={isLoading}
+                loading={isSubmitting}
                 className="w-full sm:w-auto sm:min-w-[160px]"
               >
-                {isLoading ? 'Creating Store...' : 'Create Store'}
+                {isSubmitting ? 'Creating Store...' : 'Create Store'}
               </Button>
             </div>
           </form>

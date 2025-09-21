@@ -4,7 +4,7 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircl
 import { Input, AnimatedBackground } from '@/components/ui';
 import { authService } from '@/service/auth';
 import { cookieManager } from '@/utils/cookieManager';
-import { useLocation } from '@/app/(auth)/layout';
+import { useLocation } from '@/app/LocationProvider';
 import { handleApiError } from '@/utils/errorHandler';
 import LoginSuccessScreen from '@/components/auth/LoginSuccessScreen';
 import Link from 'next/link';

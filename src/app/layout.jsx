@@ -3,6 +3,7 @@ import "./globals.scss";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { SettingsPanel } from "../components/ui";
 import { ReduxProvider } from "../store/provider";
+import { LocationProvider } from "./LocationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +29,10 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <ThemeProvider>
-            {children}
-            <SettingsPanel />
+            <LocationProvider>
+              {children}
+              <SettingsPanel />
+            </LocationProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>

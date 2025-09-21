@@ -1,7 +1,9 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { setSelectedStore } from '@/store/slices/profileSlice';
 import { 
   LayoutDashboard, 
   Users, 
@@ -38,18 +40,24 @@ import {
 
 const Sidebar = ({ onStoreChange }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { agency, stores: reduxStores, selectedStore } = useAppSelector((state) => state.profile);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
-  const [selectedStore, setSelectedStore] = useState('Main Store');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
 
-  const stores = [
-    { name: 'Main Store', gst: '22AAAAA0000A1Z5', isActive: true },
-    { name: 'Branch Store', gst: '22BBBBB0000B1Z5', isActive: false },
-    { name: 'Warehouse Store', gst: '22CCCCC0000C1Z5', isActive: false },
-  ];
+  // Use Redux stores data, fallback to mock data if not available
+  const stores = reduxStores && reduxStores.length > 0 
+    ? reduxStores.map(store => ({
+        name: store.storeName,
+        gst: store.gst,
+        isActive: store.storeStatus === 'ACTIVE'
+      }))
+    : [];
+
 
   const productSubMenuItems = [
     { name: 'All Products', icon: Package, href: '/dashboard/products' },
@@ -77,7 +85,8 @@ const Sidebar = ({ onStoreChange }) => {
   ];
 
   const handleStoreSelect = (storeName) => {
-    setSelectedStore(storeName);
+    console.log('Selecting store:', storeName);
+    dispatch(setSelectedStore(storeName));
     setIsStoreDropdownOpen(false);
     if (onStoreChange) {
       onStoreChange(storeName);
@@ -85,8 +94,8 @@ const Sidebar = ({ onStoreChange }) => {
   };
 
   const handleAddNewStore = () => {
-    // Handle add new store logic here
-    console.log('Add new store clicked');
+    // Redirect to store creation page
+    router.push('/onboarding/store');
     setIsStoreDropdownOpen(false);
   };
 
@@ -97,6 +106,11 @@ const Sidebar = ({ onStoreChange }) => {
   const toggleProductsDropdown = () => {
     setIsProductsDropdownOpen(!isProductsDropdownOpen);
   };
+
+  // Debug selectedStore changes
+  useEffect(() => {
+    console.log('Selected store changed to:', selectedStore);
+  }, [selectedStore]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -127,7 +141,9 @@ const Sidebar = ({ onStoreChange }) => {
                 <ShoppingCart className="w-5 h-5 text-white" />
               </div>
               {!isCollapsed && (
-                <span className="text-xl font-bold text-[rgb(var(--color-text-primary))]">RetailManager</span>
+                <span className="text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                  {agency?.agencyName || 'RetailManager'}
+                </span>
               )}
             </div>
           </div>
@@ -155,7 +171,7 @@ const Sidebar = ({ onStoreChange }) => {
                 <div>
                   <div className="font-semibold text-gray-900">{selectedStore}</div>
                   <div className="text-sm text-gray-600">
-                    GST: {stores.find(store => store.name === selectedStore)?.gst}
+                    GST: {stores.find(store => store.name === selectedStore)?.gst || 'N/A'}
                   </div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
@@ -165,27 +181,30 @@ const Sidebar = ({ onStoreChange }) => {
               {isStoreDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="p-2">
-                    {stores.map((store) => (
-                      <div
-                        key={store.name}
-                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${
-                          store.name === selectedStore ? 'bg-[rgb(var(--color-primary))]/5' : ''
-                        }`}
-                        onClick={() => handleStoreSelect(store.name)}
-                      >
-                        <div>
-                          <div className={`font-medium ${store.name === selectedStore ? 'text-gray-900' : 'text-gray-900'}`}>
-                            {store.name}
+                    {stores.map((store) => {
+                      const isSelected = store.name === selectedStore;
+                      return (
+                        <div
+                          key={store.name}
+                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${
+                            isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''
+                          }`}
+                          onClick={() => handleStoreSelect(store.name)}
+                        >
+                          <div>
+                            <div className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-900'}`}>
+                              {store.name}
+                            </div>
+                            <div className={`text-sm ${isSelected ? 'text-gray-600' : 'text-gray-500'}`}>
+                              GST: {store.gst}
+                            </div>
                           </div>
-                          <div className={`text-sm ${store.name === selectedStore ? 'text-gray-600' : 'text-gray-500'}`}>
-                            GST: {store.gst}
-                          </div>
+                          {isSelected && (
+                            <Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                          )}
                         </div>
-                        {store.name === selectedStore && (
-                          <Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                     
                     {/* Add New Store Button */}
                     <div className="border-t border-[rgb(var(--color-border-primary))] mt-2 pt-2">
