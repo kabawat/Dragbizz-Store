@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check, Search } from 'lucide-react';
 
 const Select = ({
@@ -101,10 +102,26 @@ const Select = ({
     onChange?.(multiple ? [] : '');
   };
   
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or when another select opens
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      // Check if click is outside both the select container and the portal dropdown
+      const isClickInsideSelect = selectRef.current && selectRef.current.contains(event.target);
+      const isClickInsideDropdown = event.target.closest('.select-dropdown');
+      
+      if (!isClickInsideSelect && !isClickInsideDropdown) {
+        setIsOpen(false);
+        setSearchTerm('');
+        setHighlightedIndex(-1);
+      }
+    };
+
+    const handleSelectOpen = (event) => {
+      // If another select opens, close this one
+      const isClickInsideSelect = selectRef.current && selectRef.current.contains(event.target);
+      const isClickInsideDropdown = event.target.closest('.select-dropdown');
+      
+      if (isOpen && !isClickInsideSelect && !isClickInsideDropdown) {
         setIsOpen(false);
         setSearchTerm('');
         setHighlightedIndex(-1);
@@ -113,7 +130,11 @@ const Select = ({
     
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener('click', handleSelectOpen);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('click', handleSelectOpen);
+      };
     }
   }, [isOpen]);
   
@@ -121,9 +142,23 @@ const Select = ({
   useEffect(() => {
     setHighlightedIndex(-1);
   }, [filteredOptions]);
+
+  // Calculate dropdown position for portal
+  const getDropdownPosition = () => {
+    if (!isOpen || !selectRef.current) return null;
+    
+    const rect = selectRef.current.getBoundingClientRect();
+    return {
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width
+    };
+  };
+
+  const dropdownPosition = getDropdownPosition();
   
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative select-container ${className}`}>
       {/* Label */}
       {label && (
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -135,7 +170,11 @@ const Select = ({
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative z-[99999] cursor-pointer border-2 border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${
+        className={`relative cursor-pointer border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${
+          error 
+            ? 'border-red-500 bg-red-50' 
+            : 'border-[rgb(var(--color-border-primary))]'
+        } ${
           error
             ? 'border-red-500 focus:ring-red-500'
             : isOpen
@@ -200,12 +239,26 @@ const Select = ({
           </div>
         </div>
         
-        {/* Dropdown Options */}
-        {isOpen && (
-          <div className="absolute z-[9999] w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        {/* Dropdown Options - Portal */}
+        {isOpen && dropdownPosition && createPortal(
+          <div 
+            style={{
+              position: 'fixed',
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+              width: dropdownPosition.width,
+              zIndex: 999999
+            }}
+            className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden" 
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Search Input */}
             {searchable && (
-              <div className="p-2 border-b border-[rgb(var(--color-border-primary))]" onClick={(e) => e.stopPropagation()}>
+              <div 
+                className="p-2 border-b border-[rgb(var(--color-border-primary))]" 
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                   <input
@@ -214,7 +267,13 @@ const Select = ({
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
                     onKeyDown={(e) => {
                       e.stopPropagation();
                       if (e.key === 'Escape') {
@@ -231,7 +290,11 @@ const Select = ({
             )}
             
             {/* Options List */}
-            <div className="max-h-48 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div 
+              className="max-h-48 overflow-y-auto" 
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option, index) => {
                   const isSelected = multiple 
@@ -275,7 +338,8 @@ const Select = ({
                 </div>
               )}
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
       

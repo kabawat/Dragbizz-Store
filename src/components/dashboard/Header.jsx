@@ -5,12 +5,11 @@ import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
 import { useAppSelector } from '@/store/hooks';
 
-const Header = ({ selectedStore = 'Main Store' }) => {
+const Header = () => {
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
   
   // Get user data from Redux
-  const { user, agency, stores } = useAppSelector((state) => state.profile);
-  
+  const { user, agency, stores ,selectedStore} = useAppSelector((state) => state.profile);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -53,7 +52,7 @@ const Header = ({ selectedStore = 'Main Store' }) => {
           <div>
             <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-1">Dashboard</h1>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              Welcome back! Here's what's happening with {selectedStore} today.
+              Welcome back! Here's what's happening with {selectedStore?.name || selectedStore?.storeName || 'your store'} today.
             </p>
           </div>
 

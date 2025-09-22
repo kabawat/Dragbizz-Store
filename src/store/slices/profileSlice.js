@@ -1,6 +1,7 @@
 // src/store/slices/profileSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService, retailerService } from '@/service/auth';
+import { authService } from '@/service/auth';
+import { storeService } from '@/service/retailer';
 import { cookieManager } from '@/utils/cookieManager';
 
 // Async thunk for creating agency
@@ -8,7 +9,7 @@ export const createAgency = createAsyncThunk(
   'profile/createAgency',
   async (agencyData, { rejectWithValue }) => {
     try {
-      const result = await retailerService.createAgency(agencyData);
+      const result = await storeService.createAgency(agencyData);
       
       if (!result.success) {
         return rejectWithValue({
@@ -34,7 +35,7 @@ export const createStore = createAsyncThunk(
   'profile/createStore',
   async (storeData, { rejectWithValue }) => {
     try {
-      const result = await retailerService.createStore(storeData);
+      const result = await storeService.createStore(storeData);
       
       if (!result.success) {
         return rejectWithValue({
@@ -73,11 +74,8 @@ export const getRetailerDetails = createAsyncThunk(
       const currentState = getState();
       const existingAgency = currentState.profile.agency;
       
-      console.log('Existing agency in Redux:', existingAgency);
-      
       // If agency exists in Redux, skip API call and proceed
       if (existingAgency) {
-        console.log('Agency already exists in Redux, skipping API call');
         return {
           success: true,
           data: {
@@ -89,10 +87,8 @@ export const getRetailerDetails = createAsyncThunk(
         };
       }
             
-      // Get retailer data using retailer service
-      const profileResult = await retailerService.getRetailerProfile();
-      
-      console.log('Profile API Response:', profileResult);
+      // Get retailer data using store service
+      const profileResult = await storeService.getRetailerProfile();
       
       if (!profileResult.success) {
         return rejectWithValue({
@@ -116,16 +112,9 @@ export const getRetailerDetails = createAsyncThunk(
         stores: actualData.stores || []
       };
       
-      console.log('Combined Data:', combinedData);
-      
-      // Check for onboarding requirements
       const { agency, stores } = combinedData;
-      
-      console.log('Agency check:', { agency, hasAgency: !!agency });
-      
       // If no agency data, set redirect to agency onboarding
       if (!agency) {
-        console.log('No agency found, redirecting to agency onboarding');
         return rejectWithValue({
           message: 'Agency details required',
           redirectTo: '/onboarding/agency'
@@ -134,7 +123,6 @@ export const getRetailerDetails = createAsyncThunk(
       
       // If agency exists but no stores, still return success but with redirect
       if (agency && (!stores || stores.length === 0)) {
-        console.log('Agency found but no stores, will redirect to store onboarding');
         return {
           success: true,
           data: combinedData,  // ← Agency data भी include करें
@@ -142,8 +130,6 @@ export const getRetailerDetails = createAsyncThunk(
           redirectTo: '/onboarding/store'  // ← Redirect info के साथ success return
         };
       }
-      
-      console.log('Onboarding complete, proceeding to dashboard');
       
       return {
         success: true,
@@ -179,7 +165,6 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    // Clear profile data
     clearAuth: (state) => {
       state.user = null;
       state.agency = null;
@@ -189,7 +174,6 @@ const profileSlice = createSlice({
       state.error = null;
       state.redirectTo = null;
     },
-    // Set selected store
     setSelectedStore: (state, action) => {
       state.selectedStore = action.payload;
     },
@@ -260,9 +244,8 @@ const profileSlice = createSlice({
         // Update stores data
         if (data.stores) {
           state.stores = data.stores;
-          // Set first store as selected if no store is selected
           if (!state.selectedStore && data.stores.length > 0) {
-            state.selectedStore = data.stores[0].storeName;
+            state.selectedStore = data.stores[0];
           }
         }
         

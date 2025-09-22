@@ -20,8 +20,6 @@ export const cookieManager = {
 
   getAuthToken: () => {
     const token = Cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY) || null;
-    console.log('Getting auth microservice token:', token);
-    console.log('Auth token key:', ENV_CONFIG.AUTH.AUTH_TOKEN_KEY);
     return token;
   },
 

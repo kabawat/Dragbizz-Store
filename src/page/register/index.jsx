@@ -135,7 +135,6 @@ export default function Register() {
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`Social login with ${provider}`);
     // Handle social login logic here
     // For now, just show a message
     alert(`Social login with ${provider} - This would integrate with OAuth providers`);

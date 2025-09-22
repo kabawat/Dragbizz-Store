@@ -171,14 +171,10 @@ export default function Login() {
       };
 
       const result = await authService.login(loginData);
-      console.log('Login result:', result);
 
       if (result.success) {
-        console.log('Login successful');
         // Save authentication token
         if (result.data.token) {
-          console.log('Auth service token received');
-          
           // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
@@ -187,7 +183,6 @@ export default function Login() {
           setShowSuccessScreen(true);
         }
       } else {
-        console.log('Login failed, setting error:', result.message);
         setErrors({ general: result.message || 'Login failed. Please try again.' });
       }
     } catch (error) {
@@ -229,7 +224,6 @@ export default function Login() {
         setCanResend(false);
         setOtpDigits(['', '', '', '', '']);
         setErrors(prev => ({ ...prev, otp: '' }));
-        console.log(`OTP sent to ${contactType}: ${formData.contact}`);
       } else {
         setErrors(prev => ({ ...prev, otp: result.message || 'Failed to send OTP. Please try again.' }));
       }
@@ -287,13 +281,8 @@ export default function Login() {
 
       const result = await authService.verifyLoginOTP(verifyData);
       setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
-      console.log('OTP verification result:', result);
       if (result.success) {
-        console.log('OTP verified successfully');
-        // Save authentication token
         if (result.data.token) {
-          console.log('Auth service token received');
-          
           // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
@@ -307,7 +296,6 @@ export default function Login() {
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
       setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp') }));
       setOtpDigits(['', '', '', '', '']);
       inputRefs.current[0]?.focus();
@@ -386,7 +374,6 @@ export default function Login() {
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`Login with ${provider}`);
     // Handle social login logic here
   };
 

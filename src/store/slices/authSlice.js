@@ -1,6 +1,7 @@
-// src/store/slices/profileSlice.js
+// src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService, retailerService } from '@/service/auth';
+import { authService } from '@/service/auth';
+import { storeService } from '@/service/retailer';
 import { cookieManager } from '@/utils/cookieManager';
 
 // Async thunk for getting retailer details
@@ -17,8 +18,8 @@ export const getRetailerDetails = createAsyncThunk(
         });
       }
             
-      // Get retailer data using retailer service
-      const profileResult = await retailerService.getRetailerProfile();
+      // Get retailer data using store service
+      const profileResult = await storeService.getRetailerProfile();
       
       if (!profileResult.success) {
         return rejectWithValue({

@@ -1,71 +1,163 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Eye, Plus } from 'lucide-react';
+import { Save, Plus } from 'lucide-react';
 
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, Alert, Modal, ModalHeader, ModalBody, ModalFooter, AnimatedBackground, ProgressBar, StepProgress } from '@/components/ui';
+import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
 import { ProductForm } from '@/components/product';
+import { productService } from '@/service';
+import { useAppSelector } from '@/store/hooks';
 
 const AddProductPage = () => {
   const router = useRouter();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [selectedStore, setSelectedStore] = useState('Main Store');
-  const [showUnsavedChanges, setShowUnsavedChanges] = useState(false);
-  const [formData, setFormData] = useState({});
-  const [isDirty, setIsDirty] = useState(false);
+  const [formData, setFormData] = useState({
+    store: storeId,
+    name: '',
+    brand: '',
+    category: '',
+    basePrice: '',
+    mrp: '',
+    sellingPrice: '',
+    discount: '',
+    currency: 'INR',
+    uom: 'PCS',
+    status: 'DRAFT',
+    visibility: 'PUBLIC',
+    featured: false,
+    bestSeller: false,
+    newArrival: false,
+    gstInfo: {
+      isGstApplicable: false,
+      gstRate: '',
+      gstType: 'CGST_SGST',
+      hsnCode: ''
+    },
+    content: {
+      shortDescription: '',
+      longDescription: '',
+      tags: [],
+      specifications: []
+    }
+  });
   const [stepCompletion, setStepCompletion] = useState([]);
-  const [completionPercentage, setCompletionPercentage] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(0);
-  const [totalSteps, setTotalSteps] = useState(5);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Update store ID when selectedStore changes
+  useEffect(() => {
+    if (storeId) {
+      setFormData(prevData => ({
+        ...prevData,
+        store: storeId
+      }));
+    }
+  }, [storeId]);
 
   // Handle form data changes
-  const handleFormDataChange = (newData) => {
-    setFormData(newData);
-    setIsDirty(true);
-
-    // Update step completion data if available
-    if (newData.stepCompletion) {
-      setStepCompletion(newData.stepCompletion);
-      setCompletionPercentage(newData.completionPercentage || 0);
-      setCompletedSteps(newData.completedSteps || 0);
-      setTotalSteps(newData.totalSteps || 5);
+  const handleFormDataChange = (fieldName, value) => {    
+    // Ensure fieldName is a string
+    if (typeof fieldName !== 'string') {
+      console.error('fieldName must be a string:', fieldName);
+      return;
+    }
+    
+    // Clear error for this field when user starts typing
+    if (fieldErrors[fieldName]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+    
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      
+      // Handle nested fields (e.g., 'content.specifications', 'gstInfo.gstRate')
+      if (fieldName.includes('.')) {
+        const [parent, child] = fieldName.split('.');
+        if (!newData[parent]) {
+          newData[parent] = {};
+        }
+        newData[parent] = {
+          ...newData[parent],
+          [child]: value
+        };
+      } else {
+        // Handle top-level fields
+        newData[fieldName] = value;
+      }
+      
+      console.log('Updated formData:', newData);
+      return newData;
+    });
+    
+    // Update step completion if provided
+    if (fieldName === 'stepCompletion' && value) {
+      setStepCompletion(value);
+    }
+    if (fieldName === 'completedSteps' && value !== undefined) {
+      setCompletedSteps(value);
     }
   };
 
   // Handle save as draft
-  const handleSaveDraft = async (apiPayload) => {
-    setLoading(true);
+  const handleSaveDraft = async (formData) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoading(true);
+      const result = await productService.saveProductDraft(formData);
 
-      // Show success message
-      setShowUnsavedChanges(false);
-      setIsDirty(false);
+      if (result.success) {
+        // Show success message
+      } else {
+        console.error('❌ Error saving draft:', result.message);
+      }
 
     } catch (error) {
       console.error('❌ Error saving draft:', error);
+      alert('Error saving draft. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   // Handle save and publish
-  const handleSaveAndPublish = async (apiPayload) => {
-    setLoading(true);
+  const handleSaveAndPublish = async () => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setLoading(true);
+      setFieldErrors({}); // Clear previous errors
+      console.log('formData', formData);
+      
+      const result = await productService.createProduct(formData);
 
-      // Redirect to products page
-      router.push('/dashboard/products');
+      if (result.success) {
+        // Redirect to products page
+        router.push('/dashboard/products');
+      } else {       
+        console.log('Error creating product:', );
+        // Handle validation errors
+        if (result?.error && result?.error?.data) {
+          setFieldErrors(result?.error?.data?.fields ||{});
+        }
+      }
+
     } catch (error) {
-      console.error('❌ Error saving product:', error);
-      alert('Error saving product. Please try again.');
+      console.log('❌ Error creating product:', error);
+      
+      // Handle API error response
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (errorData.data && errorData.data.fields) {
+          setFieldErrors(errorData.data.fields);
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -73,34 +165,14 @@ const AddProductPage = () => {
 
   // Handle cancel
   const handleCancel = () => {
-    if (isDirty) {
-      setShowUnsavedChanges(true);
-    } else {
-      router.push('/dashboard/products');
-    }
-  };
-
-  // Handle confirm cancel
-  const handleConfirmCancel = () => {
-    setShowUnsavedChanges(false);
     router.push('/dashboard/products');
-  };
-
-  // Handle preview
-  const handlePreview = () => {
-    setShowPreview(true);
-  };
-
-
-  const handleStoreChange = (storeName) => {
-    setSelectedStore(storeName);
   };
 
   return (
     <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
       <AnimatedBackground variant="default" />
-      <Sidebar onStoreChange={handleStoreChange} />
+      <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
@@ -136,18 +208,14 @@ const AddProductPage = () => {
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
               <div className="h-[calc(100vh-260px)] overflow-y-auto pe-3">
-                {/* Product Form */}
-                <ProductForm
-                  initialData={formData}
-                  onSubmit={handleSaveAndPublish}
-                  onSaveDraft={handleSaveDraft}
-                  onCancel={handleCancel}
-                  onChange={handleFormDataChange}
-                  loading={loading}
-                />
+                  <ProductForm
+                    formData={formData}
+                    onChange={handleFormDataChange}
+                    fieldErrors={fieldErrors}
+                  />
               </div>
 
-              {/* Fixed Action Bar */}
+              {/* Fixed Action Bar - Only show when store is loaded and available */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -159,7 +227,7 @@ const AddProductPage = () => {
                       onClick={() => handleSaveDraft(formData)}
                       disabled={loading}
                       loading={loading}
-                      leftIcon={Save}
+                      
                     >
                       Save as Draft
                     </Button>
@@ -167,19 +235,11 @@ const AddProductPage = () => {
 
                   <div className="flex items-center space-x-3">
                     <Button
-                      variant="outline"
-                      onClick={handlePreview}
-                      disabled={loading}
-                      leftIcon={Eye}
-                    >
-                      Preview
-                    </Button>
-                    <Button
                       variant="success"
                       onClick={() => handleSaveAndPublish(formData)}
                       disabled={loading}
                       loading={loading}
-                      leftIcon={Plus}
+                      leftIcon={Save}
                     >
                       Save & Publish
                     </Button>
@@ -190,95 +250,6 @@ const AddProductPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Unsaved Changes Modal */}
-      <Modal
-        isOpen={showUnsavedChanges}
-        onClose={() => setShowUnsavedChanges(false)}
-        size="md"
-      >
-        <ModalHeader>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-            Unsaved Changes
-          </h3>
-        </ModalHeader>
-        <ModalBody>
-          <p className="text-[rgb(var(--color-text-secondary))]">
-            You have unsaved changes. Are you sure you want to leave without saving?
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowUnsavedChanges(false)}
-            >
-              Stay on Page
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleConfirmCancel}
-            >
-              Leave Without Saving
-            </Button>
-          </div>
-        </ModalFooter>
-      </Modal>
-
-      {/* Preview Modal */}
-      <Modal
-        isOpen={showPreview}
-        onClose={() => setShowPreview(false)}
-        size="xl"
-      >
-        <ModalHeader>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-            Product Preview
-          </h3>
-        </ModalHeader>
-        <ModalBody>
-          <div className="space-y-4">
-            <Alert variant="info">
-              This is a preview of how your product will appear to customers.
-            </Alert>
-
-            {/* Preview Content */}
-            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
-              <h4 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                {formData.name || 'Product Name'}
-              </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h5 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">Basic Information</h5>
-                  <div className="space-y-2 text-sm">
-                    <div><strong>Brand:</strong> {formData.brand || 'Not specified'}</div>
-                    <div><strong>SKU:</strong> {formData.sku || 'Auto-generated'}</div>
-                    <div><strong>Description:</strong> {formData.description || 'No description'}</div>
-                  </div>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-[rgb(var(--color-text-primary))] mb-2">Pricing</h5>
-                  <div className="space-y-2 text-sm">
-                    <div><strong>MRP:</strong> ₹{formData.mrp || '0.00'}</div>
-                    <div><strong>Selling Price:</strong> ₹{formData.sellingPrice || '0.00'}</div>
-                    <div><strong>Discount:</strong> {formData.discount || '0'}%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="primary"
-            onClick={() => setShowPreview(false)}
-          >
-            Close Preview
-          </Button>
-        </ModalFooter>
-      </Modal>
     </div>
   );
 };

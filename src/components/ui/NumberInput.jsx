@@ -64,18 +64,18 @@ const NumberInput = forwardRef(({
   };
 
   // Base classes - Theme aware
-  const baseClasses = 'w-full border-2 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
+  const baseClasses = 'w-full border-2 py-4 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
 
   // Padding classes - More precise spacing
   const paddingClasses = LeftIcon ? 'pl-14' : 'pl-4';
   const rightPaddingClasses = (RightIcon || showButtons || error || success) ? 'pr-14' : 'pr-4';
 
-  // State classes - Theme aware
+  // State classes - Theme aware with higher specificity
   const stateClasses = error
-    ? 'border-red-500 bg-red-50'
+    ? '!border-red-500 !bg-red-50 focus:!border-red-500 focus:!ring-red-500'
     : success
-      ? 'border-green-500 bg-green-50'
-      : 'border-[rgb(var(--color-border-primary))] focus:border-[rgb(var(--color-primary))]';
+      ? '!border-green-500 !bg-green-50 focus:!border-green-500 focus:!ring-green-500'
+      : 'border-[rgb(var(--color-border-primary))] focus:border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]';
 
   const disabledClasses = disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed opacity-50' : '';
 
@@ -95,7 +95,7 @@ const NumberInput = forwardRef(({
       <div className="relative">
         {LeftIcon && (
           <div className="absolute left-0 top-0 h-full z-10 flex items-center justify-center w-10 ps-4">
-            <LeftIcon className="text-[rgb(var(--color-text-tertiary))] pointer-events-none w-5 h-5" />
+            <LeftIcon className={`pointer-events-none w-5 h-5 ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
           </div>
         )}
 
@@ -117,6 +117,7 @@ const NumberInput = forwardRef(({
           max={max}
           step={step}
           className={inputClasses}
+          style={error ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
           {...props}
         />
         {/* Right Elements */}

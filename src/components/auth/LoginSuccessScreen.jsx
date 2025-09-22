@@ -129,7 +129,6 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken }) => {
       // Save authentication token before redirecting
       if (authToken) {
         cookieManager.setAuthToken(authToken);
-        console.log('Login token saved successfully');
       }
       // Redirect to dashboard
       window.location.href = '/dashboard';
@@ -194,7 +193,6 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken }) => {
             // Save authentication token before redirecting
             if (authToken) {
               cookieManager.setAuthToken(authToken);
-              console.log('Login token saved successfully');
             }
             // Redirect to dashboard
             window.location.href = '/dashboard';

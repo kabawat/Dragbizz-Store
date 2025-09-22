@@ -2,7 +2,7 @@
 import React from 'react';
 import { Select, Toggle } from '../ui';
 import { Star, Award, Sparkles } from 'lucide-react';
-import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS } from '@/data';
+import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS, getProductStatusColor } from '@/data';
 
 const StatusSection = ({
   formData,
@@ -11,10 +11,8 @@ const StatusSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    onChange({
-      ...formData,
-      [field]: value
-    });
+    console.log('StatusSection - Field:', field, 'Value:', value);
+    onChange(field, value);
   };
 
   // Use imported options from data constants
@@ -89,12 +87,7 @@ const StatusSection = ({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-[rgb(var(--color-text-secondary))]">Status:</span>
-            <span className={`font-medium ${
-              formData.status === 'ACTIVE' ? 'text-green-600 dark:text-green-400' :
-              formData.status === 'DRAFT' ? 'text-yellow-600 dark:text-yellow-400' :
-              formData.status === 'PENDING' ? 'text-blue-600 dark:text-blue-400' :
-              'text-red-600 dark:text-red-400'
-            }`}>
+            <span className={`font-medium ${getProductStatusColor(formData.status)}`}>
               {statusOptions.find(s => s.value === formData.status)?.label || formData.status}
             </span>
           </div>

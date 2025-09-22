@@ -172,7 +172,6 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       // Save authentication token before redirecting
       if (authToken) {
         cookieManager.setAuthToken(authToken);
-        console.log('Registration token saved successfully');
       }
       // Redirect to agency creation instead of dashboard
       window.location.href = '/onboarding/agency';
@@ -233,7 +232,6 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
             // Save authentication token before redirecting
             if (authToken) {
               cookieManager.setAuthToken(authToken);
-              console.log('Registration token saved successfully');
             }
             // Redirect to agency creation instead of dashboard
             window.location.href = '/onboarding/agency';

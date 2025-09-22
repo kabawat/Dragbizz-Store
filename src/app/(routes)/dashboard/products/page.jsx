@@ -15,7 +15,7 @@ import { ProductTable, ProductGrid } from '@/components/product';
 const ProductsPage = () => {
   const router = useRouter();
   // State management
-  const [selectedStore, setSelectedStore] = useState('Main Store');
+  const [selectedStore, setSelectedStore] = useState(null);
   const [searchValue, setSearchValue] = useState('');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [displayedProducts, setDisplayedProducts] = useState([]);
@@ -23,7 +23,7 @@ const ProductsPage = () => {
   const [pageSize] = useState(10);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
+  const [viewMode, setViewMode] = useState('table');
   const [filters, setFilters] = useState({
     status: '',
     category: '',
@@ -208,8 +208,9 @@ const ProductsPage = () => {
     }
   }, [isLoadingMore]);
 
-  const handleStoreChange = (storeName) => {
-    setSelectedStore(storeName);
+  const handleStoreChange = (storeObject) => {
+    // Now handleStoreChange receives complete store object instead of just name
+    setSelectedStore(storeObject);
   };
 
   // Check if there are active filters
