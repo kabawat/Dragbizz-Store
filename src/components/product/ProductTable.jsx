@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, Package, Tag, TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, Package } from 'lucide-react';
 import Image from 'next/image';
 
 const ProductTable = ({
@@ -25,12 +24,12 @@ const ProductTable = ({
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const menuRefs = useRef({});
   
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
         setOpenMenuId(null);
       }
     };
@@ -39,7 +38,7 @@ const ProductTable = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [openMenuId]);
   
   
   const getStatusBadge = (status) => {
@@ -59,15 +58,22 @@ const ProductTable = ({
     );
   };
   
-  const getStockBadge = (stock) => {
-    if (stock === 0) {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">Out of Stock</span>;
-    } else if (stock < 10) {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">Low Stock</span>;
-    } else {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">{stock} in stock</span>;
-    }
+  const getVisibilityBadge = (visibility) => {
+    const visibilityConfig = {
+      VISIBLE: { variant: 'success', text: 'Visible', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
+      HIDDEN: { variant: 'secondary', text: 'Hidden', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' },
+      PRIVATE: { variant: 'warning', text: 'Private', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' },
+      PUBLIC: { variant: 'success', text: 'Public', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' }
+    };
+    
+    const config = visibilityConfig[visibility] || { variant: 'secondary', text: visibility, color: 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] border-[rgb(var(--color-border-primary))]' };
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.color}`}>
+        {config.text}
+      </span>
+    );
   };
+  
   
   const calculateDiscount = (sellingPrice, mrp) => {
     if (!mrp || mrp <= sellingPrice) return 0;
@@ -160,6 +166,7 @@ const ProductTable = ({
                 </div>
                 <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
                 <div className="w-16 h-6 bg-gray-200 rounded mr-4"></div>
+                <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
                 <div className="w-24 h-6 bg-gray-200 rounded"></div>
               </div>
             </div>
@@ -217,6 +224,9 @@ const ProductTable = ({
               Status
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Visibility
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
               Categories
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
@@ -234,7 +244,6 @@ const ProductTable = ({
         {/* Table Body */}
         <tbody className="divide-y divide-gray-100">
           {products.map((product, index) => {
-            const discount = calculateDiscount(product.sellingPrice, product.mrp);
             const isSelected = selectedProducts.includes(product.id);
             
             return (
@@ -302,6 +311,11 @@ const ProductTable = ({
                   {getStatusBadge(product.status)}
                 </td>
                 
+                {/* Visibility Column */}
+                <td className="px-6 py-4">
+                  {getVisibilityBadge(product.visibility)}
+                </td>
+                
                 {/* Categories Column */}
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
@@ -325,19 +339,42 @@ const ProductTable = ({
                 
                 {/* GST Column */}
                 <td className="px-6 py-4">
-                  <div className="flex flex-col items-center">
-                    <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                      {product.gst || 18}%
-                    </span>
-                    <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                      GST Rate
-                    </span>
+                  <div className="flex items-center justify-start h-full">
+                    {product.isGstApplicable ? (
+                      <div className="flex flex-col items-start">
+                        <div className="flex gap-2 mb-1">
+                          <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
+                            {product.gst || product.gstRate || 18}%
+                          </span>
+                          <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            GST
+                          </span>
+                        </div>
+                        <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                          {product.gstType === 'CGST_SGST' ? 'CGST+SGST' : product.gstType || 'CGST+SGST'}
+                        </div>
+                        {(product.hsnCode || product.hsn) && (
+                          <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
+                            HSN: {product.hsnCode || product.hsn}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-[rgb(var(--color-text-tertiary))]">
+                          No GST
+                        </span>
+                        <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                          Not Applicable
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </td>
                 
                 {/* Actions Column */}
                 <td className="px-6 py-4">
-                  <div className="relative" ref={menuRef}>
+                  <div className="relative" ref={(el) => menuRefs.current[product.id] = el}>
                     <button 
                       onClick={() => handleMenuToggle(product.id)}
                       className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"

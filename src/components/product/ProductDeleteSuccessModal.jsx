@@ -1,0 +1,77 @@
+"use client"
+import React from 'react';
+import { CheckCircle, X } from 'lucide-react';
+import { Button } from '@/components/ui';
+
+const ProductDeleteSuccessModal = ({ 
+  isOpen, 
+  onClose, 
+  productName = "Product"
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 backdrop-blur-[2px] bg-black/10 flex items-center justify-center z-[9999] transition-all duration-300">
+      <div className="bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-md w-full mx-4 transform transition-all duration-500">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-[rgb(var(--color-border-primary))]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                  Product Deleted
+                </h2>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  Successfully removed
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors duration-200"
+            >
+              <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-4">
+          <div className="mb-6">
+            <p className="text-[rgb(var(--color-text-primary))] mb-3">
+              "{productName}" has been successfully deleted from your store.
+            </p>
+            <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 border border-[rgb(var(--color-border-primary))]">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                The product and all its data have been permanently removed.
+              </p>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="flex justify-end">
+            <Button
+              variant="primary"
+              onClick={onClose}
+              className="px-6 h-10 text-sm font-semibold bg-[rgb(var(--color-primary))] text-white"
+            >
+              OK
+            </Button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
+          <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
+            You can add new products anytime from the dashboard
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDeleteSuccessModal;

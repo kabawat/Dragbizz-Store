@@ -1,6 +1,7 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
 import { retailerAxios } from '@/service/config/axiosConfig';
+import { attachQueryParams } from '@/utils/queryParams';
 
 class ProductService {
   constructor() {
@@ -14,6 +15,36 @@ class ProductService {
       return handleApiSuccess(response?.data, 'Product created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'product-creation');
+    }
+  }
+
+  // Get all products with query parameters
+  async getProducts(params = {}) {
+    try {
+      // Build URL with query parameters
+      const url = attachQueryParams(API_CONFIG?.RETAILER?.PRODUCT, params);
+      const response = await retailerAxios.get(url);
+      return handleApiSuccess(response?.data, 'Products fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'products-list');
+    }
+  }
+
+  // Delete a product by ID
+  async deleteProduct(productId, storeId = null) {
+    try {
+      let url = `${API_CONFIG?.RETAILER?.PRODUCT}/${productId}`;
+      
+      // Add storeId as query parameter if provided
+      if (storeId) {
+        const params = { store: storeId };
+        url = attachQueryParams(url, params);
+      }
+      
+      const response = await retailerAxios.delete(url);
+      return handleApiSuccess(response?.data, 'Product deleted successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'product-deletion');
     }
   }
 }

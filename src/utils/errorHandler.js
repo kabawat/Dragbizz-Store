@@ -70,12 +70,18 @@ export const handleApiError = (error, context = 'general') => {
 };
 
 export const handleApiSuccess = (response, defaultMessage = 'Operation successful') => {
-  return {
+  const result = {
     success: true,
     data: response.data,
-    token: response.data?.token,
-    message: response.data?.message || defaultMessage
+    token: response?.data?.token,
+    message: response?.data?.message || defaultMessage
   };
+  
+  if (response?.pagination) {
+    result.pagination = response.pagination;
+  }
+  
+  return result;
 };
 
 
