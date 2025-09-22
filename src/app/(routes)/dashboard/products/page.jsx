@@ -1,7 +1,21 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, Package, Eye, Edit, Copy, Trash2, MoreVertical, CheckCircle, AlertTriangle, XCircle, TrendingUp, TrendingDown, Smartphone, Laptop, Headphones, Footprints, Camera, Gamepad2, Receipt } from 'lucide-react';
+import { Plus, Grid3X3, List } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { 
+  getProducts, 
+  deleteProduct,
+  setSelectedProducts, 
+  toggleProductSelection, 
+  selectAllProducts, 
+  deselectAllProducts,
+  updateFilters,
+  clearFilters,
+  setViewMode,
+  addMoreProducts
+} from '@/store/slices/productsSlice';
+import { transformProductsArray } from '@/utils/productUtils';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, SettingsPanel } from '@/components/ui';
@@ -10,188 +24,83 @@ import { AnimatedBackground, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import product components
-import { ProductTable, ProductGrid } from '@/components/product';
+import { ProductTable, ProductGrid, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
 
 const ProductsPage = () => {
   const router = useRouter();
-  // State management
-  const [selectedStore, setSelectedStore] = useState(null);
+  const dispatch = useAppDispatch();
+  
+  // Get data from Redux store
+  const { 
+    products, 
+    selectedProducts, 
+    isLoading, 
+    error, 
+    pagination, 
+    filters, 
+    viewMode 
+  } = useAppSelector((state) => state.products);
+  
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  
+  // Local state
   const [searchValue, setSearchValue] = useState('');
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [displayedProducts, setDisplayedProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [viewMode, setViewMode] = useState('table');
-  const [filters, setFilters] = useState({
-    status: '',
-    category: '',
-    brand: '',
-    priceRange: { min: '', max: '' }
-  });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
+  const [deletedProductName, setDeletedProductName] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorDetails, setErrorDetails] = useState(null);
   const scrollRef = useRef(null);
 
-  // Mock data
-  const mockProducts = [
-    {
-      id: '1',
-      name: 'iPhone 15 Pro Max',
-      brand: 'Apple',
-      sku: 'IPH15PM-256-TIT',
-      barcode: '1234567890123',
-      sellingPrice: 134900,
-      purchasePrice: 120000,
-      mrp: 149900,
-      gst: 18,
-      stock: 25,
-      status: 'ACTIVE',
-      category: 'Electronics > Mobile Phones',
-      lastUpdated: '2 days ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '2',
-      name: 'Samsung Galaxy S24 Ultra',
-      brand: 'Samsung',
-      sku: 'SGS24U-512-BLK',
-      barcode: '1234567890124',
-      sellingPrice: 124999,
-      purchasePrice: 110000,
-      mrp: 139999,
-      gst: 18,
-      stock: 18,
-      status: 'ACTIVE',
-      category: 'Electronics > Mobile Phones',
-      lastUpdated: '1 day ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '3',
-      name: 'MacBook Pro 16-inch',
-      brand: 'Apple',
-      sku: 'MBP16-M3-1TB-SLV',
-      barcode: '1234567890125',
-      sellingPrice: 249900,
-      purchasePrice: 220000,
-      mrp: 269900,
-      gst: 18,
-      stock: 8,
-      status: 'ACTIVE',
-      category: 'Electronics > Laptops',
-      lastUpdated: '3 days ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '4',
-      name: 'Sony WH-1000XM5 Headphones',
-      brand: 'Sony',
-      sku: 'SONY-WH1000XM5-BLK',
-      barcode: '1234567890126',
-      sellingPrice: 29990,
-      purchasePrice: 26000,
-      mrp: 34990,
-      gst: 18,
-      stock: 0,
-      status: 'OUT_OF_STOCK',
-      category: 'Electronics > Audio',
-      lastUpdated: '5 days ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '5',
-      name: 'Nike Air Max 270',
-      brand: 'Nike',
-      sku: 'NIKE-AM270-10-BLK',
-      barcode: '1234567890127',
-      sellingPrice: 12995,
-      purchasePrice: 11000,
-      mrp: 14995,
-      gst: 18,
-      stock: 5,
-      status: 'LOW_STOCK',
-      category: 'Clothing > Shoes',
-      lastUpdated: '1 week ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '6',
-      name: 'Adidas Ultraboost 22',
-      brand: 'Adidas',
-      sku: 'ADIDAS-UB22-9-WHT',
-      barcode: '12345678',
-      sellingPrice: 18995,
-      purchasePrice: 16000,
-      mrp: 21995,
-      gst: 18,
-      stock: 12,
-      status: 'ACTIVE',
-      category: 'Clothing > Shoes',
-      lastUpdated: '4 days ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '7',
-      name: 'Dell XPS 13',
-      brand: 'Dell',
-      sku: 'DELL-XPS13-I7-512-SLV',
-      barcode: '1234567890129',
-      sellingPrice: 129990,
-      purchasePrice: 115000,
-      mrp: 149990,
-      gst: 18,
-      stock: 15,
-      status: 'ACTIVE',
-      category: 'Electronics > Laptops',
-      lastUpdated: '2 days ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: '8',
-      name: 'Canon EOS R5 Camera',
-      brand: 'Canon',
-      sku: 'CANON-EOSR5-BDY-BLK',
-      barcode: '1234567890130',
-      sellingPrice: 289990,
-      purchasePrice: 260000,
-      mrp: 319990,
-      gst: 18,
-      stock: 3,
-      status: 'LOW_STOCK',
-      category: 'Electronics > Cameras',
-      lastUpdated: '6 days ago',
-      image: '/api/placeholder/300/300'
+  // Transform products data for components
+  const transformedProducts = transformProductsArray(products);
+  
+  // Handle error display
+  useEffect(() => {
+    if (error) {
+      setErrorDetails({
+        title: 'Error loading products',
+        message: error,
+        details: 'Please check your connection and try again'
+      });
+      setShowErrorModal(true);
     }
-  ];
-
-  // Load saved view mode from localStorage
+  }, [error]);
+  
   useEffect(() => {
     const savedViewMode = localStorage.getItem('products-view-mode');
     if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
-      setViewMode(savedViewMode);
+      dispatch(setViewMode(savedViewMode));
     }
-  }, []);
+  }, [dispatch]);
 
-  // Save view mode to localStorage
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode);
-    localStorage.setItem('products-view-mode', mode);
-  };
-
-
-  // Initialize displayed products
+  // Fetch products on component mount and when filters change
   useEffect(() => {
-    const initialProducts = mockProducts.slice(0, pageSize);
-    setDisplayedProducts(initialProducts);
-    setCurrentPage(1);
-    setHasMore(true); // Always has more since we're repeating data
-  }, []);
+    const fetchProducts = async () => {
+      const params = {
+        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+        ...filters,
+        search: searchValue,
+        limit: 20,
+        cursor: null // Start from beginning
+      };
+      
+      await dispatch(getProducts(params));
+    };
+
+    if (selectedStore) {
+      fetchProducts();
+    }
+  }, [dispatch, selectedStore, filters, searchValue]);
 
   // Infinite scroll detection
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore) return;
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
 
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const threshold = 100; // Load more when 100px from bottom
@@ -206,11 +115,10 @@ const ProductsPage = () => {
       scrollElement.addEventListener('scroll', handleScroll);
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
-  }, [isLoadingMore]);
+  }, [isLoadingMore, pagination.hasNextPage]);
 
   const handleStoreChange = (storeObject) => {
-    // Now handleStoreChange receives complete store object instead of just name
-    setSelectedStore(storeObject);
+    // Store change is handled by Redux, no need for local state
   };
 
   // Check if there are active filters
@@ -222,17 +130,12 @@ const ProductsPage = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    dispatch(updateFilters({ [key]: value }));
   };
 
   const handleClearFilters = () => {
-    setFilters({
-      status: '',
-      category: '',
-      brand: '',
-      priceRange: { min: '', max: '' }
-    });
     setSearchValue('');
+    dispatch(clearFilters());
   };
 
   const handleAddProduct = () => {
@@ -252,27 +155,18 @@ const ProductsPage = () => {
   const handleProductSelect = (productIds) => {
     // Ensure productIds is always an array
     const idsArray = Array.isArray(productIds) ? productIds : [productIds];
-    setSelectedProducts(idsArray);
+    dispatch(setSelectedProducts(idsArray));
   };
 
   const handleCardSelect = (productId) => {
-    setSelectedProducts(prev => {
-      if (prev.includes(productId)) {
-        return prev.filter(id => id !== productId);
-      } else {
-        return [...prev, productId];
-      }
-    });
+    dispatch(toggleProductSelection(productId));
   };
 
   const handleSelectAll = (isSelected) => {
     if (isSelected) {
-      // Select all products
-      const allProductIds = displayedProducts.map(product => product.id);
-      setSelectedProducts(allProductIds);
+      dispatch(selectAllProducts());
     } else {
-      // Deselect all products
-      setSelectedProducts([]);
+      dispatch(deselectAllProducts());
     }
   };
 
@@ -282,8 +176,40 @@ const ProductsPage = () => {
   };
 
   const handleDeleteProduct = (productId) => {
-    console.log('Delete product:', productId);
-    // Add your delete logic here
+    const product = transformedProducts.find(p => p.id === productId);
+    setProductToDelete({ id: productId, name: product?.name || 'Product' });
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const result = await dispatch(deleteProduct({ 
+        productId: productToDelete.id, 
+        storeId: storeId 
+      }));
+      
+      if (result.payload?.success) {
+        // Show success modal
+        setDeletedProductName(productToDelete.name);
+        setShowDeleteSuccessModal(true);
+      }
+      
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
   };
 
   const handleDuplicateProduct = (productId) => {
@@ -296,34 +222,38 @@ const ProductsPage = () => {
     // Add your view details logic here
   };
 
-  // Infinite scroll logic - repeat same data
-  const handleLoadMore = () => {
-    if (isLoadingMore) return;
+  // Save view mode to localStorage
+  const handleViewModeChange = (mode) => {
+    dispatch(setViewMode(mode));
+    localStorage.setItem('products-view-mode', mode);
+  };
+
+  // Infinite scroll logic - load more products
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !pagination.hasNextPage) return;
 
     setIsLoadingMore(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const nextPage = currentPage + 1;
-      const startIndex = (nextPage - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-
-      // Cycle through the same products by using modulo
-      const newProducts = [];
-      for (let i = startIndex; i < endIndex; i++) {
-        const productIndex = i % mockProducts.length;
-        const product = mockProducts[productIndex];
-        // Create unique ID for repeated products using timestamp and index
-        newProducts.push({
-          ...product,
-          id: `${product.id}_page_${nextPage}_item_${i}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        });
+    try {
+      const params = {
+        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+        ...filters,
+        search: searchValue,
+        limit: 20,
+        cursor: pagination.nextCursor
+      };
+      
+      const result = await dispatch(getProducts(params));
+      
+      if (result.payload?.success && result.payload?.data?.data) {
+        // Add new products to existing list
+        dispatch(addMoreProducts(result.payload.data.data));
       }
-
-      setDisplayedProducts(prev => [...prev, ...newProducts]);
-      setCurrentPage(nextPage);
+    } catch (error) {
+      console.error('Error loading more products:', error);
+    } finally {
       setIsLoadingMore(false);
-    }, 1000); // 1 second delay to simulate API call
+    }
   };
 
   return (
@@ -339,6 +269,22 @@ const ProductsPage = () => {
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
+            {/* Loading State */}
+            {isLoading && transformedProducts.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Products...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your products
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Search and Filter Card */}
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6 mb-6 shadow-sm">
               {/* Top Row - Search and Action Buttons */}
@@ -440,7 +386,7 @@ const ProductsPage = () => {
               {viewMode === 'table' ? (
                 <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
                   <ProductTable
-                    products={displayedProducts}
+                    products={transformedProducts}
                     selectedProducts={selectedProducts}
                     onSelect={handleProductSelect}
                     onSelectAll={handleSelectAll}
@@ -448,9 +394,9 @@ const ProductsPage = () => {
                     onDelete={handleDeleteProduct}
                     onDuplicate={handleDuplicateProduct}
                     onViewDetails={handleViewProductDetails}
-                    loading={false}
+                    loading={isLoading}
                     emptyMessage="No products found"
-                    hasMore={true}
+                    hasMore={pagination.hasNextPage}
                     onLoadMore={handleLoadMore}
                     isLoadingMore={isLoadingMore}
                   />
@@ -458,7 +404,7 @@ const ProductsPage = () => {
               ) : (
                 <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
                   <ProductGrid
-                    products={displayedProducts}
+                    products={transformedProducts}
                     selectedProducts={selectedProducts}
                     onSelect={handleProductSelect}
                     onSelectAll={handleSelectAll}
@@ -466,9 +412,9 @@ const ProductsPage = () => {
                     onDelete={handleDeleteProduct}
                     onDuplicate={handleDuplicateProduct}
                     onViewDetails={handleViewProductDetails}
-                    loading={false}
+                    loading={isLoading}
                     emptyMessage="No products found"
-                    hasMore={true}
+                    hasMore={pagination.hasNextPage}
                     onLoadMore={handleLoadMore}
                     isLoadingMore={isLoadingMore}
                   />
@@ -479,7 +425,7 @@ const ProductsPage = () => {
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                    Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{displayedProducts.length}</span> products
+                    Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> of <span className="font-semibold text-[rgb(var(--color-text-primary))]">{pagination.total}</span> products
                   </div>
                   <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                     {selectedProducts.length > 0 && (
@@ -497,6 +443,31 @@ const ProductsPage = () => {
 
       {/* Theme Selector */}
       <SettingsPanel />
+
+      {/* Delete Confirmation Modal */}
+      <ProductDeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        productName={productToDelete?.name}
+        isLoading={isDeleting}
+      />
+
+      {/* Delete Success Modal */}
+      <ProductDeleteSuccessModal
+        isOpen={showDeleteSuccessModal}
+        onClose={() => setShowDeleteSuccessModal(false)}
+        productName={deletedProductName}
+      />
+
+      {/* Error Modal */}
+      <ProductErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorDetails?.title}
+        message={errorDetails?.message}
+        details={errorDetails?.details}
+      />
     </div>
   );
 };

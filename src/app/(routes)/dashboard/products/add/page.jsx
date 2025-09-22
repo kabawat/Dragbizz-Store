@@ -7,7 +7,7 @@ import { Save, Plus } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
-import { ProductForm } from '@/components/product';
+import { ProductForm, ProductAddSuccessModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 
@@ -17,7 +17,11 @@ const AddProductPage = () => {
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
 
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [addedProductName, setAddedProductName] = useState('');
+  
+  // Initial form data
+  const getInitialFormData = () => ({
     store: storeId,
     name: '',
     brand: '',
@@ -46,6 +50,8 @@ const AddProductPage = () => {
       specifications: []
     }
   });
+  
+  const [formData, setFormData] = useState(getInitialFormData());
   const [stepCompletion, setStepCompletion] = useState([]);
   const [completedSteps, setCompletedSteps] = useState(0);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -95,7 +101,6 @@ const AddProductPage = () => {
         newData[fieldName] = value;
       }
       
-      console.log('Updated formData:', newData);
       return newData;
     });
     
@@ -108,38 +113,18 @@ const AddProductPage = () => {
     }
   };
 
-  // Handle save as draft
-  const handleSaveDraft = async (formData) => {
-    try {
-      setLoading(true);
-      const result = await productService.saveProductDraft(formData);
-
-      if (result.success) {
-        // Show success message
-      } else {
-        console.error('❌ Error saving draft:', result.message);
-      }
-
-    } catch (error) {
-      console.error('❌ Error saving draft:', error);
-      alert('Error saving draft. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
     try {
       setLoading(true);
-      setFieldErrors({}); // Clear previous errors
-      console.log('formData', formData);
-      
+      setFieldErrors({});       
       const result = await productService.createProduct(formData);
 
       if (result.success) {
-        // Redirect to products page
-        router.push('/dashboard/products');
+        // Show success modal instead of direct redirect
+        setAddedProductName(formData.name || 'Product');
+        setShowSuccessModal(true);
       } else {       
         console.log('Error creating product:', );
         // Handle validation errors
@@ -149,8 +134,6 @@ const AddProductPage = () => {
       }
 
     } catch (error) {
-      console.log('❌ Error creating product:', error);
-      
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
@@ -166,6 +149,21 @@ const AddProductPage = () => {
   // Handle cancel
   const handleCancel = () => {
     router.push('/dashboard/products');
+  };
+
+  // Success modal handlers
+  const handleContinue = () => {
+    setShowSuccessModal(false);
+    router.push('/dashboard/products');
+  };
+
+  const handleAddMore = () => {
+    setShowSuccessModal(false);
+    // Reset form data
+    setFormData(getInitialFormData());
+    setFieldErrors({});
+    setStepCompletion([]);
+    setCompletedSteps(0);
   };
 
   return (
@@ -217,23 +215,10 @@ const AddProductPage = () => {
 
               {/* Fixed Action Bar - Only show when store is loaded and available */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-end space-x-3">
                     <Button variant="outline" onClick={handleCancel} disabled={loading} >
                       Cancel
                     </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleSaveDraft(formData)}
-                      disabled={loading}
-                      loading={loading}
-                      
-                    >
-                      Save as Draft
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
                     <Button
                       variant="success"
                       onClick={() => handleSaveAndPublish(formData)}
@@ -244,12 +229,20 @@ const AddProductPage = () => {
                       Save & Publish
                     </Button>
                   </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <ProductAddSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onContinue={handleContinue}
+        onAddMore={handleAddMore}
+        productName={addedProductName}
+      />
     </div>
   );
 };
