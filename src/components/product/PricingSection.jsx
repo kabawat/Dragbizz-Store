@@ -12,23 +12,23 @@ const PricingSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    const newData = {
-      ...formData,
-      [field]: value
-    };
-
+    console.log('PricingSection - Field:', field, 'Value:', value);
+    
     // Auto-calculate discount if MRP and selling price are provided
     if (field === 'mrp' || field === 'sellingPrice') {
-      const mrp = parseFloat(newData.mrp) || 0;
-      const sellingPrice = parseFloat(newData.sellingPrice) || 0;
+      const mrp = parseFloat(field === 'mrp' ? value : formData.mrp) || 0;
+      const sellingPrice = parseFloat(field === 'sellingPrice' ? value : formData.sellingPrice) || 0;
       
       if (mrp > 0 && sellingPrice > 0) {
         const discount = ((mrp - sellingPrice) / mrp) * 100;
-        newData.discount = Math.max(0, Math.round(discount * 100) / 100);
+        const calculatedDiscount = Math.max(0, Math.round(discount * 100) / 100);
+        
+        // Update discount field
+        onChange('discount', calculatedDiscount);
       }
     }
 
-    onChange(newData);
+    onChange(field, value);
   };
 
   // Use imported options from data constants
@@ -108,9 +108,9 @@ const PricingSection = ({
             max={100}
             step={0.01}
             precision={2}
-            helperText="Auto-calculated from MRP and selling price"
+            disabled={!formData.mrp || !formData.sellingPrice}
+            helperText="Auto-calculated from MRP and selling price, or enter manually"
             className="transition-all duration-200 group-hover:shadow-sm bg-[rgb(var(--color-bg-secondary))]"
-            disabled={true}
           />
         </div>
       </FieldGroup>

@@ -14,16 +14,12 @@ export const refreshRetailerToken = async () => {
       };
     }
     
-    console.log('Manually refreshing retailer token...');
     const retailerResult = await authService.getRetailerToken(authToken);
     
     if (retailerResult.success) {
-      console.log('Retailer token refresh successful');
-      
       // Save retailer token
       if (retailerResult.data.token) {
         cookieManager.setRetailerToken(retailerResult.data.token);
-        console.log('Retailer token refreshed and saved successfully');
       }
       
       // Check for onboarding requirements
@@ -31,7 +27,6 @@ export const refreshRetailerToken = async () => {
       
       // If no agency data, redirect to agency onboarding
       if (!agency) {
-        console.log('No agency data found, redirecting to agency onboarding');
         return {
           success: false,
           message: 'Agency details required',
@@ -41,7 +36,6 @@ export const refreshRetailerToken = async () => {
       
       // If agency exists but no stores, redirect to store onboarding
       if (agency && (!stores || stores.length === 0)) {
-        console.log('Agency exists but no stores found, redirecting to store onboarding');
         return {
           success: false,
           message: 'Store details required',
@@ -55,7 +49,6 @@ export const refreshRetailerToken = async () => {
         message: 'Retailer token refreshed successfully'
       };
     } else {
-      console.error('Retailer token refresh failed:', retailerResult.message);
       return {
         success: false,
         message: retailerResult.message || 'Failed to refresh retailer token',
@@ -63,7 +56,6 @@ export const refreshRetailerToken = async () => {
       };
     }
   } catch (error) {
-    console.error('Manual retailer token refresh error:', error);
     return {
       success: false,
       message: 'Failed to refresh retailer token. Please login again.',

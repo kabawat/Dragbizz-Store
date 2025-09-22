@@ -1,9 +1,9 @@
-// src/service/auth/retailerService.js
-import { authAxios, retailerAxios } from '../config/axiosConfig';
+// src/service/retailer/store.service.js
+import { authAxios, retailerAxios } from '@/service/config/axiosConfig';
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
 
-class RetailerService {
+class StoreService {
   constructor() {
     this.baseURL = API_CONFIG.BASE.URL;
   }
@@ -35,8 +35,6 @@ class RetailerService {
   // Create store using auth service token
   async createStore(storeData) {
     try {
-      console.log('RetailerService - Creating store:', storeData);
-      
       // Format payload according to API structure
       const payload = {
         name: storeData.name,
@@ -68,7 +66,6 @@ class RetailerService {
         }
       };
       
-      console.log('RetailerService - Store payload:', payload);
       
       const response = await authAxios.post(API_CONFIG?.RETAILER?.STORE, payload);
       return handleApiSuccess(response, 'Store created successfully');
@@ -77,8 +74,49 @@ class RetailerService {
     }
   }
 
+  // Get store details
+  async getStore(storeId) {
+    try {
+      const response = await retailerAxios.get(`${API_CONFIG?.RETAILER?.STORE}/${storeId}`);
+      return handleApiSuccess(response?.data, 'Store fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'store-get');
+    }
+  }
+
+  // Update store
+  async updateStore(storeId, storeData) {
+    try {
+      const response = await retailerAxios.put(`${API_CONFIG?.RETAILER?.STORE}/${storeId}`, storeData);
+      return handleApiSuccess(response?.data, 'Store updated successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'store-update');
+    }
+  }
+
+  // Get all stores for retailer
+  async getStores(params = {}) {
+    try {
+      const queryParams = new URLSearchParams(params).toString();
+      const response = await retailerAxios.get(`${API_CONFIG?.RETAILER?.STORE}?${queryParams}`);
+      return handleApiSuccess(response?.data, 'Stores fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'stores-list');
+    }
+  }
+
+  // Delete store
+  async deleteStore(storeId) {
+    try {
+      const response = await retailerAxios.delete(`${API_CONFIG?.RETAILER?.STORE}/${storeId}`);
+      return handleApiSuccess(response?.data, 'Store deleted successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'store-delete');
+    }
+  }
+
 }
 
 // Create and export a singleton instance
-const retailerService = new RetailerService();
-export default retailerService;
+const storeService = new StoreService();
+export default storeService;

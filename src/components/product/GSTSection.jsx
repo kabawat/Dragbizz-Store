@@ -1,8 +1,8 @@
 "use client"
 import React from 'react';
-import { Toggle, Select } from '../ui';
-import { Calculator } from 'lucide-react';
-import { GST_RATE_OPTIONS } from '../../data';
+import { Toggle, Select, Input } from '../ui';
+import { Calculator, Hash } from 'lucide-react';
+import { GST_RATE_OPTIONS } from '@/data';
 
 const GSTSection = ({
   formData,
@@ -16,9 +16,12 @@ const GSTSection = ({
       [field]: value
     });
   };
-
-  // Use imported GST rate options from data constants
-  const gstRateOptions = GST_RATE_OPTIONS;
+  // GST Type options
+  const gstTypeOptions = [
+    { value: 'CGST_SGST', label: 'CGST + SGST', description: 'Central GST + State GST' },
+    { value: 'IGST', label: 'IGST', description: 'Integrated GST (Inter-state)' },
+    { value: 'UTGST', label: 'UTGST', description: 'Union Territory GST' }
+  ];
 
   // Calculate total GST amount
   const calculateGSTAmount = () => {
@@ -48,7 +51,7 @@ const GSTSection = ({
           <div className="mb-6">
             <Select
               label="GST Rate"
-              options={gstRateOptions}
+              options={GST_RATE_OPTIONS}
               value={formData.gstRate || ''}
               onChange={(value) => handleFieldChange('gstRate', value)}
               error={errors.gstRate}
@@ -57,6 +60,37 @@ const GSTSection = ({
               leftIcon={Calculator}
               searchable
               placeholder="Select GST rate"
+            />
+          </div>
+
+          {/* GST Type */}
+          <div className="mb-6">
+            <Select
+              label="GST Type"
+              options={gstTypeOptions}
+              value={formData.gstType || 'CGST_SGST'}
+              onChange={(value) => handleFieldChange('gstType', value)}
+              error={errors.gstType}
+              errorMessage={errors.gstType}
+              required
+              searchable
+              placeholder="Select GST type"
+              helperText="Choose the appropriate GST type based on transaction"
+            />
+          </div>
+
+          {/* HSN Code */}
+          <div className="mb-6">
+            <Input
+              label="HSN Code"
+              placeholder="Enter HSN code (e.g., 85171200)"
+              value={formData.hsnCode || ''}
+              onChange={(value) => handleFieldChange('hsnCode', value)}
+              error={errors.hsnCode}
+              errorMessage={errors.hsnCode}
+              leftIcon={Hash}
+              maxLength={8}
+              helperText="Harmonized System of Nomenclature code for product classification"
             />
           </div>
 
@@ -77,6 +111,20 @@ const GSTSection = ({
                     {parseFloat(formData.gstRate).toFixed(2)}%
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-[rgb(var(--color-text-secondary))]">GST Type:</span>
+                  <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                    {gstTypeOptions.find(type => type.value === formData.gstType)?.label || formData.gstType}
+                  </span>
+                </div>
+                {formData.hsnCode && (
+                  <div className="flex justify-between">
+                    <span className="text-[rgb(var(--color-text-secondary))]">HSN Code:</span>
+                    <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                      {formData.hsnCode}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-[rgb(var(--color-text-secondary))]">GST Amount:</span>
                   <span className="font-medium text-[rgb(var(--color-primary))]">

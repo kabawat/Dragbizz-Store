@@ -10,4 +10,3 @@ export { default as PricingSection } from './PricingSection';
 export { default as GSTSection } from './GSTSection';
 export { default as AdditionalDetailsSection } from './AdditionalDetailsSection';
 export { default as StatusSection } from './StatusSection';
-export { default as CategorySelector } from './CategorySelector';

@@ -25,6 +25,7 @@ const API_CONFIG = {
     PROFILE: '/retailer/profile',
     AGENCY: '/retailer/agencies',
     STORE: '/retailer/store',
+    PRODUCT: '/retailer/product',
   },
     
   // External Services

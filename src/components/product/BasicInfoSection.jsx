@@ -1,21 +1,18 @@
 "use client"
 import React from 'react';
-import { Input, Textarea, TagInput } from '../ui';
+import { Input, Textarea, TagInput, Select } from '../ui';
 import { Package, Tag, Barcode } from 'lucide-react';
-import CategorySelector from './CategorySelector';
-import { SectionCard } from '../layout';
+import { PRODUCT_CATEGORY_OPTIONS } from '@/data';
 
 const BasicInfoSection = ({
   formData,
   onChange,
   errors = {},
   ...props
-}) => {
+}) => {  
   const handleFieldChange = (field, value) => {
-    onChange({
-      ...formData,
-      [field]: value
-    });
+    console.log('Field:', field, 'Value:', value);
+    onChange(field, value);
   };
 
   return (
@@ -54,10 +51,16 @@ const BasicInfoSection = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Category Selection */}
         <div>
-          <CategorySelector
-            formData={formData}
-            onChange={handleFieldChange}
-            errors={errors}
+          <Select
+            label="Category"
+            placeholder="Select a category"
+            value={formData.category || ''}
+            onChange={(value) => handleFieldChange('category', value)}
+            error={errors.category}
+            errorMessage={errors.category}
+            searchable={true}
+            options={PRODUCT_CATEGORY_OPTIONS}
+            required
           />
         </div>
 
@@ -123,18 +126,18 @@ const BasicInfoSection = ({
             />
           </div>
 
-          {/* Product Highlights */}
+          {/* Product Tags */}
           <div className="mb-6">
             <TagInput
-              label="Product Highlights"
-              placeholder="Add highlights..."
-              value={formData.highlights || []}
-              onChange={(value) => handleFieldChange('highlights', value)}
-              error={errors.highlights}
-              errorMessage={errors.highlights}
-              maxTags={8}
-              maxTagLength={30}
-              helperText="Add selling points and highlights"
+              label="Product Tags"
+              placeholder="Add tags..."
+              value={formData.tags || []}
+              onChange={(value) => handleFieldChange('tags', value)}
+              error={errors.tags}
+              errorMessage={errors.tags}
+              maxTags={15}
+              maxTagLength={25}
+              helperText="Add relevant tags to improve product discoverability"
             />
           </div>
     </>

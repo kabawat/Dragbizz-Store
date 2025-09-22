@@ -84,12 +84,11 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Settings', icon: Settings, href: '/settings' },
   ];
 
-  const handleStoreSelect = (storeName) => {
-    console.log('Selecting store:', storeName);
-    dispatch(setSelectedStore(storeName));
+  const handleStoreSelect = (store) => {
+    dispatch(setSelectedStore(store));
     setIsStoreDropdownOpen(false);
     if (onStoreChange) {
-      onStoreChange(storeName);
+      onStoreChange(store);
     }
   };
 
@@ -107,10 +106,6 @@ const Sidebar = ({ onStoreChange }) => {
     setIsProductsDropdownOpen(!isProductsDropdownOpen);
   };
 
-  // Debug selectedStore changes
-  useEffect(() => {
-    console.log('Selected store changed to:', selectedStore);
-  }, [selectedStore]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -169,9 +164,11 @@ const Sidebar = ({ onStoreChange }) => {
                 onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
               >
                 <div>
-                  <div className="font-semibold text-gray-900">{selectedStore}</div>
+                  <div className="font-semibold text-gray-900">
+                    {selectedStore?.name || selectedStore?.storeName || 'Select Store'}
+                  </div>
                   <div className="text-sm text-gray-600">
-                    GST: {stores.find(store => store.name === selectedStore)?.gst || 'N/A'}
+                    GST: {selectedStore?.gst || 'N/A'}
                   </div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
@@ -182,14 +179,19 @@ const Sidebar = ({ onStoreChange }) => {
                 <div className="absolute top-full left-0 right-0 mt-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="p-2">
                     {stores.map((store) => {
-                      const isSelected = store.name === selectedStore;
+                      const isSelected = selectedStore && (
+                        store.name === selectedStore.name || 
+                        store.name === selectedStore.storeName ||
+                        (selectedStore.name && store.name === selectedStore.name) ||
+                        (selectedStore.storeName && store.name === selectedStore.storeName)
+                      );
                       return (
                         <div
                           key={store.name}
                           className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${
                             isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''
                           }`}
-                          onClick={() => handleStoreSelect(store.name)}
+                          onClick={() => handleStoreSelect(store)}
                         >
                           <div>
                             <div className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-900'}`}>

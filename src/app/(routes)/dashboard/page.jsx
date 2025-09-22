@@ -5,10 +5,11 @@ import DashboardContent from '@/components/dashboard/DashboardContent';
 import { AnimatedBackground } from '@/components/ui';
 
 export default function Dashboard() {
-  const [selectedStore, setSelectedStore] = useState('Main Store');
+  const [selectedStore, setSelectedStore] = useState(null); // Now stores complete store object
 
-  const handleStoreChange = (storeName) => {
-    setSelectedStore(storeName);
+  const handleStoreChange = (storeObject) => {
+    // Now handleStoreChange receives complete store object instead of just name
+    setSelectedStore(storeObject);
   };
 
   return (

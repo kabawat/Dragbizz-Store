@@ -19,7 +19,6 @@ export const LocationProvider = ({ children }) => {
         
         const location = await getUserLocation();
         setUserLocation(location);
-        console.log('App Layout - User location detected:', location);
       } catch (error) {
         console.error('App Layout - Failed to get location:', error);
         setLocationError(error.message);

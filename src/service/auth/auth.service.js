@@ -1,4 +1,4 @@
-// src/service/auth/authService.js
+// src/service/auth/auth.service.js
 import { unauthAxios } from '../config/axiosConfig';
 import { API_CONFIG } from '@/config';
 import { getUserLocation } from '@/utils/locationUtils';
@@ -42,8 +42,6 @@ class AuthService {
         location: credentials.location || '0,0'
       };
 
-      console.log('AuthService - Login request:', loginData);
-
       const response = await unauthAxios.post(API_CONFIG.AUTH.LOGIN, loginData);
 
       return handleApiSuccess(response, 'Login successful');
@@ -63,9 +61,6 @@ class AuthService {
         token: credentials.deviceToken || '',
         location: credentials.location || '0,0'
       };
-
-      console.log('AuthService - Send OTP request:', loginData);
-
       const response = await unauthAxios.post(API_CONFIG.AUTH.LOGIN, loginData);
 
       return handleApiSuccess(response, 'OTP sent successfully');
@@ -84,8 +79,6 @@ class AuthService {
         deviceToken: otpData.deviceToken || '',
         location: otpData.location || '0,0'
       };
-
-      console.log('AuthService - Verify login OTP:', verifyData);
 
       const response = await unauthAxios.put(API_CONFIG.AUTH.LOGIN_VERIFY, verifyData, {
         headers: {
@@ -194,8 +187,6 @@ class AuthService {
       // Get user's current location
       const location = await getUserLocation();
       
-      console.log('AuthService - Resending OTP with data:', userData);
-      
       const response = await unauthAxios.post(API_CONFIG.AUTH.REGISTER, {
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -203,9 +194,6 @@ class AuthService {
         pwds: userData.pwds,
         location: location
       });
-
-      console.log('AuthService - Resend OTP response:', response.data);
-
       return handleApiSuccess(response, 'OTP sent successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'otp-resend');
@@ -214,8 +202,6 @@ class AuthService {
 
   async createAgency(agencyData, token) {
     try {
-      console.log('AuthService - Creating agency:', agencyData);
-      
       const response = await unauthAxios.post('/agencies/', agencyData, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -230,8 +216,6 @@ class AuthService {
 
   async createStore(storeData, token) {
     try {
-      console.log('AuthService - Creating store:', storeData);
-      
       const response = await unauthAxios.post('/store/', storeData, {
         headers: {
           'Authorization': `Bearer ${token}`
