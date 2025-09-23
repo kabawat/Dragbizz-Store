@@ -71,14 +71,6 @@ const initialState = {
   // Error handling
   error: null,
   
-  // Filters and search
-  filters: {
-    search: '',
-    status: '',
-    category: '',
-    brand: '',
-    priceRange: { min: '', max: '' }
-  },
   
   // View settings
   viewMode: 'table', // 'table' or 'card'
@@ -115,21 +107,6 @@ const productsSlice = createSlice({
       state.selectedProducts = [];
     },
     
-    // Update filters
-    updateFilters: (state, action) => {
-      state.filters = { ...state.filters, ...action.payload };
-    },
-    
-    // Clear filters
-    clearFilters: (state) => {
-      state.filters = {
-        search: '',
-        status: '',
-        category: '',
-        brand: '',
-        priceRange: { min: '', max: '' }
-      };
-    },
     
     // Set view mode
     setViewMode: (state, action) => {
@@ -216,8 +193,6 @@ export const {
   toggleProductSelection,
   selectAllProducts,
   deselectAllProducts,
-  updateFilters,
-  clearFilters,
   setViewMode,
   addMoreProducts
 } = productsSlice.actions;
