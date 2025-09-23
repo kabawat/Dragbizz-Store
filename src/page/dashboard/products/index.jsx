@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
-// import { MoreHorizontal, Edit, Copy, Trash2, Eye,  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -82,7 +81,7 @@ const ProductsPage = () => {
         store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
         search: searchValue,
         limit: 20,
-        cursor: null // Start from beginning
+        cursor: null 
       };
 
       await dispatch(getProducts(params));
@@ -259,18 +258,18 @@ const ProductsPage = () => {
             {
               transformedProducts.length > 0 && (
                 <div className="mb-6">
-                  <div className="flex flex-col lg:flex-row gap-4 mb-4">
+                  <div className="flex justify-between items-center lg:flex-row gap-4 mb-4">
                     {/* Search */}
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Input
-                          type="text"
-                          placeholder="Search products by name, SKU, or barcode..."
-                          value={searchValue}
-                          onChange={(e) => handleSearch(e.target.value)}
-                          leftIcon={Search}
-                        />
-                      </div>
+                    <div className="w-100 bg-red">
+                      <Input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchValue}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        leftIcon={Search}
+                        className="w-100"
+                        // size="sm"
+                      />
                     </div>
 
                     {/* Action Buttons */}

@@ -27,6 +27,7 @@ const Input = forwardRef(({
   autoComplete,
   showPasswordToggle = false,
   rightElement, // Keep for backward compatibility
+  size = 'md', // New size prop with default 'md'
   ...props
 }, ref) => {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -35,12 +36,28 @@ const Input = forwardRef(({
     ? (showPassword ? 'text' : 'password')
     : type;
 
-  // Base classes - Theme aware
-  const baseClasses = 'w-full py-4 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
+  // Size classes
+  const sizeClasses = {
+    sm: 'py-2 text-sm',
+    md: 'py-4 text-base', // Default size
+    lg: 'py-5 text-lg'
+  };
 
-  // Padding classes - More precise spacing
-  const paddingClasses = LeftIcon ? 'pl-14' : 'pl-4';
-  const rightPaddingClasses = (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-14' : 'pr-4';
+  // Base classes - Theme aware
+  const baseClasses = `w-full border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] ${sizeClasses[size]}`;
+
+  // Padding classes - More precise spacing based on size
+  const paddingClasses = {
+    sm: LeftIcon ? 'pl-10' : 'pl-3',
+    md: LeftIcon ? 'pl-14' : 'pl-4', // Default padding
+    lg: LeftIcon ? 'pl-16' : 'pl-5'
+  };
+  
+  const rightPaddingClasses = {
+    sm: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-10' : 'pr-3',
+    md: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-14' : 'pr-4', // Default padding
+    lg: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-16' : 'pr-5'
+  };
 
   // State classes - Theme aware with higher specificity
   const stateClasses = error
@@ -51,7 +68,7 @@ const Input = forwardRef(({
 
   const disabledClasses = disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed opacity-50' : '';
 
-  const inputClasses = `${baseClasses} ${paddingClasses} ${rightPaddingClasses} ${stateClasses} ${disabledClasses} ${className}`;
+  const inputClasses = `${baseClasses} ${paddingClasses[size]} ${rightPaddingClasses[size]} ${stateClasses} ${disabledClasses} ${className}`;
 
   return (
     <div className="relative">
@@ -65,8 +82,8 @@ const Input = forwardRef(({
       {/* Left Icon */}
       <div className="relative">
         {LeftIcon && (
-          <div className="absolute left-0 top-0 h-full z-10 flex items-center justify-center w-10 ps-4">
-            <LeftIcon className={`pointer-events-none w-5 h-5 ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+          <div className={`absolute left-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 ps-3' : size === 'lg' ? 'w-12 ps-5' : 'w-10 ps-4'}`}>
+            <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
           </div>
         )}
 
@@ -93,7 +110,7 @@ const Input = forwardRef(({
       </div>
 
       {/* Right Elements */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
+      <div className={`absolute top-1/2 -translate-y-1/2 z-10 flex items-center justify-center ${size === 'sm' ? 'right-2' : size === 'lg' ? 'right-4' : 'right-3'}`}>
         {/* Password Toggle */}
         {showPasswordToggle && type === 'password' && (
           <button
@@ -103,16 +120,16 @@ const Input = forwardRef(({
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="w-5 h-5" />
+              <EyeOff className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} />
             ) : (
-              <Eye className="w-5 h-5" />
+              <Eye className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} />
             )}
           </button>
         )}
 
         {/* Right Icon */}
         {RightIcon && !showPasswordToggle && (
-          <RightIcon className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] pointer-events-none" />
+          <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />
         )}
 
         {/* Legacy rightElement support */}
@@ -124,7 +141,7 @@ const Input = forwardRef(({
 
         {/* Error/Success Icon */}
         {(error || success) && (
-          <AlertCircle className={`w-5 h-5 ${error ? 'text-red-500' : 'text-green-500'}`} />
+          <AlertCircle className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-green-500'}`} />
         )}
       </div>
 
