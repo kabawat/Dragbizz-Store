@@ -6,10 +6,11 @@ import { Save, ArrowLeft, Loader2 } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
+import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import Link from 'next/link';
 
 const UpdateProductPage = ({ productId }) => {
   const router = useRouter();
@@ -32,10 +33,10 @@ const UpdateProductPage = ({ productId }) => {
     mrp: '',
     sellingPrice: '',
     discount: '',
-    currency: 'INR',
-    uom: 'PCS',
-    status: 'DRAFT',
-    visibility: 'PUBLIC',
+    currency: '',
+    uom: '',
+    status: '',
+    visibility: '',
     featured: false,
     bestSeller: false,
     newArrival: false,
@@ -79,16 +80,16 @@ const UpdateProductPage = ({ productId }) => {
             category: product.category || '',
             barcode: product.barcode || '',
             sku: product.sku || '',
-            // Pricing data from nested pricing object
-            basePrice: product.pricing?.basePrice || '',
-            mrp: product.pricing?.mrp || '',
-            sellingPrice: product.pricing?.sellingPrice || '',
-            discount: product.pricing?.discount || '',
-            currency: product.pricing?.currency || 'INR',
-            uom: product.pricing?.uom || 'PCS',
+            // Pricing data - directly from API response
+            basePrice: product.basePrice || '',
+            mrp: product.mrp || '',
+            sellingPrice: product.sellingPrice || '',
+            discount: product.discount || '',
+            currency: product.currency || '',
+            uom: product.uom || '',
             // Status and visibility
-            status: product.status || 'DRAFT',
-            visibility: product.visibility || 'PUBLIC',
+            status: product.status || '',
+            visibility: product.visibility || '',
             featured: product.featured || false,
             bestSeller: product.bestSeller || false,
             newArrival: product.newArrival || false,
@@ -99,14 +100,14 @@ const UpdateProductPage = ({ productId }) => {
               gstType: product.gstInfo?.gstType || 'CGST_SGST',
               hsnCode: product.gstInfo?.hsnCode || ''
             },
-            // Content data (if available in API)
+            // Content data from nested content object
             content: {
-              shortDescription: product.content?.shortDescription || product.shortDescription || '',
-              longDescription: product.content?.longDescription || product.longDescription || '',
-              tags: product.content?.tags || product.tags || [],
-              specifications: product.content?.specifications || product.specifications || []
+              shortDescription: product.content?.shortDescription || '',
+              longDescription: product.content?.longDescription || '',
+              tags: product.content?.tags || [],
+              specifications: product.content?.specifications || [],
+              features: product.features || []
             },
-            features: product.features || []
           };
 
           console.log('Transformed Data:', transformedData);
@@ -138,13 +139,13 @@ const UpdateProductPage = ({ productId }) => {
   }, [storeId]);
 
   // Handle form data changes
-  const handleFormDataChange = (fieldName, value) => {    
+  const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
       console.error('fieldName must be a string:', fieldName);
       return;
     }
-    
+
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
       setFieldErrors(prev => {
@@ -153,10 +154,10 @@ const UpdateProductPage = ({ productId }) => {
         return newErrors;
       });
     }
-    
+
     setFormData(prevData => {
       const newData = { ...prevData };
-      
+
       if (fieldName.includes('.')) {
         const [parent, child] = fieldName.split('.');
         if (!newData[parent]) {
@@ -170,7 +171,7 @@ const UpdateProductPage = ({ productId }) => {
         // Handle top-level fields
         newData[fieldName] = value;
       }
-      
+
       return newData;
     });
   };
@@ -304,30 +305,33 @@ const UpdateProductPage = ({ productId }) => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header />
-
+        <Header
+          title="Edit Product"
+          description="Update product information and settings"
+        />
+        
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-            {/* Page Header */}
+            {/* Form Completion Steps */}
             <div className="mb-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleCancel}
-                    leftIcon={ArrowLeft}
-                    className="flex-shrink-0"
-                  >
-                    Back
-                  </Button>
-                  <div>
-                    <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
-                      Edit Product
-                    </h1>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      Update product information and settings
-                    </p>
+              <div className="flex items-center space-x-4">
+                {/* Back Button */}
+                <Link href="/dashboard/products" className="flex-shrink-0 inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">Back to Products</span>
+                </Link>
+
+                {/* Progress Bar */}
+                <div className="flex-1 bg-gradient-to-r from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] ">
+                  <div className="px-2">
+                  <StepProgress
+                    formData={formData}
+                    orientation="horizontal"
+                    size="sm"
+                    showLabels={true}
+                    showIcons={true}
+                  />
                   </div>
                 </div>
               </div>

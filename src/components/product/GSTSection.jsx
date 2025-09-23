@@ -11,10 +11,7 @@ const GSTSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    onChange({
-      ...formData,
-      [field]: value
-    });
+    onChange(field, value);
   };
   // GST Type options
   const gstTypeOptions = [
@@ -26,7 +23,7 @@ const GSTSection = ({
   // Calculate total GST amount
   const calculateGSTAmount = () => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-    const gstRate = parseFloat(formData.gstRate) || 0;
+    const gstRate = parseFloat(formData.gstInfo?.gstRate) || 0;
     return (sellingPrice * gstRate) / 100;
   };
 
@@ -38,22 +35,22 @@ const GSTSection = ({
       <div className="mb-6">
         <Toggle
           label="GST Applicable"
-          checked={formData.gstApplicable || false}
-          onChange={(checked) => handleFieldChange('gstApplicable', checked)}
+          checked={formData.gstInfo?.isGstApplicable || false}
+          onChange={(checked) => handleFieldChange('gstInfo.isGstApplicable', checked)}
           helperText="Enable if GST is applicable to this product"
         />
       </div>
 
       {/* GST Fields - Only show if GST is applicable */}
-      {formData.gstApplicable && (
+      {formData.gstInfo?.isGstApplicable && (
         <>
           {/* GST Rate */}
           <div className="mb-6">
             <Select
               label="GST Rate"
               options={GST_RATE_OPTIONS}
-              value={formData.gstRate || ''}
-              onChange={(value) => handleFieldChange('gstRate', value)}
+              value={formData.gstInfo?.gstRate || ''}
+              onChange={(value) => handleFieldChange('gstInfo.gstRate', value)}
               error={errors.gstRate}
               errorMessage={errors.gstRate}
               required
@@ -68,8 +65,8 @@ const GSTSection = ({
             <Select
               label="GST Type"
               options={gstTypeOptions}
-              value={formData.gstType || 'CGST_SGST'}
-              onChange={(value) => handleFieldChange('gstType', value)}
+              value={formData.gstInfo?.gstType || 'CGST_SGST'}
+              onChange={(value) => handleFieldChange('gstInfo.gstType', value)}
               error={errors.gstType}
               errorMessage={errors.gstType}
               required
@@ -84,8 +81,8 @@ const GSTSection = ({
             <Input
               label="HSN Code"
               placeholder="Enter HSN code (e.g., 85171200)"
-              value={formData.hsnCode || ''}
-              onChange={(value) => handleFieldChange('hsnCode', value)}
+              value={formData.gstInfo?.hsnCode || ''}
+              onChange={(value) => handleFieldChange('gstInfo.hsnCode', value)}
               error={errors.hsnCode}
               errorMessage={errors.hsnCode}
               leftIcon={Hash}
@@ -95,7 +92,7 @@ const GSTSection = ({
           </div>
 
           {/* GST Summary */}
-          {formData.gstRate && formData.sellingPrice && (
+          {formData.gstInfo?.gstRate && formData.sellingPrice && (
             <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
               <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">GST Summary</h4>
               <div className="space-y-2 text-sm">
@@ -108,20 +105,20 @@ const GSTSection = ({
                 <div className="flex justify-between">
                   <span className="text-[rgb(var(--color-text-secondary))]">GST Rate:</span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {parseFloat(formData.gstRate).toFixed(2)}%
+                    {parseFloat(formData.gstInfo?.gstRate).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[rgb(var(--color-text-secondary))]">GST Type:</span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {gstTypeOptions.find(type => type.value === formData.gstType)?.label || formData.gstType}
+                    {gstTypeOptions.find(type => type.value === formData.gstInfo?.gstType)?.label || formData.gstInfo?.gstType}
                   </span>
                 </div>
-                {formData.hsnCode && (
+                {formData.gstInfo?.hsnCode && (
                   <div className="flex justify-between">
                     <span className="text-[rgb(var(--color-text-secondary))]">HSN Code:</span>
                     <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                      {formData.hsnCode}
+                      {formData.gstInfo.hsnCode}
                     </span>
                   </div>
                 )}

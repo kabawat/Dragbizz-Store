@@ -7,12 +7,12 @@ import { CSS } from '@dnd-kit/utilities';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
-import { 
-  DollarSign, 
-  Users, 
-  Package, 
-  Building2, 
-  TrendingUp, 
+import {
+  DollarSign,
+  Users,
+  Package,
+  Building2,
+  TrendingUp,
   TrendingDown,
   ShoppingCart,
   Plus,
@@ -42,8 +42,8 @@ const SortableSection = ({ id, children, isVisible, onToggleVisibility }) => {
   return (
     <div ref={setNodeRef} style={style} className="relative group">
       {/* Drag Handle */}
-      <div 
-        {...attributes} 
+      <div
+        {...attributes}
         {...listeners}
         className="absolute -left-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
       >
@@ -80,14 +80,14 @@ const SortableMetricCard = ({ id, title, value, change, changeType, icon: Icon, 
   const changeColor = changeType === 'up' ? 'text-green-600' : 'text-red-600';
 
   return (
-    <div 
-      ref={setNodeRef} 
+    <div
+      ref={setNodeRef}
       style={style}
       className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 hover:shadow-lg transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30 relative group"
     >
       {/* Drag Handle */}
-      <div 
-        {...attributes} 
+      <div
+        {...attributes}
         {...listeners}
         className="absolute -left-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
       >
@@ -116,7 +116,7 @@ const SortableMetricCard = ({ id, title, value, change, changeType, icon: Icon, 
 const MetricCard = ({ title, value, change, changeType, icon: Icon, iconColor }) => {
   const ChangeIcon = changeType === 'up' ? TrendingUp : TrendingDown;
   const changeColor = changeType === 'up' ? 'text-green-600' : 'text-red-600';
-  
+
   return (
     <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 hover:shadow-lg transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30">
       <div className="flex items-center justify-between">
@@ -138,24 +138,24 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, iconColor })
 
 const TransactionItem = ({ customer, date, amount, status }) => {
   const statusColor = status === 'completed' ? 'bg-[rgb(var(--color-success))]/10 text-[rgb(var(--color-success))]' : 'bg-[rgb(var(--color-warning))]/10 text-[rgb(var(--color-warning))]';
-  
+
   return (
     <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm rounded-lg border border-[rgb(var(--color-border-primary))]/40 hover:shadow-md transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
-            <ShoppingCart className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-          </div>
-          <div>
-            <p className="font-medium text-[rgb(var(--color-text-primary))]">{customer}</p>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{date}</p>
-          </div>
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
+          <ShoppingCart className="w-5 h-5 text-[rgb(var(--color-primary))]" />
         </div>
-        <div className="text-right">
-          <p className="font-semibold text-[rgb(var(--color-text-primary))]">{amount}</p>
-          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColor}`}>
-            {status}
-          </span>
+        <div>
+          <p className="font-medium text-[rgb(var(--color-text-primary))]">{customer}</p>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">{date}</p>
         </div>
+      </div>
+      <div className="text-right">
+        <p className="font-semibold text-[rgb(var(--color-text-primary))]">{amount}</p>
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColor}`}>
+          {status}
+        </span>
+      </div>
     </div>
   );
 };
@@ -229,11 +229,11 @@ export default function Dashboard() {
   useEffect(() => {
     const savedMetrics = localStorage.getItem('dashboard-metrics-order');
     const savedSections = localStorage.getItem('dashboard-sections-order');
-    
+
     if (savedMetrics) {
       try {
         const savedOrder = JSON.parse(savedMetrics);
-        const reorderedMetrics = savedOrder.map(id => 
+        const reorderedMetrics = savedOrder.map(id =>
           metrics.find(metric => metric.id === id)
         ).filter(Boolean);
         if (reorderedMetrics.length === metrics.length) {
@@ -247,7 +247,7 @@ export default function Dashboard() {
     if (savedSections) {
       try {
         const savedOrder = JSON.parse(savedSections);
-        const reorderedSections = savedOrder.map(id => 
+        const reorderedSections = savedOrder.map(id =>
           sections.find(section => section.id === id)
         ).filter(Boolean);
         if (reorderedSections.length === sections.length) {
@@ -326,7 +326,10 @@ export default function Dashboard() {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header selectedStore={currentStore} />
+        <Header
+          title="Dashboard"
+          description="Overview of your store performance and analytics"
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -362,7 +365,7 @@ export default function Dashboard() {
                       key={section.id}
                       id={section.id}
                       isVisible={section.visible}
-                      onToggleVisibility={() => {}}
+                      onToggleVisibility={() => { }}
                     >
                       <div className={section.span}>
                         {section.id === 'transactions' && (
