@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, Package } from 'lucide-react';
+import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
 // import { MoreHorizontal, Edit, Copy, Trash2, Eye,  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -17,7 +17,7 @@ import {
 import { transformProductsArray } from '@/utils/productUtils';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, SettingsPanel } from '@/components/ui';
+import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 
 // Import UI components
 import { Button } from '@/components/ui';
@@ -231,7 +231,10 @@ const ProductsPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header selectedStore={selectedStore} />
+        <Header
+          title="Products"
+          description="Manage your store inventory and product catalog"
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -255,21 +258,18 @@ const ProductsPage = () => {
             {/* Search and Filter Card */}
             {
               transformedProducts.length > 0 && (
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6 mb-6 shadow-sm">
+                <div className="mb-6">
                   <div className="flex flex-col lg:flex-row gap-4 mb-4">
                     {/* Search */}
                     <div className="flex-1">
                       <div className="relative">
-                        <input
+                        <Input
                           type="text"
                           placeholder="Search products by name, SKU, or barcode..."
                           value={searchValue}
                           onChange={(e) => handleSearch(e.target.value)}
-                          className="w-full pl-12 pr-4 py-3 border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] text-sm"
+                          leftIcon={Search}
                         />
-                        <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[rgb(var(--color-text-tertiary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
                       </div>
                     </div>
 
@@ -298,7 +298,7 @@ const ProductsPage = () => {
 
             {
               !isLoading && transformedProducts.length === 0 && (
-                <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm`}>
+                <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]`}>
                   <div className="flex flex-col items-center justify-center py-16">
                     <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
                       <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
@@ -321,9 +321,9 @@ const ProductsPage = () => {
 
             {
               transformedProducts.length > 0 && (
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden">
-                  {viewMode === 'table' ? (
-                    <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
+                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                  <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
+                    {viewMode === 'table' ? (
                       <ProductTable
                         products={transformedProducts}
                         selectedProducts={selectedProducts}
@@ -337,9 +337,8 @@ const ProductsPage = () => {
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
                       />
-                    </div>
-                  ) : (
-                    <div className="h-[calc(100vh-320px)] overflow-y-auto" ref={scrollRef}>
+
+                    ) : (
                       <ProductGrid
                         products={transformedProducts}
                         selectedProducts={selectedProducts}
@@ -353,8 +352,8 @@ const ProductsPage = () => {
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
                       />
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {/* Fixed Footer */}
                   <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">

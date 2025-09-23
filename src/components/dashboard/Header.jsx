@@ -1,15 +1,18 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, ChevronDown, User } from 'lucide-react';
+import { Bell, ChevronDown } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
 import { useAppSelector } from '@/store/hooks';
 
-const Header = () => {
+const Header = ({ 
+  title = "Dashboard", 
+  description
+}) => {
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
   
   // Get user data from Redux
-  const { user, agency, stores ,selectedStore} = useAppSelector((state) => state.profile);
+  const { user, agency, selectedStore } = useAppSelector((state) => state.profile);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -48,11 +51,11 @@ const Header = () => {
     <>
       <header className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-b border-[rgb(var(--color-border-primary))]/50 px-6 py-3 shadow-sm relative z-[100]">
         <div className="flex items-center justify-between">
-          {/* Left side - Page Title and Welcome Message */}
+          {/* Left side - Page Title and Description */}
           <div>
-            <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-1">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-1">{title}</h1>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              Welcome back! Here's what's happening with {selectedStore?.name || selectedStore?.storeName || 'your store'} today.
+              {description || `Welcome back! Here's what's happening with ${selectedStore?.name || selectedStore?.storeName || 'your store'} today.`}
             </p>
           </div>
 
