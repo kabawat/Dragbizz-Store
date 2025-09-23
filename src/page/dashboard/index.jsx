@@ -7,21 +7,21 @@ import { CSS } from '@dnd-kit/utilities';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
-import {
-  DollarSign,
-  Users,
-  Package,
-  Building2,
-  TrendingUp,
-  TrendingDown,
-  ShoppingCart,
-  Plus,
-  FileText,
-  UserPlus,
-  PackagePlus,
-  Building,
-  GripVertical
-} from 'lucide-react';
+import { DollarSign, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, Plus, FileText, UserPlus, PackagePlus, Building, GripVertical } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+const transactions = [
+  { customer: 'John Smith', date: '2025-01-08', amount: '₹234.50', status: 'completed' },
+  { customer: 'Sarah Johnson', date: '2025-01-08', amount: '₹89.99', status: 'pending' },
+  { customer: 'Mike Davis', date: '2025-01-07', amount: '₹456.20', status: 'completed' },
+  { customer: 'Lisa Brown', date: '2025-01-07', amount: '₹123.45', status: 'completed' }
+];
+
+const quickActions = [
+  { title: 'Add Customer', icon: UserPlus, path: '' },
+  { title: 'Add Product', icon: PackagePlus, path: '/dashboard/products/add' },
+  { title: 'New Invoice', icon: FileText, path: '' },
+  { title: 'Add Wholesaler', icon: Building, path: '' }
+];
 
 const SortableSection = ({ id, children, isVisible, onToggleVisibility }) => {
   const {
@@ -161,10 +161,7 @@ const TransactionItem = ({ customer, date, amount, status }) => {
 };
 
 const QuickActionButton = ({ title, icon: Icon, onClick }) => (
-  <button
-    onClick={onClick}
-    className="flex flex-col items-center justify-center p-6 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm border-2 border-dashed border-[rgb(var(--color-border-secondary))]/60 rounded-lg hover:border-[rgb(var(--color-primary))]/80 hover:bg-[rgb(var(--color-primary))]/10 transition-all duration-300 group"
-  >
+  <button onClick={onClick} className="flex flex-col items-center justify-center p-6 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm border-2 border-dashed border-[rgb(var(--color-border-secondary))]/60 rounded-lg hover:border-[rgb(var(--color-primary))]/80 hover:bg-[rgb(var(--color-primary))]/10 transition-all duration-300 group">
     <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg flex items-center justify-center mb-3 group-hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
       <Icon className="w-6 h-6 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
     </div>
@@ -174,6 +171,7 @@ const QuickActionButton = ({ title, icon: Icon, onClick }) => (
 
 export default function Dashboard() {
   const [selectedStore, setSelectedStore] = useState(null);
+  const router = useRouter();
   const [metrics, setMetrics] = useState([
     {
       id: 'revenue',
@@ -302,21 +300,9 @@ export default function Dashboard() {
     setSelectedStore(storeObject);
   };
 
-  const currentStore = selectedStore || 'Main Store';
-
-  const transactions = [
-    { customer: 'John Smith', date: '2025-01-08', amount: '₹234.50', status: 'completed' },
-    { customer: 'Sarah Johnson', date: '2025-01-08', amount: '₹89.99', status: 'pending' },
-    { customer: 'Mike Davis', date: '2025-01-07', amount: '₹456.20', status: 'completed' },
-    { customer: 'Lisa Brown', date: '2025-01-07', amount: '₹123.45', status: 'completed' }
-  ];
-
-  const quickActions = [
-    { title: 'Add Customer', icon: UserPlus },
-    { title: 'Add Product', icon: PackagePlus },
-    { title: 'New Invoice', icon: FileText },
-    { title: 'Add Wholesaler', icon: Building }
-  ];
+  const handleRedirect = (path) => {
+    router.push(path);
+  };
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
@@ -384,7 +370,7 @@ export default function Dashboard() {
                             <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
                             <div className="grid grid-cols-2 gap-4">
                               {quickActions.map((action, index) => (
-                                <QuickActionButton key={index} {...action} />
+                                <QuickActionButton key={index} {...action} onClick={() => handleRedirect(action.path)} />
                               ))}
                             </div>
                           </div>
