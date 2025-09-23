@@ -99,7 +99,7 @@ const ProductsPage = () => {
       if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
 
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      const threshold = 100; // Load more when 100px from bottom
+      const threshold = 100;
 
       if (scrollTop + clientHeight >= scrollHeight - threshold) {
         handleLoadMore();
@@ -128,10 +128,14 @@ const ProductsPage = () => {
     router.push('/dashboard/products/add');
   };
 
+  const handleEditProduct = (productId) => {
+    // Navigate to edit product page
+    router.push(`/dashboard/products/edit/${productId}`);
+  };
+
 
   // ProductTable event handlers
   const handleProductSelect = (productIds) => {
-    // Ensure productIds is always an array
     const idsArray = Array.isArray(productIds) ? productIds : [productIds];
     dispatch(setSelectedProducts(idsArray));
   };
@@ -167,7 +171,6 @@ const ProductsPage = () => {
       }));
 
       if (result.payload?.success) {
-        // Show success modal
         setDeletedProductName(productToDelete.name);
         setShowDeleteSuccessModal(true);
       }
@@ -326,6 +329,7 @@ const ProductsPage = () => {
                         selectedProducts={selectedProducts}
                         onSelect={handleProductSelect}
                         onSelectAll={handleSelectAll}
+                        onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
                         loading={isLoading}
                         emptyMessage="No products found"
@@ -341,6 +345,7 @@ const ProductsPage = () => {
                         selectedProducts={selectedProducts}
                         onSelect={handleProductSelect}
                         onSelectAll={handleSelectAll}
+                        onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
                         loading={isLoading}
                         emptyMessage="No products found"
@@ -369,11 +374,6 @@ const ProductsPage = () => {
                 </div>
               )
             }
-
-
-            {/* Product Display */}
-
-
           </div>
         </div>
       </div>

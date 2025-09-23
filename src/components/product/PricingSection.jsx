@@ -14,8 +14,7 @@ const PricingSection = ({
   const handleFieldChange = (field, value) => {
     console.log('PricingSection - Field:', field, 'Value:', value);
     
-    // Auto-calculate discount if MRP and selling price are provided
-    if (field === 'mrp' || field === 'sellingPrice') {
+    if (field !== 'discount' && (field === 'mrp' || field === 'sellingPrice')) {
       const mrp = parseFloat(field === 'mrp' ? value : formData.mrp) || 0;
       const sellingPrice = parseFloat(field === 'sellingPrice' ? value : formData.sellingPrice) || 0;
       
@@ -23,8 +22,10 @@ const PricingSection = ({
         const discount = ((mrp - sellingPrice) / mrp) * 100;
         const calculatedDiscount = Math.max(0, Math.round(discount * 100) / 100);
         
-        // Update discount field
-        onChange('discount', calculatedDiscount);
+        const currentDiscount = parseFloat(formData.discount) || 0;
+        if (Math.abs(calculatedDiscount - currentDiscount) > 0.01) {
+          onChange('discount', calculatedDiscount);
+        }
       }
     }
 
