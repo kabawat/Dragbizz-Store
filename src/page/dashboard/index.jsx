@@ -4,7 +4,9 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import Header from './Header';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import { AnimatedBackground } from '@/components/ui';
 import { 
   DollarSign, 
   Users, 
@@ -170,7 +172,8 @@ const QuickActionButton = ({ title, icon: Icon, onClick }) => (
   </button>
 );
 
-const DashboardContent = ({ selectedStore = 'Main Store' }) => {
+export default function Dashboard() {
+  const [selectedStore, setSelectedStore] = useState(null);
   const [metrics, setMetrics] = useState([
     {
       id: 'revenue',
@@ -295,6 +298,12 @@ const DashboardContent = ({ selectedStore = 'Main Store' }) => {
     }
   };
 
+  const handleStoreChange = (storeObject) => {
+    setSelectedStore(storeObject);
+  };
+
+  const currentStore = selectedStore || 'Main Store';
+
   const transactions = [
     { customer: 'John Smith', date: '2025-01-08', amount: '₹234.50', status: 'completed' },
     { customer: 'Sarah Johnson', date: '2025-01-08', amount: '₹89.99', status: 'pending' },
@@ -310,79 +319,83 @@ const DashboardContent = ({ selectedStore = 'Main Store' }) => {
   ];
 
   return (
-    <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-      {/* Header */}
-      <Header selectedStore={selectedStore} />
+    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+      <AnimatedBackground variant="default" />
+      <Sidebar onStoreChange={handleStoreChange} />
 
-      {/* Main Content */}
-      <div className="flex-1 p-6">
+      {/* Main Content Area */}
+      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+        {/* Header */}
+        <Header selectedStore={currentStore} />
 
-        {/* Metrics Cards - Sortable */}
-        <div className="mb-8">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleMetricsDragEnd}
-          >
-            <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {metrics.map((metric) => (
-                  <SortableMetricCard key={metric.id} {...metric} />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
+        {/* Main Content */}
+        <div className="flex-1 p-6">
 
-        {/* Content Grid - Sortable Sections */}
-        <div className="mb-8">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleSectionsDragEnd}
-          >
-            <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {sections.map((section) => (
-                  <SortableSection
-                    key={section.id}
-                    id={section.id}
-                    isVisible={section.visible}
-                    onToggleVisibility={() => {}}
-                  >
-                    <div className={section.span}>
-                      {section.id === 'transactions' && (
-                        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Recent Transactions</h2>
-                          <div className="space-y-3">
-                            {transactions.map((transaction, index) => (
-                              <TransactionItem key={index} {...transaction} />
-                            ))}
+          {/* Metrics Cards - Sortable */}
+          <div className="mb-8">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleMetricsDragEnd}
+            >
+              <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {metrics.map((metric) => (
+                    <SortableMetricCard key={metric.id} {...metric} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
+
+          {/* Content Grid - Sortable Sections */}
+          <div className="mb-8">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleSectionsDragEnd}
+            >
+              <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {sections.map((section) => (
+                    <SortableSection
+                      key={section.id}
+                      id={section.id}
+                      isVisible={section.visible}
+                      onToggleVisibility={() => {}}
+                    >
+                      <div className={section.span}>
+                        {section.id === 'transactions' && (
+                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
+                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Recent Transactions</h2>
+                            <div className="space-y-3">
+                              {transactions.map((transaction, index) => (
+                                <TransactionItem key={index} {...transaction} />
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {section.id === 'quickActions' && (
-                        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
-                          <div className="grid grid-cols-2 gap-4">
-                            {quickActions.map((action, index) => (
-                              <QuickActionButton key={index} {...action} />
-                            ))}
+                        {section.id === 'quickActions' && (
+                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
+                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
+                            <div className="grid grid-cols-2 gap-4">
+                              {quickActions.map((action, index) => (
+                                <QuickActionButton key={index} {...action} />
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </SortableSection>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
+                        )}
+                      </div>
+                    </SortableSection>
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
 
+        </div>
       </div>
     </div>
   );
-};
-
-export default DashboardContent;
+}
