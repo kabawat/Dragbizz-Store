@@ -179,7 +179,7 @@ const ProductTable = ({
   return (
     <div className={`${className}`} {...props}>
       <div className="relative">
-        <table className="w-full">
+        <table className="w-full min-w-[1000px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>

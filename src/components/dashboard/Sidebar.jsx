@@ -35,7 +35,14 @@ import {
   Upload,
   Archive,
   Star,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  UserPlus,
+  UserCheck,
+  UserX,
+  CreditCard,
+  History,
+  Mail,
+  Phone
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -46,8 +53,10 @@ const Sidebar = ({ onStoreChange }) => {
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+  const [isCustomersDropdownOpen, setIsCustomersDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
+  const customersDropdownRef = useRef(null);
 
   // Use Redux stores data, fallback to mock data if not available
   const stores = reduxStores && reduxStores.length > 0
@@ -66,9 +75,19 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Archived Products', icon: Archive, href: '/dashboard/products/archived' },
   ];
 
+  const customerSubMenuItems = [
+    { name: 'All Customers', icon: Users, href: '/dashboard/customers' },
+    { name: 'Add New Customer', icon: UserPlus, href: '/dashboard/customers/add' },
+    { name: 'Customer Groups', icon: UserCheck, href: '/dashboard/customers/groups' },
+    { name: 'Customer History', icon: History, href: '/dashboard/customers/history' },
+    { name: 'Payment Methods', icon: CreditCard, href: '/dashboard/customers/payment-methods' },
+    { name: 'Communication', icon: Mail, href: '/dashboard/customers/communication' },
+    { name: 'Inactive Customers', icon: UserX, href: '/dashboard/customers/inactive' },
+  ];
+
   const navigationItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Customers', icon: Users, href: '/dashboard/customers' },
+    { name: 'Customers', icon: Users, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: customerSubMenuItems },
     { name: 'Wholesalers', icon: Building2, href: '/dashboard/wholesalers' },
     { name: 'Products', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productSubMenuItems },
     { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory' },
@@ -105,6 +124,10 @@ const Sidebar = ({ onStoreChange }) => {
     setIsProductsDropdownOpen(!isProductsDropdownOpen);
   };
 
+  const toggleCustomersDropdown = () => {
+    setIsCustomersDropdownOpen(!isCustomersDropdownOpen);
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -114,6 +137,9 @@ const Sidebar = ({ onStoreChange }) => {
       }
       if (productsDropdownRef.current && !productsDropdownRef.current.contains(event.target)) {
         setIsProductsDropdownOpen(false);
+      }
+      if (customersDropdownRef.current && !customersDropdownRef.current.contains(event.target)) {
+        setIsCustomersDropdownOpen(false);
       }
     };
 
@@ -212,10 +238,16 @@ const Sidebar = ({ onStoreChange }) => {
             const isActive = pathname === item.href || (item.hasSubMenu && pathname.startsWith(item.href));
 
             if (item.hasSubMenu) {
+              const isProductsMenu = item.name === 'Products';
+              const isCustomersMenu = item.name === 'Customers';
+              const dropdownRef = isProductsMenu ? productsDropdownRef : customersDropdownRef;
+              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : isCustomersDropdownOpen;
+              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : toggleCustomersDropdown;
+
               return (
-                <div key={item.name} className="relative" ref={productsDropdownRef}>
+                <div key={item.name} className="relative" ref={dropdownRef}>
                   <button
-                    onClick={toggleProductsDropdown}
+                    onClick={toggleDropdown}
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
                       ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                       : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
@@ -241,14 +273,14 @@ const Sidebar = ({ onStoreChange }) => {
                     </div>
                     {!isCollapsed && (
                       <ChevronRightIcon
-                        className={`w-4 h-4 transition-all duration-300 ${isProductsDropdownOpen ? 'rotate-90' : ''
+                        className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? 'rotate-90' : ''
                           } ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`}
                       />
                     )}
                   </button>
 
                   {/* Sub-menu */}
-                  {isProductsDropdownOpen && !isCollapsed && (
+                  {isDropdownOpen && !isCollapsed && (
                     <div className="ml-6 mt-2 space-y-1">
                       {item.subMenuItems.map((subItem, subIndex) => {
                         const SubIcon = subItem.icon;
