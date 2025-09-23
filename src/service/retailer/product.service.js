@@ -17,6 +17,23 @@ class ProductService {
       return handleApiErrorResponse(error, 'product-creation');
     }
   }
+  // Update an existing product
+  async updateProduct(productId, productData, storeId = null) {
+    try {
+      let url = `${API_CONFIG?.RETAILER?.PRODUCT}/${productId}`;
+
+      // Add storeId as query parameter if provided
+      if (storeId) {
+        const params = { store: storeId };
+        url = attachQueryParams(url, params);
+      }
+
+      const response = await retailerAxios.put(url, productData);
+      return handleApiSuccess(response?.data, 'Product updated successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'product-updation');
+    }
+  }
 
   // Get all products with query parameters
   async getProducts(params = {}) {
@@ -34,13 +51,13 @@ class ProductService {
   async deleteProduct(productId, storeId = null) {
     try {
       let url = `${API_CONFIG?.RETAILER?.PRODUCT}/${productId}`;
-      
+
       // Add storeId as query parameter if provided
       if (storeId) {
         const params = { store: storeId };
         url = attachQueryParams(url, params);
       }
-      
+
       const response = await retailerAxios.delete(url);
       return handleApiSuccess(response?.data, 'Product deleted successfully');
     } catch (error) {

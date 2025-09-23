@@ -174,7 +174,7 @@ const Sidebar = ({ onStoreChange }) => {
                     {reduxStores.map((store) => {
                       const isSelected = selectedStore && (store.storeName === selectedStore.storeName);
                       return (
-                        <div key={store.name} onClick={() => handleStoreSelect(store)} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
+                        <div key={store.storeName || store.name || store.id} onClick={() => handleStoreSelect(store)} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
                           <div>
                             <div className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-900'}`}>
                               {store.storeName}

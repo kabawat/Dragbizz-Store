@@ -8,7 +8,11 @@ const ProductAddSuccessModal = ({
   onClose, 
   onContinue, 
   onAddMore,
-  productName = "Product"
+  productName = "Product",
+  title = "🎉 Product Added Successfully!",
+  continueText = "Continue to Products",
+  addMoreText = "Add More Products",
+  description = "Your product is now live and ready for customers"
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
@@ -63,13 +67,13 @@ const ProductAddSuccessModal = ({
           {/* Success Message */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
-              🎉 Product Added Successfully!
+              {title}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-lg mb-2">
-              "{productName}" has been added to your store
+              "{productName}" has been {title.includes('Added') ? 'added to' : 'updated in'} your store
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-              Your product is now live and ready for customers
+              {description}
             </p>
           </div>
 
@@ -81,7 +85,7 @@ const ProductAddSuccessModal = ({
               className="flex-1 h-12 text-lg font-semibold bg-[rgb(var(--color-primary))] text-white"
               leftIcon={ArrowRight}
             >
-              Continue to Products
+              {continueText}
             </Button>
             
             <Button
@@ -90,7 +94,7 @@ const ProductAddSuccessModal = ({
               className="flex-1 h-12 text-lg font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               leftIcon={Plus}
             >
-              Add More Products
+              {addMoreText}
             </Button>
           </div>
 
