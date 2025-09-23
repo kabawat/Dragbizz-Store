@@ -323,19 +323,21 @@ const ProductsPage = () => {
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                   <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
                     {viewMode === 'table' ? (
-                      <ProductTable
-                        products={transformedProducts}
-                        selectedProducts={selectedProducts}
-                        onSelect={handleProductSelect}
-                        onSelectAll={handleSelectAll}
-                        onEdit={handleEditProduct}
-                        onDelete={handleDeleteProduct}
-                        loading={isLoading}
-                        emptyMessage="No products found"
-                        hasMore={pagination.hasNextPage}
-                        onLoadMore={handleLoadMore}
-                        isLoadingMore={isLoadingMore}
-                      />
+                      <div className="overflow-x-auto">
+                        <ProductTable
+                          products={transformedProducts}
+                          selectedProducts={selectedProducts}
+                          onSelect={handleProductSelect}
+                          onSelectAll={handleSelectAll}
+                          onEdit={handleEditProduct}
+                          onDelete={handleDeleteProduct}
+                          loading={isLoading}
+                          emptyMessage="No products found"
+                          hasMore={pagination.hasNextPage}
+                          onLoadMore={handleLoadMore}
+                          isLoadingMore={isLoadingMore}
+                        />
+                      </div>
 
                     ) : (
                       <ProductGrid
