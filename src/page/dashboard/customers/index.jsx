@@ -170,14 +170,9 @@ const CustomersPage = () => {
   };
 
   const handleViewCustomer = (customerId) => {
-    // TODO: Implement view customer details
-    console.log('View customer:', customerId);
+    router.push(`/dashboard/customers/view/${customerId}`);
   };
 
-  const handleDuplicateCustomer = (customerId) => {
-    // TODO: Implement duplicate customer
-    console.log('Duplicate customer:', customerId);
-  };
 
   // Menu action handler
   const handleMenuAction = (customerId, action) => {
@@ -188,9 +183,6 @@ const CustomersPage = () => {
         break;
       case 'edit':
         handleEditCustomer(customerId);
-        break;
-      case 'duplicate':
-        handleDuplicateCustomer(customerId);
         break;
       case 'delete':
         handleDeleteCustomer(customerId);
@@ -403,7 +395,6 @@ const CustomersPage = () => {
                         onSelectAll={handleSelectAll}
                         onEdit={handleEditCustomer}
                         onDelete={handleDeleteCustomer}
-                        onDuplicate={handleDuplicateCustomer}
                         onViewDetails={handleViewCustomer}
                         loading={isLoading}
                         emptyMessage="No customers found"
@@ -413,19 +404,41 @@ const CustomersPage = () => {
                       />
                     </div>
                   ) : (
-                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                      {customers.map((customer) => (
-                        <CustomerCard
-                          key={customer.id}
-                          customer={customer}
-                          onSelect={handleCardSelect}
-                          selected={selectedCustomers.includes(customer.id)}
-                          onEdit={handleEditCustomer}
-                          onDelete={handleDeleteCustomer}
-                          onDuplicate={handleDuplicateCustomer}
-                          onViewDetails={handleViewCustomer}
-                        />
-                      ))}
+                    <div>
+                      {/* Select All Header for Card View */}
+                      {customers.length > 0 && (
+                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedCustomers.length === customers.length && customers.length > 0}
+                              onChange={(e) => handleSelectAll(e.target.checked)}
+                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                            />
+                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                              Select all {customers.length} customers
+                            </span>
+                            {selectedCustomers.length > 0 && (
+                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                                ({selectedCustomers.length} selected)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {customers.map((customer) => (
+                          <CustomerCard
+                            key={customer.id}
+                            customer={customer}
+                            onSelect={handleCardSelect}
+                            selected={selectedCustomers.includes(customer.id)}
+                            onEdit={handleEditCustomer}
+                            onDelete={handleDeleteCustomer}
+                            onViewDetails={handleViewCustomer}
+                          />
+                        ))}
                       
                       {/* Infinite Scroll Loading for Card View */}
                       {isLoadingMore && (
@@ -436,6 +449,7 @@ const CustomersPage = () => {
                           </div>
                         </div>
                       )}
+                      </div>
                     </div>
                   )}
                 </div>

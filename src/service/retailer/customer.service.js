@@ -48,24 +48,6 @@ class CustomerService {
     }
   }
 
-  // Get a single customer by ID
-  async getCustomer(customerId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.CUSTOMER}/${customerId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Customer fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'customer-fetch');
-    }
-  }
-
   // Delete a customer by ID
   async deleteCustomer(customerId, storeId = null) {
     try {

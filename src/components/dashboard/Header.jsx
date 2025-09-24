@@ -65,7 +65,7 @@ const Header = ({
             <div className="relative" ref={notificationDropdownRef}>
               <button
                 onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
-                className="relative w-10 h-10 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                className="relative w-10 h-10 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
               >
                 <Bell className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
                 {unreadCount > 0 && (
@@ -97,7 +97,7 @@ const Header = ({
                     ))}
                   </div>
                   <div className="p-3 border-t border-[rgb(var(--color-border-primary))]">
-                    <button className="text-sm text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))]/80 font-medium">
+                    <button className="text-sm text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))]/80 font-medium cursor-pointer">
                       View all notifications
                     </button>
                   </div>
@@ -109,7 +109,7 @@ const Header = ({
             <div className="relative" ref={profileDropdownRef}>
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="flex items-center space-x-3 hover:bg-[rgb(var(--color-bg-secondary))] p-2 rounded-lg transition-colors"
+                className="flex items-center space-x-3 hover:bg-[rgb(var(--color-bg-secondary))] p-2 rounded-lg transition-colors cursor-pointer"
               >
                 {/* Profile Picture */}
                 <div className="w-10 h-10 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center overflow-hidden">
@@ -140,19 +140,19 @@ const Header = ({
               {isProfileDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="py-2">
-                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]">
+                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
                       Profile Settings
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]">
+                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
                       Account Settings
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))]">
+                    <button className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
                       Preferences
                     </button>
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                     <button 
                       onClick={handleLogout}
-                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10"
+                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 cursor-pointer"
                     >
                       Sign Out
                     </button>

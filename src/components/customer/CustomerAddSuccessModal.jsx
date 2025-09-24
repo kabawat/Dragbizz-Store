@@ -12,10 +12,17 @@ const CustomerAddSuccessModal = ({
   title = "🎉 Customer Added Successfully!",
   continueText = "Continue to Customers",
   addMoreText = "Add More Customers",
-  description = "Your customer is now added and ready for orders"
+  description = "Your customer is now added and ready for orders",
+  isEditMode = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
+
+  // Dynamic content based on edit mode
+  const modalTitle = isEditMode ? "🎉 Customer Updated Successfully!" : title;
+  const modalDescription = isEditMode ? "Your customer information has been updated and saved" : description;
+  const modalContinueText = isEditMode ? "Back to Customers" : continueText;
+  const modalAddMoreText = isEditMode ? "Edit More" : addMoreText;
 
   useEffect(() => {
     if (isOpen) {
@@ -67,13 +74,13 @@ const CustomerAddSuccessModal = ({
           {/* Success Message */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
-              {title}
+              {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-lg mb-2">
-              "{customerName}" has been {title.includes('Added') ? 'added to' : 'updated in'} your customer list
+              "{customerName}" has been {isEditMode ? 'updated in' : 'added to'} your customer list
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-              {description}
+              {modalDescription}
             </p>
           </div>
 
@@ -85,7 +92,7 @@ const CustomerAddSuccessModal = ({
               className="flex-1 h-12 text-lg font-semibold bg-[rgb(var(--color-primary))] text-white"
               leftIcon={ArrowRight}
             >
-              {continueText}
+              {modalContinueText}
             </Button>
             
             <Button
@@ -94,7 +101,7 @@ const CustomerAddSuccessModal = ({
               className="flex-1 h-12 text-lg font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               leftIcon={Plus}
             >
-              {addMoreText}
+              {modalAddMoreText}
             </Button>
           </div>
 
