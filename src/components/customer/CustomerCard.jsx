@@ -59,12 +59,6 @@ const CustomerCard = ({
       onClick: () => onEdit?.(customer.id)
     },
     {
-      value: 'duplicate',
-      label: 'Duplicate',
-      icon: Copy,
-      onClick: () => onDuplicate?.(customer.id)
-    },
-    {
       value: 'delete',
       label: 'Delete',
       icon: Trash2,
@@ -85,9 +79,6 @@ const CustomerCard = ({
       case 'edit':
         onEdit?.(customerId);
         break;
-      case 'duplicate':
-        onDuplicate?.(customerId);
-        break;
       case 'delete':
         onDelete?.(customerId);
         break;
@@ -98,7 +89,7 @@ const CustomerCard = ({
   
   // Grid view - Modern Card Design
   return (
-    <div className={`rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div className={`rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -157,13 +148,6 @@ const CustomerCard = ({
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   Edit
-                </button>
-                <button
-                  onClick={() => handleMenuAction(customer.id, 'duplicate')}
-                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                >
-                  <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Duplicate
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button

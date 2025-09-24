@@ -14,7 +14,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
       {/* Left Side - Form */}
       <div className="lg:col-span-2 space-y-6">
         {/* Basic Information Section */}
-        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
+        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -25,7 +25,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
             {/* Customer Name */}
             <Input
               type="text"
@@ -96,7 +96,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
 
       {/* Right Side - Benefits Section */}
       <div className="lg:col-span-1">
-        <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-lg sticky top-6">
+        <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm sticky top-6">
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
