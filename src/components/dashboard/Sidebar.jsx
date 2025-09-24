@@ -37,7 +37,8 @@ import {
   Star,
   ChevronRight as ChevronRightIcon,
   UserPlus,
-  UserX
+  UserX,
+  Building
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -49,9 +50,11 @@ const Sidebar = ({ onStoreChange }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [isCustomersDropdownOpen, setIsCustomersDropdownOpen] = useState(false);
+  const [isSuppliersDropdownOpen, setIsSuppliersDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
   const customersDropdownRef = useRef(null);
+  const suppliersDropdownRef = useRef(null);
 
   // Use Redux stores data, fallback to mock data if not available
   const stores = reduxStores && reduxStores.length > 0
@@ -76,10 +79,15 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Inactive Customers', icon: UserX, href: '/dashboard/customers/inactive' },
   ];
 
+  const suppliersSubMenuItems = [
+    { name: 'All Suppliers', icon: Building2, href: '/dashboard/suppliers' },
+    { name: 'Add New Supplier', icon: Building, href: '/dashboard/suppliers/add' },
+  ];
+
   const navigationItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Customers', icon: Users, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: customerSubMenuItems },
-    { name: 'Wholesalers', icon: Building2, href: '/dashboard/wholesalers' },
+    { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers', hasSubMenu: true, subMenuItems: suppliersSubMenuItems },
     { name: 'Products', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productSubMenuItems },
     { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory' },
     { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
@@ -119,6 +127,10 @@ const Sidebar = ({ onStoreChange }) => {
     setIsCustomersDropdownOpen(!isCustomersDropdownOpen);
   };
 
+  const toggleSuppliersDropdown = () => {
+    setIsSuppliersDropdownOpen(!isSuppliersDropdownOpen);
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -131,6 +143,9 @@ const Sidebar = ({ onStoreChange }) => {
       }
       if (customersDropdownRef.current && !customersDropdownRef.current.contains(event.target)) {
         setIsCustomersDropdownOpen(false);
+      }
+      if (suppliersDropdownRef.current && !suppliersDropdownRef.current.contains(event.target)) {
+        setIsSuppliersDropdownOpen(false);
       }
     };
 
@@ -231,9 +246,10 @@ const Sidebar = ({ onStoreChange }) => {
             if (item.hasSubMenu) {
               const isProductsMenu = item.name === 'Products';
               const isCustomersMenu = item.name === 'Customers';
-              const dropdownRef = isProductsMenu ? productsDropdownRef : customersDropdownRef;
-              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : isCustomersDropdownOpen;
-              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : toggleCustomersDropdown;
+              const isSuppliersMenu = item.name === 'Suppliers';
+              const dropdownRef = isProductsMenu ? productsDropdownRef : isCustomersMenu ? customersDropdownRef : suppliersDropdownRef;
+              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : isCustomersMenu ? isCustomersDropdownOpen : isSuppliersDropdownOpen;
+              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : isCustomersMenu ? toggleCustomersDropdown : toggleSuppliersDropdown;
 
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>

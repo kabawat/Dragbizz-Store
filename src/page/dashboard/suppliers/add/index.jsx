@@ -7,27 +7,28 @@ import { Save, Plus, ArrowLeft } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
-import { CustomerForm, CustomerAddSuccessModal } from '@/components/customer';
-import { customerService } from '@/service';
+import { SupplierForm, SupplierAddSuccessModal } from '@/components/supplier';
+import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
-const AddCustomerPage = () => {
+const AddSupplierPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [addedCustomerName, setAddedCustomerName] = useState('');
+  const [addedSupplierName, setAddedSupplierName] = useState('');
 
   // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
     name: '',
+    agency: '',
+    gstNumber: '',
     phone: '',
-    email: '',
-    address: ''
+    email: ''
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -71,13 +72,23 @@ const AddCustomerPage = () => {
     try {
       setLoading(true);
       setFieldErrors({});
-      
-      // Call customer service to create customer
-      const result = await customerService.createCustomer(formData);
+
+      // Client-side validation: At least one contact method required
+      if (!formData.phone && !formData.email) {
+        setFieldErrors({
+          phone: 'Phone or email is required',
+          email: 'Phone or email is required'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Call supplier service to create supplier
+      const result = await supplierService.createSupplier(formData);
 
       if (result.success) {
         // Show success modal instead of direct redirect
-        setAddedCustomerName(formData.name || 'Customer');
+        setAddedSupplierName(formData.name || 'Supplier');
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
@@ -100,13 +111,13 @@ const AddCustomerPage = () => {
 
   // Handle cancel
   const handleCancel = () => {
-    router.push('/dashboard/customers');
+    router.push('/dashboard/suppliers');
   };
 
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/customers');
+    router.push('/dashboard/suppliers');
   };
 
   const handleAddMore = () => {
@@ -117,7 +128,7 @@ const AddCustomerPage = () => {
   };
 
   return (
-    <div className="flex h-screen w-full relative overflow-hidden">
+    <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       {/* Sidebar */}
       <AnimatedBackground variant="default" />
       <Sidebar />
@@ -125,23 +136,22 @@ const AddCustomerPage = () => {
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header title="Add New Customer" description="Create a new customer profile for your store" />
+        <Header title="Add New Supplier" description="Create a new supplier profile for your business" />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
-          <div className="">
+          <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link href="/dashboard/suppliers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Customers</span>
+                <span className="text-sm font-medium">Back to Suppliers</span>
               </Link>
             </div>
-
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
               <div className="h-[calc(100vh-240px)] overflow-y-auto pe-3">
-                <CustomerForm
+                <SupplierForm
                   formData={formData}
                   onChange={handleFormDataChange}
                   fieldErrors={fieldErrors}
@@ -154,14 +164,8 @@ const AddCustomerPage = () => {
                   <Button variant="outline" onClick={handleCancel} disabled={loading}>
                     Cancel
                   </Button>
-                  <Button
-                    variant="success"
-                    onClick={handleSaveAndPublish}
-                    disabled={loading}
-                    loading={loading}
-                    leftIcon={Save}
-                  >
-                    Save Customer
+                  <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
+                    Save Supplier
                   </Button>
                 </div>
               </div>
@@ -171,15 +175,15 @@ const AddCustomerPage = () => {
       </div>
 
       {/* Success Modal */}
-      <CustomerAddSuccessModal
+      <SupplierAddSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         onContinue={handleContinue}
         onAddMore={handleAddMore}
-        customerName={addedCustomerName}
+        supplierName={addedSupplierName}
       />
     </div>
   );
 };
 
-export default AddCustomerPage;
+export default AddSupplierPage;

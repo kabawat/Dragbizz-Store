@@ -16,3 +16,4 @@ export { default as ProductAddSuccessModal } from './ProductAddSuccessModal';
 export { default as ProductDeleteConfirmModal } from './ProductDeleteConfirmModal';
 export { default as ProductDeleteSuccessModal } from './ProductDeleteSuccessModal';
 export { default as ProductErrorModal } from './ProductErrorModal';
+export { default as ProductInfoModal } from './ProductInfoModal';

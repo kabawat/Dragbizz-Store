@@ -172,24 +172,19 @@ const EditCustomerPage = ({ customerId }) => {
     );
   }
 
-
   return (
-    <div className="flex h-screen relative w-full  overflow-hidden">
-      {/* Sidebar */}
+    <div className="w-full flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="min-h-screen w-full flex flex-col">
+      {/* Main Content Area */}
+      <div className="w-full flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title="Edit Customer"
-          description="Update customer information and details"
-        />
+        <Header title="Edit Customer" description="Update customer information and details" />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
-          <div className="">
+          <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
               <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
@@ -197,87 +192,47 @@ const EditCustomerPage = ({ customerId }) => {
                 <span className="text-sm font-medium">Back to Customers</span>
               </Link>
             </div>
+            {/* Form Container - Scrollable */}
+            <div className="overflow-hidden">
+              <div className="h-[calc(100vh-240px)] overflow-y-auto pe-3">
+                <CustomerForm
+                  formData={formData}
+                  onChange={handleFormDataChange}
+                  fieldErrors={fieldErrors}
+                />
+              </div>
 
-            {/* Error State - Full Page */}
-            {error && (
-              <div className="w-full">
-                <div className="bg-[rgb(var(--color-bg-primary))] p-8">
-                  <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="text-center max-w-md">
-                      <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <User className="w-10 h-10 text-red-600" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        Customer Not Found
-                      </h2>
-                      <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        The customer you're looking for doesn't exist or has been removed. Please check the customer ID and try again.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => router.push('/dashboard/customers')}
-                          className="px-6 py-3"
-                        >
-                          Back to Customers
-                        </Button>
-                        <Button 
-                          variant="primary" 
-                          onClick={() => window.location.reload()}
-                          className="px-6 py-3"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+              {/* Fixed Action Bar */}
+              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+                <div className="flex items-center justify-end space-x-3">
+                  <Button variant="outline" onClick={handleCancel} disabled={loading}>
+                    Cancel
+                  </Button>
+                  <Button variant="success" onClick={handleSaveAndUpdate} disabled={loading} loading={loading} leftIcon={Save} >
+                    Save Customer
+                  </Button>
                 </div>
               </div>
-            )}
-
-            {/* Form Container - Scrollable - Only show when no error */}
-            {!error && (
-              <div className="overflow-hidden">
-                <div className="h-[calc(100vh-260px)] overflow-y-auto pe-3">
-                  <CustomerForm
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    fieldErrors={fieldErrors}
-                  />
-                </div>
-
-                {/* Fixed Action Bar */}
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                  <div className="flex items-center justify-end space-x-3">
-                    <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="success"
-                      onClick={handleSaveAndUpdate}
-                      disabled={loading}
-                      loading={loading}
-                      leftIcon={Save}
-                    >
-                      Update Customer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Success Modal */}
-      <CustomerAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        onAddMore={handleEditMore}
-        customerName={updatedCustomerName}
-        isEditMode={true}
-      />
+      {showSuccessModal && (
+        <CustomerAddSuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          onContinue={handleContinue}
+          onAddMore={handleEditMore}
+          customerName={updatedCustomerName}
+          title="🎉 Supplier Updated Successfully!"
+          continueText="Back to Customers"
+          addMoreText="Add More Customers"
+          description="Your customer information has been updated and saved"
+          isEditMode={true}
+        />
+      )}
     </div>
   );
 };
