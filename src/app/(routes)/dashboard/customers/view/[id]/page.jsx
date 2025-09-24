@@ -6,6 +6,7 @@ export const metadata = {
   keywords: 'view customer, customer details, customer information, DragBizz Store',
 };
 
-export default function ViewCustomerPageRoute({ params }) {
-  return <ViewCustomerPage customerId={params.id} />;
+export default async function ViewCustomerPageRoute({ params }) {
+  const { id } = await params;
+  return <ViewCustomerPage customerId={id} />;
 }

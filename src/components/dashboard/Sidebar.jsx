@@ -37,12 +37,7 @@ import {
   Star,
   ChevronRight as ChevronRightIcon,
   UserPlus,
-  UserCheck,
-  UserX,
-  CreditCard,
-  History,
-  Mail,
-  Phone
+  UserX
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -78,10 +73,6 @@ const Sidebar = ({ onStoreChange }) => {
   const customerSubMenuItems = [
     { name: 'All Customers', icon: Users, href: '/dashboard/customers' },
     { name: 'Add New Customer', icon: UserPlus, href: '/dashboard/customers/add' },
-    { name: 'Customer Groups', icon: UserCheck, href: '/dashboard/customers/groups' },
-    { name: 'Customer History', icon: History, href: '/dashboard/customers/history' },
-    { name: 'Payment Methods', icon: CreditCard, href: '/dashboard/customers/payment-methods' },
-    { name: 'Communication', icon: Mail, href: '/dashboard/customers/communication' },
     { name: 'Inactive Customers', icon: UserX, href: '/dashboard/customers/inactive' },
   ];
 

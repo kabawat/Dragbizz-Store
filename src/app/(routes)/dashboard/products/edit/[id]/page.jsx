@@ -7,8 +7,8 @@ export const metadata = {
   keywords: 'edit product, update product, product management, inventory management, DragBizz Store',
 };
 
-const Page = ({ params }) => {
-    const { id } = params;
+const Page = async ({ params }) => {
+    const { id } = await params;
     return (
         <UpdateProductPage productId={id} />
     )
