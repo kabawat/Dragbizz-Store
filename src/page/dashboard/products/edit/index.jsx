@@ -1,13 +1,13 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Loader2 } from 'lucide-react';
+import { Save, ArrowLeft, Loader2, Info } from 'lucide-react';
 
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
-import { ProductForm, ProductAddSuccessModal } from '@/components/product';
+import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -20,6 +20,7 @@ const UpdateProductPage = ({ productId }) => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [updatedProductName, setUpdatedProductName] = useState('');
   const [productNotFound, setProductNotFound] = useState(false);
 
@@ -349,19 +350,30 @@ const UpdateProductPage = ({ productId }) => {
 
               {/* Fixed Action Bar */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-end space-x-3">
-                  <Button variant="outline" onClick={handleCancel} disabled={loading} >
-                    Cancel
-                  </Button>
+                <div className="flex items-center justify-between">
                   <Button
-                    variant="success"
-                    onClick={() => handleSaveAndUpdate(formData)}
-                    disabled={loading}
-                    loading={loading}
-                    leftIcon={Save}
+                    variant="outline"
+                    onClick={() => setShowInfoModal(true)}
+                    leftIcon={Info}
+                    className="text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                   >
-                    Update Product
+                    Info
                   </Button>
+
+                  <div className="flex items-center space-x-3">
+                    <Button variant="outline" onClick={handleCancel} disabled={loading} >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="success"
+                      onClick={() => handleSaveAndUpdate(formData)}
+                      disabled={loading}
+                      loading={loading}
+                      leftIcon={Save}
+                    >
+                      Update Product
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -377,6 +389,12 @@ const UpdateProductPage = ({ productId }) => {
         productName={updatedProductName}
         title="Product Updated Successfully!"
         continueText="Back to Products"
+      />
+
+      {/* Info Modal */}
+      <ProductInfoModal 
+        isOpen={showInfoModal} 
+        onClose={() => setShowInfoModal(false)} 
       />
     </div>
   );
