@@ -39,16 +39,50 @@ const SettingsPanel = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [language, setLanguage] = useState('en');
 
-  // Close panel when clicking outside
+  // Close drawer with Escape key
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isOpen && !event.target.closest('.settings-panel')) {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        console.log('Closing drawer via Escape key'); // Debug log
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen]);
+
+  // Close drawer with click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen) {
+        // Get the drawer element
+        const drawerElement = document.querySelector('[data-drawer]');
+        const settingsButton = document.querySelector('.settings-panel button');
+        
+        // Check if click is outside both the settings button and the drawer
+        if (drawerElement && settingsButton) {
+          const isClickInsideDrawer = drawerElement.contains(event.target);
+          const isClickOnSettingsButton = settingsButton.contains(event.target);
+          
+          if (!isClickInsideDrawer && !isClickOnSettingsButton) {
+            console.log('Closing drawer via click outside'); // Debug log
+            setIsOpen(false);
+          }
+        }
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isOpen]);
 
   const handleThemeChange = (themeName) => {
@@ -69,7 +103,7 @@ const SettingsPanel = () => {
   ];
 
   return (
-    <div className="settings-panel fixed bottom-6 right-6 z-50">
+    <div className="settings-panel fixed bottom-6 right-6 z-[10000]">
       {/* Main Settings Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -79,11 +113,15 @@ const SettingsPanel = () => {
         <Settings className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Settings Panel */}
+
+      {/* Right Drawer */}
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-4 w-[28rem] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-2xl overflow-hidden animate-settings-slide-in">
+        <div 
+          data-drawer
+          className="fixed top-0 right-0 h-full w-[30.5rem] bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col isolate"
+        >
           {/* Header */}
-          <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))]">
+          <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex-shrink-0 relative z-10">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))]">Settings</h2>
@@ -99,7 +137,7 @@ const SettingsPanel = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-[rgb(var(--color-border-primary))] overflow-x-auto whitespace-nowrap tabs-scroll">
+          <div className="flex border-b border-[rgb(var(--color-border-primary))] overflow-x-auto whitespace-nowrap tabs-scroll flex-shrink-0 relative z-10">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -120,7 +158,7 @@ const SettingsPanel = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="p-6 max-h-[600px] overflow-y-auto">
+          <div className="flex-1 p-6 overflow-y-auto">
             {/* Appearance Tab */}
             {activeTab === 'appearance' && (
               <div className="space-y-6">
@@ -326,7 +364,7 @@ const SettingsPanel = () => {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-[rgb(var(--color-bg-secondary))] border-t border-[rgb(var(--color-border-primary))]">
+          <div className="px-6 py-4 bg-[rgb(var(--color-bg-secondary))] border-t border-[rgb(var(--color-border-primary))] flex-shrink-0">
             <div className="flex items-center justify-between text-xs text-[rgb(var(--color-text-secondary))]">
               <span>DragBizz Store v1.0.0</span>
               <span>Settings saved automatically</span>
