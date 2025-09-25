@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Phone, Mail, MapPin, Building2, FileText, Plus, Trash2 } from 'lucide-react';
 import { Input, Button, Select } from '@/components/ui';
 
@@ -9,12 +9,24 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
   const [userLocation, setUserLocation] = useState(null);
 
   // Debug log to see field errors
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('CustomerForm fieldErrors:', fieldErrors);
   }, [fieldErrors]);
 
+  // Show addresses if they exist in formData
+  useEffect(() => {
+    if (formData.addresses) {
+      if (formData.addresses.billing) {
+        setShowBillingAddress(true);
+      }
+      if (formData.addresses.shipping) {
+        setShowShippingAddress(true);
+      }
+    }
+  }, [formData.addresses]);
+
   // Get user's current location
-  React.useEffect(() => {
+  useEffect(() => {
     const getUserLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -39,12 +51,35 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
               })
               .catch(error => {
                 console.log('Reverse geocoding failed:', error);
+                // Don't show error to user as this is optional
               });
           },
           (error) => {
             console.log('Geolocation error:', error);
+            // Handle different geolocation errors
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                console.log('User denied geolocation permission');
+                break;
+              case error.POSITION_UNAVAILABLE:
+                console.log('Location information unavailable');
+                break;
+              case error.TIMEOUT:
+                console.log('Location request timed out');
+                break;
+              default:
+                console.log('Unknown geolocation error');
+                break;
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes
           }
         );
+      } else {
+        console.log('Geolocation is not supported by this browser');
       }
     };
 
@@ -124,7 +159,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
         billing: billingAddress
       });
     } else {
-      // Update existing addresses with billing
       onChange('addresses', {
         ...formData.addresses,
         billing: billingAddress
@@ -186,7 +220,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
       onChange('addresses', remainingAddresses);
     }
   };
-
 
   return (
     <div className="space-y-6">

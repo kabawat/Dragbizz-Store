@@ -129,7 +129,7 @@ const CustomerTable = ({
     <div className={`${className}`} {...props}>
       {/* Fixed Header */}
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <table className="w-full min-w-[800px] table-fixed">
+        <table className="w-full min-w-[600px] table-fixed">
           <thead>
             <tr>
               <th className="w-1/3 px-6 py-4 text-left">
@@ -148,19 +148,16 @@ const CustomerTable = ({
                   </span>
                 </div>
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Phone
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Email
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Address
-              </th>
-              <th className="w-1/12 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="w-1/12 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -170,7 +167,7 @@ const CustomerTable = ({
       
       {/* Scrollable Body */}
       <div className="overflow-auto min-h-[calc(100vh-400px)]">
-        <table className="w-full min-w-[800px] table-fixed">
+        <table className="w-full min-w-[600px] table-fixed">
         
         {/* Table Body */}
         <tbody className="divide-y divide-gray-100">
@@ -217,7 +214,7 @@ const CustomerTable = ({
                 </td>
                 
                 {/* Phone Column */}
-                <td className="w-1/6 px-6 py-4">
+                <td className="w-1/4 px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {customer.phone || 'N/A'}
@@ -226,7 +223,7 @@ const CustomerTable = ({
                 </td>
                 
                 {/* Email Column */}
-                <td className="w-1/6 px-6 py-4">
+                <td className="w-1/4 px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm text-[rgb(var(--color-text-primary))]">
                       {customer.email || 'N/A'}
@@ -234,24 +231,15 @@ const CustomerTable = ({
                   </div>
                 </td>
                 
-                {/* Address Column */}
-                <td className="w-1/6 px-6 py-4">
-                  <div className="flex items-center">
-                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate max-w-[200px]">
-                      {customer.address || 'N/A'}
-                    </span>
-                  </div>
-                </td>
-                
                 {/* Status Column */}
-                <td className="w-1/12 px-6 py-4">
+                <td className="w-1/6 px-6 py-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 text-green-600 border-green-500/20">
                     Active
                   </span>
                 </td>
                 
                 {/* Actions Column */}
-                <td className="w-1/12 px-6 py-4">
+                <td className="w-1/6 px-6 py-4">
                   <div className="relative" ref={(el) => menuRefs.current[customer.id] = el}>
                     <button 
                       onClick={() => handleMenuToggle(customer.id)}

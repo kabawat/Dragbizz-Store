@@ -1,8 +1,8 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, Users, Phone, Mail, MapPin, Calendar } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, Users, Phone, Mail, Calendar } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const CustomerCard = ({
   customer,
@@ -210,21 +210,6 @@ const CustomerCard = ({
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
                 Email Address
-              </p>
-            </div>
-          </div>
-          
-          {/* Address */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-purple-500/10 rounded-full flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-purple-500" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {customer.address || 'N/A'}
-              </p>
-              <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Address
               </p>
             </div>
           </div>

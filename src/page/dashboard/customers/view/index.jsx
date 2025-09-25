@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle, Building2, FileText } from 'lucide-react';
 import moment from 'moment';
 
 // Import components
@@ -15,7 +15,7 @@ import Link from 'next/link';
 const ViewCustomerPage = ({ customerId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -200,145 +200,219 @@ const ViewCustomerPage = ({ customerId }) => {
 
             {/* Customer Details - Only show when no error */}
             {!error && customerData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: 'calc(100vh - 300px)' }}>
                 {/* Left Side - Customer Info */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Basic Information Card */}
-                  <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-[rgb(var(--color-primary))]" />
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic customer details</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleEditCustomer} leftIcon={Edit}>
-                          Edit
-                        </Button>
-                        <Button variant="danger" size="sm" onClick={handleDeleteCustomer} leftIcon={Trash2}>
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Customer Name */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Customer Name</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                            {customerData.name || 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Phone Number */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Phone Number</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <Phone className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                            {customerData.phone || 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Email Address */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Email Address</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <Mail className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                            {customerData.email || 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Address */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Address</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <MapPin className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                            {customerData.address || 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Additional Information Card */}
-                  <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-blue-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Additional Information</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Customer metadata and timestamps</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Customer ID */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Customer ID</label>
-                        <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <span className="text-[rgb(var(--color-text-primary))] font-mono text-sm">
-                            {customerData.id || 'N/A'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Created Date */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Created Date</label>
-                        <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <div className="space-y-1">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium block">
-                              {customerData.timestamps?.createdAt ? moment(customerData.timestamps.createdAt).format('MMMM DD, YYYY') : 'N/A'}
-                            </span>
-                            <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                              {customerData.timestamps?.createdAt ? moment(customerData.timestamps.createdAt).fromNow() : ''}
-                            </span>
+                <div className="lg:col-span-2 flex flex-col h-full">
+                  <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
+                    {/* Basic Information Card */}
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic customer details</p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Last Updated */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Last Updated</label>
-                        <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <div className="space-y-1">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium block">
-                              {customerData.timestamps?.updatedAt ? moment(customerData.timestamps.updatedAt).format('MMMM DD, YYYY') : 'N/A'}
-                            </span>
-                            <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                              {customerData.timestamps?.updatedAt ? moment(customerData.timestamps.updatedAt).fromNow() : ''}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Customer Name */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Customer Name</label>
+                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                            <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              {customerData.name || 'N/A'}
                             </span>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Status */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Status</label>
-                        <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            customerData.isActive 
-                              ? 'bg-green-500/10 text-green-600 border border-green-500/20' 
-                              : 'bg-red-500/10 text-red-600 border border-red-500/20'
-                          }`}>
-                            {customerData.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                        {/* Phone Number */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Phone Number</label>
+                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                            <Phone className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              {customerData.phone || 'N/A'}
+                            </span>
+                          </div>
                         </div>
+
+                        {/* Email Address */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Email Address</label>
+                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                            <Mail className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              {customerData.email || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
+
+                    {/* Company Details Card */}
+                    {customerData.companyDetails && (customerData.companyDetails.companyName || customerData.companyDetails.gstin) && (
+                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                        <div className="flex items-center space-x-3 mb-6">
+                          <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
+                            <Building2 className="w-6 h-6 text-green-500" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Business information</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Company Name */}
+                          {customerData.companyDetails.companyName && (
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Company Name</label>
+                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  {customerData.companyDetails.companyName}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* GSTIN */}
+                          {customerData.companyDetails.gstin && (
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GSTIN</label>
+                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  {customerData.companyDetails.gstin}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Addresses Card */}
+                    {customerData.addresses && (customerData.addresses.billing || customerData.addresses.shipping) && (
+                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                        <div className="flex items-center space-x-3 mb-6">
+                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
+                            <MapPin className="w-6 h-6 text-purple-500" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Billing and shipping addresses</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          {/* Billing Address */}
+                          {customerData.addresses.billing && (
+                            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+                              <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Billing Address</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Address Line 1</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.billing.addressLine1 || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">City</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.billing.city || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">State</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.billing.state || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Pincode</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.billing.pincode || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Country</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.billing.country || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Shipping Address */}
+                          {customerData.addresses.shipping && (
+                            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+                              <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Shipping Address</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Address Line 1</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.shipping.addressLine1 || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">City</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.shipping.city || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">State</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.shipping.state || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Pincode</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.shipping.pincode || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Country</label>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                      {customerData.addresses.shipping.country || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 </div>
 
