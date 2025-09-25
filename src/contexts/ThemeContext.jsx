@@ -3,20 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
-
-export const ThemeProvider = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState('default');
-  const [currentVariant, setCurrentVariant] = useState('light');
-
-  // Available themes with their configurations (10 total)
-  const themes = {
+const themes = {
     default: {
       name: 'Default',
       description: 'Clean and professional',
@@ -259,19 +246,33 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
-  // Load theme from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('dragbizz-theme');
-    const savedVariant = localStorage.getItem('dragbizz-variant');
-    
-    if (savedTheme && themes[savedTheme]) {
-      setCurrentTheme(savedTheme);
-    }
-    
-    if (savedVariant && ['light', 'dark'].includes(savedVariant)) {
-      setCurrentVariant(savedVariant);
-    }
-  }, []);
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+const getStoredTheme = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const storedTheme = window.localStorage.getItem('dragbizz-theme');
+  return storedTheme && themes[storedTheme] ? storedTheme : null;
+};
+
+const getStoredVariant = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const storedVariant = window.localStorage.getItem('dragbizz-variant');
+  return storedVariant && ['light', 'dark'].includes(storedVariant) ? storedVariant : null;
+};
+
+export const ThemeProvider = ({ children }) => {
+  const [currentTheme, setCurrentTheme] = useState(() => getStoredTheme() || 'default');
+  const [currentVariant, setCurrentVariant] = useState(() => getStoredVariant() || 'light');
 
   // Apply theme to document
   useEffect(() => {
