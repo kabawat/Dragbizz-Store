@@ -32,8 +32,6 @@ export const getCustomers = createAsyncThunk(
   }
 );
 
-
-
 export const updateCustomer = createAsyncThunk(
   'customers/updateCustomer',
   async ({ customerId, customerData, storeId }, { rejectWithValue }) => {
@@ -110,8 +108,8 @@ const customersSlice = createSlice({
         state.error = null;
       })
       .addCase(getCustomers.fulfilled, (state, action) => {
-        // Only set loading to false for fresh loads
         const isFreshLoad = action.meta.arg.isFreshLoad;
+        console.log("isFreshLoad : ",action.payload.data);
         if (isFreshLoad) {
           state.isLoading = false;
         }
