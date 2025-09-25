@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Plus, ArrowLeft } from 'lucide-react';
+import { Save, Plus, ArrowLeft, User } from 'lucide-react';
 
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
@@ -27,7 +27,12 @@ const AddCustomerPage = () => {
     name: '',
     phone: '',
     email: '',
-    address: ''
+    address: '',
+    companyDetails: {
+      gstin: '',
+      companyName: ''
+    },
+    addresses: null
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -45,6 +50,17 @@ const AddCustomerPage = () => {
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
+    // Handle special clearError command
+    if (fieldName === 'clearError') {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[value];
+        console.log(`Cleared error for: ${value}`);
+        return newErrors;
+      });
+      return;
+    }
+
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
       console.error('fieldName must be a string:', fieldName);
@@ -56,6 +72,33 @@ const AddCustomerPage = () => {
       setFieldErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+
+    // Handle nested field errors (like companyDetails.gstin)
+    if (fieldName === 'companyDetails') {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        Object.keys(newErrors).forEach(key => {
+          if (key.startsWith('companyDetails.')) {
+            delete newErrors[key];
+          }
+        });
+        return newErrors;
+      });
+    }
+
+    // Handle addresses field errors
+    if (fieldName === 'addresses') {
+      // Clear any addresses related errors
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        Object.keys(newErrors).forEach(key => {
+          if (key.startsWith('addresses.')) {
+            delete newErrors[key];
+          }
+        });
         return newErrors;
       });
     }
@@ -81,17 +124,62 @@ const AddCustomerPage = () => {
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
+          const errorFields = result?.error?.data?.fields || {};
+          console.log('API Error Fields:', errorFields); // Debug log
+          
+          // Convert API error format to our format
+          const convertedErrors = {};
+          Object.keys(errorFields).forEach(key => {
+            // Convert addresses[0].pincode to addresses.0.pincode
+            const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+            convertedErrors[convertedKey] = errorFields[key];
+          });
+          
+          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          setFieldErrors(convertedErrors);
         }
       }
 
     } catch (error) {
+      console.error('Customer creation error:', error); // Debug log
+      
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
+        console.log('Error Response Data:', errorData); // Debug log
+        
         if (errorData.data && errorData.data.fields) {
-          setFieldErrors(errorData.data.fields);
+          const errorFields = errorData.data.fields;
+          console.log('Error Fields from API:', errorFields); // Debug log
+          
+          // Convert API error format to our format
+          const convertedErrors = {};
+          Object.keys(errorFields).forEach(key => {
+            // Convert addresses[0].pincode to addresses.0.pincode
+            const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+            convertedErrors[convertedKey] = errorFields[key];
+          });
+          
+          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          setFieldErrors(convertedErrors);
+        } else if (errorData.fields) {
+          // Handle case where fields are directly in errorData
+          console.log('Error Fields (direct):', errorData.fields); // Debug log
+          
+          // Convert API error format to our format
+          const convertedErrors = {};
+          Object.keys(errorData.fields).forEach(key => {
+            // Convert addresses[0].pincode to addresses.0.pincode
+            const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+            convertedErrors[convertedKey] = errorData.fields[key];
+          });
+          
+          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          setFieldErrors(convertedErrors);
         }
+      } else {
+        // Handle other types of errors
+        console.error('Unexpected error format:', error);
       }
     } finally {
       setLoading(false);
@@ -129,7 +217,7 @@ const AddCustomerPage = () => {
 
         {/* Main Content */}
         <div className="flex-1 p-6">
-          <div className="">
+          <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
               <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
@@ -138,19 +226,20 @@ const AddCustomerPage = () => {
               </Link>
             </div>
 
-            {/* Form Container - Scrollable */}
-            <div className="overflow-hidden">
-              <div className="h-[calc(100vh-240px)] overflow-y-auto pe-3">
-                <CustomerForm
-                  formData={formData}
-                  onChange={handleFormDataChange}
-                  fieldErrors={fieldErrors}
-                />
-              </div>
-
-              {/* Fixed Action Bar */}
-              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-end space-x-3">
+            {/* Form Container - Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+              {/* Main Form - Left Side */}
+              <div className="lg:col-span-2 flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
+                  <CustomerForm
+                    formData={formData}
+                    onChange={handleFormDataChange}
+                    fieldErrors={fieldErrors}
+                  />
+                </div>
+                
+                {/* Action Buttons - Fixed Bottom */}
+                <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
                   <Button variant="outline" onClick={handleCancel} disabled={loading}>
                     Cancel
                   </Button>
@@ -163,6 +252,91 @@ const AddCustomerPage = () => {
                   >
                     Save Customer
                   </Button>
+                </div>
+              </div>
+
+              {/* Tips Section - Right Side */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-6">
+                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                        <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Add Customer Details?</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Complete information helps in better service</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Marketing Benefits */}
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-green-600 text-sm">📧</span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Marketing & Communication</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Send targeted promotions, newsletters, and product updates to increase sales</p>
+                        </div>
+                      </div>
+
+                      {/* Notification Benefits */}
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-600 text-sm">🔔</span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Smart Notifications</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Get notified about order updates, payment reminders, and important announcements</p>
+                        </div>
+                      </div>
+
+                      {/* Fraud Prevention */}
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-red-600 text-sm">🛡️</span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Fraud Prevention</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Verify customer identity and prevent fraudulent transactions</p>
+                        </div>
+                      </div>
+
+                      {/* Customer Service */}
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-purple-600 text-sm">🎯</span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Better Service</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Provide personalized service and faster order processing</p>
+                        </div>
+                      </div>
+
+                      {/* Analytics */}
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-orange-600 text-sm">📊</span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Customer Analytics</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track customer behavior and preferences for better business decisions</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tips Section */}
+                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
+                      <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
+                        <li>• Always verify phone numbers for SMS notifications</li>
+                        <li>• Email helps in sending receipts and updates</li>
+                        <li>• Address is useful for delivery and billing</li>
+                        <li>• Complete details improve customer trust</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
