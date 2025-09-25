@@ -38,7 +38,8 @@ import {
   ChevronRight as ChevronRightIcon,
   UserPlus,
   UserX,
-  Building
+  Building,
+  AlertTriangle
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -51,10 +52,12 @@ const Sidebar = ({ onStoreChange }) => {
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [isCustomersDropdownOpen, setIsCustomersDropdownOpen] = useState(false);
   const [isSuppliersDropdownOpen, setIsSuppliersDropdownOpen] = useState(false);
+  const [isInventoryDropdownOpen, setIsInventoryDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
   const customersDropdownRef = useRef(null);
   const suppliersDropdownRef = useRef(null);
+  const inventoryDropdownRef = useRef(null);
 
   // Use Redux stores data, fallback to mock data if not available
   const stores = reduxStores && reduxStores.length > 0
@@ -84,12 +87,19 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Add New Supplier', icon: Building, href: '/dashboard/suppliers/add' },
   ];
 
+  const inventorySubMenuItems = [
+    { name: 'All Inventory', icon: Warehouse, href: '/dashboard/inventory' },
+    { name: 'Add New Inventory', icon: PackagePlus, href: '/dashboard/inventory/add' },
+    { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/inventory/alerts' },
+    { name: 'Stock Adjustments', icon: BarChart3, href: '/dashboard/inventory/adjustments' },
+  ];
+
   const navigationItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Customers', icon: Users, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: customerSubMenuItems },
     { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers', hasSubMenu: true, subMenuItems: suppliersSubMenuItems },
     { name: 'Products', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productSubMenuItems },
-    { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory' },
+    { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory', hasSubMenu: true, subMenuItems: inventorySubMenuItems },
     { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
     { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
     { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
@@ -131,6 +141,10 @@ const Sidebar = ({ onStoreChange }) => {
     setIsSuppliersDropdownOpen(!isSuppliersDropdownOpen);
   };
 
+  const toggleInventoryDropdown = () => {
+    setIsInventoryDropdownOpen(!isInventoryDropdownOpen);
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -146,6 +160,9 @@ const Sidebar = ({ onStoreChange }) => {
       }
       if (suppliersDropdownRef.current && !suppliersDropdownRef.current.contains(event.target)) {
         setIsSuppliersDropdownOpen(false);
+      }
+      if (inventoryDropdownRef.current && !inventoryDropdownRef.current.contains(event.target)) {
+        setIsInventoryDropdownOpen(false);
       }
     };
 
@@ -247,9 +264,10 @@ const Sidebar = ({ onStoreChange }) => {
               const isProductsMenu = item.name === 'Products';
               const isCustomersMenu = item.name === 'Customers';
               const isSuppliersMenu = item.name === 'Suppliers';
-              const dropdownRef = isProductsMenu ? productsDropdownRef : isCustomersMenu ? customersDropdownRef : suppliersDropdownRef;
-              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : isCustomersMenu ? isCustomersDropdownOpen : isSuppliersDropdownOpen;
-              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : isCustomersMenu ? toggleCustomersDropdown : toggleSuppliersDropdown;
+              const isInventoryMenu = item.name === 'Inventory';
+              const dropdownRef = isProductsMenu ? productsDropdownRef : isCustomersMenu ? customersDropdownRef : isSuppliersMenu ? suppliersDropdownRef : inventoryDropdownRef;
+              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : isCustomersMenu ? isCustomersDropdownOpen : isSuppliersMenu ? isSuppliersDropdownOpen : isInventoryDropdownOpen;
+              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : isCustomersMenu ? toggleCustomersDropdown : isSuppliersMenu ? toggleSuppliersDropdown : toggleInventoryDropdown;
 
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>

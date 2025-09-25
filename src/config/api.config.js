@@ -28,6 +28,7 @@ const API_CONFIG = {
     PRODUCT: '/retailer/product',
     CUSTOMER: '/retailer/customer',
     SUPPLIER: '/retailer/supplier',
+    INVENTORY: '/retailer/inventory',
   },
     
   // External Services
