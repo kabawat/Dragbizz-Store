@@ -17,10 +17,10 @@ const transactions = [
 ];
 
 const quickActions = [
-  { title: 'Add Customer', icon: UserPlus, path: '' },
+  { title: 'Add Customer', icon: UserPlus, path: '/dashboard/customers/add' },
   { title: 'Add Product', icon: PackagePlus, path: '/dashboard/products/add' },
   { title: 'New Invoice', icon: FileText, path: '' },
-  { title: 'Add Wholesaler', icon: Building, path: '' }
+  { title: 'Add Supplier', icon: Building, path: '/dashboard/suppliers/add' }
 ];
 
 const SortableSection = ({ id, children, isVisible, onToggleVisibility }) => {
@@ -161,7 +161,7 @@ const TransactionItem = ({ customer, date, amount, status }) => {
 };
 
 const QuickActionButton = ({ title, icon: Icon, onClick }) => (
-  <button onClick={onClick} className="flex flex-col items-center justify-center p-6 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm border-2 border-dashed border-[rgb(var(--color-border-secondary))]/60 rounded-lg hover:border-[rgb(var(--color-primary))]/80 hover:bg-[rgb(var(--color-primary))]/10 transition-all duration-300 group">
+  <button onClick={onClick} className="cursor-pointer flex flex-col items-center justify-center p-6 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm border-2 border-dashed border-[rgb(var(--color-border-secondary))]/60 rounded-lg hover:border-[rgb(var(--color-primary))]/80 hover:bg-[rgb(var(--color-primary))]/10 transition-all duration-300 group">
     <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg flex items-center justify-center mb-3 group-hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
       <Icon className="w-6 h-6 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
     </div>
