@@ -1,179 +1,496 @@
 "use client"
-import React from 'react';
-import { User, Phone, Mail, MapPin } from 'lucide-react';
-import { Input } from '@/components/ui';
+import React, { useState } from 'react';
+import { User, Phone, Mail, MapPin, Building2, FileText, Plus, Trash2 } from 'lucide-react';
+import { Input, Button, Select } from '@/components/ui';
 
 const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
+  const [showBillingAddress, setShowBillingAddress] = useState(false);
+  const [showShippingAddress, setShowShippingAddress] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Debug log to see field errors
+  React.useEffect(() => {
+    console.log('CustomerForm fieldErrors:', fieldErrors);
+  }, [fieldErrors]);
+
+  // Get user's current location
+  React.useEffect(() => {
+    const getUserLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ latitude, longitude });
+            
+            // Get address from coordinates using reverse geocoding
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.city && data.principalSubdivision && data.postcode) {
+                  setUserLocation(prev => ({
+                    ...prev,
+                    city: data.city,
+                    state: data.principalSubdivision,
+                    pincode: data.postcode,
+                    country: data.countryName || 'India',
+                    addressLine1: data.locality || data.city
+                  }));
+                }
+              })
+              .catch(error => {
+                console.log('Reverse geocoding failed:', error);
+              });
+          },
+          (error) => {
+            console.log('Geolocation error:', error);
+          }
+        );
+      }
+    };
+
+    getUserLocation();
+  }, []);
+
   const handleInputChange = (fieldName, value) => {
     onChange(fieldName, value);
   };
 
+  const handleCompanyDetailsChange = (fieldName, value) => {
+    // Clear error for this field when user starts typing
+    if (fieldErrors[`companyDetails.${fieldName}`]) {
+      // This will be handled by parent component's error clearing logic
+    }
+    
+    onChange('companyDetails', {
+      ...formData.companyDetails,
+      [fieldName]: value
+    });
+  };
+
+  const handleBillingAddressChange = (fieldName, value) => {
+    // Clear error for this field when user starts typing
+    const errorKey = `addresses.billing.${fieldName}`;
+    if (fieldErrors[errorKey]) {
+      console.log(`Clearing error for ${errorKey}`);
+      onChange('clearError', errorKey);
+    }
+    
+    const currentAddresses = formData.addresses || {};
+    onChange('addresses', {
+      ...currentAddresses,
+      billing: {
+        ...currentAddresses.billing,
+        [fieldName]: value
+      }
+    });
+  };
+
+  const handleShippingAddressChange = (fieldName, value) => {
+    // Clear error for this field when user starts typing
+    const errorKey = `addresses.shipping.${fieldName}`;
+    if (fieldErrors[errorKey]) {
+      console.log(`Clearing error for ${errorKey}`);
+      onChange('clearError', errorKey);
+    }
+    
+    const currentAddresses = formData.addresses || {};
+    onChange('addresses', {
+      ...currentAddresses,
+      shipping: {
+        ...currentAddresses.shipping,
+        [fieldName]: value
+      }
+    });
+  };
+
+  const addBillingAddress = () => {
+    setShowBillingAddress(true);
+    // Initialize billing address with user location if available
+    const billingAddress = {
+      label: 'Home Address',
+      addressLine1: userLocation?.addressLine1 || '',
+      city: userLocation?.city || '',
+      state: userLocation?.state || '',
+      pincode: userLocation?.pincode || '',
+      country: userLocation?.country || 'India',
+      coordinates: {
+        latitude: userLocation?.latitude || '0',
+        longitude: userLocation?.longitude || '0'
+      }
+    };
+
+    if (!formData.addresses) {
+      onChange('addresses', {
+        billing: billingAddress
+      });
+    } else {
+      // Update existing addresses with billing
+      onChange('addresses', {
+        ...formData.addresses,
+        billing: billingAddress
+      });
+    }
+  };
+
+  const addShippingAddress = () => {
+    setShowShippingAddress(true);
+    // Initialize shipping address with user location if available
+    const shippingAddress = {
+      label: 'Office Address',
+      addressLine1: userLocation?.addressLine1 || '',
+      city: userLocation?.city || '',
+      state: userLocation?.state || '',
+      pincode: userLocation?.pincode || '',
+      country: userLocation?.country || 'India',
+      coordinates: {
+        latitude: userLocation?.latitude || '',
+        longitude: userLocation?.longitude || ''
+      }
+    };
+
+    if (!formData.addresses) {
+      onChange('addresses', {
+        shipping: shippingAddress
+      });
+    } else {
+      // Update existing addresses with shipping
+      onChange('addresses', {
+        ...formData.addresses,
+        shipping: shippingAddress
+      });
+    }
+  };
+
+  const removeBillingAddress = () => {
+    setShowBillingAddress(false);
+    const currentAddresses = formData.addresses || {};
+    const { billing, ...remainingAddresses } = currentAddresses;
+    
+    // If no addresses left, set to null
+    if (Object.keys(remainingAddresses).length === 0) {
+      onChange('addresses', null);
+    } else {
+      onChange('addresses', remainingAddresses);
+    }
+  };
+
+  const removeShippingAddress = () => {
+    setShowShippingAddress(false);
+    const currentAddresses = formData.addresses || {};
+    const { shipping, ...remainingAddresses } = currentAddresses;
+    
+    // If no addresses left, set to null
+    if (Object.keys(remainingAddresses).length === 0) {
+      onChange('addresses', null);
+    } else {
+      onChange('addresses', remainingAddresses);
+    }
+  };
+
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Left Side - Form */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Basic Information Section */}
-        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter the basic details of the customer</p>
-            </div>
+    <div className="space-y-6">
+      {/* Basic Information Section */}
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
+            <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
-            {/* Customer Name */}
-            <Input
-              type="text"
-              label="Customer Name"
-              placeholder="Enter customer name"
-              value={formData.name || ''}
-              onChange={(value) => handleInputChange('name', value)}
-              error={!!fieldErrors.name}
-              errorMessage={fieldErrors.name}
-              helperText="Enter the full name of the customer"
-              required
-              leftIcon={User}
-            />
-
-            {/* Phone Number */}
-            <Input
-              type="tel"
-              label="Phone Number"
-              placeholder="Enter phone number"
-              value={formData.phone || ''}
-              onChange={(value) => handleInputChange('phone', value)}
-              error={!!fieldErrors.phone}
-              errorMessage={fieldErrors.phone}
-              helperText="Enter the customer's phone number"
-              required
-              leftIcon={Phone}
-            />
-
-            {/* Email Address */}
-            <Input
-              type="email"
-              label="Email Address"
-              placeholder="Enter email address"
-              value={formData.email || ''}
-              onChange={(value) => handleInputChange('email', value)}
-              error={!!fieldErrors.email}
-              errorMessage={fieldErrors.email}
-              helperText="Enter the customer's email address (optional)"
-              leftIcon={Mail}
-            />
-
-            {/* Address */}
-            <Input
-              type="text"
-              label="Address"
-              placeholder="Enter address"
-              value={formData.address || ''}
-              onChange={(value) => handleInputChange('address', value)}
-              error={!!fieldErrors.address}
-              errorMessage={fieldErrors.address}
-              helperText="Enter the customer's address (optional)"
-              leftIcon={MapPin}
-            />
+          <div>
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter the basic details of the customer</p>
           </div>
         </div>
 
-        {/* Form Summary */}
-        <div className="bg-[rgb(var(--color-bg-primary))]/10 backdrop-blur-sm rounded-lg border border-[rgb(var(--color-border-primary))]/30 p-4">
-          <h3 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">Form Summary</h3>
-          <div className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-            <div>Name: {formData.name || 'Not provided'}</div>
-            <div>Phone: {formData.phone || 'Not provided'}</div>
-            <div>Email: {formData.email || 'Not provided'}</div>
-            <div>Address: {formData.address || 'Not provided'}</div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+          {/* Customer Name */}
+          <Input
+            type="text"
+            label="Customer Name"
+            placeholder="Enter customer name"
+            value={formData.name || ''}
+            onChange={(value) => handleInputChange('name', value)}
+            error={!!fieldErrors.name}
+            errorMessage={fieldErrors.name}
+            helperText="Enter the full name of the customer"
+            required
+            leftIcon={User}
+            size="md"
+          />
+
+          {/* Phone Number */}
+          <Input
+            type="tel"
+            label="Phone Number"
+            placeholder="Enter phone number"
+            value={formData.phone || ''}
+            onChange={(value) => handleInputChange('phone', value)}
+            error={!!fieldErrors.phone}
+            errorMessage={fieldErrors.phone}
+            helperText="Enter the customer's phone number"
+            required
+            leftIcon={Phone}
+            size="md"
+          />
+
+          {/* Email Address */}
+          <Input
+            type="email"
+            label="Email Address"
+            placeholder="Enter email address"
+            value={formData.email || ''}
+            onChange={(value) => handleInputChange('email', value)}
+            error={!!fieldErrors.email}
+            errorMessage={fieldErrors.email}
+            helperText="Enter the customer's email address (optional)"
+            leftIcon={Mail}
+            size="md"
+          />
         </div>
       </div>
 
-      {/* Right Side - Benefits Section */}
-      <div className="lg:col-span-1">
-        <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm sticky top-6">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Add Customer Details?</h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">Complete information helps in better service</p>
-            </div>
+      {/* Company Details Section */}
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter company information (optional)</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Company Name */}
+          <Input
+            type="text"
+            label="Company Name"
+            placeholder="Enter company name"
+            value={formData.companyDetails?.companyName || ''}
+            onChange={(value) => handleCompanyDetailsChange('companyName', value)}
+            error={!!fieldErrors['companyDetails.companyName']}
+            errorMessage={fieldErrors['companyDetails.companyName']}
+            helperText="Enter the company name"
+            leftIcon={Building2}
+            size="md"
+          />
+
+          {/* GSTIN */}
+          <Input
+            type="text"
+            label="GSTIN"
+            placeholder="Enter GSTIN number"
+            value={formData.companyDetails?.gstin || ''}
+            onChange={(value) => handleCompanyDetailsChange('gstin', value)}
+            error={!!fieldErrors['companyDetails.gstin']}
+            errorMessage={fieldErrors['companyDetails.gstin']}
+            helperText="Enter 15-digit GSTIN number"
+            leftIcon={FileText}
+            size="md"
+          />
+        </div>
+      </div>
+
+      {/* Addresses Section */}
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add billing and shipping addresses</p>
+            {userLocation && (
+              <p className="text-xs text-green-600 mt-1">
+                📍 Location detected: {userLocation.city}, {userLocation.state} - Will auto-fill addresses
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Add Address Buttons */}
+          <div className="flex flex-wrap gap-3">
+            {!showBillingAddress && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addBillingAddress}
+                leftIcon={Plus}
+              >
+                Add Billing Address
+              </Button>
+            )}
+            {!showShippingAddress && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addShippingAddress}
+                leftIcon={Plus}
+              >
+                Add Shipping Address
+              </Button>
+            )}
           </div>
 
-          <div className="space-y-4">
-            {/* Marketing Benefits */}
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-green-600 text-sm">📧</span>
+          {/* Billing Address */}
+          {showBillingAddress && (
+            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">Billing Address</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeBillingAddress}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Marketing & Communication</h4>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Send targeted promotions, newsletters, and product updates to increase sales</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Address Line 1 */}
+                <Input
+                  type="text"
+                  label="Address Line 1"
+                  placeholder="Enter address line 1"
+                  value={formData.addresses?.billing?.addressLine1 || ''}
+                  onChange={(value) => handleBillingAddressChange('addressLine1', value)}
+                  error={!!fieldErrors['addresses.billing.addressLine1']}
+                  errorMessage={fieldErrors['addresses.billing.addressLine1']}
+                  className="md:col-span-2"
+                  size="md"
+                />
+
+                {/* City */}
+                <Input
+                  type="text"
+                  label="City"
+                  placeholder="Enter city"
+                  value={formData.addresses?.billing?.city || ''}
+                  onChange={(value) => handleBillingAddressChange('city', value)}
+                  error={!!fieldErrors['addresses.billing.city']}
+                  errorMessage={fieldErrors['addresses.billing.city']}
+                  size="md"
+                />
+
+                {/* State */}
+                <Input
+                  type="text"
+                  label="State"
+                  placeholder="Enter state"
+                  value={formData.addresses?.billing?.state || ''}
+                  onChange={(value) => handleBillingAddressChange('state', value)}
+                  error={!!fieldErrors['addresses.billing.state']}
+                  errorMessage={fieldErrors['addresses.billing.state']}
+                  size="md"
+                />
+
+                {/* Pincode */}
+                <Input
+                  type="text"
+                  label="Pincode"
+                  placeholder="Enter pincode"
+                  value={formData.addresses?.billing?.pincode || ''}
+                  onChange={(value) => handleBillingAddressChange('pincode', value)}
+                  error={!!fieldErrors['addresses.billing.pincode']}
+                  errorMessage={fieldErrors['addresses.billing.pincode']}
+                  size="md"
+                />
+
+                {/* Country */}
+                <Input
+                  type="text"
+                  label="Country"
+                  placeholder="Enter country"
+                  value={formData.addresses?.billing?.country || ''}
+                  onChange={(value) => handleBillingAddressChange('country', value)}
+                  error={!!fieldErrors['addresses.billing.country']}
+                  errorMessage={fieldErrors['addresses.billing.country']}
+                  size="md"
+                />
               </div>
             </div>
+          )}
 
-            {/* Notification Benefits */}
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-blue-600 text-sm">🔔</span>
+          {/* Shipping Address */}
+          {showShippingAddress && (
+            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">Shipping Address</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeShippingAddress}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Smart Notifications</h4>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Get notified about order updates, payment reminders, and important announcements</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Address Line 1 */}
+                <Input
+                  type="text"
+                  label="Address Line 1"
+                  placeholder="Enter address line 1"
+                  value={formData.addresses?.shipping?.addressLine1 || ''}
+                  onChange={(value) => handleShippingAddressChange('addressLine1', value)}
+                  error={!!fieldErrors['addresses.shipping.addressLine1']}
+                  errorMessage={fieldErrors['addresses.shipping.addressLine1']}
+                  className="md:col-span-2"
+                  size="md"
+                />
+
+                {/* City */}
+                <Input
+                  type="text"
+                  label="City"
+                  placeholder="Enter city"
+                  value={formData.addresses?.shipping?.city || ''}
+                  onChange={(value) => handleShippingAddressChange('city', value)}
+                  error={!!fieldErrors['addresses.shipping.city']}
+                  errorMessage={fieldErrors['addresses.shipping.city']}
+                  size="md"
+                />
+
+                {/* State */}
+                <Input
+                  type="text"
+                  label="State"
+                  placeholder="Enter state"
+                  value={formData.addresses?.shipping?.state || ''}
+                  onChange={(value) => handleShippingAddressChange('state', value)}
+                  error={!!fieldErrors['addresses.shipping.state']}
+                  errorMessage={fieldErrors['addresses.shipping.state']}
+                  size="md"
+                />
+
+                {/* Pincode */}
+                <Input
+                  type="text"
+                  label="Pincode"
+                  placeholder="Enter pincode"
+                  value={formData.addresses?.shipping?.pincode || ''}
+                  onChange={(value) => handleShippingAddressChange('pincode', value)}
+                  error={!!fieldErrors['addresses.shipping.pincode']}
+                  errorMessage={fieldErrors['addresses.shipping.pincode']}
+                  size="md"
+                />
+
+                {/* Country */}
+                <Input
+                  type="text"
+                  label="Country"
+                  placeholder="Enter country"
+                  value={formData.addresses?.shipping?.country || ''}
+                  onChange={(value) => handleShippingAddressChange('country', value)}
+                  error={!!fieldErrors['addresses.shipping.country']}
+                  errorMessage={fieldErrors['addresses.shipping.country']}
+                  size="md"
+                />
               </div>
             </div>
-
-            {/* Fraud Prevention */}
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-red-600 text-sm">🛡️</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Fraud Prevention</h4>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Verify customer identity and prevent fraudulent transactions</p>
-              </div>
-            </div>
-
-            {/* Customer Service */}
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-purple-600 text-sm">🎯</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Better Service</h4>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Provide personalized service and faster order processing</p>
-              </div>
-            </div>
-
-            {/* Analytics */}
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-orange-600 text-sm">📊</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Customer Analytics</h4>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track customer behavior and preferences for better business decisions</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Tips Section */}
-          <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
-            <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-              <li>• Always verify phone numbers for SMS notifications</li>
-              <li>• Email helps in sending receipts and updates</li>
-              <li>• Address is useful for delivery and billing</li>
-              <li>• Complete details improve customer trust</li>
-            </ul>
-          </div>
+          )}
         </div>
       </div>
     </div>

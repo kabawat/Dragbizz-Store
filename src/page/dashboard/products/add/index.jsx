@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Plus, ArrowLeft, Info } from 'lucide-react';
+import { Save, Plus, ArrowLeft, Info, Package, TrendingUp, Users, BarChart3, Star, ShoppingCart } from 'lucide-react';
 
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
