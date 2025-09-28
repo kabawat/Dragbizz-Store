@@ -6,7 +6,7 @@ import { Save, Plus, ArrowLeft, Info, Package, TrendingUp, Users, BarChart3, Sta
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
+import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -184,18 +184,6 @@ const AddProductPage = () => {
                   <span className="text-sm font-medium">Back to Products</span>
                 </Link>
 
-                {/* Progress Bar */}
-                <div className="flex-1 bg-gradient-to-r from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-xl  px-4 py-1 ">
-                  <div className="px-2">
-                    <StepProgress
-                      formData={formData}
-                      orientation="horizontal"
-                      size="sm"
-                      showLabels={true}
-                      showIcons={true}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -206,6 +194,7 @@ const AddProductPage = () => {
                   formData={formData}
                   onChange={handleFormDataChange}
                   fieldErrors={fieldErrors}
+                  storeId={storeId}
                 />
               </div>
 

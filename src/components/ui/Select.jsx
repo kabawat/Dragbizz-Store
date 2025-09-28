@@ -27,19 +27,19 @@ const Select = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const selectRef = useRef(null);
   const searchRef = useRef(null);
-  
+
   // Filter options based on search term
-  const filteredOptions = searchable 
-    ? options.filter(option => 
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  const filteredOptions = searchable
+    ? options.filter(option =>
+      option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : options;
-  
+
   // Get selected option(s)
-  const selectedOption = multiple 
+  const selectedOption = multiple
     ? options.filter(option => value?.includes(option.value))
     : options.find(option => option.value === value);
-  
+
   // Handle option selection
   const handleSelect = (option) => {
     if (multiple) {
@@ -55,7 +55,7 @@ const Select = ({
       setSearchTerm('');
     }
   };
-  
+
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
     if (!isOpen) {
@@ -68,17 +68,17 @@ const Select = ({
       }
       return;
     }
-    
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < filteredOptions.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev > 0 ? prev - 1 : filteredOptions.length - 1
         );
         break;
@@ -95,20 +95,20 @@ const Select = ({
         break;
     }
   };
-  
+
   // Handle clear
   const handleClear = (e) => {
     e.stopPropagation();
     onChange?.(multiple ? [] : '');
   };
-  
+
   // Close dropdown when clicking outside or when another select opens
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Check if click is outside both the select container and the portal dropdown
       const isClickInsideSelect = selectRef.current && selectRef.current.contains(event.target);
       const isClickInsideDropdown = event.target.closest('.select-dropdown');
-      
+
       if (!isClickInsideSelect && !isClickInsideDropdown) {
         setIsOpen(false);
         setSearchTerm('');
@@ -120,14 +120,14 @@ const Select = ({
       // If another select opens, close this one
       const isClickInsideSelect = selectRef.current && selectRef.current.contains(event.target);
       const isClickInsideDropdown = event.target.closest('.select-dropdown');
-      
+
       if (isOpen && !isClickInsideSelect && !isClickInsideDropdown) {
         setIsOpen(false);
         setSearchTerm('');
         setHighlightedIndex(-1);
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('click', handleSelectOpen);
@@ -137,7 +137,7 @@ const Select = ({
       };
     }
   }, [isOpen]);
-  
+
   // Reset highlighted index when options change
   useEffect(() => {
     setHighlightedIndex(-1);
@@ -146,7 +146,7 @@ const Select = ({
   // Calculate dropdown position for portal
   const getDropdownPosition = () => {
     if (!isOpen || !selectRef.current) return null;
-    
+
     const rect = selectRef.current.getBoundingClientRect();
     return {
       top: rect.bottom + window.scrollY,
@@ -156,7 +156,7 @@ const Select = ({
   };
 
   const dropdownPosition = getDropdownPosition();
-  
+
   return (
     <div className={`relative select-container ${className}`}>
       {/* Label */}
@@ -166,21 +166,19 @@ const Select = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
+
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative cursor-pointer border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${
-          error 
-            ? 'border-red-500 bg-red-50' 
+        className={`relative cursor-pointer border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${error
+            ? 'border-red-500 bg-red-50'
             : 'border-[rgb(var(--color-border-primary))]'
-        } ${
-          error
+          } ${error
             ? 'border-red-500 focus:ring-red-500'
             : isOpen
-            ? 'border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]'
-            : 'border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]'
-        } ${disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed' : 'bg-[rgb(var(--color-bg-primary))]'}`}
+              ? 'border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]'
+              : 'border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]'
+          } ${disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed' : 'bg-[rgb(var(--color-bg-primary))]'}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? -1 : 0}
@@ -198,25 +196,25 @@ const Select = ({
                     <span
                       key={option.value}
                       className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))]"
-                      style={{color: 'rgb(var(--color-primary))'}}
+                      style={{ color: 'rgb(var(--color-primary))' }}
                     >
                       {option.label}
                     </span>
                   ))
                 ) : (
-                  <span className="text-[rgb(var(--color-text-tertiary))]" style={{color: 'rgb(var(--color-text-tertiary))'}}>{placeholder}</span>
+                  <span className="text-[rgb(var(--color-text-tertiary))]" style={{ color: 'rgb(var(--color-text-tertiary))' }}>{placeholder}</span>
                 )}
               </div>
             ) : (
               <span
                 className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}
-                style={{color: selectedOption ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-tertiary))'}}
+                style={{ color: selectedOption ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-tertiary))' }}
               >
                 {selectedOption?.label || placeholder}
               </span>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-2 ml-2">
             {/* Clear Button */}
             {clearable && (multiple ? value?.length > 0 : value) && (
@@ -229,19 +227,18 @@ const Select = ({
                 ×
               </button>
             )}
-            
+
             {/* Dropdown Arrow */}
-            <ChevronDown 
-              className={`w-5 h-5 text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${
-                isOpen ? 'rotate-180' : ''
-              }`} 
+            <ChevronDown
+              className={`w-5 h-5 text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+                }`}
             />
           </div>
         </div>
-        
+
         {/* Dropdown Options - Portal */}
         {isOpen && dropdownPosition && createPortal(
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: dropdownPosition.top,
@@ -249,13 +246,13 @@ const Select = ({
               width: dropdownPosition.width,
               zIndex: 999999
             }}
-            className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden" 
+            className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input */}
             {searchable && (
-              <div 
-                className="p-2 border-b border-[rgb(var(--color-border-primary))]" 
+              <div
+                className="p-2 border-b border-[rgb(var(--color-border-primary))]"
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
               >
@@ -283,43 +280,59 @@ const Select = ({
                       }
                     }}
                     className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
-                    style={{color: 'rgb(var(--color-text-primary))'}}
+                    style={{ color: 'rgb(var(--color-text-primary))' }}
                   />
                 </div>
               </div>
             )}
-            
+
             {/* Options List */}
-            <div 
-              className="max-h-48 overflow-y-auto" 
+            <div
+              className="max-h-48 pb-4 overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option, index) => {
-                  const isSelected = multiple 
+                  const isSelected = multiple
                     ? value?.includes(option.value)
                     : value === option.value;
                   const isHighlighted = index === highlightedIndex;
-                  
+
+                  // Special styling for add option
+                  if (option.isAddOption) {
+                    return (
+                      <div
+                        key={option.value}
+                        className="px-4 py-2 cursor-pointer  transition-colors duration-150 border-t border-[rgb(var(--color-border-primary))]"
+                        onClick={() => handleSelect(option)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        onMouseLeave={() => setHighlightedIndex(-1)}
+                      >
+                        <span className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] font-medium text-sm" style={{ color: 'rgb(var(--color-primary))' }} >
+                          {option.label}
+                        </span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={option.value}
-                      className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
-                        (isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
-                      } hover:bg-blue-500 hover:bg-opacity-10`}
+                      className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${(isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
+                        } hover:bg-blue-500 hover:bg-opacity-10`}
                       style={{
                         backgroundColor: (isHighlighted || isSelected)
-                          ? 'rgba(59, 130, 246, 0.1)' 
+                          ? 'rgba(59, 130, 246, 0.1)'
                           : 'transparent'
                       }}
                       onClick={() => handleSelect(option)}
                       onMouseEnter={() => setHighlightedIndex(index)}
                       onMouseLeave={() => setHighlightedIndex(-1)}
                     >
-                      <span 
+                      <span
                         className={(isHighlighted || isSelected) ? 'font-medium text-blue-500' : 'text-gray-900 dark:text-white'}
-                        style={{color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit'}}
+                        style={{ color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit' }}
                       >
                         {option.label}
                       </span>
@@ -330,9 +343,9 @@ const Select = ({
                   );
                 })
               ) : (
-                <div 
+                <div
                   className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center"
-                  style={{color: 'rgb(var(--color-text-secondary))'}}
+                  style={{ color: 'rgb(var(--color-text-secondary))' }}
                 >
                   No options found
                 </div>
@@ -342,7 +355,7 @@ const Select = ({
           document.body
         )}
       </div>
-      
+
       {/* Helper Text / Error Message */}
       {(helperText || errorMessage) && (
         <div className="mt-2">

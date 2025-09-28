@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
-import { Input, Textarea, TagInput, Button } from '../ui';
-import { Plus } from 'lucide-react';
+import { Input, Textarea, TagInput, Button, Toggle } from '../ui';
+import { Plus, Eye } from 'lucide-react';
 
 const AdditionalDetailsSection = ({
   formData,
@@ -52,7 +52,26 @@ const AdditionalDetailsSection = ({
 
   return (
     <>
-      {/* Short Description */}
+      {/* Content & SEO Toggle */}
+      <div className="mb-6">
+        <Toggle
+          label="Add Content & SEO Details"
+          checked={formData.content?.isEnabled || false}
+          onChange={(checked) => {
+            const updatedContent = {
+              ...formData.content,
+              isEnabled: checked
+            };
+            handleFieldChange('content', updatedContent);
+          }}
+          helperText="Enable to add detailed descriptions, features, and SEO content"
+        />
+      </div>
+
+      {/* Content Fields - Only show if enabled */}
+      {formData.content?.isEnabled && (
+        <>
+          {/* Short Description */}
       <div className="mb-6">
         <Textarea
           label="Short Description"
@@ -155,7 +174,8 @@ const AdditionalDetailsSection = ({
           </Button>
         </div>
       </div>
-
+        </>
+      )}
     </>
   );
 };

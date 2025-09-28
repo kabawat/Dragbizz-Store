@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import { Input, Textarea, TagInput, Select } from '../ui';
 import { Package, Tag, Barcode } from 'lucide-react';
 import { PRODUCT_CATEGORY_OPTIONS } from '@/data';
@@ -8,12 +8,32 @@ const BasicInfoSection = ({
   formData,
   onChange,
   errors = {},
+  onAddCategoryClick,
+  apiCategories = [],
+  categoriesLoading = false,
   ...props
 }) => {  
+  const [customCategories, setCustomCategories] = useState([]);
+
   const handleFieldChange = (field, value) => {
     console.log('Field:', field, 'Value:', value);
     onChange(field, value);
   };
+
+  const handleCategoryChange = (value) => {
+    if (value === 'add-new-category') {
+      onAddCategoryClick && onAddCategoryClick();
+    } else {
+      handleFieldChange('category', value);
+    }
+  };
+
+  // Combine API categories with custom ones and add "Add New Category" option
+  const allCategories = [
+    ...apiCategories,
+    ...customCategories,
+    { value: 'add-new-category', label: '+ Add New Category', isAddOption: true }
+  ];
 
   return (
     <>
@@ -53,14 +73,15 @@ const BasicInfoSection = ({
         <div>
           <Select
             label="Category"
-            placeholder="Select a category"
+            placeholder={categoriesLoading ? "Loading categories..." : "Select a category"}
             value={formData.category || ''}
-            onChange={(value) => handleFieldChange('category', value)}
+            onChange={handleCategoryChange}
             error={errors.category}
             errorMessage={errors.category}
             searchable={true}
-            options={PRODUCT_CATEGORY_OPTIONS}
+            options={allCategories}
             required
+            disabled={categoriesLoading}
           />
         </div>
 
