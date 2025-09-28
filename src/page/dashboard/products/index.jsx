@@ -75,21 +75,37 @@ const ProductsPage = () => {
   }, [dispatch]);
 
   // Fetch products on component mount and when search changes
+  // Prevent double API call by using a ref to track last fetch params
+  const lastFetchRef = useRef({ storeId: null, searchValue: null });
+
   useEffect(() => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    // Only fetch if selectedStore exists and has a valid ID
+    if (!storeId) return;
+
+    // Prevent duplicate fetch if params haven't changed
+    if (
+      lastFetchRef.current.storeId === storeId &&
+      lastFetchRef.current.searchValue === searchValue
+    ) {
+      return;
+    }
+
+    lastFetchRef.current = { storeId, searchValue };
+
     const fetchProducts = async () => {
       const params = {
-        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+        store: storeId,
         search: searchValue,
         limit: 20,
         cursor: null 
       };
-
+      // console.log("params : ",params)
       await dispatch(getProducts(params));
     };
 
-    if (selectedStore) {
-      fetchProducts();
-    }
+    fetchProducts();
   }, [dispatch, selectedStore, searchValue]);
 
   // Infinite scroll detection
@@ -204,7 +220,6 @@ const ProductsPage = () => {
     try {
       const params = {
         store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
-        ...filters,
         search: searchValue,
         limit: 20,
         cursor: pagination.nextCursor
@@ -323,7 +338,7 @@ const ProductsPage = () => {
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                   <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
                     {viewMode === 'table' ? (
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto h-full">
                         <ProductTable
                           products={transformedProducts}
                           selectedProducts={selectedProducts}

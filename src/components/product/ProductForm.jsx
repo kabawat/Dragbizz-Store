@@ -27,6 +27,7 @@ import BasicInfoSection from './BasicInfoSection';
 import AdditionalDetailsSection from './AdditionalDetailsSection';
 import PricingGSTSection from './PricingGSTSection';
 import StatusSection from './StatusSection';
+import OpeningQuantitySection from './OpeningQuantitySection';
 
 // Import UI components
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, NumberInput, TagInput, FileUpload } from '@/components/ui';
@@ -59,7 +60,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
   // Theme-aware glass effect styles
   const getGlassStyles = () => {
     const isDark = currentVariant === 'dark';
-    
+
     if (isDark) {
       return {
         card: `backdrop-blur-md bg-black/20 border border-white/20 shadow-xl`,
@@ -87,7 +88,8 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
 
   return (
     <div ref={setNodeRef} style={style} className="break-inside-avoid">
-      <Card 
+      <Card
+        shadow="sm"
         className={`relative ${glassStyles.card}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -100,7 +102,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
         >
           <GripVertical className="w-4 h-4" />
         </div>
-        
+
         <CardHeader className={`${glassStyles.header} pr-20`}>
           <div className="flex items-center space-x-3">
             <div className={`p-2 backdrop-blur-sm rounded-lg ${glassStyles.icon}`}>
@@ -131,7 +133,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
 
 const ProductForm = ({
   formData = {},
-  onChange = () => {},
+  onChange = () => { },
   fieldErrors = {},
   storeId = null,
   className = '',
@@ -145,7 +147,7 @@ const ProductForm = ({
   // Theme-aware drawer styles
   const getDrawerStyles = () => {
     const isDark = currentVariant === 'dark';
-    
+
     if (isDark) {
       return {
         backdrop: 'bg-black/40 backdrop-blur-sm',
@@ -184,7 +186,7 @@ const ProductForm = ({
   };
 
   const drawerStyles = getDrawerStyles();
-  
+
   // Category drawer state
   const [showAddCategoryDrawer, setShowAddCategoryDrawer] = useState(false);
   const [newCategoryData, setNewCategoryData] = useState({
@@ -198,12 +200,13 @@ const ProductForm = ({
   const [customCategories, setCustomCategories] = useState([]);
   const [apiCategories, setApiCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
-  
+
   const [sections, setSections] = useState([
     { id: 'basic', title: 'Basic Information', subtitle: 'Product name, brand, and basic details', icon: Package, component: BasicInfoSection },
-    { id: 'content', title: 'Content & SEO', subtitle: 'Descriptions, features, and SEO content', icon: Eye, component: AdditionalDetailsSection },
+    { id: 'opening-quantity', title: 'Opening Stock', subtitle: 'Initial inventory quantity and purchase price', icon: Package, component: OpeningQuantitySection },
     { id: 'status', title: 'Status & Visibility', subtitle: 'Product status and visibility settings', icon: Settings, component: StatusSection },
     { id: 'pricing-gst', title: 'Pricing Information', subtitle: 'Set product prices, currency, and tax settings', icon: IndianRupee, component: PricingGSTSection },
+    { id: 'content', title: 'Content & SEO', subtitle: 'Descriptions, features, and SEO content', icon: Eye, component: AdditionalDetailsSection },
   ]);
 
   // Section information data
@@ -254,6 +257,17 @@ const ProductForm = ({
         'New Arrival: Mark as recently added'
       ],
       tips: 'Configure these settings to control how your product appears to customers.'
+    },
+    'opening-quantity': {
+      title: 'Opening Stock',
+      description: 'Initial inventory quantity and purchase price',
+      details: [
+        'Opening Quantity: Initial stock quantity for this product',
+        'Opening Purchase Price: Cost price per unit for opening stock',
+        'Total Value: Automatically calculated (Quantity × Purchase Price)',
+        'Unit of Measure: Uses the UOM from pricing section'
+      ],
+      tips: 'This represents your initial inventory investment and helps in cost tracking.'
     }
   };
 
@@ -267,7 +281,7 @@ const ProductForm = ({
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
-      const response = await categoryService.getCategories({ 
+      const response = await categoryService.getCategories({
         limit: 100,
         store: storeId,
         lightweight: true
@@ -311,20 +325,20 @@ const ProductForm = ({
 
         // Call the category service
         const response = await categoryService.createCategory(apiPayload, storeId);
-        
+
         if (response.success) {
           // Create dropdown option for immediate use
           const newCategory = {
             value: response.data.id || `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, '-')}`,
             label: newCategoryData.name.trim()
           };
-          
+
           // Refresh categories list from API
           await fetchCategories();
-          
+
           // Set as selected category
           onChange('category', newCategory.value);
-          
+
           // Reset form and close drawer
           setNewCategoryData({
             name: '',
@@ -335,7 +349,7 @@ const ProductForm = ({
             }
           });
           setShowAddCategoryDrawer(false);
-          
+
           console.log('Category created successfully:', response.data);
         } else {
           console.error('Failed to create category:', response.message);
@@ -416,7 +430,7 @@ const ProductForm = ({
           <div className="columns-1 lg:columns-2 gap-6 space-y-6">
             {sections.map((section) => {
               const SectionComponent = section.component;
-              
+
               return (
                 <SortableSection
                   key={section.id}
@@ -426,25 +440,25 @@ const ProductForm = ({
                   icon={section.icon}
                   onInfoClick={handleInfoClick}
                 >
-               {section.id === 'basic' ? (
-                 <SectionComponent 
-                   formData={formData} 
-                   onChange={handleFormDataChange} 
-                   errors={fieldErrors}
-                   onAddCategoryClick={handleAddCategoryClick}
-                   apiCategories={apiCategories}
-                   categoriesLoading={categoriesLoading}
-                 />
-               ) : (
-                 <SectionComponent formData={formData} onChange={handleFormDataChange} errors={fieldErrors} />
-               )}
+                  {section.id === 'basic' ? (
+                    <SectionComponent
+                      formData={formData}
+                      onChange={handleFormDataChange}
+                      errors={fieldErrors}
+                      onAddCategoryClick={handleAddCategoryClick}
+                      apiCategories={apiCategories}
+                      categoriesLoading={categoriesLoading}
+                    />
+                  ) : (
+                    <SectionComponent formData={formData} onChange={handleFormDataChange} errors={fieldErrors} />
+                  )}
                 </SortableSection>
               );
             })}
           </div>
         </SortableContext>
       </DndContext>
-      
+
       {/* Info Modal */}
       {showInfoModal && currentInfoSection && (
         <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center p-4 z-[9999]">
@@ -463,12 +477,12 @@ const ProductForm = ({
                   </svg>
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <p className="text-[rgb(var(--color-text-secondary))]">
                   {currentInfoSection.description}
                 </p>
-                
+
                 <div>
                   <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                     Fields in this section:
@@ -482,7 +496,7 @@ const ProductForm = ({
                     ))}
                   </ul>
                 </div>
-                
+
                 <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
                   <p className="text-sm text-[rgb(var(--color-text-primary))] font-medium">
                     💡 Tip: {currentInfoSection.tips}
@@ -498,7 +512,7 @@ const ProductForm = ({
       {showAddCategoryDrawer && (
         <>
           {/* Backdrop */}
-          <div 
+          <div
             className={`fixed inset-0 ${drawerStyles.backdrop} z-[9999] animate-in fade-in duration-300`}
             onClick={() => {
               setShowAddCategoryDrawer(false);
@@ -512,7 +526,7 @@ const ProductForm = ({
               });
             }}
           />
-          
+
           {/* Full Page Drawer - slides from right edge of viewport */}
           <div className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}>
             <div className="flex flex-col h-full">
@@ -538,14 +552,14 @@ const ProductForm = ({
                   <X className={`w-5 h-5 ${drawerStyles.text.primary}`} />
                 </button>
               </div>
-              
+
               {/* Content */}
               <div className={`flex-1 p-6 overflow-y-auto ${drawerStyles.content}`}>
                 <div className="space-y-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
                     <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>Basic Information</h3>
-                    
+
                     <Input
                       label="Category Name"
                       placeholder="Enter category name (e.g., Electronics)"
@@ -553,7 +567,7 @@ const ProductForm = ({
                       onChange={(value) => setNewCategoryData(prev => ({ ...prev, name: value }))}
                       required
                     />
-                    
+
                     <Textarea
                       label="Description"
                       placeholder="Enter category description (e.g., Electronic devices and accessories)"
@@ -566,7 +580,7 @@ const ProductForm = ({
                   {/* Metadata */}
                   <div className="space-y-4">
                     <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>Category Settings</h3>
-                    
+
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <FileUpload
@@ -576,13 +590,13 @@ const ProductForm = ({
                           value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
                           onChange={(files) => {
                             if (files && files.length > 0) {
-                              setNewCategoryData(prev => ({ 
-                                ...prev, 
+                              setNewCategoryData(prev => ({
+                                ...prev,
                                 metadata: { ...prev.metadata, icon: files[0] }
                               }));
                             } else {
-                              setNewCategoryData(prev => ({ 
-                                ...prev, 
+                              setNewCategoryData(prev => ({
+                                ...prev,
                                 metadata: { ...prev.metadata, icon: null }
                               }));
                             }
@@ -592,40 +606,40 @@ const ProductForm = ({
                         />
                       </div>
                     </div>
-                    
+
                     <TagInput
                       label="Tags"
                       placeholder="Add tags (e.g., tech, gadgets)"
                       value={newCategoryData.metadata.tags}
-                      onChange={(value) => setNewCategoryData(prev => ({ 
-                        ...prev, 
+                      onChange={(value) => setNewCategoryData(prev => ({
+                        ...prev,
                         metadata: { ...prev.metadata, tags: value }
                       }))}
                     />
                   </div>
-                  
+
                   <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                     <h3 className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}>
                       About Categories
                     </h3>
                     <p className={`text-sm ${drawerStyles.text.secondary}`}>
-                      Categories help organize your products and make them easier to find. 
+                      Categories help organize your products and make them easier to find.
                       This category will be available for all your future products.
                     </p>
                   </div>
-                  
+
                   <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
                     <h3 className={`text-sm font-medium ${currentVariant === 'dark' ? 'text-blue-300' : 'text-blue-700'} mb-2`}>
                       💡 Tip
                     </h3>
                     <p className={`text-sm ${currentVariant === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
-                      Use descriptive names like "Electronics", "Clothing", or "Home & Garden" 
+                      Use descriptive names like "Electronics", "Clothing", or "Home & Garden"
                       to make your products easy to categorize.
                     </p>
                   </div>
                 </div>
               </div>
-              
+
               {/* Footer */}
               <div className={`p-6 ${drawerStyles.footer}`}>
                 <div className="flex gap-3">

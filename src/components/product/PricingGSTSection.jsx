@@ -105,7 +105,7 @@ const PricingGSTSection = ({
         </div>
 
         {/* Price Summary */}
-        <div className="mt-6 p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm">
+        <div className="mt-6 p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
               <span className="text-[rgb(var(--color-primary))] font-bold text-xl mr-2">₹</span>
