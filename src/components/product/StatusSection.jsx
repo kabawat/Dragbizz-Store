@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { Select, Toggle } from '../ui';
+import { Select, Toggle, NumberInput } from '../ui';
 import { Star, Award, Sparkles } from 'lucide-react';
 import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS, getProductStatusColor } from '@/data';
 
@@ -55,6 +55,26 @@ const StatusSection = ({
           placeholder="Select product status"
         />
       </div>
+
+      {/* Stock Quantity - Only show if status is not "Out of Stock" */}
+      {formData.status && formData.status !== 'OUT_OF_STOCK' && (
+        <div className="mb-6">
+          <NumberInput
+            label="Stock Quantity"
+            placeholder="0"
+            value={formData.stockQuantity || ''}
+            onChange={(value) => handleFieldChange('stockQuantity', value)}
+            error={errors.stockQuantity}
+            errorMessage={errors.stockQuantity}
+            leftIcon={Package}
+            min={0}
+            step={1}
+            precision={0}
+            helperText={`Current stock quantity (${formData.uom || 'PCS'})`}
+            className="transition-all duration-200 group-hover:shadow-sm"
+          />
+        </div>
+      )}
 
       {/* Visibility */}
       <div className="mb-6">

@@ -39,6 +39,11 @@ const AddProductPage = () => {
     featured: false,
     bestSeller: false,
     newArrival: false,
+    openingStock: {
+      openingQuantity: 0,
+      openingPurchasePrice: 0
+    },
+    stockQuantity: 0,
     gstInfo: {
       isGstApplicable: false,
       gstRate: '',
@@ -189,7 +194,7 @@ const AddProductPage = () => {
 
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
-              <div className="h-[calc(100vh-260px)] overflow-y-auto pe-3">
+              <div className="h-[calc(100vh-238px)] overflow-y-auto pe-3">
                 <ProductForm
                   formData={formData}
                   onChange={handleFormDataChange}
