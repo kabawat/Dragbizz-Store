@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, X, Image as ImageIcon, File, AlertCircle } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const FileUpload = ({
   label,
@@ -18,6 +19,7 @@ const FileUpload = ({
   className = '',
   ...props
 }) => {
+  const { currentVariant } = useTheme();
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -130,56 +132,68 @@ const FileUpload = ({
         </label>
       )}
 
-      {/* Upload Area */}
-      <div
-        className={`
-          relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-          ${isDragOver 
-            ? 'border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5' 
-            : 'border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]'
-          }
-          ${error ? 'border-red-500' : ''}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onClick={openFileDialog}
-      >
-        <div className="p-6 text-center">
-          <Upload className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
-          <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
-            {isDragOver ? 'Drop files here' : 'Click to upload or drag and drop'}
-          </p>
-          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-            {accept.includes('image') ? 'Images' : 'Files'} up to {maxSize / (1024 * 1024)}MB
-            {multiple && ` (max ${maxFiles} files)`}
-          </p>
-        </div>
+      {/* Upload Area - Only show when no files */}
+      {value.length === 0 && (
+        <div
+          className={`
+            relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
+            ${isDragOver 
+              ? 'border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5' 
+              : 'border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]'
+            }
+            ${error ? 'border-red-500' : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={openFileDialog}
+        >
+          <div className="p-6 text-center">
+            <Upload className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+            <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
+              {isDragOver ? 'Drop files here' : 'Click to upload or drag and drop'}
+            </p>
+            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+              {accept.includes('image') ? 'Images' : 'Files'} up to {maxSize / (1024 * 1024)}MB
+              {multiple && ` (max ${maxFiles} files)`}
+            </p>
+          </div>
 
-        {/* Hidden File Input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={accept}
-          multiple={multiple}
-          onChange={handleFileInputChange}
-          className="hidden"
-          disabled={disabled}
-          {...props}
-        />
-      </div>
+          {/* Hidden File Input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={accept}
+            multiple={multiple}
+            onChange={handleFileInputChange}
+            className="hidden"
+            disabled={disabled}
+            {...props}
+          />
+        </div>
+      )}
 
       {/* File List */}
       {value.length > 0 && (
-        <div className="mt-4 space-y-2">
+        <div className="space-y-2">
           {value.map((file, index) => (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-center justify-between p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]"
+              className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]"
             >
-              <div className="flex items-center space-x-3">
-                {getFileIcon(file)}
+              <div className="flex items-center space-x-4">
+                {/* Large Image Preview */}
+                {file.type.startsWith('image/') && (
+                  <div className="w-16 h-16 rounded-lg border border-[rgb(var(--color-border-primary))] overflow-hidden flex-shrink-0">
+                    <img
+                      src={createPreviewUrl(file)}
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate">
                     {file.name}
@@ -187,19 +201,16 @@ const FileUpload = ({
                   <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                     {formatFileSize(file.size)}
                   </p>
+                  <button
+                    type="button"
+                    onClick={openFileDialog}
+                    className="text-xs text-[rgb(var(--color-primary))] hover:underline mt-1"
+                    disabled={disabled}
+                  >
+                    Change image
+                  </button>
                 </div>
               </div>
-              
-              {/* Image Preview */}
-              {file.type.startsWith('image/') && (
-                <div className="w-10 h-10 rounded border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <img
-                    src={createPreviewUrl(file)}
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
               
               {/* Remove Button */}
               <button
@@ -208,10 +219,15 @@ const FileUpload = ({
                   e.stopPropagation();
                   removeFile(index);
                 }}
-                className="ml-2 p-1 text-[rgb(var(--color-text-tertiary))] hover:text-red-500 transition-colors duration-200"
+                className={`ml-2 p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 ${
+                  currentVariant === 'dark' 
+                    ? 'hover:bg-red-900/20' 
+                    : 'hover:bg-red-500/20'
+                }`}
                 disabled={disabled}
+                title="Remove image"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           ))}
@@ -237,3 +253,4 @@ const FileUpload = ({
 };
 
 export default FileUpload;
+

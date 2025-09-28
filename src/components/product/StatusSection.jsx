@@ -21,7 +21,26 @@ const StatusSection = ({
 
   return (
     <>
-      {/* Product Status */}
+      {/* Status & Visibility Toggle */}
+      <div className="mb-6">
+        <Toggle
+          label="Configure Status & Visibility"
+          checked={formData.statusInfo?.isEnabled || false}
+          onChange={(checked) => {
+            const updatedStatusInfo = {
+              ...formData.statusInfo,
+              isEnabled: checked
+            };
+            handleFieldChange('statusInfo', updatedStatusInfo);
+          }}
+          helperText="Enable to configure product status, visibility, and special flags"
+        />
+      </div>
+
+      {/* Status Fields - Only show if enabled */}
+      {formData.statusInfo?.isEnabled && (
+        <>
+          {/* Product Status */}
       <div className="mb-6">
         <Select
           label="Product Status"
@@ -127,6 +146,8 @@ const StatusSection = ({
           </div>
         </div>
       </div>
+        </>
+      )}
     </>
   );
 };

@@ -13,22 +13,6 @@ const PricingSection = ({
 }) => {
   const handleFieldChange = (field, value) => {
     console.log('PricingSection - Field:', field, 'Value:', value);
-    
-    if (field !== 'discount' && (field === 'mrp' || field === 'sellingPrice')) {
-      const mrp = parseFloat(field === 'mrp' ? value : formData.mrp) || 0;
-      const sellingPrice = parseFloat(field === 'sellingPrice' ? value : formData.sellingPrice) || 0;
-      
-      if (mrp > 0 && sellingPrice > 0) {
-        const discount = ((mrp - sellingPrice) / mrp) * 100;
-        const calculatedDiscount = Math.max(0, Math.round(discount * 100) / 100);
-        
-        const currentDiscount = parseFloat(formData.discount) || 0;
-        if (Math.abs(calculatedDiscount - currentDiscount) > 0.01) {
-          onChange('discount', calculatedDiscount);
-        }
-      }
-    }
-
     onChange(field, value);
   };
 
@@ -38,28 +22,10 @@ const PricingSection = ({
 
   return (
     <>
-      {/* Price Input Fields - Divided into 2 groups */}
-      <FieldGroup columns={2} className="">
-        {/* First Group: Base Price & MRP */}
-        <div className="group">
-          <NumberInput
-            label="Base Price"
-            placeholder="0.00"
-            value={formData.basePrice || ''}
-            onChange={(value) => handleFieldChange('basePrice', value)}
-            error={errors.basePrice}
-            errorMessage={errors.basePrice}
-            required
-            leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-lg">₹</span>}
-            min={0}
-            step={0.01}
-            precision={2}
-            helperText="Cost price or purchase price"
-            className="transition-all duration-200 group-hover:shadow-sm"
-          />
-        </div>
-
-        <div className="group">
+      {/* Price Input Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* MRP */}
+        <div>
           <NumberInput
             label="MRP (Maximum Retail Price)"
             placeholder="0.00"
@@ -77,8 +43,8 @@ const PricingSection = ({
           />
         </div>
 
-        {/* Second Group: Selling Price & Discount */}
-        <div className="group">
+        {/* Selling Price */}
+        <div>
           <NumberInput
             label="Selling Price"
             placeholder="0.00"
@@ -95,26 +61,7 @@ const PricingSection = ({
             className="transition-all duration-200 group-hover:shadow-sm"
           />
         </div>
-
-        <div className="group">
-          <NumberInput
-            label="Discount Percentage"
-            placeholder="0"
-            value={formData.discount || ''}
-            onChange={(value) => handleFieldChange('discount', value)}
-            error={errors.discount}
-            errorMessage={errors.discount}
-            leftIcon={Percent}
-            min={0}
-            max={100}
-            step={0.01}
-            precision={2}
-            disabled={!formData.mrp || !formData.sellingPrice}
-            helperText="Auto-calculated from MRP and selling price, or enter manually"
-            className="transition-all duration-200 group-hover:shadow-sm bg-[rgb(var(--color-bg-secondary))]"
-          />
-        </div>
-      </FieldGroup>
+      </div>
 
       {/* Currency and UOM */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
@@ -158,20 +105,6 @@ const PricingSection = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Left Column - Prices */}
           <div className="space-y-3">
-            {formData.basePrice ? (
-              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Base Price:</span>
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                  ₹{parseFloat(formData.basePrice).toFixed(2)}
-                </span>
-              </div>
-            ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Base Price:</span>
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
-              </div>
-            )}
-            
             {formData.mrp ? (
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
                 <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">MRP:</span>
@@ -201,22 +134,8 @@ const PricingSection = ({
             )}
           </div>
           
-          {/* Right Column - Discount & Savings */}
+          {/* Right Column - Savings */}
           <div className="space-y-3">
-            {formData.discount && parseFloat(formData.discount) > 0 ? (
-              <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">Discount:</span>
-                <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                  {parseFloat(formData.discount).toFixed(2)}%
-                </span>
-              </div>
-            ) : (
-              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Discount:</span>
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">0%</span>
-              </div>
-            )}
-            
             {formData.mrp && formData.sellingPrice && parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
               <div className="flex justify-between items-center p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">You Save:</span>
@@ -231,22 +150,17 @@ const PricingSection = ({
               </div>
             )}
             
-            {formData.basePrice && formData.sellingPrice ? (
-              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Profit Margin:</span>
-                <span className={`text-sm font-semibold ${
-                  parseFloat(formData.sellingPrice) > parseFloat(formData.basePrice) 
-                    ? 'text-green-600 dark:text-green-400' 
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {parseFloat(formData.sellingPrice) > parseFloat(formData.basePrice) ? '+' : ''}
-                  ₹{(parseFloat(formData.sellingPrice) - parseFloat(formData.basePrice)).toFixed(2)}
+            {formData.mrp && formData.sellingPrice && parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
+              <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">Discount:</span>
+                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                  {Math.round(((parseFloat(formData.mrp) - parseFloat(formData.sellingPrice)) / parseFloat(formData.mrp)) * 100)}%
                 </span>
               </div>
             ) : (
-              <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Profit Margin:</span>
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
+              <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Discount:</span>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">0%</span>
               </div>
             )}
           </div>
