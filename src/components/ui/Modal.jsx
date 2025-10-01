@@ -68,7 +68,7 @@ const Modal = ({
       />
       
       {/* Modal Container */}
-      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="flex min-h-full items-center justify-center p-3">
         <div
           className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all duration-300 animate-bounce-in ${className}`}
           onClick={(e) => e.stopPropagation()}
@@ -76,9 +76,9 @@ const Modal = ({
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
               {title && (
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-base font-semibold text-gray-900">
                   {title}
                 </h3>
               )}
@@ -89,14 +89,14 @@ const Modal = ({
                   className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-md hover:bg-gray-100 cursor-pointer"
                   aria-label="Close modal"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               )}
             </div>
           )}
           
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4">
             {children}
           </div>
         </div>
@@ -107,21 +107,21 @@ const Modal = ({
 
 // Modal Header Component
 const ModalHeader = ({ children, className = '', ...props }) => (
-  <div className={`px-6 py-4 border-b border-gray-200 ${className}`} {...props}>
+  <div className={`px-4 py-3 border-b border-gray-200 ${className}`} {...props}>
     {children}
   </div>
 );
 
 // Modal Body Component
 const ModalBody = ({ children, className = '', ...props }) => (
-  <div className={`px-6 py-4 ${className}`} {...props}>
+  <div className={`px-4 py-3 ${className}`} {...props}>
     {children}
   </div>
 );
 
 // Modal Footer Component
 const ModalFooter = ({ children, className = '', ...props }) => (
-  <div className={`px-6 py-4 border-t border-gray-200 flex justify-end space-x-3 ${className}`} {...props}>
+  <div className={`px-4 py-3 border-t border-gray-200 flex justify-end space-x-2 ${className}`} {...props}>
     {children}
   </div>
 );

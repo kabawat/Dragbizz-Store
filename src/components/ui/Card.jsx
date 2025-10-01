@@ -21,13 +21,13 @@ const Card = ({
     glass: 'bg-[rgb(var(--color-bg-primary))] bg-opacity-80 backdrop-blur-sm border border-[rgb(var(--color-border-primary))] border-opacity-20'
   };
   
-  // Padding classes
+  // Padding classes - Reduced padding
   const paddingClasses = {
     none: 'p-0',
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
-    xl: 'p-10'
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-5',
+    xl: 'p-6'
   };
   
   // Shadow classes

@@ -75,7 +75,7 @@ const CustomersPage = () => {
         setOpenMenuId(null);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -116,12 +116,12 @@ const CustomersPage = () => {
 
       // Create a unique key for this fetch
       const fetchKey = `${storeId}-${searchValue}`;
-      
+
       // Prevent duplicate calls with same parameters
       if (lastFetchRef.current === fetchKey) {
         return;
       }
-      
+
       lastFetchRef.current = fetchKey;
       await dispatch(getCustomers(params));
     };
@@ -307,8 +307,8 @@ const CustomersPage = () => {
 
             {/* Search and Filter Card */}
             {customers.length > 0 && (
-              <div className="mb-6">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-4">
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                   {/* Search */}
                   <div className="w-100 bg-red">
                     <Input
@@ -325,24 +325,19 @@ const CustomersPage = () => {
                   <div className="flex gap-3">
                     {/* View Toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button 
-                        onClick={() => handleViewModeChange('table')} 
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === 'table' 
-                            ? 'bg-[rgb(var(--color-primary))] text-white' 
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                            ? 'bg-[rgb(var(--color-primary))] text-white'
                             : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         Table
                       </button>
-                      <button 
-                        onClick={() => handleViewModeChange('card')} 
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === 'card' 
-                            ? 'bg-[rgb(var(--color-primary))] text-white' 
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                        }`}
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
                         Cards
@@ -382,7 +377,7 @@ const CustomersPage = () => {
             {/* Customers List */}
             {customers.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
                   {viewMode === 'table' ? (
                     <div className="h-full">
                       <CustomerTable
@@ -423,8 +418,8 @@ const CustomersPage = () => {
                           </div>
                         </div>
                       )}
-                      
-                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {customers.map((customer) => (
                           <CustomerCard
                             key={customer.id}
@@ -436,16 +431,16 @@ const CustomersPage = () => {
                             onViewDetails={handleViewCustomer}
                           />
                         ))}
-                      
-                      {/* Infinite Scroll Loading for Card View */}
-                      {isLoadingMore && (
-                        <div className="col-span-full flex items-center justify-center py-8">
-                          <div className="flex items-center gap-3">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                            <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more customers...</span>
+
+                        {/* Infinite Scroll Loading for Card View */}
+                        {isLoadingMore && (
+                          <div className="col-span-full flex items-center justify-center py-8">
+                            <div className="flex items-center gap-3">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more customers...</span>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                       </div>
                     </div>
                   )}
