@@ -133,7 +133,7 @@ const ProductCard = ({
   
   // Grid view - Modern Card Design
   return (
-    <div className={`rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -153,26 +153,28 @@ const ProductCard = ({
       
       {/* Product Image with Gradient Overlay */}
       <div 
-        className="w-full h-56 bg-gradient-to-br overflow-hidden relative">
-        {product.image && !imageError ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-300"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ color: themeConfig.textSecondary }}>
-            <Package className="w-20 h-20" style={{ color: themeConfig.textSecondary }} />
-          </div>
-        )}
+        className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
+        <div className="w-full h-full overflow-hidden rounded-t-xl">
+          {product.image && !imageError ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-300"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ color: themeConfig.textSecondary }}>
+              <Package className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" style={{ color: themeConfig.textSecondary }} />
+            </div>
+          )}
+        </div>
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl"></div>
         
         {/* Action Menu */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
             <button 
               onClick={() => handleMenuToggle(product.id)}
@@ -186,7 +188,7 @@ const ProductCard = ({
             
             {/* Popup Menu */}
             {openMenuId === product.id && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-[9999]">
                 <button
                   onClick={() => handleMenuAction(product.id, 'view')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
@@ -244,28 +246,28 @@ const ProductCard = ({
       </div>
       
       {/* Product Info */}
-      <div className="p-6 space-y-4">
+      <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Product Name */}
         <div>
-          <h3 className="font-bold text-xl mb-1" style={{ color: themeConfig.text }}>
+          <h3 className="font-bold text-lg sm:text-xl mb-1" style={{ color: themeConfig.text }}>
             {product.name}
           </h3>
-          <p className="text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
+          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
             {product.brand}
           </p>
         </div>
         
         {/* Category Tags */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 sm:gap-2">
           <span 
-            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+            className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
             style={getCategoryBadgeStyle('#8b5cf6')}
           >
             {product.category.split(' > ')[0]}
           </span>
           {product.category.split(' > ')[1] && (
             <span 
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+              className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
               style={getCategoryBadgeStyle('#3b82f6')}
             >
               {product.category.split(' > ')[1]}
@@ -275,34 +277,34 @@ const ProductCard = ({
         
         {/* Stock Info */}
         <div className="flex items-center justify-between">
-          <div className="text-sm" style={{ color: themeConfig.textSecondary }}>
+          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
             <span className="font-medium">Stock:</span> {product.stock} units
           </div>
-          <div className="text-sm" style={{ color: themeConfig.textSecondary }}>
+          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
             <span className="font-medium">SKU:</span> {product.sku}
           </div>
         </div>
         
         {/* Pricing Section */}
-        <div className="rounded-lg p-4 space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
+        <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>Selling Price</span>
-            <span className="text-lg font-bold" style={{ color: themeConfig.text }}>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Selling Price</span>
+            <span className="text-sm sm:text-base md:text-lg font-bold" style={{ color: themeConfig.text }}>
               ₹{product.sellingPrice.toLocaleString()}
             </span>
           </div>
           {product.mrp > product.sellingPrice && (
             <div className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: themeConfig.textSecondary }}>MRP</span>
-              <span className="text-sm line-through" style={{ color: themeConfig.textSecondary }}>
+              <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>MRP</span>
+              <span className="text-xs sm:text-sm line-through" style={{ color: themeConfig.textSecondary }}>
                 ₹{product.mrp.toLocaleString()}
               </span>
             </div>
           )}
           {discount > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-green-500 font-medium">Discount</span>
-              <span className="text-sm text-green-500 font-medium">
+              <span className="text-xs sm:text-sm text-green-500 font-medium">Discount</span>
+              <span className="text-xs sm:text-sm text-green-500 font-medium">
                 {discount}% off
               </span>
             </div>
@@ -311,7 +313,7 @@ const ProductCard = ({
         
         {/* Last Updated */}
         <div 
-          className="text-xs text-center pt-2 border-t" 
+          className="text-xs text-center pt-1.5 border-t" 
           style={{ 
             color: themeConfig.textSecondary,
             borderColor: themeConfig.border

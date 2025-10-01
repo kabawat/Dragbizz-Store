@@ -22,7 +22,7 @@ import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import product components
-import { ProductTable, ProductGrid, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
+import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
 
 const ProductsPage = () => {
   const router = useRouter();
@@ -275,93 +275,81 @@ const ProductsPage = () => {
               </div>
             )}
             {/* Search and Filter Card */}
-            {
-              transformedProducts.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex justify-between items-center lg:flex-row gap-4 mb-4">
-                    {/* Search */}
-                    <div className="w-100 bg-red">
-                      <Input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchValue}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        leftIcon={Search}
-                        className="w-100"
-                        // size="sm"
-                      />
+            {transformedProducts.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                  {/* Search */}
+                  <div className="w-100 bg-red">
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchValue}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      leftIcon={Search}
+                      className="w-100"
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    {/* View Toggle */}
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                            ? 'bg-[rgb(var(--color-primary))] text-white'
+                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                      {/* View Toggle */}
-                      <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg ">
-                        <button onClick={() => handleViewModeChange('table')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`} >
-                          <List className="w-4 h-4" />
-                          Table
-                        </button>
-                        <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2  ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
-                          <Grid3X3 className="w-4 h-4" />
-                          Cards
-                        </button>
-                      </div>
-
-                      <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus} >
-                        Add Product
-                      </Button>
-                    </div>
+                    <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus}>
+                      Add Product
+                    </Button>
                   </div>
                 </div>
-              )
-            }
+              </div>
+            )}
 
-            {
-              !isLoading && transformedProducts.length === 0 && (
-                <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]`}>
-                  <div className="flex flex-col items-center justify-center py-16">
-                    <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
-                      <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {"No products found"}
-                    </h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                      No products match your current criteria. Try adjusting your search or filter settings.
-                    </p>
-                    <div className="pt-4">
-                      <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus} >
-                        Add Product
-                      </Button>
-                    </div>
+            {/* Empty State */}
+            {!isLoading && transformedProducts.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                    <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    No products found
+                  </h3>
+                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
+                    No products match your current criteria. Try adjusting your search or add new products.
+                  </p>
+                  <div className="pt-4">
+                    <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus}>
+                      Add Product
+                    </Button>
                   </div>
                 </div>
-              )
-            }
+              </div>
+            )}
 
-            {
-              transformedProducts.length > 0 && (
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
-                    {viewMode === 'table' ? (
-                      <div className="overflow-x-auto h-full">
-                        <ProductTable
-                          products={transformedProducts}
-                          selectedProducts={selectedProducts}
-                          onSelect={handleProductSelect}
-                          onSelectAll={handleSelectAll}
-                          onEdit={handleEditProduct}
-                          onDelete={handleDeleteProduct}
-                          onViewDetails={handleViewProduct}
-                          loading={isLoading}
-                          emptyMessage="No products found"
-                          hasMore={pagination.hasNextPage}
-                          onLoadMore={handleLoadMore}
-                          isLoadingMore={isLoadingMore}
-                        />
-                      </div>
-
-                    ) : (
-                      <ProductGrid
+            {/* Products List */}
+            {transformedProducts.length > 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                  {viewMode === 'table' ? (
+                    <div className="h-full">
+                      <ProductTable
                         products={transformedProducts}
                         selectedProducts={selectedProducts}
                         onSelect={handleProductSelect}
@@ -375,27 +363,89 @@ const ProductsPage = () => {
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
                       />
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Select All Header for Card View */}
+                      {transformedProducts.length > 0 && (
+                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedProducts.length === transformedProducts.length && transformedProducts.length > 0}
+                              onChange={(e) => handleSelectAll(e.target.checked)}
+                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                            />
+                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                              Select all {transformedProducts.length} products
+                            </span>
+                            {selectedProducts.length > 0 && (
+                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                                ({selectedProducts.length} selected)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Fixed Footer */}
-                  <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> of <span className="font-semibold text-[rgb(var(--color-text-primary))]">{pagination.total}</span> products
-                      </div>
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {selectedProducts.length > 0 && (
-                          <span className="font-semibold text-[rgb(var(--color-primary))]">
-                            {selectedProducts.length} selected
-                          </span>
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {transformedProducts.map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            onSelect={handleProductSelect}
+                            selected={selectedProducts.includes(product.id)}
+                            onEdit={handleEditProduct}
+                            onDelete={handleDeleteProduct}
+                            onViewDetails={handleViewProduct}
+                          />
+                        ))}
+
+                        {/* Infinite Scroll Loading for Card View */}
+                        {isLoadingMore && (
+                          <div className="col-span-full flex items-center justify-center py-8">
+                            <div className="flex items-center gap-3">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more products...</span>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
+                  )}
+                </div>
+
+                {/* Fixed Footer */}
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {pagination.hasNextPage ? (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> products
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> products
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more products
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {selectedProducts.length > 0 && (
+                        <span className="font-semibold text-[rgb(var(--color-primary))]">
+                          {selectedProducts.length} selected
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )
-            }
+              </div>
+            )}
           </div>
         </div>
       </div>
