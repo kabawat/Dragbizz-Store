@@ -228,18 +228,18 @@ const Sidebar = ({ onStoreChange }) => {
   }, []);
 
   return (
-    <div className={`${isCollapsed ? 'w-20' : 'w-72'} bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] transition-all duration-500 ease-in-out`}>
+    <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] transition-all duration-500 ease-in-out`}>
       {/* Fixed Header Section */}
       <div className="flex-shrink-0">
         {/* Logo Section */}
-        <div className="px-6 py-6 border-b border-[rgb(var(--color-border-primary))]">
+        <div className="px-4 py-4 border-b border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-center">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-[rgb(var(--color-primary))] rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-[rgb(var(--color-primary))] rounded-lg flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4 text-white" />
               </div>
               {!isCollapsed && (
-                <span className="text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                   {agency?.agencyName || 'RetailManager'}
                 </span>
               )}
@@ -249,54 +249,54 @@ const Sidebar = ({ onStoreChange }) => {
 
         {/* Toggle Button */}
         <div className="relative flex justify-end">
-          <button onClick={toggleSidebar} className="absolute cursor-pointer w-8 h-8 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-4 -translate-y-4">
-            {isCollapsed ? <ChevronRight className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> : <ChevronLeft className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
+          <button onClick={toggleSidebar} className="absolute cursor-pointer w-6 h-6 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-3 -translate-y-3">
+            {isCollapsed ? <ChevronRight className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" /> : <ChevronLeft className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" />}
           </button>
         </div>
 
         {/* Store Selection */}
         {!isCollapsed && (
-          <div className="p-4 border-b border-[rgb(var(--color-border-primary))]">
+          <div className="p-3 border-b border-[rgb(var(--color-border-primary))]">
             <div className="relative" ref={dropdownRef}>
               {/* Selected Store Display */}
-              <div onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)} className="flex items-center justify-between p-3 bg-[rgb(var(--color-primary))]/5 border-2 border-[rgb(var(--color-primary))]/10 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
+              <div onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)} className="flex items-center justify-between p-2 bg-[rgb(var(--color-primary))]/5 border-2 border-[rgb(var(--color-primary))]/10 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
                 <div>
-                  <div className="font-semibold text-gray-900">
+                  <div className="font-semibold text-sm text-gray-900">
                     {selectedStore?.name || selectedStore?.storeName || 'Select Store'}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-xs text-gray-600">
                     GST: {selectedStore?.gst || 'N/A'}
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
 
               {/* Dropdown Menu */}
               {isStoreDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
-                  <div className="p-2">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
+                  <div className="p-1">
                     {reduxStores.map((store) => {
                       const isSelected = selectedStore && (store.storeName === selectedStore.storeName);
                       return (
-                        <div key={store.storeName || store.name || store.id} onClick={() => handleStoreSelect(store)} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
+                        <div key={store.storeName || store.name || store.id} onClick={() => handleStoreSelect(store)} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
                           <div>
-                            <div className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-900'}`}>
+                            <div className={`font-medium text-sm ${isSelected ? 'text-gray-900' : 'text-gray-900'}`}>
                               {store.storeName}
                             </div>
-                            <div className={`text-sm ${isSelected ? 'text-gray-600' : 'text-gray-500'}`}>
+                            <div className={`text-xs ${isSelected ? 'text-gray-600' : 'text-gray-500'}`}>
                               GST: {store.gst}
                             </div>
                           </div>
-                          {isSelected && (<Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />)}
+                          {isSelected && (<Check className="w-3 h-3 text-[rgb(var(--color-primary))]" />)}
                         </div>
                       );
                     })}
 
                     {/* Add New Store Button */}
-                    <div className="border-t border-[rgb(var(--color-border-primary))] mt-2 pt-2">
-                      <button onClick={handleAddNewStore} className="flex items-center space-x-2 w-full p-3 text-gray-900 hover:bg-[rgb(var(--color-primary))]/5 rounded-lg transition-colors">
-                        <Plus className="w-4 h-4" />
-                        <span className="font-medium">Add New Store</span>
+                    <div className="border-t border-[rgb(var(--color-border-primary))] mt-1 pt-1">
+                      <button onClick={handleAddNewStore} className="flex items-center space-x-1 w-full p-2 text-gray-900 hover:bg-[rgb(var(--color-primary))]/5 rounded-lg transition-colors">
+                        <Plus className="w-3 h-3" />
+                        <span className="font-medium text-xs">Add New Store</span>
                       </button>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ const Sidebar = ({ onStoreChange }) => {
 
       {/* Scrollable Navigation Section */}
       <div className="flex-1 overflow-y-auto">
-        <nav className="p-4 space-y-2">
+        <nav className="p-3 space-y-1">
           {navigationItems.map((item, index) => {
             const Icon = item.icon;
             const delay = 10;
@@ -413,7 +413,7 @@ const Sidebar = ({ onStoreChange }) => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
+                className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-2'} px-2 py-1.5 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
                   ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                   : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                   }`}
@@ -424,9 +424,9 @@ const Sidebar = ({ onStoreChange }) => {
                   opacity: 1
                 }}
               >
-                <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+                <Icon className={`w-4 h-4 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
                 <span
-                  className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
+                  className={`font-medium text-sm transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
                   style={{
                     transitionDelay: `${delay + 50}ms`,
                     transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
@@ -441,7 +441,7 @@ const Sidebar = ({ onStoreChange }) => {
       </div>
 
       {/* Fixed Bottom Section */}
-      <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))]">
+      <div className="flex-shrink-0 p-3 border-t border-[rgb(var(--color-border-primary))]">
         {/* Settings Option */}
         {bottomItems.map((item, index) => {
           const Icon = item.icon;

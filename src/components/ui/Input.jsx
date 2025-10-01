@@ -36,27 +36,27 @@ const Input = forwardRef(({
     ? (showPassword ? 'text' : 'password')
     : type;
 
-  // Size classes
+  // Size classes - Reduced padding and font sizes
   const sizeClasses = {
-    sm: 'py-2 text-sm',
-    md: 'py-4 text-base', // Default size
-    lg: 'py-5 text-lg'
+    sm: 'py-1.5 text-xs',
+    md: 'py-2.5 text-sm', // Default size
+    lg: 'py-3 text-base'
   };
 
   // Base classes - Theme aware
   const baseClasses = `w-full border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] ${sizeClasses[size]}`;
 
-  // Padding classes - More precise spacing based on size
+  // Padding classes - Reduced spacing based on size
   const paddingClasses = {
-    sm: LeftIcon ? 'pl-10' : 'pl-3',
-    md: LeftIcon ? 'pl-14' : 'pl-4', // Default padding
-    lg: LeftIcon ? 'pl-16' : 'pl-5'
+    sm: LeftIcon ? 'pl-8' : 'pl-2.5',
+    md: LeftIcon ? 'pl-10' : 'pl-3', // Default padding
+    lg: LeftIcon ? 'pl-12' : 'pl-4'
   };
   
   const rightPaddingClasses = {
-    sm: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-10' : 'pr-3',
-    md: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-14' : 'pr-4', // Default padding
-    lg: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-16' : 'pr-5'
+    sm: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-8' : 'pr-2.5',
+    md: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-10' : 'pr-3', // Default padding
+    lg: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-12' : 'pr-4'
   };
 
   // State classes - Theme aware with higher specificity

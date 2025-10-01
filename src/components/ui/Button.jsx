@@ -19,13 +19,13 @@ const Button = ({
   // Base classes
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none btn-ripple cursor-pointer';
   
-  // Size variants
+  // Size variants - Reduced padding and font sizes
   const sizeClasses = {
-    xs: 'px-2.5 py-1.5 text-xs',
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-2.5 text-sm',
-    lg: 'px-6 py-3 text-base',
-    xl: 'px-8 py-4 text-lg'
+    xs: 'px-2 py-1 text-xs',
+    sm: 'px-2.5 py-1.5 text-xs',
+    md: 'px-3 py-2 text-sm',
+    lg: 'px-4 py-2.5 text-sm',
+    xl: 'px-5 py-3 text-base'
   };
   
   // Color variants - Theme aware
