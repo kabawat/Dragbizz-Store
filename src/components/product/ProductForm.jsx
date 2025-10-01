@@ -26,7 +26,6 @@ import { CSS } from '@dnd-kit/utilities';
 import BasicInfoSection from './BasicInfoSection';
 import AdditionalDetailsSection from './AdditionalDetailsSection';
 import PricingGSTSection from './PricingGSTSection';
-import StatusSection from './StatusSection';
 import OpeningQuantitySection from './OpeningQuantitySection';
 
 // Import UI components
@@ -203,9 +202,8 @@ const ProductForm = ({
 
   const [sections, setSections] = useState([
     { id: 'basic', title: 'Basic Information', subtitle: 'Product name, brand, and basic details', icon: Package, component: BasicInfoSection },
-    { id: 'opening-quantity', title: 'Opening Stock', subtitle: 'Initial inventory quantity and purchase price', icon: Package, component: OpeningQuantitySection },
-    { id: 'status', title: 'Status & Visibility', subtitle: 'Product status and visibility settings', icon: Settings, component: StatusSection },
     { id: 'pricing-gst', title: 'Pricing Information', subtitle: 'Set product prices, currency, and tax settings', icon: IndianRupee, component: PricingGSTSection },
+    { id: 'opening-quantity', title: 'Opening Stock', subtitle: 'Initial inventory quantity and purchase price', icon: Package, component: OpeningQuantitySection },
     { id: 'content', title: 'Content & SEO', subtitle: 'Descriptions, features, and SEO content', icon: Eye, component: AdditionalDetailsSection },
   ]);
 
@@ -448,6 +446,13 @@ const ProductForm = ({
                       onAddCategoryClick={handleAddCategoryClick}
                       apiCategories={apiCategories}
                       categoriesLoading={categoriesLoading}
+                    />
+                  ) : section.id === 'opening-quantity' ? (
+                    <SectionComponent 
+                      formData={formData} 
+                      onChange={handleFormDataChange} 
+                      errors={fieldErrors} 
+                      storeId={storeId}
                     />
                   ) : (
                     <SectionComponent formData={formData} onChange={handleFormDataChange} errors={fieldErrors} />

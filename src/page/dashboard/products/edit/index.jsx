@@ -6,7 +6,7 @@ import { Save, ArrowLeft, Loader2, Info } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, StepProgress } from '@/components/ui';
+import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -41,6 +41,11 @@ const UpdateProductPage = ({ productId }) => {
     featured: false,
     bestSeller: false,
     newArrival: false,
+    openingStock: {
+      openingQuantity: 0,
+      openingPurchasePrice: 0
+    },
+    stockQuantity: 0,
     gstInfo: {
       isGstApplicable: false,
       gstRate: '',
@@ -51,7 +56,8 @@ const UpdateProductPage = ({ productId }) => {
       shortDescription: '',
       longDescription: '',
       tags: [],
-      specifications: []
+      specifications: [],
+      features: []
     }
   });
 
@@ -78,7 +84,7 @@ const UpdateProductPage = ({ productId }) => {
             store: storeId,
             name: product.name || '',
             brand: product.brand || '',
-            category: product.category || '',
+            category: product.category?._id || product.category?.id || product.category || '',
             barcode: product.barcode || '',
             sku: product.sku || '',
             // Pricing data - directly from API response
@@ -94,6 +100,12 @@ const UpdateProductPage = ({ productId }) => {
             featured: product.featured || false,
             bestSeller: product.bestSeller || false,
             newArrival: product.newArrival || false,
+            // Stock data
+            openingStock: {
+              openingQuantity: product.openingStock?.openingQuantity || 0,
+              openingPurchasePrice: product.openingStock?.openingPurchasePrice || 0
+            },
+            stockQuantity: product.stockQuantity || 0,
             // GST info from nested gstInfo object
             gstInfo: {
               isGstApplicable: product.gstInfo?.isGstApplicable || false,
@@ -214,6 +226,7 @@ const UpdateProductPage = ({ productId }) => {
         const errorData = error.response.data;
         if (errorData.data && errorData.data.fields) {
           setFieldErrors(errorData.data.fields);
+
         }
       }
     } finally {
@@ -235,6 +248,7 @@ const UpdateProductPage = ({ productId }) => {
   // Loading state
   if (initialLoading) {
     return (
+
       <div className="flex h-screen relative overflow-hidden">
         <AnimatedBackground variant="default" />
         <Sidebar />
@@ -247,6 +261,7 @@ const UpdateProductPage = ({ productId }) => {
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
+
                     <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Product...
@@ -264,7 +279,8 @@ const UpdateProductPage = ({ productId }) => {
     );
   }
 
-  // Product not found state
+  // Product not found state                                                                                                                                                  
+
   if (productNotFound) {
     return (
       <div className="flex h-screen relative overflow-hidden">
@@ -310,41 +326,26 @@ const UpdateProductPage = ({ productId }) => {
           title="Edit Product"
           description="Update product information and settings"
         />
-        
+
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-            {/* Form Completion Steps */}
+            {/* Back Button */}
             <div className="mb-6">
-              <div className="flex items-center space-x-4">
-                {/* Back Button */}
-                <Link href="/dashboard/products" className="flex-shrink-0 inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">Back to Products</span>
-                </Link>
-
-                {/* Progress Bar */}
-                <div className="flex-1 bg-gradient-to-r from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] ">
-                  <div className="px-2">
-                  <StepProgress
-                    formData={formData}
-                    orientation="horizontal"
-                    size="sm"
-                    showLabels={true}
-                    showIcons={true}
-                  />
-                  </div>
-                </div>
-              </div>
+              <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium">Back to Products</span>
+              </Link>
             </div>
 
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
-              <div className="h-[calc(100vh-260px)] overflow-y-auto pe-3">
+              <div className="h-[calc(100vh-240px)] overflow-y-auto pe-3">
                 <ProductForm
                   formData={formData}
                   onChange={handleFormDataChange}
                   fieldErrors={fieldErrors}
+                  storeId={storeId}
                 />
               </div>
 
@@ -392,9 +393,9 @@ const UpdateProductPage = ({ productId }) => {
       />
 
       {/* Info Modal */}
-      <ProductInfoModal 
-        isOpen={showInfoModal} 
-        onClose={() => setShowInfoModal(false)} 
+      <ProductInfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
       />
     </div>
   );

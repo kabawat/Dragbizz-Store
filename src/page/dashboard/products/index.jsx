@@ -148,6 +148,11 @@ const ProductsPage = () => {
     router.push(`/dashboard/products/edit/${productId}`);
   };
 
+  const handleViewProduct = (productId) => {
+    // Navigate to view product page
+    router.push(`/dashboard/products/view/${productId}`);
+  };
+
 
   // ProductTable event handlers
   const handleProductSelect = (productIds) => {
@@ -346,6 +351,7 @@ const ProductsPage = () => {
                           onSelectAll={handleSelectAll}
                           onEdit={handleEditProduct}
                           onDelete={handleDeleteProduct}
+                          onViewDetails={handleViewProduct}
                           loading={isLoading}
                           emptyMessage="No products found"
                           hasMore={pagination.hasNextPage}
@@ -362,6 +368,7 @@ const ProductsPage = () => {
                         onSelectAll={handleSelectAll}
                         onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
+                        onViewDetails={handleViewProduct}
                         loading={isLoading}
                         emptyMessage="No products found"
                         hasMore={pagination.hasNextPage}

@@ -87,21 +87,6 @@ const AdditionalDetailsSection = ({
         />
       </div>
 
-      {/* Long Description */}
-      <div className="mb-6">
-        <Textarea
-          label="Long Description"
-          placeholder="Detailed description of your product..."
-          value={formData.content?.longDescription || ''}
-          onChange={(value) => handleFieldChange('content.longDescription', value)}
-          error={errors.longDescription}
-          errorMessage={errors.longDescription}
-          rows={5}
-          showCharCount
-          maxLength={2000}
-          helperText="Detailed description for product page (max 2000 characters)"
-        />
-      </div>
 
       {/* Product Features */}
       <div className="mb-6">

@@ -1,23 +1,65 @@
 "use client"
-import React from 'react';
-import { NumberInput, Input } from '../ui';
-import { Package, DollarSign, Calculator } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { NumberInput, Input, Select } from '../ui';
+import { Package, DollarSign, Calculator, Truck } from 'lucide-react';
+import { supplierService } from '@/service/retailer';
 
 const OpeningQuantitySection = ({
   formData,
   onChange,
   errors = {},
+  storeId = null,
   ...props
 }) => {
+  const [suppliers, setSuppliers] = useState([]);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
+
   const handleFieldChange = (field, value) => {
     console.log('OpeningQuantitySection - Field:', field, 'Value:', value);
     onChange(field, value);
   };
 
+  // Fetch suppliers from API
+  const fetchSuppliers = async () => {
+    if (!storeId) return;
+    
+    try {
+      setSuppliersLoading(true);
+      const result = await supplierService.getSuppliers({ 
+        limit: 100, 
+        lightweight: true, 
+        store: storeId 
+      });
+      if (result.success) {
+        setSuppliers(result.data?.data || result.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+    } finally {
+      setSuppliersLoading(false);
+    }
+  };
+
+  // Fetch suppliers on component mount and when storeId changes
+  useEffect(() => {
+    if (storeId) {
+      fetchSuppliers();
+    }
+  }, [storeId]);
+
+  // Format supplier options for dropdown
+  const supplierOptions = [
+    { value: '', label: 'No supplier selected' },
+    ...(suppliers || []).map(s => ({
+      value: s.id || s._id,
+      label: s.name || s.companyName || 'Unknown'
+    }))
+  ];
+
   // Calculate total opening value
   const calculateOpeningValue = () => {
-    const quantity = parseFloat(formData.openingStock?.openingQuantity) || 0;
-    const purchasePrice = parseFloat(formData.openingStock?.openingPurchasePrice) || 0;
+    const quantity = parseFloat(formData.openingStock?.quantity) || 0;
+    const purchasePrice = parseFloat(formData.openingStock?.purchasePrice) || 0;
     return quantity * purchasePrice;
   };
 
@@ -36,10 +78,10 @@ const OpeningQuantitySection = ({
             <NumberInput
               label="Opening Quantity"
               placeholder="0"
-              value={formData.openingStock?.openingQuantity || ''}
-              onChange={(value) => handleFieldChange('openingStock.openingQuantity', value)}
-              error={errors.openingQuantity}
-              errorMessage={errors.openingQuantity}
+              value={formData.openingStock?.quantity || ''}
+              onChange={(value) => handleFieldChange('openingStock.quantity', value)}
+              error={errors.quantity}
+              errorMessage={errors.quantity}
               leftIcon={Package}
               min={0}
               step={1}
@@ -54,10 +96,10 @@ const OpeningQuantitySection = ({
             <NumberInput
               label="Opening Purchase Price"
               placeholder="0.00"
-              value={formData.openingStock?.openingPurchasePrice || ''}
-              onChange={(value) => handleFieldChange('openingStock.openingPurchasePrice', value)}
-              error={errors.openingPurchasePrice}
-              errorMessage={errors.openingPurchasePrice}
+              value={formData.openingStock?.purchasePrice || ''}
+              onChange={(value) => handleFieldChange('openingStock.purchasePrice', value)}
+              error={errors.purchasePrice}
+              errorMessage={errors.purchasePrice}
               leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-lg">₹</span>}
               min={0}
               step={0.01}
@@ -68,8 +110,39 @@ const OpeningQuantitySection = ({
           </div>
         </div>
 
+        {/* Supplier Selection */}
+        <div className="mb-6">
+          <Select
+            label="Supplier"
+            placeholder={suppliersLoading ? "Loading suppliers..." : "Select supplier (optional)"}
+            value={formData.openingStock?.supplier || ''}
+            onChange={(value) => handleFieldChange('openingStock.supplier', value)}
+            error={errors.supplier}
+            errorMessage={errors.supplier}
+            leftIcon={Truck}
+            searchable={true}
+            options={supplierOptions}
+            disabled={suppliersLoading}
+            helperText="Select the supplier for this opening stock (optional)"
+          />
+        </div>
+
+        {/* Expiry Date */}
+        <div className="mb-6">
+          <Input
+            label="Expiry Date"
+            type="date"
+            placeholder="Select expiry date (optional)"
+            value={formData.openingStock?.expiryDate || ''}
+            onChange={(value) => handleFieldChange('openingStock.expiryDate', value)}
+            error={errors.expiryDate}
+            errorMessage={errors.expiryDate}
+            helperText="Required for medical, food, and perishable items"
+          />
+        </div>
+
         {/* Opening Stock Summary */}
-        {(formData.openingStock?.openingQuantity || formData.openingStock?.openingPurchasePrice) && (
+        {(formData.openingStock?.quantity || formData.openingStock?.purchasePrice) ? (
           <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
@@ -86,7 +159,7 @@ const OpeningQuantitySection = ({
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
                 <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Opening Quantity:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                  {formData.openingStock?.openingQuantity || 0} {formData.uom || 'PCS'}
+                  {formData.openingStock?.quantity || 0} {formData.uom || 'PCS'}
                 </span>
               </div>
               
@@ -94,7 +167,7 @@ const OpeningQuantitySection = ({
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
                 <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Purchase Price:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                  ₹{parseFloat(formData.openingStock?.openingPurchasePrice || 0).toFixed(2)}
+                  ₹{parseFloat(formData.openingStock?.purchasePrice || 0).toFixed(2)}
                 </span>
               </div>
               
@@ -115,7 +188,7 @@ const OpeningQuantitySection = ({
               </p>
             </div>
           </div>
-        )}
+        ):<></>}
       </div>
     </>
   );
