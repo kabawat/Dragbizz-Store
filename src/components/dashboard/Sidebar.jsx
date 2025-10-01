@@ -39,7 +39,8 @@ import {
   UserPlus,
   UserX,
   Building,
-  AlertTriangle
+  AlertTriangle,
+  Eye
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -71,6 +72,7 @@ const Sidebar = ({ onStoreChange }) => {
   const productSubMenuItems = [
     { name: 'All Products', icon: Package, href: '/dashboard/products' },
     { name: 'Add New Product', icon: PackagePlus, href: '/dashboard/products/add' },
+    { name: 'View Product', icon: Eye, href: '/dashboard/products/view' },
     { name: 'Import/Export', icon: Upload, href: '/dashboard/products/import-export' },
     { name: 'Reviews & Ratings', icon: Star, href: '/dashboard/products/reviews' },
     { name: 'Archived Products', icon: Archive, href: '/dashboard/products/archived' },

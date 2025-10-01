@@ -26,12 +26,9 @@ const AddInventoryPage = () => {
   const getInitialFormData = () => ({
     productId: '',
     batchData: {
-      batchNo: '',
       quantity: '',
       purchasePrice: '',
-      sellingPrice: '',
       supplier: '',
-      mrp: '',
       expiryDate: '',
       paymentStatus: 'UNPAID',
       paymentMethod: 'CASH',
@@ -92,16 +89,63 @@ const AddInventoryPage = () => {
     });
   };
 
+  // Validate form data
+  const validateFormData = () => {
+    const errors = {};
+    
+    if (!formData.productId) {
+      errors.productId = 'Product selection is required';
+    }
+    
+    if (!formData.batchData?.quantity || formData.batchData?.quantity <= 0) {
+      errors['batchData.quantity'] = 'Valid quantity is required';
+    }
+    
+    if (!formData.batchData?.purchasePrice || formData.batchData?.purchasePrice <= 0) {
+      errors['batchData.purchasePrice'] = 'Valid purchase price is required';
+    }
+    
+    if (!formData.batchData?.supplier) {
+      errors['batchData.supplier'] = 'Supplier selection is required';
+    }
+    
+    return errors;
+  };
+
   // Handle save and publish
   const handleSaveAndPublish = async () => {
     try {
       setLoading(true);
       setFieldErrors({});
-      const result = await inventoryService.createInventory(formData);
+      
+      // Validate form data
+      const validationErrors = validateFormData();
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        return;
+      }
+      
+      // Prepare data for API
+      const apiData = {
+        productId: formData.productId,
+        store: storeId,
+        batchData: {
+          quantity: Number(formData.batchData.quantity),
+          purchasePrice: Number(formData.batchData.purchasePrice),
+          supplier: formData.batchData.supplier,
+          expiryDate: formData.batchData.expiryDate || null,
+          paymentStatus: formData.batchData.paymentStatus,
+          paymentMethod: formData.batchData.paymentMethod,
+          paidAmount: Number(formData.batchData.paidAmount || 0),
+          discount: Number(formData.batchData.discount || 0),
+        }
+      };
+      
+      const result = await inventoryService.createInventory(apiData);
 
       if (result.success) {
         // Show success modal instead of direct redirect
-        setAddedInventoryName(formData.productName || 'Inventory Item');
+        setAddedInventoryName('Inventory Item');
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
@@ -110,6 +154,7 @@ const AddInventoryPage = () => {
       }
 
     } catch (error) {
+      console.error('Error creating inventory:', error);
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
@@ -143,132 +188,132 @@ const AddInventoryPage = () => {
   return (
     <>
       <div className="flex h-screen relative overflow-hidden">
-      {/* Sidebar */}
-      <AnimatedBackground variant="default" />
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header
-          title="Add New Inventory"
-          description="Add new inventory items to your store with detailed tracking information"
-        />
+        {/* Sidebar */}
+        <AnimatedBackground variant="default" />
+        <Sidebar />
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto">
-            {/* Back Button */}
-            <div className="mb-6">
-              <Link href="/dashboard/inventory" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Inventory</span>
-              </Link>
-            </div>
+        <div className="flex-1 min-h-screen flex flex-col">
+          {/* Header */}
+          <Header
+            title="Add New Inventory"
+            description="Add new inventory items to your store with detailed tracking information"
+          />
 
-            {/* Form Container - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
-              {/* Main Form - Left Side */}
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
-                  <InventoryForm
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    fieldErrors={fieldErrors}
-                  />
-                </div>
-                
-                {/* Action Buttons - Fixed Bottom */}
-                <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
-                  <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="success"
-                    onClick={() => handleSaveAndPublish(formData)}
-                    disabled={loading}
-                    loading={loading}
-                    leftIcon={Save}
-                  >
-                    Save & Publish
-                  </Button>
-                </div>
+          {/* Main Content */}
+          <div className="flex-1 p-6">
+            <div className="max-w-8xl mx-auto">
+              {/* Back Button */}
+              <div className="mb-6">
+                <Link href="/dashboard/inventory" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">Back to Inventory</span>
+                </Link>
               </div>
 
-              {/* Tips Section - Right Side */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-6">
-                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Add Inventory Details?</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Complete information helps in better stock management</p>
-                      </div>
-                    </div>
+              {/* Form Container - Two Column Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+                {/* Main Form - Left Side */}
+                <div className="lg:col-span-2 flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
+                    <InventoryForm
+                      formData={formData}
+                      onChange={handleFormDataChange}
+                      fieldErrors={fieldErrors}
+                    />
+                  </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <TrendingUp className="w-4 h-4 text-green-600" />
+                  {/* Action Buttons - Fixed Bottom */}
+                  <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
+                    <Button variant="outline" onClick={handleCancel} disabled={loading}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="success"
+                      onClick={handleSaveAndPublish}
+                      disabled={loading}
+                      loading={loading}
+                      leftIcon={Save}
+                    >
+                      Save & Publish
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Tips Section - Right Side */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-6">
+                    <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                          <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Accurate Stock Levels</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Maintain precise counts to avoid stockouts</p>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Add Inventory Details?</h3>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Complete information helps in better stock management</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Users className="w-4 h-4 text-blue-600" />
+                      <div className="space-y-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <TrendingUp className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Accurate Stock Levels</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Maintain precise counts to avoid stockouts</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Efficient Fulfillment</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Streamline order processing</p>
+
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Users className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Efficient Fulfillment</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Streamline order processing</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <BarChart3 className="w-4 h-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Financial Tracking</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track costs and profits accurately</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Star className="w-4 h-4 text-yellow-600" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Optimized Purchasing</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Make informed reorder decisions</p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <BarChart3 className="w-4 h-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Financial Tracking</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track costs and profits accurately</p>
-                        </div>
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
+                        <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
+                          <li>• Keep batch numbers updated for traceability</li>
+                          <li>• Set realistic minimum stock levels</li>
+                          <li>• Regularly reconcile physical stock</li>
+                          <li>• Monitor expiry dates for perishables</li>
+                          <li>• Implement quality control checks</li>
+                        </ul>
                       </div>
-
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Star className="w-4 h-4 text-yellow-600" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Optimized Purchasing</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Make informed reorder decisions</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
-                      <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-                        <li>• Keep batch numbers updated for traceability</li>
-                        <li>• Set realistic minimum stock levels</li>
-                        <li>• Regularly reconcile physical stock</li>
-                        <li>• Monitor expiry dates for perishables</li>
-                        <li>• Implement quality control checks</li>
-                      </ul>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Success Modal */}

@@ -1,24 +1,25 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Package, Search, Warehouse, DollarSign, TrendingUp, AlertTriangle, TrendingDown, Calculator } from 'lucide-react';
-import { Input, Select, Button, Card, CardBody, Badge } from '@/components/ui';
-import { productService } from '@/service/retailer';
+import { Package, Warehouse, DollarSign, TrendingUp, AlertTriangle, TrendingDown, Calculator } from 'lucide-react';
+import { Input, Select, Card, CardBody, Badge } from '@/components/ui';
+import { productService, supplierService } from '@/service/retailer';
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showProductSearch, setShowProductSearch] = useState(false);
 
-  // Fetch products when component mounts
+  // Fetch products and suppliers on mount and when store changes
   useEffect(() => {
     fetchProducts();
-  }, []);
+    fetchSuppliers();
+  }, [formData?.store]);
 
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const result = await productService.getProducts({ limit: 100 });
+      const result = await productService.getProducts({ limit: 100, lightweight: true, store: formData?.store });
       if (result.success) {
         setProducts(result.data?.data || result.data || []);
       }
@@ -29,17 +30,34 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     }
   };
 
-  const handleProductSelect = (product) => {
-    onChange('productId', product.id);
-    setShowProductSearch(false);
-    setSearchTerm('');
+  const fetchSuppliers = async () => {
+    try {
+      const result = await supplierService.getSuppliers({ limit: 100, lightweight: true, store: formData?.store });
+      if (result.success) {
+        setSuppliers(result.data?.data || result.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+    }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleProductChange = (productId) => {
+    onChange('productId', productId);
+  };
+
+  const handleSupplierChange = (supplierId) => {
+    onChange('batchData.supplier', supplierId);
+  };
+
+  const productOptions = (products || []).map(p => ({
+    value: p.id || p._id,
+    label: p.name || p.title || (p.code ? `${p.code}` : 'Unknown')
+  }));
+
+  const supplierOptions = (suppliers || []).map(s => ({
+    value: s.id || s._id,
+    label: s.name || s.companyName || 'Unknown'
+  }));
 
   // Calculations
   const calculateTotalValue = () => {
@@ -49,32 +67,25 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   };
 
   const calculateMargin = () => {
-    const costPrice = parseFloat(formData.batchData?.purchasePrice || 0);
-    const sellingPrice = parseFloat(formData.batchData?.sellingPrice || 0);
-    
-    if (costPrice === 0) return 0;
-    
-    const margin = ((sellingPrice - costPrice) / costPrice) * 100;
-    return margin;
+    // Margin calculation removed as sellingPrice is not part of API payload
+    return 0;
   };
 
   const calculateProfit = () => {
-    const costPrice = parseFloat(formData.batchData?.purchasePrice || 0);
-    const sellingPrice = parseFloat(formData.batchData?.sellingPrice || 0);
-    
-    return sellingPrice - costPrice;
+    // Profit calculation removed as sellingPrice is not part of API payload
+    return 0;
   };
 
   const calculateTotalCost = () => {
     const quantity = parseFloat(formData.batchData?.quantity || 0);
     const costPrice = parseFloat(formData.batchData?.purchasePrice || 0);
-    
+
     return quantity * costPrice;
   };
 
   const getStockStatus = () => {
     const currentStock = parseFloat(formData.batchData?.quantity || 0);
-    
+
     if (currentStock === 0) return { status: 'out', color: 'danger', text: 'Out of Stock' };
     if (currentStock <= 10) return { status: 'low', color: 'warning', text: 'Low Stock' };
     if (currentStock <= 50) return { status: 'medium', color: 'secondary', text: 'Medium Stock' };
@@ -96,92 +107,21 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Product Selection</h3>
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            Select Product <span className="text-red-500">*</span>
-          </label>
-          
-          {formData.productId ? (
-            <Card className="border-2 border-[rgb(var(--color-primary))]/20 bg-[rgb(var(--color-primary))]/5">
-              <CardBody className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                      <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
-                        Product Selected
-                      </h3>
-                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        ID: {formData.productId}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      onChange('productId', '');
-                    }}
-                  >
-                    Change
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          ) : (
-            <div className="relative">
-              <Input
-                placeholder="Search for a product..."
-                value={searchTerm}
-                onChange={setSearchTerm}
-                leftIcon={Search}
-                onClick={() => setShowProductSearch(true)}
-                readOnly
-                className="cursor-pointer"
-              />
-              
-              {showProductSearch && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                  <div className="p-2">
-                    {isLoading ? (
-                      <div className="p-4 text-center text-[rgb(var(--color-text-secondary))]">
-                        Loading products...
-                      </div>
-                    ) : filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          onClick={() => handleProductSelect(product)}
-                          className="p-3 hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                              <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-[rgb(var(--color-text-primary))]">
-                                {product.name}
-                              </h4>
-                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                {product.brand} • {product.category}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-[rgb(var(--color-text-secondary))]">
-                        No products found
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          <Select
+            label={"Select Product"}
+            required
+            searchable
+            clearable
+            value={formData.productId || ''}
+            onChange={handleProductChange}
+            options={productOptions}
+            placeholder={"Search and select product"}
+            error={!!errors['productId']}
+            errorMessage={errors['productId']}
+            helperText={!errors['productId'] ? 'Type to search products' : undefined}
+          />
         </div>
       </div>
 
@@ -193,21 +133,8 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Batch Information</h3>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Batch Number */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Batch Number <span className="text-red-500">*</span>
-            </label>
-            <Input
-              value={formData.batchData?.batchNo || ''}
-              onChange={(value) => onChange('batchData.batchNo', value)}
-              placeholder="e.g., INV-2025-001"
-              error={errors['batchData.batchNo']}
-              helperText="Unique batch identifier for this inventory"
-            />
-          </div>
 
           {/* Quantity */}
           <div>
@@ -247,7 +174,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h3>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Purchase Price */}
           <div>
@@ -261,35 +188,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
               placeholder="Enter purchase price per unit"
               error={errors['batchData.purchasePrice']}
               helperText="Price paid to supplier per unit"
-            />
-          </div>
-
-          {/* Selling Price */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Selling Price (per unit) <span className="text-red-500">*</span>
-            </label>
-            <Input
-              type="number"
-              value={formData.batchData?.sellingPrice || ''}
-              onChange={(value) => onChange('batchData.sellingPrice', value)}
-              placeholder="Enter selling price per unit"
-              error={errors['batchData.sellingPrice']}
-              helperText="Price at which you sell to customers"
-            />
-          </div>
-
-          {/* MRP */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              MRP (Maximum Retail Price)
-            </label>
-            <Input
-              type="number"
-              value={formData.batchData?.mrp || ''}
-              onChange={(value) => onChange('batchData.mrp', value)}
-              placeholder="Enter MRP"
-              helperText="Maximum retail price as per manufacturer"
             />
           </div>
 
@@ -317,7 +215,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Payment Information</h3>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Payment Status */}
           <div>
@@ -378,22 +276,25 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
 
           {/* Supplier */}
           <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Supplier ID <span className="text-red-500">*</span>
-            </label>
-            <Input
+            <Select
+              label={"Supplier"}
+              required
+              searchable
+              clearable
               value={formData.batchData?.supplier || ''}
-              onChange={(value) => onChange('batchData.supplier', value)}
-              placeholder="Enter supplier ID"
-              error={errors['batchData.supplier']}
-              helperText="Supplier ID for this batch"
+              onChange={handleSupplierChange}
+              options={supplierOptions}
+              placeholder={"Search and select supplier"}
+              error={!!errors['batchData.supplier']}
+              errorMessage={errors['batchData.supplier']}
+              helperText={!errors['batchData.supplier'] ? 'Type to search suppliers' : undefined}
             />
           </div>
         </div>
       </div>
 
       {/* Summary Cards */}
-      {(formData.batchData?.quantity || formData.batchData?.purchasePrice || formData.batchData?.sellingPrice) && (
+      {(formData.batchData?.quantity || formData.batchData?.purchasePrice) && (
         <div className="space-y-6">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
@@ -401,7 +302,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             </div>
             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Summary</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Stock Status */}
             {formData.batchData?.quantity && (
@@ -409,11 +310,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                 <CardBody className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        stockStatus.status === 'out' ? 'bg-red-100' :
-                        stockStatus.status === 'low' ? 'bg-yellow-100' :
-                        stockStatus.status === 'medium' ? 'bg-blue-100' : 'bg-green-100'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stockStatus.status === 'out' ? 'bg-red-100' :
+                          stockStatus.status === 'low' ? 'bg-yellow-100' :
+                            stockStatus.status === 'medium' ? 'bg-blue-100' : 'bg-green-100'
+                        }`}>
                         {stockStatus.status === 'out' ? (
                           <AlertTriangle className="w-5 h-5 text-red-600" />
                         ) : stockStatus.status === 'low' ? (
@@ -445,7 +345,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             )}
 
             {/* Pricing Summary */}
-            {(formData.batchData?.purchasePrice || formData.batchData?.sellingPrice) && (
+            {formData.batchData?.purchasePrice && (
               <Card className="border-2 border-[rgb(var(--color-border-primary))]">
                 <CardBody className="p-4">
                   <div className="space-y-4">
@@ -455,41 +355,15 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                       </div>
                       <div>
                         <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
-                          Pricing Summary
+                          Cost Summary
                         </h3>
                         <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                          Profit margin and cost analysis
+                          Total cost analysis
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Profit per Unit */}
-                      <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <TrendingUp className="w-4 h-4 text-green-600" />
-                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            Profit per Unit
-                          </span>
-                        </div>
-                        <p className="text-lg font-semibold text-green-600">
-                          ₹{profit.toFixed(2)}
-                        </p>
-                      </div>
-
-                      {/* Margin Percentage */}
-                      <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <DollarSign className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            Margin %
-                          </span>
-                        </div>
-                        <p className={`text-lg font-semibold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {margin.toFixed(1)}%
-                        </p>
-                      </div>
-
+                    <div className="grid grid-cols-1 gap-4">
                       {/* Total Cost */}
                       <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                         <div className="flex items-center space-x-2 mb-1">
@@ -500,19 +374,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                         </div>
                         <p className="text-lg font-semibold text-purple-600">
                           ₹{totalCost.toLocaleString()}
-                        </p>
-                      </div>
-
-                      {/* Potential Revenue */}
-                      <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <TrendingUp className="w-4 h-4 text-indigo-600" />
-                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            Potential Revenue
-                          </span>
-                        </div>
-                        <p className="text-lg font-semibold text-indigo-600">
-                          ₹{(parseFloat(formData.batchData?.quantity || 0) * parseFloat(formData.batchData?.sellingPrice || 0)).toLocaleString()}
                         </p>
                       </div>
                     </div>

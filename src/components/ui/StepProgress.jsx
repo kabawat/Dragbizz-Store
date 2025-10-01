@@ -28,7 +28,7 @@ const StepProgress = ({
         fields: [
           { name: 'name', value: data.name?.trim(), required: true },
           { name: 'brand', value: data.brand?.trim(), required: true },
-          { name: 'category', value: data.category?.trim(), required: true },
+          { name: 'category', value: typeof data.category === 'string' ? data.category?.trim() : data.category?.name?.trim(), required: true },
           { name: 'barcode', value: data.barcode?.trim(), required: false },
         ]
       },
