@@ -11,6 +11,7 @@ const commonConfig = {
   timeout: parseInt(API_CONFIG.BASE.TIMEOUT),
   headers: {
     'Content-Type': 'application/json',
+    "ngrok-skip-browser-warning": "69420",
   },
 };
 
@@ -18,12 +19,18 @@ const commonConfig = {
 export const unauthAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
+  headers: {
+    "ngrok-skip-browser-warning": "69420",
+  },
 });
 
 // Authenticated axios instance (for auth service)
 export const authAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
+  headers: {
+    "ngrok-skip-browser-warning": "69420",
+  },
 });
 
 // Request interceptor for authenticated requests (auth service)
