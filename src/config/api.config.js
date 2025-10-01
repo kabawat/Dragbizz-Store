@@ -30,6 +30,10 @@ const API_CONFIG = {
     SUPPLIER: '/retailer/supplier',
     INVENTORY: '/retailer/inventory',
     CATEGORY: '/retailer/category',
+    BILL: '/retailer/bill',
+    PAYMENT: '/retailer/payment',
+    ACCOUNT: '/retailer/account',
+    PURCHASE_ORDER: '/retailer/purchase-order',
   },
     
   // External Services

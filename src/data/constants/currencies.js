@@ -1,8 +1,3 @@
-/**
- * Currency Options for Product Pricing
- * Supported currencies with symbols and labels
- */
-
 export const CURRENCY_OPTIONS = [
   { value: 'INR', label: 'Indian Rupee (₹)', symbol: '₹' },
   { value: 'USD', label: 'US Dollar ($)', symbol: '$' },
@@ -18,21 +13,13 @@ export const CURRENCY_OPTIONS = [
  */
 export const DEFAULT_CURRENCY = 'INR';
 
-/**
- * Get currency symbol by currency code
- * @param {string} currencyCode - Currency code (e.g., 'USD', 'INR')
- * @returns {string} Currency symbol
- */
+
 export const getCurrencySymbol = (currencyCode) => {
   const currency = CURRENCY_OPTIONS.find(c => c.value === currencyCode);
   return currency ? currency.symbol : '₹';
 };
 
-/**
- * Get currency label by currency code
- * @param {string} currencyCode - Currency code (e.g., 'USD', 'INR')
- * @returns {string} Currency label
- */
+
 export const getCurrencyLabel = (currencyCode) => {
   const currency = CURRENCY_OPTIONS.find(c => c.value === currencyCode);
   return currency ? currency.label : 'Indian Rupee (₹)';

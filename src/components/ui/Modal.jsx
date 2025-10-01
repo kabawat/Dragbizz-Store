@@ -60,10 +60,10 @@ const Modal = ({
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-[500] overflow-y-auto">
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${overlayClassName}`}
+        className={`fixed inset-0  backdrop-blur-[1px] bg-black/10 duration-300 ${overlayClassName}`}
         onClick={closeOnOverlayClick ? onClose : undefined}
       />
       
@@ -86,7 +86,7 @@ const Modal = ({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-md hover:bg-gray-100"
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-md hover:bg-gray-100 cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
