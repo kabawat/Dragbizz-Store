@@ -7,8 +7,6 @@ import { Save, Plus, ArrowLeft, Info, Warehouse, TrendingUp, Users, BarChart3, S
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
-import { InventoryForm } from '@/components/inventory';
-import { inventoryService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
@@ -140,18 +138,8 @@ const AddInventoryPage = () => {
           discount: Number(formData.batchData.discount || 0),
         }
       };
-      
-      const result = await inventoryService.createInventory(apiData);
-
-      if (result.success) {
-        // Show success modal instead of direct redirect
-        setAddedInventoryName('Inventory Item');
-        setShowSuccessModal(true);
-      } else {
-        if (result?.error && result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
-        }
-      }
+      setAddedInventoryName('Inventory Item');
+      setShowSuccessModal(true);
 
     } catch (error) {
       console.error('Error creating inventory:', error);

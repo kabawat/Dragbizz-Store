@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, Package } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, Package, ArrowDownToLine } from 'lucide-react';
 import Image from 'next/image';
 
 const ProductTable = ({
@@ -9,6 +9,7 @@ const ProductTable = ({
   onDelete,
   onDuplicate,
   onViewDetails,
+  onStockIn,
   onSelect,
   selectedProducts = [],
   onSelectAll,
@@ -88,6 +89,13 @@ const ProductTable = ({
       onClick: () => onViewDetails?.(product.id)
     },
     {
+      value: 'stock-in',
+      label: 'Stock In',
+      icon: ArrowDownToLine,
+      onClick: () => onStockIn?.(product.id),
+      className: 'text-green-600 hover:text-green-700'
+    },
+    {
       value: 'edit',
       label: 'Edit',
       icon: Edit,
@@ -132,6 +140,9 @@ const ProductTable = ({
     switch (action) {
       case 'view':
         onViewDetails?.(productId);
+        break;
+      case 'stock-in':
+        onStockIn?.(productId);
         break;
       case 'edit':
         onEdit?.(productId);
@@ -376,6 +387,13 @@ const ProductTable = ({
                         >
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           View Details
+                        </button>
+                        <button
+                          onClick={() => handleMenuAction(product.id, 'stock-in')}
+                          className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                        >
+                          <ArrowDownToLine className="w-4 h-4 text-green-500" />
+                          Stock In
                         </button>
                         <button
                           onClick={() => handleMenuAction(product.id, 'edit')}
