@@ -1,6 +1,6 @@
 export { authAxios, unauthAxios } from './config/axiosConfig';
 export { authService } from './auth';
-export { productService, storeService, customerService, supplierService, inventoryService } from './retailer';
+export { productService, storeService, customerService, supplierService } from './retailer';
 
 // Default export
 import axiosConfig from './config/axiosConfig';

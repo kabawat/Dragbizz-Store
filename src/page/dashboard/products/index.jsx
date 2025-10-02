@@ -22,13 +22,13 @@ import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import product components
-import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
+import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal, StockInDrawer } from '@/components/product';
 
 const ProductsPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Get data from Redux store
+  // Redux store data
   const {
     products,
     selectedProducts,
@@ -50,12 +50,14 @@ const ProductsPage = () => {
   const [deletedProductName, setDeletedProductName] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
+  const [showStockInDrawer, setShowStockInDrawer] = useState(false);
+  const [productForStockIn, setProductForStockIn] = useState(null);
   const scrollRef = useRef(null);
 
-  // Transform products data for components
+  // Transform products data
   const transformedProducts = transformProductsArray(products);
 
-  // Handle error display
+  // Error display
   useEffect(() => {
     if (error) {
       setErrorDetails({
@@ -74,17 +76,16 @@ const ProductsPage = () => {
     }
   }, [dispatch]);
 
-  // Fetch products on component mount and when search changes
-  // Prevent double API call by using a ref to track last fetch params
+  // Fetch products on mount and search changes
   const lastFetchRef = useRef({ storeId: null, searchValue: null });
 
   useEffect(() => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
-    // Only fetch if selectedStore exists and has a valid ID
+    // Fetch only if store exists
     if (!storeId) return;
 
-    // Prevent duplicate fetch if params haven't changed
+    // Prevent duplicate fetch
     if (
       lastFetchRef.current.storeId === storeId &&
       lastFetchRef.current.searchValue === searchValue
@@ -101,14 +102,14 @@ const ProductsPage = () => {
         limit: 20,
         cursor: null 
       };
-      // console.log("params : ",params)
+      // console.log("params:", params)
       await dispatch(getProducts(params));
     };
 
     fetchProducts();
   }, [dispatch, selectedStore, searchValue]);
 
-  // Infinite scroll detection
+  // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
@@ -129,32 +130,48 @@ const ProductsPage = () => {
   }, [isLoadingMore, pagination.hasNextPage]);
 
   const handleStoreChange = (storeObject) => {
-    // Store change is handled by Redux, no need for local state
+    // Store change handled by Redux
   };
 
-  // Handle search
+  // Search
   const handleSearch = (value) => {
     setSearchValue(value);
   };
 
 
   const handleAddProduct = () => {
-    // Navigate to add product page
+    // Navigate to add product
     router.push('/dashboard/products/add');
   };
 
   const handleEditProduct = (productId) => {
-    // Navigate to edit product page
+    // Navigate to edit product
     router.push(`/dashboard/products/edit/${productId}`);
   };
 
   const handleViewProduct = (productId) => {
-    // Navigate to view product page
+    // Navigate to view product
     router.push(`/dashboard/products/view/${productId}`);
   };
 
+  const handleStockIn = (productId) => {
+    const product = transformedProducts.find(p => p.id === productId);
+    setProductForStockIn(product);
+    setShowStockInDrawer(true);
+  };
 
-  // ProductTable event handlers
+  const handleStockInSuccess = (message) => {
+    // Show success message
+    alert(message);
+  };
+
+  const handleCloseStockInDrawer = () => {
+    setShowStockInDrawer(false);
+    setProductForStockIn(null);
+  };
+
+
+  // ProductTable handlers
   const handleProductSelect = (productIds) => {
     const idsArray = Array.isArray(productIds) ? productIds : [productIds];
     dispatch(setSelectedProducts(idsArray));
@@ -210,13 +227,13 @@ const ProductsPage = () => {
   };
 
 
-  // Save view mode to localStorage
+  // Save view mode
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
     localStorage.setItem('products-view-mode', mode);
   };
 
-  // Infinite scroll logic - load more products
+  // Load more products
   const handleLoadMore = async () => {
     if (isLoadingMore || !pagination.hasNextPage) return;
 
@@ -247,7 +264,7 @@ const ProductsPage = () => {
       <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
-      {/* Main Content Area */}
+      {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
@@ -255,10 +272,10 @@ const ProductsPage = () => {
           description="Manage your store inventory and product catalog"
         />
 
-        {/* Main Content */}
+        {/* Main content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-            {/* Loading State */}
+            {/* Loading */}
             {isLoading && transformedProducts.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
@@ -274,7 +291,7 @@ const ProductsPage = () => {
                 </div>
               </div>
             )}
-            {/* Search and Filter Card */}
+            {/* Search and filter */}
             {transformedProducts.length > 0 && (
               <div className="mb-3">
                 <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
@@ -290,9 +307,9 @@ const ProductsPage = () => {
                     />
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action buttons */}
                   <div className="flex gap-3">
-                    {/* View Toggle */}
+                    {/* View toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange('table')}
@@ -321,7 +338,7 @@ const ProductsPage = () => {
               </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty state */}
             {!isLoading && transformedProducts.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
                 <div className="flex flex-col items-center justify-center py-16">
@@ -343,7 +360,7 @@ const ProductsPage = () => {
               </div>
             )}
 
-            {/* Products List */}
+            {/* Products list */}
             {transformedProducts.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                 <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
@@ -357,6 +374,7 @@ const ProductsPage = () => {
                         onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
                         onViewDetails={handleViewProduct}
+                        onStockIn={handleStockIn}
                         loading={isLoading}
                         emptyMessage="No products found"
                         hasMore={pagination.hasNextPage}
@@ -366,7 +384,7 @@ const ProductsPage = () => {
                     </div>
                   ) : (
                     <div>
-                      {/* Select All Header for Card View */}
+                      {/* Select all header */}
                       {transformedProducts.length > 0 && (
                         <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
                           <div className="flex items-center gap-4">
@@ -398,10 +416,11 @@ const ProductsPage = () => {
                             onEdit={handleEditProduct}
                             onDelete={handleDeleteProduct}
                             onViewDetails={handleViewProduct}
+                            onStockIn={handleStockIn}
                           />
                         ))}
 
-                        {/* Infinite Scroll Loading for Card View */}
+                        {/* Infinite scroll loading */}
                         {isLoadingMore && (
                           <div className="col-span-full flex items-center justify-center py-8">
                             <div className="flex items-center gap-3">
@@ -415,7 +434,7 @@ const ProductsPage = () => {
                   )}
                 </div>
 
-                {/* Fixed Footer */}
+                {/* Footer */}
                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
@@ -450,10 +469,10 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      {/* Theme Selector */}
+      {/* Theme selector */}
       <SettingsPanel />
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete confirmation modal */}
       <ProductDeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={handleCancelDelete}
@@ -462,14 +481,14 @@ const ProductsPage = () => {
         isLoading={isDeleting}
       />
 
-      {/* Delete Success Modal */}
+      {/* Delete success modal */}
       <ProductDeleteSuccessModal
         isOpen={showDeleteSuccessModal}
         onClose={() => setShowDeleteSuccessModal(false)}
         productName={deletedProductName}
       />
 
-      {/* Error Modal */}
+      {/* Error modal */}
       <ProductErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
@@ -477,6 +496,14 @@ const ProductsPage = () => {
         message={errorDetails?.message}
         details={errorDetails?.details}
       />
+
+      {/* Stock in drawer */}
+        <StockInDrawer
+          isOpen={showStockInDrawer}
+          onClose={handleCloseStockInDrawer}
+          product={productForStockIn}
+          onSuccess={handleStockInSuccess}
+        />
     </div>
   );
 };
