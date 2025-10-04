@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Check, Search } from 'lucide-react';
+import { ChevronDown, Check, Search, AlertCircle } from 'lucide-react';
 
 const Select = ({
   options = [],
@@ -163,8 +163,10 @@ const Select = ({
       {/* Label */}
       {label && (
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          <span className="flex items-center gap-2">
+            <span>{label}</span>
+            {required && <span className="text-red-500">*</span>}
+          </span>
         </label>
       )}
 

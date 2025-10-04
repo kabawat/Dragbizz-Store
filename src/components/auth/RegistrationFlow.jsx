@@ -135,7 +135,7 @@ const RegistrationFlow = ({ onComplete }) => {
         <div className="space-y-6">
           {step === 1 && (
             <div className="animate-slide-in">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">What's your name?</h2>
+              <h2 className="text-base font-semibold text-gray-700 mb-4">What's your name?</h2>
               <InputField
                 icon={User}
                 type="text"
@@ -157,7 +157,7 @@ const RegistrationFlow = ({ onComplete }) => {
 
           {step === 2 && (
             <div className="animate-slide-in">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">How can we reach you?</h2>
+              <h2 className="text-base font-semibold text-gray-700 mb-4">How can we reach you?</h2>
 
               <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
                 <button
@@ -189,7 +189,7 @@ const RegistrationFlow = ({ onComplete }) => {
 
           {step === 3 && (
             <div className="animate-slide-in">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">Secure your account</h2>
+              <h2 className="text-base font-semibold text-gray-700 mb-4">Secure your account</h2>
               <InputField
                 icon={Lock}
                 type="password"

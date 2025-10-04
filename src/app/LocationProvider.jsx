@@ -1,6 +1,6 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUserLocation } from '@/utils/locationUtils';
+import { getUserLocationWithDetails } from '@/utils/locationUtils';
 
 // Create Location Context
 const LocationContext = createContext();
@@ -13,19 +13,18 @@ export const LocationProvider = ({ children }) => {
 
   useEffect(() => {
     const requestLocation = async () => {
-      try {
-        setLocationLoading(true);
-        setLocationError(null);
-        
-        const location = await getUserLocation();
-        setUserLocation(location);
-      } catch (error) {
-        console.error('App Layout - Failed to get location:', error);
-        setLocationError(error.message);
-        setUserLocation('0,0');
-      } finally {
-        setLocationLoading(false);
+      setLocationLoading(true);
+      setLocationError(null);
+      
+      const result = await getUserLocationWithDetails();
+      setUserLocation(result.location);
+      
+      if (!result.success && result.error) {
+        console.error('App Layout - Failed to get location:', result.error.message);
+        setLocationError(result.error.message);
       }
+      
+      setLocationLoading(false);
     };
 
     requestLocation();

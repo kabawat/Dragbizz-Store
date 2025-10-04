@@ -537,7 +537,7 @@ const ProductForm = ({
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className={`flex items-center justify-between p-6 ${drawerStyles.header}`}>
-                <h2 className={`text-xl font-semibold ${drawerStyles.text.primary}`}>
+                <h2 className={`text-base font-semibold ${drawerStyles.text.primary}`}>
                   Add New Category
                 </h2>
                 <button

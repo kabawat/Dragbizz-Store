@@ -73,7 +73,7 @@ const SupplierAddSuccessModal = ({
 
           {/* Success Message */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
+            <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-lg mb-2">

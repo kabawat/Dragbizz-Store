@@ -1,5 +1,5 @@
 "use client"
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 
 const Textarea = forwardRef(({
@@ -80,8 +80,10 @@ const Textarea = forwardRef(({
       {/* Label */}
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          <span className="flex items-center gap-2">
+            <span>{label}</span>
+            {required && <span className="text-red-500">*</span>}
+          </span>
         </label>
       )}
       

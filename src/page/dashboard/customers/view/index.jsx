@@ -120,7 +120,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Customer Data...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
@@ -170,7 +170,7 @@ const ViewCustomerPage = ({ customerId }) => {
                       <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
                         <User className="w-10 h-10 text-red-600" />
                       </div>
-                      <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
+                      <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
                         Customer Not Found
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
@@ -212,7 +212,7 @@ const ViewCustomerPage = ({ customerId }) => {
                             <User className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic customer details</p>
                           </div>
                         </div>
@@ -263,7 +263,7 @@ const ViewCustomerPage = ({ customerId }) => {
                             <Building2 className="w-6 h-6 text-green-500" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Business information</p>
                           </div>
                         </div>
@@ -306,7 +306,7 @@ const ViewCustomerPage = ({ customerId }) => {
                             <MapPin className="w-6 h-6 text-purple-500" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Billing and shipping addresses</p>
                           </div>
                         </div>

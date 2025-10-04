@@ -171,7 +171,7 @@ const EditSupplierPage = ({ supplierId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Supplier...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
@@ -202,7 +202,7 @@ const EditSupplierPage = ({ supplierId }) => {
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Building className="w-8 h-8 text-red-600" />
                     </div>
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Error Loading Supplier
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-6">

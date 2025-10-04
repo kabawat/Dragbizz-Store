@@ -186,7 +186,7 @@ const VerificationStep = ({
               )}
             </div>
             
-            <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
               Almost there, {firstName}! 🎯
             </h2>
             

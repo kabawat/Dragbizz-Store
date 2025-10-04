@@ -64,7 +64,7 @@ export default function ThemeDemo() {
           {/* Color Palette Display */}
           <Card className="mb-8">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Current Theme Colors</h2>
+              <h2 className="text-xl font-bold mb-2">Current Theme Colors</h2>
               <p className="text-[rgb(var(--color-text-secondary))]">
                 These colors automatically change based on your selected theme
               </p>
@@ -108,7 +108,7 @@ export default function ThemeDemo() {
           {/* Instructions */}
           <Card variant="filled">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">How to Use</h2>
+              <h2 className="text-xl font-bold mb-4">How to Use</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
                 <div>
                   <h3 className="font-semibold mb-2">1. Choose Theme</h3>

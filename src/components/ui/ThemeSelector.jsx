@@ -124,7 +124,7 @@ const SettingsPanel = () => {
           <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex-shrink-0 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))]">Settings</h2>
+                <h2 className="text-base font-bold text-[rgb(var(--color-text-primary))]">Settings</h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">Customize your experience</p>
               </div>
               <button
