@@ -13,7 +13,7 @@ import {
   Save, 
   ArrowLeft,
   Building2,
-  DollarSign,
+  IndianRupee,
   Calendar,
   FileText,
   AlertCircle,
@@ -640,7 +640,7 @@ const CreatePayment = () => {
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <DollarSign className="w-5 h-5 mr-2" />
+                        <IndianRupee className="w-5 h-5 mr-2" />
                         Bill Allocation
                       </h3>
                       <Button

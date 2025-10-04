@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { NumberInput, Input, Select } from '../ui';
-import { Package, DollarSign, Calculator, Truck } from 'lucide-react';
+import { Package, IndianRupee, Calculator, Truck } from 'lucide-react';
 import { supplierService } from '@/service/retailer';
 
 const OpeningQuantitySection = ({

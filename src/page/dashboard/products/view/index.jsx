@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Package, Edit, Copy, Trash2, CheckCircle, DollarSign, Tag, Calendar, Eye, Star, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Clock, BarChart3, FileText, Hash, Barcode, Building2, MapPin, ShoppingCart, Package2, Scale, Percent, Globe, Shield, Zap } from 'lucide-react';
+import { ArrowLeft, Package, Edit, Copy, Trash2, CheckCircle, IndianRupee, Tag, Calendar, Eye, Star, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Clock, BarChart3, FileText, Hash, Barcode, Building2, MapPin, ShoppingCart, Package2, Scale, Percent, Globe, Shield, Zap } from 'lucide-react';
 import moment from 'moment';
 
 // Import components
@@ -340,7 +340,7 @@ const ViewProductPage = ({ productId }) => {
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
-                          <DollarSign className="w-6 h-6 text-green-500" />
+                          <IndianRupee className="w-6 h-6 text-green-500" />
                         </div>
                         <div>
                           <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h2>
@@ -353,7 +353,7 @@ const ViewProductPage = ({ productId }) => {
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Base Price</label>
                           <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <DollarSign className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                            <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                             <span className="text-[rgb(var(--color-text-primary))] font-medium">
                               {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice}` : 'N/A'}
                             </span>

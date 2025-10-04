@@ -14,13 +14,14 @@ import {
   X,
   Building2,
   Package,
-  DollarSign,
+  IndianRupee,
   Calendar,
   FileText,
   AlertCircle,
   ArrowLeft,
   CheckCircle,
-  Clock
+  Clock,
+  Trash2
 } from 'lucide-react';
 import { Button, Input, Select, Textarea, Card, Modal } from '@/components/ui';
 import Link from 'next/link';
@@ -207,35 +208,59 @@ const CreateBill = () => {
     }
   };
 
-  // Validate form
+  // Validate form according to API specification
   const validateForm = () => {
     const newErrors = {};
 
+    // REQUIRED FIELDS VALIDATION
     if (!formData.supplier) {
       newErrors.supplier = 'Supplier is required';
     }
 
-    if (!formData.billDate) {
-      newErrors.billDate = 'Bill date is required';
+    // OPTIONAL FIELDS VALIDATION
+    if (formData.billDate && new Date(formData.billDate) > new Date()) {
+      newErrors.billDate = 'Bill date cannot be in the future';
     }
 
-    if (!formData.dueDate) {
-      newErrors.dueDate = 'Due date is required';
+    if (formData.dueDate && formData.billDate && new Date(formData.dueDate) < new Date(formData.billDate)) {
+      newErrors.dueDate = 'Due date cannot be before bill date';
     }
 
-    // Validate items
+    if (formData.notes && formData.notes.length > 500) {
+      newErrors.notes = 'Notes cannot exceed 500 characters';
+    }
+
+    // ITEMS VALIDATION (Required)
+    if (!formData.items || formData.items.length === 0) {
+      newErrors.items = 'At least one item is required';
+    }
+
     formData.items.forEach((item, index) => {
+      // Product ID validation (Required)
       if (!item.product) {
         newErrors[`item_${index}_product`] = 'Product is required';
       }
-      if (!item.quantity || item.quantity <= 0) {
-        newErrors[`item_${index}_quantity`] = 'Valid quantity is required';
+      
+      // Quantity validation (Required - number > 0)
+      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) {
+        newErrors[`item_${index}_quantity`] = 'Valid quantity (integer &gt; 0) is required';
       }
-      if (!item.purchasePrice || item.purchasePrice <= 0) {
-        newErrors[`item_${index}_purchasePrice`] = 'Valid purchase price is required';
+      
+      // Purchase Price validation (Required - number >= 0)
+      if (item.purchasePrice === undefined || item.purchasePrice === null || item.purchasePrice < 0) {
+        newErrors[`item_${index}_purchasePrice`] = 'Valid purchase price (number &gt;= 0) is required';
       }
-      if (item.expiryDate && new Date(item.expiryDate) < new Date(formData.billDate)) {
+      
+      // Expiry Date validation (Optional - ISO date string)
+      if (item.expiryDate) {
+        const expiryDate = new Date(item.expiryDate);
+        const billDate = new Date(formData.billDate || new Date());
+        
+        if (isNaN(expiryDate.getTime())) {
+          newErrors[`item_${index}_expiryDate`] = 'Invalid expiry date format';
+        } else if (expiryDate < billDate) {
         newErrors[`item_${index}_expiryDate`] = 'Expiry date cannot be before bill date';
+        }
       }
     });
 
@@ -257,16 +282,16 @@ const CreateBill = () => {
       const billData = {
         store: selectedStore.storeId,
         supplier: formData.supplier,
-        billDate: formData.billDate,
-        dueDate: formData.dueDate,
-        notes: formData.notes,
         items: formData.items.map(item => ({
           product: item.product,
           quantity: parseInt(item.quantity),
           purchasePrice: parseFloat(item.purchasePrice),
-          expiryDate: item.expiryDate
+          expiryDate: item.expiryDate || undefined
         })),
-        status: isDraft ? 'draft' : 'pending'
+        
+        billDate: formData.billDate || new Date().toISOString().split('T')[0],
+        dueDate: formData.dueDate || undefined,
+        notes: formData.notes || undefined
       };
 
       const result = await billService.createBill(billData);
@@ -370,7 +395,8 @@ const CreateBill = () => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Bill Date *
+                              Bill Date
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to today)</span>
                             </label>
                             <Input
                               type="date"
@@ -383,7 +409,8 @@ const CreateBill = () => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Due Date *
+                              Due Date
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to +30 days)</span>
                             </label>
                             <Input
                               type="date"
@@ -398,6 +425,7 @@ const CreateBill = () => {
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                             Notes
+                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - max 500 characters)</span>
                           </label>
                           <Textarea
                             value={formData.notes}
@@ -405,7 +433,13 @@ const CreateBill = () => {
                             placeholder="Additional notes for this bill..."
                             rows={3}
                             leftIcon={FileText}
+                            maxLength={500}
                           />
+                          {formData.notes && (
+                            <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1 text-right">
+                              {formData.notes.length}/500 characters
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -418,14 +452,15 @@ const CreateBill = () => {
                             <Package className="w-5 h-5 mr-2" />
                             Items
                           </h3>
-                          <Button
+                          <button
                             type="button"
-                            variant="outline"
                             onClick={addItem}
-                            leftIcon={Plus}
+                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                            title="Add new item"
                           >
-                            Add Item
-                          </Button>
+                            <Plus className="w-4 h-4" />
+                            <span className="text-sm font-medium">Add Item</span>
+                          </button>
                         </div>
 
                         <div className="space-y-4">
@@ -436,15 +471,14 @@ const CreateBill = () => {
                                   Item {index + 1}
                                 </span>
                                 {formData.items.length > 1 && (
-                                  <Button
+                                  <button
                                     type="button"
-                                    variant="outline"
                                     onClick={() => removeItem(index)}
-                                    leftIcon={X}
-                                    className="text-red-500 hover:text-red-600 border-red-200 hover:border-red-300"
+                                    className="p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                    title="Remove item"
                                   >
-                                    Remove
-                                  </Button>
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
                                 )}
                               </div>
 
@@ -499,7 +533,7 @@ const CreateBill = () => {
                                     min="0"
                                     step="0.01"
                                     error={errors[`item_${index}_purchasePrice`]}
-                                    leftIcon={DollarSign}
+                                    leftIcon={IndianRupee}
                                     size="sm"
                                   />
                                 </div>
@@ -566,39 +600,75 @@ const CreateBill = () => {
               {/* Tips Section - Right Side */}
               <div className="lg:col-span-1">
                 <div className="sticky top-6">
-                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
+                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-xl border border-[rgb(var(--color-primary))]/20 p-6 shadow-lg">
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <Receipt className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-xl flex items-center justify-center shadow-lg">
+                        <Receipt className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Bill Management Tips</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Best practices for efficient bill processing</p>
+                        <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">Bill Management Tips</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">Best practices for efficient bill processing</p>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mt-2"></div>
+                    <div className="grid gap-4">
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <Building2 className="w-4 h-4 text-white" />
+                        </div>
                         <div>
-                          <p className="text-sm text-[rgb(var(--color-text-primary))] font-medium">Supplier Selection</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Always verify supplier information before creating bills</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Required Fields</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Supplier and Items are mandatory. Bill date defaults to today.</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mt-2"></div>
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <Package className="w-4 h-4 text-white" />
+                        </div>
                         <div>
-                          <p className="text-sm text-[rgb(var(--color-text-primary))] font-medium">Item Details</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Include expiry dates for perishable items</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Item Management</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Use + Add Item to add products, trash icon to remove items</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mt-2"></div>
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <AlertCircle className="w-4 h-4 text-white" />
+                        </div>
                         <div>
-                          <p className="text-sm text-[rgb(var(--color-text-primary))] font-medium">Validation</p>
-                          <p className="text-xs text-[rgb(var(--color-textSecondary))]">Expiry dates cannot be before bill date</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Item Validation</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Quantity must be integer &gt; 0, Price must be &gt;= 0</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <Calendar className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Expiry Dates</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Optional but cannot be before bill date</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <FileText className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Notes Limit</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Maximum 500 characters allowed with live counter</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                          <IndianRupee className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Currency</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">All prices displayed in Indian Rupee (₹)</p>
                         </div>
                       </div>
                     </div>
@@ -643,14 +713,12 @@ const CreateBill = () => {
       <Modal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
+        title="Bill Created Successfully!"
       >
         <div className="p-6 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            Bill Created Successfully!
-          </h3>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             {createdBillNumber} has been added to your bills.
           </p>

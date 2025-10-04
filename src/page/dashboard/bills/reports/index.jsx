@@ -9,7 +9,7 @@ import {
   BarChart3, 
   Download, 
   Calendar,
-  DollarSign,
+  IndianRupee,
   Receipt,
   TrendingUp,
   TrendingDown,
@@ -188,7 +188,7 @@ const BillReports = () => {
                     +8% from last month
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-200" />
+                <IndianRupee className="w-8 h-8 text-green-200" />
               </div>
             </Card>
 

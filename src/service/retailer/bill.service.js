@@ -4,14 +4,19 @@ import { retailerAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class BillService {
-  constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
-  }
 
   // Create a new bill
   async createBill(billData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.BILL, billData);
+      let apiPayload = billData;
+      // Remove undefined values to keep payload clean
+      Object.keys(apiPayload).forEach(key => {
+        if (apiPayload[key] === undefined) {
+          delete apiPayload[key];
+        }
+      });
+
+      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.BILL, apiPayload);
       return handleApiSuccess(response?.data, 'Bill created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-creation');
@@ -48,13 +53,11 @@ class BillService {
     }
   }
 
-
   // Delete a bill by ID
   async deleteBill(billId, storeId = null) {
     try {
       let url = `${API_CONFIG?.RETAILER?.BILL}/${billId}`;
 
-      // Add storeId as query parameter if provided
       if (storeId) {
         const params = { store: storeId };
         url = attachQueryParams(url, params);

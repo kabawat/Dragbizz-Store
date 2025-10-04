@@ -5,7 +5,7 @@ const Card = ({
   children,
   variant = 'default',
   padding = 'md',
-  shadow = 'md',
+  shadow = 'sm',
   rounded = 'lg',
   hover = false,
   className = '',

@@ -14,7 +14,7 @@ import {
   TrendingUp,
   BookOpen,
   FileText,
-  DollarSign,
+  IndianRupee,
   Settings,
   ChevronDown,
   ShoppingCart,
@@ -113,7 +113,7 @@ const Sidebar = ({ onStoreChange }) => {
   ];
 
   const paymentSubMenuItems = [
-    { name: 'Create Payment', icon: DollarSign, href: '/dashboard/payments/create' },
+    { name: 'Create Payment', icon: IndianRupee, href: '/dashboard/payments/create' },
     { name: 'Payment List', icon: CreditCard, href: '/dashboard/payments' },
     { name: 'Pending Payments', icon: Clock, href: '/dashboard/payments/pending' },
     { name: 'Payment Reports', icon: BarChart3, href: '/dashboard/payments/reports' },
@@ -125,7 +125,7 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Purchase Orders', icon: ShoppingCart, href: '/dashboard/purchase-orders' },
     { name: 'Stock', icon: Warehouse, href: '/dashboard/inventory', hasSubMenu: true, subMenuItems: inventorySubMenuItems },
     { name: 'Bills', icon: Receipt, href: '/dashboard/bills', hasSubMenu: true, subMenuItems: billSubMenuItems },
-    { name: 'Payments', icon: DollarSign, href: '/dashboard/payments', hasSubMenu: true, subMenuItems: paymentSubMenuItems },
+    { name: 'Payments', icon: IndianRupee, href: '/dashboard/payments', hasSubMenu: true, subMenuItems: paymentSubMenuItems },
   ];
 
   const navigationItems = [
@@ -138,7 +138,7 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
     { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
     { name: 'Journal Entry', icon: FileText, href: '/dashboard/journal' },
-    { name: 'Daily Expenses', icon: DollarSign, href: '/dashboard/expenses' },
+    { name: 'Daily Expenses', icon: IndianRupee, href: '/dashboard/expenses' },
   ];
 
   const bottomItems = [

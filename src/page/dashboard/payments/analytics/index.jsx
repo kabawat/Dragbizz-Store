@@ -11,7 +11,7 @@ import {
   BarChart3, 
   Download, 
   Calendar,
-  DollarSign,
+  IndianRupee,
   CreditCard,
   Building2,
   Clock,
@@ -217,7 +217,7 @@ const PaymentAnalytics = () => {
                     +12% from last period
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-200" />
+                <IndianRupee className="w-8 h-8 text-green-200" />
               </div>
             </Card>
 
