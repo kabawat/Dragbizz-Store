@@ -165,20 +165,20 @@ const ProductTable = ({
     return (
       <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`} {...props}>
         <div className="animate-pulse">
-          <div className="h-16 bg-gray-50 border-b border-gray-200"></div>
+          <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-20 border-b border-gray-100">
+            <div key={index} className="h-20 border-b border-[rgb(var(--color-border-primary))]">
               <div className="flex items-center h-full px-6">
-                <div className="w-4 h-4 bg-gray-200 rounded mr-4"></div>
-                <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4"></div>
+                <div className="w-4 h-4 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg mr-4"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
+                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/6"></div>
                 </div>
-                <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-16 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-24 h-6 bg-gray-200 rounded"></div>
+                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-16 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-24 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded"></div>
               </div>
             </div>
           ))}
@@ -235,7 +235,7 @@ const ProductTable = ({
         </thead>
         
         {/* Table Body */}
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
           {products.map((product, index) => {
             const isSelected = selectedProducts.includes(product.id);
             
@@ -259,7 +259,7 @@ const ProductTable = ({
                     />
                     
                     {/* Product Image */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-200">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
                       {product.image && !imageError[product.id] ? (
                         <Image
                           src={product.image}
@@ -270,20 +270,20 @@ const ProductTable = ({
                           onError={() => setImageError(prev => ({ ...prev, [product.id]: true }))}
                         />
                       ) : (
-                        <Package className="w-6 h-6 text-gray-400" />
+                        <Package className="w-6 h-6 text-[rgb(var(--color-text-tertiary))]" />
                       )}
                     </div>
                     
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm truncate">
+                      <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate">
                         {product.name}
                       </h3>
-                      <p className="text-xs text-gray-600 font-medium">
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))] font-medium">
                         {product.brand}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">SKU: {product.sku}</span>
+                        <span className="text-xs text-[rgb(var(--color-text-tertiary))]">SKU: {product.sku}</span>
                       </div>
                     </div>
                   </div>
@@ -295,7 +295,7 @@ const ProductTable = ({
                       <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {product.stock}
                     </span>
-                    <span className="text-xs text-gray-500 ml-1">units</span>
+                    <span className="text-xs text-[rgb(var(--color-text-tertiary))] ml-1">units</span>
                   </div>
                 </td>
                 
@@ -339,7 +339,7 @@ const ProductTable = ({
                           <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
                             {product.gst || product.gstRate || 18}%
                           </span>
-                          <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 text-green-600 border border-green-500/20">
                             GST
                           </span>
                         </div>

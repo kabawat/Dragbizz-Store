@@ -48,23 +48,6 @@ class BillService {
     }
   }
 
-  // Get a specific bill by ID
-  async getBill(billId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.BILL}/${billId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bill fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'bill-details');
-    }
-  }
 
   // Delete a bill by ID
   async deleteBill(billId, storeId = null) {
@@ -120,51 +103,6 @@ class BillService {
       return handleApiSuccess(response?.data, 'Bill statistics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-stats');
-    }
-  }
-
-  // Get bill reports
-  async getBillReports(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.BILL}/reports`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bill reports fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'bill-reports');
-    }
-  }
-
-  // Mark bill as paid
-  async markBillAsPaid(billId, paymentData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.BILL}/${billId}/mark-paid`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.put(url, paymentData);
-      return handleApiSuccess(response?.data, 'Bill marked as paid successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'bill-payment');
-    }
-  }
-
-  // Send bill reminder
-  async sendBillReminder(billId, reminderData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.BILL}/${billId}/reminder`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.post(url, reminderData);
-      return handleApiSuccess(response?.data, 'Bill reminder sent successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'bill-reminder');
     }
   }
 }

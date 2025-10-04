@@ -89,7 +89,7 @@ const SupplierCard = ({
 
   // Grid view - Modern Card Design
   return (
-    <div className={`rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -108,11 +108,14 @@ const SupplierCard = ({
       )}
 
       {/* Supplier Avatar Section with Gradient Background */}
-      <div className="w-full h-56 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] overflow-hidden relative">
-        {/* Supplier Avatar */}
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center border-4 border-[rgb(var(--color-primary))]/20 shadow-lg">
-            <Building className="w-12 h-12 text-[rgb(var(--color-primary))]" />
+      <div 
+        className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
+        <div className="w-full h-full overflow-hidden rounded-t-xl">
+          {/* Supplier Avatar */}
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))]">
+            <div className="w-12 sm:w-14 md:w-16 h-12 sm:h-14 md:h-16 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center border-4 border-[rgb(var(--color-primary))]/20 shadow-lg">
+              <Building className="w-6 sm:w-8 md:w-10 h-6 sm:h-8 md:h-10 text-[rgb(var(--color-primary))]" />
+            </div>
           </div>
         </div>
 
@@ -171,13 +174,13 @@ const SupplierCard = ({
       </div>
 
       {/* Supplier Info */}
-      <div className="p-6 space-y-4">
+      <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Supplier Name */}
         <div>
-          <h3 className="font-bold text-xl mb-1" style={{ color: themeConfig.text }}>
+          <h3 className="font-bold text-lg sm:text-xl mb-1" style={{ color: themeConfig.text }}>
             {supplier.name || 'N/A'}
           </h3>
-          <p className="text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
+          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
             GST Number: {supplier.gstNumber || 'N/A'}
           </p>
         </div>
@@ -247,9 +250,9 @@ const SupplierCard = ({
         </div>
 
         {/* Last Updated */}
-        <div
-          className="text-xs text-center pt-2 border-t"
-          style={{
+        <div 
+          className="text-xs text-center pt-1.5 border-t" 
+          style={{ 
             color: themeConfig.textSecondary,
             borderColor: themeConfig.border
           }}

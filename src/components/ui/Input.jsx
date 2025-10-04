@@ -36,11 +36,11 @@ const Input = forwardRef(({
     ? (showPassword ? 'text' : 'password')
     : type;
 
-  // Size classes - Reduced padding and font sizes
+  // Size classes - Original padding restored
   const sizeClasses = {
-    sm: 'py-1.5 text-xs',
-    md: 'py-2.5 text-sm', // Default size
-    lg: 'py-3 text-base'
+    sm: 'py-1.5 text-xs h-10',
+    md: 'py-2.5 text-sm h-12', // Restored original padding
+    lg: 'py-3 text-base h-14'
   };
 
   // Base classes - Theme aware

@@ -103,20 +103,20 @@ const SupplierTable = ({
     return (
       <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`} {...props}>
         <div className="animate-pulse">
-          <div className="h-16 bg-gray-50 border-b border-gray-200"></div>
+          <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-20 border-b border-gray-100">
+            <div key={index} className="h-20 border-b border-[rgb(var(--color-border-primary))]">
               <div className="flex items-center h-full px-6">
-                <div className="w-4 h-4 bg-gray-200 rounded mr-4"></div>
-                <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4"></div>
+                <div className="w-4 h-4 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg mr-4"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
+                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/6"></div>
                 </div>
-                <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-16 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-20 h-6 bg-gray-200 rounded mr-4"></div>
-                <div className="w-24 h-6 bg-gray-200 rounded"></div>
+                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-16 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
+                <div className="w-24 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded"></div>
               </div>
             </div>
           ))}
@@ -126,54 +126,48 @@ const SupplierTable = ({
   }
   
   return (
-    <div className={`${className} h-full`} {...props}>
-      {/* Fixed Header */}
-      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
-        <table className="w-full min-w-[800px] table-fixed">
-          <thead>
-            <tr>
-              <th className="w-1/3 px-6 py-4 text-left">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                  />
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                    Supplier
-                  </span>
-                </div>
-              </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Agency
-              </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Phone
-              </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Email
-              </th>
-              <th className="w-1/12 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Status
-              </th>
-              <th className="w-1/12 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-      
-      {/* Scrollable Body */}
-      <div className="overflow-auto min-h-[calc(100vh-400px)]">
-        <table className="w-full min-w-[800px] table-fixed">
+    <div className={`${className}`} {...props}>
+      <div className="relative">
+        <table className="w-full min-w-[800px]">
+          {/* Table Header */}
+          <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
+          <tr>
+            <th className="px-6 py-4 text-left">
+              <div className="flex items-center gap-4">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = isIndeterminate;
+                  }}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                />
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  Supplier
+                </span>
+              </div>
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Agency
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Phone
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Email
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Status
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
         
         {/* Table Body */}
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
           {suppliers.map((supplier, index) => {
             const isSelected = selectedSuppliers.includes(supplier.id);
             
@@ -187,7 +181,7 @@ const SupplierTable = ({
                 onMouseLeave={() => setHoveredRow(null)}
               >
                 {/* Supplier Column */}
-                <td className="w-1/3 px-6 py-4">
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
                     <input
                       type="checkbox"
@@ -197,27 +191,27 @@ const SupplierTable = ({
                     />
                     
                     {/* Supplier Avatar */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
-                      <Building className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
+                      <Building className="w-6 h-6 text-[rgb(var(--color-text-tertiary))]" />
                     </div>
                     
                     {/* Supplier Details */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm truncate">
+                      <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate">
                         {supplier.name || 'N/A'}
                       </h3>
-                      <p className="text-xs text-gray-600 font-medium">
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))] font-medium">
                         GST: {supplier.gstNumber || 'N/A'}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">Added: {new Date(supplier.createdAt || Date.now()).toLocaleDateString()}</span>
+                        <span className="text-xs text-[rgb(var(--color-text-tertiary))]">Added: {new Date(supplier.createdAt || Date.now()).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
                 </td>
                 
                 {/* Agency Column */}
-                <td className="w-1/6 px-6 py-4">
+                <td className="px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {supplier.agency || 'N/A'}
@@ -226,7 +220,7 @@ const SupplierTable = ({
                 </td>
                 
                 {/* Phone Column */}
-                <td className="w-1/6 px-6 py-4">
+                <td className="px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm text-[rgb(var(--color-text-primary))]">
                       {supplier.phone || 'N/A'}
@@ -235,7 +229,7 @@ const SupplierTable = ({
                 </td>
                 
                 {/* Email Column */}
-                <td className="w-1/6 px-6 py-4">
+                <td className="px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm text-[rgb(var(--color-text-primary))] truncate max-w-[200px]">
                       {supplier.email || 'N/A'}
@@ -244,14 +238,14 @@ const SupplierTable = ({
                 </td>
                 
                 {/* Status Column */}
-                <td className="w-1/12 px-6 py-4">
+                <td className="px-6 py-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 text-green-600 border-green-500/20">
                     Active
                   </span>
                 </td>
                 
                 {/* Actions Column */}
-                <td className="w-1/12 px-6 py-4">
+                <td className="px-6 py-4">
                   <div className="relative" ref={(el) => menuRefs.current[supplier.id] = el}>
                     <button 
                       onClick={() => handleMenuToggle(supplier.id)}
@@ -296,7 +290,7 @@ const SupplierTable = ({
             );
           })}
         </tbody>
-        </table>
+      </table>
       </div>
       
       {/* Infinite Scroll Loading */}
