@@ -17,7 +17,7 @@ import {
   Trash2, 
   MoreVertical,
   Calendar,
-  DollarSign,
+  IndianRupee,
   CheckCircle,
   Clock,
   Building2,
@@ -217,7 +217,7 @@ const Payments = () => {
                   <p className="text-purple-100 text-sm font-medium">Total Amount</p>
                   <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-200" />
+                <IndianRupee className="w-8 h-8 text-purple-200" />
               </div>
             </Card>
           </div>

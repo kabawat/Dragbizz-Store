@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { Input, NumberInput, Select } from '../ui';
-import { DollarSign, Percent, Package } from 'lucide-react';
+import { IndianRupee, Percent, Package } from 'lucide-react';
 import { FieldGroup } from '../layout';
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
 

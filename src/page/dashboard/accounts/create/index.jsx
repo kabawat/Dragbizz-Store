@@ -11,7 +11,7 @@ import {
   Building2, 
   Save, 
   X, 
-  DollarSign,
+  IndianRupee,
   Calendar,
   FileText,
   AlertCircle,
@@ -402,7 +402,7 @@ const CreateAccount = () => {
               <Card className="mb-6">
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <DollarSign className="w-5 h-5 mr-2" />
+                    <IndianRupee className="w-5 h-5 mr-2" />
                     Account Summary
                   </h3>
 

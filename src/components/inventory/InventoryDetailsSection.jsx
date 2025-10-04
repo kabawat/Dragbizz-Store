@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Package, Warehouse, DollarSign, TrendingUp, AlertTriangle, TrendingDown, Calculator } from 'lucide-react';
+import { Package, Warehouse, IndianRupee, TrendingUp, AlertTriangle, TrendingDown, Calculator } from 'lucide-react';
 import { Input, Select, Card, CardBody, Badge } from '@/components/ui';
 import { productService, supplierService } from '@/service/retailer';
 
@@ -170,7 +170,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
       <div className="space-y-6">
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-            <DollarSign className="w-4 h-4 text-green-600" />
+            <IndianRupee className="w-4 h-4 text-green-600" />
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h3>
         </div>
@@ -367,7 +367,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                       {/* Total Cost */}
                       <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                         <div className="flex items-center space-x-2 mb-1">
-                          <DollarSign className="w-4 h-4 text-purple-600" />
+                          <IndianRupee className="w-4 h-4 text-purple-600" />
                           <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                             Total Cost
                           </span>

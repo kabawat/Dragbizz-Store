@@ -12,7 +12,7 @@ import {
   Filter, 
   Eye, 
   Edit, 
-  DollarSign,
+  IndianRupee,
   Calendar,
   Building2,
   CheckCircle,
@@ -171,7 +171,7 @@ const PendingPayments = () => {
                   <p className="text-blue-100 text-sm font-medium">Pending Amount</p>
                   <p className="text-2xl font-bold">{formatCurrency(stats.pendingAmount)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-200" />
+                <IndianRupee className="w-8 h-8 text-blue-200" />
               </div>
             </Card>
 

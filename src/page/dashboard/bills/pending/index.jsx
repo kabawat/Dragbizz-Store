@@ -12,7 +12,7 @@ import {
   Filter, 
   Eye, 
   Edit, 
-  DollarSign,
+  IndianRupee,
   Calendar,
   Building2,
   AlertTriangle
@@ -145,7 +145,7 @@ const PendingBills = () => {
                   <p className="text-blue-100 text-sm font-medium">Total Due Amount</p>
                   <p className="text-2xl font-bold">{formatCurrency(stats.dueAmount)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-200" />
+                <IndianRupee className="w-8 h-8 text-blue-200" />
               </div>
             </Card>
           </div>
@@ -263,7 +263,7 @@ const PendingBills = () => {
                             <Button
                               variant="primary"
                               size="sm"
-                              leftIcon={DollarSign}
+                              leftIcon={IndianRupee}
                               onClick={() => router.push(`/dashboard/payments/create?billId=${bill.id}`)}
                             >
                               Pay Now

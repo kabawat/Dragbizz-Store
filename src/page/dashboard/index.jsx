@@ -7,7 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
-import { DollarSign, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, Plus, FileText, UserPlus, PackagePlus, Building, GripVertical } from 'lucide-react';
+import { IndianRupee, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, Plus, FileText, UserPlus, PackagePlus, Building, GripVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 const transactions = [
   { customer: 'John Smith', date: '2025-01-08', amount: '₹234.50', status: 'completed' },
@@ -179,7 +179,7 @@ export default function Dashboard() {
       value: '₹1,24,532',
       change: '+12.5%',
       changeType: 'up',
-      icon: DollarSign,
+      icon: IndianRupee,
       iconColor: 'bg-green-500'
     },
     {

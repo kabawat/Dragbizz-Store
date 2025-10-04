@@ -17,7 +17,7 @@ import {
   Trash2, 
   MoreVertical,
   Calendar,
-  DollarSign,
+  IndianRupee,
   CheckCircle,
   Clock,
   AlertTriangle,
