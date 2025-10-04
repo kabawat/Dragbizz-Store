@@ -230,7 +230,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter the basic details of the customer</p>
           </div>
         </div>
@@ -289,7 +289,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <Building2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter company information (optional)</p>
           </div>
         </div>
@@ -332,7 +332,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add billing and shipping addresses</p>
             {userLocation && (
               <p className="text-xs text-green-600 mt-1">

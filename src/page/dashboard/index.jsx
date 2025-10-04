@@ -356,7 +356,7 @@ export default function Dashboard() {
                       <div className={section.span}>
                         {section.id === 'transactions' && (
                           <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Recent Transactions</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">Recent Transactions</h2>
                             <div className="space-y-3">
                               {transactions.map((transaction, index) => (
                                 <TransactionItem key={index} {...transaction} />
@@ -367,7 +367,7 @@ export default function Dashboard() {
 
                         {section.id === 'quickActions' && (
                           <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
                             <div className="grid grid-cols-2 gap-4">
                               {quickActions.map((action, index) => (
                                 <QuickActionButton key={index} {...action} onClick={() => handleRedirect(action.path)} />

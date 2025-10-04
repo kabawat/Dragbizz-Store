@@ -119,7 +119,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Supplier Data...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
@@ -169,7 +169,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                       <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Building className="w-10 h-10 text-red-600" />
                       </div>
-                      <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
+                      <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
                         Supplier Not Found
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
@@ -210,7 +210,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                           <Building className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Supplier Information</h2>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Supplier Information</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic supplier details</p>
                         </div>
                       </div>

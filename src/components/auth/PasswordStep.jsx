@@ -67,7 +67,7 @@ const PasswordStep = ({
             </div>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Step 2 of 3</p>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2 text-center">
+          <h2 className="text-lg sm:text-xl font-bold text-[rgb(var(--color-text-primary))] mb-2 text-center">
             Secure your account, {firstName}! 🔒
           </h2>
           <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6 text-center">

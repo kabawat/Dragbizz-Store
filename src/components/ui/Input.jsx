@@ -1,5 +1,5 @@
 "use client"
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const Input = forwardRef(({
@@ -30,7 +30,7 @@ const Input = forwardRef(({
   size = 'md', // New size prop with default 'md'
   ...props
 }, ref) => {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const inputType = showPasswordToggle && type === 'password'
     ? (showPassword ? 'text' : 'password')
@@ -52,7 +52,7 @@ const Input = forwardRef(({
     md: LeftIcon ? 'pl-10' : 'pl-3', // Default padding
     lg: LeftIcon ? 'pl-12' : 'pl-4'
   };
-  
+
   const rightPaddingClasses = {
     sm: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-8' : 'pr-2.5',
     md: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-10' : 'pr-3', // Default padding
@@ -75,8 +75,10 @@ const Input = forwardRef(({
       {/* Label */}
       {label && (
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          <span className="flex items-center gap-2">
+            <span>{label}</span>
+            {required && <span className="text-red-500">*</span>}
+          </span>
         </label>
       )}
       {/* Left Icon */}

@@ -164,7 +164,7 @@ const ViewProductPage = ({ productId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Product Data...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
@@ -214,7 +214,7 @@ const ViewProductPage = ({ productId }) => {
                       <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Package className="w-10 h-10 text-red-600" />
                       </div>
-                      <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
+                      <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
                         Product Not Found
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
@@ -257,7 +257,7 @@ const ViewProductPage = ({ productId }) => {
                             <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Product Information</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Information</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic product details</p>
                           </div>
                         </div>
@@ -343,7 +343,7 @@ const ViewProductPage = ({ productId }) => {
                           <IndianRupee className="w-6 h-6 text-green-500" />
                         </div>
                         <div>
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h2>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product pricing details</p>
                         </div>
                       </div>
@@ -403,7 +403,7 @@ const ViewProductPage = ({ productId }) => {
                             <Shield className="w-6 h-6 text-blue-500" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">GST Information</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">GST Information</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Tax and compliance details</p>
                           </div>
                         </div>
@@ -469,7 +469,7 @@ const ViewProductPage = ({ productId }) => {
                           <Zap className="w-6 h-6 text-purple-500" />
                         </div>
                         <div>
-                          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Product Features</h2>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Features</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Special product attributes</p>
                         </div>
                       </div>
@@ -518,7 +518,7 @@ const ViewProductPage = ({ productId }) => {
                             <FileText className="w-6 h-6 text-orange-500" />
                           </div>
                           <div>
-                            <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))]">Product Description</h2>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Description</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product content and details</p>
                           </div>
                         </div>

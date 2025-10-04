@@ -32,7 +32,7 @@ export default function RoutesLayout({ children }) {
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
             Loading Profile...
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">

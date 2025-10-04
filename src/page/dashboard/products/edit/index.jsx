@@ -263,7 +263,7 @@ const UpdateProductPage = ({ productId }) => {
                   <div className="text-center">
 
                     <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Product...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
@@ -294,7 +294,7 @@ const UpdateProductPage = ({ productId }) => {
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Product Not Found
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-4">

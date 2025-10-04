@@ -86,7 +86,7 @@ export default function Home() {
           {/* Demo Section */}
           <Card className="mb-12">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Theme Demo</h2>
+              <h2 className="text-xl font-bold mb-4">Theme Demo</h2>
               <p className="text-lg text-[rgb(var(--color-text-secondary))]">
                 Experience our theme system in action
               </p>
@@ -137,7 +137,7 @@ export default function Home() {
 
           {/* CTA Section */}
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Explore?</h2>
+            <h2 className="text-xl font-bold mb-4">Ready to Explore?</h2>
             <p className="text-lg text-[rgb(var(--color-text-secondary))] mb-8">
               Visit our theme demo page to see all themes in action
             </p>
