@@ -289,8 +289,8 @@ const SuppliersPage = () => {
 
             {/* Search and Filter Card */}
             {suppliers.length > 0 && (
-              <div className="mb-6">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-4">
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                   {/* Search */}
                   <div className="w-100 bg-red">
                     <Input
@@ -310,8 +310,8 @@ const SuppliersPage = () => {
                       <button
                         onClick={() => handleViewModeChange('table')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                            ? 'bg-[rgb(var(--color-primary))] text-white'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                           }`}
                       >
                         <List className="w-4 h-4" />
@@ -320,8 +320,8 @@ const SuppliersPage = () => {
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card'
-                            ? 'bg-[rgb(var(--color-primary))] text-white'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                           }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
@@ -369,7 +369,7 @@ const SuppliersPage = () => {
             {/* Suppliers List */}
             {suppliers.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-260px)] overflow-y-auto" ref={scrollRef}>
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
                   {viewMode === 'table' ? (
                     <div className="h-full">
                       <SupplierTable

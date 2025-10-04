@@ -20,6 +20,7 @@ const Select = ({
   className = '',
   name,
   id,
+  size = 'md', // New size prop with default 'md'
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -186,11 +187,11 @@ const Select = ({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        {/* Selected Value Display */}
-        <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex-1 min-w-0">
+        {/* Selected Value Display with responsive sizing */}
+        <div className={`flex items-center px-4 ${size === 'sm' ? 'py-2 h-10' : size === 'lg' ? 'py-3 h-14' : 'py-2.5 h-12'}`}>
+          <div className="flex-1 min-w-0 overflow-hidden pr-3">
             {multiple ? (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1 overflow-hidden">
                 {selectedOption?.length > 0 ? (
                   selectedOption.map(option => (
                     <span
@@ -202,12 +203,12 @@ const Select = ({
                     </span>
                   ))
                 ) : (
-                  <span className="text-[rgb(var(--color-text-tertiary))]" style={{ color: 'rgb(var(--color-text-tertiary))' }}>{placeholder}</span>
+                  <span className="text-[rgb(var(--color-text-tertiary))] truncate" style={{ color: 'rgb(var(--color-text-tertiary))' }}>{placeholder}</span>
                 )}
               </div>
             ) : (
               <span
-                className={selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}
+                className={`${selectedOption ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'} ${size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm'} truncate`}
                 style={{ color: selectedOption ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-tertiary))' }}
               >
                 {selectedOption?.label || placeholder}
@@ -215,7 +216,7 @@ const Select = ({
             )}
           </div>
 
-          <div className="flex items-center space-x-2 ml-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {/* Clear Button */}
             {clearable && (multiple ? value?.length > 0 : value) && (
               <button
@@ -230,7 +231,7 @@ const Select = ({
 
             {/* Dropdown Arrow */}
             <ChevronDown
-              className={`w-5 h-5 text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+              className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
                 }`}
             />
           </div>
@@ -257,7 +258,7 @@ const Select = ({
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                  <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-4 h-4'} text-[rgb(var(--color-text-tertiary))]`} />
                   <input
                     ref={searchRef}
                     type="text"
@@ -279,7 +280,7 @@ const Select = ({
                         setHighlightedIndex(-1);
                       }
                     }}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    className={`w-full pl-10 pr-3 ${size === 'sm' ? 'py-2 text-xs' : size === 'lg' ? 'py-3 text-base' : 'py-2 text-sm'} border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]`}
                     style={{ color: 'rgb(var(--color-text-primary))' }}
                   />
                 </div>

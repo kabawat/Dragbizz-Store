@@ -63,8 +63,8 @@ const NumberInput = forwardRef(({
     props.onBlur?.(e);
   };
 
-  // Base classes - Theme aware
-  const baseClasses = 'w-full border-2 py-4 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]';
+  // Base classes - Theme aware with consistent height
+  const baseClasses = 'w-full border-2 py-2.5 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] h-12';
 
   // Padding classes - More precise spacing
   const paddingClasses = LeftIcon ? 'pl-14' : 'pl-4';

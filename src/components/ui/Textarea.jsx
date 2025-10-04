@@ -6,6 +6,7 @@ const Textarea = forwardRef(({
   placeholder,
   value,
   onChange,
+  leftIcon: LeftIcon,
   label,
   error = false,
   errorMessage,
@@ -28,8 +29,8 @@ const Textarea = forwardRef(({
   // Base classes
   const baseClasses = 'w-full border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1';
   
-  // Padding classes
-  const paddingClasses = 'px-4 py-3';
+  // Padding classes - adjust based on leftIcon
+  const paddingClasses = LeftIcon ? 'pl-12 pr-4 py-3' : 'px-4 py-3';
   
   // State classes
   const stateClasses = error 
@@ -85,6 +86,13 @@ const Textarea = forwardRef(({
       )}
       
       <div className="relative">
+        {/* Left Icon */}
+        {LeftIcon && (
+          <div className="absolute left-4 top-3 z-10 flex items-start">
+            <LeftIcon className="w-5 h-5 text-gray-400 pointer-events-none" />
+          </div>
+        )}
+
         {/* Textarea Field */}
         <textarea
           ref={ref}
