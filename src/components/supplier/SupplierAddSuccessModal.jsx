@@ -76,7 +76,7 @@ const SupplierAddSuccessModal = ({
             <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
               {modalTitle}
             </h2>
-            <p className="text-[rgb(var(--color-text-secondary))] text-lg mb-2">
+            <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
               "{supplierName}" has been {isEditMode ? 'updated in' : 'added to'} your supplier list
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
@@ -89,7 +89,7 @@ const SupplierAddSuccessModal = ({
             <Button
               variant="primary"
               onClick={onContinue}
-              className="flex-1 h-12 text-lg font-semibold bg-[rgb(var(--color-primary))] text-white"
+              className="flex-1 h-12 text-md font-semibold bg-[rgb(var(--color-primary))] text-white"
               leftIcon={ArrowRight}
             >
               {modalContinueText}
@@ -98,7 +98,7 @@ const SupplierAddSuccessModal = ({
             <Button
               variant="outline"
               onClick={onAddMore}
-              className="flex-1 h-12 text-lg font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
+              className="flex-1 h-12 text-md font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               leftIcon={Plus}
             >
               {modalAddMoreText}

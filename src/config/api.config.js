@@ -29,11 +29,12 @@ const API_CONFIG = {
     PRODUCT: '/retailer/product',
     ACCOUNT: '/retailer/account',
     PROFILE: '/retailer/profile',
-    PAYMENT: '/retailer/payment',
     AGENCY: '/retailer/agencies',
     STORE: '/retailer/store',
     STOCK: '/retailer/stock',
+
     PURCHASE_ORDER: '/retailer/purchase-order',
+    PAYMENT: '/retailer/payment',
     BILL: '/retailer/supplier-account/bills',
   },
     

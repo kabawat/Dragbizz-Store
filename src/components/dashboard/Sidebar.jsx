@@ -249,8 +249,8 @@ const Sidebar = ({ onStoreChange }) => {
 
         {/* Toggle Button */}
         <div className="relative flex justify-end">
-          <button onClick={toggleSidebar} className="absolute cursor-pointer w-6 h-6 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-3 -translate-y-3">
-            {isCollapsed ? <ChevronRight className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" /> : <ChevronLeft className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" />}
+          <button onClick={toggleSidebar} className="absolute cursor-pointer w-7 h-7 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-3 -translate-y-3">
+            {isCollapsed ? <ChevronRight className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> : <ChevronLeft className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
           </button>
         </div>
 

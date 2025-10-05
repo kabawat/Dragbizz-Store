@@ -100,7 +100,7 @@ const OpeningQuantitySection = ({
               onChange={(value) => handleFieldChange('openingStock.purchasePrice', value)}
               error={errors.purchasePrice}
               errorMessage={errors.purchasePrice}
-              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-lg">₹</span>}
+              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-md">₹</span>}
               min={0}
               step={0.01}
               precision={2}

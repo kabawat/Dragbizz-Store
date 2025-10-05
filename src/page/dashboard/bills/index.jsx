@@ -1,34 +1,28 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getBills, getBillStats, setCurrentFilter, setViewMode } from '@/store/slices/billsSlice';
+import { getBills, setCurrentFilter, addMoreBills } from '@/store/slices/billsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
-import { 
-  Receipt, 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  MoreVertical,
-  Calendar,
-  IndianRupee,
+import {
+  Receipt,
+  Plus,
+  Search,
+  List,
+  Grid3X3,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  Building2
+  Clock
 } from 'lucide-react';
-import { Button, Input, Select, Badge, Card, Modal } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
+import { BillTable, BillGrid, BillDeleteConfirmModal } from '@/components/bills';
 
 const Bills = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { bills, stats, isLoading, error, currentFilter, viewMode, pagination } = useAppSelector((state) => state.bills);
+  const { bills, isLoading, error, currentFilter, pagination } = useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,32 +30,235 @@ const Bills = () => {
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [selectedBills, setSelectedBills] = useState([]);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const scrollRef = useRef(null);
+  const lastFetchRef = useRef({ storeId: null, searchValue: null });
+  const [viewMode, setViewMode] = useState('table');
 
-  // Fetch bills and stats on component mount
+  // Handle view mode change
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('bills-view-mode', mode);
+  };
+
+  // Load saved view mode
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getBills({ 
-        store: selectedStore.id,
-        limit: 20,
-        page: 1
-      }));
-      dispatch(getBillStats(selectedStore.id));
+    const savedViewMode = localStorage.getItem('bills-view-mode');
+    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+      setViewMode(savedViewMode);
     }
-  }, [dispatch, selectedStore]);
+  }, []);
 
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
-    // Implement search logic here
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
+
+  // Handle menu toggle
+  const handleMenuToggle = (billId) => {
+    setOpenMenuId(openMenuId === billId ? null : billId);
+  };
+
+  // Handle menu action
+  const handleMenuAction = (billId, action) => {
+    const bill = bills.find(b => (b._id || b.id) === billId);
+    if (!bill) return;
+
+    switch (action) {
+      case 'view':
+        router.push(`/dashboard/bills/${bill._id || bill.id}`);
+        break;
+      case 'edit':
+        router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
+        break;
+      case 'delete':
+        handleDeleteBill(bill);
+        break;
+      default:
+        break;
+    }
+    setOpenMenuId(null);
+  };
+  const handleManualApiCall = () => {
+    console.log('Manual API call triggered');
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    dispatch(getBills({
+      store: storeId || 'test-store',
+      limit: 20,
+      page: 1
+    }));
+  };
+
+  // Fetch bills and stats on component mount
+  useEffect(() => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    // Fetch only if store exists
+    if (!storeId) return;
+
+    // Prevent duplicate fetch
+    if (
+      lastFetchRef.current.storeId === storeId &&
+      lastFetchRef.current.searchValue === searchTerm
+    ) {
+      return;
+    }
+
+    lastFetchRef.current = { storeId, searchTerm };
+
+    const fetchBills = async () => {
+      const params = {
+        store: storeId,
+        search: searchTerm,
+        limit: 20,
+        cursor: null
+      };
+      await dispatch(getBills(params));
+    };
+
+    fetchBills();
+  }, [dispatch, selectedStore, searchTerm]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const threshold = 100;
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [isLoadingMore, pagination.hasNextPage]);
+
+  // Handle load more
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !pagination.hasNextPage) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const params = {
+        store: storeId,
+        search: searchTerm,
+        limit: 20,
+        cursor: pagination.nextCursor
+      };
+
+      const result = await dispatch(getBills(params));
+      if (result.payload?.success) {
+        dispatch(addMoreBills(result.payload.data.data));
+      }
+    } catch (error) {
+      console.error('Error loading more bills:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+  const getFilteredBills = () => {
+    let filteredBills = [...bills];
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filteredBills = filteredBills.filter(bill => {
+        const isOverdue = new Date(bill.dueDate) < new Date() && bill.dueAmount > 0;
+
+        switch (statusFilter) {
+          case 'pending':
+            return bill.paymentStatus === 'UNPAID' || bill.paymentStatus === 'PARTIAL';
+          case 'overdue':
+            return isOverdue;
+          case 'paid':
+            return bill.paymentStatus === 'PAID';
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Filter by supplier
+    if (supplierFilter !== 'all') {
+      filteredBills = filteredBills.filter(bill =>
+        bill.supplier?.name?.toLowerCase().includes(supplierFilter.toLowerCase())
+      );
+    }
+
+    // Filter by date range
+    if (dateRange !== 'all') {
+      const now = new Date();
+      filteredBills = filteredBills.filter(bill => {
+        const billDate = new Date(bill.billDate);
+
+        switch (dateRange) {
+          case 'today':
+            return billDate.toDateString() === now.toDateString();
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return billDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return billDate >= monthAgo;
+          case 'year':
+            const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+            return billDate >= yearAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filteredBills = filteredBills.filter(bill =>
+        bill.billNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        bill.supplier?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        bill.totalAmount?.toString().includes(searchTerm)
+      );
+    }
+
+    return filteredBills;
+  };
+
+  // Get filtered bills
+  const filteredBills = getFilteredBills();
 
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
       case 'status':
         setStatusFilter(value);
+        dispatch(setCurrentFilter(value));
+
+        // All bills come from the same API, filtering is done on frontend
+        const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        if (storeId) {
+          dispatch(getBills({ store: storeId }));
+        }
         break;
       case 'supplier':
         setSupplierFilter(value);
@@ -76,8 +273,8 @@ const Bills = () => {
 
   // Handle bill selection
   const handleBillSelect = (billId) => {
-    setSelectedBills(prev => 
-      prev.includes(billId) 
+    setSelectedBills(prev =>
+      prev.includes(billId)
         ? prev.filter(id => id !== billId)
         : [...prev, billId]
     );
@@ -88,7 +285,7 @@ const Bills = () => {
     if (selectedBills.length === bills.length) {
       setSelectedBills([]);
     } else {
-      setSelectedBills(bills.map(bill => bill.id));
+      setSelectedBills(bills.map(bill => bill._id || bill.id));
     }
   };
 
@@ -102,25 +299,55 @@ const Bills = () => {
   const confirmDelete = () => {
     if (billToDelete) {
       // Implement delete logic here
-      console.log('Deleting bill:', billToDelete.id);
+      console.log('Deleting bill:', billToDelete._id || billToDelete.id);
       setShowDeleteModal(false);
       setBillToDelete(null);
     }
   };
 
   // Get status badge variant
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'paid':
-        return { variant: 'success', icon: CheckCircle, text: 'Paid' };
-      case 'pending':
-        return { variant: 'warning', icon: Clock, text: 'Pending' };
-      case 'overdue':
-        return { variant: 'danger', icon: AlertTriangle, text: 'Overdue' };
-      case 'draft':
-        return { variant: 'secondary', icon: Edit, text: 'Draft' };
+  const getStatusBadge = (bill) => {
+    // Check if bill is overdue
+    const isOverdue = new Date(bill.dueDate) < new Date() && bill.dueAmount > 0;
+
+    if (isOverdue) {
+      return {
+        variant: 'danger',
+        icon: AlertTriangle,
+        text: 'Overdue',
+        color: 'bg-red-500/10 text-red-600 border-red-500/20'
+      };
+    }
+
+    switch (bill.paymentStatus) {
+      case 'PAID':
+        return {
+          variant: 'success',
+          icon: CheckCircle,
+          text: 'Paid',
+          color: 'bg-green-500/10 text-green-600 border-green-500/20'
+        };
+      case 'PARTIAL':
+        return {
+          variant: 'warning',
+          icon: Clock,
+          text: 'Partial',
+          color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+        };
+      case 'UNPAID':
+        return {
+          variant: 'secondary',
+          icon: Clock,
+          text: 'Pending',
+          color: 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+        };
       default:
-        return { variant: 'secondary', icon: Clock, text: 'Unknown' };
+        return {
+          variant: 'secondary',
+          icon: Clock,
+          text: 'Unknown',
+          color: 'bg-gray-500/10 text-gray-600 border-gray-500/20'
+        };
     }
   };
 
@@ -142,7 +369,7 @@ const Bills = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
       <Sidebar />
 
@@ -155,272 +382,188 @@ const Bills = () => {
         />
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Bills</p>
-                  <p className="text-2xl font-bold">{stats.totalBills}</p>
+        <div className="flex-1 p-5">
+          <div className="max-w-8xl mx-auto">
+            {/* Loading */}
+            {isLoading && bills.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Bills...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your bills
+                    </p>
+                  </div>
                 </div>
-                <Receipt className="w-8 h-8 text-blue-200" />
               </div>
-            </Card>
+            )}
 
-            <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-yellow-100 text-sm font-medium">Pending Bills</p>
-                  <p className="text-2xl font-bold">{stats.pendingBills}</p>
+            {/* Search and filter */}
+            {bills.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                  {/* Search */}
+                  <div className="w-100 bg-red">
+                    <Input
+                      type="text"
+                      placeholder="Search bills..."
+                      value={searchTerm}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      leftIcon={Search}
+                      className="w-100"
+                    />
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    {/* View toggle */}
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
+                    </div>
+
+                    <Button variant="primary" onClick={() => router.push('/dashboard/bills/create')} leftIcon={Plus}>
+                      Create Bill
+                    </Button>
+                  </div>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-200" />
               </div>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-red-100 text-sm font-medium">Overdue Bills</p>
-                  <p className="text-2xl font-bold">{stats.overdueBills}</p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-red-200" />
-              </div>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-sm font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
-                </div>
-                <IndianRupee className="w-8 h-8 text-green-200" />
-              </div>
-            </Card>
-          </div>
-
-          {/* Filters and Actions */}
-          <Card className="mb-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              {/* Search and Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search bills..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    className="pl-10"
-                  />
-                </div>
-
-                <Select
-                  value={statusFilter}
-                  onChange={(value) => handleFilterChange('status', value)}
-                  options={[
-                    { value: 'all', label: 'All Status' },
-                    { value: 'paid', label: 'Paid' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'overdue', label: 'Overdue' },
-                    { value: 'draft', label: 'Draft' }
-                  ]}
-                />
-
-                <Select
-                  value={supplierFilter}
-                  onChange={(value) => handleFilterChange('supplier', value)}
-                  options={[
-                    { value: 'all', label: 'All Suppliers' },
-                    { value: 'supplier1', label: 'Supplier 1' },
-                    { value: 'supplier2', label: 'Supplier 2' }
-                  ]}
-                />
-
-                <Select
-                  value={dateRange}
-                  onChange={(value) => handleFilterChange('date', value)}
-                  options={[
-                    { value: 'all', label: 'All Time' },
-                    { value: 'today', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' },
-                    { value: 'year', label: 'This Year' }
-                  ]}
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  leftIcon={Download}
-                  onClick={() => {/* Export logic */}}
-                >
-                  Export
-                </Button>
-                <Button
-                  variant="primary"
-                  leftIcon={Plus}
-                  onClick={() => router.push('/dashboard/bills/create')}
-                >
-                  Create Bill
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          {/* Bills Table */}
-          <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedBills.length === bills.length && bills.length > 0}
-                        onChange={handleSelectAll}
-                        className="rounded border-gray-300"
-                      />
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">Bill Number</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Supplier</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Due Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Amount</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bills.map((bill) => {
-                    const statusBadge = getStatusBadge(bill.status);
-                    const StatusIcon = statusBadge.icon;
-                    
-                    return (
-                      <tr key={bill.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="p-4">
-                          <input
-                            type="checkbox"
-                            checked={selectedBills.includes(bill.id)}
-                            onChange={() => handleBillSelect(bill.id)}
-                            className="rounded border-gray-300"
-                          />
-                        </td>
-                        <td className="p-4">
-                          <div className="font-medium text-gray-900">{bill.billNumber}</div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center">
-                            <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-gray-900">{bill.supplier?.name || 'N/A'}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-gray-600">{formatDate(bill.billDate)}</td>
-                        <td className="p-4 text-gray-600">{formatDate(bill.dueDate)}</td>
-                        <td className="p-4 font-medium text-gray-900">{formatCurrency(bill.totalAmount)}</td>
-                        <td className="p-4">
-                          <Badge variant={statusBadge.variant} className="flex items-center gap-1">
-                            <StatusIcon className="w-3 h-3" />
-                            {statusBadge.text}
-                          </Badge>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Eye}
-                              onClick={() => router.push(`/dashboard/bills/${bill.id}`)}
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Edit}
-                              onClick={() => router.push(`/dashboard/bills/${bill.id}/edit`)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Trash2}
-                              onClick={() => handleDeleteBill(bill)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            )}
 
             {/* Empty State */}
-            {bills.length === 0 && !isLoading && (
-              <div className="text-center py-12">
-                <Receipt className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No bills found</h3>
-                <p className="text-gray-600 mb-4">Get started by creating your first bill.</p>
-                <Button
-                  variant="primary"
-                  leftIcon={Plus}
-                  onClick={() => router.push('/dashboard/bills/create')}
-                >
-                  Create Bill
-                </Button>
+            {!isLoading && bills.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                    <Receipt className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    No bills found
+                  </h3>
+                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
+                    No bills match your current criteria. Try adjusting your search or add new bills.
+                  </p>
+                  <div className="pt-4">
+                    <Button
+                      variant="primary"
+                      onClick={() => router.push('/dashboard/bills/create')}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Bill
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Loading State */}
-            {isLoading && (
-              <div className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading bills...</p>
+            {/* Bills list */}
+            {bills.length > 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                  {viewMode === 'table' ? (
+                    <BillTable
+                      bills={filteredBills}
+                      selectedBills={selectedBills}
+                      onSelect={handleBillSelect}
+                      onSelectAll={handleSelectAll}
+                      onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
+                      onDelete={handleDeleteBill}
+                      onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
+                      loading={isLoading}
+                      emptyMessage="No bills found"
+                      hasMore={pagination.hasNextPage}
+                      onLoadMore={handleLoadMore}
+                      isLoadingMore={isLoadingMore}
+                      openMenuId={openMenuId}
+                      onMenuToggle={handleMenuToggle}
+                      onMenuAction={handleMenuAction}
+                      menuRefs={menuRefs}
+                      getStatusBadge={getStatusBadge}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
+                  ) : (
+                    <BillGrid
+                      bills={filteredBills}
+                      selectedBills={selectedBills}
+                      onSelect={handleBillSelect}
+                      onSelectAll={handleSelectAll}
+                      onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
+                      onDelete={handleDeleteBill}
+                      onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
+                      isLoadingMore={isLoadingMore}
+                      openMenuId={openMenuId}
+                      onMenuToggle={handleMenuToggle}
+                      onMenuAction={handleMenuAction}
+                      menuRefs={menuRefs}
+                      getStatusBadge={getStatusBadge}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {pagination.hasNextPage ? (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bills.length}</span> bills
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bills.length}</span> bills
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more bills
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {selectedBills.length > 0 && (
+                        <span className="font-semibold text-[rgb(var(--color-primary))]">
+                          {selectedBills.length} selected
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-          </Card>
+          </div>
         </div>
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <BillDeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        title="Delete Bill"
-        size="md"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            Are you sure you want to delete this bill? This action cannot be undone.
-          </p>
-          {billToDelete && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="font-medium">Bill: {billToDelete.billNumber}</p>
-              <p className="text-sm text-gray-600">Amount: {formatCurrency(billToDelete.totalAmount)}</p>
-            </div>
-          )}
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={confirmDelete}
-            >
-              Delete Bill
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        onConfirm={confirmDelete}
+        billToDelete={billToDelete}
+        formatCurrency={formatCurrency}
+      />
     </div>
   );
 };
