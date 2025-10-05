@@ -48,7 +48,7 @@ const PricingGSTSection = ({
               error={errors.mrp}
               errorMessage={errors.mrp}
               required
-              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-lg">₹</span>}
+              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-md">₹</span>}
               min={0}
               step={0.01}
               precision={2}
@@ -67,7 +67,7 @@ const PricingGSTSection = ({
               error={errors.sellingPrice}
               errorMessage={errors.sellingPrice}
               required
-              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-lg">₹</span>}
+              leftIcon={() => <span className="text-[rgb(var(--color-text-tertiary))] font-bold text-md">₹</span>}
               min={0}
               step={0.01}
               precision={2}

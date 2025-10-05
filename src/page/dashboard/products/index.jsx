@@ -260,7 +260,7 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
@@ -273,7 +273,7 @@ const ProductsPage = () => {
         />
 
         {/* Main content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Loading */}
             {isLoading && transformedProducts.length === 0 && (

@@ -90,7 +90,7 @@ const UIDemoPage = () => {
           <h1 className="text-4xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
             UI Components Demo
           </h1>
-          <p className="text-[rgb(var(--color-text-secondary))] text-lg">
+          <p className="text-[rgb(var(--color-text-secondary))] text-md">
             Testing all unused UI components to see how they look and work
           </p>
         </div>

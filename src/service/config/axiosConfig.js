@@ -1,7 +1,8 @@
 // src/service/config/axiosConfig.js
 import axios from 'axios';
 import { cookieManager } from '@/utils/cookieManager';
-import { ENV_CONFIG, API_CONFIG } from '@/config';
+import ENV_CONFIG from '@/config/env.config';
+import API_CONFIG from '@/config/api.config';
 
 // Base configuration
 const BASE_URL = API_CONFIG.BASE.URL;

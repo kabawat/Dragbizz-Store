@@ -268,7 +268,7 @@ const SuppliersPage = () => {
         />
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Loading State */}
             {isLoading && suppliers.length === 0 && (

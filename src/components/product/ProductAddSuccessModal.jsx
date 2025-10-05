@@ -69,7 +69,7 @@ const ProductAddSuccessModal = ({
             <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
               {title}
             </h2>
-            <p className="text-[rgb(var(--color-text-secondary))] text-lg mb-2">
+            <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
               "{productName}" has been {title.includes('Added') ? 'added to' : 'updated in'} your store
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
@@ -82,7 +82,7 @@ const ProductAddSuccessModal = ({
             <Button
               variant="primary"
               onClick={onContinue}
-              className="flex-1 h-12 text-lg font-semibold bg-[rgb(var(--color-primary))] text-white"
+              className="flex-1 h-12 text-md font-semibold bg-[rgb(var(--color-primary))] text-white"
               leftIcon={ArrowRight}
             >
               {continueText}
@@ -91,7 +91,7 @@ const ProductAddSuccessModal = ({
             <Button
               variant="outline"
               onClick={onAddMore}
-              className="flex-1 h-12 text-lg font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
+              className="flex-1 h-12 text-md font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               leftIcon={Plus}
             >
               {addMoreText}

@@ -286,7 +286,7 @@ const CustomersPage = () => {
         <Header title="Customers" description="Manage your customer database and customer information" />
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Loading State */}
             {isLoading && customers.length === 0 && (

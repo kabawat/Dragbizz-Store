@@ -1,4 +1,4 @@
-import { API_CONFIG } from '@/config';
+import API_CONFIG from '@/config/api.config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
 import { retailerAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
@@ -44,11 +44,19 @@ class BillService {
   // Get all bills with query parameters
   async getBills(params = {}) {
     try {
+      console.log('BillService.getBills called with params:', params);
+      console.log('API_CONFIG.RETAILER.BILL:', API_CONFIG?.RETAILER?.BILL);
+      
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.BILL, params);
+      console.log('Final URL:', url);
+      
       const response = await retailerAxios.get(url);
+      console.log('BillService.getBills response:', response);
+      
       return handleApiSuccess(response?.data, 'Bills fetched successfully');
     } catch (error) {
+      console.error('BillService.getBills error:', error);
       return handleApiErrorResponse(error, 'bills-list');
     }
   }
@@ -70,32 +78,10 @@ class BillService {
     }
   }
 
-  // Get pending bills
-  async getPendingBills(params = {}) {
+  // Get bill analytics
+  async getBillAnalytics(storeId = null) {
     try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.BILL}/pending`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Pending bills fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'pending-bills');
-    }
-  }
-
-  // Get overdue bills
-  async getOverdueBills(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.BILL}/overdue`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Overdue bills fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'overdue-bills');
-    }
-  }
-
-  // Get bill statistics
-  async getBillStats(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.BILL}/stats`;
+      let url = `${API_CONFIG?.RETAILER?.BILL}/analytics`;
 
       if (storeId) {
         const params = { store: storeId };
@@ -103,9 +89,9 @@ class BillService {
       }
 
       const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bill statistics fetched successfully');
+      return handleApiSuccess(response?.data, 'Bill analytics fetched successfully');
     } catch (error) {
-      return handleApiErrorResponse(error, 'bill-stats');
+      return handleApiErrorResponse(error, 'bill-analytics');
     }
   }
 }

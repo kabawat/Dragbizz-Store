@@ -267,7 +267,7 @@ const ProductCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Product Name */}
         <div>
-          <h3 className="font-bold text-lg sm:text-xl mb-1" style={{ color: themeConfig.text }}>
+          <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
             {product.name}
           </h3>
           <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
