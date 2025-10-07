@@ -67,7 +67,7 @@ const BasicInfoSection = ({
         </div>
       </div>
 
-      {/* Second Section - Category & Subcategory */}
+      {/* Second Section - Category & Barcode */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Category Selection */}
         <div>
@@ -85,23 +85,6 @@ const BasicInfoSection = ({
           />
         </div>
 
-        {/* Subcategory */}
-        <div>
-          <Select
-            label="Subcategory"
-            placeholder="Select subcategory (optional)"
-            value={formData.subcategory || ''}
-            onChange={(value) => handleFieldChange('subcategory', value)}
-            error={errors.subcategory}
-            errorMessage={errors.subcategory}
-            searchable={true}
-            options={[]} // TODO: Add subcategory options
-          />
-        </div>
-      </div>
-
-      {/* Third Section - Barcode */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Barcode */}
         <div>
           <Input
@@ -115,6 +98,7 @@ const BasicInfoSection = ({
           />
         </div>
       </div>
+
     </>
   );
 };

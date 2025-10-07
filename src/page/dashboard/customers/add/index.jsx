@@ -115,8 +115,21 @@ const AddCustomerPage = () => {
       setLoading(true);
       setFieldErrors({});
       
+      // Prepare payload: make companyDetails optional (omit when empty)
+      const payload = (() => {
+        const data = { ...formData };
+        const gstin = data?.companyDetails?.gstin?.trim?.() || '';
+        const companyName = data?.companyDetails?.companyName?.trim?.() || '';
+        if (!gstin && !companyName) {
+          // Remove companyDetails entirely when both fields are empty
+          const { companyDetails, ...rest } = data;
+          return rest;
+        }
+        return data;
+      })();
+
       // Call customer service to create customer
-      const result = await customerService.createCustomer(formData);
+      const result = await customerService.createCustomer(payload);
 
       if (result.success) {
         // Show success modal instead of direct redirect
