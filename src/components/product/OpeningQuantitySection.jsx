@@ -137,7 +137,7 @@ const OpeningQuantitySection = ({
             onChange={(value) => handleFieldChange('openingStock.expiryDate', value)}
             error={errors.expiryDate}
             errorMessage={errors.expiryDate}
-            helperText="Required for medical, food, and perishable items"
+            helperText="Optional: add for medical, food, and perishable items"
           />
         </div>
 

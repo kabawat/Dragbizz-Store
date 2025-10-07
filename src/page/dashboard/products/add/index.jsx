@@ -27,7 +27,6 @@ const AddProductPage = () => {
     name: '',
     brand: '',
     category: '',
-    subcategory: '',
     barcode: '',
     basePrice: '',
     mrp: '',
