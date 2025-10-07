@@ -11,11 +11,90 @@ class PaymentService {
   // Create a new payment
   async createPayment(paymentData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, paymentData);
+      // Transform the data to match the API documentation structure
+      const apiPayload = this.transformPaymentData(paymentData);
+      
+      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
       return handleApiSuccess(response?.data, 'Payment created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'payment-creation');
     }
+  }
+
+  // Transform payment data to match API structure
+  transformPaymentData(formData) {
+    const paymentMethods = [];
+    
+    // Process each payment method
+    formData.paymentMethods.forEach(method => {
+      const paymentMethod = {
+        amount: parseFloat(method.amount) || 0,
+        method: this.mapPaymentMethod(method.method),
+        reference: method.reference || ''
+      };
+
+      // Add method-specific details
+      switch (method.method) {
+        case 'bank_transfer':
+          paymentMethod.bankDetails = {
+            bankName: method.bankName || '',
+            ifscCode: method.ifscCode || '',
+            accountNumber: method.accountNumber || '',
+            holderName: method.holderName || ''
+          };
+          break;
+        
+        case 'upi':
+          paymentMethod.upiDetails = {
+            upiId: method.upiId || '',
+            transactionId: method.transactionId || ''
+          };
+          break;
+        
+        case 'cheque':
+          paymentMethod.chequeDetails = {
+            chequeNumber: method.chequeNumber || '',
+            chequeDate: method.chequeDate || '',
+            bankName: method.chequeBankName || '',
+            branchName: method.chequeBranchName || ''
+          };
+          break;
+        
+        case 'cash':
+        case 'credit':
+          break;
+      }
+
+      paymentMethods.push(paymentMethod);
+    });
+
+    // Build the API payload
+    const apiPayload = {
+      supplier: formData.supplierId,
+      paymentType: formData.paymentType || 'BILL_PAYMENT',
+      payment: paymentMethods,
+      notes: formData.notes || ''
+    };
+
+    // Add bill ID only for BILL_PAYMENT type
+    if (formData.paymentType === 'BILL_PAYMENT' && formData.billId) {
+      apiPayload.bill = formData.billId;
+    }
+
+    return apiPayload;
+  }
+
+  // Map frontend payment method to API payment method
+  mapPaymentMethod(frontendMethod) {
+    const methodMap = {
+      'cash': 'CASH',
+      'upi': 'UPI',
+      'bank_transfer': 'BANK_TRANSFER',
+      'cheque': 'CHEQUE',
+      'credit': 'CREDIT'
+    };
+    
+    return methodMap[frontendMethod] || 'CASH';
   }
 
   // Update an existing payment
