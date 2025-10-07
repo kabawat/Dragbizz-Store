@@ -87,6 +87,9 @@ const Bills = () => {
       case 'edit':
         router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
         break;
+      case 'payment':
+        router.push(`/dashboard/payments/create?billId=${bill._id || bill.id}`);
+        break;
       case 'delete':
         handleDeleteBill(bill);
         break;

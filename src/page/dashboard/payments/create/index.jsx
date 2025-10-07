@@ -1,16 +1,14 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { createPayment } from '@/store/slices/paymentsSlice';
-import { getBillsForAllocation } from '@/store/slices/billsSlice';
-import { supplierService } from '@/service/retailer';
+import { useAppSelector } from '@/store/hooks';
+import { supplierService, paymentService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Button } from '@/components/ui';
-import { 
-  CreditCard, 
-  Save, 
+import {
+  CreditCard,
+  Save,
   ArrowLeft,
   Building2,
   IndianRupee,
@@ -24,18 +22,18 @@ import {
   Smartphone,
   CreditCard as CardIcon,
   Shield,
-  TrendingUp
+  TrendingUp,
+  Plus,
+  Trash2
 } from 'lucide-react';
-import { Input, Select, Textarea, Card, Modal, Checkbox } from '@/components/ui';
+import { Input, Select, Textarea, Card, Modal } from '@/components/ui';
 import Link from 'next/link';
 
 const CreatePayment = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const dispatch = useAppDispatch();
-  const { isCreating, error } = useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
-  
+
   // Local state for suppliers
   const [suppliers, setSuppliers] = useState([
     { id: '1', name: 'Test Supplier 1' },
@@ -44,40 +42,56 @@ const CreatePayment = () => {
   ]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
+  // Local state for bills
+  const [bills, setBills] = useState([]);
+  const [billsLoading, setBillsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     supplierId: '',
-    paymentNumber: '',
-    paymentDate: new Date().toISOString().split('T')[0],
-    amount: 0,
-    paymentMethod: 'cash',
-    reference: '',
-    transactionId: '',
+    paymentType: 'BILL_PAYMENT',
+    billId: '', // Required only for BILL_PAYMENT
     notes: '',
-    status: 'pending',
-    // Bank details for electronic payments
-    bankName: '',
-    accountNumber: '',
-    ifscCode: '',
-    branchName: '',
-    // Cheque details
-    chequeNumber: '',
-    chequeDate: '',
-    chequeBankName: '',
-    chequeBranchName: '',
-    chequeStatus: 'pending'
+    // Payment methods array
+    paymentMethods: [
+      {
+        amount: 0,
+        method: 'cash', // cash, upi, bank_transfer, cheque, credit
+        reference: '',
+        // Bank transfer details
+        bankName: '',
+        accountNumber: '',
+        ifscCode: '',
+        holderName: '',
+        // UPI details
+        upiId: '',
+        transactionId: '',
+        // Cheque details
+        chequeNumber: '',
+        chequeDate: '',
+        chequeBankName: '',
+        chequeBranchName: ''
+      }
+    ]
   });
 
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showAllocationModal, setShowAllocationModal] = useState(false);
-  const [availableBills, setAvailableBills] = useState([]);
-  const [selectedBills, setSelectedBills] = useState([]);
-  const [allocationAmounts, setAllocationAmounts] = useState({});
   const [loading, setLoading] = useState(false);
   const [createdPaymentNumber, setCreatedPaymentNumber] = useState('');
 
   // Get bill ID from URL params
   const billId = searchParams.get('billId');
+
+  // Set bill ID in form data if provided in URL
+  useEffect(() => {
+    if (billId) {
+      setFormData(prev => ({
+        ...prev,
+        billId: billId,
+        paymentType: 'BILL_PAYMENT'
+      }));
+    }
+  }, [billId]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -85,10 +99,10 @@ const CreatePayment = () => {
     if (!selectedStore?.storeId) return;
     try {
       setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({ 
-        limit: 100, 
-        lightweight: true, 
-        store: selectedStore.storeId 
+      const result = await supplierService.getSuppliers({
+        limit: 100,
+        lightweight: true,
+        store: selectedStore.storeId
       });
       console.log('Fetched suppliers:', result);
       if (result.success) {
@@ -117,6 +131,38 @@ const CreatePayment = () => {
     }
   };
 
+  // Fetch bills from API
+  const fetchBills = async (supplierId) => {
+    if (!supplierId || !selectedStore?.storeId) {
+      setBills([]);
+      return;
+    }
+
+    try {
+      setBillsLoading(true);
+      const result = await billService.getBills({
+        store: selectedStore.storeId,
+        supplier: supplierId, // This is already the supplier ID from the form
+        lightweight: true,
+        limit: 100
+      });
+      console.log('Fetched bills with supplier ID:', supplierId, result);
+      if (result.success) {
+        const billsData = result.data?.data || result.data || [];
+        console.log('Fetched bills:', billsData);
+        setBills(billsData);
+      } else {
+        console.error('Failed to fetch bills:', result.message);
+        setBills([]);
+      }
+    } catch (error) {
+      console.error('Error fetching bills:', error);
+      setBills([]);
+    } finally {
+      setBillsLoading(false);
+    }
+  };
+
   // Fetch suppliers on component mount and when selectedStore changes
   useEffect(() => {
     console.log('useEffect triggered - selectedStore:', selectedStore);
@@ -142,8 +188,9 @@ const CreatePayment = () => {
   // Fetch available bills when supplier is selected
   useEffect(() => {
     if (formData.supplierId && selectedStore?.storeId) {
-      // Implement fetch bills for allocation
-      // dispatch(getBillsForAllocation(formData.supplierId, selectedStore.storeId));
+      fetchBills(formData.supplierId);
+    } else {
+      setBills([]);
     }
   }, [formData.supplierId, selectedStore]);
 
@@ -154,6 +201,20 @@ const CreatePayment = () => {
       [field]: value
     }));
 
+    // Auto-fill amount when bill is selected
+    if (field === 'billId' && value) {
+      const selectedBill = bills.find(bill => bill._id === value);
+      if (selectedBill && selectedBill.dueAmount) {
+        setFormData(prev => ({
+          ...prev,
+          [field]: value,
+          paymentMethods: prev.paymentMethods.map((method, index) =>
+            index === 0 ? { ...method, amount: selectedBill.dueAmount } : method
+          )
+        }));
+      }
+    }
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -163,54 +224,149 @@ const CreatePayment = () => {
     }
   };
 
+  // Handle payment method changes
+  const handlePaymentMethodChange = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentMethods: prev.paymentMethods.map((method, i) =>
+        i === index ? { ...method, [field]: value } : method
+      )
+    }));
+
+    // Clear error when user starts typing
+    if (errors[`paymentMethod_${index}_${field}`]) {
+      setErrors(prev => ({
+        ...prev,
+        [`paymentMethod_${index}_${field}`]: null
+      }));
+    }
+  };
+
+  // Add new payment method
+  const addPaymentMethod = () => {
+    setFormData(prev => ({
+      ...prev,
+      paymentMethods: [
+        ...prev.paymentMethods,
+        {
+          amount: 0,
+          method: 'cash',
+          reference: '',
+          bankName: '',
+          accountNumber: '',
+          ifscCode: '',
+          holderName: '',
+          upiId: '',
+          transactionId: '',
+          chequeNumber: '',
+          chequeDate: '',
+          chequeBankName: '',
+          chequeBranchName: ''
+        }
+      ]
+    }));
+  };
+
+  // Remove payment method
+  const removePaymentMethod = (index) => {
+    if (formData.paymentMethods.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        paymentMethods: prev.paymentMethods.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  // Calculate total amount
+  const getTotalAmount = () => {
+    return formData.paymentMethods.reduce((total, method) => total + (parseFloat(method.amount) || 0), 0);
+  };
+
   // Validate form
   const validateForm = () => {
     const newErrors = {};
 
+    // Required fields
     if (!formData.supplierId) {
       newErrors.supplierId = 'Supplier is required';
     }
 
-    if (!formData.paymentNumber) {
-      newErrors.paymentNumber = 'Payment number is required';
+    // Validate payment methods
+    if (formData.paymentMethods.length === 0) {
+      newErrors.paymentMethods = 'At least one payment method is required';
     }
 
-    if (!formData.paymentDate) {
-      newErrors.paymentDate = 'Payment date is required';
+    const totalAmount = getTotalAmount();
+    if (totalAmount <= 0) {
+      newErrors.totalAmount = 'Total payment amount must be greater than 0';
     }
 
-    if (!formData.amount || formData.amount <= 0) {
-      newErrors.amount = 'Valid amount is required';
+    // Validate payment type specific requirements
+    if (formData.paymentType === 'BILL_PAYMENT' && !formData.billId) {
+      newErrors.billId = 'Please select a bill for bill payment';
     }
 
-    if (!formData.paymentMethod) {
-      newErrors.paymentMethod = 'Payment method is required';
-    }
+    // Validate each payment method
+    formData.paymentMethods.forEach((method, index) => {
+      if (!method.amount || method.amount <= 0) {
+        newErrors[`paymentMethod_${index}_amount`] = 'Valid amount is required (minimum 0.01)';
+      }
 
-    // Validate bank details for electronic payments
-    if (['bank_transfer', 'upi', 'card'].includes(formData.paymentMethod)) {
-      if (!formData.bankName) {
-        newErrors.bankName = 'Bank name is required';
+      if (!method.method) {
+        newErrors[`paymentMethod_${index}_method`] = 'Payment method is required';
       }
-      if (!formData.accountNumber) {
-        newErrors.accountNumber = 'Account number is required';
-      }
-      if (!formData.ifscCode) {
-        newErrors.ifscCode = 'IFSC code is required';
-      }
-    }
 
-    // Validate cheque details
-    if (formData.paymentMethod === 'cheque') {
-      if (!formData.chequeNumber) {
-        newErrors.chequeNumber = 'Cheque number is required';
+      // Validate payment method specific details
+      switch (method.method) {
+        case 'bank_transfer':
+          if (!method.bankName) {
+            newErrors[`paymentMethod_${index}_bankName`] = 'Bank name is required';
+          }
+          if (!method.ifscCode) {
+            newErrors[`paymentMethod_${index}_ifscCode`] = 'IFSC code is required';
+          }
+          if (!method.accountNumber) {
+            newErrors[`paymentMethod_${index}_accountNumber`] = 'Account number is required';
+          }
+          if (!method.holderName) {
+            newErrors[`paymentMethod_${index}_holderName`] = 'Account holder name is required';
+          }
+          break;
+
+        case 'upi':
+          if (!method.upiId) {
+            newErrors[`paymentMethod_${index}_upiId`] = 'UPI ID is required';
+          }
+          if (!method.transactionId) {
+            newErrors[`paymentMethod_${index}_transactionId`] = 'Transaction ID is required';
+          }
+          break;
+
+        case 'cheque':
+          if (!method.chequeNumber) {
+            newErrors[`paymentMethod_${index}_chequeNumber`] = 'Cheque number is required';
+          }
+          if (!method.chequeDate) {
+            newErrors[`paymentMethod_${index}_chequeDate`] = 'Cheque date is required';
+          }
+          if (!method.chequeBankName) {
+            newErrors[`paymentMethod_${index}_chequeBankName`] = 'Bank name is required';
+          }
+          if (!method.chequeBranchName) {
+            newErrors[`paymentMethod_${index}_chequeBranchName`] = 'Branch name is required';
+          }
+          break;
+
+        case 'cash':
+        case 'credit':
+          // Only reference is optional for cash and credit
+          break;
       }
-      if (!formData.chequeDate) {
-        newErrors.chequeDate = 'Cheque date is required';
-      }
-      if (!formData.chequeBankName) {
-        newErrors.chequeBankName = 'Cheque bank name is required';
-      }
+    });
+
+    // Validate notes length (max 500 characters)
+    if (formData.notes && formData.notes.length > 500) {
+      newErrors.notes = 'Notes cannot exceed 500 characters';
     }
 
     setErrors(newErrors);
@@ -226,26 +382,21 @@ const CreatePayment = () => {
     try {
       setLoading(true);
       setErrors({});
-      
+
+      // Prepare payment data according to new API structure
       const paymentData = {
         ...formData,
-        status: 'pending',
-        storeId: selectedStore?.storeId,
-        allocations: selectedBills.map(billId => ({
-          billId,
-          amount: allocationAmounts[billId] || 0
-        }))
+        storeId: selectedStore?.storeId
       };
 
-      const result = await dispatch(createPayment(paymentData));
-      
-      if (result.type === 'payments/createPayment/fulfilled') {
-        setCreatedPaymentNumber(formData.paymentNumber || 'Payment');
+      // Call payment service directly
+      const result = await paymentService.createPayment(paymentData);
+
+      if (result.success) {
+        setCreatedPaymentNumber(result.data?.paymentNumber || 'Payment');
         setShowSuccessModal(true);
       } else {
-        if (result?.payload?.message) {
-          setErrors({ general: result.payload.message });
-        }
+        setErrors({ general: result.message || 'Failed to create payment' });
       }
     } catch (error) {
       console.error('Error creating payment:', error);
@@ -290,44 +441,8 @@ const CreatePayment = () => {
       chequeStatus: 'pending'
     });
     setErrors({});
-    setSelectedBills([]);
-    setAllocationAmounts({});
   };
 
-  // Handle bill allocation
-  const handleBillAllocation = () => {
-    setShowAllocationModal(true);
-  };
-
-  // Handle bill selection for allocation
-  const handleBillSelect = (billId, isSelected) => {
-    if (isSelected) {
-      setSelectedBills(prev => [...prev, billId]);
-      setAllocationAmounts(prev => ({
-        ...prev,
-        [billId]: 0
-      }));
-    } else {
-      setSelectedBills(prev => prev.filter(id => id !== billId));
-      setAllocationAmounts(prev => {
-        const newAmounts = { ...prev };
-        delete newAmounts[billId];
-        return newAmounts;
-      });
-    }
-  };
-
-  // Handle allocation amount change
-  const handleAllocationAmountChange = (billId, amount) => {
-    setAllocationAmounts(prev => ({
-      ...prev,
-      [billId]: parseFloat(amount) || 0
-    }));
-  };
-
-  // Calculate total allocated amount
-  const totalAllocated = Object.values(allocationAmounts).reduce((sum, amount) => sum + amount, 0);
-  const remainingAmount = formData.amount - totalAllocated;
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -346,7 +461,7 @@ const CreatePayment = () => {
         return Building2;
       case 'cheque':
         return FileText;
-      case 'upi':Payment
+      case 'upi': Payment
         return Smartphone;
       case 'card':
         return CardIcon;
@@ -382,20 +497,37 @@ const CreatePayment = () => {
               {/* Main Form - Left Side */}
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
-                  <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                  {/* Payment Information */}
-                  <Card className="mb-6">
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <CreditCard className="w-5 h-5 mr-2" />
-                        Payment Information
-                      </h3>
+                  <form>
+                    {/* Basic Details Section */}
+                    <Card className="mb-6">
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                          <Building2 className="w-5 h-5 mr-2" />
+                          Basic Details
+                        </h3>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Supplier *
-                          </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Payment Type *
+                            </label>
+                            <Select
+                              value={formData.paymentType}
+                              onChange={(value) => handleInputChange('paymentType', value)}
+                              options={[
+                                { value: 'BILL_PAYMENT', label: 'Bill Payment' },
+                                { value: 'ADVANCE_PAYMENT', label: 'Advance Payment' },
+                                { value: 'ADJUSTMENT', label: 'Adjustment' },
+                                { value: 'REFUND', label: 'Refund' }
+                              ]}
+                              error={errors.paymentType}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Supplier *
+                            </label>
                           <Select
                             value={formData.supplierId}
                             onChange={(value) => handleInputChange('supplierId', value)}
@@ -411,276 +543,323 @@ const CreatePayment = () => {
                             ]}
                             error={errors.supplierId}
                             disabled={suppliersLoading}
+                            searchable={true}
+                            placeholder="Search and select supplier..."
                           />
-                          {/* Debug info */}
-                          <div className="mt-2 text-xs text-gray-500">
-                            Debug: {suppliers.length} suppliers loaded, Loading: {suppliersLoading ? 'Yes' : 'No'}
+                          </div>
+
+                          {formData.paymentType === 'BILL_PAYMENT' && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Bill *
+                              </label>
+                              <Select
+                                value={formData.billId}
+                                onChange={(value) => handleInputChange('billId', value)}
+                                options={[
+                                  {
+                                    value: '', label: billsLoading ? 'Loading bills...' :
+                                      (bills.length === 0 && formData.supplierId && !billsLoading) ? 'No pending bills found' : 'Select Bill'
+                                  },
+                                  ...bills.map(bill => ({
+                                    value: bill._id,
+                                    label: `₹${bill.dueAmount} - ${bill.supplier?.name || 'Supplier'}`
+                                  }))
+                                ]}
+                                error={errors.billId}
+                                disabled={billsLoading || !!billId} // Disable if loading or billId is from URL
+                              />
+                              {billId && (
+                                <div className="mt-1 text-xs text-green-600">
+                                  Bill auto-selected from URL
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Notes
+                          </label>
+                          <Textarea
+                            value={formData.notes}
+                            onChange={(value) => handleInputChange('notes', value)}
+                            placeholder="Additional notes..."
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Payment Methods Section */}
+                    <Card className="mb-6">
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                            <CreditCard className="w-5 h-5 mr-2" />
+                            Payment Methods
+                          </h3>
+                        <button
+                          type="button"
+                          onClick={addPaymentMethod}
+                          className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                          title="Add new payment method"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span className="text-sm font-medium">Add Payment Method</span>
+                        </button>
+                        </div>
+
+                        {/* Total Amount Display */}
+                        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-blue-900">Total Amount:</span>
+                            <span className="text-lg font-bold text-blue-900">₹{getTotalAmount().toLocaleString()}</span>
                           </div>
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Payment Number *
-                          </label>
-                          <Input
-                            value={formData.paymentNumber}
-                            onChange={(value) => handleInputChange('paymentNumber', value)}
-                            placeholder="Enter payment number"
-                            error={errors.paymentNumber}
-                          />
-                        </div>
+                        {/* Payment Methods List */}
+                        <div className="space-y-4">
+                          {formData.paymentMethods.map((method, index) => (
+                            <div key={index} className="border border-gray-200 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-md font-medium text-gray-900">
+                                  Payment Method {index + 1}
+                                </h4>
+                              {formData.paymentMethods.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removePaymentMethod(index)}
+                                  className="p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                  title="Remove payment method"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                              </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Payment Date *
-                          </label>
-                          <Input
-                            type="date"
-                            value={formData.paymentDate}
-                            onChange={(value) => handleInputChange('paymentDate', value)}
-                            error={errors.paymentDate}
-                          />
-                        </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Amount *
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    value={method.amount}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'amount', parseFloat(value) || 0)}
+                                    placeholder="0.00"
+                                    min="0.01"
+                                    step="0.01"
+                                    error={errors[`paymentMethod_${index}_amount`]}
+                                  />
+                                </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Amount *
-                          </label>
-                          <Input
-                            type="number"
-                            value={formData.amount}
-                            onChange={(value) => handleInputChange('amount', parseFloat(value) || 0)}
-                            placeholder="0.00"
-                            min="0"
-                            step="0.01"
-                            error={errors.amount}
-                          />
-                        </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Payment Method *
+                                  </label>
+                                  <Select
+                                    value={method.method}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
+                                    options={[
+                                      { value: 'cash', label: 'Cash' },
+                                      { value: 'upi', label: 'UPI' },
+                                      { value: 'bank_transfer', label: 'Bank Transfer' },
+                                      { value: 'cheque', label: 'Cheque' },
+                                      { value: 'credit', label: 'Credit' }
+                                    ]}
+                                    error={errors[`paymentMethod_${index}_method`]}
+                                  />
+                                </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Payment Method *
-                          </label>
-                          <Select
-                            value={formData.paymentMethod}
-                            onChange={(value) => handleInputChange('paymentMethod', value)}
-                            options={[
-                              { value: 'cash', label: 'Cash' },
-                              { value: 'bank_transfer', label: 'Bank Transfer' },
-                              { value: 'cheque', label: 'Cheque' },
-                              { value: 'upi', label: 'UPI' },
-                              { value: 'card', label: 'Card' }
-                            ]}
-                            error={errors.paymentMethod}
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Reference
-                          </label>
-                          <Input
-                            value={formData.reference}
-                            onChange={(value) => handleInputChange('reference', value)}
-                            placeholder="Payment reference"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Transaction ID
-                          </label>
-                          <Input
-                            value={formData.transactionId}
-                            onChange={(value) => handleInputChange('transactionId', value)}
-                            placeholder="Transaction ID (if applicable)"
-                          />
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Reference
+                                  </label>
+                                  <Input
+                                    value={method.reference}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'reference', value)}
+                                    placeholder="Payment reference"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
+                    </Card>
 
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Notes
-                        </label>
-                        <Textarea
-                          value={formData.notes}
-                          onChange={(value) => handleInputChange('notes', value)}
-                          placeholder="Additional notes..."
-                          rows={3}
-                        />
-                      </div>
-                    </div>
-                  </Card>
+                    {/* Payment Method Specific Details */}
+                    {formData.paymentMethods.map((method, index) => (
+                      <div key={`details-${index}`}>
+                        {method.method === 'bank_transfer' && (
+                          <Card className="mb-6">
+                            <div className="p-6">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <Building2 className="w-5 h-5 mr-2" />
+                                Bank Transfer Details - Payment Method {index + 1}
+                              </h3>
 
-              {/* Bank Details for Electronic Payments */}
-              {['bank_transfer', 'upi', 'card'].includes(formData.paymentMethod) && (
-                <Card className="mb-6">
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <Building2 className="w-5 h-5 mr-2" />
-                      Bank Details
-                    </h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Bank Name *
+                                  </label>
+                                  <Input
+                                    value={method.bankName}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
+                                    placeholder="Enter bank name"
+                                    error={errors[`paymentMethod_${index}_bankName`]}
+                                  />
+                                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Bank Name *
-                        </label>
-                        <Input
-                          value={formData.bankName}
-                          onChange={(value) => handleInputChange('bankName', value)}
-                          placeholder="Enter bank name"
-                          error={errors.bankName}
-                        />
-                      </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    IFSC Code *
+                                  </label>
+                                  <Input
+                                    value={method.ifscCode}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
+                                    placeholder="Enter IFSC code"
+                                    error={errors[`paymentMethod_${index}_ifscCode`]}
+                                  />
+                                </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Account Number *
-                        </label>
-                        <Input
-                          value={formData.accountNumber}
-                          onChange={(value) => handleInputChange('accountNumber', value)}
-                          placeholder="Enter account number"
-                          error={errors.accountNumber}
-                        />
-                      </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Account Number *
+                                  </label>
+                                  <Input
+                                    value={method.accountNumber}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
+                                    placeholder="Enter account number"
+                                    error={errors[`paymentMethod_${index}_accountNumber`]}
+                                  />
+                                </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          IFSC Code *
-                        </label>
-                        <Input
-                          value={formData.ifscCode}
-                          onChange={(value) => handleInputChange('ifscCode', value)}
-                          placeholder="Enter IFSC code"
-                          error={errors.ifscCode}
-                        />
-                      </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Account Holder Name *
+                                  </label>
+                                  <Input
+                                    value={method.holderName}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
+                                    placeholder="Enter account holder name"
+                                    error={errors[`paymentMethod_${index}_holderName`]}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Branch Name
-                        </label>
-                        <Input
-                          value={formData.branchName}
-                          onChange={(value) => handleInputChange('branchName', value)}
-                          placeholder="Enter branch name"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )}
+                        {/* UPI Details */}
+                        {method.method === 'upi' && (
+                          <Card className="mb-6">
+                            <div className="p-6">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <Smartphone className="w-5 h-5 mr-2" />
+                                UPI Details - Payment Method {index + 1}
+                              </h3>
 
-              {/* Cheque Details */}
-              {formData.paymentMethod === 'cheque' && (
-                <Card className="mb-6">
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <FileText className="w-5 h-5 mr-2" />
-                      Cheque Details
-                    </h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    UPI ID *
+                                  </label>
+                                  <Input
+                                    value={method.upiId}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
+                                    placeholder="Enter UPI ID (e.g., user@paytm)"
+                                    error={errors[`paymentMethod_${index}_upiId`]}
+                                  />
+                                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Cheque Number *
-                        </label>
-                        <Input
-                          value={formData.chequeNumber}
-                          onChange={(value) => handleInputChange('chequeNumber', value)}
-                          placeholder="Enter cheque number"
-                          error={errors.chequeNumber}
-                        />
-                      </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Transaction ID *
+                                  </label>
+                                  <Input
+                                    value={method.transactionId}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
+                                    placeholder="Enter transaction ID"
+                                    error={errors[`paymentMethod_${index}_transactionId`]}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Cheque Date *
-                        </label>
-                        <Input
-                          type="date"
-                          value={formData.chequeDate}
-                          onChange={(value) => handleInputChange('chequeDate', value)}
-                          error={errors.chequeDate}
-                        />
-                      </div>
+                        {/* Cheque Details */}
+                        {method.method === 'cheque' && (
+                          <Card className="mb-6">
+                            <div className="p-6">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <FileText className="w-5 h-5 mr-2" />
+                                Cheque Details - Payment Method {index + 1}
+                              </h3>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Bank Name *
-                        </label>
-                        <Input
-                          value={formData.chequeBankName}
-                          onChange={(value) => handleInputChange('chequeBankName', value)}
-                          placeholder="Enter bank name"
-                          error={errors.chequeBankName}
-                        />
-                      </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Cheque Number *
+                                  </label>
+                                  <Input
+                                    value={method.chequeNumber}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
+                                    placeholder="Enter cheque number"
+                                    error={errors[`paymentMethod_${index}_chequeNumber`]}
+                                  />
+                                </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Branch Name
-                        </label>
-                        <Input
-                          value={formData.chequeBranchName}
-                          onChange={(value) => handleInputChange('chequeBranchName', value)}
-                          placeholder="Enter branch name"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Cheque Date *
+                                  </label>
+                                  <Input
+                                    type="date"
+                                    value={method.chequeDate}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeDate', value)}
+                                    error={errors[`paymentMethod_${index}_chequeDate`]}
+                                  />
+                                </div>
 
-              {/* Bill Allocation */}
-              {formData.supplierId && (
-                <Card className="mb-6">
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <IndianRupee className="w-5 h-5 mr-2" />
-                        Bill Allocation
-                      </h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleBillAllocation}
-                      >
-                        Allocate to Bills
-                      </Button>
-                    </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Bank Name *
+                                  </label>
+                                  <Input
+                                    value={method.chequeBankName}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
+                                    placeholder="Enter bank name"
+                                    error={errors[`paymentMethod_${index}_chequeBankName`]}
+                                  />
+                                </div>
 
-                    {selectedBills.length > 0 ? (
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700">Total Allocated:</span>
-                          <span className="font-medium text-gray-900">{formatCurrency(totalAllocated)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700">Remaining Amount:</span>
-                          <span className={`font-medium ${remainingAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {formatCurrency(remainingAmount)}
-                          </span>
-                        </div>
-                        {remainingAmount < 0 && (
-                          <div className="text-sm text-red-600 flex items-center">
-                            <AlertCircle className="w-4 h-4 mr-1" />
-                            Allocation amount exceeds payment amount
-                          </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Branch Name *
+                                  </label>
+                                  <Input
+                                    value={method.chequeBranchName}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
+                                    placeholder="Enter branch name"
+                                    error={errors[`paymentMethod_${index}_chequeBranchName`]}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
                         )}
                       </div>
-                    ) : (
-                      <p className="text-gray-600 text-sm">No bills allocated yet. Click "Allocate to Bills" to select bills for this payment.</p>
-                    )}
-                  </div>
-                </Card>
-              )}
+                    ))}
+
 
                   </form>
                 </div>
-                
+
                 {/* Action Buttons - Fixed Bottom */}
                 <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
                   <Button variant="outline" onClick={handleCancel} disabled={loading}>
@@ -724,16 +903,6 @@ const CreatePayment = () => {
                         </div>
                       </div>
 
-                      {/* Bill Allocation */}
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-600 text-sm">📋</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Bill Allocation</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Allocate payments to specific bills for better accounting</p>
-                        </div>
-                      </div>
 
                       {/* Payment Methods */}
                       <div className="flex items-start space-x-3">
@@ -841,123 +1010,6 @@ const CreatePayment = () => {
         </div>
       </Modal>
 
-      {/* Bill Allocation Modal */}
-      <Modal
-        isOpen={showAllocationModal}
-        onClose={() => setShowAllocationModal(false)}
-        title="Allocate Payment to Bills"
-        size="lg"
-      >
-        <div className="space-y-6">
-          {/* Payment Summary */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-blue-900">Payment Amount</h4>
-                  <p className="text-xs text-blue-700">Available for allocation</p>
-                </div>
-              </div>
-              <span className="text-2xl font-bold text-blue-900">{formatCurrency(formData.amount)}</span>
-            </div>
-          </div>
-
-          {/* Bills List */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Select Bills to Allocate</h4>
-            {availableBills.length > 0 ? (
-              availableBills.map((bill) => (
-                <div key={bill.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        checked={selectedBills.includes(bill.id)}
-                        onChange={(checked) => handleBillSelect(bill.id, checked)}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <p className="font-medium text-gray-900">{bill.billNumber}</p>
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                            Due: {new Date(bill.dueDate).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Amount: <span className="font-medium">{formatCurrency(bill.dueAmount)}</span>
-                        </p>
-                      </div>
-                    </div>
-                    {selectedBills.includes(bill.id) && (
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          type="number"
-                          value={allocationAmounts[bill.id] || 0}
-                          onChange={(value) => handleAllocationAmountChange(bill.id, value)}
-                          placeholder="0.00"
-                          min="0"
-                          max={bill.dueAmount}
-                          step="0.01"
-                          className="w-32"
-                        />
-                        <span className="text-sm text-gray-500">/ {formatCurrency(bill.dueAmount)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Receipt className="w-8 h-8 text-gray-400" />
-                </div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">No Bills Available</h4>
-                <p className="text-sm text-gray-600">There are no pending bills for this supplier to allocate.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Allocation Summary */}
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Allocation Summary</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Allocated:</span>
-                <span className="font-medium text-gray-900">{formatCurrency(totalAllocated)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Remaining Amount:</span>
-                <span className={`font-medium ${remainingAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(remainingAmount)}
-                </span>
-              </div>
-              {remainingAmount < 0 && (
-                <div className="text-xs text-red-600 mt-2">
-                  ⚠️ Allocation exceeds payment amount
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <Button
-              variant="outline"
-              onClick={() => setShowAllocationModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => setShowAllocationModal(false)}
-              disabled={selectedBills.length === 0}
-            >
-              Confirm Allocation
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

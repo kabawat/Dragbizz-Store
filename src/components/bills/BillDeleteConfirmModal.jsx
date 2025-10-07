@@ -17,13 +17,13 @@ const BillDeleteConfirmModal = ({
       size="md"
     >
       <div className="space-y-4">
-        <p className="text-gray-600">
+        <p className="text-[rgb(var(--color-text-secondary))]">
           Are you sure you want to delete this bill? This action cannot be undone.
         </p>
         {billToDelete && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="font-medium">Bill: {billToDelete.billNumber}</p>
-            <p className="text-sm text-gray-600">Amount: {formatCurrency(billToDelete.totalAmount)}</p>
+          <div className="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-lg border border-[rgb(var(--color-border-primary))]">
+            <p className="font-medium text-[rgb(var(--color-text-primary))]">Bill: {billToDelete.billNumber}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Amount: {formatCurrency(billToDelete.totalAmount)}</p>
           </div>
         )}
         <div className="flex justify-end gap-3">

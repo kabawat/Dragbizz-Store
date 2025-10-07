@@ -68,17 +68,13 @@ const Modal = ({
       />
       
       {/* Modal Container */}
-      <div className="flex min-h-full items-center justify-center p-3">
-        <div
-          className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all duration-300 animate-bounce-in ${className}`}
-          onClick={(e) => e.stopPropagation()}
-          {...props}
-        >
+      <div className="flex min-h-full items-start justify-center p-3">
+        <div onClick={(e) => e.stopPropagation()} {...props} className={`relative bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all duration-300 animate-bounce-in border border-[rgb(var(--color-border-primary))] ${className}`}>
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-[rgb(var(--color-border-primary))]">
               {title && (
-                <h3 className="text-base font-semibold text-gray-900">
+                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                   {title}
                 </h3>
               )}
@@ -86,7 +82,7 @@ const Modal = ({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-md hover:bg-gray-100 cursor-pointer"
+                  className="text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] transition-colors duration-200 p-1 rounded-md hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="w-4 h-4" />
@@ -107,7 +103,7 @@ const Modal = ({
 
 // Modal Header Component
 const ModalHeader = ({ children, className = '', ...props }) => (
-  <div className={`px-4 py-3 border-b border-gray-200 ${className}`} {...props}>
+  <div className={`px-4 py-3 border-b border-[rgb(var(--color-border-primary))] ${className}`} {...props}>
     {children}
   </div>
 );
@@ -121,7 +117,7 @@ const ModalBody = ({ children, className = '', ...props }) => (
 
 // Modal Footer Component
 const ModalFooter = ({ children, className = '', ...props }) => (
-  <div className={`px-4 py-3 border-t border-gray-200 flex justify-end space-x-2 ${className}`} {...props}>
+  <div className={`px-4 py-3 border-t border-[rgb(var(--color-border-primary))] flex justify-end space-x-2 ${className}`} {...props}>
     {children}
   </div>
 );

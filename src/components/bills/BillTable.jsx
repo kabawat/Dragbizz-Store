@@ -6,7 +6,8 @@ import {
   Edit,
   Trash2,
   Building2,
-  Calendar
+  Calendar,
+  CreditCard
 } from 'lucide-react';
 
 const BillTable = ({
@@ -140,6 +141,13 @@ const BillTable = ({
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                             Edit
+                          </button>
+                          <button
+                            onClick={() => onMenuAction(bill._id || bill.id, 'payment')}
+                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                          >
+                            <CreditCard className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            Pay Bill
                           </button>
                           <button
                             onClick={() => onMenuAction(bill._id || bill.id, 'delete')}
