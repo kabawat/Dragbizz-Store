@@ -61,7 +61,13 @@ const BillTable = ({
                 Due Date
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Amount
+                Total
+              </th>
+              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Paid
+              </th>
+              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Due
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
@@ -109,6 +115,8 @@ const BillTable = ({
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(bill.billDate)}</td>
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(bill.dueDate)}</td>
                   <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(bill.totalAmount)}</td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.paidAmount || 0)}</td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.dueAmount || Math.max((bill.totalAmount || 0) - (bill.paidAmount || 0), 0))}</td>
                   <td className="w-1/6 px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>
                       <StatusIcon className="w-3 h-3 mr-1" />
