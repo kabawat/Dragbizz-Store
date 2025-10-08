@@ -34,7 +34,7 @@ const API_CONFIG = {
     STOCK: '/retailer/stock',
 
     PURCHASE_ORDER: '/retailer/purchase-order',
-    PAYMENT: '/retailer/supplier-account/payment',
+    PAYMENT: '/retailer/supplier-account/payments',
     BILL: '/retailer/supplier-account/bills',
   },
     

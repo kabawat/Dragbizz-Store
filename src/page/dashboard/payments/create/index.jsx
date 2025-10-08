@@ -49,13 +49,13 @@ const CreatePayment = () => {
   const [formData, setFormData] = useState({
     supplierId: '',
     paymentType: 'BILL_PAYMENT',
-    billId: '', // Required only for BILL_PAYMENT
+    billId: '', 
     notes: '',
     // Payment methods array
     paymentMethods: [
       {
         amount: 0,
-        method: 'cash', // cash, upi, bank_transfer, cheque, credit
+        method: 'cash', 
         reference: '',
         // Bank transfer details
         bankName: '',
@@ -95,7 +95,6 @@ const CreatePayment = () => {
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    console.log('Fetching suppliers for store:', selectedStore.storeId);
     if (!selectedStore?.storeId) return;
     try {
       setSuppliersLoading(true);
@@ -104,10 +103,9 @@ const CreatePayment = () => {
         lightweight: true,
         store: selectedStore.storeId
       });
-      console.log('Fetched suppliers:', result);
+      
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
-        console.log('Fetched suppliers:', suppliersData);
         setSuppliers(suppliersData);
       } else {
         console.error('Failed to fetch suppliers:', result.message);
@@ -119,8 +117,6 @@ const CreatePayment = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      // Set some mock data for testing if API fails
       setSuppliers([
         { id: '1', name: 'Supplier 1' },
         { id: '2', name: 'Supplier 2' },
@@ -142,14 +138,12 @@ const CreatePayment = () => {
       setBillsLoading(true);
       const result = await billService.getBills({
         store: selectedStore.storeId,
-        supplier: supplierId, // This is already the supplier ID from the form
+        supplier: supplierId,
         lightweight: true,
         limit: 100
       });
-      console.log('Fetched bills with supplier ID:', supplierId, result);
       if (result.success) {
         const billsData = result.data?.data || result.data || [];
-        console.log('Fetched bills:', billsData);
         setBills(billsData);
       } else {
         console.error('Failed to fetch bills:', result.message);
@@ -165,12 +159,12 @@ const CreatePayment = () => {
 
   // Fetch suppliers on component mount and when selectedStore changes
   useEffect(() => {
-    console.log('useEffect triggered - selectedStore:', selectedStore);
+    
     if (selectedStore?.storeId) {
       fetchSuppliers();
     } else {
       // If no store selected, set some default suppliers for testing
-      console.log('No store selected, setting default suppliers');
+      
       setSuppliers([
         { id: '1', name: 'Default Supplier 1' },
         { id: '2', name: 'Default Supplier 2' },
@@ -178,12 +172,6 @@ const CreatePayment = () => {
       ]);
     }
   }, [selectedStore?.storeId]);
-
-  // Debug suppliers state
-  useEffect(() => {
-    console.log('Suppliers state changed:', suppliers);
-    console.log('Suppliers length:', suppliers.length);
-  }, [suppliers]);
 
   // Fetch available bills when supplier is selected
   useEffect(() => {
@@ -208,7 +196,7 @@ const CreatePayment = () => {
         setFormData(prev => ({
           ...prev,
           [field]: value,
-          paymentMethods: prev.paymentMethods.map((method, index) =>
+          paymentMethods: (Array.isArray(prev.paymentMethods) ? prev.paymentMethods : []).map((method, index) =>
             index === 0 ? { ...method, amount: selectedBill.dueAmount } : method
           )
         }));
@@ -228,7 +216,7 @@ const CreatePayment = () => {
   const handlePaymentMethodChange = (index, field, value) => {
     setFormData(prev => ({
       ...prev,
-      paymentMethods: prev.paymentMethods.map((method, i) =>
+      paymentMethods: (Array.isArray(prev.paymentMethods) ? prev.paymentMethods : []).map((method, i) =>
         i === index ? { ...method, [field]: value } : method
       )
     }));
@@ -247,9 +235,9 @@ const CreatePayment = () => {
     setFormData(prev => ({
       ...prev,
       paymentMethods: [
-        ...prev.paymentMethods,
+        ...((Array.isArray(prev.paymentMethods) ? prev.paymentMethods : [])),
         {
-          amount: 0,
+          amount: '',
           method: 'cash',
           reference: '',
           bankName: '',
@@ -269,17 +257,18 @@ const CreatePayment = () => {
 
   // Remove payment method
   const removePaymentMethod = (index) => {
-    if (formData.paymentMethods.length > 1) {
+    if (Array.isArray(formData.paymentMethods) && formData.paymentMethods.length > 1) {
       setFormData(prev => ({
         ...prev,
-        paymentMethods: prev.paymentMethods.filter((_, i) => i !== index)
+        paymentMethods: (Array.isArray(prev.paymentMethods) ? prev.paymentMethods : []).filter((_, i) => i !== index)
       }));
     }
   };
 
   // Calculate total amount
   const getTotalAmount = () => {
-    return formData.paymentMethods.reduce((total, method) => total + (parseFloat(method.amount) || 0), 0);
+    const methods = Array.isArray(formData?.paymentMethods) ? formData.paymentMethods : [];
+    return methods.reduce((total, method) => total + (parseFloat(method?.amount) || 0), 0);
   };
 
   // Validate form
@@ -292,7 +281,7 @@ const CreatePayment = () => {
     }
 
     // Validate payment methods
-    if (formData.paymentMethods.length === 0) {
+    if (!Array.isArray(formData.paymentMethods) || formData.paymentMethods.length === 0) {
       newErrors.paymentMethods = 'At least one payment method is required';
     }
 
@@ -307,7 +296,7 @@ const CreatePayment = () => {
     }
 
     // Validate each payment method
-    formData.paymentMethods.forEach((method, index) => {
+    (Array.isArray(formData.paymentMethods) ? formData.paymentMethods : []).forEach((method, index) => {
       if (!method.amount || method.amount <= 0) {
         newErrors[`paymentMethod_${index}_amount`] = 'Valid amount is required (minimum 0.01)';
       }
@@ -386,7 +375,7 @@ const CreatePayment = () => {
       // Prepare payment data according to new API structure
       const paymentData = {
         ...formData,
-        storeId: selectedStore?.storeId
+        store: selectedStore?.storeId
       };
 
       // Call payment service directly
@@ -424,7 +413,7 @@ const CreatePayment = () => {
       supplierId: '',
       paymentNumber: '',
       paymentDate: new Date().toISOString().split('T')[0],
-      amount: 0,
+      amount: '',
       paymentMethod: 'cash',
       reference: '',
       transactionId: '',
@@ -528,24 +517,24 @@ const CreatePayment = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Supplier *
                             </label>
-                          <Select
-                            value={formData.supplierId}
-                            onChange={(value) => handleInputChange('supplierId', value)}
-                            options={[
-                              { value: '', label: suppliersLoading ? 'Loading suppliers...' : 'Select Supplier' },
-                              ...suppliers.map(supplier => {
-                                console.log('Mapping supplier:', supplier);
-                                return {
-                                  value: supplier.id || supplier._id,
-                                  label: supplier.name || supplier.supplierName
-                                };
-                              })
-                            ]}
-                            error={errors.supplierId}
-                            disabled={suppliersLoading}
-                            searchable={true}
-                            placeholder="Search and select supplier..."
-                          />
+                            <Select
+                              value={formData.supplierId}
+                              onChange={(value) => handleInputChange('supplierId', value)}
+                              options={[
+                                { value: '', label: suppliersLoading ? 'Loading suppliers...' : 'Select Supplier' },
+                                ...suppliers.map(supplier => {
+                                  console.log('Mapping supplier:', supplier);
+                                  return {
+                                    value: supplier.id || supplier._id,
+                                    label: supplier.name || supplier.supplierName
+                                  };
+                                })
+                              ]}
+                              error={errors.supplierId}
+                              disabled={suppliersLoading}
+                              searchable={true}
+                              placeholder="Search and select supplier..."
+                            />
                           </div>
 
                           {formData.paymentType === 'BILL_PAYMENT' && (
@@ -567,7 +556,7 @@ const CreatePayment = () => {
                                   }))
                                 ]}
                                 error={errors.billId}
-                                disabled={billsLoading || !!billId} // Disable if loading or billId is from URL
+                                disabled={billsLoading || !formData.billId}
                               />
                               {billId && (
                                 <div className="mt-1 text-xs text-green-600">
@@ -600,15 +589,15 @@ const CreatePayment = () => {
                             <CreditCard className="w-5 h-5 mr-2" />
                             Payment Methods
                           </h3>
-                        <button
-                          type="button"
-                          onClick={addPaymentMethod}
-                          className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                          title="Add new payment method"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span className="text-sm font-medium">Add Payment Method</span>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={addPaymentMethod}
+                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                            title="Add new payment method"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span className="text-sm font-medium">Add Payment Method</span>
+                          </button>
                         </div>
 
                         {/* Total Amount Display */}
@@ -627,16 +616,16 @@ const CreatePayment = () => {
                                 <h4 className="text-md font-medium text-gray-900">
                                   Payment Method {index + 1}
                                 </h4>
-                              {formData.paymentMethods.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={() => removePaymentMethod(index)}
-                                  className="p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                                  title="Remove payment method"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
+                                {formData.paymentMethods.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removePaymentMethod(index)}
+                                    className="p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                    title="Remove payment method"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -647,7 +636,7 @@ const CreatePayment = () => {
                                   <Input
                                     type="number"
                                     value={method.amount}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'amount', parseFloat(value) || 0)}
+                                    onChange={(value) => handlePaymentMethodChange(index, 'amount', value || '')}
                                     placeholder="0.00"
                                     min="0.01"
                                     step="0.01"

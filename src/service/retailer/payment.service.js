@@ -13,7 +13,7 @@ class PaymentService {
     try {
       // Transform the data to match the API documentation structure
       const apiPayload = this.transformPaymentData(paymentData);
-      
+
       const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
       return handleApiSuccess(response?.data, 'Payment created successfully');
     } catch (error) {
@@ -24,7 +24,7 @@ class PaymentService {
   // Transform payment data to match API structure
   transformPaymentData(formData) {
     const paymentMethods = [];
-    
+
     // Process each payment method
     formData.paymentMethods.forEach(method => {
       const paymentMethod = {
@@ -43,14 +43,14 @@ class PaymentService {
             holderName: method.holderName || ''
           };
           break;
-        
+
         case 'upi':
           paymentMethod.upiDetails = {
             upiId: method.upiId || '',
             transactionId: method.transactionId || ''
           };
           break;
-        
+
         case 'cheque':
           paymentMethod.chequeDetails = {
             chequeNumber: method.chequeNumber || '',
@@ -59,7 +59,7 @@ class PaymentService {
             branchName: method.chequeBranchName || ''
           };
           break;
-        
+
         case 'cash':
         case 'credit':
           break;
@@ -73,7 +73,8 @@ class PaymentService {
       supplier: formData.supplierId,
       paymentType: formData.paymentType || 'BILL_PAYMENT',
       payment: paymentMethods,
-      notes: formData.notes || ''
+      notes: formData.notes || '',
+      store: formData.store || ''
     };
 
     // Add bill ID only for BILL_PAYMENT type
@@ -93,7 +94,7 @@ class PaymentService {
       'cheque': 'CHEQUE',
       'credit': 'CREDIT'
     };
-    
+
     return methodMap[frontendMethod] || 'CASH';
   }
 
@@ -127,23 +128,6 @@ class PaymentService {
     }
   }
 
-  // Get a specific payment by ID
-  async getPayment(paymentId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Payment fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-details');
-    }
-  }
 
   // Delete a payment by ID
   async deletePayment(paymentId, storeId = null) {
@@ -163,124 +147,7 @@ class PaymentService {
     }
   }
 
-  // Get pending payments
-  async getPendingPayments(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.PAYMENT}/pending`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Pending payments fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'pending-payments');
-    }
-  }
 
-  // Get payment statistics
-  async getPaymentStats(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/stats`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Payment statistics fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-stats');
-    }
-  }
-
-  // Get payment reports
-  async getPaymentReports(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.PAYMENT}/reports`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Payment reports fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-reports');
-    }
-  }
-
-  // Get payment analytics
-  async getPaymentAnalytics(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.PAYMENT}/analytics`, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Payment analytics fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-analytics');
-    }
-  }
-
-  // Allocate payment to bills
-  async allocatePayment(paymentId, allocationData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}/allocate`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.post(url, allocationData);
-      return handleApiSuccess(response?.data, 'Payment allocated successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-allocation');
-    }
-  }
-
-  // Approve payment
-  async approvePayment(paymentId, approvalData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}/approve`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.put(url, approvalData);
-      return handleApiSuccess(response?.data, 'Payment approved successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-approval');
-    }
-  }
-
-  // Reject payment
-  async rejectPayment(paymentId, rejectionData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}/reject`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await retailerAxios.put(url, rejectionData);
-      return handleApiSuccess(response?.data, 'Payment rejected successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-rejection');
-    }
-  }
-
-  // Get bills for payment allocation
-  async getBillsForAllocation(supplierId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/bills-for-allocation`;
-
-      const params = { supplier: supplierId };
-      if (storeId) {
-        params.store = storeId;
-      }
-
-      url = attachQueryParams(url, params);
-      const response = await retailerAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bills for allocation fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'bills-for-allocation');
-    }
-  }
 }
 
 // Create and export a singleton instance
