@@ -1,214 +1,471 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getInvoices, setFilters } from '@/store/slices/invoicesSlice';
-import { Button, Card, Input, Select, Badge } from '@/components/ui';
-import { Search, Plus, FileText, Calendar, DollarSign, User } from 'lucide-react';
+import {
+  getInvoices,
+  deleteInvoice,
+  setSelectedInvoices,
+  toggleInvoiceSelection,
+  selectAllInvoices,
+  deselectAllInvoices,
+  setViewMode,
+  addMoreInvoices
+} from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
-import Link from 'next/link';
+import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
+
+// Import UI components
+import { Button } from '@/components/ui';
+
+// Import invoice components
+import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal } from '@/components/invoice';
 
 const InvoicesPage = () => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const { invoices, isLoading, error, filters } = useAppSelector((state) => state.invoices);
-  const [searchTerm, setSearchTerm] = useState('');
+
+  // Redux store data
+  const {
+    invoices,
+    selectedInvoices,
+    isLoading,
+    error,
+    pagination,
+    viewMode
+  } = useAppSelector((state) => state.invoices);
+
+  const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Local state
+  const [searchValue, setSearchValue] = useState('');
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
+  const [deletedInvoiceName, setDeletedInvoiceName] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorDetails, setErrorDetails] = useState(null);
+  const scrollRef = useRef(null);
+
+  // Error display
+  useEffect(() => {
+    if (error) {
+      setErrorDetails({
+        title: 'Error loading invoices',
+        message: error,
+        details: 'Please check your connection and try again'
+      });
+      setShowErrorModal(true);
+    }
+  }, [error]);
 
   useEffect(() => {
-    dispatch(getInvoices(filters));
-  }, [dispatch, filters]);
+    const savedViewMode = localStorage.getItem('invoices-view-mode');
+    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+      dispatch(setViewMode(savedViewMode));
+    }
+  }, [dispatch]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    dispatch(setFilters({ invoiceNumber: searchTerm }));
+  // Fetch invoices on mount and search changes
+  const lastFetchRef = useRef({ storeId: null, searchValue: null });
+
+  useEffect(() => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    // Fetch only if store exists
+    if (!storeId) return;
+
+    // Prevent duplicate fetch
+    if (
+      lastFetchRef.current.storeId === storeId &&
+      lastFetchRef.current.searchValue === searchValue
+    ) {
+      return;
+    }
+
+    lastFetchRef.current = { storeId, searchValue };
+
+    const fetchInvoices = async () => {
+      const params = {
+        store: storeId,
+        search: searchValue,
+        limit: 20,
+        cursor: null,
+        isFreshLoad: true
+      };
+      await dispatch(getInvoices(params));
+    };
+
+    fetchInvoices();
+  }, [dispatch, selectedStore, searchValue]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const threshold = 100;
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [isLoadingMore, pagination.hasNextPage]);
+
+  const handleStoreChange = (storeObject) => {
+    // Store change handled by Redux
   };
 
-  const handleFilterChange = (key, value) => {
-    dispatch(setFilters({ [key]: value }));
+  // Search
+  const handleSearch = (value) => {
+    setSearchValue(value);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'DRAFT': return 'bg-yellow-100 text-yellow-800';
-      case 'RELEASED': return 'bg-green-100 text-green-800';
-      case 'CANCELLED': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleAddInvoice = () => {
+    router.push('/dashboard/invoices/add');
+  };
+
+  const handleEditInvoice = (invoiceId) => {
+    router.push(`/dashboard/invoices/edit/${invoiceId}`);
+  };
+
+  const handleViewInvoice = (invoiceId) => {
+    router.push(`/dashboard/invoices/view/${invoiceId}`);
+  };
+
+  // InvoiceTable handlers
+  const handleInvoiceSelect = (invoiceIds) => {
+    const idsArray = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
+    dispatch(setSelectedInvoices(idsArray));
+  };
+
+  const handleCardSelect = (invoiceId) => {
+    dispatch(toggleInvoiceSelection(invoiceId));
+  };
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      dispatch(selectAllInvoices());
+    } else {
+      dispatch(deselectAllInvoices());
     }
   };
 
-  const getPaymentStatusColor = (status) => {
-    switch (status) {
-      case 'PAID': return 'bg-green-100 text-green-800';
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-      case 'OVERDUE': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleDeleteInvoice = (invoiceId) => {
+    const invoice = invoices.find(i => (i.id || i._id) === invoiceId);
+    setInvoiceToDelete({
+      id: invoiceId,
+      name: invoice?.invoiceNumber || `INV-${invoiceId?.slice(-6)}`
+    });
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!invoiceToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const storeId = selectedStore?.storeId;
+      const result = await dispatch(deleteInvoice({
+        invoiceId: invoiceToDelete.id,
+        storeId: storeId
+      }));
+
+      if (result.payload?.success) {
+        setDeletedInvoiceName(invoiceToDelete.name);
+        setShowDeleteSuccessModal(true);
+      }
+
+      setShowDeleteModal(false);
+      setInvoiceToDelete(null);
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setInvoiceToDelete(null);
+  };
+
+  // Save view mode
+  const handleViewModeChange = (mode) => {
+    dispatch(setViewMode(mode));
+    localStorage.setItem('invoices-view-mode', mode);
+  };
+
+  // Load more invoices
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !pagination.hasNextPage) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const params = {
+        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+        search: searchValue,
+        limit: 20,
+        cursor: pagination.nextCursor,
+        isFreshLoad: false
+      };
+
+      const result = await dispatch(getInvoices(params));
+
+      if (result.payload?.success && result.payload?.data?.data) {
+        dispatch(addMoreInvoices(result.payload.data.data));
+      }
+    } catch (error) {
+      console.error('Error loading more invoices:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
-      <Sidebar />
+      <Sidebar onStoreChange={handleStoreChange} />
 
-      {/* Main Content Area */}
+      {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title="Invoices"
-          description="Manage your customer invoices"
-        />
+        <Header title="Invoices" description="Manage your customer invoices and billing" />
 
-        {/* Main Content */}
+        {/* Main content */}
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-            {/* Action Button */}
-            <div className="flex justify-end">
-            <Link href="/dashboard/invoices/add">
-              <Button className="flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>Create Invoice</span>
-              </Button>
-            </Link>
-          </div>
+            {/* Loading */}
+            {isLoading && invoices.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Invoices...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your invoices
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Search and filter */}
+            {invoices.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                  {/* Search */}
+                  <div className="w-100 bg-red">
+                    <Input
+                      type="text"
+                      placeholder="Search invoices..."
+                      value={searchValue}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      leftIcon={Search}
+                      className="w-100"
+                    />
+                  </div>
 
-          {/* Filters */}
-          <Card className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <form onSubmit={handleSearch} className="flex space-x-2">
-                <Input
-                  placeholder="Search by invoice number..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" variant="outline">
-                  <Search className="w-4 h-4" />
-                </Button>
-              </form>
-
-              <Select
-                placeholder="Filter by Status"
-                value={filters.invoiceStatus}
-                onChange={(value) => handleFilterChange('invoiceStatus', value)}
-              >
-                <option value="">All Status</option>
-                <option value="DRAFT">Draft</option>
-                <option value="RELEASED">Released</option>
-                <option value="CANCELLED">Cancelled</option>
-              </Select>
-
-              <Select
-                placeholder="Filter by Payment"
-                value={filters.paymentStatus}
-                onChange={(value) => handleFilterChange('paymentStatus', value)}
-              >
-                <option value="">All Payments</option>
-                <option value="PAID">Paid</option>
-                <option value="PENDING">Pending</option>
-                <option value="OVERDUE">Overdue</option>
-              </Select>
-
-              <Select
-                placeholder="Limit"
-                value={filters.limit || 10}
-                onChange={(value) => handleFilterChange('limit', value)}
-              >
-                <option value={10}>10 per page</option>
-                <option value={25}>25 per page</option>
-                <option value={50}>50 per page</option>
-              </Select>
-            </div>
-          </Card>
-
-          {/* Invoices List */}
-          {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : error ? (
-            <Card className="p-6 text-center">
-              <p className="text-red-600">{error}</p>
-            </Card>
-          ) : invoices.length === 0 ? (
-            <Card className="p-12 text-center">
-              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No invoices found</h3>
-              <p className="text-gray-600 mb-4">Get started by creating your first invoice</p>
-              <Link href="/dashboard/invoices/add">
-                <Button>Create Invoice</Button>
-              </Link>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {invoices.map((invoice) => (
-                <Card key={invoice._id} className="p-6 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {invoice.invoiceNumber}
-                        </h3>
-                        <Badge className={getStatusColor(invoice.status)}>
-                          {invoice.status}
-                        </Badge>
-                        <Badge className={getPaymentStatusColor(invoice.paymentStatus)}>
-                          {invoice.paymentStatus}
-                        </Badge>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                        <div className="flex items-center space-x-2">
-                          <User className="w-4 h-4" />
-                          <span>
-                            {invoice.customer?.name || 'Walk-in Customer'}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {new Date(invoice.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4" />
-                          <span className="font-semibold text-gray-900">
-                            ₹{invoice.totalAmount?.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      {invoice.items && (
-                        <div className="mt-3">
-                          <p className="text-sm text-gray-600">
-                            {invoice.items.length} item(s) •
-                            Total Items: {invoice.items.reduce((sum, item) => sum + item.quantity, 0)}
-                          </p>
-                        </div>
-                      )}
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    {/* View toggle */}
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
                     </div>
 
-                    <div className="flex space-x-2 ml-4">
-                      <Link href={`/dashboard/invoices/view/${invoice._id}`}>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                      {invoice.status === 'DRAFT' && (
-                        <Link href={`/dashboard/invoices/edit/${invoice._id}`}>
-                          <Button size="sm">
-                            Edit
-                          </Button>
-                        </Link>
+                    <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                      Add Invoice
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!isLoading && invoices.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                    <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    No invoices found
+                  </h3>
+                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
+                    No invoices match your current criteria. Try adjusting your search or add new invoices.
+                  </p>
+                  <div className="pt-4">
+                    <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                      Add Invoice
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Invoices list */}
+            {invoices.length > 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                  {viewMode === 'table' ? (
+                    <div className="h-full">
+                      <InvoiceTable
+                        invoices={invoices}
+                        selectedInvoices={selectedInvoices}
+                        onSelect={handleInvoiceSelect}
+                        onSelectAll={handleSelectAll}
+                        onEdit={handleEditInvoice}
+                        onDelete={handleDeleteInvoice}
+                        onViewDetails={handleViewInvoice}
+                        loading={isLoading}
+                        emptyMessage="No invoices found"
+                        hasMore={pagination.hasNextPage}
+                        onLoadMore={handleLoadMore}
+                        isLoadingMore={isLoadingMore}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Select all header */}
+                      {invoices.length > 0 && (
+                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedInvoices.length === invoices.length && invoices.length > 0}
+                              onChange={(e) => handleSelectAll(e.target.checked)}
+                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                            />
+                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                              Select all {invoices.length} invoices
+                            </span>
+                            {selectedInvoices.length > 0 && (
+                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                                ({selectedInvoices.length} selected)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {invoices.map((invoice) => (
+                          <InvoiceCard
+                            key={invoice.id || invoice._id}
+                            invoice={invoice}
+                            onSelect={handleInvoiceSelect}
+                            selected={selectedInvoices.includes(invoice.id || invoice._id)}
+                            onEdit={handleEditInvoice}
+                            onDelete={handleDeleteInvoice}
+                            onViewDetails={handleViewInvoice}
+                          />
+                        ))}
+
+                        {/* Infinite scroll loading */}
+                        {isLoadingMore && (
+                          <div className="col-span-full flex items-center justify-center py-8">
+                            <div className="flex items-center gap-3">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {pagination.hasNextPage ? (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more invoices
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {selectedInvoices.length > 0 && (
+                        <span className="font-semibold text-[rgb(var(--color-primary))]">
+                          {selectedInvoices.length} selected
+                        </span>
                       )}
                     </div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Theme selector */}
+      <SettingsPanel />
+
+      {/* Delete confirmation modal */}
+      <InvoiceDeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        invoiceNumber={invoiceToDelete?.name}
+        isLoading={isDeleting}
+      />
+
+      {/* Delete success modal */}
+      <InvoiceDeleteSuccessModal
+        isOpen={showDeleteSuccessModal}
+        onClose={() => setShowDeleteSuccessModal(false)}
+        invoiceNumber={deletedInvoiceName}
+      />
+
+      {/* Error modal */}
+      <InvoiceErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorDetails?.title}
+        message={errorDetails?.message}
+        details={errorDetails?.details}
+      />
     </div>
   );
 };

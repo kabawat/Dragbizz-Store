@@ -42,12 +42,19 @@ class InvoiceService {
   }
 
   // Release Invoice
-  async releaseInvoice(invoiceId, paymentStatus = 'PAID') {
+  async releaseInvoice(invoiceId, paymentStatus = 'PAID', storeId = null) {
     try {
-      const response = await retailerAxios.post(`${API_CONFIG.RETAILER.INVOICE}/release`, {
+      const payload = {
         id: invoiceId,
         paymentStatus
-      });
+      };
+      
+      // Add store ID if provided
+      if (storeId) {
+        payload.store = storeId;
+      }
+      
+      const response = await retailerAxios.post(`${API_CONFIG.RETAILER.INVOICE}/release`, payload);
       return handleApiSuccess(response.data, 'Invoice released successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-release');
@@ -68,9 +75,16 @@ class InvoiceService {
   }
 
   // Delete Invoice
-  async deleteInvoice(invoiceId) {
+  async deleteInvoice(invoiceId, storeId = null) {
     try {
-      const url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}`;
+      let url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}`;
+
+      // Add storeId as query parameter if provided
+      if (storeId) {
+        const params = { store: storeId };
+        url = attachQueryParams(url, params);
+      }
+
       const response = await retailerAxios.delete(url);
       return handleApiSuccess(response.data, 'Invoice deleted successfully');
     } catch (error) {

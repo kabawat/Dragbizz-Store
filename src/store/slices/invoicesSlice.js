@@ -22,14 +22,22 @@ export const getInvoices = createAsyncThunk(
   'invoices/getInvoices',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await invoiceService.getInvoices(params);
-      if (response.success) {
-        return response.data;
-      } else {
-        return rejectWithValue(response.message);
+      const result = await invoiceService.getInvoices(params);
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to fetch invoices'
+        });
       }
+      
+      return {
+        success: true,
+        data: result.data,
+        message: 'Invoices fetched successfully'
+      };
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch invoices');
+      return rejectWithValue({
+        message: 'Failed to fetch invoices. Please try again.'
+      });
     }
   }
 );
@@ -99,37 +107,62 @@ export const cancelInvoice = createAsyncThunk(
 );
 
 export const deleteInvoice = createAsyncThunk(
-  'invoices/delete',
-  async (invoiceId, { rejectWithValue }) => {
+  'invoices/deleteInvoice',
+  async ({ invoiceId, storeId }, { rejectWithValue }) => {
     try {
-      const response = await invoiceService.deleteInvoice(invoiceId);
-      if (response.success) {
-        return invoiceId; // Return ID for removal from state
-      } else {
-        return rejectWithValue(response.message);
+      const result = await invoiceService.deleteInvoice(invoiceId, storeId);
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to delete invoice'
+        });
       }
+      
+      return {
+        success: true,
+        invoiceId: invoiceId,
+        message: 'Invoice deleted successfully'
+      };
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to delete invoice');
+      return rejectWithValue({
+        message: 'Failed to delete invoice. Please try again.'
+      });
     }
   }
 );
 
 // Initial state
 const initialState = {
+  // Invoices data
   invoices: [],
-  currentInvoice: null,
-  isLoading: false,
-  error: null,
+  selectedInvoices: [],
+  
+  // Pagination
   pagination: {
+    hasNextPage: false,
     nextCursor: null,
-    hasMore: false
+    limit: 20,
+    total: 0
   },
+  
+  // Loading states
+  isLoading: false,
+  
+  // Error handling
+  error: null,
+  
+  // View settings
+  viewMode: 'table', // 'table' or 'card'
+  
+  // Filters
   filters: {
     paymentStatus: '',
     invoiceStatus: '',
     invoiceNumber: '',
     customer: ''
-  }
+  },
+  
+  // Current invoice for editing/viewing
+  currentInvoice: null
 };
 
 // Invoice slice
@@ -137,15 +170,59 @@ const invoicesSlice = createSlice({
   name: 'invoices',
   initialState,
   reducers: {
+    // Set selected invoices
+    setSelectedInvoices: (state, action) => {
+      state.selectedInvoices = action.payload;
+    },
+    
+    // Toggle invoice selection
+    toggleInvoiceSelection: (state, action) => {
+      const invoiceId = action.payload;
+      const index = state.selectedInvoices.indexOf(invoiceId);
+      
+      if (index > -1) {
+        state.selectedInvoices.splice(index, 1);
+      } else {
+        state.selectedInvoices.push(invoiceId);
+      }
+    },
+    
+    // Select all invoices
+    selectAllInvoices: (state) => {
+      state.selectedInvoices = state.invoices.map(invoice => invoice.id || invoice._id);
+    },
+    
+    // Deselect all invoices
+    deselectAllInvoices: (state) => {
+      state.selectedInvoices = [];
+    },
+    
+    // Set view mode
+    setViewMode: (state, action) => {
+      state.viewMode = action.payload;
+    },
+    
+    // Add more invoices (for infinite scroll)
+    addMoreInvoices: (state, action) => {
+      state.invoices = [...state.invoices, ...action.payload];
+    },
+    
+    // Clear error
     clearError: (state) => {
       state.error = null;
     },
+    
+    // Clear current invoice
     clearCurrentInvoice: (state) => {
       state.currentInvoice = null;
     },
+    
+    // Set filters
     setFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload };
     },
+    
+    // Clear filters
     clearFilters: (state) => {
       state.filters = {
         paymentStatus: '',
@@ -154,6 +231,8 @@ const invoicesSlice = createSlice({
         customer: ''
       };
     },
+    
+    // Reset invoices state
     resetInvoicesState: (state) => {
       return initialState;
     }
@@ -182,13 +261,27 @@ const invoicesSlice = createSlice({
       })
       .addCase(getInvoices.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.invoices = action.payload;
-        state.pagination.nextCursor = action.payload.nextCursor;
-        state.pagination.hasMore = !!action.payload.nextCursor;
+        
+        if (action.payload.success) {
+          const { data } = action.payload;
+          // Check if this is a fresh load or pagination
+          if (data.isFreshLoad !== false) {
+            state.invoices = data || [];
+          } else {
+            // Append for pagination
+            state.invoices = [...state.invoices, ...(data || [])];
+          }
+          
+          // Update pagination
+          state.pagination.hasNextPage = data.hasNextPage || false;
+          state.pagination.nextCursor = data.nextCursor || null;
+          state.pagination.limit = data.limit || 20;
+          state.pagination.total = data.total || state.invoices.length;
+        }
       })
       .addCase(getInvoices.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || 'Failed to fetch invoices';
       })
 
       // Get Invoice By ID
@@ -269,19 +362,31 @@ const invoicesSlice = createSlice({
       })
       .addCase(deleteInvoice.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.invoices = state.invoices.filter(inv => inv._id !== action.payload);
-        if (state.currentInvoice && state.currentInvoice._id === action.payload) {
-          state.currentInvoice = null;
+        
+        if (action.payload.success) {
+          const { invoiceId } = action.payload;
+          state.invoices = state.invoices.filter(inv => (inv.id || inv._id) !== invoiceId);
+          state.selectedInvoices = state.selectedInvoices.filter(id => id !== invoiceId);
+          
+          if (state.currentInvoice && (state.currentInvoice.id || state.currentInvoice._id) === invoiceId) {
+            state.currentInvoice = null;
+          }
         }
       })
       .addCase(deleteInvoice.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || 'Failed to delete invoice';
       });
   }
 });
 
 export const {
+  setSelectedInvoices,
+  toggleInvoiceSelection,
+  selectAllInvoices,
+  deselectAllInvoices,
+  setViewMode,
+  addMoreInvoices,
   clearError,
   clearCurrentInvoice,
   setFilters,
