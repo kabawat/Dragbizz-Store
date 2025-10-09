@@ -41,7 +41,7 @@ const Payments = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
 
-  // Fetch payments and stats on component mount
+  // Fetch payments on component mount
   useEffect(() => {
     if (selectedStore?.id) {
       dispatch(getPayments({ 
@@ -49,8 +49,30 @@ const Payments = () => {
         limit: 20,
         page: 1
       }));
-      dispatch(getPaymentStats(selectedStore.id));
     }
+  }, [dispatch, selectedStore]);
+
+  // Refresh data when component becomes visible (e.g., after returning from create page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && selectedStore?.id) {
+        dispatch(getPayments({ 
+          store: selectedStore.id,
+          limit: 20,
+          page: 1
+        }));
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also refresh on focus (when user returns to tab)
+    window.addEventListener('focus', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+    };
   }, [dispatch, selectedStore]);
 
   // Handle search
@@ -185,7 +207,13 @@ const Payments = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-100 text-sm font-medium">Total Payments</p>
-                  <p className="text-2xl font-bold">{stats.totalPayments}</p>
+                  <p className="text-2xl font-bold">
+                    {isLoading ? (
+                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      stats?.totalPayments || 0
+                    )}
+                  </p>
                 </div>
                 <CreditCard className="w-8 h-8 text-blue-200" />
               </div>
@@ -195,7 +223,13 @@ const Payments = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-100 text-sm font-medium">Pending Payments</p>
-                  <p className="text-2xl font-bold">{stats.pendingPayments}</p>
+                  <p className="text-2xl font-bold">
+                    {isLoading ? (
+                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      stats?.pendingPayments || 0
+                    )}
+                  </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-200" />
               </div>
@@ -205,7 +239,13 @@ const Payments = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-100 text-sm font-medium">Approved Payments</p>
-                  <p className="text-2xl font-bold">{stats.approvedPayments}</p>
+                  <p className="text-2xl font-bold">
+                    {isLoading ? (
+                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      stats?.approvedPayments || 0
+                    )}
+                  </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-200" />
               </div>
@@ -215,7 +255,13 @@ const Payments = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-100 text-sm font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
+                  <p className="text-2xl font-bold">
+                    {isLoading ? (
+                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      formatCurrency(stats?.totalAmount || 0)
+                    )}
+                  </p>
                 </div>
                 <IndianRupee className="w-8 h-8 text-purple-200" />
               </div>

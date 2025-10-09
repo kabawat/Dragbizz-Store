@@ -41,9 +41,13 @@ class CustomerService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.CUSTOMER, params);
+      console.log('Customer API URL:', url);
+      console.log('Customer API params:', params);
       const response = await retailerAxios.get(url);
+      console.log('Customer API response:', response?.data);
       return handleApiSuccess(response?.data, 'Customers fetched successfully');
     } catch (error) {
+      console.error('Customer API error:', error);
       return handleApiErrorResponse(error, 'customers-list');
     }
   }

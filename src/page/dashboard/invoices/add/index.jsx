@@ -1,0 +1,481 @@
+"use client"
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useAppSelector } from '@/store/hooks';
+import { productService, customerService, invoiceService } from '@/service';
+import { Button, Card, Input, Select, Badge } from '@/components/ui';
+import { Plus, Minus, ShoppingCart, User, Calculator, ArrowLeft, Package, IndianRupee, Trash2 } from 'lucide-react';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import { AnimatedBackground } from '@/components/ui';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+const CreateInvoicePage = () => {
+  const router = useRouter();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Local loading state for invoice creation
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+
+  // Local state for products and customers
+  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [customersLoading, setCustomersLoading] = useState(false);
+
+  // Refs to prevent duplicate API calls
+  const hasFetchedProducts = useRef(false);
+  const hasFetchedCustomers = useRef(false);
+
+  const [formData, setFormData] = useState({
+    customer: '',
+    totalDiscount: 0,
+    items: [
+      {
+        product: '',
+        productName: '',
+        quantity: 1,
+        price: 0,
+        total: 0
+      }
+    ]
+  });
+
+  // Fetch products from API
+  const fetchProducts = useCallback(async () => {
+    if (!selectedStore?.storeId || hasFetchedProducts.current) return;
+    hasFetchedProducts.current = true;
+
+    try {
+      setProductsLoading(true);
+      const result = await productService.getProducts({
+        limit: 100,
+        lightweight: true,
+        store: selectedStore.storeId
+      });
+      if (result.success) {
+        setProducts(result?.data || []);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching products:', error);
+      hasFetchedProducts.current = false; // Reset on error
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [selectedStore?.storeId]);
+
+  // Fetch customers from API
+  const fetchCustomers = useCallback(async () => {
+    if (hasFetchedCustomers.current) return;
+
+    hasFetchedCustomers.current = true;
+
+    try {
+      setCustomersLoading(true);
+      const params = {
+        limit: 100,
+        lightweight: true
+      };
+      if (selectedStore?.storeId) {
+        params.store = selectedStore.storeId;
+      }
+
+      const result = await customerService.getCustomers(params);
+      if (result.success) {
+        const serializedOptions = [
+          { value: '', label: 'Walk-in Customer' },
+          ...((result.data || []).map((customer) => ({
+            value: customer._id,
+            label: `${customer.name || 'Unknown'} - ${customer.phone || 'No phone'}${customer.email ? ` - ${customer.email}` : ''}`
+          })))
+        ];
+        setCustomers(serializedOptions);
+      }
+    } catch (error) {
+      hasFetchedCustomers.current = false; // Reset on error
+    } finally {
+      setCustomersLoading(false);
+    }
+  }, [selectedStore?.storeId]);
+
+  // Load products and customers on component mount
+  useEffect(() => {
+    if (selectedStore?.storeId) {
+      fetchProducts();
+      fetchCustomers();
+    }
+  }, [selectedStore?.storeId, fetchProducts, fetchCustomers]);
+
+  const handleAddItem = () => {
+    const newItem = {
+      product: '',
+      productName: '',
+      quantity: 1,
+      price: 0,
+      total: 0
+    };
+    setFormData({
+      ...formData,
+      items: [...formData.items, newItem]
+    });
+  };
+
+  const handleRemoveItem = (index) => {
+    const updatedItems = formData.items.filter((_, i) => i !== index);
+    setFormData({ ...formData, items: updatedItems });
+  };
+
+  const handleItemChange = (index, field, value) => {
+    const updatedItems = [...formData.items];
+    updatedItems[index][field] = value;
+
+    // Calculate total when quantity or price changes
+    if (field === 'quantity' || field === 'price') {
+      const product = products.find(p => p._id === updatedItems[index].product);
+      const price = product?.price || product?.sellingPrice || 0;
+      const quantity = updatedItems[index].quantity || 1;
+      updatedItems[index].total = price * quantity;
+    }
+
+    setFormData({ ...formData, items: updatedItems });
+  };
+
+  const calculateSubtotal = () => {
+    return formData.items.reduce((total, item) => {
+      return total + (item.total || 0);
+    }, 0);
+  };
+
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    return Math.max(0, subtotal - (formData.totalDiscount || 0));
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Filter out empty items
+    const validItems = formData.items.filter(item => item.product && item.quantity > 0);
+
+    if (validItems.length === 0) {
+      alert('Please add at least one item to the invoice');
+      return;
+    }
+
+    const invoiceData = {
+      customer: formData.customer || null,
+      items: validItems.map(item => ({
+        product: item.product,
+        quantity: item.quantity
+      })),
+      store: selectedStore?.storeId,
+      totalDiscount: formData.totalDiscount || 0
+    };
+
+    try {
+      setInvoiceLoading(true);
+      const result = await invoiceService.createDraftInvoice(invoiceData);
+      if (result.success) {
+        // Redirect to the created invoice view page
+        const invoiceId = result.data?.id || result.data?._id;
+        if (invoiceId) {
+          router.push(`/dashboard/invoices/view/${invoiceId}`);
+        } else {
+          // Fallback to invoices list if ID not available
+          router.push('/dashboard/invoices');
+        }
+      } else {
+        console.error('Failed to create invoice:', result.message);
+        alert('Failed to create invoice. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      alert('An error occurred while creating the invoice. Please try again.');
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  // Show loading if store is not available yet
+  if (!selectedStore?.storeId) {
+    return (
+      <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
+        <AnimatedBackground variant="default" />
+        <Sidebar />
+        <div className="min-h-screen w-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+              Loading Store Data...
+            </h2>
+            <p className="text-[rgb(var(--color-text-secondary))]">
+              Please wait while we fetch your store information
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen relative w-full overflow-hidden">
+      <AnimatedBackground variant="default" />
+      <Sidebar />
+
+      <div className="min-h-screen w-full flex flex-col">
+        <Header title="Create Invoice" description="Create a new customer invoice" />
+
+        <div className="flex-1 p-6">
+          <div className="max-w-8xl mx-auto w-full">
+            {/* Back Button */}
+            <div className="mb-4">
+              <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium">Back to Invoices</span>
+              </Link>
+            </div>
+
+            {/* Form Container - Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 150px)' }}>
+
+              <div className="lg:col-span-2 flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-150px)]">
+                  <form onSubmit={handleSubmit}>
+                    {/* Invoice Information */}
+                    <Card className="mb-6">
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
+                          <User className="w-5 h-5 mr-2" />
+                          Customer Information
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              Customer
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to walk-in)</span>
+                            </label>
+                            <Select
+                              value={formData.customer}
+                              onChange={(value) => setFormData({ ...formData, customer: value })}
+                              options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
+                              disabled={customersLoading}
+                              leftIcon={User}
+                              size="md"
+                              searchable={true}
+                              placeholder="Search customers or select walk-in..."
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              Total Discount (₹)
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                            </label>
+                            <Input
+                              type="number"
+                              value={formData.totalDiscount}
+                              onChange={(value) => setFormData({ ...formData, totalDiscount: value })}
+                              min="0"
+                              step="0.01"
+                              leftIcon={Calculator}
+                              size="md"
+                              placeholder="Enter discount amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Items Section */}
+                    <Card>
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
+                            <Package className="w-5 h-5 mr-2" />
+                            Items
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={handleAddItem}
+                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                            title="Add new item"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span className="text-sm font-medium">Add Item</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {formData.items.map((item, index) => {
+                            const product = products.find(p => p._id === item.product);
+                            return (
+                              <div key={index} className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                    Item {index + 1}
+                                  </h4>
+                                  {formData.items.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveItem(index)}
+                                      className="flex items-center gap-1 px-2 py-1 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
+                                      title="Remove item"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                      <span className="text-xs">Remove</span>
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                      Product *
+                                    </label>
+                                    <Select
+                                      value={item.product}
+                                      onChange={(value) => {
+                                        const selectedProduct = products.find(p => p._id === value);
+                                        const productPrice = selectedProduct?.price || selectedProduct?.sellingPrice || 0;
+                                        handleItemChange(index, 'product', value);
+                                        handleItemChange(index, 'productName', selectedProduct?.name || '');
+                                        handleItemChange(index, 'price', productPrice);
+                                      }}
+                                      options={[
+                                        { value: '', label: 'Select Product' },
+                                        ...products.filter(product => product._id).map(product => ({
+                                          value: product._id,
+                                          label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`
+                                        }))
+                                      ]}
+                                      leftIcon={Package}
+                                      size="sm"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                      Quantity *
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      value={item.quantity}
+                                      onChange={(value) => handleItemChange(index, 'quantity', value)}
+                                      min="1"
+                                      placeholder="0"
+                                      leftIcon={Package}
+                                      size="sm"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                      Price
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      value={item.price || 0}
+                                      disabled
+                                      leftIcon={IndianRupee}
+                                      size="sm"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                      Total
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      value={item.total || 0}
+                                      disabled
+                                      leftIcon={IndianRupee}
+                                      size="sm"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </Card>
+                  </form>
+                </div>
+              </div>
+
+              {/* Summary Sidebar */}
+              <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-204px)]">
+                  <div className="space-y-4">
+                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Invoice Summary</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
+                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                            ₹{calculateSubtotal().toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[rgb(var(--color-text-secondary))]">Discount:</span>
+                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                            ₹{formData.totalDiscount || "0"}
+                          </span>
+                        </div>
+                        <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">Total:</span>
+                            <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
+                              ₹{calculateTotal().toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Item Count</h4>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
+                          {formData.items.length}
+                        </div>
+                        <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                          {formData.items.length === 1 ? 'Item' : 'Items'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Button
+                        variant="primary"
+                        className="w-full"
+                        onClick={handleSubmit}
+                        loading={invoiceLoading}
+                        leftIcon={Plus}
+                        disabled={formData.items.length === 0}
+                      >
+                        Create Invoice
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => router.push('/dashboard/invoices')}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreateInvoicePage;

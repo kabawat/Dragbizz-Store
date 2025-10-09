@@ -59,6 +59,7 @@ const Sidebar = ({ onStoreChange }) => {
   const [isPurchaseDropdownOpen, setIsPurchaseDropdownOpen] = useState(false);
   const [isBillsDropdownOpen, setIsBillsDropdownOpen] = useState(false);
   const [isPaymentsDropdownOpen, setIsPaymentsDropdownOpen] = useState(false);
+  const [isInvoicesDropdownOpen, setIsInvoicesDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
   const customersDropdownRef = useRef(null);
@@ -67,6 +68,7 @@ const Sidebar = ({ onStoreChange }) => {
   const purchaseDropdownRef = useRef(null);
   const billsDropdownRef = useRef(null);
   const paymentsDropdownRef = useRef(null);
+  const invoicesDropdownRef = useRef(null);
 
   // Use Redux stores data, fallback to mock data if not available
   const stores = reduxStores && reduxStores.length > 0
@@ -120,6 +122,12 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Payment Analytics', icon: TrendingUp, href: '/dashboard/payments/analytics' },
   ];
 
+  const invoiceSubMenuItems = [
+    { name: 'All Invoices', icon: Receipt, href: '/dashboard/invoices' },
+    { name: 'Add New Invoice', icon: FileText, href: '/dashboard/invoices/add' },
+    { name: 'View Invoice', icon: Eye, href: '/dashboard/invoices/view' },
+  ];
+
   const purchaseSubMenuItems = [
     { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers', hasSubMenu: true, subMenuItems: suppliersSubMenuItems },
     { name: 'Purchase Orders', icon: ShoppingCart, href: '/dashboard/purchase-orders' },
@@ -134,6 +142,7 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Purchase', icon: ShoppingCart, href: '/dashboard/purchase', hasSubMenu: true, subMenuItems: purchaseSubMenuItems },
     { name: 'Products', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productSubMenuItems },
     { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory', hasSubMenu: true, subMenuItems: inventorySubMenuItems },
+    { name: 'Invoices', icon: FileText, href: '/dashboard/invoices', hasSubMenu: true, subMenuItems: invoiceSubMenuItems },
     { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
     { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
     { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
@@ -191,6 +200,10 @@ const Sidebar = ({ onStoreChange }) => {
     setIsPaymentsDropdownOpen(!isPaymentsDropdownOpen);
   };
 
+  const toggleInvoicesDropdown = () => {
+    setIsInvoicesDropdownOpen(!isInvoicesDropdownOpen);
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -218,6 +231,9 @@ const Sidebar = ({ onStoreChange }) => {
       }
       if (paymentsDropdownRef.current && !paymentsDropdownRef.current.contains(event.target)) {
         setIsPaymentsDropdownOpen(false);
+      }
+      if (invoicesDropdownRef.current && !invoicesDropdownRef.current.contains(event.target)) {
+        setIsInvoicesDropdownOpen(false);
       }
     };
 
@@ -323,30 +339,34 @@ const Sidebar = ({ onStoreChange }) => {
               const isPurchaseMenu = item.name === 'Purchase';
               const isBillsMenu = item.name === 'Bills';
               const isPaymentsMenu = item.name === 'Payments';
-              
-              const dropdownRef = isProductsMenu ? productsDropdownRef : 
-                                 isCustomersMenu ? customersDropdownRef : 
-                                 isSuppliersMenu ? suppliersDropdownRef : 
-                                 isInventoryMenu ? inventoryDropdownRef :
-                                 isPurchaseMenu ? purchaseDropdownRef :
-                                 isBillsMenu ? billsDropdownRef :
-                                 paymentsDropdownRef;
-              
-              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen : 
-                                   isCustomersMenu ? isCustomersDropdownOpen : 
-                                   isSuppliersMenu ? isSuppliersDropdownOpen : 
-                                   isInventoryMenu ? isInventoryDropdownOpen :
-                                   isPurchaseMenu ? isPurchaseDropdownOpen :
-                                   isBillsMenu ? isBillsDropdownOpen :
-                                   isPaymentsDropdownOpen;
-              
-              const toggleDropdown = isProductsMenu ? toggleProductsDropdown : 
-                                   isCustomersMenu ? toggleCustomersDropdown : 
-                                   isSuppliersMenu ? toggleSuppliersDropdown : 
-                                   isInventoryMenu ? toggleInventoryDropdown :
-                                   isPurchaseMenu ? togglePurchaseDropdown :
-                                   isBillsMenu ? toggleBillsDropdown :
-                                   togglePaymentsDropdown;
+              const isInvoicesMenu = item.name === 'Invoices';
+
+              const dropdownRef = isProductsMenu ? productsDropdownRef :
+                isCustomersMenu ? customersDropdownRef :
+                  isSuppliersMenu ? suppliersDropdownRef :
+                    isInventoryMenu ? inventoryDropdownRef :
+                      isPurchaseMenu ? purchaseDropdownRef :
+                        isBillsMenu ? billsDropdownRef :
+                          isPaymentsMenu ? paymentsDropdownRef :
+                            invoicesDropdownRef;
+
+              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen :
+                isCustomersMenu ? isCustomersDropdownOpen :
+                  isSuppliersMenu ? isSuppliersDropdownOpen :
+                    isInventoryMenu ? isInventoryDropdownOpen :
+                      isPurchaseMenu ? isPurchaseDropdownOpen :
+                        isBillsMenu ? isBillsDropdownOpen :
+                          isPaymentsMenu ? isPaymentsDropdownOpen :
+                            isInvoicesDropdownOpen;
+
+              const toggleDropdown = isProductsMenu ? toggleProductsDropdown :
+                isCustomersMenu ? toggleCustomersDropdown :
+                  isSuppliersMenu ? toggleSuppliersDropdown :
+                    isInventoryMenu ? toggleInventoryDropdown :
+                      isPurchaseMenu ? togglePurchaseDropdown :
+                        isBillsMenu ? toggleBillsDropdown :
+                          isPaymentsMenu ? togglePaymentsDropdown :
+                            toggleInvoicesDropdown;
 
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>

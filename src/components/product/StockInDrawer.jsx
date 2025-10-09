@@ -49,7 +49,6 @@ const StockInDrawer = ({
         lightweight: true,
         store: storeId
       });
-      console.log('Suppliers:', result);
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }

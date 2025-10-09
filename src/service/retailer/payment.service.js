@@ -8,19 +8,6 @@ class PaymentService {
     this.baseURL = API_CONFIG.BASE.URL;
   }
 
-  // Create a new payment
-  async createPayment(paymentData) {
-    try {
-      // Transform the data to match the API documentation structure
-      const apiPayload = this.transformPaymentData(paymentData);
-
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
-      return handleApiSuccess(response?.data, 'Payment created successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'payment-creation');
-    }
-  }
-
   // Transform payment data to match API structure
   transformPaymentData(formData) {
     const paymentMethods = [];
@@ -98,6 +85,19 @@ class PaymentService {
     return methodMap[frontendMethod] || 'CASH';
   }
 
+  // Create a new payment
+  async createPayment(paymentData) {
+    try {
+      // Transform the data to match the API documentation structure
+      const apiPayload = this.transformPaymentData(paymentData);
+
+      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
+      return handleApiSuccess(response?.data, 'Payment created successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'payment-creation');
+    }
+  }
+
   // Update an existing payment
   async updatePayment(paymentId, paymentData, storeId = null) {
     try {
@@ -128,7 +128,6 @@ class PaymentService {
     }
   }
 
-
   // Delete a payment by ID
   async deletePayment(paymentId, storeId = null) {
     try {
@@ -146,8 +145,6 @@ class PaymentService {
       return handleApiErrorResponse(error, 'payment-deletion');
     }
   }
-
-
 }
 
 // Create and export a singleton instance

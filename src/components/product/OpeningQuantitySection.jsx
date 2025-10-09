@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { NumberInput, Input, Select } from '../ui';
 import { Package, IndianRupee, Calculator, Truck } from 'lucide-react';
 import { supplierService } from '@/service/retailer';
@@ -13,15 +13,19 @@ const OpeningQuantitySection = ({
 }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
+  
+  // Ref to prevent duplicate API calls
+  const hasFetchedSuppliers = useRef(false);
 
   const handleFieldChange = (field, value) => {
-    console.log('OpeningQuantitySection - Field:', field, 'Value:', value);
     onChange(field, value);
   };
 
   // Fetch suppliers from API
-  const fetchSuppliers = async () => {
-    if (!storeId) return;
+  const fetchSuppliers = useCallback(async () => {
+    if (!storeId || hasFetchedSuppliers.current) return;
+    
+    hasFetchedSuppliers.current = true;
     
     try {
       setSuppliersLoading(true);
@@ -34,18 +38,19 @@ const OpeningQuantitySection = ({
         setSuppliers(result.data?.data || result.data || []);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
+      console.error('❌ Error fetching suppliers:', error);
+      hasFetchedSuppliers.current = false; // Reset on error
     } finally {
       setSuppliersLoading(false);
     }
-  };
+  }, [storeId]);
 
   // Fetch suppliers on component mount and when storeId changes
   useEffect(() => {
     if (storeId) {
       fetchSuppliers();
     }
-  }, [storeId]);
+  }, [storeId, fetchSuppliers]);
 
   // Format supplier options for dropdown
   const supplierOptions = [

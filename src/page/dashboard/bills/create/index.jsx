@@ -63,6 +63,7 @@ const CreateBill = () => {
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdBillNumber, setCreatedBillNumber] = useState('');
+  const [createdBillId, setCreatedBillId] = useState('');
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -298,6 +299,7 @@ const CreateBill = () => {
 
       if (result.success) {
         setCreatedBillNumber(result.data?.billNumber || `Bill-${Date.now()}`);
+        setCreatedBillId(result.data?.id || result.data?._id || '');
         setShowSuccessModal(true);
       } else {
         setCreateError(result.message || 'Failed to create bill');
@@ -324,7 +326,12 @@ const CreateBill = () => {
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/bills');
+    // Redirect to the created bill view page if bill ID is available, otherwise to bills list
+    if (createdBillId) {
+      router.push(`/dashboard/bills/${createdBillId}`);
+    } else {
+      router.push('/dashboard/bills');
+    }
   };
 
   const handleAddMore = () => {
@@ -720,14 +727,19 @@ const CreateBill = () => {
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {createdBillNumber} has been added to your bills.
+            {createdBillNumber} has been created successfully.
+            {createdBillId && (
+              <span className="block mt-2 text-sm text-blue-600">
+                You can now view the bill details.
+              </span>
+            )}
           </p>
           <div className="flex gap-3 justify-center">
             <Button
               variant="outline"
               onClick={handleContinue}
             >
-              View Bills
+              {createdBillId ? 'View Bill' : 'View Bills'}
             </Button>
             <Button
               onClick={handleAddMore}

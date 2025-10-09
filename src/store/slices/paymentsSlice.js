@@ -1,6 +1,43 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { paymentService } from '@/service/retailer';
 
+// Helper function to calculate payment statistics
+const calculatePaymentStats = (payments) => {
+  if (!payments || payments.length === 0) {
+    return {
+      totalPayments: 0,
+      pendingPayments: 0,
+      approvedPayments: 0,
+      totalAmount: 0
+    };
+  }
+
+  const stats = payments.reduce((acc, payment) => {
+    acc.totalPayments += 1;
+    acc.totalAmount += payment.amount || 0;
+    
+    switch (payment.status?.toLowerCase()) {
+      case 'pending':
+        acc.pendingPayments += 1;
+        break;
+      case 'approved':
+        acc.approvedPayments += 1;
+        break;
+      default:
+        break;
+    }
+    
+    return acc;
+  }, {
+    totalPayments: 0,
+    pendingPayments: 0,
+    approvedPayments: 0,
+    totalAmount: 0
+  });
+
+  return stats;
+};
+
 // Async thunk for getting payments
 export const getPayments = createAsyncThunk(
   'payments/getPayments',
@@ -77,8 +114,6 @@ export const deletePayment = createAsyncThunk(
   }
 );
 
-
-
 const initialState = {
   // Payments data
   payments: [],
@@ -89,6 +124,14 @@ const initialState = {
     nextCursor: null,
     limit: 20,
     total: 0
+  },
+
+  // Statistics
+  stats: {
+    totalPayments: 0,
+    pendingPayments: 0,
+    approvedPayments: 0,
+    totalAmount: 0
   },
   
   // Loading states
@@ -129,6 +172,9 @@ const paymentsSlice = createSlice({
           state.payments = data;
         }
 
+        // Calculate and update stats based on payments data
+        state.stats = calculatePaymentStats(state.payments);
+
         // Update pagination
         if (data?.meta?.pagination) {
           state.pagination = {
@@ -161,6 +207,9 @@ const paymentsSlice = createSlice({
         if (index !== -1 && action.payload.data) {
           state.payments[index] = { ...state.payments[index], ...action.payload.data };
         }
+
+        // Recalculate stats after updating payment
+        state.stats = calculatePaymentStats(state.payments);
       })
       .addCase(updatePayment.rejected, (state, action) => {
         state.isUpdating = false;
@@ -179,6 +228,9 @@ const paymentsSlice = createSlice({
         // Remove payment from the list
         const paymentId = action.payload.paymentId;
         state.payments = state.payments.filter(payment => payment.id !== paymentId);
+
+        // Recalculate stats after deleting payment
+        state.stats = calculatePaymentStats(state.payments);
 
         // Update total count
         if (state.pagination.total > 0) {

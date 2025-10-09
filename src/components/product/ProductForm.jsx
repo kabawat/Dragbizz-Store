@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Package, Eye, IndianRupee, Receipt, Settings, GripVertical, Info, X } from 'lucide-react';
 
 // Import drag and drop
@@ -199,6 +199,9 @@ const ProductForm = ({
   const [customCategories, setCustomCategories] = useState([]);
   const [apiCategories, setApiCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
+  
+  // Ref to prevent duplicate API calls
+  const hasFetchedCategories = useRef(false);
 
   const [sections, setSections] = useState([
     { id: 'basic', title: 'Basic Information', subtitle: 'Product name, brand, and basic details', icon: Package, component: BasicInfoSection },
@@ -276,7 +279,10 @@ const ProductForm = ({
   };
 
   // Fetch categories from API
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
+    if (!storeId || hasFetchedCategories.current) return;
+    hasFetchedCategories.current = true;
+    
     try {
       setCategoriesLoading(true);
       const response = await categoryService.getCategories({
@@ -293,18 +299,19 @@ const ProductForm = ({
         setApiCategories(formattedCategories);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('❌ Error fetching categories:', error);
+      hasFetchedCategories.current = false; // Reset on error
     } finally {
       setCategoriesLoading(false);
     }
-  };
+  }, [storeId]);
 
   // Fetch categories on component mount
   useEffect(() => {
     if (storeId) {
       fetchCategories();
     }
-  }, [storeId]);
+  }, [storeId, fetchCategories]);
 
   // Handle category drawer
   const handleAddCategoryClick = () => {
@@ -332,6 +339,7 @@ const ProductForm = ({
           };
 
           // Refresh categories list from API
+          hasFetchedCategories.current = false; // Reset to allow refetch
           await fetchCategories();
 
           // Set as selected category
@@ -347,8 +355,6 @@ const ProductForm = ({
             }
           });
           setShowAddCategoryDrawer(false);
-
-          console.log('Category created successfully:', response.data);
         } else {
           console.error('Failed to create category:', response.message);
         }

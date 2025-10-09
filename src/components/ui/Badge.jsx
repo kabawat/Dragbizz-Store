@@ -12,20 +12,20 @@ const Badge = ({
   className = '',
   ...props
 }) => {
-  // Variant classes
+  // Variant classes with dark mode support
   const variantClasses = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-200 text-gray-900',
-    success: 'bg-green-100 text-green-800',
-    danger: 'bg-red-100 text-red-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    info: 'bg-cyan-100 text-cyan-800',
-    purple: 'bg-purple-100 text-purple-800',
-    pink: 'bg-pink-100 text-pink-800',
-    indigo: 'bg-indigo-100 text-indigo-800',
-    outline: 'border border-gray-300 text-gray-700 bg-transparent',
-    solid: 'bg-gray-800 text-white'
+    default: 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))]',
+    primary: 'bg-blue-500/20 text-blue-500 border border-blue-500/30',
+    secondary: 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))]',
+    success: 'bg-green-500/20 text-green-500 border border-green-500/30',
+    danger: 'bg-red-500/20 text-red-500 border border-red-500/30',
+    warning: 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30',
+    info: 'bg-cyan-500/20 text-cyan-500 border border-cyan-500/30',
+    purple: 'bg-purple-500/20 text-purple-500 border border-purple-500/30',
+    pink: 'bg-pink-500/20 text-pink-500 border border-pink-500/30',
+    indigo: 'bg-indigo-500/20 text-indigo-500 border border-indigo-500/30',
+    outline: 'border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] bg-transparent',
+    solid: 'bg-[rgb(var(--color-text-primary))] text-[rgb(var(--color-bg-primary))]'
   };
   
   // Size classes
@@ -57,7 +57,7 @@ const Badge = ({
       {dismissible && (
         <button
           onClick={onDismiss}
-          className="ml-1 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5 transition-colors duration-200"
+          className="ml-1 hover:bg-[rgb(var(--color-bg-tertiary))] rounded-full p-0.5 transition-colors duration-200"
           aria-label="Remove badge"
         >
           <X className="w-3 h-3" />
