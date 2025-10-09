@@ -108,10 +108,7 @@ const ViewSupplierPage = ({ supplierId }) => {
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
-          <Header
-            title="View Supplier"
-            description="Supplier information and details"
-          />
+          <Header title="View Supplier" description="Supplier information and details" />
 
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto w-full">
@@ -214,13 +211,13 @@ const ViewSupplierPage = ({ supplierId }) => {
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic supplier details</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleEditSupplier} leftIcon={Edit}>
-                          Edit
-                        </Button>
-                        <Button variant="danger" size="sm" onClick={handleDeleteSupplier} leftIcon={Trash2}>
-                          Delete
-                        </Button>
+                      <div className="flex items-center space-x-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${supplierData.isActive
+                            ? 'bg-green-500/10 text-green-600 border border-green-500/20'
+                            : 'bg-red-500/10 text-red-600 border border-red-500/20'
+                          }`}>
+                          {supplierData.isActive ? 'Active' : 'Inactive'}
+                        </span>
                       </div>
                     </div>
 
@@ -339,11 +336,10 @@ const ViewSupplierPage = ({ supplierId }) => {
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Status</label>
                         <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            supplierData.isActive 
-                              ? 'bg-green-500/10 text-green-600 border border-green-500/20' 
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${supplierData.isActive
+                              ? 'bg-green-500/10 text-green-600 border border-green-500/20'
                               : 'bg-red-500/10 text-red-600 border border-red-500/20'
-                          }`}>
+                            }`}>
                             {supplierData.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
@@ -365,7 +361,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 mb-6">
                       <Button
                         variant="primary"
                         className="w-full"
@@ -386,7 +382,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                     </div>
 
                     {/* Supplier Stats */}
-                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                    <div className="p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                       <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Supplier Stats</h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">

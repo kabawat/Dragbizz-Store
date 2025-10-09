@@ -36,6 +36,7 @@ const API_CONFIG = {
     PURCHASE_ORDER: '/retailer/purchase-order',
     PAYMENT: '/retailer/supplier-account/payments',
     BILL: '/retailer/supplier-account/bills',
+    INVOICE: '/retailer/invoices',
   },
     
   // External Services

@@ -4,7 +4,6 @@ import { Plus, Grid3X3, List, Users, Search, MoreHorizontal, Edit, Copy, Trash2,
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  getCustomers,
   deleteCustomer,
   setSelectedCustomers,
   toggleCustomerSelection,
@@ -12,6 +11,7 @@ import {
   deselectAllCustomers,
   setViewMode
 } from '@/store/slices/customersSlice';
+import { customerService } from '@/service';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
@@ -24,13 +24,23 @@ const CustomersPage = () => {
 
   // Get data from Redux store
   const {
-    customers,
     selectedCustomers,
-    isLoading,
-    error,
-    pagination,
     viewMode
   } = useAppSelector((state) => state.customers);
+
+  // Local state for customers
+  const [customers, setCustomers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    hasNextPage: false,
+    nextCursor: null
+  });
+
+  // Debug customer data
+  console.log('Customer List - Customers data:', customers);
+  console.log('Customer List - Customers loading:', isLoading);
+  console.log('Customer List - Customers error:', error);
 
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -102,34 +112,73 @@ const CustomersPage = () => {
     }
   }, [dispatch]);
 
-  // Fetch customers on component mount and when search changes
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-      const params = {
-        store: storeId,
-        search: searchValue,
-        limit: 10,
-        nextCursor: null,
-        isFreshLoad: true
-      };
-
-      // Create a unique key for this fetch
-      const fetchKey = `${storeId}-${searchValue}`;
-
-      // Prevent duplicate calls with same parameters
-      if (lastFetchRef.current === fetchKey) {
-        return;
-      }
-
-      lastFetchRef.current = fetchKey;
-      await dispatch(getCustomers(params));
+  // Fetch customers from API
+  const fetchCustomers = async (isLoadMore = false) => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    console.log('Customer List - Selected store:', selectedStore);
+    console.log('Customer List - Store ID:', storeId);
+    
+    const params = {
+      search: searchValue,
+      limit: 10,
+      nextCursor: isLoadMore ? pagination.nextCursor : null
     };
 
-    // Only fetch if selectedStore is available and has a valid ID
-    if (selectedStore && (selectedStore.storeId || selectedStore._id || selectedStore.id)) {
-      fetchCustomers();
+    if (storeId) {
+      params.store = storeId;
     }
+
+    console.log('Customer List - Fetch params:', params);
+
+    // Create a unique key for this fetch
+    const fetchKey = `${storeId}-${searchValue}-${isLoadMore}`;
+
+    // Prevent duplicate calls with same parameters
+    if (lastFetchRef.current === fetchKey) {
+      console.log('Customer List - Duplicate fetch prevented');
+      return;
+    }
+
+    lastFetchRef.current = fetchKey;
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('Customer List - Calling customerService.getCustomers');
+      const result = await customerService.getCustomers(params);
+      console.log('Customer List - API response:', result);
+      
+      if (result.success) {
+        const customersData = result.data?.data || result.data || [];
+        console.log('Customer List - Customers data:', customersData);
+        
+        if (isLoadMore) {
+          setCustomers(prev => [...prev, ...customersData]);
+        } else {
+          setCustomers(customersData);
+        }
+        
+        // Update pagination
+        setPagination({
+          hasNextPage: result.data?.hasNextPage || false,
+          nextCursor: result.data?.nextCursor || null
+        });
+      } else {
+        console.error('Customer List - API error:', result.message);
+        setError(result.message || 'Failed to fetch customers');
+      }
+    } catch (error) {
+      console.error('Customer List - Fetch error:', error);
+      setError(error.message || 'Failed to fetch customers');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch customers on component mount and when search changes
+  useEffect(() => {
+    fetchCustomers(false);
   }, [selectedStore, searchValue]);
 
   // Infinite scroll detection
@@ -259,15 +308,7 @@ const CustomersPage = () => {
     setIsLoadingMore(true);
 
     try {
-      const params = {
-        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
-        search: searchValue,
-        limit: 10,
-        nextCursor: pagination.nextCursor,
-        isFreshLoad: false
-      };
-
-      await dispatch(getCustomers(params));
+      await fetchCustomers(true);
     } catch (error) {
       console.error('Error loading more customers:', error);
     } finally {
@@ -363,7 +404,7 @@ const CustomersPage = () => {
                     No customers found
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    No customers match your current criteria. Try adjusting your search or add new customers.
+                    {error ? `Error: ${error}` : 'No customers match your current criteria. Try adjusting your search or add new customers.'}
                   </p>
                   <div className="pt-4">
                     <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>

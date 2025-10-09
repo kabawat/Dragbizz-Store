@@ -306,7 +306,7 @@ const Select = ({
                   if (option.isAddOption) {
                     return (
                       <div
-                        key={option.value}
+                        key={option.value || `add-option-${index}`}
                         className="px-4 py-2 cursor-pointer  transition-colors duration-150 border-t border-[rgb(var(--color-border-primary))]"
                         onClick={() => handleSelect(option)}
                         onMouseEnter={() => setHighlightedIndex(index)}
@@ -321,7 +321,7 @@ const Select = ({
 
                   return (
                     <div
-                      key={option.value}
+                      key={option.value || `option-${index}`}
                       className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${(isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
                         } hover:bg-blue-500 hover:bg-opacity-10`}
                       style={{

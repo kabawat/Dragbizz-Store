@@ -11,18 +11,11 @@ import {
   Save,
   ArrowLeft,
   Building2,
-  IndianRupee,
-  Calendar,
   FileText,
-  AlertCircle,
   CheckCircle,
-  Receipt,
-  Clock,
   Banknote,
   Smartphone,
   CreditCard as CardIcon,
-  Shield,
-  TrendingUp,
   Plus,
   Trash2
 } from 'lucide-react';
@@ -403,60 +396,41 @@ const CreatePayment = () => {
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/payments');
+    // Redirect to bill page if billId exists in query params, otherwise to payments page
+    if (billId) {
+      router.push(`/dashboard/bills/${billId}`);
+    } else {
+      router.push('/dashboard/payments');
+    }
   };
 
   const handleAddMore = () => {
     setShowSuccessModal(false);
-    // Reset form data
+    // Reset form data but preserve billId if it exists
     setFormData({
       supplierId: '',
-      paymentNumber: '',
-      paymentDate: new Date().toISOString().split('T')[0],
-      amount: '',
-      paymentMethod: 'cash',
-      reference: '',
-      transactionId: '',
+      paymentType: 'BILL_PAYMENT',
+      billId: billId || '', // Preserve billId from query params
       notes: '',
-      status: 'pending',
-      bankName: '',
-      accountNumber: '',
-      ifscCode: '',
-      branchName: '',
-      chequeNumber: '',
-      chequeDate: '',
-      chequeBankName: '',
-      chequeBranchName: '',
-      chequeStatus: 'pending'
+      paymentMethods: [
+        {
+          amount: 0,
+          method: 'cash', 
+          reference: '',
+          bankName: '',
+          accountNumber: '',
+          ifscCode: '',
+          holderName: '',
+          upiId: '',
+          transactionId: '',
+          chequeNumber: '',
+          chequeDate: '',
+          chequeBankName: '',
+          chequeBranchName: ''
+        }
+      ]
     });
     setErrors({});
-  };
-
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
-    }).format(amount);
-  };
-
-  // Get payment method icon
-  const getPaymentMethodIcon = (method) => {
-    switch (method) {
-      case 'cash':
-        return Banknote;
-      case 'bank_transfer':
-        return Building2;
-      case 'cheque':
-        return FileText;
-      case 'upi': Payment
-        return Smartphone;
-      case 'card':
-        return CardIcon;
-      default:
-        return CreditCard;
-    }
   };
 
   return (
@@ -522,13 +496,10 @@ const CreatePayment = () => {
                               onChange={(value) => handleInputChange('supplierId', value)}
                               options={[
                                 { value: '', label: suppliersLoading ? 'Loading suppliers...' : 'Select Supplier' },
-                                ...suppliers.map(supplier => {
-                                  console.log('Mapping supplier:', supplier);
-                                  return {
-                                    value: supplier.id || supplier._id,
-                                    label: supplier.name || supplier.supplierName
-                                  };
-                                })
+                                ...suppliers.map(supplier => ({
+                                  value: supplier.id || supplier._id,
+                                  label: supplier.name || supplier.supplierName
+                                }))
                               ]}
                               error={errors.supplierId}
                               disabled={suppliersLoading}
@@ -556,7 +527,7 @@ const CreatePayment = () => {
                                   }))
                                 ]}
                                 error={errors.billId}
-                                disabled={billsLoading || !formData.billId}
+                                disabled={billsLoading}
                               />
                               {billId && (
                                 <div className="mt-1 text-xs text-green-600">
@@ -980,6 +951,11 @@ const CreatePayment = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Payment Created Successfully!</h3>
             <p className="text-gray-600 mb-4">
               Your payment "{createdPaymentNumber}" has been created and is now pending approval.
+              {billId && (
+                <span className="block mt-2 text-sm text-blue-600">
+                  This payment is linked to the selected bill.
+                </span>
+              )}
             </p>
           </div>
           <div className="flex justify-end gap-3">
@@ -987,7 +963,7 @@ const CreatePayment = () => {
               variant="outline"
               onClick={handleContinue}
             >
-              Continue to Payments
+              {billId ? 'View Bill' : 'Continue to Payments'}
             </Button>
             <Button
               variant="primary"

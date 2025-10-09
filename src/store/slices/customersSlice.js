@@ -20,13 +20,17 @@ export const getCustomers = createAsyncThunk(
   'customers/getCustomers',
   async (params, { rejectWithValue }) => {
     try {
+      console.log('getCustomers thunk called with params:', params);
       const result = await customerService.getCustomers(params);
+      console.log('getCustomers thunk result:', result);
       if (result.success) {
         return result;
       } else {
+        console.error('getCustomers thunk failed:', result.message);
         return rejectWithValue(result.message || 'Failed to fetch customers');
       }
     } catch (error) {
+      console.error('getCustomers thunk error:', error);
       return rejectWithValue(error.message || 'Failed to fetch customers');
     }
   }
@@ -101,26 +105,43 @@ const customersSlice = createSlice({
       // Get customers
       .addCase(getCustomers.pending, (state, action) => {
         // Only show loading for fresh loads, not infinite scroll
-        const isFreshLoad = action.meta.arg.isFreshLoad;
+        const isFreshLoad = action.meta?.arg?.isFreshLoad || false;
         if (isFreshLoad) {
           state.isLoading = true;
         }
         state.error = null;
       })
       .addCase(getCustomers.fulfilled, (state, action) => {
-        const isFreshLoad = action.meta.arg.isFreshLoad;
-        console.log("isFreshLoad : ",action.payload.data);
+        const isFreshLoad = action.meta?.arg?.isFreshLoad || false;
+        console.log('getCustomers fulfilled - isFreshLoad:', isFreshLoad);
+        console.log('getCustomers fulfilled - action.payload:', action.payload);
+        console.log('getCustomers fulfilled - action.payload.data:', action.payload.data);
+        
         if (isFreshLoad) {
           state.isLoading = false;
         }
         state.error = null;
-        const data = action.payload.data || [];
+        
+        // Handle different data structures
+        let data = [];
+        if (action.payload.data) {
+          if (Array.isArray(action.payload.data)) {
+            data = action.payload.data;
+          } else if (action.payload.data.data && Array.isArray(action.payload.data.data)) {
+            data = action.payload.data.data;
+          } else if (action.payload.data.customers && Array.isArray(action.payload.data.customers)) {
+            data = action.payload.data.customers;
+          }
+        }
+        
+        console.log('Processed customer data:', data);
+        
         if (isFreshLoad) {
           // Fresh load - replace existing data
           state.customers = data;
         } else {
-          const existingIds = new Set(state.customers.map(customer => customer.id));
-          const newCustomers = data.filter(customer => !existingIds.has(customer.id));
+          const existingIds = new Set(state.customers.map(customer => customer.id || customer._id));
+          const newCustomers = data.filter(customer => !existingIds.has(customer.id || customer._id));
           state.customers = [...state.customers, ...newCustomers];
         }
         
@@ -132,7 +153,7 @@ const customersSlice = createSlice({
       })
       .addCase(getCustomers.rejected, (state, action) => {
         // Only set loading to false for fresh loads
-        const isFreshLoad = action.meta.arg.isFreshLoad;
+        const isFreshLoad = action.meta?.arg?.isFreshLoad || false;
         if (isFreshLoad) {
           state.isLoading = false;
         }
