@@ -79,13 +79,10 @@ const Sidebar = ({ onStoreChange }) => {
     : [];
 
 
-  const productSubMenuItems = [
-    { name: 'All Products', icon: Package, href: '/dashboard/products' },
-    { name: 'Add New Product', icon: PackagePlus, href: '/dashboard/products/add' },
-    { name: 'View Product', icon: Eye, href: '/dashboard/products/view' },
-    { name: 'Import/Export', icon: Upload, href: '/dashboard/products/import-export' },
-    { name: 'Reviews & Ratings', icon: Star, href: '/dashboard/products/reviews' },
-    { name: 'Archived Products', icon: Archive, href: '/dashboard/products/archived' },
+  const productAndStockSubMenuItems = [
+    { name: 'Products', icon: Package, href: '/dashboard/products' },
+    { name: 'Stocks', icon: Warehouse, href: '/dashboard/stock' },
+    { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/stock/alerts' },
   ];
 
   const customerSubMenuItems = [
@@ -97,13 +94,6 @@ const Sidebar = ({ onStoreChange }) => {
   const suppliersSubMenuItems = [
     { name: 'All Suppliers', icon: Building2, href: '/dashboard/suppliers' },
     { name: 'Add New Supplier', icon: Building, href: '/dashboard/suppliers/add' },
-  ];
-
-  const inventorySubMenuItems = [
-    { name: 'All Inventory', icon: Warehouse, href: '/dashboard/inventory' },
-    { name: 'Add New Inventory', icon: PackagePlus, href: '/dashboard/inventory/add' },
-    { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/inventory/alerts' },
-    { name: 'Stock Adjustments', icon: BarChart3, href: '/dashboard/inventory/adjustments' },
   ];
 
   const billSubMenuItems = [
@@ -131,7 +121,6 @@ const Sidebar = ({ onStoreChange }) => {
   const purchaseSubMenuItems = [
     { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers', hasSubMenu: true, subMenuItems: suppliersSubMenuItems },
     { name: 'Purchase Orders', icon: ShoppingCart, href: '/dashboard/purchase-orders' },
-    { name: 'Stock', icon: Warehouse, href: '/dashboard/inventory', hasSubMenu: true, subMenuItems: inventorySubMenuItems },
     { name: 'Bills', icon: Receipt, href: '/dashboard/bills', hasSubMenu: true, subMenuItems: billSubMenuItems },
     { name: 'Payments', icon: IndianRupee, href: '/dashboard/payments', hasSubMenu: true, subMenuItems: paymentSubMenuItems },
   ];
@@ -140,13 +129,12 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Customers', icon: Users, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: customerSubMenuItems },
     { name: 'Purchase', icon: ShoppingCart, href: '/dashboard/purchase', hasSubMenu: true, subMenuItems: purchaseSubMenuItems },
-    { name: 'Products', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productSubMenuItems },
-    { name: 'Inventory', icon: Warehouse, href: '/dashboard/inventory', hasSubMenu: true, subMenuItems: inventorySubMenuItems },
+    { name: 'Product & Stock', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: productAndStockSubMenuItems },
     { name: 'Invoices', icon: FileText, href: '/dashboard/invoices', hasSubMenu: true, subMenuItems: invoiceSubMenuItems },
-    { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
-    { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
-    { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
-    { name: 'Journal Entry', icon: FileText, href: '/dashboard/journal' },
+    // { name: 'Billing', icon: Receipt, href: '/dashboard/billing' },
+    // { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
+    // { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
+    // { name: 'Journal Entry', icon: FileText, href: '/dashboard/journal' },
     { name: 'Daily Expenses', icon: IndianRupee, href: '/dashboard/expenses' },
   ];
 
@@ -172,35 +160,43 @@ const Sidebar = ({ onStoreChange }) => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const toggleProductsDropdown = () => {
+  const toggleProductsDropdown = (e) => {
+    e.stopPropagation();
     setIsProductsDropdownOpen(!isProductsDropdownOpen);
   };
 
-  const toggleCustomersDropdown = () => {
+  const toggleCustomersDropdown = (e) => {
+    e.stopPropagation();
     setIsCustomersDropdownOpen(!isCustomersDropdownOpen);
   };
 
-  const toggleSuppliersDropdown = () => {
+  const toggleSuppliersDropdown = (e) => {
+    e.stopPropagation();
     setIsSuppliersDropdownOpen(!isSuppliersDropdownOpen);
   };
 
-  const toggleInventoryDropdown = () => {
+  const toggleInventoryDropdown = (e) => {
+    e.stopPropagation();
     setIsInventoryDropdownOpen(!isInventoryDropdownOpen);
   };
 
-  const togglePurchaseDropdown = () => {
+  const togglePurchaseDropdown = (e) => {
+    e.stopPropagation();
     setIsPurchaseDropdownOpen(!isPurchaseDropdownOpen);
   };
 
-  const toggleBillsDropdown = () => {
+  const toggleBillsDropdown = (e) => {
+    e.stopPropagation();
     setIsBillsDropdownOpen(!isBillsDropdownOpen);
   };
 
-  const togglePaymentsDropdown = () => {
+  const togglePaymentsDropdown = (e) => {
+    e.stopPropagation();
     setIsPaymentsDropdownOpen(!isPaymentsDropdownOpen);
   };
 
-  const toggleInvoicesDropdown = () => {
+  const toggleInvoicesDropdown = (e) => {
+    e.stopPropagation();
     setIsInvoicesDropdownOpen(!isInvoicesDropdownOpen);
   };
 
@@ -208,6 +204,12 @@ const Sidebar = ({ onStoreChange }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Check if the click is on a dropdown toggle button
+      const isDropdownToggle = event.target.closest('button[data-dropdown-toggle]');
+      if (isDropdownToggle) {
+        return; // Don't close if clicking on dropdown toggle
+      }
+
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsStoreDropdownOpen(false);
       }
@@ -237,9 +239,14 @@ const Sidebar = ({ onStoreChange }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Use a small delay to allow click events to process first
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -275,7 +282,7 @@ const Sidebar = ({ onStoreChange }) => {
           <div className="p-3 border-b border-[rgb(var(--color-border-primary))]">
             <div className="relative" ref={dropdownRef}>
               {/* Selected Store Display */}
-              <div onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)} className="flex items-center justify-between p-2 bg-[rgb(var(--color-primary))]/5 border-2 border-[rgb(var(--color-primary))]/10 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
+              <div onClick={(e) => { e.stopPropagation(); setIsStoreDropdownOpen(!isStoreDropdownOpen); }} data-dropdown-toggle className="flex items-center justify-between p-2 bg-[rgb(var(--color-primary))]/5 border-2 border-[rgb(var(--color-primary))]/10 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-primary))]/10 transition-colors">
                 <div>
                   <div className="font-semibold text-sm text-gray-900">
                     {selectedStore?.name || selectedStore?.storeName || 'Select Store'}
@@ -332,46 +339,43 @@ const Sidebar = ({ onStoreChange }) => {
             const isActive = pathname === item.href || (item.hasSubMenu && pathname.startsWith(item.href));
 
             if (item.hasSubMenu) {
-              const isProductsMenu = item.name === 'Products';
+              const isProductAndStockMenu = item.name === 'Product & Stock';
               const isCustomersMenu = item.name === 'Customers';
               const isSuppliersMenu = item.name === 'Suppliers';
-              const isInventoryMenu = item.name === 'Inventory';
               const isPurchaseMenu = item.name === 'Purchase';
               const isBillsMenu = item.name === 'Bills';
               const isPaymentsMenu = item.name === 'Payments';
               const isInvoicesMenu = item.name === 'Invoices';
 
-              const dropdownRef = isProductsMenu ? productsDropdownRef :
+              const dropdownRef = isProductAndStockMenu ? productsDropdownRef :
                 isCustomersMenu ? customersDropdownRef :
                   isSuppliersMenu ? suppliersDropdownRef :
-                    isInventoryMenu ? inventoryDropdownRef :
-                      isPurchaseMenu ? purchaseDropdownRef :
-                        isBillsMenu ? billsDropdownRef :
-                          isPaymentsMenu ? paymentsDropdownRef :
-                            invoicesDropdownRef;
+                    isPurchaseMenu ? purchaseDropdownRef :
+                      isBillsMenu ? billsDropdownRef :
+                        isPaymentsMenu ? paymentsDropdownRef :
+                          invoicesDropdownRef;
 
-              const isDropdownOpen = isProductsMenu ? isProductsDropdownOpen :
+              const isDropdownOpen = isProductAndStockMenu ? isProductsDropdownOpen :
                 isCustomersMenu ? isCustomersDropdownOpen :
                   isSuppliersMenu ? isSuppliersDropdownOpen :
-                    isInventoryMenu ? isInventoryDropdownOpen :
-                      isPurchaseMenu ? isPurchaseDropdownOpen :
-                        isBillsMenu ? isBillsDropdownOpen :
-                          isPaymentsMenu ? isPaymentsDropdownOpen :
-                            isInvoicesDropdownOpen;
+                    isPurchaseMenu ? isPurchaseDropdownOpen :
+                      isBillsMenu ? isBillsDropdownOpen :
+                        isPaymentsMenu ? isPaymentsDropdownOpen :
+                          isInvoicesDropdownOpen;
 
-              const toggleDropdown = isProductsMenu ? toggleProductsDropdown :
+              const toggleDropdown = isProductAndStockMenu ? toggleProductsDropdown :
                 isCustomersMenu ? toggleCustomersDropdown :
                   isSuppliersMenu ? toggleSuppliersDropdown :
-                    isInventoryMenu ? toggleInventoryDropdown :
-                      isPurchaseMenu ? togglePurchaseDropdown :
-                        isBillsMenu ? toggleBillsDropdown :
-                          isPaymentsMenu ? togglePaymentsDropdown :
-                            toggleInvoicesDropdown;
+                    isPurchaseMenu ? togglePurchaseDropdown :
+                      isBillsMenu ? toggleBillsDropdown :
+                        isPaymentsMenu ? togglePaymentsDropdown :
+                          toggleInvoicesDropdown;
 
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>
                   <button
                     onClick={toggleDropdown}
+                    data-dropdown-toggle
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
                       ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                       : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'

@@ -1,0 +1,445 @@
+"use client"
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import { AnimatedBackground, Input } from '@/components/ui';
+import { Button } from '@/components/ui';
+
+// Import inventory components
+import { InventoryTable, InventoryCard } from '@/components/inventory';
+import { StockInDrawer } from '@/components/ui';
+
+// Import services
+import inventoryService from '@/service/retailer/inventory.service';
+
+const InventoryPage = () => {
+  const router = useRouter();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+
+  // State management
+  const [inventories, setInventories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
+  const [selectedInventories, setSelectedInventories] = useState([]);
+  const [viewMode, setViewMode] = useState('table'); 
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  
+  // Modals
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Stock In Drawer
+  const [showStockInDrawer, setShowStockInDrawer] = useState(false);
+  const [inventoryForStockIn, setInventoryForStockIn] = useState(null);
+  
+  // Refs
+  const scrollRef = useRef(null);
+  const hasFetched = useRef(false);
+
+  // Fetch inventories
+  const fetchInventories = async (page = 1, append = false) => {
+    if (!storeId) return;
+    
+    try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      const params = {
+        store: storeId,
+        page: page,
+        limit: 20,
+        search: searchValue || undefined
+      };
+
+      const response = await inventoryService.getInventories(params);
+      
+      if (response.success) {
+        const newInventories = response.data?.inventories || response.data || [];
+        
+        if (append) {
+          setInventories(prev => [...prev, ...newInventories]);
+        } else {
+          setInventories(newInventories);
+        }
+        
+        setHasMore(response.data?.pagination?.hasNext || false);
+      }
+    } catch (error) {
+      console.error('Error fetching inventories:', error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    if (storeId && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchInventories();
+    }
+  }, [storeId]);
+
+  // Refetch when search changes
+  useEffect(() => {
+    if (storeId) {
+      hasFetched.current = false;
+      fetchInventories(1);
+    }
+  }, [searchValue]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollRef.current || isLoadingMore || !hasMore) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const threshold = 100;
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [isLoadingMore, hasMore]);
+
+  // Load more function
+  const handleLoadMore = async () => {
+    if (hasMore && !isLoadingMore) {
+      try {
+        setIsLoadingMore(true);
+        const params = {
+          store: storeId,
+          page: Math.floor(inventories.length / 20) + 1,
+          limit: 20,
+          search: searchValue || undefined
+        };
+
+        const response = await inventoryService.getInventories(params);
+        
+        if (response.success) {
+          const newInventories = response.data?.inventories || response.data || [];
+          setInventories(prev => [...prev, ...newInventories]);
+          setHasMore(response.data?.pagination?.hasNext || false);
+        }
+      } catch (error) {
+        console.error('Error loading more inventories:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  };
+
+  // Search
+  const handleSearch = (value) => {
+    setSearchValue(value);
+  };
+
+  const handleAddStock = () => {
+    router.push('/dashboard/stock/add');
+  };
+
+  const handleEditStock = (inventoryId) => {
+    router.push(`/dashboard/stock/edit/${inventoryId}`);
+  };
+
+  const handleViewStock = (inventoryId) => {
+    router.push(`/dashboard/stock/view/${inventoryId}`);
+  };
+
+  const handleStockIn = (inventoryId) => {
+    const inventory = inventories.find(i => i.id === inventoryId);
+    setInventoryForStockIn(inventory);
+    setShowStockInDrawer(true);
+  };
+
+  const handleStockInSuccess = (message) => {
+    // Show success message
+    alert(message);
+    // Refresh the inventory list
+    hasFetched.current = false;
+    fetchInventories(1);
+  };
+
+  const handleCloseStockInDrawer = () => {
+    setShowStockInDrawer(false);
+    setInventoryForStockIn(null);
+  };
+
+  // Selection handlers
+  const handleInventorySelect = (inventoryIds) => {
+    const idsArray = Array.isArray(inventoryIds) ? inventoryIds : [inventoryIds];
+    setSelectedInventories(idsArray);
+  };
+
+  const handleCardSelect = (inventoryId) => {
+    setSelectedInventories(prev => 
+      prev.includes(inventoryId) 
+        ? prev.filter(id => id !== inventoryId)
+        : [...prev, inventoryId]
+    );
+  };
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      setSelectedInventories(inventories.map(i => i.id));
+    } else {
+      setSelectedInventories([]);
+    }
+  };
+
+  const handleDeleteStock = (inventoryId) => {
+    const inventory = inventories.find(i => i.id === inventoryId);
+    setInventoryToDelete({ id: inventoryId, name: inventory?.product?.name || 'Stock' });
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!inventoryToDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await inventoryService.deleteInventory(inventoryToDelete.id);
+      
+      // Remove from local state
+      setInventories(prev => prev.filter(i => i.id !== inventoryToDelete.id));
+      setSelectedInventories(prev => prev.filter(id => id !== inventoryToDelete.id));
+      
+      setShowDeleteModal(false);
+      setInventoryToDelete(null);
+    } catch (error) {
+      console.error('Error deleting inventory:', error);
+      alert('Failed to delete stock. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDuplicate = (inventoryId) => {
+    // TODO: Implement duplicate functionality
+    console.log('Duplicate stock:', inventoryId);
+  };
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+  };
+
+  return (
+    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
+      <AnimatedBackground variant="default" />
+      <Sidebar/>
+
+      {/* Main content */}
+      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+        {/* Header */}
+        <Header
+          title="Stock"
+          description="Manage your store stock levels and inventory"
+        />
+
+        {/* Main content */}
+        <div className="flex-1 p-5" ref={scrollRef}>
+          <div className="max-w-8xl mx-auto">
+            {/* Loading */}
+            {loading && inventories.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Stock...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your stock
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Search and filter */}
+            {inventories.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                  {/* Search */}
+                  <div className="w-100 bg-red">
+                    <Input
+                      type="text"
+                      placeholder="Search stock..."
+                      value={searchValue}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      leftIcon={Search}
+                      className="w-100"
+                    />
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    {/* View toggle */}
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                            ? 'bg-[rgb(var(--color-primary))] text-white'
+                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
+                    </div>
+
+                    <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
+                      Add Stock
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && inventories.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                    <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    No stock found
+                  </h3>
+                  <p className="text-[rgb(var(--color-text-secondary))] mb-6 text-center max-w-md">
+                    Get started by adding your first stock item to track inventory levels and manage your products.
+                  </p>
+                  <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
+                    Add Stock
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Stock List */}
+            {inventories.length > 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                {viewMode === 'table' ? (
+                  <InventoryTable
+                    inventories={inventories}
+                    onViewDetails={handleViewStock}
+                    onEdit={handleEditStock}
+                    onDelete={handleDeleteStock}
+                    onDuplicate={handleDuplicate}
+                    onStockIn={handleStockIn}
+                    onSelect={handleInventorySelect}
+                    selectedInventories={selectedInventories}
+                    onSelectAll={handleSelectAll}
+                    loading={loading}
+                    hasMore={hasMore}
+                    onLoadMore={handleLoadMore}
+                    isLoadingMore={isLoadingMore}
+                    emptyMessage="No stock found. Add your first stock item to get started."
+                  />
+                ) : (
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {inventories.map((inventory) => (
+                        <InventoryCard
+                          key={inventory.id}
+                          inventory={inventory}
+                          onViewDetails={handleViewStock}
+                          onEdit={handleEditStock}
+                          onDelete={handleDeleteStock}
+                          onDuplicate={handleDuplicate}
+                          onStockIn={handleStockIn}
+                          onSelect={handleCardSelect}
+                          selected={selectedInventories.includes(inventory.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Loading more indicator */}
+            {isLoadingMore && (
+              <div className="flex justify-center py-4">
+                <div className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
+                  <div className="w-4 h-4 border-2 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">Loading more...</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border border-[rgb(var(--color-border-primary))]">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Package className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                Delete Stock
+              </h3>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
+                Are you sure you want to delete "{inventoryToDelete?.name}"? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowDeleteModal(false)} 
+                  disabled={isDeleting}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="danger" 
+                  onClick={handleConfirmDelete} 
+                  disabled={isDeleting}
+                  className="flex-1"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stock In Drawer */}
+      <StockInDrawer
+        isOpen={showStockInDrawer}
+        onClose={handleCloseStockInDrawer}
+        item={inventoryForStockIn}
+        onSuccess={handleStockInSuccess}
+        type="inventory"
+      />
+    </div>
+  );
+};
+
+export default InventoryPage;

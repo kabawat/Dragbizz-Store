@@ -22,7 +22,8 @@ import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import product components
-import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal, StockInDrawer } from '@/components/product';
+import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
+import { StockInDrawer } from '@/components/ui';
 
 const ProductsPage = () => {
   const router = useRouter();
@@ -501,8 +502,9 @@ const ProductsPage = () => {
         <StockInDrawer
           isOpen={showStockInDrawer}
           onClose={handleCloseStockInDrawer}
-          product={productForStockIn}
+          item={productForStockIn}
           onSuccess={handleStockInSuccess}
+          type="product"
         />
     </div>
   );

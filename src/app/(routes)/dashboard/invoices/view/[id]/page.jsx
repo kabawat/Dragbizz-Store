@@ -1,4 +1,4 @@
-import ViewInvoicePage from '@/page/dashboard/invoices/view';
+import ViewInvoicePage from '@/page/dashboard/invoices/view/index';
 
 export const metadata = {
   title: 'View Invoice - DragBizz Store',

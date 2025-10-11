@@ -125,17 +125,16 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         </div>
       </div>
 
-      {/* Batch Information */}
+      {/* Stock Information - Same as Product Table Stock In */}
       <div className="space-y-6">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-            <Warehouse className="w-4 h-4 text-blue-600" />
+          <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+            <Warehouse className="w-4 h-4 text-green-600" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Batch Information</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Stock Information</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
           {/* Quantity */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -147,35 +146,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
               onChange={(value) => onChange('batchData.quantity', value)}
               placeholder="Enter quantity"
               error={errors['batchData.quantity']}
-              helperText="Enter the quantity for this batch"
+              helperText="Enter the quantity to add"
             />
           </div>
 
-          {/* Expiry Date */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Expiry Date
-            </label>
-            <Input
-              type="date"
-              value={formData.batchData?.expiryDate || ''}
-              onChange={(value) => onChange('batchData.expiryDate', value)}
-              helperText="Optional: For perishable items"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Pricing Information */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-green-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Purchase Price */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -191,91 +165,8 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             />
           </div>
 
-          {/* Discount */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Discount (%)
-            </label>
-            <Input
-              type="number"
-              value={formData.batchData?.discount || ''}
-              onChange={(value) => onChange('batchData.discount', value)}
-              placeholder="Enter discount percentage"
-              helperText="Discount percentage on MRP"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Information */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-purple-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Payment Information</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Payment Status */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Payment Status <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={formData.batchData?.paymentStatus || 'UNPAID'}
-              onChange={(value) => onChange('batchData.paymentStatus', value)}
-              options={[
-                { value: 'UNPAID', label: 'Unpaid' },
-                { value: 'PARTIAL', label: 'Partially Paid' },
-                { value: 'PAID', label: 'Fully Paid' },
-                { value: 'OVERDUE', label: 'Overdue' }
-              ]}
-              placeholder="Select payment status"
-              error={errors['batchData.paymentStatus']}
-              helperText="Current payment status for this batch"
-            />
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Payment Method <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={formData.batchData?.paymentMethod || 'CASH'}
-              onChange={(value) => onChange('batchData.paymentMethod', value)}
-              options={[
-                { value: 'CASH', label: 'Cash' },
-                { value: 'CHEQUE', label: 'Cheque' },
-                { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-                { value: 'UPI', label: 'UPI' },
-                { value: 'CREDIT_CARD', label: 'Credit Card' },
-                { value: 'DEBIT_CARD', label: 'Debit Card' },
-                { value: 'ONLINE', label: 'Online Payment' }
-              ]}
-              placeholder="Select payment method"
-              error={errors['batchData.paymentMethod']}
-              helperText="Method of payment used"
-            />
-          </div>
-
-          {/* Paid Amount */}
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Paid Amount
-            </label>
-            <Input
-              type="number"
-              value={formData.batchData?.paidAmount || ''}
-              onChange={(value) => onChange('batchData.paidAmount', value)}
-              placeholder="Enter paid amount"
-              helperText="Amount already paid for this batch"
-            />
-          </div>
-
           {/* Supplier */}
-          <div>
+          <div className="md:col-span-2">
             <Select
               label={"Supplier"}
               required
@@ -293,8 +184,8 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      {(formData.batchData?.quantity || formData.batchData?.purchasePrice) && (
+      {/* Summary Card */}
+      {(formData.batchData?.quantity && formData.batchData?.purchasePrice) && (
         <div className="space-y-6">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
@@ -303,85 +194,31 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Summary</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Stock Status */}
-            {formData.batchData?.quantity && (
-              <Card className="border-2 border-[rgb(var(--color-border-primary))]">
-                <CardBody className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stockStatus.status === 'out' ? 'bg-red-100' :
-                          stockStatus.status === 'low' ? 'bg-yellow-100' :
-                            stockStatus.status === 'medium' ? 'bg-blue-100' : 'bg-green-100'
-                        }`}>
-                        {stockStatus.status === 'out' ? (
-                          <AlertTriangle className="w-5 h-5 text-red-600" />
-                        ) : stockStatus.status === 'low' ? (
-                          <TrendingDown className="w-5 h-5 text-yellow-600" />
-                        ) : stockStatus.status === 'medium' ? (
-                          <TrendingUp className="w-5 h-5 text-blue-600" />
-                        ) : (
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
-                          Stock Status
-                        </h3>
-                        <Badge variant={stockStatus.color} className="mt-1">
-                          {stockStatus.text}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">Total Value</p>
-                      <p className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                        ₹{calculateTotalValue().toLocaleString()}
-                      </p>
-                    </div>
+          <Card className="border-2 border-[rgb(var(--color-border-primary))]">
+            <CardBody className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Package className="w-6 h-6 text-green-600" />
                   </div>
-                </CardBody>
-              </Card>
-            )}
-
-            {/* Pricing Summary */}
-            {formData.batchData?.purchasePrice && (
-              <Card className="border-2 border-[rgb(var(--color-border-primary))]">
-                <CardBody className="p-4">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-8 h-8 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <Calculator className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
-                          Cost Summary
-                        </h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                          Total cost analysis
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      {/* Total Cost */}
-                      <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <IndianRupee className="w-4 h-4 text-purple-600" />
-                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            Total Cost
-                          </span>
-                        </div>
-                        <p className="text-lg font-semibold text-purple-600">
-                          ₹{totalCost.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                      Stock Addition Summary
+                    </h3>
+                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {formData.batchData?.quantity} units × ₹{formData.batchData?.purchasePrice} per unit
+                    </p>
                   </div>
-                </CardBody>
-              </Card>
-            )}
-          </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">Total Value</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    ₹{calculateTotalValue().toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
         </div>
       )}
     </div>

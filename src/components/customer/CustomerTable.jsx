@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, Users } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, Eye, Users } from 'lucide-react';
 
 const CustomerTable = ({
   customers = [],
@@ -157,8 +157,8 @@ const CustomerTable = ({
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Actions
+              <th className="w-24 px-6 py-4 text-center">
+                <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
           </thead>
@@ -239,16 +239,14 @@ const CustomerTable = ({
                 </td>
                 
                 {/* Actions Column */}
-                <td className="w-1/6 px-6 py-4">
-                  <div className="relative" ref={(el) => menuRefs.current[customer.id] = el}>
-                    <button 
+                <td className="w-24 px-6 py-4 text-center">
+                  <div className="relative inline-block" ref={(el) => menuRefs.current[customer.id] = el}>
+                    <button
                       onClick={() => handleMenuToggle(customer.id)}
                       className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                       title="More Actions"
                     >
-                      <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                      </svg>
+                      <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                     </button>
                     
                     {/* Popup Menu */}
