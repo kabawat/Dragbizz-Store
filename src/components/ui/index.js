@@ -25,6 +25,7 @@ import TagInput from './TagInput';
 import NumberInput from './NumberInput';
 import RichTextEditor from './RichTextEditor';
 import StepProgress from './StepProgress';
+import StockInDrawer from './StockInDrawer';
 
 // Named exports
 export {
@@ -76,7 +77,8 @@ export {
   TagInput,
   NumberInput,
   RichTextEditor,
-  StepProgress
+  StepProgress,
+  StockInDrawer
 };
 
 // Default export
@@ -129,5 +131,6 @@ export default {
   TagInput,
   NumberInput,
   RichTextEditor,
-  StepProgress
+  StepProgress,
+  StockInDrawer
 };

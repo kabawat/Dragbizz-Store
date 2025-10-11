@@ -6,6 +6,6 @@ export const metadata = {
   keywords: 'add stock, new stock, stock management, inventory tracking, DragBizz Store',
 };
 
-export default function AddInventoryPageRoute() {
+export default function AddStockPageRoute() {
   return <AddInventoryPage />;
 }

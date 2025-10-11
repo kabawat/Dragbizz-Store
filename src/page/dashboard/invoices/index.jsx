@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye } from 'lucide-react';
+import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -22,6 +22,9 @@ import { Button } from '@/components/ui';
 
 // Import invoice components
 import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal } from '@/components/invoice';
+
+// Import services
+import { invoiceService } from '@/service';
 
 const InvoicesPage = () => {
   const router = useRouter();
@@ -49,6 +52,10 @@ const InvoicesPage = () => {
   const [deletedInvoiceName, setDeletedInvoiceName] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
+  const [showReleaseModal, setShowReleaseModal] = useState(false);
+  const [invoiceToRelease, setInvoiceToRelease] = useState(null);
+  const [isReleasing, setIsReleasing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('PAID');
   const scrollRef = useRef(null);
 
   // Error display
@@ -142,6 +149,65 @@ const InvoicesPage = () => {
 
   const handleViewInvoice = (invoiceId) => {
     router.push(`/dashboard/invoices/view/${invoiceId}`);
+  };
+
+  const handlePrintInvoice = (invoiceId) => {
+    // Open print preview page
+    router.push(`/dashboard/invoices/print-preview?id=${invoiceId}`);
+  };
+
+  const handleReleaseInvoice = (invoiceId) => {
+    const invoice = invoices.find(i => (i.id || i._id) === invoiceId);
+    setInvoiceToRelease({
+      id: invoiceId,
+      name: invoice?.invoiceNumber || `INV-${invoiceId?.slice(-6)}`
+    });
+    setShowReleaseModal(true);
+  };
+
+  const handleConfirmRelease = async () => {
+    if (!invoiceToRelease) return;
+
+    setIsReleasing(true);
+    try {
+      const storeId = selectedStore?.storeId;
+      const result = await invoiceService.releaseInvoice(invoiceToRelease.id, paymentStatus, storeId);
+
+      if (result.success) {
+        // Refresh the invoices list to show updated status
+        const refreshParams = {
+          store: storeId,
+          search: searchValue,
+          limit: 20,
+          cursor: null,
+          isFreshLoad: true
+        };
+        await dispatch(getInvoices(refreshParams));
+        
+        setShowReleaseModal(false);
+        setInvoiceToRelease(null);
+        
+        // Auto-redirect to print preview after successful release
+        router.push(`/dashboard/invoices/print-preview?id=${invoiceToRelease.id}`);
+      } else {
+        console.error('Failed to release invoice:', result.message);
+        alert('Failed to release invoice. Please try again.');
+        setShowReleaseModal(false);
+        setInvoiceToRelease(null);
+      }
+    } catch (error) {
+      console.error('Error releasing invoice:', error);
+      alert('An error occurred while releasing the invoice. Please try again.');
+      setShowReleaseModal(false);
+      setInvoiceToRelease(null);
+    } finally {
+      setIsReleasing(false);
+    }
+  };
+
+  const handleCancelRelease = () => {
+    setShowReleaseModal(false);
+    setInvoiceToRelease(null);
   };
 
   // InvoiceTable handlers
@@ -346,6 +412,8 @@ const InvoicesPage = () => {
                         onEdit={handleEditInvoice}
                         onDelete={handleDeleteInvoice}
                         onViewDetails={handleViewInvoice}
+                        onPrint={handlePrintInvoice}
+                        onRelease={handleReleaseInvoice}
                         loading={isLoading}
                         emptyMessage="No invoices found"
                         hasMore={pagination.hasNextPage}
@@ -387,6 +455,8 @@ const InvoicesPage = () => {
                             onEdit={handleEditInvoice}
                             onDelete={handleDeleteInvoice}
                             onViewDetails={handleViewInvoice}
+                            onPrint={handlePrintInvoice}
+                            onRelease={handleReleaseInvoice}
                           />
                         ))}
 
@@ -466,6 +536,59 @@ const InvoicesPage = () => {
         message={errorDetails?.message}
         details={errorDetails?.details}
       />
+
+      {/* Release confirmation modal */}
+      {showReleaseModal && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-[9999]">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 border border-[rgb(var(--color-border-primary))]">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-[rgb(var(--color-success))]/10 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-[rgb(var(--color-success))]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Release Invoice</h3>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">This will finalize the invoice</p>
+              </div>
+            </div>
+            <p className="text-[rgb(var(--color-text-primary))] mb-4">
+              Are you sure you want to release invoice <strong>{invoiceToRelease?.name}</strong>?
+              This will finalize the invoice and it cannot be edited afterwards.
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                Payment Status
+              </label>
+              <select
+                value={paymentStatus}
+                onChange={(e) => setPaymentStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+              >
+                <option value="UNPAID">Unpaid</option>
+                <option value="PAID">Paid</option>
+                <option value="PAY_LATTER">Pay Later</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+            <div className="flex space-x-3">
+              <Button
+                onClick={handleCancelRelease}
+                variant="outline"
+                className="flex-1"
+                disabled={isReleasing}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmRelease}
+                className="flex-1"
+                disabled={isReleasing}
+              >
+                {isReleasing ? 'Releasing...' : 'Release Invoice'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

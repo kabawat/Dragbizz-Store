@@ -1,20 +1,20 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Edit, Copy, Trash2, Eye, Package, ArrowDownToLine } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDown, AlertTriangle, IndianRupee, Calendar, Building2 } from 'lucide-react';
 import Image from 'next/image';
 
-const ProductTable = ({
-  products = [],
+const InventoryTable = ({
+  inventories = [],
   onEdit,
   onDelete,
   onDuplicate,
   onViewDetails,
   onStockIn,
   onSelect,
-  selectedProducts = [],
+  selectedInventories = [],
   onSelectAll,
   loading = false,
-  emptyMessage = 'No products found',
+  emptyMessage = 'No inventory found',
   className = '',
   // Infinite scroll props
   hasMore = false,
@@ -26,7 +26,7 @@ const ProductTable = ({
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
-
+  
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -34,117 +34,121 @@ const ProductTable = ({
         setOpenMenuId(null);
       }
     };
-
+    
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openMenuId]);
-
-
-
-  const getVisibilityBadge = (visibility) => {
-    const visibilityConfig = {
-      VISIBLE: { variant: 'success', text: 'Visible', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
-      HIDDEN: { variant: 'secondary', text: 'Hidden', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' },
-      PRIVATE: { variant: 'warning', text: 'Private', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' },
-      PUBLIC: { variant: 'success', text: 'Public', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' }
+  
+  const getStatusBadge = (inventory) => {
+    if (inventory.status?.isOutOfStock) {
+      return { variant: 'danger', text: 'Out of Stock', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
+    } else if (inventory.status?.isLowStock) {
+      return { variant: 'warning', text: 'Low Stock', color: 'bg-orange-500/10 text-orange-600 border-orange-500/20' };
+    } else if (inventory.status?.isActive) {
+      return { variant: 'success', text: 'Active', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
+    } else {
+      return { variant: 'secondary', text: 'Inactive', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
+    }
+  };
+  
+  const getPaymentStatusBadge = (paymentStatus) => {
+    const statusConfig = {
+      PAID: { variant: 'success', text: 'Paid', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
+      UNPAID: { variant: 'danger', text: 'Unpaid', color: 'bg-red-500/10 text-red-600 border-red-500/20' },
+      PARTIAL: { variant: 'warning', text: 'Partial', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' },
+      OVERDUE: { variant: 'danger', text: 'Overdue', color: 'bg-red-500/10 text-red-600 border-red-500/20' }
     };
-
-    const config = visibilityConfig[visibility] || { variant: 'secondary', text: visibility, color: 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] border-[rgb(var(--color-border-primary))]' };
+    
+    const config = statusConfig[paymentStatus] || { variant: 'secondary', text: paymentStatus, color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.color}`}>
         {config.text}
       </span>
     );
   };
-
-
-  const calculateDiscount = (sellingPrice, mrp) => {
-    if (!mrp || mrp <= sellingPrice) return 0;
-    return Math.round(((mrp - sellingPrice) / mrp) * 100);
-  };
-
-  const actionMenuItems = (product) => [
+  
+  const actionMenuItems = (inventory) => [
     {
       value: 'view',
       label: 'View Details',
       icon: Eye,
-      onClick: () => onViewDetails?.(product.id)
+      onClick: () => onViewDetails?.(inventory.id)
     },
     {
       value: 'stock-in',
-      label: 'Stock In',
-      icon: ArrowDownToLine,
-      onClick: () => onStockIn?.(product.id),
+      label: 'Add Stock',
+      icon: TrendingUp,
+      onClick: () => onStockIn?.(inventory.id),
       className: 'text-green-600 hover:text-green-700'
     },
     {
       value: 'edit',
       label: 'Edit',
       icon: Edit,
-      onClick: () => onEdit?.(product.id)
+      onClick: () => onEdit?.(inventory.id)
     },
     {
       value: 'duplicate',
       label: 'Duplicate',
       icon: Copy,
-      onClick: () => onDuplicate?.(product.id)
+      onClick: () => onDuplicate?.(inventory.id)
     },
     {
       value: 'delete',
       label: 'Delete',
       icon: Trash2,
-      onClick: () => onDelete?.(product.id)
+      onClick: () => onDelete?.(inventory.id)
     }
   ];
-
+  
   const handleSelectAll = (checked) => {
     if (checked) {
-      onSelectAll?.(products.map(p => p.id));
+      onSelectAll?.(inventories.map(i => i.id));
     } else {
       onSelectAll?.([]);
     }
   };
-
-  const handleProductSelect = (productId, checked) => {
+  
+  const handleInventorySelect = (inventoryId, checked) => {
     if (checked) {
-      onSelect?.([...selectedProducts, productId]);
+      onSelect?.([...selectedInventories, inventoryId]);
     } else {
-      onSelect?.(selectedProducts.filter(id => id !== productId));
+      onSelect?.(selectedInventories.filter(id => id !== inventoryId));
     }
   };
-
-  const handleMenuToggle = (productId) => {
-    setOpenMenuId(openMenuId === productId ? null : productId);
+  
+  const handleMenuToggle = (inventoryId) => {
+    setOpenMenuId(openMenuId === inventoryId ? null : inventoryId);
   };
-
-  const handleMenuAction = (productId, action) => {
+  
+  const handleMenuAction = (inventoryId, action) => {
     setOpenMenuId(null);
     switch (action) {
       case 'view':
-        onViewDetails?.(productId);
+        onViewDetails?.(inventoryId);
         break;
       case 'stock-in':
-        onStockIn?.(productId);
+        onStockIn?.(inventoryId);
         break;
       case 'edit':
-        onEdit?.(productId);
+        onEdit?.(inventoryId);
         break;
       case 'duplicate':
-        onDuplicate?.(productId);
+        onDuplicate?.(inventoryId);
         break;
       case 'delete':
-        onDelete?.(productId);
+        onDelete?.(inventoryId);
         break;
       default:
         break;
     }
   };
-
-  const isAllSelected = products.length > 0 && selectedProducts.length === products.length;
-  const isIndeterminate = selectedProducts.length > 0 && selectedProducts.length < products.length;
-
+  
+  const isAllSelected = inventories.length > 0 && selectedInventories.length === inventories.length;
+  const isIndeterminate = selectedInventories.length > 0 && selectedInventories.length < inventories.length;
+  
   if (loading) {
     return (
       <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`} {...props}>
@@ -170,11 +174,11 @@ const ProductTable = ({
       </div>
     );
   }
-
+  
   return (
     <div className={`${className}`} {...props}>
       <div className="relative">
-        <table className="w-full min-w-[1000px]">
+        <table className="w-full min-w-[1200px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
@@ -195,31 +199,35 @@ const ProductTable = ({
                 </div>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Visibility
+                Stock
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Categories
+                Status
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Price
+                Batches
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                GST
+                Pricing
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Payment
               </th>
               <th className="px-6 py-4 w-24 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
               </th>
             </tr>
           </thead>
-
+          
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-            {products.map((product, index) => {
-              const isSelected = selectedProducts.includes(product.id);
-
+            {inventories.map((inventory, index) => {
+              const isSelected = selectedInventories.includes(inventory.id);
+              const statusConfig = getStatusBadge(inventory);
+              
               return (
                 <tr
-                  key={product.id}
+                  key={inventory.id}
                   className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''
                     } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                   onMouseEnter={() => setHoveredRow(index)}
@@ -231,140 +239,131 @@ const ProductTable = ({
                       <input
                         type="checkbox"
                         checked={isSelected}
-                        onChange={(e) => handleProductSelect(product.id, e.target.checked)}
+                        onChange={(e) => handleInventorySelect(inventory.id, e.target.checked)}
                         className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
                       />
-
+                      
                       {/* Product Image */}
                       <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
-                        {product.image && !imageError[product.id] ? (
+                        {inventory.product?.image && !imageError[inventory.id] ? (
                           <Image
-                            src={product.image}
-                            alt={product.name}
+                            src={inventory.product.image}
+                            alt={inventory.product.name}
                             width={48}
                             height={48}
                             className="object-cover"
-                            onError={() => setImageError(prev => ({ ...prev, [product.id]: true }))}
+                            onError={() => setImageError(prev => ({ ...prev, [inventory.id]: true }))}
                           />
                         ) : (
                           <Package className="w-6 h-6 text-[rgb(var(--color-text-tertiary))]" />
                         )}
                       </div>
-
+                      
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate">
-                          {product.name}
+                          {inventory.product?.name || 'Unknown Product'}
                         </h3>
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] font-medium">
-                          {product.brand}
+                          {inventory.product?.brand || 'Unknown Brand'}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-[rgb(var(--color-text-tertiary))]">SKU: {product.sku}</span>
+                          <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                            {inventory.product?.category || 'No Category'}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </td>
-
-
-                  {/* Visibility Column */}
+                  
+                  {/* Stock Column */}
                   <td className="px-6 py-4">
-                    {getVisibilityBadge(product.visibility)}
-                  </td>
-
-                  {/* Categories Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 border border-purple-500/20">
-                        {product.category.split(' > ')[0]}
-                      </span>
-                      {product.category.split(' > ')[1] && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
-                          {product.category.split(' > ')[1]}
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                          {inventory.stockSummary?.availableQuantity || 0}
                         </span>
-                      )}
+                        <span className="text-xs text-[rgb(var(--color-text-tertiary))] ml-1">available</span>
+                      </div>
+                      <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                        Total: {inventory.stockSummary?.totalQuantity || 0}
+                      </div>
                     </div>
                   </td>
-
-                  {/* Price Column */}
+                  
+                  {/* Status Column */}
                   <td className="px-6 py-4">
-                    <span className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
-                      ₹{product.sellingPrice.toLocaleString()}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+                      {statusConfig.text}
                     </span>
                   </td>
-
-                  {/* GST Column */}
+                  
+                  {/* Batches Column */}
                   <td className="px-6 py-4">
-                    <div className="flex items-center justify-start h-full">
-                      {product.isGstApplicable ? (
-                        <div className="flex flex-col items-start">
-                          <div className="flex gap-2 mb-1">
-                            <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                              {product.gst || product.gstRate || 18}%
-                            </span>
-                            <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 text-green-600 border border-green-500/20">
-                              GST
-                            </span>
-                          </div>
-                          <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            {product.gstType === 'CGST_SGST' ? 'CGST+SGST' : product.gstType || 'CGST+SGST'}
-                          </div>
-                          {(product.hsnCode || product.hsn) && (
-                            <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
-                              HSN: {product.hsnCode || product.hsn}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex flex-col">
-                          <span className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                            No GST
-                          </span>
-                          <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                            Not Applicable
-                          </span>
-                        </div>
-                      )}
+                    <div className="space-y-1">
+                      <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        {inventory.batchSummary?.totalBatches || 0} batches
+                      </div>
+                      <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                        {inventory.batchSummary?.activeBatches || 0} active
+                      </div>
                     </div>
                   </td>
-
+                  
+                  {/* Pricing Column */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <div className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
+                        ₹{inventory.pricingSummary?.averageSellingPrice?.toLocaleString() || '0'}
+                      </div>
+                      <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                        Cost: ₹{inventory.pricingSummary?.averagePurchasePrice?.toLocaleString() || '0'}
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {/* Payment Column */}
+                  <td className="px-6 py-4">
+                    {getPaymentStatusBadge(inventory.paymentSummary?.paymentStatus)}
+                  </td>
+                  
                   {/* Actions Column */}
                   <td className="px-4 py-4 w-24 text-start">
-                    <div className="relative" ref={(el) => menuRefs.current[product.id] = el}>
+                    <div className="relative" ref={(el) => menuRefs.current[inventory.id] = el}>
                       <button
-                        onClick={() => handleMenuToggle(product.id)}
+                        onClick={() => handleMenuToggle(inventory.id)}
                         className="p-2 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title="More Actions"
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
-
+                      
                       {/* Popup Menu */}
-                      {openMenuId === product.id && (
+                      {openMenuId === inventory.id && (
                         <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                           <button
-                            onClick={() => handleMenuAction(product.id, 'view')}
+                            onClick={() => handleMenuAction(inventory.id, 'view')}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                             View Details
                           </button>
                           <button
-                            onClick={() => handleMenuAction(product.id, 'stock-in')}
+                            onClick={() => handleMenuAction(inventory.id, 'stock-in')}
                             className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                           >
-                            <ArrowDownToLine className="w-4 h-4 text-green-500" />
-                            Stock In
+                            <TrendingUp className="w-4 h-4 text-green-500" />
+                            Add Stock
                           </button>
                           <button
-                            onClick={() => handleMenuAction(product.id, 'edit')}
+                            onClick={() => handleMenuAction(inventory.id, 'edit')}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                             Edit
                           </button>
                           <button
-                            onClick={() => handleMenuAction(product.id, 'duplicate')}
+                            onClick={() => handleMenuAction(inventory.id, 'duplicate')}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
@@ -372,7 +371,7 @@ const ProductTable = ({
                           </button>
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
-                            onClick={() => handleMenuAction(product.id, 'delete')}
+                            onClick={() => handleMenuAction(inventory.id, 'delete')}
                             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                           >
                             <Trash2 className="w-4 h-4 text-red-500" />
@@ -388,14 +387,14 @@ const ProductTable = ({
           </tbody>
         </table>
       </div>
-
+      
       {/* Infinite Scroll Loading */}
       {isLoadingMore && (
         <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more products...</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more inventory...</span>
             </div>
           </div>
         </div>
@@ -404,4 +403,4 @@ const ProductTable = ({
   );
 };
 
-export default ProductTable;
+export default InventoryTable;

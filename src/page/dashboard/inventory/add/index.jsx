@@ -9,6 +9,7 @@ import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+import InventoryForm from '@/components/inventory/InventoryForm';
 
 const AddInventoryPage = () => {
   const router = useRouter();
@@ -192,7 +193,7 @@ const AddInventoryPage = () => {
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto">
               {/* Back Button */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <Link href="/dashboard/inventory" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm font-medium">Back to Inventory</span>
@@ -200,7 +201,7 @@ const AddInventoryPage = () => {
               </div>
 
               {/* Form Container - Two Column Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 88px)' }}>
                 {/* Main Form - Left Side */}
                 <div className="lg:col-span-2 flex flex-col h-full">
                   <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
@@ -306,8 +307,8 @@ const AddInventoryPage = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border border-[rgb(var(--color-border-primary))]">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Package className="w-8 h-8 text-green-600" />

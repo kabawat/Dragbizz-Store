@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Calendar, DollarSign, User } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Calendar, DollarSign, User, Settings, Printer, CheckCircle } from 'lucide-react';
 
 const InvoiceTable = ({
   invoices = [],
@@ -8,6 +8,8 @@ const InvoiceTable = ({
   onDelete,
   onDuplicate,
   onViewDetails,
+  onPrint,
+  onRelease,
   onSelect,
   selectedInvoices = [],
   onSelectAll,
@@ -23,7 +25,36 @@ const InvoiceTable = ({
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
-  
+
+  // Calculate selection states
+  const isAllSelected = selectedInvoices.length === invoices.length && invoices.length > 0;
+  const isIndeterminate = selectedInvoices.length > 0 && selectedInvoices.length < invoices.length;
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      onSelectAll?.(invoices.map(i => i.id || i._id));
+    } else {
+      onSelectAll?.([]);
+    }
+  };
+
+  const handleInvoiceSelect = (invoiceId, checked) => {
+    if (checked) {
+      onSelect?.([...selectedInvoices, invoiceId]);
+    } else {
+      onSelect?.(selectedInvoices.filter(id => id !== invoiceId));
+    }
+  };
+
+  const handleMenuToggle = (invoiceId) => {
+    setOpenMenuId(openMenuId === invoiceId ? null : invoiceId);
+  };
+
+  const handleMenuAction = (invoiceId, action) => {
+    setOpenMenuId(null);
+    action.onClick();
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,19 +62,33 @@ const InvoiceTable = ({
         setOpenMenuId(null);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openMenuId]);
-  
+
   const actionMenuItems = (invoice) => [
     {
       value: 'view',
       label: 'View Details',
       icon: Eye,
       onClick: () => onViewDetails?.(invoice.id || invoice._id)
+    },
+    {
+      value: 'print',
+      label: 'Print Invoice',
+      icon: Printer,
+      onClick: () => onPrint?.(invoice.id || invoice._id)
+    },
+    {
+      value: 'release',
+      label: 'Release Invoice',
+      icon: CheckCircle,
+      onClick: () => onRelease?.(invoice.id || invoice._id),
+      disabled: invoice.invoiceStatus !== 'DRAFT',
+      className: 'text-green-600 hover:text-green-700 cursor-pointer'
     },
     {
       value: 'edit',
@@ -57,7 +102,7 @@ const InvoiceTable = ({
       label: 'Delete',
       icon: Trash2,
       onClick: () => onDelete?.(invoice.id || invoice._id),
-      className: 'text-red-600 hover:text-red-700'
+      className: 'text-red-600 hover:text-red-700 cursor-pointer'
     }
   ];
 
@@ -86,8 +131,8 @@ const InvoiceTable = ({
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return '₹0';
-    return `₹${amount.toLocaleString('en-IN')}`;
+    if (!amount) return '₹ 0';
+    return `₹ ${amount.toLocaleString('en-IN')}`;
   };
 
   if (loading && invoices.length === 0) {
@@ -123,39 +168,58 @@ const InvoiceTable = ({
   }
 
   return (
-    <div className={`overflow-hidden ${className}`}>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
+    <div className={`${className}`} {...props}>
+      <div className="relative">
+        <table className="w-full min-w-[800px]">
+          {/* Table Header */}
+          <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
               <th className="px-6 py-4 text-left">
-                <input
-                  type="checkbox"
-                  checked={selectedInvoices.length === invoices.length && invoices.length > 0}
-                  onChange={(e) => onSelectAll?.(e.target.checked)}
-                  className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                />
+                <div className="flex items-center gap-4">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isIndeterminate;
+                    }}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                  />
+                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                    Invoice
+                  </span>
+                </div>
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Invoice
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Customer
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Amount
+              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Amount & GST
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-6 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Total Amount
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Quantity
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Actions
+              <th className="px-2 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider w-24">
+                <div className="flex items-center justify-center">
+                  <div className="p-2">
+                    <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                  </div>
+                </div>
               </th>
             </tr>
           </thead>
+          {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {invoices.map((invoice, index) => {
               const invoiceId = invoice.id || invoice._id;
@@ -166,79 +230,114 @@ const InvoiceTable = ({
               return (
                 <tr
                   key={invoiceId}
-                  className={`transition-colors ${
-                    isSelected
-                      ? 'bg-[rgb(var(--color-primary))]/5 border-l-4 border-[rgb(var(--color-primary))]'
-                      : isHovered
-                      ? 'bg-[rgb(var(--color-bg-tertiary))]'
-                      : 'bg-[rgb(var(--color-bg-primary))]'
-                  }`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''
+                    } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
+                  {/* Invoice Column */}
                   <td className="px-6 py-4">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => onSelect?.(invoiceId)}
-                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <FileText className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => handleInvoiceSelect(invoiceId, e.target.checked)}
+                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                      />
+
+                      {/* Invoice Avatar */}
+                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
+                        <FileText className="w-6 h-6 text-[rgb(var(--color-text-tertiary))]" />
                       </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+
+                      {/* Invoice Details */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate">
                           {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
+                        </h3>
+
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-[rgb(var(--color-text-tertiary))]">Created: {formatDate(invoice.createdAt)}</span>
                         </div>
-                        {invoice.items && (
-                          <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            {invoice.items.length} item(s)
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
+
+                  {/* Customer Column */}
                   <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 text-[rgb(var(--color-text-secondary))] mr-2" />
-                      <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                        {invoice.customer?.name || 'Walk-in Customer'}
-                      </div>
+                    <div className="text-sm text-[rgb(var(--color-text-primary))]">
+                      {invoice.customer?.name || 'Walk-in Customer'}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))] mr-2" />
-                      <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                        {formatDate(invoice.createdAt)}
+                    {invoice.customer?.phone ? (
+                      <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                        {invoice.customer.phone}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <DollarSign className="w-4 h-4 text-[rgb(var(--color-text-secondary))] mr-2" />
-                      <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                        {formatCurrency(invoice.totalAmount)}
+                    ) : invoice.customer?.email ? (
+                      <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                        {invoice.customer.email}
                       </div>
-                    </div>
+                    ) : null}
                   </td>
-                  <td className="px-6 py-4">
+
+                   {/* Date Column */}
+                   <td className="px-6 py-4">
+                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
+                       {formatDate(invoice.createdAt)}
+                     </div>
+                     <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                       Due: {formatDate(invoice.dueDate || invoice.createdAt)}
+                     </div>
+                   </td>
+
+                   {/* Amount & GST Column */}
+                   <td className="px-6 py-4">
+                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                       {formatCurrency(invoice.subtotal || invoice.totalAmount)}
+                     </div>
+                     <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                       GST: {formatCurrency(invoice.gstAmount || 0)}
+                     </div>
+                     {invoice.totalDiscount > 0 && (
+                       <div className="text-xs text-[rgb(var(--color-danger))] mt-1">
+                         Discount: -{formatCurrency(invoice.totalDiscount)}
+                       </div>
+                     )}
+                   </td>
+
+                   {/* Total Amount Column */}
+                   <td className="px-6 py-4 text-center">
+                     <div className="text-sm font-semibold text-[rgb(var(--color-primary))]">
+                       {formatCurrency(invoice.totalAmount)}
+                     </div>
+                   </td>
+
+                   {/* Items Column */}
+                   <td className="px-6 py-4 text-center">
+                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                       {invoice.items?.length || 0}
+                     </div>
+                   </td>
+
+                  {/* Status Column */}
+                  <td className="px-6 py-4 text-center">
                     {getStatusBadge(invoice.invoiceStatus)}
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="relative" ref={(el) => (menuRefs.current[invoiceId] = el)}>
+
+                  {/* Actions Column */}
+                  <td className="px-2 py-4 text-center w-24">
+                    <div className="relative flex justify-center" ref={(el) => (menuRefs.current[invoiceId] = el)}>
                       <button
                         onClick={() => setOpenMenuId(isMenuOpen ? null : invoiceId)}
-                        className="p-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-md transition-colors"
+                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                        title="More Actions"
                       >
-                        <MoreHorizontal className="w-4 h-4" />
+                        <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
                       </button>
 
                       {isMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
+                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
                           <div className="py-1">
                             {actionMenuItems(invoice).map((item) => (
                               <button
@@ -248,13 +347,12 @@ const InvoiceTable = ({
                                   item.onClick();
                                 }}
                                 disabled={item.disabled}
-                                className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                                  item.disabled
+                                className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 ${item.disabled
                                     ? 'text-[rgb(var(--color-text-tertiary))] cursor-not-allowed'
-                                    : item.className || 'text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))] cursor-pointer'
-                                }`}
+                                    : item.className || 'text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]'
+                                  }`}
                               >
-                                <item.icon className="w-4 h-4" />
+                                <item.icon className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                 {item.label}
                               </button>
                             ))}
@@ -270,12 +368,14 @@ const InvoiceTable = ({
         </table>
       </div>
 
-      {/* Infinite scroll loading */}
+      {/* Infinite Scroll Loading */}
       {isLoadingMore && (
-        <div className="flex items-center justify-center py-4 border-t border-[rgb(var(--color-border-primary))]">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-            <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+            </div>
           </div>
         </div>
       )}

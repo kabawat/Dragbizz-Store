@@ -16,4 +16,3 @@ export { default as ProductDeleteConfirmModal } from './ProductDeleteConfirmModa
 export { default as ProductDeleteSuccessModal } from './ProductDeleteSuccessModal';
 export { default as ProductErrorModal } from './ProductErrorModal';
 export { default as ProductInfoModal } from './ProductInfoModal';
-export { default as StockInDrawer } from './StockInDrawer';

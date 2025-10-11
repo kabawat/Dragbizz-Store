@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, FileText, Calendar, User, DollarSign, Package, Edit, Copy, Trash2, CheckCircle, Hash, IndianRupee, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, FileText, Calendar, User, DollarSign, Package, Edit, Copy, Trash2, CheckCircle, Hash, IndianRupee, Clock, AlertCircle, XCircle, Printer } from 'lucide-react';
 import moment from 'moment';
 
 // Import components
@@ -11,6 +11,7 @@ import { Button, AnimatedBackground, Badge, Card, Select } from '@/components/ui
 import { invoiceService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+
 
 const ViewInvoicePage = ({ invoiceId }) => {
     const router = useRouter();
@@ -29,7 +30,15 @@ const ViewInvoicePage = ({ invoiceId }) => {
     const [showReleaseModal, setShowReleaseModal] = useState(false);
     const [isReleasing, setIsReleasing] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState('PAID');
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const hasFetched = useRef(false);
+
+    // Helper function to show error in popup
+    const showError = (message) => {
+        setErrorMessage(message);
+        setShowErrorModal(true);
+    };
 
     // Fetch invoice data on component mount
     useEffect(() => {
@@ -46,11 +55,11 @@ const ViewInvoicePage = ({ invoiceId }) => {
                     console.log(result.data);
                     setInvoiceData(result.data);
                 } else {
-                    setError(result.message || 'Failed to fetch invoice data');
+                    showError(result.message || 'Failed to fetch invoice data');
                 }
             } catch (error) {
                 console.error('Error fetching invoice:', error);
-                setError('Failed to fetch invoice data. Please try again.');
+                showError('Failed to fetch invoice data. Please try again.');
             } finally {
                 setFetching(false);
             }
@@ -82,12 +91,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 setShowDeleteSuccessModal(true);
                 setShowDeleteModal(false);
             } else {
-                setError(result.message || 'Failed to delete invoice');
+                showError(result.message || 'Failed to delete invoice');
                 setShowDeleteModal(false);
             }
         } catch (error) {
             console.error('Error deleting invoice:', error);
-            setError('Failed to delete invoice. Please try again.');
+            showError('Failed to delete invoice. Please try again.');
             setShowDeleteModal(false);
         } finally {
             setIsDeleting(false);
@@ -126,12 +135,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 }
                 setShowCancelModal(false);
             } else {
-                setError(result.message || 'Failed to cancel invoice');
+                showError(result.message || 'Failed to cancel invoice');
                 setShowCancelModal(false);
             }
         } catch (error) {
             console.error('Error cancelling invoice:', error);
-            setError('Failed to cancel invoice. Please try again.');
+            showError('Failed to cancel invoice. Please try again.');
             setShowCancelModal(false);
         } finally {
             setIsCancelling(false);
@@ -153,18 +162,18 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
             if (result.success) {
                 // Refresh invoice data
-                const refreshResult = await invoiceService.getInvoiceById(invoiceId, storeId);
+                const refreshResult = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
                 if (refreshResult.success && refreshResult.data) {
                     setInvoiceData(refreshResult.data);
                 }
                 setShowReleaseModal(false);
             } else {
-                setError(result.message || 'Failed to release invoice');
+                showError(result.message || 'Failed to release invoice');
                 setShowReleaseModal(false);
             }
         } catch (error) {
             console.error('Error releasing invoice:', error);
-            setError('Failed to release invoice. Please try again.');
+            showError('Failed to release invoice. Please try again.');
             setShowReleaseModal(false);
         } finally {
             setIsReleasing(false);
@@ -198,6 +207,24 @@ const ViewInvoicePage = ({ invoiceId }) => {
         // You could add a toast notification here
     };
 
+    // Handle print invoice - open print preview page
+    const handlePrintInvoice = () => {
+        router.push(`/dashboard/invoices/print-preview?id=${invoiceId}`);
+    };
+
+    // Auto-print when print query parameter is present
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const shouldPrint = urlParams.get('print') === 'true';
+        
+        if (shouldPrint && !fetching && invoiceData) {
+            // Small delay to ensure page is fully loaded
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+    }, [fetching, invoiceData]);
+
     // Loading state
     if (fetching) {
         return (
@@ -218,49 +245,86 @@ const ViewInvoicePage = ({ invoiceId }) => {
     }
 
     return (
-        <div className="flex h-screen relative w-full overflow-hidden">
-            {/* Sidebar */}
-            <AnimatedBackground variant="default" />
-            <Sidebar />
+        <>
+            {/* Global Print Styles - Hide UI elements */}
+            <style jsx global>{`
+                @media print {
+                    /* Hide navigation and UI elements */
+                    .no-print,
+                    nav,
+                    header,
+                    .sidebar,
+                    .header,
+                    button,
+                    .btn,
+                    .action-buttons,
+                    .right-sidebar {
+                        display: none !important;
+                    }
+                    
+                    /* Body setup */
+                    body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        background: white !important;
+                    }
+                    
+                    /* Main container */
+                    .main-content {
+                        width: 100% !important;
+                        max-width: none !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        background: white !important;
+                    }
+                    
+                    /* Page setup */
+                    @page {
+                        margin: 1cm;
+                        size: A4;
+                    }
+                }
+            `}</style>
+
+            <div className="flex h-screen relative w-full overflow-hidden">
+                {/* Sidebar */}
+                <AnimatedBackground variant="default" />
+                <div className="no-print">
+                    <Sidebar />
+                </div>
 
             {/* Main Content */}
-            <div className="min-h-screen w-full flex flex-col">
+            <div className="min-h-screen w-full flex flex-col main-content">
                 {/* Header */}
-                <Header
-                    title="View Invoice"
-                    description="Invoice information and details"
-                />
+                <div className="no-print">
+                    <Header
+                        title="View Invoice"
+                        description="Invoice information and details"
+                    />
+                </div>
 
                 {/* Main Content */}
                 <div className="flex-1 p-6">
                     <div className="max-w-8xl mx-auto w-full">
-                        {/* Back Button */}
-                        <div className="mb-4">
+                        {/* Back Button and Print Button */}
+                        <div className="mb-4 no-print flex justify-between items-center">
                             <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                                 <ArrowLeft className="w-4 h-4" />
                                 <span className="text-sm font-medium">Back to Invoices</span>
                             </Link>
+                            
+                            {invoiceData && (
+                                <Button
+                                    onClick={handlePrintInvoice}
+                                    variant="outline"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    <span>Print Invoice</span>
+                                </Button>
+                            )}
                         </div>
 
-                        {/* Error State */}
-                        {error && (
-                            <div className="w-full">
-                                <div className="bg-[rgb(var(--color-bg-primary))] p-8 rounded-xl border border-[rgb(var(--color-border-primary))]">
-                                    <div className="flex flex-col items-center space-y-4">
-                                        <div className="w-16 h-16 bg-[rgb(var(--color-danger))]/10 rounded-full flex items-center justify-center">
-                                            <XCircle className="w-8 h-8 text-[rgb(var(--color-danger))]" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">Error Loading Invoice</h3>
-                                            <p className="text-[rgb(var(--color-text-secondary))] mb-4">{error}</p>
-                                            <Button onClick={() => window.location.reload()}>
-                                                Try Again
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Invoice Details - Two Column Layout */}
                         {invoiceData && (
@@ -396,6 +460,10 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                                                 <span>Subtotal:</span>
                                                                 <span>₹{invoiceData.subtotal?.toLocaleString()}</span>
                                                             </div>
+                                                            <div className="flex justify-between text-[rgb(var(--color-text-secondary))]">
+                                                                <span>GST:</span>
+                                                                <span>₹{invoiceData.gstAmount?.toLocaleString() || '0'}</span>
+                                                            </div>
                                                             {invoiceData.totalDiscount > 0 && (
                                                                 <div className="flex justify-between text-[rgb(var(--color-danger))]">
                                                                     <span>Discount:</span>
@@ -428,7 +496,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                 </div>
 
                                 {/* Right Sidebar - Compact Design */}
-                                <div className="flex flex-col h-full">
+                                <div className="flex flex-col h-full no-print right-sidebar">
                                     <div className="flex-1 overflow-y-auto px-3 max-h-[calc(100vh-204px)]">
                                         <div className="space-y-4">
                                             {/* Invoice Summary Card */}
@@ -474,6 +542,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                                             ₹{invoiceData.subtotal?.toLocaleString()}
                                                         </span>
                                                     </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-[rgb(var(--color-text-secondary))]">GST:</span>
+                                                        <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                                            ₹{invoiceData.gstAmount?.toLocaleString() || '0'}
+                                                        </span>
+                                                    </div>
                                                     {invoiceData.totalDiscount > 0 && (
                                                         <div className="flex justify-between text-sm">
                                                             <span className="text-[rgb(var(--color-text-secondary))]">Discount:</span>
@@ -493,9 +567,20 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
 
                                             {/* Action Buttons - Bottom */}
-                                            <div className="mt-auto flex gap-2">
+                                            <div className="mt-auto space-y-3 no-print action-buttons">
+                                                {/* Print Button - Always visible */}
+                                                <Button
+                                                    onClick={handlePrintInvoice}
+                                                    variant="outline"
+                                                    className="w-full flex items-center justify-center gap-2 h-10 text-sm font-medium"
+                                                >
+                                                    <Printer className="w-4 h-4" />
+                                                    <span>Print Invoice</span>
+                                                </Button>
+
+                                                {/* Status-specific buttons */}
                                                 {invoiceData?.invoiceStatus === 'DRAFT' ? (
-                                                    <>
+                                                    <div className="flex gap-2">
                                                         <Button
                                                             onClick={handleEditInvoice}
                                                             variant="primary"
@@ -512,9 +597,9 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                                             <CheckCircle className="w-4 h-4" />
                                                             <span>Release Invoice</span>
                                                         </Button>
-                                                    </>
+                                                    </div>
                                                 ) : (
-                                                    <div className="flex-1 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
+                                                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
                                                         <div className="text-center">
                                                             <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
                                                                 ₹{invoiceData.totalAmount?.toLocaleString()}
@@ -688,7 +773,36 @@ const ViewInvoicePage = ({ invoiceId }) => {
                     </div>
                 </div>
             )}
+
+            {/* Error Modal */}
+            {showErrorModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 border border-[rgb(var(--color-border-primary))]">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-10 h-10 bg-[rgb(var(--color-danger))]/10 rounded-full flex items-center justify-center">
+                                <XCircle className="w-5 h-5 text-[rgb(var(--color-danger))]" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Error</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Something went wrong</p>
+                            </div>
+                        </div>
+                        <p className="text-[rgb(var(--color-text-primary))] mb-6">
+                            {errorMessage}
+                        </p>
+                        <div className="flex space-x-3">
+                            <Button
+                                onClick={() => setShowErrorModal(false)}
+                                className="flex-1"
+                            >
+                                OK
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+        </>
     );
 };
 

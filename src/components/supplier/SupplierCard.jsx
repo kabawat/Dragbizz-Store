@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, Building, Phone, Mail, Calendar } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, Eye, Building, Phone, Mail, Calendar } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const SupplierCard = ({
@@ -127,12 +127,10 @@ const SupplierCard = ({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => handleMenuToggle(supplier.id)}
-              className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer backdrop-blur-sm bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]"
+              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
               title="More Actions"
             >
-              <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
+              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
 
             {/* Popup Menu */}

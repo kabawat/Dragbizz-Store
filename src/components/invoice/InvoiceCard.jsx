@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, DollarSign, User } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, DollarSign, User, Printer, CheckCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const InvoiceCard = ({
@@ -10,6 +10,8 @@ const InvoiceCard = ({
   onDelete,
   onDuplicate,
   onViewDetails,
+  onPrint,
+  onRelease,
   onSelect,
   selected = false,
   className = '',
@@ -35,12 +37,19 @@ const InvoiceCard = ({
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      DRAFT: { variant: 'warning', text: 'Draft' },
-      RELEASED: { variant: 'success', text: 'Released' },
-      CANCELLED: { variant: 'danger', text: 'Cancelled' }
+      DRAFT: { className: 'bg-yellow-100 text-yellow-800', text: 'Draft' },
+      RELEASED: { className: 'bg-green-100 text-green-800', text: 'Released' },
+      CANCELLED: { className: 'bg-red-100 text-red-800', text: 'Cancelled' },
+      PAID: { className: 'bg-green-100 text-green-800', text: 'Paid' },
+      UNPAID: { className: 'bg-yellow-100 text-yellow-800', text: 'Unpaid' },
+      PAY_LATTER: { className: 'bg-blue-100 text-blue-800', text: 'Pay Later' }
     };
-    const config = statusConfig[status] || { variant: 'secondary', text: status };
-    return <Badge variant={config.variant}>{config.text}</Badge>;
+    const config = statusConfig[status] || { className: 'bg-gray-100 text-gray-800', text: status };
+    return (
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}>
+        {config.text}
+      </span>
+    );
   };
 
 
@@ -50,6 +59,20 @@ const InvoiceCard = ({
       label: 'View Details',
       icon: Eye,
       onClick: () => onViewDetails?.(invoice.id || invoice._id)
+    },
+    {
+      value: 'print',
+      label: 'Print Invoice',
+      icon: Printer,
+      onClick: () => onPrint?.(invoice.id || invoice._id)
+    },
+    {
+      value: 'release',
+      label: 'Release Invoice',
+      icon: CheckCircle,
+      onClick: () => onRelease?.(invoice.id || invoice._id),
+      disabled: invoice.status !== 'DRAFT',
+      className: 'cursor-pointer text-green-600 hover:text-green-700'
     },
     {
       value: 'edit',
@@ -69,7 +92,7 @@ const InvoiceCard = ({
       label: 'Delete',
       icon: Trash2,
       onClick: () => onDelete?.(invoice.id || invoice._id),
-      className: 'text-red-600 hover:text-red-700'
+      className: 'cursor-pointer text-red-600 hover:text-red-700'
     }
   ];
 
@@ -91,9 +114,9 @@ const InvoiceCard = ({
 
   return (
     <Card
-      className={`relative transition-all duration-200 hover:shadow-lg ${selected
-          ? 'ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5'
-          : 'hover:shadow-md'
+      className={`relative transition-all duration-200 group ${selected
+          ? 'ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 border-l-4 border-l-[rgb(var(--color-primary))]'
+          : 'hover:bg-[rgb(var(--color-bg-tertiary))]'
         } ${className}`}
       {...props}
     >
@@ -111,13 +134,16 @@ const InvoiceCard = ({
       <div className="absolute top-4 right-4" ref={menuRef}>
         <button
           onClick={() => setOpenMenuId(openMenuId ? null : invoiceId)}
-          className="p-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-md transition-colors"
+          className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+          title="More Actions"
         >
-          <MoreHorizontal className="w-4 h-4" />
+          <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
         </button>
 
         {openMenuId === invoiceId && (
-          <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
+          <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
             <div className="py-1">
               {actionMenuItems.map((item) => (
                 <button
@@ -127,12 +153,12 @@ const InvoiceCard = ({
                     item.onClick();
                   }}
                   disabled={item.disabled}
-                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${item.disabled
+                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 ${item.disabled
                       ? 'text-[rgb(var(--color-text-tertiary))] cursor-not-allowed'
-                      : item.className || 'text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'
+                      : item.className || 'text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]'
                     }`}
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {item.label}
                 </button>
               ))}
@@ -142,97 +168,79 @@ const InvoiceCard = ({
       </div>
 
       {/* Card Content */}
-      <div className="p-6 pt-12">
+      <div className="p-4 pt-8">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center">
-            <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg flex items-center justify-center mr-3">
-              <FileText className="w-6 h-6 text-[rgb(var(--color-text-secondary))]" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))] flex-shrink-0">
+              <FileText className="w-5 h-5 text-[rgb(var(--color-text-tertiary))]" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] truncate">
                 {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
               </h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Invoice #{invoiceId?.slice(-8)}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-[rgb(var(--color-text-tertiary))]">Created: {formatDate(invoice.createdAt)}</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Status Badge */}
-        <div className="flex gap-2 mb-4">
-          {getStatusBadge(invoice.status)}
+          {/* Status Badge */}
+          <div className="flex-shrink-0">
+            {getStatusBadge(invoice.paymentStatus)}
+          </div>
         </div>
 
         {/* Customer Info */}
-        <div className="mb-4">
-          <div className="flex items-center text-sm text-[rgb(var(--color-text-secondary))] mb-1">
-            <User className="w-4 h-4 mr-2" />
-            <span className="font-medium">Customer</span>
-          </div>
-          <p className="text-sm text-[rgb(var(--color-text-primary))] ml-6">
+        <div className="mb-2">
+          <div className="text-sm text-[rgb(var(--color-text-primary))] font-medium mb-1">
             {invoice.customer?.name || 'Walk-in Customer'}
-          </p>
+          </div>
+          {invoice.customer?.email && (
+            <div className="text-xs text-[rgb(var(--color-text-secondary))] mb-1">
+              {invoice.customer.email}
+            </div>
+          )}
+          {invoice.customer?.phone && (
+            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+              {invoice.customer.phone}
+            </div>
+          )}
         </div>
 
         {/* Invoice Details */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center text-[rgb(var(--color-text-secondary))]">
-              <Calendar className="w-4 h-4 mr-2" />
-              <span>Date</span>
-            </div>
-            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-              {formatDate(invoice.createdAt)}
+        <div className="space-y-1 pt-3 border-t border-[rgb(var(--color-border-primary))]">
+          <div className="flex justify-between text-sm">
+            <span className="text-[rgb(var(--color-text-secondary))]">Items:</span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {invoice.items?.length || 0}
             </span>
           </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center text-[rgb(var(--color-text-secondary))]">
-              <DollarSign className="w-4 h-4 mr-2" />
-              <span>Amount</span>
-            </div>
-            <span className="text-[rgb(var(--color-text-primary))] font-semibold text-lg">
-              {formatCurrency(invoice.totalAmount)}
+          <div className="flex justify-between text-sm">
+            <span className="text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {formatCurrency(invoice.subtotal || invoice.totalAmount)}
             </span>
           </div>
-
-          {invoice.items && (
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center text-[rgb(var(--color-text-secondary))]">
-                <FileText className="w-4 h-4 mr-2" />
-                <span>Items</span>
-              </div>
-              <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                {invoice.items.length} item(s)
+          <div className="flex justify-between text-sm">
+            <span className="text-[rgb(var(--color-text-secondary))]">GST:</span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              {formatCurrency(invoice.gstAmount || 0)}
+            </span>
+          </div>
+          {invoice.totalDiscount > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-[rgb(var(--color-text-secondary))]">Discount:</span>
+              <span className="font-medium text-[rgb(var(--color-danger))]">
+                -{formatCurrency(invoice.totalDiscount)}
               </span>
             </div>
           )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-4 border-t border-[rgb(var(--color-border-primary))]">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onViewDetails?.(invoiceId)}
-            className="flex-1"
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            View
-          </Button>
-          {invoice.status === 'DRAFT' && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => onEdit?.(invoiceId)}
-              className="flex-1"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          )}
+          <div className="flex justify-between text-sm font-semibold pt-1 border-t border-[rgb(var(--color-border-primary))]">
+            <span className="text-[rgb(var(--color-text-primary))]">Total:</span>
+            <span className="text-[rgb(var(--color-primary))] text-base">
+              {formatCurrency(invoice.totalAmount)}
+            </span>
+          </div>
         </div>
       </div>
     </Card>
