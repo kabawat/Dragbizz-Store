@@ -149,13 +149,13 @@ const SupplierTable = ({
               </div>
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-              Agency
+              Contact
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-              Phone
+              Account
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-              Email
+              Total Bills
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
               Status
@@ -210,38 +210,59 @@ const SupplierTable = ({
                   </div>
                 </td>
                 
-                {/* Agency Column */}
+                {/* Contact Column */}
+                <td className="px-6 py-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        {supplier.agency || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                      {supplier.phone ? (
+                        <>📞 {supplier.phone}</>
+                      ) : (
+                        <>✉️ {supplier.email || 'N/A'}</>
+                      )}
+                    </div>
+                  </div>
+                </td>
+                
+                {/* Account Column */}
+                <td className="px-6 py-4">
+                  <div className="space-y-1">
+                    <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                      ₹{supplier.account?.totalPurchases?.toLocaleString() || '0'}
+                    </div>
+                    <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                      Due: ₹{supplier.account?.dueAmount?.toLocaleString() || '0'}
+                    </div>
+                  </div>
+                </td>
+                
+                {/* Total Bills Column */}
                 <td className="px-6 py-4">
                   <div className="flex items-center">
                     <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                      {supplier.agency || 'N/A'}
-                    </span>
-                  </div>
-                </td>
-                
-                {/* Phone Column */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                      {supplier.phone || 'N/A'}
-                    </span>
-                  </div>
-                </td>
-                
-                {/* Email Column */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate max-w-[200px]">
-                      {supplier.email || 'N/A'}
+                      {supplier.account?.totalBills || '0'}
                     </span>
                   </div>
                 </td>
                 
                 {/* Status Column */}
                 <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 text-green-600 border-green-500/20">
-                    Active
-                  </span>
+                  <div className="space-y-1">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                      supplier.isActive 
+                        ? 'bg-green-500/10 text-green-600 border-green-500/20' 
+                        : 'bg-red-500/10 text-red-600 border-red-500/20'
+                    }`}>
+                      {supplier.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                    <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                      {supplier.account?.onTimePaymentRate || '0'}% on-time
+                    </div>
+                  </div>
                 </td>
                 
                 {/* Actions Column */}
