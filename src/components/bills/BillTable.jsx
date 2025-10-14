@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   MoreVertical,
   Eye,
@@ -7,7 +7,12 @@ import {
   Trash2,
   Building2,
   Calendar,
-  CreditCard
+  CreditCard,
+  Send,
+  MessageCircle,
+  Mail,
+  MessageSquare,
+  Copy
 } from 'lucide-react';
 
 const BillTable = ({
@@ -29,8 +34,40 @@ const BillTable = ({
   menuRefs,
   getStatusBadge,
   formatCurrency,
-  formatDate
+  formatDate,
+  enableSendMenu = false,
+  getShareUrl
 }) => {
+  const [openSendMenuId, setOpenSendMenuId] = useState(null);
+  const sendMenuRefs = useRef({});
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        openSendMenuId &&
+        sendMenuRefs.current[openSendMenuId] &&
+        !sendMenuRefs.current[openSendMenuId].contains(event.target)
+      ) {
+        setOpenSendMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openSendMenuId]);
+
+  const buildShareUrl = (bill) => {
+    if (typeof window === 'undefined') return '';
+    const base = window.location.origin;
+    const path = getShareUrl ? getShareUrl(bill) : `/dashboard/bills/${bill._id || bill.id}`;
+    return `${base}${path}`;
+  };
+
+  const handleCopy = async (text) => {
+    try {
+      if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(text);
+    } catch {}
+  };
+
   return (
     <div className="h-full">
       {/* Fixed Header */}
@@ -123,8 +160,70 @@ const BillTable = ({
                       {statusBadge.text}
                     </span>
                   </td>
-                  <td className="w-24 px-6 py-4 text-center">
-                    <div className="relative inline-block" ref={(el) => menuRefs.current[bill._id || bill.id] = el}>
+                  <td className="w-32 px-6 py-4 text-center">
+                    <div className="relative inline-flex items-center gap-2">
+                      {enableSendMenu && (
+                        <div className="relative" ref={(el) => (sendMenuRefs.current[bill._id || bill.id] = el)}>
+                          <button
+                            onClick={() => setOpenSendMenuId(openSendMenuId === (bill._id || bill.id) ? null : (bill._id || bill.id))}
+                            className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 cursor-pointer"
+                            title="Send"
+                          >
+                            <Send className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                          </button>
+
+                          {openSendMenuId === (bill._id || bill.id) && (
+                            <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                              <button
+                                onClick={() => {
+                                  const url = buildShareUrl(bill);
+                                  const text = encodeURIComponent(`${bill.billNumber || bill.poNumber || 'Details'}\n${url}`);
+                                  window.open(`https://wa.me/?text=${text}`, '_blank');
+                                  setOpenSendMenuId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
+                              >
+                                <MessageCircle className="w-4 h-4" /> WhatsApp
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const url = buildShareUrl(bill);
+                                  const subject = encodeURIComponent(bill.billNumber || bill.poNumber || 'Details');
+                                  const body = encodeURIComponent(`Please review:\n${url}`);
+                                  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                                  setOpenSendMenuId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
+                              >
+                                <Mail className="w-4 h-4" /> Email
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const url = buildShareUrl(bill);
+                                  const body = encodeURIComponent(`${bill.billNumber || bill.poNumber || ''} ${url}`);
+                                  window.location.href = `sms:?&body=${body}`;
+                                  setOpenSendMenuId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
+                              >
+                                <MessageSquare className="w-4 h-4" /> Message
+                              </button>
+                              <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                              <button
+                                onClick={() => {
+                                  handleCopy(buildShareUrl(bill));
+                                  setOpenSendMenuId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
+                              >
+                                <Copy className="w-4 h-4" /> Copy link
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="relative inline-block" ref={(el) => (menuRefs.current[bill._id || bill.id] = el)}>
                       <button
                         onClick={() => onMenuToggle(bill._id || bill.id)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
@@ -166,6 +265,7 @@ const BillTable = ({
                           </button>
                         </div>
                       )}
+                      </div>
                     </div>
                   </td>
                 </tr>

@@ -26,6 +26,7 @@ import NumberInput from './NumberInput';
 import RichTextEditor from './RichTextEditor';
 import StepProgress from './StepProgress';
 import StockInDrawer from './StockInDrawer';
+import AddActionButton from './AddActionButton';
 
 // Named exports
 export {
@@ -78,7 +79,8 @@ export {
   NumberInput,
   RichTextEditor,
   StepProgress,
-  StockInDrawer
+  StockInDrawer,
+  AddActionButton
 };
 
 // Default export
@@ -132,5 +134,6 @@ export default {
   NumberInput,
   RichTextEditor,
   StepProgress,
-  StockInDrawer
+  StockInDrawer,
+  AddActionButton
 };

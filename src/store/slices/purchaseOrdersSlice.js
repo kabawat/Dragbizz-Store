@@ -8,7 +8,7 @@ export const getPurchaseOrders = createAsyncThunk(
       const result = await purchaseOrderService.getPurchaseOrders(params);
       if (result?.success) {
         return {
-          data: result.data?.data || result.data || [],
+          data: result.data || [],
           pagination: result.data?.pagination || {},
         };
       }
