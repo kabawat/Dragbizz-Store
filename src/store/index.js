@@ -7,6 +7,7 @@ import billsSlice from './slices/billsSlice';
 import paymentsSlice from './slices/paymentsSlice';
 import accountsSlice from './slices/accountsSlice';
 import invoicesSlice from './slices/invoicesSlice';
+import purchaseOrdersSlice from './slices/purchaseOrdersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     payments: paymentsSlice,
     accounts: accountsSlice,
     invoices: invoicesSlice,
+    purchaseOrders: purchaseOrdersSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
