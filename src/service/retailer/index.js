@@ -9,3 +9,4 @@ export { default as paymentService } from './payment.service';
 export { default as accountService } from './account.service';
 export { default as stockService } from './stock.service';
 export { default as invoiceService } from './invoice.service';
+export { default as purchaseOrderService } from './purchaseOrder.service';

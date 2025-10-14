@@ -55,9 +55,9 @@ const Toggle = ({
               relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2
               ${checked 
                 ? 'bg-[rgb(var(--color-primary))]' 
-                : 'bg-[rgb(var(--color-bg-tertiary))]'
+                : 'bg-[rgb(var(--color-primary))]/30'
               }
-              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+              ${disabled ? 'cursor-not-allowed border border-[rgb(var(--color-border-primary))]' : 'cursor-pointer'}
             `}
             aria-pressed={checked}
             aria-label={label}
