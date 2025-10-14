@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
-import { supplierService, productService, billService } from '@/service/retailer';
+import { supplierService, productService, billService, purchaseOrderService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -28,6 +28,7 @@ import Link from 'next/link';
 
 const formInit = {
   supplier: '',
+  purchaseOrder: '',
   billDate: new Date().toISOString().split('T')[0],
   dueDate: '',
   notes: '',
@@ -52,6 +53,10 @@ const CreateBill = () => {
   // Local state for products
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
+
+  // Local state for purchase orders
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [purchaseOrdersLoading, setPurchaseOrdersLoading] = useState(false);
 
   // Local state for bill creation
   const [isCreating, setIsCreating] = useState(false);
@@ -112,10 +117,32 @@ const CreateBill = () => {
     }
   };
 
+  // Fetch purchase orders from API
+  const fetchPurchaseOrders = async () => {
+    if (!selectedStore?.storeId) return;
+    try {
+      setPurchaseOrdersLoading(true);
+      const result = await purchaseOrderService.getPurchaseOrders({
+        limit: 100,
+        lightweight: true,
+        store: selectedStore.storeId
+      });
+      if (result.success) {
+        const purchaseOrdersData = result.data?.data || result.data || [];
+        setPurchaseOrders(purchaseOrdersData);
+      }
+    } catch (error) {
+      console.error('Error fetching purchase orders:', error);
+    } finally {
+      setPurchaseOrdersLoading(false);
+    }
+  };
+
   // Fetch data on mount
   useEffect(() => {
     fetchSuppliers();
     fetchProducts();
+    fetchPurchaseOrders();
   }, [selectedStore]);
 
   // Auto-set due date as 30 days from bill date
@@ -283,6 +310,7 @@ const CreateBill = () => {
       const billData = {
         store: selectedStore.storeId,
         supplier: formData.supplier,
+        purchaseOrder: formData.purchaseOrder || undefined,
         items: formData.items.map(item => ({
           product: item.product,
           quantity: parseInt(item.quantity),
@@ -396,6 +424,30 @@ const CreateBill = () => {
                               error={errors.supplier}
                               disabled={suppliersLoading}
                               leftIcon={Building2}
+                              searchable={true}
+                              size="md"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              Purchase Order
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                            </label>
+                            <Select
+                              value={formData.purchaseOrder}
+                              onChange={(value) => handleInputChange('purchaseOrder', value)}
+                              options={[
+                                { value: '', label: purchaseOrdersLoading ? 'Loading...' : 'Select Purchase Order' },
+                                ...purchaseOrders.filter(po => po.poNumber || po.purchaseOrderNumber).map(po => ({
+                                  value: po.id || po._id,
+                                  label: po.poNumber || po.purchaseOrderNumber || `PO-${po.id || po._id}`
+                                }))
+                              ]}
+                              error={errors.purchaseOrder}
+                              disabled={purchaseOrdersLoading}
+                              searchable={true}
+                              leftIcon={FileText}
                               size="md"
                             />
                           </div>
@@ -507,6 +559,7 @@ const CreateBill = () => {
                                     error={errors[`item_${index}_product`]}
                                     disabled={productsLoading}
                                     leftIcon={Package}
+                                    searchable={true}
                                     size="sm"
                                   />
                                 </div>

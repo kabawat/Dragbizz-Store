@@ -22,7 +22,7 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal, Toggle } from '@/components/ui';
+import { Button, Input, Select, Textarea, Card, Modal, Toggle, AddActionButton } from '@/components/ui';
 import Link from 'next/link';
 
 const PAYMENT_METHODS = [
@@ -147,13 +147,24 @@ const CreatePurchaseOrder = () => {
     }
     const selected = products.find(p => (p.id || p._id) === tempProduct);
     const productName = selected ? (selected.name || selected.productName || '') : '';
-    setFormData(prev => ({
+
+    setFormData(prev => {
+      const existingIndex = prev.products.findIndex(item => item.product === tempProduct);
+      if (existingIndex !== -1) {
+        const updated = [...prev.products];
+        const existing = updated[existingIndex];
+        const newQty = (parseInt(existing.quantity) || 0) + parseInt(tempQuantity);
+        updated[existingIndex] = { ...existing, productName: existing.productName || productName, quantity: newQty };
+        return { ...prev, products: updated };
+      }
+      return {
       ...prev,
       products: [
         ...prev.products,
         { product: tempProduct, productName, quantity: parseInt(tempQuantity) }
       ]
-    }));
+      };
+    });
     setTempProduct('');
     setTempQuantity(1);
     setErrors(prev => ({ ...prev, add_product: '', add_quantity: '' }));
@@ -236,7 +247,7 @@ const CreatePurchaseOrder = () => {
         note: formData.note || undefined,
         expectedDeliveryDate: formData.expectedDeliveryDate || undefined
       };
-
+      
       const result = await purchaseOrderService.createPurchaseOrder(poPayload);
       if (result.success) {
         setCreatedPONumber(result.data?.poNumber || `PO-${Date.now()}`);
@@ -289,15 +300,15 @@ const CreatePurchaseOrder = () => {
         <div className="flex-1 p-6">
           <div className="w-full">
             {/* Breadcrumb */}
-            <div className="mb-6 w-full mx-auto">
-              <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 px-4 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
+            <div className="mb-4 w-full mx-auto">
+              <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Purchase Orders</span>
               </Link>
             </div>
 
-            <div className="flex flex-col h-full" style={{ height: 'calc(100vh - 220px)' }}>
-              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-220px)] min-h-[calc(100vh-220px)]">
+            <div className="flex flex-col h-full" style={{ height: 'calc(100vh-208px)' }}>
+              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-208px)] min-h-[calc(100vh-208px)]">
                 <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                   {/* Main Form Container */}
                   <div className="w-full mx-auto">
@@ -308,10 +319,10 @@ const CreatePurchaseOrder = () => {
 
                          {/* Basic Information Card */}
                          <Card>
-                           <div className="p-6">
+                          <div className="p-5">
                              <div className="flex items-center mb-6">
-                               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                 <FileText className="w-5 h-5 text-blue-600" />
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                                <FileText className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
                                </div>
                                <div>
                                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Basic Information</h3>
@@ -338,7 +349,7 @@ const CreatePurchaseOrder = () => {
                                </div>
 
                                <div className="space-y-2">
-                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Terms</label>
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Due In</label>
                                  <Select
                                  size="sm"
                                    value={formData.paymentBy}
@@ -401,11 +412,11 @@ const CreatePurchaseOrder = () => {
 
                          {/* Advance Payment Card */}
                          <Card>
-                           <div className="p-6">
+                          <div className="p-5">
                              <div className="flex items-center justify-between mb-6">
                                <div className="flex items-center">
-                                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                                   <IndianRupee className="w-5 h-5 text-purple-600" />
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                                  <IndianRupee className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
                                  </div>
                                  <div>
                                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Advance Payment</h3>
@@ -463,8 +474,8 @@ const CreatePurchaseOrder = () => {
 
                                    {/* Payment Method Specific Details */}
                                    {paymentMethod === 'UPI' && (
-                                     <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                       <h5 className="text-xs font-medium text-blue-800">UPI Details</h5>
+                                    <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>UPI Details</h5>
                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                          <div>
                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">UPI ID</label>
@@ -491,8 +502,8 @@ const CreatePurchaseOrder = () => {
                                    )}
 
                                    {paymentMethod === 'BANK_TRANSFER' && (
-                                     <div className="space-y-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                       <h5 className="text-xs font-medium text-green-800">Bank Transfer Details</h5>
+                                    <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Bank Transfer Details</h5>
                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                          <div>
                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
@@ -539,8 +550,8 @@ const CreatePurchaseOrder = () => {
                                    )}
 
                                    {paymentMethod === 'CHEQUE' && (
-                                     <div className="space-y-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                                       <h5 className="text-xs font-medium text-orange-800">Cheque Details</h5>
+                                    <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Cheque Details</h5>
                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                          <div>
                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Number</label>
@@ -624,7 +635,7 @@ const CreatePurchaseOrder = () => {
                                                <button
                                                  type="button"
                                                  onClick={() => removePayment(index)}
-                                                 className="flex-shrink-0 p-1.5 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                                                className="flex-shrink-0 p-1.5 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-md transition-colors duration-200 opacity-0 group-hover:opacity-100"
                                                  title="Remove payment"
                                                >
                                                  <Trash2 className="w-3 h-3" />
@@ -656,12 +667,11 @@ const CreatePurchaseOrder = () => {
 
                        {/* Right Column - Products & Items Section */}
                        <div>
-                         <div className="sticky top-0">
-                           <Card>
-                             <div className="p-6">
+                        <Card className="sticky top-0">
+                          <div className="p-4">
                                <div className="flex items-center mb-6">
-                                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                   <Package className="w-5 h-5 text-green-600" />
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                                <Package className="w-5 h-5" style={{ color: 'rgb(var(--color-success))' }} />
                                  </div>
                                  <div>
                                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Products & Items</h3>
@@ -675,8 +685,7 @@ const CreatePurchaseOrder = () => {
                                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                                    <div className="md:col-span-7">
                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Product *</label>
-                                     <Select
-                                       value={tempProduct}
+                                  <Select value={tempProduct}
                                        onChange={(value) => setTempProduct(value)}
                                        options={[
                                          { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
@@ -707,15 +716,7 @@ const CreatePurchaseOrder = () => {
                                    </div>
 
                                    <div className="md:col-span-2">
-                                     <Button
-                                       type="button"
-                                       onClick={addItem}
-                                       leftIcon={Plus}
-                                       className="w-full"
-                                       size="sm"
-                                     >
-                                       Add Item
-                                     </Button>
+                                  <AddActionButton onClick={addItem} fullWidth label="Add" title="Add new item" />
                                    </div>
                                  </div>
                                </div>
@@ -739,8 +740,8 @@ const CreatePurchaseOrder = () => {
                                        <div key={index} className="px-4 py-4 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
                                          <div className="flex items-center justify-between">
                                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                                             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                               <Package className="w-4 h-4 text-blue-600" />
+                                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                                            <Package className="w-4 h-4" style={{ color: 'rgb(var(--color-primary))' }} />
                                              </div>
                                              <div className="flex-1 min-w-0">
                                                <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
@@ -751,7 +752,7 @@ const CreatePurchaseOrder = () => {
                                                </span>
                                              </div>
                                              <div className="flex-shrink-0">
-                                               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)', color: 'rgb(var(--color-primary))' }}>
                                                  Qty: {item.quantity}
                                                </span>
                                              </div>
@@ -759,7 +760,7 @@ const CreatePurchaseOrder = () => {
                                            <button
                                              type="button"
                                              onClick={() => removeItem(index)}
-                                             className="flex-shrink-0 p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                          className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                                              title="Remove item"
                                            >
                                              <Trash2 className="w-4 h-4" />
@@ -778,7 +779,6 @@ const CreatePurchaseOrder = () => {
                                )}
                              </div>
                            </Card>
-                         </div>
                        </div>
 
                     </div>
@@ -788,7 +788,7 @@ const CreatePurchaseOrder = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4 mt-6">
+            <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
               <div className="flex items-center justify-between w-full mx-auto">
                 <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                   {formData.products.length > 0 && (
@@ -824,13 +824,13 @@ const CreatePurchaseOrder = () => {
       {/* Success Modal */}
       <Modal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} title="Purchase Order Created Successfully!">
         <div className="p-6 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(var(--color-success), 0.1)' }}>
+            <CheckCircle className="w-8 h-8" style={{ color: 'rgb(var(--color-success))' }} />
           </div>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             {createdPONumber} has been created successfully.
             {createdPOId && (
-              <span className="block mt-2 text-sm text-blue-600">You can now view the purchase order details.</span>
+              <span className="block mt-2 text-sm" style={{ color: 'rgb(var(--color-primary))' }}>You can now view the purchase order details.</span>
             )}
           </p>
           <div className="flex gap-3 justify-center">

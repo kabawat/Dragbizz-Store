@@ -173,7 +173,7 @@ const Select = ({
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative cursor-pointer border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${error
+        className={`relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${error
             ? 'border-red-500 bg-red-50'
             : 'border-[rgb(var(--color-border-primary))]'
           } ${error
@@ -190,7 +190,7 @@ const Select = ({
         aria-haspopup="listbox"
       >
         {/* Selected Value Display with responsive sizing */}
-        <div className={`flex items-center px-4 ${size === 'sm' ? 'py-2 h-10' : size === 'lg' ? 'py-3 h-14' : 'py-2.5 h-12'}`}>
+        <div className={`flex items-center px-4 ${size === 'sm' ? 'py-1.5 h-10' : size === 'lg' ? 'py-3 h-14' : 'py-2.5 h-12'}`}>
           <div className="flex-1 min-w-0 overflow-hidden pr-3">
             {multiple ? (
               <div className="flex flex-wrap gap-1 overflow-hidden">

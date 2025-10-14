@@ -19,12 +19,13 @@ import {
 import { Button, Input } from '@/components/ui';
 
 // Reuse bill table/grid components to mirror UI (data naming stays generic)
-import { BillTable as PurchaseOrderTable, BillGrid as PurchaseOrderGrid, BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
+import { BillGrid as PurchaseOrderGrid, BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
+import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
 
 const PurchaseOrders = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { list: purchaseOrders, isLoading, error, pagination } = useAppSelector((state) => state.purchaseOrders);
+  const { list: purchaseOrders, isLoading, pagination } = useAppSelector((state) => state.purchaseOrders);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -187,38 +188,23 @@ const PurchaseOrders = () => {
 
   const filteredPOs = getFilteredPOs();
 
-  const mapPoStatusToPaymentStatus = (status) => {
-    // Map PO status to table's payment-like status just for badge coloring
-    switch ((status || '').toUpperCase()) {
-      case 'CLOSED':
-      case 'RECEIVED':
-      case 'COMPLETED':
-      case 'FULLY_RECEIVED':
-        return 'PAID';
-      case 'PARTIALLY_RECEIVED':
-        return 'PARTIAL';
-      case 'CANCELLED':
-      case 'EXPIRED':
-        return 'UNPAID';
-      case 'OPEN':
-      case 'PENDING':
-      case 'DRAFT':
-      case 'SENT':
-      case 'ACKNOWLEDGED':
-      default:
-        return 'UNPAID';
-    }
-  };
-
-  const normalizedPOs = filteredPOs.map((po) => ({
-    ...po,
-    billNumber: po.poNumber || po.billNumber,
-    billDate: po.poDate || po.billDate,
-    dueDate: po.expectedDeliveryDate || po.dueDate,
-    paidAmount: po.advanceAmount ?? po.paidAmount ?? 0,
-    dueAmount: po.remainingAmount ?? po.dueAmount ?? Math.max((po.totalAmount || 0) - (po.advanceAmount || 0), 0),
-    paymentStatus: mapPoStatusToPaymentStatus(po.status || po.paymentStatus),
-  }));
+  const normalizedPOs = filteredPOs.map((po) => {
+    const billNumber = po.poNumber || po.billNumber;
+    const billDate = po.poDate || po.billDate;
+    const dueDate = po.expectedDeliveryDate || po.dueDate;
+    const totalAmount = po.totalAmount ?? 0;
+    const paidAmount = po.advanceAmount ?? po.paidAmount ?? 0;
+    const dueAmount = po.remainingAmount ?? po.dueAmount ?? Math.max(totalAmount - paidAmount, 0);
+    return {
+      ...po,
+      billNumber,
+      billDate,
+      dueDate,
+      totalAmount,
+      paidAmount,
+      dueAmount,
+    };
+  });
 
   const handleSelect = (id) => {
     setSelectedPOs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -239,7 +225,6 @@ const PurchaseOrders = () => {
 
   const confirmDelete = () => {
     if (poToDelete) {
-      // Implement PO delete when API exists
       setShowDeleteModal(false);
       setPoToDelete(null);
     }
@@ -253,57 +238,17 @@ const PurchaseOrders = () => {
     if (isOverdue) {
       return { variant: 'danger', icon: AlertTriangle, text: 'Overdue', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
     }
-    // Prefer explicit PO status text if available
-    const statusText = (po.status || '').toUpperCase();
-    if (statusText) {
-      switch (statusText) {
-        case 'DRAFT':
-          return { variant: 'secondary', icon: Clock, text: 'Draft', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
-        case 'SENT':
-          return { variant: 'info', icon: Clock, text: 'Sent', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-        case 'ACKNOWLEDGED':
-          return { variant: 'info', icon: CheckCircle, text: 'Acknowledged', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-        case 'OPEN':
-          return { variant: 'secondary', icon: Clock, text: 'Open', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-        case 'APPROVED':
-          return { variant: 'info', icon: CheckCircle, text: 'Approved', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-        case 'PENDING':
-          return { variant: 'secondary', icon: Clock, text: 'Pending', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-        case 'PARTIALLY_RECEIVED':
-          return { variant: 'warning', icon: Clock, text: 'Partially Received', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
-        case 'RECEIVED':
-        case 'COMPLETED':
-        case 'FULLY_RECEIVED':
-          return { variant: 'success', icon: CheckCircle, text: 'Completed', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
-        case 'CANCELLED':
-          return { variant: 'danger', icon: AlertTriangle, text: 'Cancelled', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
-        case 'EXPIRED':
-          return { variant: 'danger', icon: AlertTriangle, text: 'Expired', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
-        default:
-          break;
-      }
-    }
-    // If approvalStatus is provided and significant, reflect it
+
     const approval = (po.approvalStatus || '').toUpperCase();
     switch (approval) {
       case 'PENDING':
-        return { variant: 'info', icon: Clock, text: 'Approval Pending', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
+        return { variant: 'info', icon: Clock, text: 'Pending', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
       case 'APPROVED':
         return { variant: 'success', icon: CheckCircle, text: 'Approved', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
       case 'REJECTED':
         return { variant: 'danger', icon: AlertTriangle, text: 'Rejected', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
       default:
         break;
-    }
-    switch (po.paymentStatus) {
-      case 'PAID':
-        return { variant: 'success', icon: CheckCircle, text: 'Paid', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
-      case 'PARTIAL':
-        return { variant: 'warning', icon: Clock, text: 'Partial', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
-      case 'UNPAID':
-        return { variant: 'secondary', icon: Clock, text: 'Pending', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-      default:
-        return { variant: 'secondary', icon: Clock, text: 'Unknown', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
     }
   };
 
@@ -438,6 +383,8 @@ const PurchaseOrders = () => {
                       getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
+                      enableSendMenu={true}
+                      getShareUrl={(row) => `/dashboard/purchase-orders/${row._id || row.id}`}
                     />
                   ) : (
                     <PurchaseOrderGrid
@@ -448,6 +395,10 @@ const PurchaseOrders = () => {
                       onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
                       onDelete={handleDelete}
                       onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
+                      loading={isLoading}
+                      emptyMessage="No purchase orders found"
+                      hasMore={pagination.hasNextPage}
+                      onLoadMore={handleLoadMore}
                       isLoadingMore={isLoadingMore}
                       openMenuId={openMenuId}
                       onMenuToggle={handleMenuToggle}
@@ -456,6 +407,8 @@ const PurchaseOrders = () => {
                       getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
+                      enableSendMenu={true}
+                      getShareUrl={(row) => `/dashboard/purchase-orders/${row._id || row.id}`}
                     />
                   )}
                 </div>

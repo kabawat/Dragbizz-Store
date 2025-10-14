@@ -44,7 +44,7 @@ const Input = forwardRef(({
   };
 
   // Base classes - Theme aware
-  const baseClasses = `w-full border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] ${sizeClasses[size]}`;
+  const baseClasses = `w-full border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] ${sizeClasses[size]}`;
 
   // Padding classes - Reduced spacing based on size
   const paddingClasses = {
