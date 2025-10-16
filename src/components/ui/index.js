@@ -27,6 +27,8 @@ import RichTextEditor from './RichTextEditor';
 import StepProgress from './StepProgress';
 import StockInDrawer from './StockInDrawer';
 import AddActionButton from './AddActionButton';
+import SendMenu from './SendMenu';
+import ActionMenu from './ActionMenu';
 
 // Named exports
 export {
@@ -80,7 +82,9 @@ export {
   RichTextEditor,
   StepProgress,
   StockInDrawer,
-  AddActionButton
+  AddActionButton,
+  SendMenu,
+  ActionMenu
 };
 
 // Default export
@@ -135,5 +139,7 @@ export default {
   RichTextEditor,
   StepProgress,
   StockInDrawer,
-  AddActionButton
+  AddActionButton,
+  SendMenu,
+  ActionMenu
 };
