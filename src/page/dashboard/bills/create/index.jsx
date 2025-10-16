@@ -163,6 +163,17 @@ const CreateBill = () => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
+    // Handle special "Add New" options
+    if (value === 'add-new-supplier') {
+      router.push('/dashboard/suppliers/add');
+      return;
+    }
+    
+    if (value === 'add-new-purchase-order') {
+      router.push('/dashboard/purchase-orders/create');
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -268,26 +279,26 @@ const CreateBill = () => {
       if (!item.product) {
         newErrors[`item_${index}_product`] = 'Product is required';
       }
-      
+
       // Quantity validation (Required - number > 0)
       if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) {
         newErrors[`item_${index}_quantity`] = 'Valid quantity (integer &gt; 0) is required';
       }
-      
+
       // Purchase Price validation (Required - number >= 0)
       if (item.purchasePrice === undefined || item.purchasePrice === null || item.purchasePrice < 0) {
         newErrors[`item_${index}_purchasePrice`] = 'Valid purchase price (number &gt;= 0) is required';
       }
-      
+
       // Expiry Date validation (Optional - ISO date string)
       if (item.expiryDate) {
         const expiryDate = new Date(item.expiryDate);
         const billDate = new Date(formData.billDate || new Date());
-        
+
         if (isNaN(expiryDate.getTime())) {
           newErrors[`item_${index}_expiryDate`] = 'Invalid expiry date format';
         } else if (expiryDate < billDate) {
-        newErrors[`item_${index}_expiryDate`] = 'Expiry date cannot be before bill date';
+          newErrors[`item_${index}_expiryDate`] = 'Expiry date cannot be before bill date';
         }
       }
     });
@@ -317,7 +328,7 @@ const CreateBill = () => {
           purchasePrice: parseFloat(item.purchasePrice),
           expiryDate: item.expiryDate || undefined
         })),
-        
+
         billDate: formData.billDate || new Date().toISOString().split('T')[0],
         dueDate: formData.dueDate || undefined,
         notes: formData.notes || undefined
@@ -419,13 +430,15 @@ const CreateBill = () => {
                                 ...suppliers.filter(supplier => supplier.name || supplier.supplierName).map(supplier => ({
                                   value: supplier.id || supplier._id,
                                   label: supplier.name || supplier.supplierName
-                                }))
+                                })),
+                                { value: 'add-new-supplier', label: '+ Add New Supplier', isAddOption: true }
                               ]}
                               error={errors.supplier}
                               disabled={suppliersLoading}
                               leftIcon={Building2}
                               searchable={true}
                               size="md"
+                              multiple={false}
                             />
                           </div>
 
@@ -442,13 +455,15 @@ const CreateBill = () => {
                                 ...purchaseOrders.filter(po => po.poNumber || po.purchaseOrderNumber).map(po => ({
                                   value: po.id || po._id,
                                   label: po.poNumber || po.purchaseOrderNumber || `PO-${po.id || po._id}`
-                                }))
+                                })),
+                                { value: 'add-new-purchase-order', label: '+ Add New Purchase Order', isAddOption: true }
                               ]}
                               error={errors.purchaseOrder}
                               disabled={purchaseOrdersLoading}
                               searchable={true}
                               leftIcon={FileText}
                               size="md"
+                              multiple={false}
                             />
                           </div>
 
@@ -753,16 +768,10 @@ const CreateBill = () => {
             This bill will be saved as a draft and can be completed later.
           </p>
           <div className="flex gap-3 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setShowSaveDraftModal(false)}
-            >
+            <Button variant="outline" onClick={() => setShowSaveDraftModal(false)} >
               Cancel
             </Button>
-            <Button
-              onClick={handleConfirmSaveDraft}
-              leftIcon={Save}
-            >
+            <Button onClick={handleConfirmSaveDraft} leftIcon={Save} >
               Save Draft
             </Button>
           </div>
