@@ -18,9 +18,10 @@ import {
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 
-// Reuse bill table/grid components to mirror UI (data naming stays generic)
-import { BillGrid as PurchaseOrderGrid, BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
+// Import dedicated purchase order components
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
+import PurchaseOrderGrid from '@/components/purchaseOrders/PurchaseOrderGrid';
+import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
 
 const PurchaseOrders = () => {
   const router = useRouter();
@@ -388,17 +389,13 @@ const PurchaseOrders = () => {
                     />
                   ) : (
                     <PurchaseOrderGrid
-                      bills={normalizedPOs}
-                      selectedBills={selectedPOs}
+                      purchaseOrders={normalizedPOs}
+                      selectedPurchaseOrders={selectedPOs}
                       onSelect={handleSelect}
                       onSelectAll={handleSelectAll}
                       onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
                       onDelete={handleDelete}
                       onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
-                      loading={isLoading}
-                      emptyMessage="No purchase orders found"
-                      hasMore={pagination.hasNextPage}
-                      onLoadMore={handleLoadMore}
                       isLoadingMore={isLoadingMore}
                       openMenuId={openMenuId}
                       onMenuToggle={handleMenuToggle}
