@@ -158,11 +158,11 @@ const CreatePurchaseOrder = () => {
         return { ...prev, products: updated };
       }
       return {
-      ...prev,
-      products: [
-        ...prev.products,
-        { product: tempProduct, productName, quantity: parseInt(tempQuantity) }
-      ]
+        ...prev,
+        products: [
+          ...prev.products,
+          { product: tempProduct, productName, quantity: parseInt(tempQuantity) }
+        ]
       };
     });
     setTempProduct('');
@@ -247,7 +247,7 @@ const CreatePurchaseOrder = () => {
         note: formData.note || undefined,
         expectedDeliveryDate: formData.expectedDeliveryDate || undefined
       };
-      
+
       const result = await purchaseOrderService.createPurchaseOrder(poPayload);
       if (result.success) {
         setCreatedPONumber(result.data?.poNumber || `PO-${Date.now()}`);
@@ -314,472 +314,473 @@ const CreatePurchaseOrder = () => {
                   <div className="w-full mx-auto">
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-                       {/* Left Column - Main Form */}
-                       <div className="space-y-6">
+                      {/* Left Column - Main Form */}
+                      <div className="space-y-6">
 
-                         {/* Basic Information Card */}
-                         <Card>
+                        {/* Basic Information Card */}
+                        <Card>
                           <div className="p-5">
-                             <div className="flex items-center mb-6">
-                              <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                            <div className="flex items-center mb-6">
+                              <div className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
                                 <FileText className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
-                               </div>
-                               <div>
-                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Basic Information</h3>
-                                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">Essential details for the purchase order</p>
-                               </div>
-                             </div>
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Basic Information</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Essential details for the purchase order</p>
+                              </div>
+                            </div>
 
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                               <div className="space-y-2">
-                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Supplier *</label>
-                                 <Select
-                                   value={formData.supplier}
-                                   onChange={(value) => handleInputChange('supplier', value)}
-                                   options={[
-                                     { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
-                                     ...suppliers.filter(s => s.name || s.supplierName).map(s => ({ value: s.id || s._id, label: s.name || s.supplierName }))
-                                   ]}
-                                   error={errors.supplier}
-                                   disabled={suppliersLoading}
-                                   leftIcon={Building2}
-                                   size="sm"
-                                   placeholder="Choose a supplier"
-                                 />
-                               </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Supplier *</label>
+                                <Select
+                                  value={formData.supplier}
+                                  onChange={(value) => handleInputChange('supplier', value)}
+                                  options={[
+                                    { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
+                                    ...suppliers.filter(s => s.name || s.supplierName).map(s => ({ value: s.id || s._id, label: s.name || s.supplierName }))
+                                  ]}
+                                  error={errors.supplier}
+                                  disabled={suppliersLoading}
+                                  leftIcon={Building2}
+                                  size="sm"
+                                  searchable={true}
+                                  placeholder="Choose a supplier"
+                                />
+                              </div>
 
-                               <div className="space-y-2">
+                              <div className="space-y-2">
                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Due In</label>
-                                 <Select
-                                 size="sm"
-                                   value={formData.paymentBy}
-                                   onChange={(value) => handleInputChange('paymentBy', value)}
-                                   options={[
-                                     { value: 'COD', label: 'Cash on Delivery' },
-                                     { value: '7_DAYS', label: '7 Days' },
-                                     { value: '15_DAYS', label: '15 Days' },
-                                     { value: '30_DAYS', label: '30 Days' },
-                                     { value: '45_DAYS', label: '45 Days' },
-                                     { value: '60_DAYS', label: '60 Days' },
-                                     { value: '90_DAYS', label: '90 Days' }
-                                   ]}
-                                   leftIcon={Calendar}
-                                 />
-                               </div>
+                                <Select
+                                  size="sm"
+                                  value={formData.paymentBy}
+                                  onChange={(value) => handleInputChange('paymentBy', value)}
+                                  options={[
+                                    { value: 'COD', label: 'Cash on Delivery' },
+                                    { value: '7_DAYS', label: '7 Days' },
+                                    { value: '15_DAYS', label: '15 Days' },
+                                    { value: '30_DAYS', label: '30 Days' },
+                                    { value: '45_DAYS', label: '45 Days' },
+                                    { value: '60_DAYS', label: '60 Days' },
+                                    { value: '90_DAYS', label: '90 Days' }
+                                  ]}
+                                  leftIcon={Calendar}
+                                />
+                              </div>
 
-                               <div className="space-y-2">
-                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Expected Delivery Date</label>
-                                 <Input
-                                   type="date"
-                                   size="sm"
-                                   value={formData.expectedDeliveryDate}
-                                   onChange={(value) => handleInputChange('expectedDeliveryDate', value)}
-                                   error={errors.expectedDeliveryDate}
-                                   leftIcon={Calendar}
-                                   placeholder="Select delivery date"
-                                 />
-                               </div>
+                              <div className="space-y-2">
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Expected Delivery Date</label>
+                                <Input
+                                  type="date"
+                                  size="sm"
+                                  value={formData.expectedDeliveryDate}
+                                  onChange={(value) => handleInputChange('expectedDeliveryDate', value)}
+                                  error={errors.expectedDeliveryDate}
+                                  leftIcon={Calendar}
+                                  placeholder="Select delivery date"
+                                />
+                              </div>
 
-                               <div className="space-y-2">
-                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Reference Number</label>
-                                 <Input
-                                   type="text"
-                                   size="sm"
-                                   value={formData.reference}
-                                   onChange={(value) => handleInputChange('reference', value)}
-                                   leftIcon={FileText}
-                                   placeholder="Enter reference number"
-                                 />
-                               </div>
-                             </div>
+                              <div className="space-y-2">
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Reference Number</label>
+                                <Input
+                                  type="text"
+                                  size="sm"
+                                  value={formData.reference}
+                                  onChange={(value) => handleInputChange('reference', value)}
+                                  leftIcon={FileText}
+                                  placeholder="Enter reference number"
+                                />
+                              </div>
+                            </div>
 
-                             <div className="mt-6">
-                               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">Additional Notes</label>
-                               <Textarea
-                                 value={formData.note}
-                                 onChange={(value) => handleInputChange('note', value)}
-                                 placeholder="Add any special instructions or notes for this purchase order..."
-                                 rows={3}
-                                 leftIcon={FileText}
-                                 maxLength={500}
-                               />
-                               {formData.note && (
-                                 <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">{formData.note.length}/500 characters</div>
-                               )}
-                             </div>
-                           </div>
-                         </Card>
+                            <div className="mt-6">
+                              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">Additional Notes</label>
+                              <Textarea
+                                value={formData.note}
+                                onChange={(value) => handleInputChange('note', value)}
+                                placeholder="Add any special instructions or notes for this purchase order..."
+                                rows={3}
+                                leftIcon={FileText}
+                                maxLength={500}
+                              />
+                              {formData.note && (
+                                <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">{formData.note.length}/500 characters</div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
 
-                         {/* Advance Payment Card */}
-                         <Card>
-                          <div className="p-5">
-                             <div className="flex items-center justify-between mb-6">
-                               <div className="flex items-center">
-                                <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                        {/* Advance Payment Card */}
+                        <Card>
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center">
+                                <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
                                   <IndianRupee className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
-                                 </div>
-                                 <div>
-                                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Advance Payment</h3>
-                                   <p className="text-sm text-[rgb(var(--color-text-secondary))]">Optional advance payments</p>
-                                 </div>
-                               </div>
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Advance Payment</h3>
+                                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">Optional advance payments</p>
+                                </div>
+                              </div>
 
-                               {/* Toggle Button */}
-                               <Toggle
-                                 checked={showAdvancePayment}
-                                 onChange={setShowAdvancePayment}
-                                 label=""
-                                 size="sm"
-                               />
-                             </div>
+                              {/* Toggle Button */}
+                              <Toggle
+                                checked={showAdvancePayment}
+                                onChange={setShowAdvancePayment}
+                                label=""
+                                size="sm"
+                              />
+                            </div>
 
-                             {/* Payment Form */}
-                             {showAdvancePayment && (
-                               <div className="space-y-4">
-                                 <div className="space-y-3">
-                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div>
-                                       <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Payment Method</label>
-                                       <Select
-                                         value={paymentMethod}
-                                         onChange={handlePaymentMethodChange}
-                                         options={PAYMENT_METHODS}
-                                         size="sm"
-                                       />
-                                     </div>
+                            {/* Payment Form */}
+                            {showAdvancePayment && (
+                              <div className="space-y-4">
+                                <div className="space-y-3">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Payment Method</label>
+                                      <Select
+                                        value={paymentMethod}
+                                        onChange={handlePaymentMethodChange}
+                                        options={PAYMENT_METHODS}
+                                        size="sm"
+                                      />
+                                    </div>
 
-                                     <div>
-                                       <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Amount (₹)</label>
-                                       <Input
-                                         type="number"
-                                         value={paymentAmount}
-                                         onChange={setPaymentAmount}
-                                         placeholder="0.00"
-                                         leftIcon={IndianRupee}
-                                         size="sm"
-                                       />
-                                     </div>
-                                   </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Amount (₹)</label>
+                                      <Input
+                                        type="number"
+                                        value={paymentAmount}
+                                        onChange={setPaymentAmount}
+                                        placeholder="0.00"
+                                        leftIcon={IndianRupee}
+                                        size="sm"
+                                      />
+                                    </div>
+                                  </div>
 
-                                   <div>
-                                     <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Reference</label>
-                                     <Input
-                                       type="text"
-                                       value={paymentReference}
-                                       onChange={setPaymentReference}
-                                       placeholder="Transaction reference"
-                                       size="sm"
-                                     />
-                                   </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Reference</label>
+                                    <Input
+                                      type="text"
+                                      value={paymentReference}
+                                      onChange={setPaymentReference}
+                                      placeholder="Transaction reference"
+                                      size="sm"
+                                    />
+                                  </div>
 
-                                   {/* Payment Method Specific Details */}
-                                   {paymentMethod === 'UPI' && (
+                                  {/* Payment Method Specific Details */}
+                                  {paymentMethod === 'UPI' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
                                       <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>UPI Details</h5>
-                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">UPI ID</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.upiId || ''}
-                                             onChange={(value) => updatePaymentDetails('upiId', value)}
-                                             placeholder="supplier@paytm"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Transaction ID</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.transactionId || ''}
-                                             onChange={(value) => updatePaymentDetails('transactionId', value)}
-                                             placeholder="UPI123456789"
-                                             size="sm"
-                                           />
-                                         </div>
-                                       </div>
-                                     </div>
-                                   )}
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">UPI ID</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.upiId || ''}
+                                            onChange={(value) => updatePaymentDetails('upiId', value)}
+                                            placeholder="supplier@paytm"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Transaction ID</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.transactionId || ''}
+                                            onChange={(value) => updatePaymentDetails('transactionId', value)}
+                                            placeholder="UPI123456789"
+                                            size="sm"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
-                                   {paymentMethod === 'BANK_TRANSFER' && (
+                                  {paymentMethod === 'BANK_TRANSFER' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
                                       <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Bank Transfer Details</h5>
-                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.bankName || ''}
-                                             onChange={(value) => updatePaymentDetails('bankName', value)}
-                                             placeholder="State Bank of India"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">IFSC Code</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.ifscCode || ''}
-                                             onChange={(value) => updatePaymentDetails('ifscCode', value)}
-                                             placeholder="SBIN0001234"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Number</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.accountNumber || ''}
-                                             onChange={(value) => updatePaymentDetails('accountNumber', value)}
-                                             placeholder="1234567890"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Holder Name</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.holderName || ''}
-                                             onChange={(value) => updatePaymentDetails('holderName', value)}
-                                             placeholder="ABC Suppliers"
-                                             size="sm"
-                                           />
-                                         </div>
-                                       </div>
-                                     </div>
-                                   )}
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.bankName || ''}
+                                            onChange={(value) => updatePaymentDetails('bankName', value)}
+                                            placeholder="State Bank of India"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">IFSC Code</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.ifscCode || ''}
+                                            onChange={(value) => updatePaymentDetails('ifscCode', value)}
+                                            placeholder="SBIN0001234"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Number</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.accountNumber || ''}
+                                            onChange={(value) => updatePaymentDetails('accountNumber', value)}
+                                            placeholder="1234567890"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Holder Name</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.holderName || ''}
+                                            onChange={(value) => updatePaymentDetails('holderName', value)}
+                                            placeholder="ABC Suppliers"
+                                            size="sm"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
-                                   {paymentMethod === 'CHEQUE' && (
+                                  {paymentMethod === 'CHEQUE' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
                                       <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Cheque Details</h5>
-                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Number</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.chequeNumber || ''}
-                                             onChange={(value) => updatePaymentDetails('chequeNumber', value)}
-                                             placeholder="123456"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Date</label>
-                                           <Input
-                                             type="date"
-                                             value={paymentDetails.chequeDate || ''}
-                                             onChange={(value) => updatePaymentDetails('chequeDate', value)}
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.bankName || ''}
-                                             onChange={(value) => updatePaymentDetails('bankName', value)}
-                                             placeholder="HDFC Bank"
-                                             size="sm"
-                                           />
-                                         </div>
-                                         <div>
-                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Branch Name</label>
-                                           <Input
-                                             type="text"
-                                             value={paymentDetails.branchName || ''}
-                                             onChange={(value) => updatePaymentDetails('branchName', value)}
-                                             placeholder="Main Branch"
-                                             size="sm"
-                                           />
-                                         </div>
-                                       </div>
-                                     </div>
-                                   )}
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Number</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.chequeNumber || ''}
+                                            onChange={(value) => updatePaymentDetails('chequeNumber', value)}
+                                            placeholder="123456"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Date</label>
+                                          <Input
+                                            type="date"
+                                            value={paymentDetails.chequeDate || ''}
+                                            onChange={(value) => updatePaymentDetails('chequeDate', value)}
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.bankName || ''}
+                                            onChange={(value) => updatePaymentDetails('bankName', value)}
+                                            placeholder="HDFC Bank"
+                                            size="sm"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Branch Name</label>
+                                          <Input
+                                            type="text"
+                                            value={paymentDetails.branchName || ''}
+                                            onChange={(value) => updatePaymentDetails('branchName', value)}
+                                            placeholder="Main Branch"
+                                            size="sm"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
-                                   <div className="flex justify-end">
-                                     <Button
-                                       type="button"
-                                       variant="primary"
-                                       size="sm"
-                                       onClick={addPayment}
-                                       disabled={!paymentAmount || !paymentReference}
-                                       leftIcon={Plus}
-                                     >
-                                       Add Payment
-                                     </Button>
-                                   </div>
-                                 </div>
+                                  <div className="flex justify-end">
+                                    <Button
+                                      type="button"
+                                      variant="primary"
+                                      size="sm"
+                                      onClick={addPayment}
+                                      disabled={!paymentAmount || !paymentReference}
+                                      leftIcon={Plus}
+                                    >
+                                      Add Payment
+                                    </Button>
+                                  </div>
+                                </div>
 
-                                 {/* Added Payments List */}
-                                 {formData.payment.length > 0 && (
-                                   <div className="border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-secondary))]/30">
-                                     <div className="px-3 py-2 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))]/50">
-                                       <h4 className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">
-                                         Added Payments ({formData.payment.length})
-                                       </h4>
-                                     </div>
-                                     <div className="max-h-48 overflow-y-auto">
-                                       <div className="divide-y divide-[rgb(var(--color-border-primary))]">
-                                         {formData.payment.map((payment, index) => (
-                                           <div key={index} className="px-3 py-3 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
-                                             <div className="flex items-center justify-between">
-                                               <div className="flex-1 min-w-0">
-                                                 <div className="flex items-center gap-2 mb-1">
-                                                   <span className="text-xs font-medium text-[rgb(var(--color-text-primary))]">{payment.method}</span>
-                                                   <span className="text-xs text-[rgb(var(--color-text-secondary))] bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-                                                     ₹{payment.amount}
-                                                   </span>
-                                                 </div>
-                                                 <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate block">{payment.reference}</span>
-                                               </div>
-                                               <button
-                                                 type="button"
-                                                 onClick={() => removePayment(index)}
+                                {/* Added Payments List */}
+                                {formData.payment.length > 0 && (
+                                  <div className="border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-secondary))]/30">
+                                    <div className="px-3 py-2 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))]/50">
+                                      <h4 className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">
+                                        Added Payments ({formData.payment.length})
+                                      </h4>
+                                    </div>
+                                    <div className="max-h-48 overflow-y-auto">
+                                      <div className="divide-y divide-[rgb(var(--color-border-primary))]">
+                                        {formData.payment.map((payment, index) => (
+                                          <div key={index} className="px-3 py-3 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
+                                            <div className="flex items-center justify-between">
+                                              <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                  <span className="text-xs font-medium text-[rgb(var(--color-text-primary))]">{payment.method}</span>
+                                                  <span className="text-xs text-[rgb(var(--color-text-secondary))] bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                                                    ₹{payment.amount}
+                                                  </span>
+                                                </div>
+                                                <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate block">{payment.reference}</span>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() => removePayment(index)}
                                                 className="flex-shrink-0 p-1.5 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-md transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                                                 title="Remove payment"
-                                               >
-                                                 <Trash2 className="w-3 h-3" />
-                                               </button>
-                                             </div>
-                                           </div>
-                                         ))}
-                                       </div>
-                                     </div>
-                                   </div>
-                                 )}
-                               </div>
-                             )}
-                           </div>
-                         </Card>
+                                                title="Remove payment"
+                                              >
+                                                <Trash2 className="w-3 h-3" />
+                                              </button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </Card>
 
-                         {/* Error Display */}
-                         {createError && (
-                           <Card>
-                             <div className="p-6">
-                               <div className="flex items-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
-                                 <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                                 <span className="text-sm font-medium">{createError}</span>
-                               </div>
-                             </div>
-                           </Card>
-                         )}
-                       </div>
+                        {/* Error Display */}
+                        {createError && (
+                          <Card>
+                            <div className="p-6">
+                              <div className="flex items-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
+                                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <span className="text-sm font-medium">{createError}</span>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
+                      </div>
 
-                       {/* Right Column - Products & Items Section */}
-                       <div>
+                      {/* Right Column - Products & Items Section */}
+                      <div>
                         <Card className="sticky top-0">
                           <div className="p-4">
-                               <div className="flex items-center mb-6">
-                              <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                            <div className="flex items-center mb-6">
+                              <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3">
                                 <Package className="w-5 h-5" style={{ color: 'rgb(var(--color-success))' }} />
-                                 </div>
-                                 <div>
-                                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Products & Items</h3>
-                                   <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add products to your purchase order</p>
-                                 </div>
-                               </div>
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Products & Items</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add products to your purchase order</p>
+                              </div>
+                            </div>
 
-                               {/* Add Item Form */}
-                               <div className="bg-[rgb(var(--color-bg-tertiary))]/50 rounded-lg p-4 mb-6">
-                                 <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">Add New Item</h4>
-                                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                                   <div className="md:col-span-7">
-                                     <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Product *</label>
+                            {/* Add Item Form */}
+                            <div className="bg-[rgb(var(--color-bg-tertiary))]/50 rounded-lg p-4 mb-6">
+                              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">Add New Item</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                                <div className="md:col-span-7">
+                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Product *</label>
                                   <Select value={tempProduct}
-                                       onChange={(value) => setTempProduct(value)}
-                                       options={[
-                                         { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
-                                         ...products.filter(p => p.name || p.productName).map(p => ({ value: p.id || p._id, label: p.name || p.productName }))
-                                       ]}
-                                       error={errors.add_product}
-                                       disabled={productsLoading}
-                                       leftIcon={Package}
-                                       size="sm"
-                                       searchable={true}
-                                       placeholder="Search and select product..."
-                                     />
-                                   </div>
+                                    onChange={(value) => setTempProduct(value)}
+                                    options={[
+                                      { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
+                                      ...products.filter(p => p.name || p.productName).map(p => ({ value: p.id || p._id, label: p.name || p.productName }))
+                                    ]}
+                                    error={errors.add_product}
+                                    disabled={productsLoading}
+                                    leftIcon={Package}
+                                    size="sm"
+                                    searchable={true}
+                                    placeholder="Search and select product..."
+                                  />
+                                </div>
 
-                                   <div className="md:col-span-3">
-                                     <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Quantity *</label>
-                                     <Input
-                                       type="number"
-                                       value={tempQuantity}
-                                       onChange={(value) => setTempQuantity(value)}
-                                       placeholder="1"
-                                       min="1"
-                                       step="1"
-                                       error={errors.add_quantity}
-                                       leftIcon={Package}
-                                       size="sm"
-                                     />
-                                   </div>
+                                <div className="md:col-span-3">
+                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Quantity *</label>
+                                  <Input
+                                    type="number"
+                                    value={tempQuantity}
+                                    onChange={(value) => setTempQuantity(value)}
+                                    placeholder="1"
+                                    min="1"
+                                    step="1"
+                                    error={errors.add_quantity}
+                                    leftIcon={Package}
+                                    size="sm"
+                                  />
+                                </div>
 
-                                   <div className="md:col-span-2">
+                                <div className="md:col-span-2">
                                   <AddActionButton onClick={addItem} fullWidth label="Add" title="Add new item" />
-                                   </div>
-                                 </div>
-                               </div>
+                                </div>
+                              </div>
+                            </div>
 
-                               {/* Items List */}
-                               {formData.products.length > 0 ? (
-                                 <div className="bg-[rgb(var(--color-bg-tertiary))]/30 rounded-lg border border-[rgb(var(--color-border-primary))]">
-                                   <div className="px-4 py-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
-                                     <div className="flex items-center justify-between">
-                                       <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                         Added Items ({formData.products.length})
-                                       </h4>
-                                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                         Total: {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)} items
-                                       </div>
-                                     </div>
-                                   </div>
+                            {/* Items List */}
+                            {formData.products.length > 0 ? (
+                              <div className="bg-[rgb(var(--color-bg-tertiary))]/30 rounded-lg border border-[rgb(var(--color-border-primary))]">
+                                <div className="px-4 py-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                      Added Items ({formData.products.length})
+                                    </h4>
+                                    <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                                      Total: {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)} items
+                                    </div>
+                                  </div>
+                                </div>
 
-                                   <div className="divide-y divide-[rgb(var(--color-border-primary))]">
-                                     {formData.products.map((item, index) => (
-                                       <div key={index} className="px-4 py-4 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
-                                         <div className="flex items-center justify-between">
-                                           <div className="flex items-center gap-4 flex-1 min-w-0">
+                                <div className="divide-y divide-[rgb(var(--color-border-primary))]">
+                                  {formData.products.map((item, index) => (
+                                    <div key={index} className="px-4 py-4 hover:bg-[rgb(var(--color-bg-secondary))]/30 transition-colors duration-200 group">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4 flex-1 min-w-0">
                                           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
                                             <Package className="w-4 h-4" style={{ color: 'rgb(var(--color-primary))' }} />
-                                             </div>
-                                             <div className="flex-1 min-w-0">
-                                               <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
-                                                 {item.productName || 'Selected Product'}
-                                               </span>
-                                               <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                                 Product ID: {item.product}
-                                               </span>
-                                             </div>
-                                             <div className="flex-shrink-0">
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
+                                              {item.productName || 'Selected Product'}
+                                            </span>
+                                            <span className="text-xs text-[rgb(var(--color-text-secondary))]">
+                                              Product ID: {item.product}
+                                            </span>
+                                          </div>
+                                          <div className="flex-shrink-0">
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)', color: 'rgb(var(--color-primary))' }}>
-                                                 Qty: {item.quantity}
-                                               </span>
-                                             </div>
-                                           </div>
-                                           <button
-                                             type="button"
-                                             onClick={() => removeItem(index)}
+                                              Qty: {item.quantity}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => removeItem(index)}
                                           className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                                             title="Remove item"
-                                           >
-                                             <Trash2 className="w-4 h-4" />
-                                           </button>
-                                         </div>
-                                       </div>
-                                     ))}
-                                   </div>
-                                 </div>
-                               ) : (
-                                 <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
-                                   <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                   <p className="text-sm">No items added yet</p>
-                                   <p className="text-xs">Add products to create your purchase order</p>
-                                 </div>
-                               )}
-                             </div>
-                           </Card>
-                       </div>
+                                          title="Remove item"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
+                                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                <p className="text-sm">No items added yet</p>
+                                <p className="text-xs">Add products to create your purchase order</p>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
 
                     </div>
                   </div>
