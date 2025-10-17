@@ -37,7 +37,8 @@ const AddProductPage = () => {
       isGstApplicable: false,
       gstRate: '',
       gstType: 'CGST_SGST',
-      hsnCode: ''
+      hsnCode: '',
+      isGstIncluded: false
     },
     content: {
       shortDescription: '',

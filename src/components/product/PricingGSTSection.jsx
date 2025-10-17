@@ -22,14 +22,56 @@ const PricingGSTSection = ({
     { value: 'UTGST', label: 'UTGST', description: 'Union Territory GST' }
   ];
 
-  // Calculate GST amount
+  // Calculate GST amount based on include/exclude option
   const calculateGSTAmount = () => {
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
     const gstRate = parseFloat(formData.gstInfo?.gstRate) || 0;
-    return (sellingPrice * gstRate) / 100;
+    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
+    
+    if (isGstIncluded) {
+      // If GST is included, calculate GST from the selling price
+      // GST = (Selling Price * GST Rate) / (100 + GST Rate)
+      return (sellingPrice * gstRate) / (100 + gstRate);
+    } else {
+      // If GST is excluded, calculate GST on top of selling price
+      // GST = (Selling Price * GST Rate) / 100
+      return (sellingPrice * gstRate) / 100;
+    }
+  };
+
+  // Calculate base price (price without GST)
+  const calculateBasePrice = () => {
+    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
+    const gstAmount = calculateGSTAmount();
+    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
+    
+    if (isGstIncluded) {
+      // If GST is included, base price = selling price - GST
+      return sellingPrice - gstAmount;
+    } else {
+      // If GST is excluded, base price = selling price
+      return sellingPrice;
+    }
+  };
+
+  // Calculate total price (selling price + GST if excluded)
+  const calculateTotalPrice = () => {
+    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
+    const gstAmount = calculateGSTAmount();
+    const isGstIncluded = formData.gstInfo?.isGstIncluded || false;
+    
+    if (isGstIncluded) {
+      // If GST is included, total = selling price
+      return sellingPrice;
+    } else {
+      // If GST is excluded, total = selling price + GST
+      return sellingPrice + gstAmount;
+    }
   };
 
   const gstAmount = calculateGSTAmount();
+  const basePrice = calculateBasePrice();
+  const totalPrice = calculateTotalPrice();
 
   return (
     <>
@@ -252,6 +294,48 @@ const PricingGSTSection = ({
               />
             </div>
 
+            {/* GST Include/Exclude Option */}
+            <div className="mb-6">
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                  GST Pricing Method
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gstIncluded"
+                      value="excluded"
+                      checked={!formData.gstInfo?.isGstIncluded}
+                      onChange={() => handleFieldChange('gstInfo.isGstIncluded', false)}
+                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                    />
+                    <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
+                      <span className="font-medium">GST Excluded</span>
+                      <span className="text-[rgb(var(--color-text-secondary))] ml-1">- GST will be added on top of selling price</span>
+                    </span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gstIncluded"
+                      value="included"
+                      checked={formData.gstInfo?.isGstIncluded}
+                      onChange={() => handleFieldChange('gstInfo.isGstIncluded', true)}
+                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                    />
+                    <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
+                      <span className="font-medium">GST Included</span>
+                      <span className="text-[rgb(var(--color-text-secondary))] ml-1">- Selling price already includes GST amount</span>
+                    </span>
+                  </label>
+                </div>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
+                  Choose how GST is calculated for this product
+                </p>
+              </div>
+            </div>
+
             {/* GST Summary */}
             {formData.gstInfo?.gstRate && formData.sellingPrice && (
               <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm">
@@ -262,9 +346,11 @@ const PricingGSTSection = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Selling Price:</span>
+                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                        {formData.gstInfo?.isGstIncluded ? 'Selling Price (GST Included):' : 'Base Price:'}
+                      </span>
                       <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                        ₹{parseFloat(formData.sellingPrice).toFixed(2)}
+                        ₹{formData.gstInfo?.isGstIncluded ? parseFloat(formData.sellingPrice).toFixed(2) : basePrice.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
@@ -277,6 +363,12 @@ const PricingGSTSection = ({
                       <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GST Type:</span>
                       <span className="font-medium text-[rgb(var(--color-text-primary))]">
                         {gstTypeOptions.find(type => type.value === formData.gstInfo?.gstType)?.label || formData.gstInfo?.gstType}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
+                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GST Status:</span>
+                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                        {formData.gstInfo?.isGstIncluded ? 'Included' : 'Excluded'}
                       </span>
                     </div>
                   </div>
@@ -298,7 +390,7 @@ const PricingGSTSection = ({
                     <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
                       <span className="text-sm font-medium text-green-700 dark:text-green-300 font-bold">Total Price:</span>
                       <span className="font-bold text-green-600 dark:text-green-400">
-                        ₹{(parseFloat(formData.sellingPrice) + gstAmount).toFixed(2)}
+                        ₹{totalPrice.toFixed(2)}
                       </span>
                     </div>
                   </div>

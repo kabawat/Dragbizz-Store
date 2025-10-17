@@ -111,7 +111,8 @@ const UpdateProductPage = ({ productId }) => {
               isGstApplicable: product.gstInfo?.isGstApplicable || false,
               gstRate: product.gstInfo?.gstRate || '',
               gstType: product.gstInfo?.gstType || 'CGST_SGST',
-              hsnCode: product.gstInfo?.hsnCode || ''
+              hsnCode: product.gstInfo?.hsnCode || '',
+              isGstIncluded: product.gstInfo?.isGstIncluded || false
             },
             // Content data from nested content object
             content: {
