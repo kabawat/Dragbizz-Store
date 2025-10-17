@@ -27,11 +27,6 @@ const PrintPreviewPage = () => {
     const storeId = selectedStore?.storeId;
 
     const invoiceId = searchParams.get('id');
-    
-    // Debug logging
-    useEffect(() => {
-        console.log('Print Preview Page - URL params:', { invoiceId, searchParams: searchParams.toString() });
-    }, [invoiceId, searchParams]);
 
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState(null);
@@ -59,10 +54,7 @@ const PrintPreviewPage = () => {
             try {
                 setFetching(true);
                 setError(null);
-                console.log('Fetching invoice data:', { invoiceId, storeId });
-
                 const result = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
-                console.log('Invoice fetch result:', result);
                 
                 if (result.success && result.data) {
                     setInvoiceData(result.data);
@@ -92,9 +84,8 @@ const PrintPreviewPage = () => {
         window.print();
     };
 
-    // Handle download PDF (placeholder)
+    // Handle download PDF 
     const handleDownloadPDF = () => {
-        // This would typically generate and download a PDF
         alert('PDF download feature coming soon!');
     };
 

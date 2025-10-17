@@ -10,14 +10,7 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex justify-center mb-6">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
+              <Image className="dark:invert" src="/next.svg" alt="Next.js logo" width={180} height={38} priority />
             </div>
             <h1 className="text-5xl font-bold mb-4 gradient-text">
               DragBizz Store
@@ -91,7 +84,7 @@ export default function Home() {
                 Experience our theme system in action
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-xl font-semibold mb-4">Available Themes</h3>
@@ -114,7 +107,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <h3 className="text-xl font-semibold mb-4">How to Use</h3>
                 <div className="space-y-4">

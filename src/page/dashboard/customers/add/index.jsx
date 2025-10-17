@@ -138,34 +138,24 @@ const AddCustomerPage = () => {
       } else {
         if (result?.error && result?.error?.data) {
           const errorFields = result?.error?.data?.fields || {};
-          console.log('API Error Fields:', errorFields); // Debug log
-          
-          // Convert API error format to our format
           const convertedErrors = {};
           Object.keys(errorFields).forEach(key => {
-            // Convert addresses[0].pincode to addresses.0.pincode
             const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
             convertedErrors[convertedKey] = errorFields[key];
           });
           
-          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          // Set converted error fields
           setFieldErrors(convertedErrors);
         }
       }
 
     } catch (error) {
-      console.error('Customer creation error:', error); // Debug log
-      
-      // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        console.log('Error Response Data:', errorData); // Debug log
+        // Process error response data
         
         if (errorData.data && errorData.data.fields) {
           const errorFields = errorData.data.fields;
-          console.log('Error Fields from API:', errorFields); // Debug log
-          
-          // Convert API error format to our format
           const convertedErrors = {};
           Object.keys(errorFields).forEach(key => {
             // Convert addresses[0].pincode to addresses.0.pincode
@@ -173,13 +163,9 @@ const AddCustomerPage = () => {
             convertedErrors[convertedKey] = errorFields[key];
           });
           
-          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          // Set converted error fields
           setFieldErrors(convertedErrors);
         } else if (errorData.fields) {
-          // Handle case where fields are directly in errorData
-          console.log('Error Fields (direct):', errorData.fields); // Debug log
-          
-          // Convert API error format to our format
           const convertedErrors = {};
           Object.keys(errorData.fields).forEach(key => {
             // Convert addresses[0].pincode to addresses.0.pincode
@@ -187,7 +173,7 @@ const AddCustomerPage = () => {
             convertedErrors[convertedKey] = errorData.fields[key];
           });
           
-          console.log('Converted Error Fields:', convertedErrors); // Debug log
+          // Set converted error fields
           setFieldErrors(convertedErrors);
         }
       } else {

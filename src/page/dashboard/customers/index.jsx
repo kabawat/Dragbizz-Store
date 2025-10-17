@@ -37,11 +37,6 @@ const CustomersPage = () => {
     nextCursor: null
   });
 
-  // Debug customer data
-  console.log('Customer List - Customers data:', customers);
-  console.log('Customer List - Customers loading:', isLoading);
-  console.log('Customer List - Customers error:', error);
-
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Handle error display
@@ -115,8 +110,6 @@ const CustomersPage = () => {
   // Fetch customers from API
   const fetchCustomers = async (isLoadMore = false) => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-    console.log('Customer List - Selected store:', selectedStore);
-    console.log('Customer List - Store ID:', storeId);
     
     const params = {
       search: searchValue,
@@ -127,15 +120,11 @@ const CustomersPage = () => {
     if (storeId) {
       params.store = storeId;
     }
-
-    console.log('Customer List - Fetch params:', params);
-
     // Create a unique key for this fetch
     const fetchKey = `${storeId}-${searchValue}-${isLoadMore}`;
 
     // Prevent duplicate calls with same parameters
     if (lastFetchRef.current === fetchKey) {
-      console.log('Customer List - Duplicate fetch prevented');
       return;
     }
 
@@ -145,13 +134,10 @@ const CustomersPage = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log('Customer List - Calling customerService.getCustomers');
       const result = await customerService.getCustomers(params);
-      console.log('Customer List - API response:', result);
       
       if (result.success) {
         const customersData = result.data?.data || result.data || [];
-        console.log('Customer List - Customers data:', customersData);
         
         if (isLoadMore) {
           setCustomers(prev => [...prev, ...customersData]);
@@ -165,11 +151,9 @@ const CustomersPage = () => {
           nextCursor: result.data?.nextCursor || null
         });
       } else {
-        console.error('Customer List - API error:', result.message);
         setError(result.message || 'Failed to fetch customers');
       }
     } catch (error) {
-      console.error('Customer List - Fetch error:', error);
       setError(error.message || 'Failed to fetch customers');
     } finally {
       setIsLoading(false);
