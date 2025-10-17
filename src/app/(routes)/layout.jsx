@@ -15,7 +15,6 @@ export default function RoutesLayout({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       const authToken = cookieManager.getAuthToken();
-      console.log("authToken : ",authToken)
       if (!authToken) {
         router.push('/login');
         return;

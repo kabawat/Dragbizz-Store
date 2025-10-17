@@ -43,7 +43,6 @@ const SettingsPanel = () => {
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === 'Escape' && isOpen) {
-        console.log('Closing drawer via Escape key'); // Debug log
         setIsOpen(false);
       }
     };
@@ -69,7 +68,6 @@ const SettingsPanel = () => {
           const isClickOnSettingsButton = settingsButton.contains(event.target);
           
           if (!isClickInsideDrawer && !isClickOnSettingsButton) {
-            console.log('Closing drawer via click outside'); // Debug log
             setIsOpen(false);
           }
         }

@@ -8,11 +8,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
   const [showShippingAddress, setShowShippingAddress] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
 
-  // Debug log to see field errors
-  useEffect(() => {
-    console.log('CustomerForm fieldErrors:', fieldErrors);
-  }, [fieldErrors]);
-
   // Show addresses if they exist in formData
   useEffect(() => {
     if (formData.addresses) {
@@ -90,12 +85,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     onChange(fieldName, value);
   };
 
-  const handleCompanyDetailsChange = (fieldName, value) => {
-    // Clear error for this field when user starts typing
-    if (fieldErrors[`companyDetails.${fieldName}`]) {
-      // This will be handled by parent component's error clearing logic
-    }
-    
+  const handleCompanyDetailsChange = (fieldName, value) => {    
     onChange('companyDetails', {
       ...formData.companyDetails,
       [fieldName]: value
@@ -106,7 +96,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     // Clear error for this field when user starts typing
     const errorKey = `addresses.billing.${fieldName}`;
     if (fieldErrors[errorKey]) {
-      console.log(`Clearing error for ${errorKey}`);
       onChange('clearError', errorKey);
     }
     
@@ -124,7 +113,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     // Clear error for this field when user starts typing
     const errorKey = `addresses.shipping.${fieldName}`;
     if (fieldErrors[errorKey]) {
-      console.log(`Clearing error for ${errorKey}`);
       onChange('clearError', errorKey);
     }
     
