@@ -29,6 +29,7 @@ import StockInDrawer from './StockInDrawer';
 import AddActionButton from './AddActionButton';
 import SendMenu from './SendMenu';
 import ActionMenu from './ActionMenu';
+import SideDrawer from './SideDrawer';
 
 // Named exports
 export {
@@ -84,7 +85,8 @@ export {
   StockInDrawer,
   AddActionButton,
   SendMenu,
-  ActionMenu
+  ActionMenu,
+  SideDrawer
 };
 
 // Default export
@@ -141,5 +143,6 @@ export default {
   StockInDrawer,
   AddActionButton,
   SendMenu,
-  ActionMenu
+  ActionMenu,
+  SideDrawer
 };

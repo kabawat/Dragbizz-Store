@@ -60,14 +60,47 @@ const PurchaseOrderTable = ({
     const buildShareUrl = (row) => {
         if (typeof window === 'undefined') return '';
         const base = window.location.origin;
-        const path = getShareUrl ? getShareUrl(row) : `/dashboard/purchase-orders/${row._id || row.id}`;
+        // Use publicId for public sharing, fallback to _id if publicId doesn't exist
+        const publicId = row.publicId || row._id || row.id;
+        const path = `/view/purchase-order/${publicId}`;
         return `${base}${path}`;
     };
 
     const handleCopy = async (text) => {
         try {
-            if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(text);
-        } catch { }
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+                // You can add a toast notification here
+                console.log('Link copied to clipboard:', text);
+            }
+        } catch (error) {
+            console.error('Failed to copy link:', error);
+        }
+    };
+
+    const handleWhatsAppShare = (row) => {
+        const shareUrl = buildShareUrl(row);
+        const message = `Hello *${row.supplier?.name || 'Supplier'}*, Thanks for your business! *Purchase Order: ${row.billNumber || row.poNumber || 'N/A'}* *Link:* ${shareUrl} Thanks *${row.store?.name || 'DragBizz Store'}* *${row.store?.phone || 'N/A'}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
+        
+        // Get supplier's phone number and format it for WhatsApp
+        const supplierPhone = row.supplier?.phone;
+        if (supplierPhone) {
+            // Remove any non-digit characters and ensure it starts with country code
+            const cleanPhone = supplierPhone.replace(/\D/g, '');
+            const whatsappPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+            window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        } else {
+            // Fallback to general WhatsApp if no phone number
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        setOpenSendMenuId(null);
+    };
+
+    const handleCopyLink = (row) => {
+        const shareUrl = buildShareUrl(row);
+        handleCopy(shareUrl);
+        setOpenSendMenuId(null);
     };
 
     return (
@@ -188,10 +221,13 @@ const PurchaseOrderTable = ({
                                                         title="Send"
                                                         className="h-9 px-3 rounded-lg"
                                                     />
-
                                                     {openSendMenuId === (row._id || row.id) && (
                                                         <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                                                            <button className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer" style={{ color: '#25D366' }}>
+                                                            <button 
+                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200" 
+                                                                style={{ color: '#25D366' }}
+                                                                onClick={() => handleWhatsAppShare(row)}
+                                                            >
                                                                 <MessageCircle className="w-4 h-4" /> WhatsApp
                                                             </button>
                                                             <button className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer" style={{ color: '#2563EB' }}>
@@ -201,7 +237,11 @@ const PurchaseOrderTable = ({
                                                                 <MessageSquare className="w-4 h-4" /> Message
                                                             </button>
                                                             <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                                            <button className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer" style={{ color: '#7C3AED' }}>
+                                                            <button 
+                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200" 
+                                                                style={{ color: '#7C3AED' }}
+                                                                onClick={() => handleCopyLink(row)}
+                                                            >
                                                                 <Copy className="w-4 h-4" /> Copy link
                                                             </button>
                                                         </div>

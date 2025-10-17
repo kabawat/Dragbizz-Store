@@ -1,6 +1,6 @@
 import API_CONFIG from '@/config/api.config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { retailerAxios, unauthAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class PurchaseOrderService {
@@ -41,6 +41,30 @@ class PurchaseOrderService {
       return handleApiSuccess(response?.data, 'Purchase order updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'po-update');
+    }
+  }
+
+  async getPurchaseOrder(poId, storeId = null) {
+    try {
+      let url = `${API_CONFIG?.RETAILER?.PURCHASE_ORDER}/${poId}`;
+      if (storeId) {
+        url = attachQueryParams(url, { store: storeId });
+      }
+      const response = await retailerAxios.get(url);
+      return handleApiSuccess(response?.data, 'Purchase order fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'po-details');
+    }
+  }
+
+  async getPublicPurchaseOrder(poId) {
+    try {
+      const response = await unauthAxios.post('/retailer/public/purchase-orders', {
+        id: poId
+      });
+      return handleApiSuccess(response?.data, 'Public purchase order fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'public-po-details');
     }
   }
 

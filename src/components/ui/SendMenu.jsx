@@ -29,7 +29,9 @@ const SendMenu = ({
   const buildShareUrl = (item) => {
     if (typeof window === 'undefined') return '';
     const base = window.location.origin;
-    const path = getShareUrl ? getShareUrl(item) : `/${item._id || item.id}`;
+    // Use publicId for public sharing, fallback to _id if publicId doesn't exist
+    const publicId = item.publicId || item._id || item.id;
+    const path = `/view/purchase-order/${publicId}`;
     return `${base}${path}`;
   };
 
@@ -38,7 +40,7 @@ const SendMenu = ({
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
         // You can add a toast notification here
-      }
+      } 
     } catch (error) {
       console.error('Failed to copy:', error);
     }
@@ -46,16 +48,41 @@ const SendMenu = ({
 
   const handleWhatsAppShare = () => {
     const shareUrl = buildShareUrl(item);
-    const message = `Purchase Order: ${item.billNumber || item.poNumber}\nAmount: ${formatCurrency(item.totalAmount)}\nSupplier: ${item.supplier?.name || 'N/A'}\n\nView details: ${shareUrl}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    
+    // Create properly formatted WhatsApp message
+    const message = `Hello *${item.supplier?.name || 'Supplier'}*, Thanks for your business! *Purchase Order: ${item.billNumber || item.poNumber || 'N/A'}* *Link:* ${shareUrl} Thanks *${item.store?.name || 'DragBizz Store'}* *${item.store?.phone || 'N/A'}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
+    
+    // Get supplier's phone number and format it for WhatsApp
+    const supplierPhone = item.supplier?.phone;
+    if (supplierPhone) {
+      // Remove any non-digit characters and ensure it starts with country code
+      const cleanPhone = supplierPhone.replace(/\D/g, '');
+      const whatsappPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+      window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      // Fallback to general WhatsApp if no phone number
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    }
+    
     setIsOpen(false);
     onShare?.('whatsapp', item);
   };
 
   const handleEmailShare = () => {
     const shareUrl = buildShareUrl(item);
-    const subject = `Purchase Order: ${item.billNumber || item.poNumber}`;
-    const body = `Purchase Order Details:\n\nPO Number: ${item.billNumber || item.poNumber}\nAmount: ${formatCurrency(item.totalAmount)}\nSupplier: ${item.supplier?.name || 'N/A'}\nExpected Delivery: ${formatDate(item.dueDate)}\n\nView details: ${shareUrl}`;
+    const subject = `Purchase Order: ${item.billNumber || item.poNumber} - ${item.store?.name || 'DragBizz Store'}`;
+    const body = `Purchase Order Details\n\n` +
+      `PO Number: ${item.billNumber || item.poNumber || 'N/A'}\n` +
+      `Store: ${item.store?.name || 'DragBizz Store'}\n` +
+      `Supplier: ${item.supplier?.name || 'N/A'}\n` +
+      `Total Amount: ${formatCurrency(item.totalAmount)}\n` +
+      `PO Date: ${formatDate(item.billDate || item.poDate)}\n` +
+      `Expected Delivery: ${formatDate(item.dueDate || item.expectedDeliveryDate)}\n` +
+      `Items: ${item.items?.length || 0} items\n` +
+      `Store Contact: ${item.store?.phone || 'N/A'}\n` +
+      `Store Email: ${item.store?.email || 'N/A'}\n\n` +
+      `View Full Details: ${shareUrl}\n\n` +
+      `Powered by DragBizz Store Management`;
     window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
     setIsOpen(false);
     onShare?.('email', item);
@@ -63,7 +90,15 @@ const SendMenu = ({
 
   const handleSMSShare = () => {
     const shareUrl = buildShareUrl(item);
-    const message = `Purchase Order: ${item.billNumber || item.poNumber}\nAmount: ${formatCurrency(item.totalAmount)}\nSupplier: ${item.supplier?.name || 'N/A'}\n\nView details: ${shareUrl}`;
+    const message = `Purchase Order Details\n\n` +
+      `PO: ${item.billNumber || item.poNumber || 'N/A'}\n` +
+      `Store: ${item.store?.name || 'DragBizz Store'}\n` +
+      `Supplier: ${item.supplier?.name || 'N/A'}\n` +
+      `Amount: ${formatCurrency(item.totalAmount)}\n` +
+      `Delivery: ${formatDate(item.dueDate || item.expectedDeliveryDate)}\n` +
+      `Items: ${item.items?.length || 0}\n\n` +
+      `View: ${shareUrl}\n\n` +
+      `DragBizz Store Management`;
     window.open(`sms:?body=${encodeURIComponent(message)}`, '_blank');
     setIsOpen(false);
     onShare?.('sms', item);

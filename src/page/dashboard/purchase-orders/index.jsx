@@ -385,7 +385,6 @@ const PurchaseOrders = () => {
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}
-                      getShareUrl={(row) => `/dashboard/purchase-orders/${row._id || row.id}`}
                     />
                   ) : (
                     <PurchaseOrderGrid
@@ -405,7 +404,6 @@ const PurchaseOrders = () => {
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}
-                      getShareUrl={(row) => `/dashboard/purchase-orders/${row._id || row.id}`}
                     />
                   )}
                 </div>
