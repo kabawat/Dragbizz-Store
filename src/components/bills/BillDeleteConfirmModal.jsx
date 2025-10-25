@@ -7,7 +7,8 @@ const BillDeleteConfirmModal = ({
   onClose,
   onConfirm,
   billToDelete,
-  formatCurrency
+  formatCurrency,
+  isDeleting = false
 }) => {
   return (
     <Modal
@@ -30,14 +31,20 @@ const BillDeleteConfirmModal = ({
           <Button
             variant="outline"
             onClick={onClose}
+            disabled={isDeleting}
           >
             Cancel
           </Button>
           <Button
             variant="danger"
             onClick={onConfirm}
+            disabled={isDeleting}
+            className="flex items-center gap-2"
           >
-            Delete Bill
+            {isDeleting && (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            )}
+            {isDeleting ? 'Deleting...' : 'Delete Bill'}
           </Button>
         </div>
       </div>

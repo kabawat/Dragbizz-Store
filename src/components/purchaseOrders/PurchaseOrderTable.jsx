@@ -150,7 +150,7 @@ const PurchaseOrderTable = ({
             </div>
 
             {/* Scrollable Body */}
-            <div className="overflow-auto min-h-[calc(100vh-400px)]">
+            <div className="overflow-auto min-h-[calc(100vh-300px)]">
                 <table className="w-full min-w-[800px] table-fixed">
                     <tbody className="divide-y divide-gray-100">
                         {bills.map((row) => {

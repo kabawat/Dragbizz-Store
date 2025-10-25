@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { supplierService, productService, billService, purchaseOrderService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
@@ -44,6 +44,7 @@ const formInit = {
 }
 const CreateBill = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Local state for suppliers
@@ -137,6 +138,24 @@ const CreateBill = () => {
       setPurchaseOrdersLoading(false);
     }
   };
+
+  // Handle URL parameters for purchase order
+  useEffect(() => {
+    const poNumber = searchParams.get('poNumber');
+    
+    if (poNumber && purchaseOrders.length > 0) {
+      const foundPO = purchaseOrders.find(po => 
+        (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber
+      );
+      if (foundPO) {
+        // Pre-fill the purchase order field with the PO ID
+        setFormData(prev => ({
+          ...prev,
+          purchaseOrder: foundPO.id || foundPO._id
+        }));
+      }
+    }
+  }, [searchParams, purchaseOrders]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -388,7 +407,10 @@ const CreateBill = () => {
         {/* Header */}
         <Header
           title="Create Bill"
-          description="Add new purchase bill to track inventory purchases"
+          description={searchParams.get('poNumber') ? 
+            `Bill for Purchase Order #${searchParams.get('poNumber')}` : 
+            "Add new purchase bill to track inventory purchases"
+          }
         />
 
         {/* Main Content */}
