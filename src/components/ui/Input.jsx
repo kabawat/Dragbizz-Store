@@ -74,7 +74,7 @@ const Input = forwardRef(({
     <div className="relative">
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+        <label className="block text-sm text-[rgb(var(--color-text-primary))] mb-2">
           <span className="flex items-center gap-2">
             <span>{label}</span>
             {required && <span className="text-red-500">*</span>}

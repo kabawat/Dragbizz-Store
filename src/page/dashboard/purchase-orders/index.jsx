@@ -21,6 +21,7 @@ import { Button, Input } from '@/components/ui';
 // Import dedicated purchase order components
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
 import PurchaseOrderGrid from '@/components/purchaseOrders/PurchaseOrderGrid';
+import CreateBillDrawer from '@/components/purchaseOrders/CreateBillDrawer';
 import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
 
 const PurchaseOrders = () => {
@@ -42,6 +43,10 @@ const PurchaseOrders = () => {
   const scrollRef = useRef(null);
   const [viewMode, setViewMode] = useState('table');
   const lastFetchRef = useRef({ storeId: null, search: null, cursor: null });
+  
+  // Create Bill Drawer state
+  const [showCreateBillDrawer, setShowCreateBillDrawer] = useState(false);
+  const [selectedPOForBill, setSelectedPOForBill] = useState(null);
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -101,6 +106,16 @@ const PurchaseOrders = () => {
         break;
       case 'edit':
         router.push(`/dashboard/purchase-orders/${po._id || po.id}/edit`);
+        break;
+      case 'createBill':
+        // Open create bill drawer with purchase order data
+        setSelectedPOForBill(po);
+        setShowCreateBillDrawer(true);
+        setOpenMenuId(null);
+        break;
+      case 'advancePayment':
+        // Handle advance payment functionality
+        // TODO: Implement advance payment modal or redirect
         break;
       case 'delete':
         handleDelete(po);
@@ -450,6 +465,21 @@ const PurchaseOrders = () => {
         onConfirm={confirmDelete}
         billToDelete={poToDelete}
         formatCurrency={formatCurrency}
+      />
+
+      {/* Create Bill Drawer */}
+      <CreateBillDrawer
+        isOpen={showCreateBillDrawer}
+        onClose={() => {
+          setShowCreateBillDrawer(false);
+          setSelectedPOForBill(null);
+        }}
+        purchaseOrder={selectedPOForBill}
+        onSuccess={(bill) => {
+          // Handle successful bill creation
+          console.log('Bill created successfully:', bill);
+          // You can add toast notification or refresh data here
+        }}
       />
     </div>
   );

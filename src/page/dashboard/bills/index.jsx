@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { BillTable, BillGrid, BillDeleteConfirmModal } from '@/components/bills';
+import { billService } from '@/service/retailer';
 
 const Bills = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const Bills = () => {
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const scrollRef = useRef(null);
   const lastFetchRef = useRef({ storeId: null, searchValue: null });
@@ -299,12 +301,30 @@ const Bills = () => {
   };
 
   // Confirm delete
-  const confirmDelete = () => {
-    if (billToDelete) {
-      // Implement delete logic here
-      console.log('Deleting bill:', billToDelete._id || billToDelete.id);
-      setShowDeleteModal(false);
-      setBillToDelete(null);
+  const confirmDelete = async () => {
+    if (!billToDelete) return;
+
+    const billId = billToDelete._id || billToDelete.id;
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    setIsDeleting(true);
+    try {
+      const result = await billService.deleteBill(billId, storeId);
+      
+      if (result.success) {
+        // Refresh bills list after successful deletion
+        dispatch(getBills({ store: storeId }));
+        setShowDeleteModal(false);
+        setBillToDelete(null);
+      } else {
+        console.error('Failed to delete bill:', result.message);
+        // You can add a toast notification here
+      }
+    } catch (error) {
+      console.error('Error deleting bill:', error);
+      // You can add a toast notification here
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -566,6 +586,7 @@ const Bills = () => {
         onConfirm={confirmDelete}
         billToDelete={billToDelete}
         formatCurrency={formatCurrency}
+        isDeleting={isDeleting}
       />
     </div>
   );
