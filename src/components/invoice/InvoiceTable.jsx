@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Calendar, DollarSign, User, Settings, Printer, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Calendar, IndianRupee, User, Settings, Printer, CheckCircle } from 'lucide-react';
 
 const InvoiceTable = ({
   invoices = [],

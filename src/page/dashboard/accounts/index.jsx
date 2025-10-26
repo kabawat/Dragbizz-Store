@@ -185,10 +185,7 @@ const Accounts = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title="Supplier Accounts"
-          description="Manage supplier accounts and credit limits"
-        />
+        <Header title="Supplier Accounts" description="Manage supplier accounts and credit limits" />
 
         {/* Main Content */}
         <div className="flex-1 p-6">

@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -17,15 +17,24 @@ const Checkbox = ({
   name,
   id,
   value,
+  indeterminate,
   ...props
 }) => {
   const { currentVariant, themeConfig } = useTheme();
+  const checkboxRef = useRef(null);
+  
+  // Set indeterminate property on the input element
+  useEffect(() => {
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = indeterminate || false;
+    }
+  }, [indeterminate]);
   
   // Size variants
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-5 h-5'
   };
   
   const iconSizes = {
@@ -40,7 +49,7 @@ const Checkbox = ({
   // State classes
   const stateClasses = error
     ? 'border-red-500 focus:ring-red-500'
-    : checked
+    : checked || indeterminate
     ? 'focus:ring-blue-500'
     : 'focus:ring-blue-500';
   
@@ -54,10 +63,14 @@ const Checkbox = ({
     }
   };
   
+  // Determine if checkbox should show as filled (checked or indeterminate)
+  const isFilled = checked || indeterminate;
+  
   return (
     <div className="flex items-start space-x-3">
       <div className="relative flex-shrink-0">
         <input
+          ref={checkboxRef}
           type="checkbox"
           checked={checked}
           onChange={handleChange}
@@ -73,15 +86,26 @@ const Checkbox = ({
         <div 
           className={checkboxClasses}
           style={{
-            backgroundColor: checked ? themeConfig.primary : themeConfig.background,
-            borderColor: error ? '#ef4444' : checked ? themeConfig.primary : themeConfig.border,
-            color: checked ? '#ffffff' : themeConfig.text
+            backgroundColor: isFilled ? themeConfig.primary : themeConfig.background,
+            borderColor: error ? '#ef4444' : isFilled ? themeConfig.primary : themeConfig.border,
+            color: isFilled ? '#ffffff' : themeConfig.text
           }}
         >
           {checked && (
             <Check 
               className={`${iconSizes[size]} animate-bounce-in`}
               style={{ color: '#ffffff' }}
+            />
+          )}
+          {indeterminate && !checked && (
+            <div 
+              className={`${iconSizes[size]}`}
+              style={{ 
+                width: '60%', 
+                height: '2px', 
+                backgroundColor: '#ffffff',
+                margin: '0 auto'
+              }} 
             />
           )}
         </div>

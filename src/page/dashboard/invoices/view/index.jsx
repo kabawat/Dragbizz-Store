@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, FileText, Calendar, User, DollarSign, Package, Edit, Copy, Trash2, CheckCircle, Hash, IndianRupee, Clock, AlertCircle, XCircle, Printer } from 'lucide-react';
+import { ArrowLeft, FileText, Calendar, User, IndianRupee, Package, Edit, Copy, Trash2, CheckCircle, Hash, IndianRupee, Clock, AlertCircle, XCircle, Printer } from 'lucide-react';
 import moment from 'moment';
 
 // Import components

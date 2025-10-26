@@ -218,7 +218,7 @@ const AddCustomerPage = () => {
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
             {/* Back Button */}
-            <div className="mb-6">
+            <div className="mb-4">
               <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Customers</span>
@@ -229,7 +229,7 @@ const AddCustomerPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
               {/* Main Form - Left Side */}
               <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
+                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-228px)] min-h-[calc(100vh-228px)]">
                   <CustomerForm
                     formData={formData}
                     onChange={handleFormDataChange}
@@ -257,7 +257,7 @@ const AddCustomerPage = () => {
               {/* Tips Section - Right Side */}
               <div className="lg:col-span-1">
                 <div className="sticky top-6">
-                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
+                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
                         <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />

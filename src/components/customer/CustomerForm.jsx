@@ -212,7 +212,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
   return (
     <div className="space-y-6">
       {/* Basic Information Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -236,7 +236,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             helperText="Enter the full name of the customer"
             required
             leftIcon={User}
-            size="md"
+            size="sm"
           />
 
           {/* Phone Number */}
@@ -251,7 +251,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             helperText="Enter the customer's phone number"
             required
             leftIcon={Phone}
-            size="md"
+            size="sm"
           />
 
           {/* Email Address */}
@@ -265,13 +265,13 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             errorMessage={fieldErrors.email}
             helperText="Enter the customer's email address (optional)"
             leftIcon={Mail}
-            size="md"
+            size="sm"
           />
         </div>
       </div>
 
       {/* Company Details Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <Building2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -294,7 +294,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             errorMessage={fieldErrors['companyDetails.companyName']}
             helperText="Enter the company name"
             leftIcon={Building2}
-            size="md"
+            size="sm"
           />
 
           {/* GSTIN */}
@@ -308,13 +308,13 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             errorMessage={fieldErrors['companyDetails.gstin']}
             helperText="Enter 15-digit GSTIN number"
             leftIcon={FileText}
-            size="md"
+            size="sm"
           />
         </div>
       </div>
 
       {/* Addresses Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -380,7 +380,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   error={!!fieldErrors['addresses.billing.addressLine1']}
                   errorMessage={fieldErrors['addresses.billing.addressLine1']}
                   className="md:col-span-2"
-                  size="md"
+                  size="sm"
                 />
 
                 {/* City */}
@@ -392,7 +392,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleBillingAddressChange('city', value)}
                   error={!!fieldErrors['addresses.billing.city']}
                   errorMessage={fieldErrors['addresses.billing.city']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* State */}
@@ -404,7 +404,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleBillingAddressChange('state', value)}
                   error={!!fieldErrors['addresses.billing.state']}
                   errorMessage={fieldErrors['addresses.billing.state']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* Pincode */}
@@ -416,7 +416,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleBillingAddressChange('pincode', value)}
                   error={!!fieldErrors['addresses.billing.pincode']}
                   errorMessage={fieldErrors['addresses.billing.pincode']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* Country */}
@@ -428,7 +428,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleBillingAddressChange('country', value)}
                   error={!!fieldErrors['addresses.billing.country']}
                   errorMessage={fieldErrors['addresses.billing.country']}
-                  size="md"
+                  size="sm"
                 />
               </div>
             </div>
@@ -459,7 +459,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   error={!!fieldErrors['addresses.shipping.addressLine1']}
                   errorMessage={fieldErrors['addresses.shipping.addressLine1']}
                   className="md:col-span-2"
-                  size="md"
+                  size="sm"
                 />
 
                 {/* City */}
@@ -471,7 +471,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleShippingAddressChange('city', value)}
                   error={!!fieldErrors['addresses.shipping.city']}
                   errorMessage={fieldErrors['addresses.shipping.city']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* State */}
@@ -483,7 +483,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleShippingAddressChange('state', value)}
                   error={!!fieldErrors['addresses.shipping.state']}
                   errorMessage={fieldErrors['addresses.shipping.state']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* Pincode */}
@@ -495,7 +495,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleShippingAddressChange('pincode', value)}
                   error={!!fieldErrors['addresses.shipping.pincode']}
                   errorMessage={fieldErrors['addresses.shipping.pincode']}
-                  size="md"
+                  size="sm"
                 />
 
                 {/* Country */}
@@ -507,7 +507,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   onChange={(value) => handleShippingAddressChange('country', value)}
                   error={!!fieldErrors['addresses.shipping.country']}
                   errorMessage={fieldErrors['addresses.shipping.country']}
-                  size="md"
+                  size="sm"
                 />
               </div>
             </div>

@@ -30,6 +30,7 @@ import AddActionButton from './AddActionButton';
 import SendMenu from './SendMenu';
 import ActionMenu from './ActionMenu';
 import SideDrawer from './SideDrawer';
+import Table, { TableHeader, TableBody, TableRow, TableHead, TableCell } from './Table';
 
 // Named exports
 export {
@@ -86,7 +87,13 @@ export {
   AddActionButton,
   SendMenu,
   ActionMenu,
-  SideDrawer
+  SideDrawer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
 };
 
 // Default export
@@ -144,5 +151,11 @@ export default {
   AddActionButton,
   SendMenu,
   ActionMenu,
-  SideDrawer
+  SideDrawer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
 };

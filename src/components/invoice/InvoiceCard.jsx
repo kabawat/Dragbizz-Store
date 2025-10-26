@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, DollarSign, User, Printer, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const InvoiceCard = ({

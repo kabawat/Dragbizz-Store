@@ -60,6 +60,7 @@ const Sidebar = ({ onStoreChange }) => {
   const [isBillsDropdownOpen, setIsBillsDropdownOpen] = useState(false);
   const [isPaymentsDropdownOpen, setIsPaymentsDropdownOpen] = useState(false);
   const [isInvoicesDropdownOpen, setIsInvoicesDropdownOpen] = useState(false);
+  const [isExpensesDropdownOpen, setIsExpensesDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const productsDropdownRef = useRef(null);
   const customersDropdownRef = useRef(null);
@@ -69,6 +70,7 @@ const Sidebar = ({ onStoreChange }) => {
   const billsDropdownRef = useRef(null);
   const paymentsDropdownRef = useRef(null);
   const invoicesDropdownRef = useRef(null);
+  const expensesDropdownRef = useRef(null);
 
   // Use Redux stores data, fallback to mock data if not available
   const stores = reduxStores && reduxStores.length > 0
@@ -118,6 +120,12 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'View Invoice', icon: Eye, href: '/dashboard/invoices/view' },
   ];
 
+  const expenseSubMenuItems = [
+    { name: 'All Expenses', icon: Receipt, href: '/dashboard/expenses' },
+    { name: 'Add New Expense', icon: Plus, href: '/dashboard/expenses/add' },
+    { name: 'Expense Reports', icon: BarChart3, href: '/dashboard/expenses/reports' },
+  ];
+
   const purchaseSubMenuItems = [
     { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers', hasSubMenu: true, subMenuItems: suppliersSubMenuItems },
     { name: 'Purchase Orders', icon: ShoppingCart, href: '/dashboard/purchase-orders' },
@@ -135,7 +143,7 @@ const Sidebar = ({ onStoreChange }) => {
     // { name: 'AI Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
     // { name: 'Ledger', icon: BookOpen, href: '/dashboard/ledger' },
     // { name: 'Journal Entry', icon: FileText, href: '/dashboard/journal' },
-    { name: 'Daily Expenses', icon: IndianRupee, href: '/dashboard/expenses' },
+    { name: 'Daily Expenses', icon: IndianRupee, href: '/dashboard/expenses', hasSubMenu: true, subMenuItems: expenseSubMenuItems },
   ];
 
   const bottomItems = [
@@ -200,6 +208,11 @@ const Sidebar = ({ onStoreChange }) => {
     setIsInvoicesDropdownOpen(!isInvoicesDropdownOpen);
   };
 
+  const toggleExpensesDropdown = (e) => {
+    e.stopPropagation();
+    setIsExpensesDropdownOpen(!isExpensesDropdownOpen);
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -236,6 +249,9 @@ const Sidebar = ({ onStoreChange }) => {
       }
       if (invoicesDropdownRef.current && !invoicesDropdownRef.current.contains(event.target)) {
         setIsInvoicesDropdownOpen(false);
+      }
+      if (expensesDropdownRef.current && !expensesDropdownRef.current.contains(event.target)) {
+        setIsExpensesDropdownOpen(false);
       }
     };
 
@@ -346,6 +362,7 @@ const Sidebar = ({ onStoreChange }) => {
               const isBillsMenu = item.name === 'Bills';
               const isPaymentsMenu = item.name === 'Payments';
               const isInvoicesMenu = item.name === 'Invoices';
+              const isExpensesMenu = item.name === 'Daily Expenses';
 
               const dropdownRef = isProductAndStockMenu ? productsDropdownRef :
                 isCustomersMenu ? customersDropdownRef :
@@ -353,7 +370,8 @@ const Sidebar = ({ onStoreChange }) => {
                     isPurchaseMenu ? purchaseDropdownRef :
                       isBillsMenu ? billsDropdownRef :
                         isPaymentsMenu ? paymentsDropdownRef :
-                          invoicesDropdownRef;
+                          isInvoicesMenu ? invoicesDropdownRef :
+                            expensesDropdownRef;
 
               const isDropdownOpen = isProductAndStockMenu ? isProductsDropdownOpen :
                 isCustomersMenu ? isCustomersDropdownOpen :
@@ -361,7 +379,8 @@ const Sidebar = ({ onStoreChange }) => {
                     isPurchaseMenu ? isPurchaseDropdownOpen :
                       isBillsMenu ? isBillsDropdownOpen :
                         isPaymentsMenu ? isPaymentsDropdownOpen :
-                          isInvoicesDropdownOpen;
+                          isInvoicesMenu ? isInvoicesDropdownOpen :
+                            isExpensesDropdownOpen;
 
               const toggleDropdown = isProductAndStockMenu ? toggleProductsDropdown :
                 isCustomersMenu ? toggleCustomersDropdown :
@@ -369,7 +388,8 @@ const Sidebar = ({ onStoreChange }) => {
                     isPurchaseMenu ? togglePurchaseDropdown :
                       isBillsMenu ? toggleBillsDropdown :
                         isPaymentsMenu ? togglePaymentsDropdown :
-                          toggleInvoicesDropdown;
+                          isInvoicesMenu ? toggleInvoicesDropdown :
+                            toggleExpensesDropdown;
 
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>
