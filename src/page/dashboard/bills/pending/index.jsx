@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPendingBills, getBillStats } from '@/store/slices/billsSlice';
+import { getBills, getBillStats } from '@/store/slices/billsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -32,8 +32,9 @@ const PendingBills = () => {
   // Fetch pending bills and stats on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getPendingBills({ 
+      dispatch(getBills({ 
         store: selectedStore.id,
+        status: 'pending',
         limit: 20,
         page: 1
       }));

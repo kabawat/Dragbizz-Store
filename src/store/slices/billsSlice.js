@@ -55,13 +55,38 @@ export const getBillStats = createAsyncThunk(
   }
 );
 
+// Async thunk for getting bill reports
+export const getBillReports = createAsyncThunk(
+  'bills/getBillReports',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const result = await billService.getBills(params);
+      
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to fetch bill reports'
+        });
+      }
+
+      return {
+        success: true,
+        data: result.data,
+        message: 'Bill reports fetched successfully'
+      };
+    } catch (error) {
+      console.error('Bill Reports API Error:', error);
+      return rejectWithValue({
+        message: 'Failed to fetch bill reports. Please try again.'
+      });
+    }
+  }
+);
+
 // Note: CRUD operations (create, update, delete) are handled in separate pages/components
 
 const initialState = {
   // Bills data
   bills: [],
-
-  // Pagination
   pagination: {
     hasNextPage: false,
     nextCursor: null,
@@ -134,6 +159,23 @@ const billsSlice = createSlice({
       .addCase(getBillStats.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload.message;
+      })
+
+      // Get bill reports
+      .addCase(getBillReports.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getBillReports.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        const responseData = action.payload.data;
+        state.bills = responseData?.data || responseData || [];
+        state.pagination = responseData?.meta?.pagination || initialState.pagination;
+      })
+      .addCase(getBillReports.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload.message;
       });
   }
 });
@@ -143,6 +185,13 @@ export const {
   setCurrentFilter,
   addMoreBills
 } = billsSlice.actions;
+
+// Export async thunks
+export {
+  getBills,
+  getBillStats,
+  getBillReports
+};
 
 // Export reducer
 export default billsSlice.reducer;

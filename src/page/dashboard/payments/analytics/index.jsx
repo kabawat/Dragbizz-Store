@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPaymentAnalytics, getPaymentStats } from '@/store/slices/paymentsSlice';
+import { getPayments } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -34,10 +34,10 @@ const PaymentAnalytics = () => {
   const [methodFilter, setMethodFilter] = useState('all');
   const [viewType, setViewType] = useState('overview');
 
-  // Fetch payment stats on component mount
+  // Fetch payment data on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getPaymentStats(selectedStore.id));
+      dispatch(getPayments({ store: selectedStore.id }));
     }
   }, [dispatch, selectedStore]);
 
@@ -46,7 +46,7 @@ const PaymentAnalytics = () => {
     setTimeRange(value);
     // Fetch analytics data
     if (selectedStore?.id) {
-      dispatch(getPaymentAnalytics({
+      dispatch(getPayments({
         store: selectedStore.id,
         timeRange: value,
         supplier: supplierFilter,
@@ -60,7 +60,7 @@ const PaymentAnalytics = () => {
     setSupplierFilter(value);
     // Refetch analytics data
     if (selectedStore?.id) {
-      dispatch(getPaymentAnalytics({
+      dispatch(getPayments({
         store: selectedStore.id,
         timeRange,
         supplier: value,
@@ -74,7 +74,7 @@ const PaymentAnalytics = () => {
     setMethodFilter(value);
     // Refetch analytics data
     if (selectedStore?.id) {
-      dispatch(getPaymentAnalytics({
+      dispatch(getPayments({
         store: selectedStore.id,
         timeRange,
         supplier: supplierFilter,
@@ -225,7 +225,7 @@ const PaymentAnalytics = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-100 text-sm font-medium">Avg. Payment</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount / stats.totalPayments)}</p>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalPayments > 0 ? stats.totalAmount / stats.totalPayments : 0)}</p>
                   <p className="text-purple-200 text-xs flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     +8% from last period
