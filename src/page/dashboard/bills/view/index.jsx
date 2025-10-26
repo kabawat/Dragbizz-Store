@@ -19,7 +19,7 @@ import {
   Package, 
   TrendingUp,
   CreditCard,
-  DollarSign,
+  IndianRupee,
   Percent,
   Clock3,
   CheckCircle2,
@@ -458,7 +458,7 @@ const ViewBillPage = ({ billId }) => {
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Subtotal</label>
                           <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <DollarSign className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                            <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                             <span className="text-[rgb(var(--color-text-primary))] font-medium">
                               {formatCurrency(billData.subtotal)}
                             </span>

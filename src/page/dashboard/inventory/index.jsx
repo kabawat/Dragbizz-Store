@@ -246,10 +246,7 @@ const InventoryPage = () => {
       {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title="Stock"
-          description="Manage your store stock levels and inventory"
-        />
+        <Header title="Stock" description="Manage your store stock levels and inventory" />
 
         {/* Main content */}
         <div className="flex-1 p-5" ref={scrollRef}>

@@ -183,10 +183,10 @@ const InvoicesPage = () => {
           isFreshLoad: true
         };
         await dispatch(getInvoices(refreshParams));
-        
+
         setShowReleaseModal(false);
         setInvoiceToRelease(null);
-        
+
         // Auto-redirect to print preview after successful release
         router.push(`/dashboard/invoices/print-preview?id=${invoiceToRelease.id}`);
       } else {
@@ -329,52 +329,6 @@ const InvoicesPage = () => {
                 </div>
               </div>
             )}
-            {/* Search and filter */}
-            {invoices.length > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                  {/* Search */}
-                  <div className="w-100 bg-red">
-                    <Input
-                      type="text"
-                      placeholder="Search invoices..."
-                      value={searchValue}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      leftIcon={Search}
-                      className="w-100"
-                    />
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex gap-3">
-                    {/* View toggle */}
-                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
-                      >
-                        <List className="w-4 h-4" />
-                        Table
-                      </button>
-                      <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        Cards
-                      </button>
-                    </div>
-
-                    <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                      Add Invoice
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Empty state */}
             {!isLoading && invoices.length === 0 && (
@@ -400,110 +354,157 @@ const InvoicesPage = () => {
 
             {/* Invoices list */}
             {invoices.length > 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
-                  {viewMode === 'table' ? (
-                    <div className="h-full">
-                      <InvoiceTable
-                        invoices={invoices}
-                        selectedInvoices={selectedInvoices}
-                        onSelect={handleInvoiceSelect}
-                        onSelectAll={handleSelectAll}
-                        onEdit={handleEditInvoice}
-                        onDelete={handleDeleteInvoice}
-                        onViewDetails={handleViewInvoice}
-                        onPrint={handlePrintInvoice}
-                        onRelease={handleReleaseInvoice}
-                        loading={isLoading}
-                        emptyMessage="No invoices found"
-                        hasMore={pagination.hasNextPage}
-                        onLoadMore={handleLoadMore}
-                        isLoadingMore={isLoadingMore}
+              <>
+                {/* search and filter  */}
+                <div className="mb-3">
+                  <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                    {/* Search */}
+                    <div className="w-100 bg-red">
+                      <Input
+                        type="text"
+                        placeholder="Search invoices..."
+                        value={searchValue}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        leftIcon={Search}
+                        className="w-100"
                       />
                     </div>
-                  ) : (
-                    <div>
-                      {/* Select all header */}
-                      {invoices.length > 0 && (
-                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="checkbox"
-                              checked={selectedInvoices.length === invoices.length && invoices.length > 0}
-                              onChange={(e) => handleSelectAll(e.target.checked)}
-                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                              Select all {invoices.length} invoices
-                            </span>
-                            {selectedInvoices.length > 0 && (
-                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                ({selectedInvoices.length} selected)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
 
-                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {invoices.map((invoice) => (
-                          <InvoiceCard
-                            key={invoice.id || invoice._id}
-                            invoice={invoice}
-                            onSelect={handleInvoiceSelect}
-                            selected={selectedInvoices.includes(invoice.id || invoice._id)}
-                            onEdit={handleEditInvoice}
-                            onDelete={handleDeleteInvoice}
-                            onViewDetails={handleViewInvoice}
-                            onPrint={handlePrintInvoice}
-                            onRelease={handleReleaseInvoice}
-                          />
-                        ))}
-
-                        {/* Infinite scroll loading */}
-                        {isLoadingMore && (
-                          <div className="col-span-full flex items-center justify-center py-8">
-                            <div className="flex items-center gap-3">
-                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
-                            </div>
-                          </div>
-                        )}
+                    {/* Action buttons */}
+                    <div className="flex gap-3">
+                      {/* View toggle */}
+                      <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                        <button
+                          onClick={() => handleViewModeChange('table')}
+                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                            ? 'bg-[rgb(var(--color-primary))] text-white'
+                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                            }`}
+                        >
+                          <List className="w-4 h-4" />
+                          Table
+                        </button>
+                        <button
+                          onClick={() => handleViewModeChange('card')}
+                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                          Cards
+                        </button>
                       </div>
-                    </div>
-                  )}
-                </div>
 
-                {/* Footer */}
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {pagination.hasNextPage ? (
-                        <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
-                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                            • Scroll down to load more
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
-                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • No more invoices
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedInvoices.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedInvoices.length} selected
-                        </span>
-                      )}
+                      <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                        Add Invoice
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </div>
+                {/* table or card  */}
+                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                  <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                    {viewMode === 'table' ? (
+                      <div className="h-full">
+                        <InvoiceTable
+                          invoices={invoices}
+                          selectedInvoices={selectedInvoices}
+                          onSelect={handleInvoiceSelect}
+                          onSelectAll={handleSelectAll}
+                          onEdit={handleEditInvoice}
+                          onDelete={handleDeleteInvoice}
+                          onViewDetails={handleViewInvoice}
+                          onPrint={handlePrintInvoice}
+                          onRelease={handleReleaseInvoice}
+                          loading={isLoading}
+                          emptyMessage="No invoices found"
+                          hasMore={pagination.hasNextPage}
+                          onLoadMore={handleLoadMore}
+                          isLoadingMore={isLoadingMore}
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        {/* Select all header */}
+                        {invoices.length > 0 && (
+                          <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedInvoices.length === invoices.length && invoices.length > 0}
+                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                              />
+                              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                                Select all {invoices.length} invoices
+                              </span>
+                              {selectedInvoices.length > 0 && (
+                                <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                                  ({selectedInvoices.length} selected)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                          {invoices.map((invoice) => (
+                            <InvoiceCard
+                              key={invoice.id || invoice._id}
+                              invoice={invoice}
+                              onSelect={handleInvoiceSelect}
+                              selected={selectedInvoices.includes(invoice.id || invoice._id)}
+                              onEdit={handleEditInvoice}
+                              onDelete={handleDeleteInvoice}
+                              onViewDetails={handleViewInvoice}
+                              onPrint={handlePrintInvoice}
+                              onRelease={handleReleaseInvoice}
+                            />
+                          ))}
+
+                          {/* Infinite scroll loading */}
+                          {isLoadingMore && (
+                            <div className="col-span-full flex items-center justify-center py-8">
+                              <div className="flex items-center gap-3">
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        {pagination.hasNextPage ? (
+                          <>
+                            Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                            <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                              • Scroll down to load more
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                            <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                              • No more invoices
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        {selectedInvoices.length > 0 && (
+                          <span className="font-semibold text-[rgb(var(--color-primary))]">
+                            {selectedInvoices.length} selected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
