@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, Calendar, Building2, AlertTriangle, CheckCircle, Clock, IndianRupee } from 'lucide-react';
 import { purchaseOrderService } from '@/service/retailer';
-import { SideDrawer, SettingsPanel } from '@/components/ui';
+import { SideDrawer } from '@/components/ui';
 import PurchaseOrderDetails from '@/components/purchaseOrders/PurchaseOrderDetails';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
@@ -121,9 +121,9 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
         {/* Decorative Background */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] opacity-10">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] opacity-5">
           <svg className="w-full h-full" viewBox="0 0 1200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,60 C300,120 900,0 1200,60 L1200,0 L0,0 Z" fill="currentColor" className="text-[rgb(var(--color-primary))]"/>
           </svg>
@@ -144,10 +144,10 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
         </div>
 
         {/* Purchase Order Card */}
-        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-xl p-12 max-w-4xl w-full mb-8">
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-sm p-12 max-w-4xl w-full mb-8">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-[rgb(var(--color-primary))] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-10 h-10 text-[rgb(var(--color-primary))]" />
+            <div className="w-20 h-20 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+              <FileText className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">Purchase Order Details</h2>
           </div>
@@ -156,7 +156,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
               <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                <Building2 className="w-5 h-5 mr-2" />
+                <Building2 className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
                 Store Information
               </h3>
               <div className="space-y-3">
@@ -192,7 +192,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
 
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
               <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                <Calendar className="w-5 h-5 mr-2" />
+                <Calendar className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
                 Order Information
               </h3>
               <div className="space-y-3">
@@ -220,10 +220,10 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
           </div>
 
           {/* Items Count */}
-          <div className="bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] bg-opacity-10 rounded-lg p-6 mb-8">
+          <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-6 mb-8">
             <div className="text-center">
               <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-full flex items-center justify-center shadow-md">
                   <span className="text-white text-xl font-bold">
                     {purchaseOrder.items?.length || 0}
                   </span>
@@ -238,12 +238,12 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
 
           {/* Notes Section */}
           {purchaseOrder.notes && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900 dark:to-orange-900 rounded-lg p-6 mb-8 border border-amber-200 dark:border-amber-700">
-              <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-3 flex items-center">
-                <FileText className="w-5 h-5 mr-2" />
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6 mb-8 border border-[rgb(var(--color-border-primary))]">
+              <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
                 Notes
               </h4>
-              <p className="text-amber-700 dark:text-amber-300 text-sm leading-relaxed">
+              <p className="text-[rgb(var(--color-text-secondary))] text-sm leading-relaxed">
                 {purchaseOrder.notes}
               </p>
             </div>
@@ -251,16 +251,10 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              onClick={handleViewDetails}
-              className="flex-1 text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] hover:opacity-80 font-medium text-base flex items-center justify-center py-3 border-2 border-[rgb(var(--color-primary))] border-opacity-30 rounded-lg hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors"
-            >
-              View details →
+            <button  onClick={handleViewDetails}  className="cursor-pointer flex-1 text-[rgb(var(--color-primary))] font-medium text-base flex items-center justify-center py-3 border-2 border-[rgb(var(--color-primary))] border-opacity-30 rounded-lg transition-colors">
+              View details
             </button>
-            <button 
-              onClick={handleDownload}
-              className="flex-1 bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:opacity-90 text-white font-medium text-base flex items-center justify-center py-3 px-6 rounded-lg transition-colors shadow-md"
-            >
+            <button onClick={handleDownload}  className="flex-1 bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:opacity-90 text-white font-medium text-base flex items-center justify-center py-3 px-6 rounded-lg transition-colors shadow-md">
               <Download className="w-5 h-5 mr-2" />
               Download PO
             </button>
@@ -275,19 +269,19 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
         </div>
 
         {/* Promotional Banner */}
-        <div className="bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-2xl p-8 max-w-4xl w-full text-white text-center">
+        <div className="bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-2xl p-8 max-w-4xl w-full text-white text-center shadow-lg">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-white bg-opacity-40 rounded-lg px-6 py-3 border-2 border-white border-opacity-70 shadow-lg">
-              <span className="text-xl font-bold text-[rgb(var(--color-primary))] tracking-wide">DragBizz</span>
+            <div className="bg-white bg-opacity-30 rounded-lg px-6 py-3 border-2 border-white border-opacity-50 shadow-lg backdrop-blur-sm">
+              <span className="text-xl font-bold text-[#000] tracking-wide">DragBizz</span>
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-3">
+          <h3 className="text-2xl font-bold mb-3 text-white">
             Easily manage purchase orders in 10 seconds 😉
           </h3>
-          <p className="text-white text-opacity-80 mb-6 text-lg">
+          <p className="text-white text-opacity-90 mb-6 text-lg">
             and share them with your suppliers!
           </p>
-          <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-3 px-8 rounded-lg transition-colors text-lg shadow-lg">
+          <button className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg transition-colors text-lg shadow-lg">
             Try now for free 🚀
           </button>
         </div>
@@ -315,9 +309,6 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
           <PurchaseOrderDetails purchaseOrder={purchaseOrder} />
         )}
       </SideDrawer>
-      
-      {/* Theme Settings Panel */}
-      <SettingsPanel />
       </div>
     </ThemeProvider>
   );
