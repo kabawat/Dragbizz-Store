@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPaymentReports, getPaymentStats } from '@/store/slices/paymentsSlice';
+import { getPayments } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -31,10 +31,10 @@ const PaymentReports = () => {
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [methodFilter, setMethodFilter] = useState('all');
 
-  // Fetch payment stats on component mount
+  // Fetch payment data on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getPaymentStats(selectedStore.id));
+      dispatch(getPayments({ store: selectedStore.id }));
     }
   }, [dispatch, selectedStore]);
 
@@ -43,7 +43,7 @@ const PaymentReports = () => {
     setReportType(value);
     // Fetch specific report data
     if (selectedStore?.id) {
-      dispatch(getPaymentReports({
+      dispatch(getPayments({
         store: selectedStore.id,
         type: value,
         dateRange,
@@ -58,7 +58,7 @@ const PaymentReports = () => {
     setDateRange(value);
     // Refetch report data
     if (selectedStore?.id) {
-      dispatch(getPaymentReports({
+      dispatch(getPayments({
         store: selectedStore.id,
         type: reportType,
         dateRange: value,
@@ -73,7 +73,7 @@ const PaymentReports = () => {
     setSupplierFilter(value);
     // Refetch report data
     if (selectedStore?.id) {
-      dispatch(getPaymentReports({
+      dispatch(getPayments({
         store: selectedStore.id,
         type: reportType,
         dateRange,
@@ -88,7 +88,7 @@ const PaymentReports = () => {
     setMethodFilter(value);
     // Refetch report data
     if (selectedStore?.id) {
-      dispatch(getPaymentReports({
+      dispatch(getPayments({
         store: selectedStore.id,
         type: reportType,
         dateRange,

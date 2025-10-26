@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getOverdueBills, getBillStats } from '@/store/slices/billsSlice';
+import { getBills, getBillStats } from '@/store/slices/billsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -24,7 +24,7 @@ import { Button, Input, Select, Badge, Card } from '@/components/ui';
 const OverdueBills = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { overdueBills, stats, isLoading, error } = useAppSelector((state) => state.bills);
+  const { bills, stats, isLoading, error } = useAppSelector((state) => state.bills);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,8 +34,9 @@ const OverdueBills = () => {
   // Fetch overdue bills and stats on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getOverdueBills({ 
+      dispatch(getBills({ 
         store: selectedStore.id,
+        status: 'overdue',
         limit: 20,
         page: 1
       }));
@@ -156,8 +157,8 @@ const OverdueBills = () => {
                 <div>
                   <p className="text-yellow-100 text-sm font-medium">Avg. Overdue Days</p>
                   <p className="text-2xl font-bold">
-                    {overdueBills.length > 0 
-                      ? Math.round(overdueBills.reduce((sum, bill) => sum + getOverdueDays(bill.dueDate), 0) / overdueBills.length)
+                    {bills.length > 0 
+                      ? Math.round(bills.reduce((sum, bill) => sum + getOverdueDays(bill.dueDate), 0) / bills.length)
                       : 0
                     }
                   </p>
@@ -222,7 +223,7 @@ const OverdueBills = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {overdueBills.map((bill) => {
+                  {bills.map((bill) => {
                     const overdueDays = getOverdueDays(bill.dueDate);
                     const severity = getOverdueSeverity(overdueDays);
                     
@@ -294,7 +295,7 @@ const OverdueBills = () => {
             </div>
 
             {/* Empty State */}
-            {overdueBills.length === 0 && !isLoading && (
+            {bills.length === 0 && !isLoading && (
               <div className="text-center py-12">
                 <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No overdue bills</h3>

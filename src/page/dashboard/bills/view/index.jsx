@@ -19,7 +19,6 @@ import {
   Package, 
   TrendingUp,
   CreditCard,
-  IndianRupee,
   Percent,
   Clock3,
   CheckCircle2,

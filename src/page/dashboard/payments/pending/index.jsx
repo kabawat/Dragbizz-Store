@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPendingPayments, getPaymentStats } from '@/store/slices/paymentsSlice';
+import { getPayments } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -35,12 +35,12 @@ const PendingPayments = () => {
   // Fetch pending payments and stats on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getPendingPayments({ 
+      dispatch(getPayments({ 
         store: selectedStore.id,
+        status: 'pending',
         limit: 20,
         page: 1
       }));
-      dispatch(getPaymentStats(selectedStore.id));
     }
   }, [dispatch, selectedStore]);
 
