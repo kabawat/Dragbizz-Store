@@ -17,7 +17,7 @@ const Button = ({
   ...props
 }) => {
   // Base classes
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none btn-ripple cursor-pointer';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none btn-ripple cursor-pointer';
   
   // Size variants - Reduced padding and font sizes
   const sizeClasses = {
