@@ -396,6 +396,289 @@
   --theme-variant: 'dark';
 }
 
+/* Coral Theme */
+[data-theme="coral"] {
+  --color-primary: 239 68 68; /* red-500 */
+  --color-secondary: 248 113 113; /* red-400 */
+  --color-success: 34 197 94; /* green-500 */
+  --color-warning: 245 158 11; /* amber-500 */
+  --color-danger: 239 68 68; /* red-500 */
+  
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 254 242 242;
+  --color-bg-tertiary: 254 228 226;
+  
+  --color-text-primary: 153 27 27;
+  --color-text-secondary: 185 28 28;
+  --color-text-tertiary: 127 29 29;
+  
+  --color-border-primary: 254 205 211;
+  --color-border-secondary: 251 146 156;
+  
+  --theme-name: 'coral';
+  --theme-variant: 'light';
+}
+
+[data-theme="coral"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Emerald Theme */
+[data-theme="emerald"] {
+  --color-primary: 16 185 129; /* emerald-500 */
+  --color-secondary: 52 211 153; /* emerald-400 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 236 253 245;
+  --color-bg-tertiary: 209 250 229;
+  --color-text-primary: 6 95 70;
+  --color-text-secondary: 4 120 87;
+  --color-text-tertiary: 2 132 75;
+  --color-border-primary: 167 243 208;
+  --color-border-secondary: 110 231 183;
+  --theme-name: 'emerald';
+  --theme-variant: 'light';
+}
+
+[data-theme="emerald"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Sky Theme */
+[data-theme="sky"] {
+  --color-primary: 6 182 212; /* sky-500 */
+  --color-secondary: 34 211 238; /* sky-400 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 240 253 250;
+  --color-bg-tertiary: 204 251 241;
+  --color-text-primary: 22 78 99;
+  --color-text-secondary: 21 94 117;
+  --color-text-tertiary: 14 116 144;
+  --color-border-primary: 125 211 252;
+  --color-border-secondary: 56 189 248;
+  --theme-name: 'sky';
+  --theme-variant: 'light';
+}
+
+[data-theme="sky"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Pink Theme */
+[data-theme="pink"] {
+  --color-primary: 236 72 153; /* pink-500 */
+  --color-secondary: 244 114 182; /* pink-400 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 253 242 248;
+  --color-bg-tertiary: 252 231 243;
+  --color-text-primary: 159 18 57;
+  --color-text-secondary: 190 24 93;
+  --color-text-tertiary: 157 23 77;
+  --color-border-primary: 251 207 232;
+  --color-border-secondary: 244 182 228;
+  --theme-name: 'pink';
+  --theme-variant: 'light';
+}
+
+[data-theme="pink"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Lime Theme */
+[data-theme="lime"] {
+  --color-primary: 132 204 22; /* lime-600 */
+  --color-secondary: 163 230 53; /* lime-500 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 247 254 231;
+  --color-bg-tertiary: 236 252 203;
+  --color-text-primary: 54 83 20;
+  --color-text-secondary: 63 98 18;
+  --color-text-tertiary: 77 124 15;
+  --color-border-primary: 217 249 157;
+  --color-border-secondary: 190 242 100;
+  --theme-name: 'lime';
+  --theme-variant: 'light';
+}
+
+[data-theme="lime"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Cyan Theme */
+[data-theme="cyan"] {
+  --color-primary: 6 182 212; /* cyan-500 */
+  --color-secondary: 34 211 238; /* cyan-400 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 236 254 255;
+  --color-bg-tertiary: 207 250 254;
+  --color-text-primary: 22 78 99;
+  --color-text-secondary: 21 94 117;
+  --color-text-tertiary: 14 116 144;
+  --color-border-primary: 186 230 253;
+  --color-border-secondary: 125 211 252;
+  --theme-name: 'cyan';
+  --theme-variant: 'light';
+}
+
+[data-theme="cyan"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Purple Theme */
+[data-theme="purple"] {
+  --color-primary: 168 85 247; /* purple-500 */
+  --color-secondary: 192 132 252; /* purple-400 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 250 245 255;
+  --color-bg-tertiary: 243 232 255;
+  --color-text-primary: 88 28 135;
+  --color-text-secondary: 107 33 168;
+  --color-text-tertiary: 91 33 182;
+  --color-border-primary: 233 213 255;
+  --color-border-secondary: 221 214 254;
+  --theme-name: 'purple';
+  --theme-variant: 'light';
+}
+
+[data-theme="purple"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+  --color-primary: 37 99 235; /* blue-600 */
+  --color-secondary: 59 130 246; /* blue-500 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 239 246 255;
+  --color-bg-tertiary: 219 234 254;
+  --color-text-primary: 30 58 138;
+  --color-text-secondary: 30 64 175;
+  --color-text-tertiary: 37 99 235;
+  --color-border-primary: 191 219 254;
+  --color-border-secondary: 147 197 253;
+  --theme-name: 'blue';
+  --theme-variant: 'light';
+}
+
+[data-theme="blue"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
+/* Green Theme */
+[data-theme="green"] {
+  --color-primary: 22 163 74; /* green-600 */
+  --color-secondary: 34 197 94; /* green-500 */
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 240 253 244;
+  --color-bg-tertiary: 220 252 231;
+  --color-text-primary: 20 83 45;
+  --color-text-secondary: 22 101 52;
+  --color-text-tertiary: 5 122 85;
+  --color-border-primary: 187 247 208;
+  --color-border-secondary: 134 239 172;
+  --theme-name: 'green';
+  --theme-variant: 'light';
+}
+
+[data-theme="green"][data-variant="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 229 231 235;
+  --color-text-tertiary: 209 213 219;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+  --theme-variant: 'dark';
+}
+
 /* Force light text in dark mode */
 [data-variant="dark"] {
   --color-text-primary: 255 255 255 !important; /* white */
@@ -1262,4 +1545,151 @@ body > div[style*="z-index: 999999"] {
   top: 100% !important;
   left: 0 !important;
   right: 0 !important;
+}
+
+/* Sun and Moon Animations */
+@keyframes sunRise {
+  0% { 
+    transform: translateY(80px) scale(0.3) rotate(-10deg); 
+    opacity: 0; 
+    filter: blur(12px);
+  }
+  20% { 
+    transform: translateY(50px) scale(0.5) rotate(-5deg); 
+    opacity: 0.2; 
+    filter: blur(6px);
+  }
+  40% { 
+    transform: translateY(25px) scale(0.7) rotate(0deg); 
+    opacity: 0.5; 
+    filter: blur(3px);
+  }
+  70% { 
+    transform: translateY(5px) scale(0.9) rotate(2deg); 
+    opacity: 0.8; 
+    filter: blur(1px);
+  }
+  100% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+    opacity: 1; 
+    filter: blur(0);
+  }
+}
+
+@keyframes sunSet {
+  0% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+    opacity: 1; 
+    filter: blur(0);
+  }
+  20% { 
+    transform: translateY(5px) scale(0.9) rotate(-2deg); 
+    opacity: 0.8; 
+    filter: blur(1px);
+  }
+  40% { 
+    transform: translateY(25px) scale(0.7) rotate(-5deg); 
+    opacity: 0.5; 
+    filter: blur(3px);
+  }
+  70% { 
+    transform: translateY(50px) scale(0.5) rotate(-8deg); 
+    opacity: 0.2; 
+    filter: blur(6px);
+  }
+  100% { 
+    transform: translateY(80px) scale(0.3) rotate(-10deg); 
+    opacity: 0; 
+    filter: blur(12px);
+  }
+}
+
+@keyframes moonRise {
+  0% { 
+    transform: translateY(-80px) scale(0.3) rotate(10deg); 
+    opacity: 0; 
+    filter: blur(12px);
+  }
+  20% { 
+    transform: translateY(-50px) scale(0.5) rotate(5deg); 
+    opacity: 0.2; 
+    filter: blur(6px);
+  }
+  40% { 
+    transform: translateY(-25px) scale(0.7) rotate(0deg); 
+    opacity: 0.5; 
+    filter: blur(3px);
+  }
+  70% { 
+    transform: translateY(-5px) scale(0.9) rotate(-2deg); 
+    opacity: 0.8; 
+    filter: blur(1px);
+  }
+  100% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+    opacity: 1; 
+    filter: blur(0);
+  }
+}
+
+@keyframes moonSet {
+  0% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+    opacity: 1; 
+    filter: blur(0);
+  }
+  20% { 
+    transform: translateY(-5px) scale(0.9) rotate(2deg); 
+    opacity: 0.8; 
+    filter: blur(1px);
+  }
+  40% { 
+    transform: translateY(-25px) scale(0.7) rotate(5deg); 
+    opacity: 0.5; 
+    filter: blur(3px);
+  }
+  70% { 
+    transform: translateY(-50px) scale(0.5) rotate(8deg); 
+    opacity: 0.2; 
+    filter: blur(6px);
+  }
+  100% { 
+    transform: translateY(-80px) scale(0.3) rotate(10deg); 
+    opacity: 0; 
+    filter: blur(12px);
+  }
+}
+
+.sun-appear {
+  animation: sunRise 1.5s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+.sun-disappear {
+  animation: sunSet 1.5s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+.moon-appear {
+  animation: moonRise 1.5s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+.moon-disappear {
+  animation: moonSet 1.5s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+/* Custom Scrollbar for Theme Selection */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-text-secondary), 0.3);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-text-secondary), 0.5);
 }

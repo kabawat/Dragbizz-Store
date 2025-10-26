@@ -147,7 +147,7 @@ const Sidebar = ({ onStoreChange }) => {
   ];
 
   const bottomItems = [
-    { name: 'Settings', icon: Settings, href: '/settings' },
+    { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
   ];
 
   const handleStoreSelect = (store) => {

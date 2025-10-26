@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.scss";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { SettingsPanel } from "@/components/ui";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
 
@@ -28,7 +27,6 @@ export default function RootLayout({ children }) {
           <ThemeProvider>
             <LocationProvider>
               {children}
-              <SettingsPanel />
             </LocationProvider>
           </ThemeProvider>
         </ReduxProvider>

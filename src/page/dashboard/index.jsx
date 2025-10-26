@@ -355,7 +355,7 @@ export default function Dashboard() {
                     >
                       <div className={section.span}>
                         {section.id === 'transactions' && (
-                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
+                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
                             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">Recent Transactions</h2>
                             <div className="space-y-3">
                               {transactions.map((transaction, index) => (
@@ -366,7 +366,7 @@ export default function Dashboard() {
                         )}
 
                         {section.id === 'quickActions' && (
-                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-lg">
+                          <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
                             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
                             <div className="grid grid-cols-2 gap-4">
                               {quickActions.map((action, index) => (
