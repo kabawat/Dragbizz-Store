@@ -17,7 +17,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
-import { BillTable, BillGrid, BillDeleteConfirmModal } from '@/components/bills';
+import { BillTable, BillGrid, BillDeleteConfirmModal, BillPaymentDrawer } from '@/components/bills';
 import { billService } from '@/service/retailer';
 
 const Bills = () => {
@@ -38,8 +38,10 @@ const Bills = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const scrollRef = useRef(null);
-  const lastFetchRef = useRef({ storeId: null, searchValue: null });
+  const lastFetchRef = useRef({ fetchKey: null });
   const [viewMode, setViewMode] = useState('table');
+  const [showPaymentDrawer, setShowPaymentDrawer] = useState(false);
+  const [selectedBillForPayment, setSelectedBillForPayment] = useState(null);
 
   // Handle view mode change
   const handleViewModeChange = (mode) => {
@@ -90,7 +92,8 @@ const Bills = () => {
         router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
         break;
       case 'payment':
-        router.push(`/dashboard/payments/create?billId=${bill._id || bill.id}`);
+        setSelectedBillForPayment(bill);
+        setShowPaymentDrawer(true);
         break;
       case 'delete':
         handleDeleteBill(bill);
@@ -117,22 +120,23 @@ const Bills = () => {
     // Fetch only if store exists
     if (!storeId) return;
 
+    // Create unique key for this fetch to prevent duplicates
+    const fetchKey = `${storeId}-${searchTerm}`;
+    
     // Prevent duplicate fetch
-    if (
-      lastFetchRef.current.storeId === storeId &&
-      lastFetchRef.current.searchValue === searchTerm
-    ) {
+    if (lastFetchRef.current.fetchKey === fetchKey) {
       return;
     }
 
-    lastFetchRef.current = { storeId, searchTerm };
+    lastFetchRef.current = { storeId, searchValue: searchTerm, fetchKey };
 
     const fetchBills = async () => {
       const params = {
         store: storeId,
         search: searchTerm,
         limit: 20,
-        cursor: null
+        cursor: null,
+        isFreshLoad: true
       };
       await dispatch(getBills(params));
     };
@@ -587,6 +591,23 @@ const Bills = () => {
         billToDelete={billToDelete}
         formatCurrency={formatCurrency}
         isDeleting={isDeleting}
+      />
+
+      {/* Payment Drawer */}
+      <BillPaymentDrawer
+        isOpen={showPaymentDrawer}
+        onClose={() => {
+          setShowPaymentDrawer(false);
+          setSelectedBillForPayment(null);
+        }}
+        bill={selectedBillForPayment}
+        onSuccess={() => {
+          // Refresh bills list after successful payment
+          const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+          if (storeId) {
+            dispatch(getBills({ store: storeId, limit: 20 }));
+          }
+        }}
       />
     </div>
   );
