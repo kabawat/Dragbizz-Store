@@ -25,7 +25,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
         paymentMethods: [
             {
                 amount: 0,
-                method: 'cash',
+                method: 'CASH',
                 reference: '',
                 bankName: '',
                 accountNumber: '',
@@ -108,7 +108,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
             ...prev,
             paymentMethods: [...prev.paymentMethods, {
                 amount: 0,
-                method: 'cash',
+                method: 'CASH',
                 reference: '',
                 bankName: '',
                 accountNumber: '',
@@ -148,7 +148,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
                 // Validate method-specific fields
                 switch (method.method) {
-                    case 'bank':
+                    case 'BANK_TRANSFER':
                         if (!method.bankName) {
                             newErrors[`paymentMethods[${index}].bankName`] = 'Bank name is required';
                         }
@@ -163,7 +163,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         }
                         break;
 
-                    case 'upi':
+                    case 'UPI':
                         if (!method.upiId) {
                             newErrors[`paymentMethods[${index}].upiId`] = 'UPI ID is required';
                         }
@@ -172,7 +172,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         }
                         break;
 
-                    case 'cheque':
+                    case 'CHEQUE':
                         if (!method.chequeNumber) {
                             newErrors[`paymentMethods[${index}].chequeNumber`] = 'Cheque number is required';
                         }
@@ -184,8 +184,8 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         }
                         break;
 
-                    case 'cash':
-                    case 'credit':
+                    case 'CASH':
+                    case 'CREDIT':
                         break;
                 }
             });
@@ -286,30 +286,30 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         )}
 
                     {/* Bill Details - Compact Display */}
-                    <div className="px-0 sm:px-2 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="px-0 sm:px-2 py-3 sm:py-4 border-b border-[rgb(var(--color-border-primary))]">
                             <div className="flex items-center mb-3">
-                                <Building2 className="w-4 h-4 mr-2 text-gray-600 dark:text-gray-400" />
-                                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Bill Details</h3>
+                                <Building2 className="w-4 h-4 mr-2 text-[rgb(var(--color-text-secondary))]" />
+                                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Bill Details</h3>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">Bill Number:</span>
-                                    <span className="font-semibold text-gray-900 dark:text-gray-100">{bill?.billNumber || bill?.bill_id || 'N/A'}</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">Bill Number:</span>
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bill?.billNumber || bill?.bill_id || 'N/A'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">Total Amount:</span>
-                                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                                    <span className="text-[rgb(var(--color-text-secondary))]">Total Amount:</span>
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill?.totalAmount || 0)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">Supplier:</span>
-                                    <span className="font-semibold text-gray-900 dark:text-gray-100 truncate ml-2">{bill?.supplier?.name || 'N/A'}</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">Supplier:</span>
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate ml-2">{bill?.supplier?.name || 'N/A'}</span>
                                 </div>
 
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">Due Amount:</span>
-                                    <span className="font-bold text-red-600 dark:text-red-400 text-base">
+                                    <span className="text-[rgb(var(--color-text-secondary))]">Due Amount:</span>
+                                    <span className="font-bold text-[rgb(var(--color-danger))] text-base">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill?.dueAmount || Math.max((bill?.totalAmount || 0) - (bill?.paidAmount || 0), 0))}
                                     </span>
                                 </div>
@@ -318,8 +318,8 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
                     <div className="px-0 sm:px-2">
                         <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                                    <CreditCard className="w-5 h-5 mr-2 text-green-700 dark:text-green-500" />
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
+                                    <CreditCard className="w-5 h-5 mr-2 text-[rgb(var(--color-success))]" />
                                     Payment Methods
                                 </h3>
                                 <AddActionButton
@@ -332,16 +332,16 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                             </div>
 
                         {formData.paymentMethods.map((method, index) => (
-                            <div key={index} className="bg-green-50/30 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-lg p-3 sm:p-4 mb-4 group">
+                            <div key={index} className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 sm:p-4 mb-4 group">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Method {index + 1}</h4>
+                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-rimary))]">Payment Method {index + 1}</h4>
                                         {formData.paymentMethods.length > 1 && (
                                             <button
                                                 onClick={() => removePaymentMethod(index)}
-                                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all cursor-pointer"
+                                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all cursor-pointer"
                                                 title="Remove Payment Method"
                                             >
-                                                <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-red-600 dark:hover:text-red-400 transition-colors" />
+                                                <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-danger))] transition-colors" />
                                             </button>
                                         )}
                                     </div>
@@ -370,17 +370,17 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                 value={method.method}
                                                 onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
                                                 options={[
-                                                    { value: 'cash', label: 'Cash' },
-                                                    { value: 'bank', label: 'Bank Transfer' },
-                                                    { value: 'upi', label: 'UPI' },
-                                                    { value: 'cheque', label: 'Cheque' },
-                                                    { value: 'credit', label: 'Credit' }
+                                                    { value: 'CASH', label: 'CASH' },
+                                                    { value: 'UPI', label: 'UPI' },
+                                                    { value: 'BANK_TRANSFER', label: 'BANK_TRANSFER' },
+                                                    { value: 'CHEQUE', label: 'CHEQUE' },
+                                                    { value: 'CREDIT', label: 'CREDIT' }
                                                 ]}
                                             />
                                         </div>
 
                                         {/* Bank Transfer fields */}
-                                        {method.method === 'bank' && (
+                                        {method.method === 'BANK_TRANSFER' && (
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -434,7 +434,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         )}
 
                                         {/* UPI fields */}
-                                        {method.method === 'upi' && (
+                                        {method.method === 'UPI' && (
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -464,7 +464,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         )}
 
                                         {/* Cheque fields */}
-                                        {method.method === 'cheque' && (
+                                        {method.method === 'CHEQUE' && (
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -518,7 +518,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         )}
 
                                         {/* Reference field for cash and credit */}
-                                        {(method.method === 'cash' || method.method === 'credit') && (
+                                        {(method.method === 'CASH' || method.method === 'CREDIT') && (
                                             <div>
                                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                     Reference
@@ -537,7 +537,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         </div>
 
                     <div className="px-0 sm:px-2">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                                 <FileText className="w-5 h-5 mr-2" />
                                 Additional Notes
                             </h3>
@@ -549,14 +549,14 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                 maxLength={500}
                                 error={errors.notes}
                             />
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2">
                                 {formData.notes.length}/500 characters
                             </p>
                         </div>
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="flex items-center justify-start gap-3 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-[rgb(var(--color-bg-primary))] flex-shrink-0">
+                    <div className="flex items-center justify-start gap-3 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] flex-shrink-0">
                         <Button onClick={handleSubmit} variant="primary" disabled={loading} loading={loading} leftIcon={Save} size="sm" >
                             Save Payment
                         </Button>

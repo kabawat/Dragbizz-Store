@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getPayments } from '@/store/slices/paymentsSlice';
@@ -22,14 +22,16 @@ import {
   Clock,
   Building2,
   AlertTriangle,
-  XCircle
+  XCircle,
+  List,
+  Grid3X3
 } from 'lucide-react';
-import { Button, Input, Select, Badge, Card, Modal } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 
 const Payments = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { payments, stats, isLoading, error, currentFilter, viewMode, pagination } = useAppSelector((state) => state.payments);
+  const { payments, stats, isLoading, error, currentFilter, pagination } = useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,45 +42,120 @@ const Payments = () => {
   const [selectedPayments, setSelectedPayments] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('card');
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRefs = useRef({});
+  const scrollRef = useRef(null);
 
-  // Fetch payments on component mount
+  // Handle view mode change
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('payments-view-mode', mode);
+  };
+
+  // Load saved view mode
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getPayments({ 
-        store: selectedStore.id,
-        limit: 20,
-        page: 1
-      }));
+    const savedViewMode = localStorage.getItem('payments-view-mode');
+    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+      setViewMode(savedViewMode);
     }
-  }, [dispatch, selectedStore]);
+  }, []);
 
-  // Refresh data when component becomes visible (e.g., after returning from create page)
+  // Close menu when clicking outside
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && selectedStore?.id) {
-        dispatch(getPayments({ 
-          store: selectedStore.id,
-          limit: 20,
-          page: 1
-        }));
+    const handleClickOutside = (event) => {
+      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+        setOpenMenuId(null);
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Also refresh on focus (when user returns to tab)
-    window.addEventListener('focus', handleVisibilityChange);
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [openMenuId]);
+
+  // Handle menu toggle
+  const handleMenuToggle = (paymentId) => {
+    setOpenMenuId(openMenuId === paymentId ? null : paymentId);
+  };
+
+  // Handle menu action
+  const handleMenuAction = (paymentId, action) => {
+    const payment = payments.find(p => (p._id || p.id) === paymentId);
+    if (!payment) return;
+
+    switch (action) {
+      case 'view':
+        router.push(`/dashboard/payments/${payment._id || payment.id}`);
+        break;
+      case 'edit':
+        router.push(`/dashboard/payments/${payment._id || payment.id}/edit`);
+        break;
+      case 'delete':
+        handleDeletePayment(payment);
+        break;
+      default:
+        break;
+    }
+    setOpenMenuId(null);
+  };
+
+  // Fetch payments on component mount
+  useEffect(() => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    if (!storeId) return;
+
+    dispatch(getPayments({ 
+      store: storeId,
+      limit: 20,
+      page: 1
+    }));
   }, [dispatch, selectedStore]);
 
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
-    // Implement search logic here
+  };
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollRef.current || isLoadingMore || !pagination?.hasNextPage) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const threshold = 100;
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [isLoadingMore, pagination?.hasNextPage]);
+
+  // Handle load more
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !pagination?.hasNextPage) return;
+
+    setIsLoadingMore(true);
+    try {
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      await dispatch(getPayments({
+        store: storeId,
+        limit: 20,
+        page: pagination?.page ? pagination.page + 1 : 2
+      }));
+    } catch (error) {
+      console.error('Error loading more payments:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   // Handle filter changes
@@ -111,11 +188,11 @@ const Payments = () => {
   };
 
   // Handle select all
-  const handleSelectAll = () => {
-    if (selectedPayments.length === payments.length) {
-      setSelectedPayments([]);
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      setSelectedPayments(payments.map(payment => payment._id || payment.id));
     } else {
-      setSelectedPayments(payments.map(payment => payment.id));
+      setSelectedPayments([]);
     }
   };
 
@@ -138,12 +215,16 @@ const Payments = () => {
   // Get status badge variant
   const getStatusBadge = (status) => {
     switch (status) {
+      case 'COMPLETED':
       case 'approved':
-        return { variant: 'success', icon: CheckCircle, text: 'Approved' };
+        return { variant: 'success', icon: CheckCircle, text: 'Completed' };
+      case 'PENDING':
       case 'pending':
         return { variant: 'warning', icon: Clock, text: 'Pending' };
+      case 'FAILED':
       case 'rejected':
-        return { variant: 'danger', icon: XCircle, text: 'Rejected' };
+        return { variant: 'danger', icon: XCircle, text: 'Failed' };
+      case 'DRAFT':
       case 'draft':
         return { variant: 'secondary', icon: Edit, text: 'Draft' };
       default:
@@ -153,19 +234,20 @@ const Payments = () => {
 
   // Get payment method badge
   const getPaymentMethodBadge = (method) => {
-    switch (method) {
-      case 'cash':
+    switch (method?.toUpperCase()) {
+      case 'CASH':
         return { variant: 'success', text: 'Cash' };
-      case 'bank_transfer':
+      case 'BANK_TRANSFER':
+      case 'BANK':
         return { variant: 'info', text: 'Bank Transfer' };
-      case 'cheque':
+      case 'CHEQUE':
         return { variant: 'warning', text: 'Cheque' };
-      case 'upi':
+      case 'UPI':
         return { variant: 'primary', text: 'UPI' };
-      case 'card':
+      case 'CARD':
         return { variant: 'secondary', text: 'Card' };
       default:
-        return { variant: 'secondary', text: 'Unknown' };
+        return { variant: 'secondary', text: method || 'Unknown' };
     }
   };
 
@@ -187,7 +269,7 @@ const Payments = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
       <Sidebar />
 
@@ -200,245 +282,224 @@ const Payments = () => {
         />
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Payments</p>
-                  <p className="text-2xl font-bold">
-                    {isLoading ? (
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      stats?.totalPayments || 0
-                    )}
+        <div className="flex-1 p-5">
+          <div className="max-w-8xl mx-auto">
+            {/* Loading */}
+            {isLoading && payments.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Payments...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your payments
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Search and filter */}
+            {payments.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                  {/* Search */}
+                  <div className="w-100">
+                    <Input
+                      type="text"
+                      placeholder="Search payments..."
+                      value={searchTerm}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      leftIcon={Search}
+                      className="w-100"
+                    />
+                </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    {/* View toggle */}
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button
+                        onClick={() => handleViewModeChange('card')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
+              </div>
+
+                    <Button variant="primary" onClick={() => router.push('/dashboard/payments/create')} leftIcon={Plus}>
+                      Create Payment
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!isLoading && payments.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                    <CreditCard className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                    No payments found
+                  </h3>
+                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
+                    No payments match your current criteria. Try adjusting your search or add new payments.
                   </p>
-                </div>
-                <CreditCard className="w-8 h-8 text-blue-200" />
-              </div>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-yellow-100 text-sm font-medium">Pending Payments</p>
-                  <p className="text-2xl font-bold">
-                    {isLoading ? (
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      stats?.pendingPayments || 0
-                    )}
-                  </p>
-                </div>
-                <Clock className="w-8 h-8 text-yellow-200" />
-              </div>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-sm font-medium">Approved Payments</p>
-                  <p className="text-2xl font-bold">
-                    {isLoading ? (
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      stats?.approvedPayments || 0
-                    )}
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-green-200" />
-              </div>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100 text-sm font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold">
-                    {isLoading ? (
-                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      formatCurrency(stats?.totalAmount || 0)
-                    )}
-                  </p>
-                </div>
-                <IndianRupee className="w-8 h-8 text-purple-200" />
-              </div>
-            </Card>
-          </div>
-
-          {/* Filters and Actions */}
-          <Card className="mb-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              {/* Search and Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search payments..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    className="pl-10"
-                  />
-                </div>
-
-                <Select
-                  value={statusFilter}
-                  onChange={(value) => handleFilterChange('status', value)}
-                  options={[
-                    { value: 'all', label: 'All Status' },
-                    { value: 'approved', label: 'Approved' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'rejected', label: 'Rejected' },
-                    { value: 'draft', label: 'Draft' }
-                  ]}
-                />
-
-                <Select
-                  value={supplierFilter}
-                  onChange={(value) => handleFilterChange('supplier', value)}
-                  options={[
-                    { value: 'all', label: 'All Suppliers' },
-                    { value: 'supplier1', label: 'Supplier 1' },
-                    { value: 'supplier2', label: 'Supplier 2' }
-                  ]}
-                />
-
-                <Select
-                  value={methodFilter}
-                  onChange={(value) => handleFilterChange('method', value)}
-                  options={[
-                    { value: 'all', label: 'All Methods' },
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'bank_transfer', label: 'Bank Transfer' },
-                    { value: 'cheque', label: 'Cheque' },
-                    { value: 'upi', label: 'UPI' },
-                    { value: 'card', label: 'Card' }
-                  ]}
-                />
-
-                <Select
-                  value={dateRange}
-                  onChange={(value) => handleFilterChange('date', value)}
-                  options={[
-                    { value: 'all', label: 'All Time' },
-                    { value: 'today', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' },
-                    { value: 'year', label: 'This Year' }
-                  ]}
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  leftIcon={Download}
-                  onClick={() => {/* Export logic */}}
-                >
-                  Export
-                </Button>
+                  <div className="pt-4">
                 <Button
                   variant="primary"
-                  leftIcon={Plus}
                   onClick={() => router.push('/dashboard/payments/create')}
                 >
+                      <Plus className="w-4 h-4 mr-2" />
                   Create Payment
                 </Button>
               </div>
             </div>
-          </Card>
+              </div>
+            )}
 
-          {/* Payments Table */}
-          <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            {/* Payments list */}
+            {payments.length > 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                  {viewMode === 'table' ? (
+                    <>
+                  {/* Fixed Header */}
+                  <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
+                    <table className="w-full min-w-[800px] table-fixed">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left p-4">
+                        <tr>
+                          <th className="w-1/6 px-6 py-4 text-left">
+                            <div className="flex items-center gap-4">
                       <input
                         type="checkbox"
                         checked={selectedPayments.length === payments.length && payments.length > 0}
-                        onChange={handleSelectAll}
-                        className="rounded border-gray-300"
-                      />
+                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                              />
+                              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                                Payment
+                              </span>
+                            </div>
+                          </th>
+                          <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Supplier</th>
+                          <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Date</th>
+                          <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Amount</th>
+                          <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Method</th>
+                          <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Status</th>
+                          <th className="w-32 px-6 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                            <MoreVertical className="w-4 h-4 mx-auto" />
                     </th>
-                    <th className="text-left p-4 font-medium text-gray-900">Payment Number</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Supplier</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Amount</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Method</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                    </table>
+                  </div>
+
+                  {/* Scrollable Body */}
+                  <div className="overflow-auto min-h-[calc(100vh-400px)]">
+                    <table className="w-full min-w-[800px] table-fixed">
+                      <tbody className="divide-y divide-gray-100">
                   {payments.map((payment) => {
-                    const statusBadge = getStatusBadge(payment.status);
+                          const paymentId = payment._id || payment.id;
+                          const statusBadge = getStatusBadge(payment.paymentStatus || payment.status);
                     const methodBadge = getPaymentMethodBadge(payment.paymentMethod);
                     const StatusIcon = statusBadge.icon;
                     
                     return (
-                      <tr key={payment.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="p-4">
+                            <tr key={paymentId} className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
+                              <td className="w-1/6 px-6 py-4">
+                                <div className="flex items-center gap-4">
                           <input
                             type="checkbox"
-                            checked={selectedPayments.includes(payment.id)}
-                            onChange={() => handlePaymentSelect(payment.id)}
-                            className="rounded border-gray-300"
-                          />
+                                    checked={selectedPayments.includes(paymentId)}
+                                    onChange={() => handlePaymentSelect(paymentId)}
+                                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
+                                  />
+                                  <div className="font-medium text-[rgb(var(--color-text-primary))]">{payment.paymentNumber}</div>
+                                </div>
                         </td>
-                        <td className="p-4">
-                          <div className="font-medium text-gray-900">{payment.paymentNumber}</div>
-                        </td>
-                        <td className="p-4">
+                              <td className="w-1/6 px-6 py-4">
                           <div className="flex items-center">
-                            <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-gray-900">{payment.supplier?.name || 'N/A'}</span>
+                                  <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2" />
+                                  <span className="text-[rgb(var(--color-text-primary))]">{payment.supplier?.name || 'N/A'}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-600">{formatDate(payment.paymentDate)}</td>
-                        <td className="p-4 font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
-                        <td className="p-4">
-                          <Badge variant={methodBadge.variant}>
+                              <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(payment.paymentDate)}</td>
+                              <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(payment.totalAmount || payment.amount)}</td>
+                              <td className="w-1/6 px-6 py-4">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                                  methodBadge.variant === 'success' ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' :
+                                  methodBadge.variant === 'info' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' :
+                                  methodBadge.variant === 'warning' ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20' :
+                                  methodBadge.variant === 'primary' ? 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20' :
+                                  'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20'
+                                }`}>
                             {methodBadge.text}
-                          </Badge>
+                                </span>
                         </td>
-                        <td className="p-4">
-                          <Badge variant={statusBadge.variant} className="flex items-center gap-1">
-                            <StatusIcon className="w-3 h-3" />
+                              <td className="w-1/6 px-6 py-4">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                                  statusBadge.variant === 'success' ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' :
+                                  statusBadge.variant === 'warning' ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20' :
+                                  statusBadge.variant === 'danger' ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' :
+                                  'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20'
+                                }`}>
+                                  <StatusIcon className="w-3 h-3 mr-1" />
                             {statusBadge.text}
-                          </Badge>
+                                </span>
                         </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Eye}
-                              onClick={() => router.push(`/dashboard/payments/${payment.id}`)}
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Edit}
-                              onClick={() => router.push(`/dashboard/payments/${payment.id}/edit`)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              leftIcon={Trash2}
-                              onClick={() => handleDeletePayment(payment)}
-                              className="text-red-600 hover:text-red-700"
-                            >
+                              <td className="w-32 px-6 py-4 text-center">
+                                <div className="relative inline-block" ref={(el) => (menuRefs.current[paymentId] = el)}>
+                                  <button
+                                    onClick={() => handleMenuToggle(paymentId)}
+                                    className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                                    title="More Actions"
+                                  >
+                                    <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                                  </button>
+
+                                  {/* Popup Menu */}
+                                  {openMenuId === paymentId && (
+                                    <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                                      <button
+                                        onClick={() => handleMenuAction(paymentId, 'view')}
+                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                      >
+                                        <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                        View Details
+                                      </button>
+                                      <button
+                                        onClick={() => handleMenuAction(paymentId, 'edit')}
+                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                      >
+                                        <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleMenuAction(paymentId, 'delete')}
+                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                                      >
+                                        <Trash2 className="w-4 h-4 text-red-500" />
                               Delete
-                            </Button>
+                                      </button>
+                                    </div>
+                                  )}
                           </div>
                         </td>
                       </tr>
@@ -446,53 +507,209 @@ const Payments = () => {
                   })}
                 </tbody>
               </table>
+                    
+                    {/* Infinite Scroll Loading */}
+                    {isLoadingMore && (
+                      <div className="flex items-center justify-center py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                          <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more payments...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                    </>
+                  ) : (
+                    <div className="overflow-auto min-h-[calc(100vh-400px)] p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {payments.map((payment) => {
+                          const paymentId = payment._id || payment.id;
+                          const statusBadge = getStatusBadge(payment.paymentStatus || payment.status);
+                          const methodBadge = getPaymentMethodBadge(payment.paymentMethod);
+                          const StatusIcon = statusBadge.icon;
+                          
+                          return (
+                            <div key={paymentId} className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden">
+                              {/* Checkbox */}
+                              <div className="absolute top-4 left-4 z-10">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedPayments.includes(paymentId)}
+                                  onChange={() => handlePaymentSelect(paymentId)}
+                                  className="w-4 h-4 rounded focus:ring-blue-500"
+                                />
+                              </div>
+
+                              {/* Payment Header with Gradient Background */}
+                              <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 relative">
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <CreditCard className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[rgb(var(--color-primary))]" />
             </div>
 
-            {/* Empty State */}
-            {payments.length === 0 && !isLoading && (
-              <div className="text-center py-12">
-                <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No payments found</h3>
-                <p className="text-gray-600 mb-4">Get started by creating your first payment.</p>
-                <Button
-                  variant="primary"
-                  leftIcon={Plus}
-                  onClick={() => router.push('/dashboard/payments/create')}
-                >
-                  Create Payment
-                </Button>
-              </div>
-            )}
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl"></div>
 
-            {/* Loading State */}
-            {isLoading && (
-              <div className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading payments...</p>
+                                {/* Action Menu */}
+                                <div className="absolute top-4 right-4 z-10">
+                                  <div className="relative" ref={(el) => (menuRefs.current[paymentId] = el)}>
+                                    <button
+                                      onClick={() => handleMenuToggle(paymentId)}
+                                      className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
+                                      title="More Actions"
+                                    >
+                                      <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                                    </button>
+
+                                    {/* Popup Menu */}
+                                    {openMenuId === paymentId && (
+                                      <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                                        <button
+                                          onClick={() => handleMenuAction(paymentId, 'view')}
+                                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                                        >
+                                          <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                          View Details
+                                        </button>
+                                        <button
+                                          onClick={() => handleMenuAction(paymentId, 'edit')}
+                                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                                        >
+                                          <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                          Edit
+                                        </button>
+                                        <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                                        <button
+                                          onClick={() => handleMenuAction(paymentId, 'delete')}
+                                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                                        >
+                                          <Trash2 className="w-4 h-4 text-red-500" />
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Card Content */}
+                              <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
+                                {/* Payment Info */}
+                                <div>
+                                  <h3 className="font-bold text-md sm:text-lg xl:text-lg mb-1 text-[rgb(var(--color-text-primary))] line-clamp-1">{payment.paymentNumber}</h3>
+                                  <p className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                                    {payment.supplier?.name || 'N/A'}
+                                  </p>
+                                </div>
+
+                                {/* Status and Method Badges */}
+                                <div className="flex flex-wrap gap-1 sm:gap-2">
+                                  <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${
+                                    statusBadge.variant === 'success' ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' :
+                                    statusBadge.variant === 'warning' ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20' :
+                                    statusBadge.variant === 'danger' ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' :
+                                    'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20'
+                                  }`}>
+                                    <StatusIcon className="w-3 h-3 mr-1" />
+                                    {statusBadge.text}
+                                  </span>
+                                  <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${
+                                    methodBadge.variant === 'success' ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' :
+                                    methodBadge.variant === 'info' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' :
+                                    methodBadge.variant === 'warning' ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20' :
+                                    methodBadge.variant === 'primary' ? 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20' :
+                                    'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20'
+                                  }`}>
+                                    {methodBadge.text}
+                                  </span>
+                                </div>
+
+                                {/* Payment Details */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
+                                    <Calendar className="w-4 h-4 mr-2" />
+                                    <span>{formatDate(payment.paymentDate)}</span>
+                                  </div>
+                                </div>
+
+                                {/* Amount */}
+                                <div className="flex items-center justify-between">
+                                  <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
+                                    <span className="font-medium">Amount:</span>
+                                  </div>
+                                  <div className="text-lg sm:text-lg xl:text-lg font-bold text-[rgb(var(--color-text-primary))]">
+                                    {formatCurrency(payment.totalAmount || payment.amount)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      {isLoadingMore && (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="flex items-center gap-3">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                            <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more payments...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {pagination?.hasNextPage ? (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{payments.length}</span> payments
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{payments.length}</span> payments
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more payments
+                          </span>
+                        </>
+                      )}
+              </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {selectedPayments.length > 0 && (
+                        <span className="font-semibold text-[rgb(var(--color-primary))]">
+                          {selectedPayments.length} selected
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-          </Card>
+          </div>
         </div>
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Delete Payment"
-        size="md"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
+              Delete Payment
+            </h3>
+            <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             Are you sure you want to delete this payment? This action cannot be undone.
           </p>
           {paymentToDelete && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="font-medium">Payment: {paymentToDelete.paymentNumber}</p>
-              <p className="text-sm text-gray-600">Amount: {formatCurrency(paymentToDelete.amount)}</p>
+              <div className="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-lg mb-6">
+                <p className="font-medium text-[rgb(var(--color-text-primary))]">Payment: {paymentToDelete.paymentNumber}</p>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Amount: {formatCurrency(paymentToDelete.totalAmount || paymentToDelete.amount)}</p>
             </div>
           )}
-          <div className="flex justify-end gap-3">
+            <div className="flex gap-3 justify-end">
             <Button
               variant="outline"
               onClick={() => setShowDeleteModal(false)}
@@ -507,7 +724,8 @@ const Payments = () => {
             </Button>
           </div>
         </div>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };

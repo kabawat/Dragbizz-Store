@@ -1,4 +1,4 @@
-import ViewPurchaseOrder from '@/page/dashboard/purchase-orders/[id]';
+import ViewPurchaseOrder from '@/page/dashboard/purchase-orders/view';
 
 export const metadata = {
   title: 'View Purchase Order - DragBizz Store',
