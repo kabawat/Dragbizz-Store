@@ -42,13 +42,13 @@ const CreatePayment = () => {
   const [formData, setFormData] = useState({
     supplierId: '',
     paymentType: 'BILL_PAYMENT',
-    billId: '', 
+    billId: '',
     notes: '',
     // Payment methods array
     paymentMethods: [
       {
         amount: 0,
-        method: 'cash', 
+        method: 'cash',
         reference: '',
         // Bank transfer details
         bankName: '',
@@ -96,7 +96,7 @@ const CreatePayment = () => {
         lightweight: true,
         store: selectedStore.storeId
       });
-      
+
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
         setSuppliers(suppliersData);
@@ -152,12 +152,12 @@ const CreatePayment = () => {
 
   // Fetch suppliers on component mount and when selectedStore changes
   useEffect(() => {
-    
+
     if (selectedStore?.storeId) {
       fetchSuppliers();
     } else {
       // If no store selected, set some default suppliers for testing
-      
+
       setSuppliers([
         { id: '1', name: 'Default Supplier 1' },
         { id: '2', name: 'Default Supplier 2' },
@@ -415,7 +415,7 @@ const CreatePayment = () => {
       paymentMethods: [
         {
           amount: 0,
-          method: 'cash', 
+          method: 'cash',
           reference: '',
           bankName: '',
           accountNumber: '',
@@ -464,17 +464,18 @@ const CreatePayment = () => {
                     {/* Basic Details Section */}
                     <Card className="mb-6">
                       <div className="p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                           <Building2 className="w-5 h-5 mr-2" />
                           Basic Details
                         </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                               Payment Type *
                             </label>
                             <Select
+                              size="sm"
                               value={formData.paymentType}
                               onChange={(value) => handleInputChange('paymentType', value)}
                               options={[
@@ -488,10 +489,11 @@ const CreatePayment = () => {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                               Supplier *
                             </label>
                             <Select
+                              size="sm"
                               value={formData.supplierId}
                               onChange={(value) => handleInputChange('supplierId', value)}
                               options={[
@@ -510,10 +512,11 @@ const CreatePayment = () => {
 
                           {formData.paymentType === 'BILL_PAYMENT' && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                                 Select Bill *
                               </label>
                               <Select
+                                size="sm"
                                 value={formData.billId}
                                 onChange={(value) => handleInputChange('billId', value)}
                                 options={[
@@ -539,7 +542,7 @@ const CreatePayment = () => {
                         </div>
 
                         <div className="mt-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                             Notes
                           </label>
                           <Textarea
@@ -556,14 +559,14 @@ const CreatePayment = () => {
                     <Card className="mb-6">
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                             <CreditCard className="w-5 h-5 mr-2" />
                             Payment Methods
                           </h3>
                           <button
                             type="button"
                             onClick={addPaymentMethod}
-                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-500/10 dark:hover:bg-green-500/20 rounded-lg transition-colors duration-200"
                             title="Add new payment method"
                           >
                             <Plus className="w-4 h-4" />
@@ -572,26 +575,26 @@ const CreatePayment = () => {
                         </div>
 
                         {/* Total Amount Display */}
-                        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="mb-4 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-blue-900">Total Amount:</span>
-                            <span className="text-lg font-bold text-blue-900">₹{getTotalAmount().toLocaleString()}</span>
+                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Total Amount:</span>
+                            <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">₹ {getTotalAmount().toLocaleString()}</span>
                           </div>
                         </div>
 
                         {/* Payment Methods List */}
                         <div className="space-y-4">
                           {formData.paymentMethods.map((method, index) => (
-                            <div key={index} className="border border-gray-200 rounded-lg p-4">
+                            <Card key={index} className="rounded-lg p-4 bg-[rgb(var(--color-bg-secondary))]">
                               <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-md font-medium text-gray-900">
+                                <h4 className="text-md font-medium text-[rgb(var(--color-text-primary))]">
                                   Payment Method {index + 1}
                                 </h4>
                                 {formData.paymentMethods.length > 1 && (
                                   <button
                                     type="button"
                                     onClick={() => removePaymentMethod(index)}
-                                    className="p-2 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                    className="p-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors duration-200"
                                     title="Remove payment method"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -599,12 +602,13 @@ const CreatePayment = () => {
                                 )}
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                                     Amount *
                                   </label>
                                   <Input
+                                    size="sm"
                                     type="number"
                                     value={method.amount}
                                     onChange={(value) => handlePaymentMethodChange(index, 'amount', value || '')}
@@ -615,11 +619,12 @@ const CreatePayment = () => {
                                   />
                                 </div>
 
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <div className="relative z-30">
+                                  <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                                     Payment Method *
                                   </label>
                                   <Select
+                                    size="sm"
                                     value={method.method}
                                     onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
                                     options={[
@@ -634,189 +639,184 @@ const CreatePayment = () => {
                                 </div>
 
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
                                     Reference
                                   </label>
                                   <Input
+                                    size="sm"
                                     value={method.reference}
                                     onChange={(value) => handlePaymentMethodChange(index, 'reference', value)}
                                     placeholder="Payment reference"
                                   />
                                 </div>
                               </div>
-                            </div>
-                          ))}
+
+                              {/* Payment Method Specific Details */}
+                              <div>
+                                {method.method === 'bank_transfer' && (
+                                  <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
+                                    <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
+                                      <Building2 className="w-5 h-5 mr-2" />
+                                      Bank Transfer Details
+                                    </h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Bank Name *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.bankName}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
+                                          placeholder="Enter bank name"
+                                          error={errors[`paymentMethod_${index}_bankName`]}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          IFSC Code *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.ifscCode}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
+                                          placeholder="Enter IFSC code"
+                                          error={errors[`paymentMethod_${index}_ifscCode`]}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Account Number *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.accountNumber}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
+                                          placeholder="Enter account number"
+                                          error={errors[`paymentMethod_${index}_accountNumber`]}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Account Holder Name *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.holderName}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
+                                          placeholder="Enter account holder name"
+                                          error={errors[`paymentMethod_${index}_holderName`]}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* UPI Details */}
+                                {(method.method === 'upi' || method.method === 'UPI') && (
+                                  <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
+                                    <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
+                                      <Smartphone className="w-5 h-5 mr-2" />
+                                      UPI Details
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          UPI ID *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.upiId}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
+                                          placeholder="Enter UPI ID (e.g., user@paytm)"
+                                          error={errors[`paymentMethod_${index}_upiId`]}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Transaction ID *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.transactionId}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
+                                          placeholder="Enter transaction ID"
+                                          error={errors[`paymentMethod_${index}_transactionId`]}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Cheque Details */}
+                                {method.method === 'cheque' && (
+                                  <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
+                                    <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
+                                      <FileText className="w-5 h-5 mr-2" />
+                                      Cheque Details
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Cheque Number *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.chequeNumber}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
+                                          placeholder="Enter cheque number"
+                                          error={errors[`paymentMethod_${index}_chequeNumber`]}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Cheque Date *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          type="date"
+                                          value={method.chequeDate}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'chequeDate', value)}
+                                          error={errors[`paymentMethod_${index}_chequeDate`]}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Bank Name *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.chequeBankName}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
+                                          placeholder="Enter bank name"
+                                          error={errors[`paymentMethod_${index}_chequeBankName`]}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
+                                          Branch Name *
+                                        </label>
+                                        <Input
+                                          size="sm"
+                                          value={method.chequeBranchName}
+                                          onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
+                                          placeholder="Enter branch name"
+                                          error={errors[`paymentMethod_${index}_chequeBranchName`]}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                          </Card>
+                        ))}
                         </div>
                       </div>
                     </Card>
-
-                    {/* Payment Method Specific Details */}
-                    {formData.paymentMethods.map((method, index) => (
-                      <div key={`details-${index}`}>
-                        {method.method === 'bank_transfer' && (
-                          <Card className="mb-6">
-                            <div className="p-6">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <Building2 className="w-5 h-5 mr-2" />
-                                Bank Transfer Details - Payment Method {index + 1}
-                              </h3>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bank Name *
-                                  </label>
-                                  <Input
-                                    value={method.bankName}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
-                                    placeholder="Enter bank name"
-                                    error={errors[`paymentMethod_${index}_bankName`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    IFSC Code *
-                                  </label>
-                                  <Input
-                                    value={method.ifscCode}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
-                                    placeholder="Enter IFSC code"
-                                    error={errors[`paymentMethod_${index}_ifscCode`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Account Number *
-                                  </label>
-                                  <Input
-                                    value={method.accountNumber}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
-                                    placeholder="Enter account number"
-                                    error={errors[`paymentMethod_${index}_accountNumber`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Account Holder Name *
-                                  </label>
-                                  <Input
-                                    value={method.holderName}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
-                                    placeholder="Enter account holder name"
-                                    error={errors[`paymentMethod_${index}_holderName`]}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
-                        )}
-
-                        {/* UPI Details */}
-                        {method.method === 'upi' && (
-                          <Card className="mb-6">
-                            <div className="p-6">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <Smartphone className="w-5 h-5 mr-2" />
-                                UPI Details - Payment Method {index + 1}
-                              </h3>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    UPI ID *
-                                  </label>
-                                  <Input
-                                    value={method.upiId}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
-                                    placeholder="Enter UPI ID (e.g., user@paytm)"
-                                    error={errors[`paymentMethod_${index}_upiId`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Transaction ID *
-                                  </label>
-                                  <Input
-                                    value={method.transactionId}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
-                                    placeholder="Enter transaction ID"
-                                    error={errors[`paymentMethod_${index}_transactionId`]}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
-                        )}
-
-                        {/* Cheque Details */}
-                        {method.method === 'cheque' && (
-                          <Card className="mb-6">
-                            <div className="p-6">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <FileText className="w-5 h-5 mr-2" />
-                                Cheque Details - Payment Method {index + 1}
-                              </h3>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Cheque Number *
-                                  </label>
-                                  <Input
-                                    value={method.chequeNumber}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
-                                    placeholder="Enter cheque number"
-                                    error={errors[`paymentMethod_${index}_chequeNumber`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Cheque Date *
-                                  </label>
-                                  <Input
-                                    type="date"
-                                    value={method.chequeDate}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeDate', value)}
-                                    error={errors[`paymentMethod_${index}_chequeDate`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bank Name *
-                                  </label>
-                                  <Input
-                                    value={method.chequeBankName}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
-                                    placeholder="Enter bank name"
-                                    error={errors[`paymentMethod_${index}_chequeBankName`]}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Branch Name *
-                                  </label>
-                                  <Input
-                                    value={method.chequeBranchName}
-                                    onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
-                                    placeholder="Enter branch name"
-                                    error={errors[`paymentMethod_${index}_chequeBranchName`]}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
-                        )}
-                      </div>
-                    ))}
-
-
                   </form>
                 </div>
 
