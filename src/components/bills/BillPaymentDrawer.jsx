@@ -319,7 +319,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                     <div className="px-0 sm:px-2">
                         <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                                    <CreditCard className="w-5 h-5 mr-2" />
+                                    <CreditCard className="w-5 h-5 mr-2 text-green-700 dark:text-green-500" />
                                     Payment Methods
                                 </h3>
                                 <AddActionButton
@@ -332,23 +332,23 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                             </div>
 
                         {formData.paymentMethods.map((method, index) => (
-                            <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4 mb-4 group">
+                            <div key={index} className="bg-green-50/30 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-lg p-3 sm:p-4 mb-4 group">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Method {index + 1}</h4>
+                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Method {index + 1}</h4>
                                         {formData.paymentMethods.length > 1 && (
                                             <button
                                                 onClick={() => removePaymentMethod(index)}
                                                 className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all cursor-pointer"
                                                 title="Remove Payment Method"
                                             >
-                                                <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" />
+                                                <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-red-600 dark:hover:text-red-400 transition-colors" />
                                             </button>
                                         )}
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                 Amount *
                                             </label>
                                             <Input
@@ -362,7 +362,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                 Payment Method *
                                             </label>
                                             <Select
@@ -383,7 +383,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         {method.method === 'bank' && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Bank Name *
                                                     </label>
                                                     <Input
@@ -395,7 +395,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Account Number *
                                                     </label>
                                                     <Input
@@ -407,7 +407,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         IFSC Code *
                                                     </label>
                                                     <Input
@@ -419,7 +419,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Holder Name *
                                                     </label>
                                                     <Input
@@ -437,7 +437,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         {method.method === 'upi' && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         UPI ID *
                                                     </label>
                                                     <Input
@@ -449,7 +449,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Transaction ID *
                                                     </label>
                                                     <Input
@@ -467,7 +467,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         {method.method === 'cheque' && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Cheque Number *
                                                     </label>
                                                     <Input
@@ -479,7 +479,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Cheque Date *
                                                     </label>
                                                     <Input
@@ -492,7 +492,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Bank Name *
                                                     </label>
                                                     <Input
@@ -504,7 +504,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                         Branch Name
                                                     </label>
                                                     <Input
@@ -520,7 +520,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         {/* Reference field for cash and credit */}
                                         {(method.method === 'cash' || method.method === 'credit') && (
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                     Reference
                                                 </label>
                                                 <Input
