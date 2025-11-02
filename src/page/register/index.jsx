@@ -182,7 +182,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-3 sm:p-4">
       {/* <AnimatedBackground variant="default" /> */}
       <AnimatedBackground variant="register" />
       <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
