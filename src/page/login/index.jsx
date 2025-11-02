@@ -388,19 +388,19 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-3 sm:p-4">
       <AnimatedBackground variant="login" />
       <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
-        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm">
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg backdrop-blur-sm">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-6 flex items-center justify-center">
-              <Lock className="w-8 h-8 text-white" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+              <Lock className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
+            <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
               Welcome back! 👋
             </h1>
-            <p className="text-[rgb(var(--color-text-secondary))]">
+            <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
               Sign in to your account to continue
             </p>
           </div>
@@ -408,30 +408,30 @@ export default function Login() {
           {/* Social Login Buttons - Only show when OTP not sent */}
           {!otpSent && (
             <>
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <button
                   onClick={() => handleSocialLogin('google')}
-                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 sm:gap-3 p-2.5 sm:p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer text-sm sm:text-base"
                 >
-                  <Chrome className="w-5 h-5 text-red-500" />
+                  <Chrome className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
                   <span>Continue with Google</span>
                 </button>
 
                 <button
                   onClick={() => handleSocialLogin('github')}
-                  className="w-full flex items-center justify-center gap-3 p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 sm:gap-3 p-2.5 sm:p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer text-sm sm:text-base"
                 >
-                  <Github className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+                  <Github className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800 dark:text-gray-200" />
                   <span>Continue with GitHub</span>
                 </button>
               </div>
 
               {/* Divider */}
-              <div className="relative my-6">
+              <div className="relative my-4 sm:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-[rgb(var(--color-border-primary))]"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
+                <div className="relative flex justify-center text-xs sm:text-sm">
                   <span className="px-2 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-secondary))]">
                     Or continue with email/phone
                   </span>
@@ -441,7 +441,7 @@ export default function Login() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Contact Type Indicator - Only show when OTP not sent */}
             {formData.contact && !otpSent && (
               <div className="mb-2">
@@ -575,19 +575,19 @@ export default function Login() {
                 type="button"
                 onClick={handleSendOTP}
                 disabled={isLoading || !formData.contact.trim()}
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
+                className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
                   isLoading || !formData.contact.trim() ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
                 }`}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Sending OTP...
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <span className="text-sm sm:text-base">Sending OTP...</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 mr-2" />
-                    Send OTP to {contactType}
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="text-sm sm:text-base">Send OTP to {contactType}</span>
                   </div>
                 )}
               </button>
@@ -728,25 +728,25 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
+                className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
                   isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
                 }`}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Signing in...
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <span className="text-sm sm:text-base">Signing in...</span>
                   </div>
                 ) : (
-                  'Sign In'
+                  <span className="text-sm sm:text-base">Sign In</span>
                 )}
               </button>
             )}
           </form>
 
           {/* Sign Up Link */}
-          <div className="text-center mt-6">
-            <p className="text-[rgb(var(--color-text-secondary))]">
+          <div className="text-center mt-4 sm:mt-6">
+            <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               Don't have an account?{' '}
               <Link
                 href="/register"
@@ -759,10 +759,10 @@ export default function Login() {
 
           {/* Forgot Password - Only show for password method */}
           {loginMethod === 'password' && (
-            <div className="text-center mt-4">
+            <div className="text-center mt-3 sm:mt-4">
               <Link
                 href="/forgot-password"
-                className="text-[rgb(var(--color-primary))] hover:underline text-sm"
+                className="text-xs sm:text-sm text-[rgb(var(--color-primary))] hover:underline"
               >
                 Forgot your password?
               </Link>
