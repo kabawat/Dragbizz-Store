@@ -42,6 +42,12 @@ export { default as RusticEleganceTemplate } from './RusticEleganceTemplate';
 
 // Template configuration
 export const TEMPLATE_CONFIG = {
+  cleandatasheet :{
+    name: 'Clean Data Sheet',
+    description: 'Data sheet style invoice with minimal design',
+    component: 'CleanDataSheetTemplate',
+    preview: '/images/templates/clean-datasheet-preview.png'
+  },
   classic: {
     name: 'Classic',
     description: 'Traditional invoice with formal styling',

@@ -223,6 +223,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
             <p>Email: {selectedStore?.email || 'info@yourstore.com'}</p>
           </div>
 
+
           <div className="section">
             <h3>Bill To</h3>
             <div className="customer-name">

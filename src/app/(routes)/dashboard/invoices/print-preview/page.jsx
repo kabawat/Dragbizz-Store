@@ -379,42 +379,9 @@ const PrintPreviewPage = () => {
                                 {/* Left Side - Print Preview */}
                                 <div className="lg:col-span-2 flex flex-col h-full">
                                     <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-150px)]">
-                                        {/* Preview Header */}
-                                        <div className="mb-4 no-print">
-                                            <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                                            Print Preview
-                                                        </h3>
-                                                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                                            {invoiceData.invoiceNumber} - {moment(invoiceData.createdAt).format('MMM DD, YYYY')}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            onClick={handleDownloadPDF}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Download className="w-4 h-4" />
-                                                            Download PDF
-                                                        </Button>
-                                                        <Button
-                                                            variant="primary"
-                                                            onClick={handlePrint}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Printer className="w-4 h-4" />
-                                                            Print Invoice
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         {/* Invoice Preview */}
-                                        <div className="bg-white border border-gray-300 rounded-lg shadow-sm preview-container">
+                                        <div id="invoice-area"  className="bg-white rounded-lg shadow-sm preview-container">
                                             {React.createElement(getTemplateComponent(), {
                                                 invoiceData,
                                                 selectedStore
