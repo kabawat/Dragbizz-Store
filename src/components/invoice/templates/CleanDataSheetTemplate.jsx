@@ -19,12 +19,14 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
       <style jsx global>{`
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-        }
-        
+              @media print {
+    body {
+      background: white !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
         /* Clean Data Sheet Template Styles */
         .clean-invoice-body {
           font-family: 'Lato', 'Helvetica', sans-serif !important;
@@ -172,40 +174,40 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="clean-invoice-body">
         <div className="clean-invoice">
-          
+
           {/* Header Section */}
           <div className="clean-header">
             <h1>INVOICE</h1>
             <div className="clean-store-name">{selectedStore?.storeName || "Data Stream Accounting"}</div>
             <div className="clean-store-info">
-                <p>
-                    {selectedStore?.address || "456 Minimalist Way, Clarity City"}
-                </p>
-                <p>
-                    Ph: {selectedStore?.phone || "+91 7654321098"} | Email: {selectedStore?.email || "billing@datastream.com"}
-                </p>
+              <p>
+                {selectedStore?.address || "456 Minimalist Way, Clarity City"}
+              </p>
+              <p>
+                Ph: {selectedStore?.phone || "+91 7654321098"} | Email: {selectedStore?.email || "billing@datastream.com"}
+              </p>
             </div>
           </div>
-          
+
           {/* Info Section */}
           <div className="clean-info-section">
             {/* Invoice Details */}
             <div className="clean-block">
-                <div className="title">Invoice Details</div>
-                <p>Invoice #: <span className="clean-invoice-number">{invoiceData.invoiceNumber}</span></p>
-                <p>Date Issued: <span className="clean-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-                <p>Due Date: <span className="clean-value-bold">N/A</span></p>
+              <div className="title">Invoice Details</div>
+              <p>Invoice #: <span className="clean-invoice-number">{invoiceData.invoiceNumber}</span></p>
+              <p>Date Issued: <span className="clean-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
+              <p>Due Date: <span className="clean-value-bold">N/A</span></p>
             </div>
-            
+
             {/* Bill To Details */}
             <div className="clean-block">
-                <div className="title">Bill To</div>
-                <p className="clean-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="clean-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
+              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="clean-table">
             <thead>
@@ -240,37 +242,37 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="clean-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount:</div>
+                <div className="amount" style={{ color: '#c0392b' }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#c0392b' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="clean-footer">
             <p>We appreciate your business. All figures are accurate as of the invoice date.</p>

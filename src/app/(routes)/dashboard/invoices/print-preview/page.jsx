@@ -16,7 +16,42 @@ import {
   ClassicTemplate, 
   ModernTemplate, 
   MinimalTemplate, 
-  ProfessionalTemplate 
+  ProfessionalTemplate,
+  CleanDataSheetTemplate,
+  AeroTemplate,
+  AetherTemplate,
+  ApexTemplate,
+  AuraTemplate,
+  AuroraTemplate,
+  CelesteTemplate,
+  CosmicReceiptTemplate,
+  CrystalTemplate,
+    EclipseTemplate,
+    ElegantTemplate,
+    ElitePaperTemplate,
+    FlexViewTemplate,
+    FusionTemplate,
+    GeometricEdgeTemplate,
+    LuminousLedgerTemplate,
+    LumosTemplate,
+    MatrixLedgerTemplate,
+    MinimalistMonochromeTemplate,
+    ModernStackedTemplate,
+    NeoEdgeTemplate,
+    NeoGeometricTemplate,
+    OrionTemplate,
+    PillarProTemplate,
+    PrismTemplate,
+    ProfessionalBlueTemplate,
+    RoyalEdgeTemplate,
+    RusticEleganceTemplate,
+    SleekStreamTemplate,
+    SpectrumTemplate,
+    StructedTemplate,
+    TerraTemplate,
+    VelocityLedgerTemplate,
+    VintageTemplate,
+    ZenTithTemplate
 } from '@/components/invoice/templates';
 import TemplateSelector from '@/components/invoice/TemplateSelector';
 
@@ -100,6 +135,76 @@ const PrintPreviewPage = () => {
                 return MinimalTemplate;
             case 'professional':
                 return ProfessionalTemplate;
+            case 'cleandatasheet':
+                return CleanDataSheetTemplate;
+            case 'aero':
+                return AeroTemplate;
+            case 'aether':
+                return AetherTemplate;
+            case 'apex':
+                return ApexTemplate;
+            case 'aura':
+                return AuraTemplate;
+            case 'aurora':
+                return AuroraTemplate;
+            case 'celeste':
+                return CelesteTemplate;
+            case 'cosmicreceipt':
+                return CosmicReceiptTemplate;
+            case 'crystal':
+                return CrystalTemplate;
+            case 'eclipse':
+                return EclipseTemplate;
+            case 'elegant':
+                return ElegantTemplate;
+            case 'elitepaper':
+                return ElitePaperTemplate;
+            case 'flexview':
+                return FlexViewTemplate;
+            case 'fusion':
+                return FusionTemplate;
+            case 'geometricedge':
+                return GeometricEdgeTemplate;
+            case 'luminousledger':
+                return LuminousLedgerTemplate;
+            case 'lumos':
+                return LumosTemplate;
+            case 'matrixledger':
+                return MatrixLedgerTemplate;
+            case 'minimalistmonochrome':
+                return MinimalistMonochromeTemplate;
+            case 'modernstacked':
+                return ModernStackedTemplate;
+            case 'neoedge':
+                return NeoEdgeTemplate;
+            case 'neogeometric':
+                return NeoGeometricTemplate;
+            case 'orion':
+                return OrionTemplate;
+            case 'pillarpro':
+                return PillarProTemplate;
+            case 'prism':
+                return PrismTemplate;
+            case 'professionalblue':
+                return ProfessionalBlueTemplate;
+            case 'royaledge':
+                return RoyalEdgeTemplate;
+            case 'rusticelegance':
+                return RusticEleganceTemplate;
+            case 'sleekstream':
+                return SleekStreamTemplate;
+            case 'spectrum':
+                return SpectrumTemplate;
+            case 'structed':
+                return StructedTemplate;
+            case 'terra':
+                return TerraTemplate;
+            case 'velocityledger':
+                return VelocityLedgerTemplate;
+            case 'vintage':
+                return VintageTemplate;
+            case 'zentith':
+                return ZenTithTemplate;
             default:
                 return ModernTemplate;
         }
@@ -270,42 +375,9 @@ const PrintPreviewPage = () => {
                                 {/* Left Side - Print Preview */}
                                 <div className="lg:col-span-2 flex flex-col h-full">
                                     <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-150px)]">
-                                        {/* Preview Header */}
-                                        <div className="mb-4 no-print">
-                                            <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                                            Print Preview
-                                                        </h3>
-                                                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                                            {invoiceData.invoiceNumber} - {moment(invoiceData.createdAt).format('MMM DD, YYYY')}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            onClick={handleDownloadPDF}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Download className="w-4 h-4" />
-                                                            Download PDF
-                                                        </Button>
-                                                        <Button
-                                                            variant="primary"
-                                                            onClick={handlePrint}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Printer className="w-4 h-4" />
-                                                            Print Invoice
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         {/* Invoice Preview */}
-                                        <div className="bg-white border border-gray-300 rounded-lg shadow-sm preview-container">
+                                        <div id="invoice-area"  className="bg-white rounded-lg shadow-sm preview-container">
                                             {React.createElement(getTemplateComponent(), {
                                                 invoiceData,
                                                 selectedStore
