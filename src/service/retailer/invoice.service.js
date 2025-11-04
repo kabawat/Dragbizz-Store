@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class InvoiceService {
@@ -11,7 +11,7 @@ class InvoiceService {
   // Create Draft Invoice
   async createDraftInvoice(invoiceData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG.RETAILER.INVOICE, invoiceData);
+      const response = await authAxios.post(API_CONFIG.RETAILER.INVOICE, invoiceData);
       return handleApiSuccess(response.data, 'Draft invoice created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-creation');
@@ -23,7 +23,7 @@ class InvoiceService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG.RETAILER.INVOICE, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response.data, 'Invoices fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoices-list');
@@ -34,7 +34,7 @@ class InvoiceService {
   async updateDraftInvoice(invoiceId, updateData) {
     try {
       const url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}`;
-      const response = await retailerAxios.put(url, updateData);
+      const response = await authAxios.put(url, updateData);
       return handleApiSuccess(response.data, 'Draft invoice updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-update');
@@ -54,7 +54,7 @@ class InvoiceService {
         payload.store = storeId;
       }
       
-      const response = await retailerAxios.post(`${API_CONFIG.RETAILER.INVOICE}/release`, payload);
+      const response = await authAxios.post(`${API_CONFIG.RETAILER.INVOICE}/release`, payload);
       return handleApiSuccess(response.data, 'Invoice released successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-release');
@@ -64,7 +64,7 @@ class InvoiceService {
   // Cancel Invoice
   async cancelInvoice(invoiceId, reason = '') {
     try {
-      const response = await retailerAxios.post(`${API_CONFIG.RETAILER.INVOICE}/cancel`, {
+      const response = await authAxios.post(`${API_CONFIG.RETAILER.INVOICE}/cancel`, {
         id: invoiceId,
         reason
       });
@@ -85,7 +85,7 @@ class InvoiceService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response.data, 'Invoice deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-deletion');

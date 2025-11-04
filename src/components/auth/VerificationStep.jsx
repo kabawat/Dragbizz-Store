@@ -117,8 +117,6 @@ const VerificationStep = ({
         pwds: registrationData.password // Map password to pwds
       };
       
-      console.log('Resending OTP with data:', resendData);
-      
       // Call the registration API again to resend OTP
       const result = await authService.resendRegistrationOTP(resendData);
       

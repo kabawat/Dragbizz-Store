@@ -13,6 +13,7 @@ const API_CONFIG = {
   AUTH: {
     LOGIN: '/auth/login',
     LOGIN_VERIFY: '/auth/login',
+    REFRESH: '/auth/login/refresh',
     REGISTER: '/auth/register',
     VERIFY_OTP: '/auth/register',
     FORGOT_PASSWORD: '/auth/forgot-password',

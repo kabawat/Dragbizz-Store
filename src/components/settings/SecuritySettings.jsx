@@ -19,7 +19,6 @@ const SecuritySettings = () => {
   };
 
   const handleSave = () => {
-    console.log('Changing password');
     setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     setShowChangePassword(false);
   };

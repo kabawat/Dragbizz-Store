@@ -28,11 +28,6 @@ export const getRetailerDetails = createAsyncThunk(
         });
       }
       
-      // Save retailer token if available
-      if (profileResult.data.token) {
-        cookieManager.setRetailerToken(profileResult.data.token);
-      }
-      
       // Extract data from profile result
       const combinedData = {
         user: profileResult.data.user || null,

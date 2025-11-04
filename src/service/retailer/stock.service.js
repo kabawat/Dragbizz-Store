@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 
 class StockService {
   constructor() {
@@ -10,7 +10,7 @@ class StockService {
   // Add stock to a product
   async addStock(stockData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.STOCK, stockData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.STOCK, stockData);
       return handleApiSuccess(response?.data, 'Stock added successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'stock-addition');

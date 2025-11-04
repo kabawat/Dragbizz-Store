@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class CustomerService {
@@ -11,7 +11,7 @@ class CustomerService {
   // Create a new customer
   async createCustomer(customerData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.CUSTOMER, customerData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.CUSTOMER, customerData);
       return handleApiSuccess(response?.data, 'Customer created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'customer-creation');
@@ -29,7 +29,7 @@ class CustomerService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.put(url, customerData);
+      const response = await authAxios.put(url, customerData);
       return handleApiSuccess(response?.data, 'Customer updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'customer-updation');
@@ -41,10 +41,7 @@ class CustomerService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.CUSTOMER, params);
-      console.log('Customer API URL:', url);
-      console.log('Customer API params:', params);
-      const response = await retailerAxios.get(url);
-      console.log('Customer API response:', response?.data);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Customers fetched successfully');
     } catch (error) {
       console.error('Customer API error:', error);
@@ -63,7 +60,7 @@ class CustomerService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Customer deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'customer-deletion');
@@ -81,7 +78,7 @@ class CustomerService {
       }
 
       url = attachQueryParams(url, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Customers searched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'customer-search');
@@ -98,7 +95,7 @@ class CustomerService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Customer statistics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'customer-stats');

@@ -5,7 +5,7 @@ import { cookieManager } from '@/utils/cookieManager';
 import { useTheme } from '@/contexts/ThemeContext';
 import confetti from 'canvas-confetti';
 
-const LoginSuccessScreen = ({ firstName, onContinue, authToken }) => {
+const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) => {
   const [countdown, setCountdown] = useState(4);
   const [showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
@@ -126,14 +126,17 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken }) => {
   // Handle countdown completion
   useEffect(() => {
     if (countdown === 0) {
-      // Save authentication token before redirecting
+      // Save authentication tokens before redirecting
       if (authToken) {
         cookieManager.setAuthToken(authToken);
+      }
+      if (refreshToken) {
+        cookieManager.setRefreshToken(refreshToken);
       }
       // Redirect to dashboard
       window.location.href = '/dashboard';
     }
-  }, [countdown, authToken]);
+  }, [countdown, authToken, refreshToken]);
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
@@ -190,9 +193,12 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken }) => {
         {/* Manual Continue Button */}
         <button
           onClick={() => {
-            // Save authentication token before redirecting
+            // Save authentication tokens before redirecting
             if (authToken) {
               cookieManager.setAuthToken(authToken);
+            }
+            if (refreshToken) {
+              cookieManager.setRefreshToken(refreshToken);
             }
             // Redirect to dashboard
             window.location.href = '/dashboard';

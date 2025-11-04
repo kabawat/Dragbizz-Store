@@ -206,7 +206,6 @@ const Payments = () => {
   const confirmDelete = () => {
     if (paymentToDelete) {
       // Implement delete logic here
-      console.log('Deleting payment:', paymentToDelete.id);
       setShowDeleteModal(false);
       setPaymentToDelete(null);
     }

@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class CategoryService {
@@ -17,7 +17,7 @@ class CategoryService {
         ...(storeId && { store: storeId })
       };
       
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.CATEGORY, requestData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.CATEGORY, requestData);
       return handleApiSuccess(response?.data, 'Category created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'category-creation');
@@ -29,7 +29,7 @@ class CategoryService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.CATEGORY, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Categories fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'categories-list');

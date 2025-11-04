@@ -91,7 +91,6 @@ const PaymentAnalytics = () => {
   // Handle export
   const handleExport = () => {
     // Implement export logic
-    console.log('Exporting payment analytics:', { timeRange, supplierFilter, methodFilter, viewType });
   };
 
   // Format currency

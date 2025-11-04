@@ -34,6 +34,22 @@ export const authAxios = axios.create({
   },
 });
 
+// Flag to prevent multiple refresh attempts
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 // Request interceptor for authenticated requests (auth service)
 authAxios.interceptors.request.use(
   (config) => {
@@ -49,60 +65,92 @@ authAxios.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
 authAxios.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response?.status === 401) {
-      cookieManager.clearAuth();
-      
-      // Redirect to login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and not already retrying
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return authAxios(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = cookieManager.getRefreshToken();
+
+      // If no refresh token, logout
+      if (!refreshToken) {
+        isRefreshing = false;
+        processQueue(error, null);
+        cookieManager.clearAuth();
+        
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      try {
+        // Import authService dynamically to avoid circular dependency
+        const { default: authService } = await import('@/service/auth/auth.service');
+        
+        // Call refresh token endpoint
+        const refreshResponse = await authService.refreshToken(refreshToken);
+
+        if (refreshResponse.success && refreshResponse.data) {
+          // Handle nested data structure
+          const responseData = refreshResponse.data.data || refreshResponse.data;
+          const { token: newAccessToken, refreshToken: newRefreshToken } = responseData;
+
+          // Save new tokens
+          if (newAccessToken) {
+            cookieManager.setAuthToken(newAccessToken);
+          }
+          if (newRefreshToken) {
+            cookieManager.setRefreshToken(newRefreshToken);
+          }
+
+          // Update original request with new token
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          
+          isRefreshing = false;
+          processQueue(null, newAccessToken);
+
+          // Retry original request
+          return authAxios(originalRequest);
+        } else {
+          throw new Error('Token refresh failed');
+        }
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        isRefreshing = false;
+        processQueue(refreshError, null);
+        cookieManager.clearAuth();
+
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+
+        return Promise.reject(refreshError);
       }
     }
-    
-    return Promise.reject(error);
-  }
-);
 
-// Retailer authenticated axios instance (for retailer service)
-export const retailerAxios = axios.create({
-  ...commonConfig,
-  baseURL: BASE_URL,
-});
-
-// Request interceptor for retailer authenticated requests
-retailerAxios.interceptors.request.use(
-  (config) => {
-    const token = cookieManager.getRetailerToken();
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-retailerAxios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      cookieManager.clearAuth();
-      
-      // Redirect to login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-    }
-    
     return Promise.reject(error);
   }
 );
@@ -119,6 +167,5 @@ unauthAxios.interceptors.response.use(
 
 export default {
   authAxios,
-  retailerAxios,
   unauthAxios,
 };

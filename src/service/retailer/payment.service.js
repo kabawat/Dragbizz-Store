@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class PaymentService {
@@ -91,7 +91,7 @@ class PaymentService {
       // Transform the data to match the API documentation structure
       const apiPayload = this.transformPaymentData(paymentData);
 
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.PAYMENT, apiPayload);
       return handleApiSuccess(response?.data, 'Payment created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'payment-creation');
@@ -109,7 +109,7 @@ class PaymentService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.put(url, paymentData);
+      const response = await authAxios.put(url, paymentData);
       return handleApiSuccess(response?.data, 'Payment updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'payment-updation');
@@ -121,7 +121,7 @@ class PaymentService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.PAYMENT, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Payments fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'payments-list');
@@ -139,7 +139,7 @@ class PaymentService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Payment deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'payment-deletion');
