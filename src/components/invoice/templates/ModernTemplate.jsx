@@ -6,11 +6,13 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
       <style jsx global>{`
-        @media print {
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+              @media print {
+            body {
+              background: white !important;
+            }
+            .no-print {
+              display: none !important;
+            }
           }
           
           body {
@@ -220,7 +222,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
             <p>Phone: {selectedStore?.phone || '+91 9876543210'}</p>
             <p>Email: {selectedStore?.email || 'info@yourstore.com'}</p>
           </div>
-          
+
           <div className="section">
             <h3>Bill To</h3>
             <div className="customer-name">

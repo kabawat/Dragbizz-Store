@@ -6,13 +6,14 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
       <style jsx global>{`
-        @media print {
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            @media print {
+            body {
+              background: white !important;
+            }
+            .no-print {
+              display: none !important;
+            }
           }
-          
           body {
             font-family: 'Helvetica', 'Arial', sans-serif !important;
             font-size: 13px !important;
@@ -201,7 +202,7 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
               <p>{selectedStore?.phone || '+91 9876543210'}</p>
               <p>{selectedStore?.email || 'info@yourstore.com'}</p>
             </div>
-            
+
             <div className="section">
               <div className="label">Bill To</div>
               <div className="customer-name">

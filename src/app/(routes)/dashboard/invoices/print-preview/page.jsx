@@ -12,11 +12,47 @@ import { invoiceService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 
 // Import templates
-import { 
-  ClassicTemplate, 
-  ModernTemplate, 
-  MinimalTemplate, 
-  ProfessionalTemplate 
+import {
+    ClassicTemplate,
+    ModernTemplate,
+    MinimalTemplate,
+    ProfessionalTemplate,
+    ElegantTemplate,
+    VintageTemplate,
+    AeroTemplate,
+    CrystalTemplate,
+    StructedTemplate,
+    AetherTemplate,
+    AuroraTemplate,
+    CelesteTemplate,
+    EclipseTemplate,
+    ApexTemplate,
+    ZenithTemplate,
+    TerraTemplate,
+    AuraTemplate,
+    LumosTemplate,
+    FusionTemplate,
+    OrionTemplate,
+    PrismTemplate,
+    SpectrumTemplate,
+    FlexviewTemplate,
+    ElitePaperTemplate,
+    NeoEdgeTemplate,
+    LuminousLedgerTemplate,
+    AurumTemplate,
+    VelocityLedgerTemplate,
+    SleekStreamTemplate,
+    RoyalEdgeTemplate,
+    CosmicReceiptTemplate,
+    GeometricEdgeTemplate,
+    CleanDataSheetTemplate,
+    NeoGeometricTemplate,
+    PillarProTemplate,
+    MatrixLedgerTemplate,
+    ProfessionalBlueTemplate,
+    MinimalistMonochromeTemplate,
+    ModernStackedTemplate,
+    RusticEleganceTemplate
 } from '@/components/invoice/templates';
 import TemplateSelector from '@/components/invoice/TemplateSelector';
 
@@ -55,7 +91,7 @@ const PrintPreviewPage = () => {
                 setFetching(true);
                 setError(null);
                 const result = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
-                
+
                 if (result.success && result.data) {
                     setInvoiceData(result.data);
                 } else {
@@ -100,6 +136,79 @@ const PrintPreviewPage = () => {
                 return MinimalTemplate;
             case 'professional':
                 return ProfessionalTemplate;
+            case 'elegant':
+                return ElegantTemplate;
+            case 'vintage':
+                return VintageTemplate;
+            case 'aero':
+                return AeroTemplate;
+            case 'crystal':
+                return CrystalTemplate;
+            case 'structed':
+                return StructedTemplate;
+            case 'aether':
+                return AetherTemplate;
+            case 'aurora':
+                return AuroraTemplate;
+            case 'celeste':
+                return CelesteTemplate;
+            case 'eclipse':
+                return EclipseTemplate;
+            case 'apex':
+                return ApexTemplate;
+            case 'zentith':
+                return ZenithTemplate;
+            case 'terra':
+                return TerraTemplate;
+            case 'lumos':
+                return LumosTemplate;
+            case 'aura':
+                return AuraTemplate;
+            case 'fusion':
+                return FusionTemplate;
+            case 'orion':
+                return OrionTemplate;
+            case 'spectrum':
+                return SpectrumTemplate;
+            case 'PrismTemplate':
+                return PrismTemplate;
+            case 'flexview':
+                return FlexviewTemplate;
+            case 'elitepaper':
+                return ElitePaperTemplate;
+            case 'neoedge':
+                return NeoEdgeTemplate;
+            case 'luminousledger':
+                return LuminousLedgerTemplate;
+            case 'aurum':
+                return AurumTemplate;
+            case 'velocityledger':
+                return VelocityLedgerTemplate;
+            case 'sleekstream':
+                return SleekStreamTemplate;
+            case 'royaledge':
+                return RoyalEdgeTemplate;
+            case 'cosmicreceipt':
+                return CosmicReceiptTemplate;
+            case 'geometricedge':
+                return GeometricEdgeTemplate;
+            case 'cleandatasheet':
+                return CleanDataSheetTemplate;
+            case 'neogeometric':
+                return NeoGeometricTemplate;
+            case 'pillarPro':
+                return PillarProTemplate;  
+            case 'matrixLedger':
+                return MatrixLedgerTemplate;
+            case 'professionalblue':
+                return ProfessionalBlueTemplate;
+            case 'minimalistmonochrome':
+                return MinimalistMonochromeTemplate;
+            case 'modernstacked':
+                return ModernStackedTemplate;
+            case 'rusticelegance':
+                return RusticEleganceTemplate;
+
             default:
                 return ModernTemplate;
         }
@@ -117,10 +226,10 @@ const PrintPreviewPage = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const shouldPrint = urlParams.get('print') === 'true';
-        
+
         if (shouldPrint && !fetching && invoiceData) {
             // Small delay to ensure page is fully loaded
-            setTimeout(() => {
+            setTimeout(() => { 
                 window.print();
             }, 500);
         }
@@ -255,7 +364,7 @@ const PrintPreviewPage = () => {
                         <div className="max-w-8xl mx-auto w-full">
                             {/* Back Button */}
                             <div className="mb-4 no-print">
-                                <button 
+                                <button
                                     onClick={() => router.push(`/dashboard/invoices/view/${invoiceId}`)}
                                     className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
                                 >
@@ -266,7 +375,7 @@ const PrintPreviewPage = () => {
 
                             {/* Print Preview Layout */}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 150px)' }}>
-                                
+
                                 {/* Left Side - Print Preview */}
                                 <div className="lg:col-span-2 flex flex-col h-full">
                                     <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-150px)]">
@@ -323,7 +432,7 @@ const PrintPreviewPage = () => {
                                                 <TemplateSelector
                                                     selectedTemplate={selectedTemplate}
                                                     onTemplateChange={handleTemplateChange}
-                                                    onPreview={() => {}}
+                                                    onPreview={() => { }}
                                                     onPrint={handlePrint}
                                                 />
                                             </div>

@@ -157,7 +157,7 @@ const ClassicTemplate = ({ invoiceData, selectedStore }) => {
             <p>Phone: {selectedStore?.phone || '+91 9876543210'}</p>
             <p>Email: {selectedStore?.email || 'info@yourstore.com'}</p>
           </div>
-          
+
           <div className="customer-info">
             <h3>BILL TO:</h3>
             <p style={{ fontWeight: 'bold', fontSize: '14px' }}>

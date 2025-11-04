@@ -6,13 +6,15 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
       <style jsx global>{`
-        @media print {
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+                @media print {
+            body {
+              background: white !important;
+            }
+            .no-print {
+              display: none !important;
+            }
           }
-          
+        
           body {
             font-family: 'Georgia', 'Times New Roman', serif !important;
             font-size: 13px !important;
