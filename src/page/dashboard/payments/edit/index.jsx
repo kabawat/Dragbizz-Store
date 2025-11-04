@@ -89,7 +89,6 @@ const EditPayment = ({ paymentId }) => {
         if (result.success && result.data) {
           // API response structure: { status, message, data: { paymentMethods, supplier, ... } }
           const paymentData = result.data;
-          console.log('Payment data for edit:', paymentData);
           
           // Transform API data to form data
           if (paymentData) {

@@ -106,13 +106,11 @@ const OverdueBills = () => {
   // Handle send reminder
   const handleSendReminder = (bill) => {
     // Implement send reminder logic
-    console.log('Sending reminder for bill:', bill.id);
   };
 
   // Handle contact supplier
   const handleContactSupplier = (supplier) => {
     // Implement contact supplier logic
-    console.log('Contacting supplier:', supplier.id);
   };
 
   return (

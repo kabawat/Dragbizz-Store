@@ -65,7 +65,6 @@ const ViewBillPage = ({ billId }) => {
         const result = await billService.getBills(params);
         
         if (result.success && result.data) {
-          console.log('Bill data:', result.data);
           setBillData(result.data);
         } else {
           setError(result.message || 'Failed to fetch bill data');
@@ -89,13 +88,11 @@ const ViewBillPage = ({ billId }) => {
   // Handle make payment
   const handleMakePayment = () => {
     // TODO: Implement payment functionality
-    console.log('Make payment clicked for bill:', billId);
   };
 
   // Handle payment completed
   const handlePaymentCompleted = () => {
     // TODO: Implement payment completed functionality
-    console.log('Payment completed for bill:', billId);
   };
 
   // Handle delete bill

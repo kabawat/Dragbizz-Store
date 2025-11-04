@@ -52,7 +52,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
                 const result = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
                 if (result.success && result.data) {
-                    console.log(result.data);
                     setInvoiceData(result.data);
                 } else {
                     showError(result.message || 'Failed to fetch invoice data');

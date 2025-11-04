@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class SupplierService {
@@ -11,7 +11,7 @@ class SupplierService {
   // Create a new supplier
   async createSupplier(supplierData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.SUPPLIER, supplierData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.SUPPLIER, supplierData);
       return handleApiSuccess(response?.data, 'Supplier created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'supplier-creation');
@@ -29,7 +29,7 @@ class SupplierService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.put(url, supplierData);
+      const response = await authAxios.put(url, supplierData);
       return handleApiSuccess(response?.data, 'Supplier updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'supplier-updation');
@@ -41,7 +41,7 @@ class SupplierService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.SUPPLIER, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Suppliers fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'suppliers-list');
@@ -59,7 +59,7 @@ class SupplierService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Supplier deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'supplier-deletion');
@@ -77,7 +77,7 @@ class SupplierService {
       }
 
       url = attachQueryParams(url, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Suppliers searched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'supplier-search');
@@ -94,7 +94,7 @@ class SupplierService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Supplier statistics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'supplier-stats');

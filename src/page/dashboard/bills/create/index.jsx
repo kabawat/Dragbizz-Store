@@ -73,7 +73,6 @@ const CreateBill = () => {
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    console.log('Fetching suppliers for store:', selectedStore?.storeId);
     if (!selectedStore?.storeId) return;
     try {
       setSuppliersLoading(true);
@@ -82,16 +81,12 @@ const CreateBill = () => {
         lightweight: true,
         store: selectedStore.storeId
       });
-      console.log('Fetched suppliers:', result);
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
-        console.log('Fetched suppliers:', suppliersData);
         setSuppliers(suppliersData);
-      } else {
-        console.error('Failed to fetch suppliers:', result.message);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
+      // Error handled by error handler
     } finally {
       setSuppliersLoading(false);
     }

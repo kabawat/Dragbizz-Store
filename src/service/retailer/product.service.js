@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class ProductService {
@@ -11,7 +11,7 @@ class ProductService {
   // Create a new product
   async createProduct(productData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.PRODUCT, productData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.PRODUCT, productData);
       return handleApiSuccess(response?.data, 'Product created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'product-creation');
@@ -28,7 +28,7 @@ class ProductService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.put(url, productData);
+      const response = await authAxios.put(url, productData);
       return handleApiSuccess(response?.data, 'Product updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'product-updation');
@@ -40,7 +40,7 @@ class ProductService {
     try {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.PRODUCT, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Products fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'products-list');
@@ -58,7 +58,7 @@ class ProductService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Product deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'product-deletion');

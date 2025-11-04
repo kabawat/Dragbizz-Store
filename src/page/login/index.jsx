@@ -173,12 +173,13 @@ export default function Login() {
       const result = await authService.login(loginData);
 
       if (result.success) {
-        // Save authentication token
+        // Save authentication tokens
         if (result.data.token) {
           // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
-            authToken: result.data.token
+            authToken: result.data.token,
+            refreshToken: result.data.refreshToken || null
           });
           setShowSuccessScreen(true);
         }
@@ -286,7 +287,8 @@ export default function Login() {
           // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
-            authToken: result.data.token
+            authToken: result.data.token,
+            refreshToken: result.data.refreshToken || null
           });
           setShowSuccessScreen(true);
         }
@@ -383,6 +385,7 @@ export default function Login() {
       <LoginSuccessScreen
         firstName={successData.firstName}
         authToken={successData.authToken}
+        refreshToken={successData.refreshToken}
       />
     );
   }

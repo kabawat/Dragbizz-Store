@@ -46,15 +46,15 @@ const StoreSettings = () => {
   ]);
 
   const handleAddStore = () => {
-    console.log('Add new store');
+    // TODO: Implement add store functionality
   };
 
   const handleEditStore = (storeId) => {
-    console.log('Edit store:', storeId);
+    // TODO: Implement edit store functionality
   };
 
   const handleDeleteStore = (storeId) => {
-    console.log('Delete store:', storeId);
+    // TODO: Implement delete store functionality
   };
 
   return (

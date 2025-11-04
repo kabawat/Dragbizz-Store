@@ -129,13 +129,11 @@ const PendingPayments = () => {
   // Handle approve payment
   const handleApprovePayment = (payment) => {
     // Implement approve payment logic
-    console.log('Approving payment:', payment.id);
   };
 
   // Handle reject payment
   const handleRejectPayment = (payment) => {
     // Implement reject payment logic
-    console.log('Rejecting payment:', payment.id);
   };
 
   return (

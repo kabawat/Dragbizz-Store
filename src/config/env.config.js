@@ -9,6 +9,7 @@ const ENV_CONFIG = {
   // Authentication
   AUTH: {
     AUTH_TOKEN_KEY: process.env.NEXT_PUBLIC_AUTH_TOKEN_KEY || 'db_auth_token',
+    REFRESH_TOKEN_KEY: process.env.NEXT_PUBLIC_REFRESH_TOKEN_KEY || 'db_refresh_token',
     RETAILER_TOKEN_KEY: process.env.NEXT_PUBLIC_RETAILER_TOKEN_KEY || 'db_retailer_token',
   },
   

@@ -1,6 +1,6 @@
 import API_CONFIG from '@/config/api.config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class BillService {
@@ -16,7 +16,7 @@ class BillService {
         }
       });
 
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.BILL, apiPayload);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.BILL, apiPayload);
       return handleApiSuccess(response?.data, 'Bill created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-creation');
@@ -34,7 +34,7 @@ class BillService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.put(url, billData);
+      const response = await authAxios.put(url, billData);
       return handleApiSuccess(response?.data, 'Bill updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-updation');
@@ -44,16 +44,9 @@ class BillService {
   // Get all bills with query parameters
   async getBills(params = {}) {
     try {
-      console.log('BillService.getBills called with params:', params);
-      console.log('API_CONFIG.RETAILER.BILL:', API_CONFIG?.RETAILER?.BILL);
-      
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.BILL, params);
-      console.log('Final URL:', url);
-      
-      const response = await retailerAxios.get(url);
-      console.log('BillService.getBills response:', response);
-      
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Bills fetched successfully');
     } catch (error) {
       console.error('BillService.getBills error:', error);
@@ -71,7 +64,7 @@ class BillService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Bill deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-deletion');
@@ -88,7 +81,7 @@ class BillService {
         url = attachQueryParams(url, params);
       }
 
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Bill analytics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'bill-analytics');

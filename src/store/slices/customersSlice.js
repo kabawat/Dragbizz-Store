@@ -20,17 +20,13 @@ export const getCustomers = createAsyncThunk(
   'customers/getCustomers',
   async (params, { rejectWithValue }) => {
     try {
-      console.log('getCustomers thunk called with params:', params);
       const result = await customerService.getCustomers(params);
-      console.log('getCustomers thunk result:', result);
       if (result.success) {
         return result;
       } else {
-        console.error('getCustomers thunk failed:', result.message);
         return rejectWithValue(result.message || 'Failed to fetch customers');
       }
     } catch (error) {
-      console.error('getCustomers thunk error:', error);
       return rejectWithValue(error.message || 'Failed to fetch customers');
     }
   }
@@ -113,9 +109,6 @@ const customersSlice = createSlice({
       })
       .addCase(getCustomers.fulfilled, (state, action) => {
         const isFreshLoad = action.meta?.arg?.isFreshLoad || false;
-        console.log('getCustomers fulfilled - isFreshLoad:', isFreshLoad);
-        console.log('getCustomers fulfilled - action.payload:', action.payload);
-        console.log('getCustomers fulfilled - action.payload.data:', action.payload.data);
         
         if (isFreshLoad) {
           state.isLoading = false;
@@ -133,8 +126,6 @@ const customersSlice = createSlice({
             data = action.payload.data.customers;
           }
         }
-        
-        console.log('Processed customer data:', data);
         
         if (isFreshLoad) {
           // Fresh load - replace existing data

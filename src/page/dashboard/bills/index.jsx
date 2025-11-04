@@ -104,7 +104,6 @@ const Bills = () => {
     setOpenMenuId(null);
   };
   const handleManualApiCall = () => {
-    console.log('Manual API call triggered');
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     dispatch(getBills({
       store: storeId || 'test-store',

@@ -92,11 +92,6 @@ export const getRetailerDetails = createAsyncThunk(
       
       // Extract actual data (data is nested in data.data)
       const actualData = profileResult.data.data || profileResult.data;
-      // Save retailer token if available
-      if (actualData.token) {
-        cookieManager.setRetailerToken(actualData.token);
-      }
-      
       // Extract data from profile result
       const combinedData = {
         user: actualData.user || null,

@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { retailerAxios } from '@/service/config/axiosConfig';
+import { authAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class ExpenseService {
@@ -11,7 +11,7 @@ class ExpenseService {
   // Create a new expense
   async createExpense(expenseData) {
     try {
-      const response = await retailerAxios.post(API_CONFIG?.RETAILER?.EXPENSE, expenseData);
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.EXPENSE, expenseData);
       return handleApiSuccess(response?.data, 'Expense created successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-creation');
@@ -26,7 +26,7 @@ class ExpenseService {
         const params = { store: storeId };
         url = attachQueryParams(url, params);
       }
-      const response = await retailerAxios.put(url, expenseData);
+      const response = await authAxios.put(url, expenseData);
       return handleApiSuccess(response?.data, 'Expense updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-updation');
@@ -39,12 +39,8 @@ class ExpenseService {
       // Build URL with all query parameters including id
       const url = attachQueryParams(API_CONFIG?.RETAILER?.EXPENSE, params);
       
-      console.log('Expense API URL:', url);
-      console.log('Expense API params:', params);
-      
       // Call the API
-      const response = await retailerAxios.get(url);
-      console.log('Expense API response:', response?.data);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, params.id ? 'Expense fetched successfully' : 'Expenses fetched successfully');
     } catch (error) {
       console.error('Expense API error:', error);
@@ -60,7 +56,7 @@ class ExpenseService {
         const params = { store: storeId };
         url = attachQueryParams(url, params);
       }
-      const response = await retailerAxios.delete(url);
+      const response = await authAxios.delete(url);
       return handleApiSuccess(response?.data, 'Expense deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-deletion');
@@ -76,7 +72,7 @@ class ExpenseService {
         params.store = storeId;
       }
       url = attachQueryParams(url, params);
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Expenses searched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-search');
@@ -91,7 +87,7 @@ class ExpenseService {
         const params = { store: storeId };
         url = attachQueryParams(url, params);
       }
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Expense statistics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-stats');
@@ -106,7 +102,7 @@ class ExpenseService {
         const params = { store: storeId };
         url = attachQueryParams(url, params);
       }
-      const response = await retailerAxios.get(url);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Expense analytics fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'expense-analytics');

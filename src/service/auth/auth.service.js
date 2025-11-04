@@ -227,6 +227,21 @@ class AuthService {
       return handleApiErrorResponse(error, 'store-creation');
     }
   }
+
+  // Refresh Access Token using Refresh Token
+  async refreshToken(refreshToken) {
+    try {
+      const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH, null, {
+        headers: {
+          'Authorization': `Bearer ${refreshToken}`
+        }
+      });
+
+      return handleApiSuccess(response, 'Token refreshed successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'token-refresh');
+    }
+  }
 }
 
 // Create and export a singleton instance

@@ -17,7 +17,6 @@ const ProfileSettings = ({ user }) => {
   };
 
   const handleSave = () => {
-    console.log('Saving profile:', form);
     setIsEditing(false);
     // Here you would typically make an API call to save the profile
   };

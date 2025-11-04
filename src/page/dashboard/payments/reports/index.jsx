@@ -101,7 +101,6 @@ const PaymentReports = () => {
   // Handle export
   const handleExport = () => {
     // Implement export logic
-    console.log('Exporting payment report:', { reportType, dateRange, supplierFilter, methodFilter });
   };
 
   // Format currency
