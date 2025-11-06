@@ -212,15 +212,6 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.customer?.phone && <p>Phone: {invoiceData.customer.phone}</p>}
             {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
           </div>
-          <div className="section">
-            <h3>Bill To</h3>
-            <div className="customer-name">
-              {invoiceData.customer?.name || 'Walk-in Customer'}
-            </div>
-            {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
-            {invoiceData.customer?.phone && <p>Phone: {invoiceData.customer.phone}</p>}
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
-          </div>
         </div>
 
         {/* Items Table */}
@@ -268,7 +259,7 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
               <span>Total:</span>
               <span>₹{invoiceData.totalAmount?.toLocaleString()}</span>
             </div>
-          </div>wrapper
+          </div>
         </div>
 
         {/* Footer */}
