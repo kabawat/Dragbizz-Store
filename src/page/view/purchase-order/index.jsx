@@ -1,16 +1,21 @@
+// path: src/components/purchaseOrders/ViewPurchaseOrder.jsx
 "use client"
-import React, { useState, useEffect } from 'react';
-import { FileText, Download, Calendar, Building2, AlertTriangle, CheckCircle, Clock, IndianRupee } from 'lucide-react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { FileText, Download, Calendar, Building2, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { purchaseOrderService } from '@/service/retailer';
 import { SideDrawer } from '@/components/ui';
 import PurchaseOrderDetails from '@/components/purchaseOrders/PurchaseOrderDetails';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const ViewPurchaseOrder = ({ purchaseOrderId }) => {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     const fetchPurchaseOrder = async () => {
@@ -36,59 +41,140 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
   }, [purchaseOrderId]);
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', { 
-      style: 'currency', 
-      currency: 'INR' 
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
     }).format(amount || 0);
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return new Date(date).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'PENDING': { 
-        icon: Clock, 
-        text: 'Pending', 
-        color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700' 
+      'PENDING': {
+        icon: Clock,
+        text: 'Pending',
+        color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700'
       },
-      'APPROVED': { 
-        icon: CheckCircle, 
-        text: 'Approved', 
-        color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700' 
+      'APPROVED': {
+        icon: CheckCircle,
+        text: 'Approved',
+        color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
       },
-      'REJECTED': { 
-        icon: AlertTriangle, 
-        text: 'Rejected', 
-        color: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700' 
+      'REJECTED': {
+        icon: AlertTriangle,
+        text: 'Rejected',
+        color: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
       },
-      'OPEN': { 
-        icon: AlertTriangle, 
-        text: 'Open', 
-        color: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 border-orange-200 dark:border-orange-700' 
+      'OPEN': {
+        icon: AlertTriangle,
+        text: 'Open',
+        color: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 border-orange-200 dark:border-orange-700'
       }
     };
-    
+
     return statusConfig[status?.toUpperCase()] || statusConfig['PENDING'];
   };
 
-  const handleDownload = () => {
-    // Implement download functionality
-    // Download purchase order PDF
-  };
+const handleDownload = async () => {
+  const content = contentRef.current;
+  if (!content) {
+    alert("Failed to generate PDF. Please try again.");
+    return;
+  }
 
-  const handleViewDetails = () => {
-    setIsDrawerOpen(true);
-  };
+  // Clone the content for rendering
+  const tempElement = content.cloneNode(true);
+  tempElement.style.backgroundColor = "#ffffff";
+  tempElement.style.width = "100%";
+  tempElement.style.position = "absolute";
+  tempElement.style.left = "-9999px";
+  document.body.appendChild(tempElement);
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-  };
+  // 🧹 STEP 1: Sanitize colors (fix oklab/lab/lch)
+  tempElement.querySelectorAll("*").forEach((el) => {
+    if (el instanceof SVGElement) return;
+    const computed = getComputedStyle(el);
+
+    [
+      "color",
+      "backgroundColor",
+      "borderColor",
+      "outlineColor",
+      "fill",
+      "stroke",
+    ].forEach((prop) => {
+      const val = computed[prop];
+      if (val && /(oklab|lab|lch|oklch)\(/i.test(val)) {
+        // Convert or replace unsupported color
+        const rgb = computed.color.match(/rgb[a]?\([^)]*\)/);
+        el.style[prop] = rgb ? rgb[0] : "#000000";
+      }
+    });
+
+    // Remove gradients (unsupported)
+    if (computed.backgroundImage && computed.backgroundImage !== "none") {
+      el.style.backgroundImage = "none";
+    }
+  });
+
+  // 🧹 STEP 2: Replace CSS variable colors with computed RGB
+  const cssVars = getComputedStyle(document.documentElement);
+  tempElement.querySelectorAll("*").forEach((el) => {
+    Array.from(el.attributes).forEach((attr) => {
+      if (attr.value.includes("var(--")) {
+        const match = attr.value.match(/--[a-zA-Z0-9-_]+/);
+        if (match) {
+          const rgb = cssVars.getPropertyValue(match[0]);
+          if (rgb && !/(oklab|lab|lch)/i.test(rgb)) {
+            el.style[attr.name] = `rgb(${rgb.trim()})`;
+          }
+        }
+      }
+    });
+  });
+
+  // 🧾 Generate PDF
+  const poNumber =
+    purchaseOrder?.poNumber ||
+    purchaseOrder?.billNumber ||
+    `PO-${purchaseOrderId}`;
+
+  try {
+    const canvas = await html2canvas(tempElement, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.8);
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeight);
+    pdf.save(`Purchase_Order_${poNumber}.pdf`);
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    alert("Failed to generate PDF. Please try again.");
+  } finally {
+    document.body.removeChild(tempElement);
+  }
+};
+
+
+
+  const handleViewDetails = () => setIsDrawerOpen(true);
+  const handleCloseDrawer = () => setIsDrawerOpen(false);
 
   if (loading) {
     return (
@@ -144,7 +230,9 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
         </div>
 
         {/* Purchase Order Card */}
-        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-sm p-12 max-w-4xl w-full mb-8">
+        <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-sm p-12 max-w-4xl w-full mb-8"
+        ref={contentRef}
+        >
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
               <FileText className="w-10 h-10 text-white" />
@@ -181,8 +269,8 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
                 <div className="flex justify-between items-start">
                   <span className="text-[rgb(var(--color-text-secondary))] text-sm font-medium">Address:</span>
                   <span className="text-[rgb(var(--color-text-primary))] font-semibold text-sm text-right max-w-[60%]">
-                    {purchaseOrder.store?.address ? 
-                      `${purchaseOrder.store.address.line1}, ${purchaseOrder.store.address.city}, ${purchaseOrder.store.address.state} - ${purchaseOrder.store.address.pincode}` : 
+                    {purchaseOrder.store?.address ?
+                      `${purchaseOrder.store.address.line1}, ${purchaseOrder.store.address.city}, ${purchaseOrder.store.address.state} - ${purchaseOrder.store.address.pincode}` :
                       'N/A'
                     }
                   </span>
@@ -251,10 +339,10 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <button  onClick={handleViewDetails}  className="cursor-pointer flex-1 text-[rgb(var(--color-primary))] font-medium text-base flex items-center justify-center py-3 border-2 border-[rgb(var(--color-primary))] border-opacity-30 rounded-lg transition-colors">
+            <button onClick={handleViewDetails} className="cursor-pointer flex-1 text-[rgb(var(--color-primary))] font-medium text-base flex items-center justify-center py-3 border-2 border-[rgb(var(--color-primary))] border-opacity-30 rounded-lg transition-colors">
               View details
             </button>
-            <button onClick={handleDownload}  className="flex-1 bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:opacity-90 text-white font-medium text-base flex items-center justify-center py-3 px-6 rounded-lg transition-colors shadow-md">
+            <button onClick={handleDownload} className="flex-1 bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:opacity-90 text-white font-medium text-base flex items-center justify-center py-3 px-6 rounded-lg transition-colors shadow-md">
               <Download className="w-5 h-5 mr-2" />
               Download PO
             </button>
