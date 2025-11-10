@@ -24,7 +24,88 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           padding: 0;
         }
 
-        .modern-invoice {
+    /* ✅ MINI PRINTER MODE FIX */
+body.print-mode-mini .aether-invoice {
+  flex-direction: column !important;
+  width: 74mm !important;
+  max-width: 74mm !important;
+  padding: 4px !important;
+}
+
+/* ✅ Left panel mini-mode */
+body.print-mode-mini .aether-left {
+  width: 100% !important;
+  padding: 8px !important;
+  border-radius: 0 !important;
+  text-align: center !important;
+}
+
+body.print-mode-mini .aether-left h2 {
+  font-size: 14px !important;
+}
+
+body.print-mode-mini .aether-left p {
+  font-size: 10px !important;
+}
+
+/* ✅ Right panel mini-mode */
+body.print-mode-mini .aether-right {
+  width: 100% !important;
+  padding: 6px !important;
+}
+
+/* ✅ Header */
+body.print-mode-mini .aether-header h1 {
+  font-size: 16px !important;
+}
+
+body.print-mode-mini .aether-header .date {
+  font-size: 10px !important;
+}
+
+/* ✅ Bill To etc */
+body.print-mode-mini .info-section {
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+body.print-mode-mini .info-section .block {
+  width: 100% !important;
+}
+
+body.print-mode-mini .info-section .value {
+  font-size: 12px !important;
+}
+
+/* ✅ Table Compact */
+body.print-mode-mini table th {
+  font-size: 9px !important;
+  padding: 4px 0 !important;
+}
+
+body.print-mode-mini table td {
+  font-size: 10px !important;
+  padding: 4px 0 !important;
+}
+
+/* ✅ Totals */
+body.print-mode-mini .totals .row {
+  width: 100% !important;
+}
+
+body.print-mode-mini .totals .label,
+body.print-mode-mini .totals .amount {
+  font-size: 10px !important;
+}
+
+/* ✅ Footer */
+body.print-mode-mini .footer {
+  font-size: 9px !important;
+  margin-top: 10px !important;
+}
+
+
+        .aether-invoice {
           display: flex;
           flex-direction: row;
           max-width: 900px;
@@ -35,7 +116,7 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .modern-left {
+        .aether-left {
           background: #2c3e50;
           color: white;
           width: 35%;
@@ -45,38 +126,38 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           justify-content: space-between;
         }
 
-        .modern-left h2 {
+        .aether-left h2 {
           font-size: 22px;
           font-weight: 500;
           margin-bottom: 10px;
         }
 
-        .modern-left p {
+        .aether-left p {
           font-size: 12px;
           line-height: 1.5;
           color: #dfe6e9;
           margin: 2px 0;
         }
 
-        .modern-right {
+        .aether-right {
           width: 65%;
           padding: 40px;
         }
 
-        .modern-header {
+        .aether-header {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
           margin-bottom: 30px;
         }
 
-        .modern-header h1 {
+        .aether-header h1 {
           font-size: 28px;
           font-weight: 600;
           letter-spacing: 2px;
         }
 
-        .modern-header .date {
+        .aether-header .date {
           font-size: 12px;
           color: #7f8c8d;
         }
@@ -185,9 +266,9 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
         }
       `}</style>
 
-      <div className="modern-invoice">
+      <div className="aether-invoice">
         {/* Left Panel */}
-        <div className="modern-left">
+        <div className="aether-left">
           <div>
             <h2>{selectedStore?.storeName || "Your Store"}</h2>
             <p>{selectedStore?.address || "123 Business Street"}</p>
@@ -203,8 +284,8 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Right Panel */}
-        <div className="modern-right">
-          <div className="modern-header">
+        <div className="aether-right">
+          <div className="aether-header">
             <div>
               <h1>INVOICE</h1>
               <div className="date">
