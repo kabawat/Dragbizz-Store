@@ -6,14 +6,14 @@ const ClassicTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
       <style jsx global>{`
-         @media print {
-    body {
-      background: white !important;
-    }
-    .no-print {
-      display: none !important;
-    }
-  }
+              @media print {
+          body {
+            background: white !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
           
           body {
             font-family: 'Times New Roman', serif !important;
@@ -23,6 +23,19 @@ const ClassicTemplate = ({ invoiceData, selectedStore }) => {
             background: white !important;
           }
           
+          body.print-mode-mini .classic-invoice {
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          border: none !important;
+          box-shadow: none !important;
+      }
+            body.print-mode-standard .classic-invoice {
+                max-width: 800px !important;
+                padding: 40px !important;
+            }
+
+
           .classic-invoice {
             width: 100% !important;
             max-width: 800px !important;
@@ -159,7 +172,7 @@ const ClassicTemplate = ({ invoiceData, selectedStore }) => {
             <p>Phone: {selectedStore?.phone || '+91 9876543210'}</p>
             <p>Email: {selectedStore?.email || 'info@yourstore.com'}</p>
           </div>
-          
+
           <div className="customer-info">
             <h3>BILL TO:</h3>
             <p style={{ fontWeight: 'bold', fontSize: '14px' }}>

@@ -22,7 +22,120 @@ const SleekStreamTemplate = ({ invoiceData, selectedStore }) => {
             display: none !important;
           }
         }
-        
+                /* ✅ MINI MODE – Sleek Template Full Fix */
+        body.print-mode-mini .sleek-invoice {
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          margin: 0 auto !important;
+          overflow: hidden !important;
+          box-shadow: none !important;
+          border: none !important;
+        }
+
+        /* ✅ Global font scaling */
+        body.print-mode-mini .sleek-invoice-body {
+          font-size: 10.5px !important;
+        }
+
+        /* ✅ Split Header Compact */
+        body.print-mode-mini .sleek-split-header {
+          flex-direction: column !important;
+          min-height: auto !important;
+        }
+
+        body.print-mode-mini .sleek-meta-sidebar {
+          width: 100% !important;
+          padding: 8px !important;
+          text-align: center !important;
+        }
+
+        body.print-mode-mini .sleek-meta-sidebar h1 {
+          font-size: 16px !important;
+          padding-bottom: 3px !important;
+        }
+
+        body.print-mode-mini .sleek-meta-value {
+          font-size: 11px !important;
+        }
+
+        body.print-mode-mini .sleek-store-customer-info {
+          width: 100% !important;
+          padding: 8px !important;
+          flex-direction: column !important;
+          gap: 6px !important;
+        }
+
+        body.print-mode-mini .sleek-info-block {
+          width: 100% !important;
+        }
+
+        body.print-mode-mini .sleek-info-block p {
+          font-size: 10px !important;
+        }
+
+        /* ✅ TABLE FIX */
+        body.print-mode-mini .sleek-table {
+          padding: 0 !important;
+          margin-bottom: 8px !important;
+        }
+
+        body.print-mode-mini .sleek-table thead th {
+          font-size: 8px !important;
+          padding: 3px 4px !important;
+        }
+
+        body.print-mode-mini .sleek-table td {
+          font-size: 9.5px !important;
+          padding: 3px 4px !important;
+        }
+
+        /* Prevent description overflow */
+        body.print-mode-mini .sleek-table td:first-child {
+          max-width: 55mm !important;
+          word-wrap: break-word !important;
+        }
+
+        /* ✅ TOTALS AREA FIX */
+        body.print-mode-mini .sleek-totals-area {
+          justify-content: flex-start !important;
+          padding: 0 !important;
+          margin-top: 6px !important;
+        }
+
+        body.print-mode-mini .sleek-totals-table {
+          width: 100% !important;
+        }
+
+        body.print-mode-mini .sleek-totals-table .row {
+          padding: 3px 0 !important;
+          font-size: 10px !important;
+        }
+
+        body.print-mode-mini .sleek-totals-table .label {
+          font-size: 10px !important;
+        }
+
+        body.print-mode-mini .sleek-totals-table .amount {
+          font-size: 10px !important;
+          font-weight: 600 !important;
+        }
+
+        /* ✅ GRAND TOTAL FIX */
+        body.print-mode-mini .sleek-totals-table .final-row {
+          padding: 6px !important;
+          font-size: 12px !important;
+          margin-top: 6px !important;
+        }
+
+        /* ✅ FOOTER FIX */
+        body.print-mode-mini .sleek-footer {
+          padding: 6px 0 !important;
+          font-size: 9px !important;
+        }
+
+
+
         /* Sleek Stream Template Styles */
         .sleek-invoice-body {
           font-family: 'Poppins', 'Helvetica Neue', sans-serif !important;
