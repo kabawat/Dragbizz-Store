@@ -28,6 +28,19 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
           color: #4e342e !important; /* Dark brown text */
           background-color: #fcfaf7 !important; /* Light beige background */
         }
+
+         body.print-mode-mini .vintage-invoice {
+    width: 74mm !important;
+    max-width: 74mm !important;
+    padding: 6px !important;
+    border: none !important; /* thermal usually no border */
+    box-shadow: none !important;
+  }
+
+  body.print-mode-standard .vintage-invoice {
+    max-width: 800px !important;
+    padding: 40px !important;
+  }
           
         .vintage-invoice {
           max-width: 800px !important;
@@ -153,6 +166,46 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
         .vintage-table .product-name {
           font-weight: 600 !important;
         }
+
+              @media print {
+        body.print-mode-mini .vintage-table {
+          width: 100% !important;
+          margin-bottom: 10px !important;
+          border: 1px solid #a1887f !important;
+        }
+
+        body.print-mode-mini .vintage-table th {
+          font-size: 8px !important;
+          padding: 3px 2px !important;
+        }
+
+        body.print-mode-mini .vintage-table td {
+          font-size: 9.5px !important;
+          padding: 3px 2px !important;
+          line-height: 1.1 !important;
+          white-space: normal !important;
+          word-break: break-word !important;
+        }
+
+        body.print-mode-mini .vintage-table td:first-child {
+          max-width: 45mm !important;
+          white-space: normal !important;
+        }
+
+        body.print-mode-mini .vintage-table td,
+        body.print-mode-mini .vintage-table th {
+          border-right: none !important;
+        }
+
+        body.print-mode-mini .vintage-table tr td {
+          border-bottom: 1px solid #d7ccc8 !important;
+        }
+
+        body.print-mode-mini .vintage-table tr:nth-child(even) {
+          background-color: #fbf7f4 !important;
+        }
+      }
+
           
         .vintage-totals {
           display: flex !important;

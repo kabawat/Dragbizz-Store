@@ -13,7 +13,7 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
           .no-print {
             display: none !important;
           }
-          .modern-invoice {
+          .aero-invoice {
             box-shadow: none !important;
             border: none !important;
             margin: 0 !important;
@@ -27,7 +27,30 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
           font-size: 14px !important;
         }
 
-        .modern-invoice {
+          body {
+          /* Using a classic serif font */
+          font-family: 'Georgia', 'Times New Roman', serif !important;
+          font-size: 14px !important;
+          line-height: 1.6 !important;
+          color: #4e342e !important; /* Dark brown text */
+          background-color: #fcfaf7 !important; /* Light beige background */
+        }
+
+         body.print-mode-mini .aero-invoice {
+    width: 74mm !important;
+    max-width: 74mm !important;
+    padding: 6px !important;
+    border: none !important; /* thermal usually no border */
+    box-shadow: none !important;
+  }
+
+  body.print-mode-standard .aero-invoice {
+    max-width: 800px !important;
+    padding: 40px !important;
+  }
+
+        
+        .aero-invoice {
           max-width: 850px !important;
           margin: 40px auto !important;
           background: #ffffff !important;
@@ -37,7 +60,7 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
           border: 1px solid #e2e8f0 !important;
         }
 
-        .modern-header {
+        .aero-header {
           display: flex !important;
           justify-content: space-between !important;
           align-items: flex-start !important;
@@ -174,9 +197,9 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         }
       `}</style>
 
-      <div className="modern-invoice">
+      <div className="aero-invoice">
         {/* Header */}
-        <div className="modern-header">
+        <div className="aero-header">
           <div>
             <div className="store-name">{selectedStore?.storeName || "Your Store"}</div>
             <div className="store-details">
