@@ -54,7 +54,6 @@ const processQueue = (error, token = null) => {
 authAxios.interceptors.request.use(
   (config) => {
     const token = cookieManager.getAuthToken();
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

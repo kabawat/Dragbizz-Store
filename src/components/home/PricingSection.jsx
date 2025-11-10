@@ -1,56 +1,32 @@
 "use client"
-import React from 'react';
-import { Card, Button } from '@/components/ui';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Loading } from '@/components/ui';
 import { CheckCircle } from 'lucide-react';
+import { packageService } from '@/service';
 
 const PricingSection = ({
   title = 'Choose Your Plan',
   description = 'Select the perfect plan for your business needs',
-  plans = [
-    {
-      name: 'Basic',
-      emoji: '🦊',
-      price: 19,
-      period: 'month',
-      color: 'blue',
-      badge: 'MOST POPULAR',
-      features: [
-        'Unlock all features from our site',
-        '24/7 Priority support',
-        'Access to Pro group',
-        'Cancel anytime you want'
-      ]
-    },
-    {
-      name: 'Standard',
-      emoji: '🐼',
-      price: 24,
-      period: 'month',
-      color: 'purple',
-      badge: 'MOST POPULAR',
-      features: [
-        'Unlock all features from our site',
-        '24/7 Priority support',
-        'Access to Pro group',
-        'Cancel anytime you want'
-      ]
-    },
-    {
-      name: 'Professional',
-      emoji: '🦄',
-      price: 32,
-      period: 'month',
-      color: 'orange',
-      badge: 'MOST POPULAR',
-      features: [
-        'Unlock all features from our site',
-        '24/7 Priority support',
-        'Access to Pro group',
-        'Cancel anytime you want'
-      ]
-    }
-  ]
+  plans: defaultPlans = []
 }) => {
+  const [plans, setPlans] = useState(defaultPlans);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const planTypeColors = {
+    'BASIC': 'blue',
+    'PROFESSIONAL': 'purple',
+    'ENTERPRISE': 'orange',
+    'CUSTOM': 'blue'
+  };
+
+  const planTypeEmojis = {
+    'BASIC': '🦊',
+    'PROFESSIONAL': '🐼',
+    'ENTERPRISE': '🦄',
+    'CUSTOM': '📦'
+  };
+
   const getColorClasses = (color) => {
     const colors = {
       blue: {
@@ -68,6 +44,114 @@ const PricingSection = ({
     };
     return colors[color] || colors.blue;
   };
+
+  const transformPackageToPlan = (pkg) => {
+    const planType = pkg.planType || 'BASIC';
+    const color = planTypeColors[planType] || 'blue';
+    
+    const features = pkg.features
+      ?.filter(f => f.enabled)
+      .map(f => {
+        const featureName = f.feature?.name || 'Feature';
+        const limit = f.limit ? ` (${f.limit}${f.unit || ''})` : '';
+        return `${featureName}${limit}`;
+      }) || [];
+
+    if (pkg.maxStores) {
+      features.push(`${pkg.maxStores} Store${pkg.maxStores > 1 ? 's' : ''}`);
+    }
+    if (pkg.maxUsers) {
+      features.push(`${pkg.maxUsers} User${pkg.maxUsers > 1 ? 's' : ''}`);
+    }
+    if (pkg.maxProducts) {
+      features.push(`${pkg.maxProducts} Products`);
+    }
+    if (pkg.maxStorage) {
+      features.push(`${pkg.maxStorage} GB Storage`);
+    }
+    if (pkg.trialPeriod?.enabled && pkg.trialPeriod?.days) {
+      features.push(`${pkg.trialPeriod.days} Days Free Trial`);
+    }
+
+    const price = pkg.pricing?.discountedAmount || pkg.pricing?.amount || 0;
+    const currency = pkg.pricing?.currency || 'INR';
+    const billingCycle = pkg.pricing?.billingCycle?.toLowerCase() || 'month';
+
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      emoji: planTypeEmojis[planType] || '📦',
+      price: price,
+      currency: currency,
+      period: billingCycle,
+      color: color,
+      badge: pkg.isPopular ? 'MOST POPULAR' : pkg.isRecommended ? 'RECOMMENDED' : '',
+      features: features.length > 0 ? features : [
+        'Unlock all features from our site',
+        '24/7 Priority support',
+        'Access to Pro group',
+        'Cancel anytime you want'
+      ],
+      shortDescription: pkg.shortDescription,
+      description: pkg.description,
+      planType: planType
+    };
+  };
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await packageService.getPackages({
+          status: 'ACTIVE',
+          isVisible: true,
+          sortBy: 'displayOrder',
+          sortOrder: 'asc',
+          limit: 10
+        });
+
+        if (response.success && response.data) {
+          const packages = Array.isArray(response.data) ? response.data : [];
+          const transformedPlans = packages.map(transformPackageToPlan);
+          
+          if (transformedPlans.length > 0) {
+            setPlans(transformedPlans);
+          } else {
+            setPlans(defaultPlans);
+          }
+        } else {
+          setPlans(defaultPlans);
+        }
+      } catch (err) {
+        console.error('Error fetching packages:', err);
+        setError(err.message);
+        setPlans(defaultPlans);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Only fetch if no default plans provided
+    if (defaultPlans.length === 0) {
+      fetchPackages();
+    } else {
+      setLoading(false);
+    }
+  }, [defaultPlans.length]);
+
+  if (loading) {
+    return (
+      <section id="pricing" className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 relative z-10">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loading />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="pricing" className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
@@ -113,7 +197,7 @@ const PricingSection = ({
                     <div className={`absolute -top-2 -right-2 ${colorClasses.ribbon} text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg shadow-lg transform rotate-3`}>
                       <div className="text-right">
                         <div className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight">
-                          ${plan.price}
+                          {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
                         </div>
                         <div className="text-xs sm:text-sm opacity-95">
                           /{plan.period}
@@ -135,7 +219,7 @@ const PricingSection = ({
 
                   <Button
                     className={`w-full ${colorClasses.button} text-white text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold transition-colors shadow-md`}
-                    onClick={() => window.location.href = '/login'}
+                    onClick={() => window.location.href = `/checkout?packageId=${plan.id}`}
                   >
                     Buy now
                   </Button>

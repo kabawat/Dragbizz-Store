@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3 } from 'lucide-react';
 import { Input, AnimatedBackground } from '@/components/ui';
 import { authService } from '@/service/auth';
@@ -11,6 +12,8 @@ import Link from 'next/link';
 import styles from '../style/Login.module.scss';
 
 export default function Login() {
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams?.get('redirect') || '/dashboard';
   // Get location from context
   const { userLocation } = useLocation();
   
@@ -386,6 +389,7 @@ export default function Login() {
         firstName={successData.firstName}
         authToken={successData.authToken}
         refreshToken={successData.refreshToken}
+        redirectUrl={redirectUrl}
       />
     );
   }
