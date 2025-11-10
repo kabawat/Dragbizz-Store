@@ -60,15 +60,15 @@ const Modal = ({
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-[500] overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       {/* Overlay */}
       <div
-        className={`fixed inset-0  backdrop-blur-[1px] bg-black/10 duration-300 ${overlayClassName}`}
+        className={`fixed inset-0 backdrop-blur-sm bg-black/50 duration-300 ${overlayClassName}`}
         onClick={closeOnOverlayClick ? onClose : undefined}
       />
       
       {/* Modal Container */}
-      <div className="flex min-h-full items-start justify-center p-3">
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
         <div onClick={(e) => e.stopPropagation()} {...props} className={`relative bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all duration-300 animate-bounce-in border border-[rgb(var(--color-border-primary))] ${className}`}>
           {/* Header */}
           {(title || showCloseButton) && (

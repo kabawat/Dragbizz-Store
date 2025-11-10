@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { setSelectedStore } from '@/store/slices/profileSlice';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FEATURE_ROUTES } from '@/constants/featureMapping';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 import {
   LayoutDashboard,
   Users,
@@ -42,7 +45,9 @@ import {
   AlertTriangle,
   Eye,
   Clock,
-  CreditCard
+  CreditCard,
+  Crown,
+  Lock
 } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
@@ -50,8 +55,10 @@ const Sidebar = ({ onStoreChange }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { agency, stores: reduxStores, selectedStore } = useAppSelector((state) => state.profile);
+  const { features, checkFeatureAccess, checkMenuItemAccess, isLoading: featuresLoading } = useFeatureAccess();
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState({ isOpen: false, featureName: '', requiredFeature: '' });
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [isCustomersDropdownOpen, setIsCustomersDropdownOpen] = useState(false);
   const [isSuppliersDropdownOpen, setIsSuppliersDropdownOpen] = useState(false);
@@ -149,6 +156,66 @@ const Sidebar = ({ onStoreChange }) => {
   const bottomItems = [
     { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
   ];
+
+  // Helper function to check if user has access to a menu item
+  const hasMenuItemAccess = (itemName) => {
+    // Dashboard is always accessible
+    if (itemName === 'Dashboard') return true;
+    
+    // If features are still loading, assume access (will be checked on click)
+    if (featuresLoading) return true;
+    
+    // If no features, no access except dashboard
+    if (!features || features.length === 0) return false;
+    
+    // Map menu item names to feature names
+    const menuToFeatureMap = {
+      'Customers': ['Customer Management', 'customer_management'],
+      'Purchase': ['Purchase Management', 'purchase_management'],
+      'Product & Stock': ['Product Management', 'Stock Management', 'product_management', 'stock_management'],
+      'Invoices': ['Invoice Management', 'invoice_management'],
+      'Daily Expenses': ['Expense Management', 'expense_management'],
+    };
+    
+    const requiredFeatures = menuToFeatureMap[itemName] || [];
+    if (requiredFeatures.length === 0) return true; // If no mapping, show by default
+    
+    // Check if any required feature is in the user's subscription
+    return requiredFeatures.some(featureName => {
+      return features.some(f => {
+        const featureNameStr = typeof f === 'object' ? f.name : f;
+        return featureNameStr && (
+          featureNameStr.toLowerCase().includes(featureName.toLowerCase()) ||
+          featureName.toLowerCase().includes(featureNameStr.toLowerCase())
+        );
+      });
+    });
+  };
+
+  // Handle menu item click - check access and show upgrade modal if needed
+  const handleMenuItemClick = (item, e) => {
+    if (!hasMenuItemAccess(item.name)) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const menuToFeatureMap = {
+        'Customers': 'Customer Management',
+        'Purchase': 'Purchase Management',
+        'Product & Stock': 'Product Management',
+        'Invoices': 'Invoice Management',
+        'Daily Expenses': 'Expense Management',
+      };
+      
+      setUpgradeModal({
+        isOpen: true,
+        featureName: item.name,
+        requiredFeature: menuToFeatureMap[item.name] || 'Premium Feature'
+      });
+    }
+  };
+
+  // Show all navigation items (not filtered)
+  const filteredNavigationItems = navigationItems;
 
   const handleStoreSelect = (store) => {
     dispatch(setSelectedStore(store));
@@ -349,10 +416,11 @@ const Sidebar = ({ onStoreChange }) => {
       {/* Scrollable Navigation Section */}
       <div className="flex-1 overflow-y-auto">
         <nav className="p-3 space-y-1">
-          {navigationItems.map((item, index) => {
+          {filteredNavigationItems.map((item, index) => {
             const Icon = item.icon;
             const delay = 10;
             const isActive = pathname === item.href || (item.hasSubMenu && pathname.startsWith(item.href));
+            const hasAccess = hasMenuItemAccess(item.name);
 
             if (item.hasSubMenu) {
               const isProductAndStockMenu = item.name === 'Product & Stock';
@@ -394,11 +462,19 @@ const Sidebar = ({ onStoreChange }) => {
               return (
                 <div key={item.name} className="relative" ref={dropdownRef}>
                   <button
-                    onClick={toggleDropdown}
+                    onClick={(e) => {
+                      if (!hasAccess) {
+                        handleMenuItemClick(item, e);
+                      } else {
+                        toggleDropdown(e);
+                      }
+                    }}
                     data-dropdown-toggle
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
                       ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
-                      : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                      : hasAccess 
+                        ? 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                        : 'text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))]'
                       }`}
                     title={isCollapsed ? item.name : ''}
                     style={{
@@ -408,9 +484,11 @@ const Sidebar = ({ onStoreChange }) => {
                     }}
                   >
                     <div className="flex items-center space-x-3">
-                      <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+                      <div className="relative">
+                        <Icon className={`w-5 h-5 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : 'text-[rgb(var(--color-text-tertiary))] opacity-60'}`} />
+                      </div>
                       <span
-                        className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
+                        className={`font-medium transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'} ${!hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : ''}`}
                         style={{
                           transitionDelay: `${delay + 50}ms`,
                           transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
@@ -420,10 +498,15 @@ const Sidebar = ({ onStoreChange }) => {
                       </span>
                     </div>
                     {!isCollapsed && (
-                      <ChevronRightIcon
-                        className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? 'rotate-90' : ''
-                          } ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`}
-                      />
+                      <div className="flex items-center space-x-1">
+                        {!hasAccess && (
+                          <Crown className="w-3.5 h-3.5 text-yellow-500" />
+                        )}
+                        <ChevronRightIcon
+                          className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? 'rotate-90' : ''
+                            } ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`}
+                        />
+                      </div>
                     )}
                   </button>
 
@@ -454,31 +537,45 @@ const Sidebar = ({ onStoreChange }) => {
             }
 
             return (
-              <Link
+              <div
                 key={item.name}
-                href={item.href}
-                className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-2'} px-2 py-1.5 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
-                  ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
-                  : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                  }`}
-                title={isCollapsed ? item.name : ''}
-                style={{
-                  transitionDelay: `${delay}ms`,
-                  transform: isCollapsed ? 'translateX(0)' : 'translateX(0)',
-                  opacity: 1
+                onClick={(e) => {
+                  if (!hasAccess) {
+                    e.preventDefault();
+                    handleMenuItemClick(item, e);
+                  }
                 }}
+                className={hasAccess ? '' : 'cursor-pointer'}
               >
-                <Icon className={`w-4 h-4 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
-                <span
-                  className={`font-medium text-sm transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
+                <Link
+                  href={hasAccess ? item.href : '#'}
+                  className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-2'} px-2 py-1.5 rounded-lg transition-all duration-500 ease-in-out cursor-pointer ${isActive
+                    ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
+                    : hasAccess
+                      ? 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                      : 'text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))]'
+                    }`}
+                  title={isCollapsed ? item.name : ''}
                   style={{
-                    transitionDelay: `${delay + 50}ms`,
-                    transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
+                    transitionDelay: `${delay}ms`,
+                    transform: isCollapsed ? 'translateX(0)' : 'translateX(0)',
+                    opacity: 1
                   }}
                 >
-                  {item.name}
-                </span>
-              </Link>
+                  <div className="relative">
+                    <Icon className={`w-4 h-4 transition-all duration-500 ease-in-out ${isActive ? 'text-[rgb(var(--color-primary))]' : hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : 'text-[rgb(var(--color-text-tertiary))] opacity-60'}`} />
+                  </div>
+                  <span
+                    className={`font-medium text-sm transition-all duration-500 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'} ${!hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : ''}`}
+                    style={{
+                      transitionDelay: `${delay + 50}ms`,
+                      transform: isCollapsed ? 'translateX(-20px)' : 'translateX(0)'
+                    }}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              </div>
             );
           })}
         </nav>
@@ -516,6 +613,14 @@ const Sidebar = ({ onStoreChange }) => {
           );
         })}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={upgradeModal.isOpen}
+        onClose={() => setUpgradeModal({ isOpen: false, featureName: '', requiredFeature: '' })}
+        featureName={upgradeModal.featureName}
+        requiredFeature={upgradeModal.requiredFeature}
+      />
     </div>
   );
 };
