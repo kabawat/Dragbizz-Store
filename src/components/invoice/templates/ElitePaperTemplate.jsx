@@ -26,6 +26,147 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
           }
         }
         
+                /* ✅ MINI PRINTER MODE FIX */
+        body.print-mode-mini .elitepaper-invoice {
+          flex-direction: column !important;
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 4px !important;
+        }
+
+        /* ✅ Left panel mini-mode */
+        body.print-mode-mini .elitepaper-left {
+          width: 100% !important;
+          padding: 8px !important;
+          border-radius: 0 !important;
+          text-align: center !important;
+        }
+
+        body.print-mode-mini .elitepaper-left h2 {
+          font-size: 14px !important;
+        }
+
+        body.print-mode-mini .elitepaper-left p {
+          font-size: 10px !important;
+        }
+
+        /* ✅ Right panel mini-mode */
+        body.print-mode-mini .elitepaper-right {
+          width: 100% !important;
+          padding: 6px !important;
+        }
+
+        /* ✅ Header */
+        body.print-mode-mini .elitepaper-header h1 {
+          font-size: 16px !important;
+        }
+
+        body.print-mode-mini .elitepaper-header .date {
+          font-size: 10px !important;
+        }
+
+              /* ✅ MINI MODE — ElitePaper Table Fix */
+      body.print-mode-mini .elitepaper-table {
+        margin-bottom: 10px !important;
+        width: 100% !important;
+      }
+
+      /* ✅ Table Header */
+      body.print-mode-mini .elitepaper-table thead th {
+        font-size: 8px !important;        /* smaller thermal font */
+        padding: 3px 4px !important;      /* compact padding */
+        text-transform: uppercase !important;
+      }
+
+      /* ✅ Table Body Rows */
+      body.print-mode-mini .elitepaper-table td {
+        font-size: 9.5px !important;      /* perfect mini size */
+        padding: 3px 4px !important;      /* reduce spacing */
+        line-height: 1.1 !important;
+      }
+
+      /* ✅ Description column width & wrapping */
+      body.print-mode-mini .elitepaper-table td:first-child {
+        max-width: 55mm !important;       /* total paper width area */
+        word-wrap: break-word !important;
+        white-space: normal !important;
+      }
+
+      /* ✅ SKU text smaller */
+      body.print-mode-mini .elitepaper-product-sku {
+        font-size: 8px !important;
+      }
+
+      /* ✅ Zebra rows lighter */
+      body.print-mode-mini .elitepaper-table tbody tr:nth-child(even) td {
+        background: #f7f7f7 !important;
+      }
+
+
+        /* ✅ Bill To etc */
+        body.print-mode-mini .info-section {
+          flex-direction: column !important;
+          gap: 4px !important;
+        }
+
+        body.print-mode-mini .info-section .block {
+          width: 100% !important;
+        }
+
+        body.print-mode-mini .info-section .value {
+          font-size: 12px !important;
+        }
+
+        /* ✅ Table Compact */
+            /* ✅ MINI MODE — ElitePaper Totals Fix */
+        body.print-mode-mini .elitepaper-totals-table {
+          width: 100% !important;
+          margin: 6px 0 !important;
+          padding: 0 !important;
+        }
+
+        /* ✅ Normal rows: Subtotal, GST, Discount */
+        body.print-mode-mini .elitepaper-totals-table .row {
+          padding: 3px 0 !important;
+          font-size: 10px !important;
+          display: flex !important;
+          justify-content: space-between !important;
+        }
+
+        body.print-mode-mini .elitepaper-totals-table .label {
+          font-size: 10px !important;
+          color: #444 !important;
+        }
+
+        body.print-mode-mini .elitepaper-totals-table .amount {
+          font-size: 10px !important;
+          font-weight: 600 !important;
+          color: ${SECONDARY_COLOR} !important;
+        }
+
+        /* ✅ Final Amount Due (perfect thermal size) */
+        body.print-mode-mini .elitepaper-totals-table .final-row {
+          font-size: 12px !important;      /* big → smaller */
+          padding-top: 6px !important;
+          margin-top: 6px !important;
+          border-top: 1px solid ${PRIMARY_COLOR} !important;
+        }
+
+        body.print-mode-mini .elitepaper-totals-table .final-row .label,
+        body.print-mode-mini .elitepaper-totals-table .final-row .amount {
+          font-size: 12px !important;
+          font-weight: 700 !important;
+          color: ${PRIMARY_COLOR} !important;
+        }
+
+
+        /* ✅ Footer */
+        body.print-mode-mini .footer {
+          font-size: 9px !important;
+          margin-top: 10px !important;
+        }
+
+
         /* ElitePaper Template Styles */
         .elitepaper-invoice-body {
           font-family: 'Montserrat', 'Segoe UI', sans-serif !important;
@@ -182,38 +323,38 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
 
       <div className="elitepaper-invoice-body">
         <div className="elitepaper-invoice">
-          
+
           {/* Header Section */}
           <div className="elitepaper-header">
             <h1>INVOICE</h1>
             <div className="elitepaper-store-tagline">ElitePaper Billing Solutions</div>
             <div className="elitepaper-store-info">
-                <p>
-                    <span className="elitepaper-value-bold">{selectedStore?.storeName || "ElitePaper Global"}</span> | {selectedStore?.address || "789 Corporate Blvd"}
-                </p>
-                <p>
-                    Ph: {selectedStore?.phone || "+91 1234567890"} | Email: {selectedStore?.email || "billing@elitepaper.com"}
-                </p>
+              <p>
+                <span className="elitepaper-value-bold">{selectedStore?.storeName || "ElitePaper Global"}</span> | {selectedStore?.address || "789 Corporate Blvd"}
+              </p>
+              <p>
+                Ph: {selectedStore?.phone || "+91 1234567890"} | Email: {selectedStore?.email || "billing@elitepaper.com"}
+              </p>
             </div>
           </div>
 
           {/* Info Bar */}
           <div className="elitepaper-info-bar">
             <div className="elitepaper-block elitepaper-invoice-meta">
-                <div className="title">Invoice Details</div>
-                <p>Invoice #: <span className="elitepaper-value-bold">{invoiceData.invoiceNumber}</span></p>
-                <p>Date Issued: <span className="elitepaper-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-                <p>Due Date: <span className="elitepaper-value-bold">N/A</span></p>
+              <div className="title">Invoice Details</div>
+              <p>Invoice #: <span className="elitepaper-value-bold">{invoiceData.invoiceNumber}</span></p>
+              <p>Date Issued: <span className="elitepaper-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
+              <p>Due Date: <span className="elitepaper-value-bold">N/A</span></p>
             </div>
-            
+
             <div className="elitepaper-block elitepaper-customer-info">
-                <div className="title">Bill To</div>
-                <p className="elitepaper-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="elitepaper-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
+              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="elitepaper-table">
             <thead>
@@ -248,35 +389,35 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="elitepaper-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount:</div>
+                <div className="amount" style={{ color: '#c0392b' }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#c0392b' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
 
           {/* Footer */}

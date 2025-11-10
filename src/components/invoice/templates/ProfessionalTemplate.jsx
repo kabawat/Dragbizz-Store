@@ -14,6 +14,130 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
               display: none !important;
             }
           }
+
+                    /* ✅ PROFESSIONAL TEMPLATE — 74MM MINI PRINTER OPTIMIZATION */
+          /* ✅ Runs ONLY when print-mode-mini class is active */
+          @media print {
+            body.print-mode-mini .professional-invoice {
+              width: 74mm !important;
+              max-width: 74mm !important;
+              padding: 4px !important;
+              margin: 0 auto !important;
+              border: none !important;
+              box-shadow: none !important;
+            }
+
+            /* ✅ Header compact */
+            body.print-mode-mini .professional-header {
+              margin-bottom: 10px !important;
+              padding-bottom: 6px !important;
+              border-bottom: 1px solid #000 !important;
+            }
+
+            body.print-mode-mini .professional-header h1 {
+              font-size: 16px !important;
+              letter-spacing: 1px !important;
+              margin-bottom: 3px !important;
+            }
+
+            body.print-mode-mini .professional-header .subtitle {
+              font-size: 9px !important;
+              margin-bottom: 3px !important;
+            }
+
+            body.print-mode-mini .professional-header .invoice-number {
+              font-size: 10px !important;
+            }
+
+            body.print-mode-mini .professional-header .date {
+              font-size: 9px !important;
+            }
+
+            /* ✅ Info section compressed */
+            body.print-mode-mini .professional-info {
+              grid-template-columns: 1fr !important;
+              gap: 6px !important;
+              margin-bottom: 10px !important;
+            }
+
+            body.print-mode-mini .professional-info .section {
+              padding: 6px !important;
+              border-width: 1px !important;
+            }
+
+            body.print-mode-mini .professional-info h3 {
+              font-size: 10px !important;
+              margin-bottom: 4px !important;
+              padding-bottom: 3px !important;
+            }
+
+            body.print-mode-mini .professional-info p {
+              font-size: 9px !important;
+              margin-bottom: 3px !important;
+              line-height: 1.2 !important;
+            }
+
+            /* ✅ Table optimized for thermal printer */
+            body.print-mode-mini .professional-table {
+              border-width: 1px !important;
+              margin-bottom: 12px !important;
+            }
+
+            body.print-mode-mini .professional-table th {
+              font-size: 8px !important;
+              padding: 3px !important;
+              letter-spacing: 0 !important;
+            }
+
+            body.print-mode-mini .professional-table td {
+              font-size: 9px !important;
+              padding: 3px !important;
+              line-height: 1.1 !important;
+            }
+
+            /* ✅ Description wrap fix for 74mm */
+            body.print-mode-mini .professional-table .description {
+              white-space: normal !important;
+              max-width: 42mm !important;
+            }
+
+            /* ✅ Totals condensed */
+            body.print-mode-mini .professional-totals {
+              justify-content: flex-start !important;
+              margin-top: 6px !important;
+            }
+
+            body.print-mode-mini .professional-totals .totals-box {
+              width: 100% !important;
+              padding: 6px !important;
+              border-width: 1px !important;
+            }
+
+            body.print-mode-mini .professional-totals .total-row {
+              padding: 4px !important;
+              font-size: 10px !important;
+            }
+
+            body.print-mode-mini .professional-totals .total-row:last-child {
+              font-size: 12px !important;
+              padding: 6px !important;
+            }
+
+            /* ✅ Footer compact */
+            body.print-mode-mini .professional-footer {
+              padding: 6px !important;
+              margin-top: 8px !important;
+            }
+
+            body.print-mode-mini .professional-footer p {
+              font-size: 9px !important;
+            }
+
+            body.print-mode-mini .professional-footer .signature-area {
+              display: none !important; /* thermal me signatures ki jagah nahi hoti */
+            }
+          }
+
         
           body {
             font-family: 'Georgia', 'Times New Roman', serif !important;
@@ -22,6 +146,28 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
             color: #1a1a1a !important;
             background: white !important;
           }
+
+            body {
+          /* Using a classic serif font */
+          font-family: 'Georgia', 'Times New Roman', serif !important;
+          font-size: 14px !important;
+          line-height: 1.6 !important;
+          color: #4e342e !important; /* Dark brown text */
+          background-color: #fcfaf7 !important; /* Light beige background */
+        }
+
+         body.print-mode-mini .professional-invoice {
+    width: 74mm !important;
+    max-width: 74mm !important;
+    padding: 6px !important;
+    border: none !important; /* thermal usually no border */
+    box-shadow: none !important;
+  }
+
+  body.print-mode-standard .professional-invoice {
+    max-width: 800px !important;
+    padding: 40px !important;
+  }
           
           .professional-invoice {
             width: 100% !important;

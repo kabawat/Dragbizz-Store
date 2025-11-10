@@ -15,14 +15,146 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
             }
           }
           
-          body {
-            font-family: 'Arial', sans-serif !important;
-            font-size: 14px !important;
-            line-height: 1.6 !important;
-            color: #333 !important;
-            background: white !important;
+                body {
+           font-family: 'Arial', sans-serif !important;
+           font-size: 14px !important;
+           line-height: 1.6 !important;
+           color: #333 !important;
+           background: white !important;
+           }
+
+          body.print-mode-mini .modern-invoice {
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          border: none !important;
+          box-shadow: none !important;
+      }
+            body.print-mode-standard .modern-invoice {
+                max-width: 800px !important;
+                padding: 40px !important;
+            }
+
+              /* ✅ MODERN TEMPLATE – PERFECT 74MM MINI PRINTER STYLES */
+        @media print {
+          /* ✅ 74mm wrapper */
+          body.print-mode-mini .modern-invoice {
+            width: 74mm !important;
+            max-width: 74mm !important;
+            padding: 4px !important;
+            margin: 0 auto !important;
+            border: none !important;
+            box-shadow: none !important;
           }
-          
+
+          /* ✅ Header compress */
+          body.print-mode-mini .modern-header {
+            padding-bottom: 6px !important;
+            margin-bottom: 10px !important;
+            border-bottom-width: 1px !important;
+          }
+
+          body.print-mode-mini .modern-header h1 {
+            font-size: 16px !important;
+            margin-bottom: 4px !important;
+          }
+
+          body.print-mode-mini .modern-header .invoice-number {
+            font-size: 10px !important;
+          }
+
+          body.print-mode-mini .modern-header .date {
+            font-size: 9px !important;
+          }
+
+          /* ✅ Info section collapse */
+          body.print-mode-mini .modern-info {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+            margin-bottom: 10px !important;
+          }
+
+          body.print-mode-mini .modern-info .section {
+            padding: 6px !important;
+          }
+
+          body.print-mode-mini .modern-info h3 {
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+            padding-bottom: 2px !important;
+          }
+
+          body.print-mode-mini .modern-info p {
+            font-size: 9px !important;
+            margin: 2px 0 !important;
+          }
+
+          /* ✅ Table perfect-fit for thermal */
+          body.print-mode-mini .modern-table {
+            margin-bottom: 12px !important;
+            box-shadow: none !important;
+          }
+
+          body.print-mode-mini .modern-table th {
+            font-size: 8px !important;
+            padding: 3px !important;
+          }
+
+          body.print-mode-mini .modern-table td {
+            font-size: 9px !important;
+            padding: 3px !important;
+            line-height: 1.1 !important;
+          }
+
+          /* ✅ Product name wrap fix */
+          body.print-mode-mini .modern-table .product-name {
+            white-space: normal !important;
+            display: block !important;
+            max-width: 42mm !important;
+          }
+
+          /* ✅ SKU smaller */
+          body.print-mode-mini .modern-table .product-sku {
+            font-size: 8px !important;
+            margin-top: 1px !important;
+          }
+
+          /* ✅ Totals section shrink */
+          body.print-mode-mini .modern-totals {
+            justify-content: flex-start !important;
+            margin-top: 6px !important;
+          }
+
+          body.print-mode-mini .modern-totals .totals-box {
+            width: 100% !important;
+            padding: 6px !important;
+            border-width: 1px !important;
+          }
+
+          body.print-mode-mini .modern-totals .total-row {
+            padding: 4px 0 !important;
+            font-size: 10px !important;
+          }
+
+          /* ✅ Final (Grand Total) clean thermal look */
+          body.print-mode-mini .modern-totals .total-row:last-child {
+            font-size: 12px !important;
+            padding: 6px 0 !important;
+            border-top-width: 2px !important;
+          }
+
+          /* ✅ Footer small */
+          body.print-mode-mini .modern-footer {
+            margin-top: 8px !important;
+            padding: 6px !important;
+          }
+
+          body.print-mode-mini .modern-footer p {
+            font-size: 9px !important;
+          }
+        }
+
+
           .modern-invoice {
             width: 100% !important;
             max-width: 900px !important;
