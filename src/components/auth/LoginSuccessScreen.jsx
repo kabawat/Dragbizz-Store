@@ -5,7 +5,7 @@ import { cookieManager } from '@/utils/cookieManager';
 import { useTheme } from '@/contexts/ThemeContext';
 import confetti from 'canvas-confetti';
 
-const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) => {
+const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, redirectUrl = '/dashboard' }) => {
   const [countdown, setCountdown] = useState(4);
   const [showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
@@ -133,10 +133,10 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) 
       if (refreshToken) {
         cookieManager.setRefreshToken(refreshToken);
       }
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      // Redirect to the original page or dashboard
+      window.location.href = redirectUrl;
     }
-  }, [countdown, authToken, refreshToken]);
+  }, [countdown, authToken, refreshToken, redirectUrl]);
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
@@ -158,7 +158,7 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) 
         </p>
         
         <p className="text-sm sm:text-base font-semibold gradient-text mb-6">
-          Redirecting to your dashboard...
+          Redirecting...
         </p>
 
         {/* Features Preview */}
@@ -180,7 +180,7 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) 
         {/* Auto-redirect Info */}
         <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 mb-6">
           <p className="text-[rgb(var(--color-text-secondary))] text-sm mb-2">
-            🚀 <strong>Redirecting to dashboard in {countdown}s</strong>
+            🚀 <strong>Redirecting in {countdown}s</strong>
           </p>
           <div className="w-full bg-[rgb(var(--color-bg-tertiary))] rounded-full h-2">
             <div
@@ -200,12 +200,12 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken }) 
             if (refreshToken) {
               cookieManager.setRefreshToken(refreshToken);
             }
-            // Redirect to dashboard
-            window.location.href = '/dashboard';
+            // Redirect to the original page or dashboard
+            window.location.href = redirectUrl;
           }}
           className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out flex items-center justify-center mb-4"
         >
-          <span>Continue to Dashboard</span>
+          <span>Continue</span>
           <ArrowRight className="w-4 h-4 ml-2" />
         </button>
 

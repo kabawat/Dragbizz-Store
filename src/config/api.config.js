@@ -40,6 +40,15 @@ const API_CONFIG = {
     INVOICE: '/retailer/invoices',
     EXPENSE: '/retailer/expense',
   },
+  
+  // Subscription Service Endpoints
+  SUBSCRIPTION: {
+    PACKAGES: '/plans/packages',
+    SUBSCRIPTIONS: '/plans/subscriptions',
+    CHECKOUT: '/plans/checkout',
+    PAYMENT: '/plans/payment',
+    WEBHOOKS: '/plans/webhooks',
+  },
     
   // External Services
   EXTERNAL: {
