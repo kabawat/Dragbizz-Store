@@ -25,6 +25,108 @@ const MatrixLedgerTemplate = ({ invoiceData, selectedStore }) => {
           }
         }
         
+                /* ✅ MINI PRINTER MODE FIX */
+        body.print-mode-mini .matrix-invoice {
+          flex-direction: column !important;
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 4px !important;
+        }
+
+        /* ✅ Left panel mini-mode */
+        body.print-mode-mini .matrix-left {
+          width: 100% !important;
+          padding: 8px !important;
+          border-radius: 0 !important;
+          text-align: center !important;
+        }
+
+        body.print-mode-mini .matrix-left h2 {
+          font-size: 14px !important;
+        }
+
+        body.print-mode-mini .matrix-left p {
+          font-size: 10px !important;
+        }
+
+        /* ✅ Right panel mini-mode */
+        body.print-mode-mini .matrix-right {
+          width: 100% !important;
+          padding: 6px !important;
+        }
+
+        /* ✅ Header */
+        body.print-mode-mini .matrix-header h1 {
+          font-size: 16px !important;
+        }
+
+        body.print-mode-mini .matrix-header .date {
+          font-size: 10px !important;
+        }
+
+        /* ✅ Bill To etc */
+        body.print-mode-mini .info-section {
+          flex-direction: column !important;
+          gap: 4px !important;
+        }
+
+        body.print-mode-mini .info-section .block {
+          width: 100% !important;
+        }
+
+        body.print-mode-mini .info-section .value {
+          font-size: 12px !important;
+        }
+
+              /* ✅ MINI MODE — FIX Matrix Totals Section Perfectly */
+        body.print-mode-mini .matrix-totals-table {
+          width: 100% !important;
+          margin-top: 6px !important;
+          border: 1px solid ${BORDER_HEAVY} !important;
+          padding: 0 !important;
+        }
+
+        /* ✅ Normal rows (Subtotal, GST, Discount) */
+        body.print-mode-mini .matrix-totals-table .row {
+          padding: 4px 6px !important;    /* compact */
+          font-size: 10px !important;     /* smaller */
+          display: flex !important;
+          justify-content: space-between !important;
+        }
+
+        body.print-mode-mini .matrix-totals-table .label {
+          font-size: 10px !important;
+          color: ${LIGHT_TEXT} !important;
+        }
+
+        body.print-mode-mini .matrix-totals-table .amount {
+          font-size: 10px !important;
+          font-weight: 600 !important;
+          color: ${PRIMARY_TEXT} !important;
+        }
+
+        /* ✅ FINAL AMOUNT (Amount Due) */
+        body.print-mode-mini .matrix-totals-table .final-row {
+          padding: 6px 6px !important;
+          font-size: 12px !important;    /* reduced from 20px */
+          background-color: ${BORDER_HEAVY} !important;
+          color: white !important;
+          display: flex !important;
+          justify-content: space-between !important;
+        }
+
+        body.print-mode-mini .matrix-totals-table .final-row .label,
+        body.print-mode-mini .matrix-totals-table .final-row .amount {
+          font-size: 12px !important;     /* balanced */
+          font-weight: 700 !important;
+        }
+
+        /* ✅ Footer */
+        body.print-mode-mini .footer {
+          font-size: 9px !important;
+          margin-top: 10px !important;
+        }
+
         /* Matrix Ledger Template Styles */
         .matrix-invoice-body {
           font-family: 'Consolas', 'Courier New', monospace !important; /* Fixed-width font for data look */

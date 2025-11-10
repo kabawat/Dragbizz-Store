@@ -27,6 +27,117 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
           }
         }
 
+                  /* ✅ MINI MODE – Full Neo Template Fix */
+        body.print-mode-mini .neo-invoice {
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          margin: 0 auto !important;
+          border: none !important;
+          box-shadow: none !important;
+          overflow: hidden !important;
+        }
+
+        /* ✅ Global font shrink */
+        body.print-mode-mini .neo-body {
+          font-size: 10.5px !important;
+        }
+
+        /* ✅ Header Compact */
+        body.print-mode-mini .neo-header {
+          padding: 10px !important;
+          clip-path: none !important;
+          border-radius: 0 !important;
+          flex-direction: column !important;
+          text-align: center !important;
+          gap: 4px !important;
+        }
+
+        body.print-mode-mini .neo-brand .title {
+          font-size: 12px !important;
+        }
+
+        body.print-mode-mini .neo-logo {
+          width: 36px !important;
+          height: 36px !important;
+          font-size: 14px !important;
+        }
+
+        body.print-mode-mini .neo-meta {
+          font-size: 10px !important;
+        }
+
+        body.print-mode-mini .neo-meta strong {
+          font-size: 12px !important;
+        }
+
+        /* ✅ GRID FIX */
+        body.print-mode-mini .neo-grid {
+          display: block !important;
+          padding: 10px !important;
+        }
+
+        /* ✅ CARDS FIX */
+        body.print-mode-mini .neo-card {
+          padding: 8px !important;
+          margin-bottom: 6px !important;
+        }
+
+        body.print-mode-mini .neo-title {
+          font-size: 9px !important;
+        }
+
+        body.print-mode-mini .neo-val,
+        body.print-mode-mini .neo-sub {
+          font-size: 10px !important;
+        }
+
+        /* ✅ ITEMS TABLE FIX */
+        body.print-mode-mini .neo-items thead th {
+          font-size: 8px !important;
+          padding: 3px 4px !important;
+        }
+
+        body.print-mode-mini .neo-items tbody td {
+          font-size: 9.5px !important;
+          padding: 3px 4px !important;
+        }
+
+        /* prevent description overflow */
+        body.print-mode-mini .neo-items tbody td:first-child {
+          max-width: 55mm !important;
+          word-wrap: break-word !important;
+        }
+
+        /* ✅ SUMMARY (TOTALS) FIX */
+        body.print-mode-mini .neo-summary {
+          padding: 8px !important;
+          margin-top: 8px !important;
+        }
+
+        body.print-mode-mini .neo-row {
+          font-size: 10px !important;
+          margin-bottom: 4px !important;
+          padding: 0px !important;
+        }
+
+        /* ✅ GRAND TOTAL FIX */
+        body.print-mode-mini .neo-grand {
+          font-size: 12px !important;
+          padding: 6px !important;
+          margin-top: 6px !important;
+          border-radius: 4px !important;
+          justify-content: space-between !important;
+        }
+
+        /* ✅ Footer Compact */
+        body.print-mode-mini .neo-footer {
+          padding: 6px !important;
+          font-size: 9px !important;
+          margin-top: 6px !important;
+        }
+
+
         .neo-body {
           font-family: "Inter", system-ui, sans-serif;
           background: ${BG};
