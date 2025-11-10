@@ -89,7 +89,7 @@ const AccountSettings = () => {
             className="w-full px-4 py-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
           >
             <option value="INR">₹ INR</option>
-            <option value="USD">$ USD</option>
+            <option value="USD">₹ USD</option>
             <option value="EUR">€ EUR</option>
             <option value="GBP">£ GBP</option>
           </select>

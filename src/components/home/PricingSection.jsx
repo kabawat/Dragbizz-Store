@@ -197,7 +197,7 @@ const PricingSection = ({
                     <div className={`absolute -top-2 -right-2 ${colorClasses.ribbon} text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg shadow-lg transform rotate-3`}>
                       <div className="text-right">
                         <div className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight">
-                          {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
+                          ₹{plan.price}
                         </div>
                         <div className="text-xs sm:text-sm opacity-95">
                           /{plan.period}
