@@ -158,29 +158,19 @@ const PackagesPage = () => {
               const currencySymbol = getCurrencySymbol(lowestPrice.currency);
 
               // Get features
-              const features = pkg.features
+              const features = pkg.featureUsageLimits
                 ?.filter(f => f.enabled !== false)
                 .map(f => {
-                  const featureName = f.feature?.name || f.name || 'Feature';
+                  const featureName = f.featureName || f.featureKey;
+                  if (f.usageType && f.usageType !== 'UNLIMITED') {
+                    const limitSuffix = f.totalLimit ? ` - ${f.totalLimit}` : '';
+                    return `${featureName}${limitSuffix}`;
+                  }
                   return featureName;
                 }) || [];
 
-              // Add limits as features
-              if (pkg.maxStores) {
-                features.push(`${pkg.maxStores} Store${pkg.maxStores > 1 ? 's' : ''}`);
-              }
-              if (pkg.maxUsers) {
-                features.push(`${pkg.maxUsers} User${pkg.maxUsers > 1 ? 's' : ''}`);
-              }
-              if (pkg.maxProducts) {
-                features.push(`${pkg.maxProducts} Products`);
-              } else {
-                features.push('Unlimited Products');
-              }
-              if (pkg.maxStorage) {
-                features.push(`${pkg.maxStorage} GB Storage`);
-              } else {
-                features.push('Unlimited Storage');
+              if (pkg.maxSubscribers) {
+                features.push(`Limited to ${pkg.maxSubscribers.toLocaleString()} subscribers`);
               }
               if (pkg.trialPeriod?.enabled && pkg.trialPeriod?.days) {
                 features.push(`${pkg.trialPeriod.days} Days Free Trial`);

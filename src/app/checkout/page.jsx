@@ -296,50 +296,28 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
                     </p>
                   </div>
 
-                  {packageData.features && packageData.features.length > 0 && (
+                  {packageData.featureUsageLimits && packageData.featureUsageLimits.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
                         What's Included
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {packageData.features.filter(f => f.enabled).map((feature, idx) => (
+                        {packageData.featureUsageLimits.filter(f => f.enabled !== false).map((feature, idx) => (
                           <div key={idx} className="flex items-start gap-2">
                             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-[rgb(var(--color-text-secondary))]">
-                              {feature.feature?.name || 'Feature'}
-                              {feature.limit && ` (${feature.limit}${feature.unit || ''})`}
+                              {feature.featureName || feature.featureKey}
+                              {feature.usageType && feature.usageType !== 'UNLIMITED' && feature.totalLimit
+                                ? ` (${feature.usageType.replace(/_/g, ' ')} - ${feature.totalLimit})`
+                                : ''}
                             </span>
                           </div>
                         ))}
-                        {packageData.maxStores && (
+                        {packageData.maxSubscribers && (
                           <div className="flex items-start gap-2">
                             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.maxStores} Store{packageData.maxStores > 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        )}
-                        {packageData.maxUsers && (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.maxUsers} User{packageData.maxUsers > 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        )}
-                        {packageData.maxProducts && (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.maxProducts} Products
-                            </span>
-                          </div>
-                        )}
-                        {packageData.maxStorage && (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.maxStorage} GB Storage
+                              {packageData.maxSubscribers.toLocaleString()} total subscriptions available
                             </span>
                           </div>
                         )}

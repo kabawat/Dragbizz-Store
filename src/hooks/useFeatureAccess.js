@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { subscriptionService } from '@/service/subscription';
 import { cookieManager } from '@/utils/cookieManager';
-import { FEATURE_ROUTES, getRequiredFeatureForRoute, getRequiredFeatureForMenuItem } from '@/constants/featureMapping';
+import { FEATURE_ROUTES, getRequiredFeatureForRoute, getRequiredFeatureForMenuItem, FEATURE_NAMES } from '@/constants/featureMapping';
 
 /**
  * Hook to check feature access based on user's active subscription
@@ -30,26 +30,34 @@ export function useFeatureAccess() {
           const subData = result.data;
           setSubscription(subData);
           
-          // Extract features from subscription
-          // Features can be in subscription.features array or subscription.packageId.features
-          let subscriptionFeatures = [];
+          // Extract features from subscription snapshot and package defaults
+          const collected = new Set();
           
           if (subData.features && Array.isArray(subData.features)) {
-            subscriptionFeatures = subData.features
+            subData.features
               .filter(f => f.enabled !== false)
-              .map(f => {
-                // Feature can be ObjectId or populated object
-                if (typeof f === 'object' && f.feature) {
-                  return typeof f.feature === 'object' ? f.feature.name : f.feature;
+              .forEach(f => {
+                if (f.featureKey) {
+                  collected.add(f.featureKey.toLowerCase());
                 }
-                return typeof f === 'object' ? f.name : f;
+                if (f.featureName) {
+                  collected.add(f.featureName.toLowerCase());
+                }
               });
-          } else if (subData.packageId && subData.packageId.features) {
-            subscriptionFeatures = subData.packageId.features
-              .map(f => typeof f === 'object' ? f.name : f);
           }
           
-          setFeatures(subscriptionFeatures);
+          if (subData.packageId && Array.isArray(subData.packageId.featureUsageLimits)) {
+            subData.packageId.featureUsageLimits.forEach(limit => {
+              if (limit.featureKey) {
+                collected.add(limit.featureKey.toLowerCase());
+              }
+              if (limit.featureName) {
+                collected.add(limit.featureName.toLowerCase());
+              }
+            });
+          }
+          
+          setFeatures(Array.from(collected));
         }
       } catch (error) {
         console.error('Error fetching subscription:', error);
@@ -69,11 +77,13 @@ export function useFeatureAccess() {
   const checkFeatureAccess = (featureName) => {
     if (!features || features.length === 0) return false;
     
+    const target = featureName.toLowerCase();
+    
     // Check if feature name matches (case-insensitive)
     return features.some(f => 
-      f.toLowerCase() === featureName.toLowerCase() ||
-      f.toLowerCase().includes(featureName.toLowerCase()) ||
-      featureName.toLowerCase().includes(f.toLowerCase())
+      f === target ||
+      f.includes(target) ||
+      target.includes(f)
     );
   };
 
@@ -89,12 +99,10 @@ export function useFeatureAccess() {
     const featureData = FEATURE_ROUTES[requiredFeature];
     if (!featureData) return true;
     
-    // Check if any feature in subscription matches
-    return features.some(feature => {
-      const featureName = typeof feature === 'object' ? feature.name : feature;
-      return featureData.featureNames?.includes(featureName) || 
-             checkFeatureAccess(featureName);
-    });
+    const displayName = FEATURE_NAMES[requiredFeature.toUpperCase()];
+    
+    return checkFeatureAccess(requiredFeature)
+      || (displayName ? checkFeatureAccess(displayName) : false);
   };
 
   /**
@@ -109,12 +117,10 @@ export function useFeatureAccess() {
     const featureData = FEATURE_ROUTES[requiredFeature];
     if (!featureData) return true;
     
-    // Check if any feature in subscription matches
-    return features.some(feature => {
-      const featureName = typeof feature === 'object' ? feature.name : feature;
-      return featureData.featureNames?.includes(featureName) || 
-             checkFeatureAccess(featureName);
-    });
+    const displayName = FEATURE_NAMES[requiredFeature.toUpperCase()];
+
+    return checkFeatureAccess(requiredFeature)
+      || (displayName ? checkFeatureAccess(displayName) : false);
   };
 
   /**
