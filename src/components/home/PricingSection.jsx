@@ -49,25 +49,19 @@ const PricingSection = ({
     const planType = pkg.planType || 'BASIC';
     const color = planTypeColors[planType] || 'blue';
     
-    const features = pkg.features
+    const features = pkg.featureUsageLimits
       ?.filter(f => f.enabled)
       .map(f => {
-        const featureName = f.feature?.name || 'Feature';
-        const limit = f.limit ? ` (${f.limit}${f.unit || ''})` : '';
+        const featureName = f.featureName || 'Feature';
+        if (f.usageType && f.usageType !== 'UNLIMITED') {
+          const limit = f.totalLimit ? ` (${f.totalLimit})` : '';
         return `${featureName}${limit}`;
+        }
+        return featureName;
       }) || [];
 
-    if (pkg.maxStores) {
-      features.push(`${pkg.maxStores} Store${pkg.maxStores > 1 ? 's' : ''}`);
-    }
-    if (pkg.maxUsers) {
-      features.push(`${pkg.maxUsers} User${pkg.maxUsers > 1 ? 's' : ''}`);
-    }
-    if (pkg.maxProducts) {
-      features.push(`${pkg.maxProducts} Products`);
-    }
-    if (pkg.maxStorage) {
-      features.push(`${pkg.maxStorage} GB Storage`);
+    if (pkg.maxSubscribers) {
+      features.push(`${pkg.maxSubscribers.toLocaleString()} Subscriptions Available`);
     }
     if (pkg.trialPeriod?.enabled && pkg.trialPeriod?.days) {
       features.push(`${pkg.trialPeriod.days} Days Free Trial`);

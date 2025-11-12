@@ -37,6 +37,41 @@ class SubscriptionService {
       return handleApiErrorResponse(error, 'subscription-get');
     }
   }
+
+  /**
+   * Get remaining quota for a feature or all features
+   * @param {string} featureKey - Optional feature key (e.g., 'invoice_management')
+   * @returns {Promise} - Quota information
+   */
+  async getQuota(featureKey = null) {
+    try {
+      const url = featureKey 
+        ? `${API_CONFIG.SUBSCRIPTION.USAGE}/quota?featureKey=${featureKey}`
+        : `${API_CONFIG.SUBSCRIPTION.USAGE}/quota`;
+      const response = await authAxios.get(url);
+      return handleApiSuccess(response.data, 'Quota fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'quota-get');
+    }
+  }
+
+  /**
+   * Check if user can use a feature
+   * @param {string} featureKey - Feature key (e.g., 'invoice_management')
+   * @param {number} quantity - Quantity to check (default: 1)
+   * @returns {Promise} - Check result
+   */
+  async checkUsage(featureKey, quantity = 1) {
+    try {
+      const response = await authAxios.post(`${API_CONFIG.SUBSCRIPTION.USAGE}/check`, {
+        featureKey,
+        quantity
+      });
+      return handleApiSuccess(response.data, 'Usage check completed');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'usage-check');
+    }
+  }
 }
 
 const subscriptionService = new SubscriptionService();
