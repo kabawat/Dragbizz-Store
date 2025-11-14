@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, Button, Loading } from '@/components/ui';
 import { CheckCircle, Sparkles, ArrowLeft, Crown } from 'lucide-react';
@@ -8,7 +8,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
 import AnimatedBackground from '@/components/ui/AnimatedBackground';
 import { getCurrencySymbol } from '@/data/constants/currencies';
 
-const PackagesPage = () => {
+const PackagesContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const upgrade = searchParams.get('upgrade');
@@ -285,6 +285,22 @@ const PackagesPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const PackagesPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+        <ProductHeader />
+        <AnimatedBackground variant="default" />
+        <div className="flex items-center justify-center min-h-[60vh] relative z-10">
+          <Loading />
+        </div>
+      </div>
+    }>
+      <PackagesContent />
+    </Suspense>
   );
 };
 
