@@ -1,20 +1,31 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Package, Warehouse, IndianRupee, TrendingUp, AlertTriangle, TrendingDown, Calculator } from 'lucide-react';
+import { Package, Warehouse, IndianRupee, TrendingUp, AlertTriangle, TrendingDown, Calculator, ArrowUp } from 'lucide-react';
 import { Input, Select, Card, CardBody, Badge } from '@/components/ui';
 import { productService, supplierService } from '@/service/retailer';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
+
+  // Check if supplier_management feature is available
+  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
+  const hasSupplierManagement = checkFeatureAccess(FEATURES.SUPPLIER_MANAGEMENT);
 
   // Fetch products and suppliers on mount and when store changes
   useEffect(() => {
     fetchProducts();
-    fetchSuppliers();
-  }, [formData?.store]);
+    if (hasSupplierManagement) {
+      fetchSuppliers();
+    }
+  }, [formData?.store, hasSupplierManagement]);
 
   const fetchProducts = async () => {
     try {
@@ -31,13 +42,18 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   };
 
   const fetchSuppliers = async () => {
+    if (!hasSupplierManagement || !formData?.store) return;
+    
     try {
+      setSuppliersLoading(true);
       const result = await supplierService.getSuppliers({ limit: 100, lightweight: true, store: formData?.store });
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+    } finally {
+      setSuppliersLoading(false);
     }
   };
 
@@ -46,6 +62,11 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   };
 
   const handleSupplierChange = (supplierId) => {
+    // Check if user has supplier management access
+    if (!hasSupplierManagement && supplierId) {
+      setShowUpgradeModal(true);
+      return;
+    }
     onChange('batchData.supplier', supplierId);
   };
 
@@ -67,12 +88,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   };
 
   const calculateMargin = () => {
-    // Margin calculation removed as sellingPrice is not part of API payload
     return 0;
   };
 
   const calculateProfit = () => {
-    // Profit calculation removed as sellingPrice is not part of API payload
     return 0;
   };
 
@@ -166,20 +185,46 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </div>
 
           {/* Supplier */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 relative">
             <Select
-              label={"Supplier"}
-              required
+              label={"Supplier (Optional)"}
               searchable
               clearable
               value={formData.batchData?.supplier || ''}
               onChange={handleSupplierChange}
-              options={supplierOptions}
-              placeholder={"Search and select supplier"}
+              options={hasSupplierManagement ? supplierOptions : []}
+              placeholder={
+                !hasSupplierManagement 
+                  ? "Enable supplier management to select supplier"
+                  : "Search and select supplier (optional)"
+              }
               error={!!errors['batchData.supplier']}
               errorMessage={errors['batchData.supplier']}
-              helperText={!errors['batchData.supplier'] ? 'Type to search suppliers' : undefined}
+              helperText={
+                !hasSupplierManagement 
+                  ? "Enable supplier management feature in your subscription to use this field"
+                  : !errors['batchData.supplier'] 
+                    ? 'Optional: Type to search suppliers' 
+                    : undefined
+              }
+              disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
             />
+            
+            {/* Upgrade Button - Right Side */}
+            {!hasSupplierManagement && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowUpgradeModal(true);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
+                title="Upgrade to enable supplier management"
+              >
+                <ArrowUp className="w-3.5 h-3.5" />
+                <span>Upgrade</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -221,6 +266,14 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           </Card>
         </div>
       )}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        featureName="Supplier Management"
+        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+      />
     </div>
   );
 };

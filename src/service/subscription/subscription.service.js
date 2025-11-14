@@ -8,10 +8,11 @@ class SubscriptionService {
     this.baseURL = API_CONFIG.BASE.URL;
   }
 
-  async getActiveSubscription(userId) {
+  async getActiveSubscription(userId = null) {
     try {
+      const params = userId ? { userId } : {};
       const response = await authAxios.get(`${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`, {
-        params: { userId }
+        params
       });
       return handleApiSuccess(response.data, 'Active subscription fetched successfully');
     } catch (error) {

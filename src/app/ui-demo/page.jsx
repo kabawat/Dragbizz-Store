@@ -15,7 +15,6 @@ import {
   Loading, 
   Modal, 
   MultiSelect, 
-  NumberInput, 
   Pagination, 
   RichTextEditor, 
   Select, 

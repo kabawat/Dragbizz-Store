@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { NumberInput, Select, Toggle, Input } from '../ui';
+import { Select, Toggle, Input } from '../ui';
 import { Package, Calculator, Hash, IndianRupee } from 'lucide-react';
 import { CURRENCY_OPTIONS, UOM_OPTIONS, GST_RATE_OPTIONS } from '@/data';
 
@@ -82,7 +82,8 @@ const PricingGSTSection = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* MRP */}
           <div>
-            <NumberInput
+            <Input
+              type="number"
               label="MRP (Maximum Retail Price)"
               placeholder="0.00"
               value={formData.mrp || ''}
@@ -101,7 +102,8 @@ const PricingGSTSection = ({
 
           {/* Selling Price */}
           <div>
-            <NumberInput
+            <Input
+              type="number"
               label="Selling Price"
               placeholder="0.00"
               value={formData.sellingPrice || ''}

@@ -9,13 +9,31 @@ import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import QuotaProgressBar from '@/components/product/QuotaProgressBar';
+import QuotaExceededModal from '@/components/product/QuotaExceededModal';
+import { useUsageQuota } from '@/hooks/useUsageQuota';
 
 const CreateInvoicePage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const quotaRefreshRef = useRef(null);
+
+  // Get quota information for frontend validation
+  const { quota, isLoading: quotaLoading } = useUsageQuota('invoice_management');
 
   // Local loading state for invoice creation
   const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [quotaError, setQuotaError] = useState(null);
+
+  // Check if quota is available
+  const isQuotaAvailable = () => {
+    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
+    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
+    return quota.remaining > 0 && quota.hasAccess !== false;
+  };
+
+  const quotaExceeded = !isQuotaAvailable();
 
   // Local state for products and customers
   const [products, setProducts] = useState([]);
@@ -30,16 +48,12 @@ const CreateInvoicePage = () => {
   const [formData, setFormData] = useState({
     customer: '',
     totalDiscount: 0,
-    items: [
-      {
-        product: '',
-        productName: '',
-        quantity: 1,
-        price: 0,
-        total: 0
-      }
-    ]
+    items: []
   });
+
+  // State for adding new items
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   // Fetch products from API
   const fetchProducts = useCallback(async () => {
@@ -107,17 +121,61 @@ const CreateInvoicePage = () => {
   }, [selectedStore?.storeId, fetchProducts, fetchCustomers]);
 
   const handleAddItem = () => {
-    const newItem = {
-      product: '',
-      productName: '',
-      quantity: 1,
-      price: 0,
-      total: 0
-    };
-    setFormData({
-      ...formData,
-      items: [...formData.items, newItem]
-    });
+    if (!selectedProduct) {
+      alert('Please select a product');
+      return;
+    }
+
+    const product = products.find(p => p._id === selectedProduct);
+    if (!product) {
+      alert('Product not found');
+      return;
+    }
+
+    const productPrice = product.price || product.sellingPrice || 0;
+    const quantityToAdd = parseInt(selectedQuantity) || 1;
+
+    // Check if product already exists in items
+    const existingItemIndex = formData.items.findIndex(item => item.product === selectedProduct);
+
+    if (existingItemIndex !== -1) {
+      // Product already exists, increment quantity
+      const updatedItems = [...formData.items];
+      const existingItem = updatedItems[existingItemIndex];
+      const newQuantity = existingItem.quantity + quantityToAdd;
+      const newTotal = productPrice * newQuantity;
+
+      updatedItems[existingItemIndex] = {
+        ...existingItem,
+        quantity: newQuantity,
+        total: newTotal
+      };
+
+      setFormData({
+        ...formData,
+        items: updatedItems
+      });
+    } else {
+      // Product doesn't exist, add as new item
+      const total = productPrice * quantityToAdd;
+
+      const newItem = {
+        product: selectedProduct,
+        productName: product.name || '',
+        quantity: quantityToAdd,
+        price: productPrice,
+        total: total
+      };
+
+      setFormData({
+        ...formData,
+        items: [...formData.items, newItem]
+      });
+    }
+
+    // Reset selection
+    setSelectedProduct('');
+    setSelectedQuantity(1);
   };
 
   const handleRemoveItem = (index) => {
@@ -163,6 +221,26 @@ const CreateInvoicePage = () => {
       return;
     }
 
+    // Frontend validation: Check quota before making API call
+    if (!isQuotaAvailable()) {
+      // Show quota exceeded modal
+      const quotaData = quota || {};
+      setQuotaError({
+        message: quota.remaining === 0
+          ? `Daily limit reached. You have used all ${quota.limit} invoices for today. Please try again tomorrow or upgrade your plan.`
+          : 'Quota exceeded. Please upgrade your plan to continue.',
+        quota: quotaData,
+        resetTime: quota.usageType === 'DAILY_FIXED'
+          ? 'tomorrow'
+          : quota.usageType === 'MONTHLY_TOTAL'
+            ? 'next month'
+            : null,
+        canUpgrade: true
+      });
+      setShowQuotaModal(true);
+      return; // Prevent API call
+    }
+
     const invoiceData = {
       customer: formData.customer || null,
       items: validItems.map(item => ({
@@ -175,8 +253,15 @@ const CreateInvoicePage = () => {
 
     try {
       setInvoiceLoading(true);
+      setQuotaError(null);
+      setShowQuotaModal(false);
+
       const result = await invoiceService.createDraftInvoice(invoiceData);
       if (result.success) {
+        // Refresh quota after successful invoice creation
+        if (quotaRefreshRef.current) {
+          quotaRefreshRef.current();
+        }
         // Redirect to the created invoice view page
         const invoiceId = result.data?.id || result.data?._id;
         if (invoiceId) {
@@ -186,12 +271,54 @@ const CreateInvoicePage = () => {
           router.push('/dashboard/invoices');
         }
       } else {
-        console.error('Failed to create invoice:', result.message);
-        alert('Failed to create invoice. Please try again.');
+        // Check if it's a quota exceeded error (403)
+        const errorData = result?.error || {};
+        const isQuotaError =
+          result?.statusCode === 403 ||
+          errorData.error === 'Quota Exceeded' ||
+          errorData.error === 'Forbidden' ||
+          result.message?.includes('Quota exceeded') ||
+          result.message?.includes('limit reached') ||
+          result.message?.includes('Quota Exceeded');
+
+        if (isQuotaError) {
+          // Extract quota data from backend response structure
+          const quotaData = errorData.data || errorData || {};
+          setQuotaError({
+            message: result.message || errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
+          });
+          setShowQuotaModal(true);
+        } else {
+          console.error('Failed to create invoice:', result.message);
+          alert('Failed to create invoice. Please try again.');
+        }
       }
     } catch (error) {
-      console.error('Error creating invoice:', error);
-      alert('An error occurred while creating the invoice. Please try again.');
+      // Handle API error response
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+
+        // Check for quota exceeded error (403)
+        if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
+          const quotaData = errorData.data || {};
+          setQuotaError({
+            message: errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
+          });
+          setShowQuotaModal(true);
+        } else {
+          console.error('Error creating invoice:', error);
+          alert('An error occurred while creating the invoice. Please try again.');
+        }
+      } else {
+        console.error('Error creating invoice:', error);
+        alert('An error occurred while creating the invoice. Please try again.');
+      }
     } finally {
       setInvoiceLoading(false);
     }
@@ -228,177 +355,179 @@ const CreateInvoicePage = () => {
 
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
-            {/* Back Button */}
-            <div className="mb-4">
+            {/* Back Button with Quota Progress Bar */}
+            <div className="mb-4 flex items-center justify-between">
               <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Invoices</span>
               </Link>
+              <QuotaProgressBar
+                featureKey="invoice_management"
+                onRefreshRef={(refreshFn) => {
+                  quotaRefreshRef.current = refreshFn;
+                }}
+              />
             </div>
 
             {/* Form Container - Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 150px)' }}>
 
               <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-150px)]">
-                  <form onSubmit={handleSubmit}>
-                    {/* Invoice Information */}
-                    <Card className="mb-6">
-                      <div className="p-6">
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                          <User className="w-5 h-5 mr-2" />
-                          Customer Information
-                        </h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Customer
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to walk-in)</span>
-                            </label>
-                            <Select
-                              value={formData.customer}
-                              onChange={(value) => setFormData({ ...formData, customer: value })}
-                              options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
-                              disabled={customersLoading}
-                              leftIcon={User}
-                              size="md"
-                              searchable={true}
-                              placeholder="Search customers or select walk-in..."
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Total Discount (₹)
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
-                            </label>
-                            <Input
-                              type="number"
-                              value={formData.totalDiscount}
-                              onChange={(value) => setFormData({ ...formData, totalDiscount: value })}
-                              min="0"
-                              step="0.01"
-                              leftIcon={Calculator}
-                              size="md"
-                              placeholder="Enter discount amount"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-
+                <div className="flex-1 pe-3 h-full">
+                  <form onSubmit={handleSubmit} className="h-full">
                     {/* Items Section */}
-                    <Card>
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
-                            <Package className="w-5 h-5 mr-2" />
-                            Items
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={handleAddItem}
-                            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                            title="Add new item"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Item</span>
-                          </button>
+                    <Card className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
+                      <div className="p-4 flex flex-col h-full overflow-hidden">
+                        <div className="mb-4 flex-shrink-0">
+                         
+                          {/* Add Item Section */}
+                          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                            <div className="md:col-span-6">
+                              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                Select Product *
+                              </label>
+                              <Select
+                                size="sm"
+                                searchable={true}
+                                value={selectedProduct}
+                                onChange={(value) => setSelectedProduct(value)}
+                                options={[
+                                  { value: '', label: 'Select Product' },
+                                  ...products.filter(product => product._id).map(product => ({
+                                    value: product._id,
+                                    label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`
+                                  }))
+                                ]}
+                                leftIcon={Package}
+                                size="sm"
+                              />
+                            </div>
+
+                            <div className="md:col-span-3">
+                              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                Quantity *
+                              </label>
+                              <Input
+                                type="number"
+                                value={selectedQuantity}
+                                onChange={(value) => setSelectedQuantity(value)}
+                                min="1"
+                                placeholder="1"
+                                leftIcon={Package}
+                                size="sm"
+                              />
+                            </div>
+
+                            <div className="md:col-span-3">
+                              <Button
+                                type="button"
+                                variant="primary"
+                                onClick={handleAddItem}
+                                leftIcon={Plus}
+                                // className="w-full"
+                                disabled={!selectedProduct}
+                              >
+                                Add Item
+                              </Button>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="space-y-4">
-                          {formData.items.map((item, index) => {
-                            const product = products.find(p => p._id === item.product);
-                            return (
-                              <div key={index} className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30">
-                                <div className="flex items-center justify-between mb-3">
-                                  <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                    Item {index + 1}
-                                  </h4>
-                                  {formData.items.length > 1 && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveItem(index)}
-                                      className="flex items-center gap-1 px-2 py-1 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
-                                      title="Remove item"
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                      <span className="text-xs">Remove</span>
-                                    </button>
-                                  )}
-                                </div>
+                        {/* Items List and Discount Container */}
+                        {formData.items.length > 0 ? (
+                          <div className="mt-6 flex-1 flex flex-col min-h-0">
+                            {/* Items List - Scrollable */}
+                            <div className="flex-1 flex flex-col min-h-0">
+                              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex-shrink-0">
+                                Added Items ({formData.items.length})
+                              </h4>
+                              <div className="overflow-y-auto overflow-x-hidden space-y-3 pr-2" style={{ maxHeight: 'calc(100vh - 450px)' }}>
+                                {formData.items.map((item, index) => {
+                                  const product = products.find(p => p._id === item.product);
+                                  return (
+                                    <div key={index} className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                          <div>
+                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                                              Product
+                                            </label>
+                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                              {item.productName || product?.name || 'N/A'}
+                                            </p>
+                                          </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                  <div>
-                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                      Product *
-                                    </label>
-                                    <Select
-                                      value={item.product}
-                                      onChange={(value) => {
-                                        const selectedProduct = products.find(p => p._id === value);
-                                        const productPrice = selectedProduct?.price || selectedProduct?.sellingPrice || 0;
-                                        handleItemChange(index, 'product', value);
-                                        handleItemChange(index, 'productName', selectedProduct?.name || '');
-                                        handleItemChange(index, 'price', productPrice);
-                                      }}
-                                      options={[
-                                        { value: '', label: 'Select Product' },
-                                        ...products.filter(product => product._id).map(product => ({
-                                          value: product._id,
-                                          label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`
-                                        }))
-                                      ]}
-                                      leftIcon={Package}
-                                      size="sm"
-                                    />
-                                  </div>
+                                          <div>
+                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                                              Quantity
+                                            </label>
+                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                              {item.quantity}
+                                            </p>
+                                          </div>
 
-                                  <div>
-                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                      Quantity *
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      value={item.quantity}
-                                      onChange={(value) => handleItemChange(index, 'quantity', value)}
-                                      min="1"
-                                      placeholder="0"
-                                      leftIcon={Package}
-                                      size="sm"
-                                    />
-                                  </div>
+                                          <div>
+                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                                              Price
+                                            </label>
+                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                              ₹{item.price?.toFixed(2) || '0.00'}
+                                            </p>
+                                          </div>
 
-                                  <div>
-                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                      Price
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      value={item.price || 0}
-                                      disabled
-                                      leftIcon={IndianRupee}
-                                      size="sm"
-                                    />
-                                  </div>
+                                          <div>
+                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                                              Total
+                                            </label>
+                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                              ₹{item.total?.toFixed(2) || '0.00'}
+                                            </p>
+                                          </div>
+                                        </div>
 
-                                  <div>
-                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                      Total
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      value={item.total || 0}
-                                      disabled
-                                      leftIcon={IndianRupee}
-                                      size="sm"
-                                    />
-                                  </div>
-                                </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveItem(index)}
+                                          className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
+                                          title="Remove item"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+
+                            {/* Total Discount Section - Fixed at Bottom */}
+                            <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
+                              <div className="w-full md:w-80">
+                                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
+                                  Total Discount (₹)
+                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                                </label>
+                                <Input
+                                  type="number"
+                                  value={formData.totalDiscount}
+                                  onChange={(value) => setFormData({ ...formData, totalDiscount: value })}
+                                  min="0"
+                                  step="0.01"
+                                  leftIcon={Calculator}
+                                  size="sm"
+                                  placeholder="Enter discount amount"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center text-[rgb(var(--color-text-secondary))]">
+                              <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                              <p className="text-sm">No items added yet. Select a product and quantity above to add items.</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </Card>
                   </form>
@@ -407,8 +536,32 @@ const CreateInvoicePage = () => {
 
               {/* Summary Sidebar */}
               <div className="flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-204px)]">
+                <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-224px)]">
                   <div className="space-y-4">
+                    {/* Customer Information */}
+                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        Customer Information
+                      </h4>
+                      <div>
+                        <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                          Customer
+                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to walk-in)</span>
+                        </label>
+                        <Select
+                          value={formData.customer}
+                          onChange={(value) => setFormData({ ...formData, customer: value })}
+                          options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
+                          disabled={customersLoading}
+                          leftIcon={User}
+                          size="sm"
+                          searchable={true}
+                          placeholder="Search customers or select walk-in..."
+                        />
+                      </div>
+                    </div>
+
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                       <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Invoice Summary</h4>
                       <div className="space-y-2">
@@ -447,22 +600,33 @@ const CreateInvoicePage = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    {/* Quota exceeded warning message */}
+                    {quotaExceeded && !quotaLoading && (
+                      <div className="mb-3">
+                        <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
+                          ⚠️ Quota exceeded. Please upgrade your plan to create more invoices.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row gap-3">
                       <Button
                         variant="primary"
-                        className="w-full"
+                        className="w-full md:flex-1"
                         onClick={handleSubmit}
                         loading={invoiceLoading}
                         leftIcon={Plus}
-                        disabled={formData.items.length === 0}
+                        disabled={formData.items.length === 0 || quotaExceeded || quotaLoading}
+                        title={quotaExceeded ? 'Quota exceeded. Please upgrade your plan.' : ''}
                       >
                         Create Invoice
                       </Button>
 
                       <Button
                         variant="outline"
-                        className="w-full"
+                        className="w-full md:flex-1"
                         onClick={() => router.push('/dashboard/invoices')}
+                        disabled={invoiceLoading}
                       >
                         Cancel
                       </Button>
@@ -474,6 +638,19 @@ const CreateInvoicePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Quota Exceeded Modal */}
+      <QuotaExceededModal
+        isOpen={showQuotaModal}
+        onClose={() => {
+          setShowQuotaModal(false);
+          setQuotaError(null);
+        }}
+        message={quotaError?.message}
+        quota={quotaError?.quota}
+        resetTime={quotaError?.resetTime}
+        canUpgrade={quotaError?.canUpgrade}
+      />
     </div>
   );
 };

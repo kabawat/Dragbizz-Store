@@ -1,6 +1,11 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { subscriptionService } from '@/service/subscription';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+
+const quotaCache = new Map();
+const quotaCacheTTL = 60 * 1000;
+const pendingRequests = new Map();
 
 /**
  * Hook to get and manage usage quotas
@@ -12,41 +17,249 @@ export function useUsageQuota(featureKey = null) {
   const [summary, setSummary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
+  const subscriptionId = subscription?._id || subscription?.id || null;
+  
+  const subscriptionRef = useRef(null);
+  const hasFetchedRef = useRef(false);
+  const lastFeatureKeyRef = useRef(null);
+  const isFetchingRef = useRef(false);
 
-  const fetchQuota = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const getCacheKey = useCallback((sub, fKey) => {
+    const subId = sub?._id || sub?.id || 'no-sub';
+    return fKey ? `quota:${subId}:${fKey}` : `quota:${subId}:all`;
+  }, []);
 
-      const result = await subscriptionService.getQuota(featureKey);
-      
-      if (result.success) {
-        if (featureKey) {
-          setQuota(result.data.quota);
-        } else {
-          setSummary(result.data.summary || []);
-        }
-      } else {
-        setError(result.message || 'Failed to fetch quota');
-      }
-    } catch (err) {
-      setError(err.message || 'Error fetching quota');
-      console.error('Error fetching quota:', err);
-    } finally {
-      setIsLoading(false);
+  const fetchQuota = useCallback(async (forceRefresh = false) => {
+    if (subscriptionLoading) {
+      return;
     }
-  };
+
+    if (!subscriptionId) {
+      setIsLoading(false);
+      setQuota(null);
+      setSummary([]);
+      subscriptionRef.current = null;
+      hasFetchedRef.current = false;
+      isFetchingRef.current = false;
+      return;
+    }
+
+    if (isFetchingRef.current && !forceRefresh) {
+      return;
+    }
+
+    const subChanged = subscriptionRef.current !== subscriptionId;
+    const featureKeyChanged = lastFeatureKeyRef.current !== featureKey;
+
+    if (subChanged || featureKeyChanged) {
+      subscriptionRef.current = subscriptionId;
+      lastFeatureKeyRef.current = featureKey;
+      hasFetchedRef.current = false;
+    }
+
+    const cacheKey = subscriptionId 
+      ? (featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`)
+      : null;
+    
+    if (!cacheKey) {
+      return;
+    }
+    
+    if (!forceRefresh && !subChanged && !featureKeyChanged) {
+      const cached = quotaCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL) {
+        if (featureKey) {
+          setQuota(cached.data.quota);
+        } else {
+          setSummary(cached.data.summary || []);
+        }
+        setIsLoading(false);
+        hasFetchedRef.current = true;
+        isFetchingRef.current = false;
+        return;
+      }
+    }
+
+    const existingRequest = pendingRequests.get(cacheKey);
+    if (existingRequest) {
+      try {
+        const pendingData = await existingRequest;
+        if (featureKey) {
+          setQuota(pendingData.quota);
+        } else {
+          setSummary(pendingData.summary || []);
+        }
+        setIsLoading(false);
+        hasFetchedRef.current = true;
+        isFetchingRef.current = false;
+        return;
+      } catch (err) {
+        pendingRequests.delete(cacheKey);
+      }
+    }
+
+    if (pendingRequests.has(cacheKey)) {
+      const newRequest = pendingRequests.get(cacheKey);
+      if (newRequest) {
+        try {
+          const pendingData = await newRequest;
+          if (featureKey) {
+            setQuota(pendingData.quota);
+          } else {
+            setSummary(pendingData.summary || []);
+          }
+          setIsLoading(false);
+          hasFetchedRef.current = true;
+          isFetchingRef.current = false;
+          return;
+        } catch (err) {}
+      }
+      return;
+    }
+
+    isFetchingRef.current = true;
+    setIsLoading(true);
+    setError(null);
+
+    let requestResolve;
+    let requestReject;
+    const requestPromise = new Promise((resolve, reject) => {
+      requestResolve = resolve;
+      requestReject = reject;
+    });
+
+    pendingRequests.set(cacheKey, requestPromise);
+
+    (async () => {
+      try {
+        const result = await subscriptionService.getQuota(featureKey);
+        
+        if (result.success) {
+          const data = featureKey 
+            ? { quota: result.data.quota }
+            : { summary: result.data.summary || [] };
+          
+          quotaCache.set(cacheKey, {
+            data,
+            timestamp: Date.now()
+          });
+
+          if (featureKey) {
+            setQuota(result.data.quota);
+          } else {
+            setSummary(result.data.summary || []);
+          }
+
+          hasFetchedRef.current = true;
+          isFetchingRef.current = false;
+          requestResolve(data);
+        } else {
+          setError(result.message || 'Failed to fetch quota');
+          isFetchingRef.current = false;
+          const error = new Error(result.message || 'Failed to fetch quota');
+          requestReject(error);
+          throw error;
+        }
+      } catch (err) {
+        setError(err.message || 'Error fetching quota');
+        console.error('Error fetching quota:', err);
+        isFetchingRef.current = false;
+        requestReject(err);
+        throw err;
+      } finally {
+        setIsLoading(false);
+        setTimeout(() => {
+          pendingRequests.delete(cacheKey);
+        }, 50);
+      }
+    })();
+  }, [featureKey, subscriptionId, subscriptionLoading]);
 
   useEffect(() => {
-    fetchQuota();
-  }, [featureKey]);
+    if (subscriptionLoading) {
+      return;
+    }
+
+    if (!subscriptionId) {
+      setIsLoading(false);
+      return;
+    }
+
+    const subChanged = subscriptionRef.current !== subscriptionId;
+    const featureKeyChanged = lastFeatureKeyRef.current !== featureKey;
+    
+    const cacheKey = subscriptionId 
+      ? (featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`)
+      : null;
+    
+    if (cacheKey) {
+      const existingRequest = pendingRequests.get(cacheKey);
+      if (existingRequest) {
+        existingRequest.then((pendingData) => {
+          if (featureKey) {
+            setQuota(pendingData.quota);
+          } else {
+            setSummary(pendingData.summary || []);
+          }
+          setIsLoading(false);
+          hasFetchedRef.current = true;
+        }).catch(() => {});
+        return;
+      }
+
+      const cached = quotaCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL && !subChanged && !featureKeyChanged) {
+        if (featureKey) {
+          setQuota(cached.data.quota);
+        } else {
+          setSummary(cached.data.summary || []);
+        }
+        setIsLoading(false);
+        hasFetchedRef.current = true;
+        return;
+      }
+    }
+    
+    if (isFetchingRef.current) {
+      return;
+    }
+    
+    if (!hasFetchedRef.current || subChanged || featureKeyChanged) {
+      if (subChanged) {
+        subscriptionRef.current = subscriptionId;
+        hasFetchedRef.current = false;
+      }
+      if (featureKeyChanged) {
+        lastFeatureKeyRef.current = featureKey;
+        hasFetchedRef.current = false;
+      }
+      
+      fetchQuota();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [featureKey, subscriptionId, subscriptionLoading]);
+
+  useEffect(() => {
+    return () => {
+      if (subscriptionId) {
+        const cacheKey = featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`;
+        pendingRequests.delete(cacheKey);
+      }
+    };
+  }, [featureKey, subscriptionId]);
+
+  const refresh = useCallback(() => {
+    fetchQuota(true);
+  }, [fetchQuota]);
 
   return {
     quota,
     summary,
     isLoading,
     error,
-    refresh: fetchQuota
+    refresh
   };
 }
 

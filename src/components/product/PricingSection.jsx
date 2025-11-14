@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { Input, NumberInput, Select } from '../ui';
+import { Input, Select } from '../ui';
 import { IndianRupee, Percent, Package } from 'lucide-react';
 import { FieldGroup } from '../layout';
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
@@ -26,7 +26,8 @@ const PricingSection = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* MRP */}
         <div>
-          <NumberInput
+          <Input
+            type="number"
             label="MRP (Maximum Retail Price)"
             placeholder="0.00"
             value={formData.mrp || ''}
@@ -45,7 +46,8 @@ const PricingSection = ({
 
         {/* Selling Price */}
         <div>
-          <NumberInput
+          <Input
+            type="number"
             label="Selling Price"
             placeholder="0.00"
             value={formData.sellingPrice || ''}
