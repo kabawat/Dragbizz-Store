@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button, Card, Input, Loading, Select } from '@/components/ui';
 import { packageService, checkoutService } from '@/service';
@@ -17,7 +17,7 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
   } from 'lucide-react';
   import ProductHeader from '@/components/layout/ProductHeader';
 
-  const CheckoutPage = () => {
+  const CheckoutContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const packageId = searchParams.get('packageId');
@@ -446,6 +446,21 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
         </div>
       </div>
     </div>
+  );
+};
+
+const CheckoutPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+        <ProductHeader />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loading />
+        </div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   );
 };
 

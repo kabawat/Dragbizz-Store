@@ -1,12 +1,12 @@
 "use client"
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Loading } from '@/components/ui';
 import { CheckCircle, ArrowRight, Home, Package, Sparkles, Shield } from 'lucide-react';
 import ProductHeader from '@/components/layout/ProductHeader';
 import AnimatedBackground from '@/components/ui/AnimatedBackground';
 
-const CheckoutSuccessPage = () => {
+const CheckoutSuccessContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId');
@@ -114,6 +114,21 @@ const CheckoutSuccessPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const CheckoutSuccessPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+        <ProductHeader />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loading />
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 };
 

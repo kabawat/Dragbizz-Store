@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Printer, Download, Eye } from 'lucide-react';
 import moment from 'moment';
@@ -56,7 +56,7 @@ import {
 } from '@/components/invoice/templates';
 import TemplateSelector from '@/components/invoice/TemplateSelector';
 
-const PrintPreviewPage = () => {
+const PrintPreviewContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -515,6 +515,24 @@ const PrintPreviewPage = () => {
                 </div>
             )}
         </>
+    );
+};
+
+const PrintPreviewPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))]">
+                <Sidebar />
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-[rgb(var(--color-text-secondary))]">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        }>
+            <PrintPreviewContent />
+        </Suspense>
     );
 };
 
