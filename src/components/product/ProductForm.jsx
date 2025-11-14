@@ -29,7 +29,7 @@ import PricingGSTSection from './PricingGSTSection';
 import OpeningQuantitySection from './OpeningQuantitySection';
 
 // Import UI components
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, NumberInput, TagInput, FileUpload } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, TagInput, FileUpload } from '@/components/ui';
 
 // Import theme context
 import { useTheme } from '@/contexts/ThemeContext';

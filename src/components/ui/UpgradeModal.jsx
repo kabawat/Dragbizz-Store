@@ -37,7 +37,7 @@ const UpgradeModal = ({
 
   const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
+      className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center p-4 z-[9999]"
       style={{ 
         zIndex: 2147483647,
         position: 'fixed',

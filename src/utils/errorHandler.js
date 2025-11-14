@@ -87,11 +87,13 @@ export const handleApiSuccess = (response, defaultMessage = 'Operation successfu
 
 export const handleApiErrorResponse = (error, context = 'general') => {
   const backendMessage = error.response?.data?.message || error.response?.data?.error;
+  const statusCode = error.response?.status;
 
   return {
     success: false,
     error: error.response?.data || error.message,
-    message: backendMessage || handleApiError(error, context)
+    message: backendMessage || handleApiError(error, context),
+    statusCode: statusCode // Preserve HTTP status code for quota error detection
   };
 };
 

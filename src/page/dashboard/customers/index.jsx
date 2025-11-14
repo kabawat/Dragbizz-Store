@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Grid3X3, List, Users, Search, MoreHorizontal, Edit, Copy, Trash2, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -108,20 +108,20 @@ const CustomersPage = () => {
   }, [dispatch]);
 
   // Fetch customers from API
-  const fetchCustomers = async (isLoadMore = false) => {
+  const fetchCustomers = useCallback(async (isLoadMore = false, cursor = null) => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     
     const params = {
       search: searchValue,
       limit: 10,
-      nextCursor: isLoadMore ? pagination.nextCursor : null
+      nextCursor: isLoadMore ? cursor : null
     };
 
     if (storeId) {
       params.store = storeId;
     }
     // Create a unique key for this fetch
-    const fetchKey = `${storeId}-${searchValue}-${isLoadMore}`;
+    const fetchKey = `${storeId}-${searchValue}-${isLoadMore}-${cursor}`;
 
     // Prevent duplicate calls with same parameters
     if (lastFetchRef.current === fetchKey) {
@@ -131,7 +131,11 @@ const CustomersPage = () => {
     lastFetchRef.current = fetchKey;
     
     try {
-      setIsLoading(true);
+      if (isLoadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
       
       const result = await customerService.getCustomers(params);
@@ -156,19 +160,47 @@ const CustomersPage = () => {
     } catch (error) {
       setError(error.message || 'Failed to fetch customers');
     } finally {
-      setIsLoading(false);
+      if (isLoadMore) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
-  };
+  }, [selectedStore, searchValue]);
+
+  // Reset fetch ref and pagination when search or store changes
+  useEffect(() => {
+    lastFetchRef.current = null;
+    setPagination({
+      hasNextPage: false,
+      nextCursor: null
+    });
+  }, [selectedStore, searchValue]);
 
   // Fetch customers on component mount and when search changes
   useEffect(() => {
     fetchCustomers(false);
-  }, [selectedStore, searchValue]);
+  }, [fetchCustomers]);
+
+  // Infinite scroll logic - load more customers
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !pagination.hasNextPage || !pagination.nextCursor) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      await fetchCustomers(true, pagination.nextCursor);
+    } catch (error) {
+      console.error('Error loading more customers:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   // Infinite scroll detection
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage || !pagination.nextCursor) return;
 
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const threshold = 100;
@@ -183,7 +215,7 @@ const CustomersPage = () => {
       scrollElement.addEventListener('scroll', handleScroll);
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
-  }, [isLoadingMore, pagination.hasNextPage]);
+  }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor]);
 
   const handleStoreChange = (storeObject) => {
     // Store change is handled by Redux, no need for local state
@@ -283,21 +315,6 @@ const CustomersPage = () => {
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
     localStorage.setItem('customers-view-mode', mode);
-  };
-
-  // Infinite scroll logic - load more customers
-  const handleLoadMore = async () => {
-    if (isLoadingMore || !pagination.hasNextPage) return;
-
-    setIsLoadingMore(true);
-
-    try {
-      await fetchCustomers(true);
-    } catch (error) {
-      console.error('Error loading more customers:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
   };
 
   return (

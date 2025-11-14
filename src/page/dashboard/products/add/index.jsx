@@ -8,18 +8,37 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal } from '@/components/product';
+import QuotaExceededModal from '@/components/product/QuotaExceededModal';
+import QuotaProgressBar from '@/components/product/QuotaProgressBar';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import { useUsageQuota } from '@/hooks/useUsageQuota';
 import Link from 'next/link';
+import { useRef } from 'react';
 
 const AddProductPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+  const quotaRefreshRef = useRef(null);
+
+  // Get quota information for frontend validation
+  const { quota, isLoading: quotaLoading } = useUsageQuota('product_management');
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [addedProductName, setAddedProductName] = useState('');
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [quotaError, setQuotaError] = useState(null);
+
+  // Check if quota is available
+  const isQuotaAvailable = () => {
+    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
+    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
+    return quota.remaining > 0 && quota.hasAccess !== false;
+  };
+
+  const quotaExceeded = !isQuotaAvailable();
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -110,18 +129,67 @@ const AddProductPage = () => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
+    // Frontend validation: Check quota before making API call
+    if (!isQuotaAvailable()) {
+      // Show quota exceeded modal
+      const quotaData = quota || {};
+      setQuotaError({
+        message: quota.remaining === 0 
+          ? `Daily limit reached. You have used all ${quota.limit} products for today. Please try again tomorrow or upgrade your plan.`
+          : 'Quota exceeded. Please upgrade your plan to continue.',
+        quota: quotaData,
+        resetTime: quota.usageType === 'DAILY_FIXED' 
+          ? 'tomorrow' 
+          : quota.usageType === 'MONTHLY_TOTAL' 
+            ? 'next month' 
+            : null,
+        canUpgrade: true
+      });
+      setShowQuotaModal(true);
+      return; // Prevent API call
+    }
+
     try {
       setLoading(true);
       setFieldErrors({});
+      setQuotaError(null);
+      setShowQuotaModal(false);
+      
       const result = await productService.createProduct(formData);
 
       if (result.success) {
+        // Refresh quota after successful product creation
+        if (quotaRefreshRef.current) {
+          quotaRefreshRef.current();
+        }
         // Show success modal instead of direct redirect
         setAddedProductName(formData.name || 'Product');
         setShowSuccessModal(true);
       } else {
-        if (result?.error && result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
+        // Check if it's a quota exceeded error (403)
+        // Backend response structure: { status: "error", message: "...", error: "Quota Exceeded", data: { quota: {...}, ... } }
+        const errorData = result?.error || {};
+        const isQuotaError = 
+          result?.statusCode === 403 || 
+          errorData.error === 'Quota Exceeded' || 
+          errorData.error === 'Forbidden' ||
+          result.message?.includes('Quota exceeded') || 
+          result.message?.includes('limit reached') ||
+          result.message?.includes('Quota Exceeded');
+        
+        if (isQuotaError) {
+          // Extract quota data from backend response structure
+          // Backend sends: { status: "error", error: "Quota Exceeded", data: { quota: {...}, canUpgrade: true, resetTime: "...", ... } }
+          const quotaData = errorData.data || errorData || {};
+          setQuotaError({
+            message: result.message || errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
+          });
+          setShowQuotaModal(true);
+        } else if (errorData.data?.fields || errorData.fields) {
+          setFieldErrors(errorData.data?.fields || errorData.fields || {});
         }
       }
 
@@ -129,7 +197,18 @@ const AddProductPage = () => {
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
+        
+        // Check for quota exceeded error (403)
+        if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
+          const quotaData = errorData.data || {};
+          setQuotaError({
+            message: errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
+          });
+          setShowQuotaModal(true);
+        } else if (errorData.data && errorData.data.fields) {
           setFieldErrors(errorData.data.fields);
         }
       }
@@ -170,17 +249,23 @@ const AddProductPage = () => {
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-            {/* Back Button */}
-            <div className="mb-6">
+            {/* Back Button with Quota Progress Bar */}
+            <div className="mb-6 flex items-center justify-between">
               <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Products</span>
               </Link>
+              <QuotaProgressBar 
+                featureKey="product_management"
+                onRefreshRef={(refreshFn) => {
+                  quotaRefreshRef.current = refreshFn;
+                }}
+              />
             </div>
 
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
-              <div className="h-[calc(100vh-238px)] overflow-y-auto pe-3">
+              <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
                 <ProductForm
                   formData={formData}
                   onChange={handleFormDataChange}
@@ -191,15 +276,22 @@ const AddProductPage = () => {
 
               {/* Fixed Action Bar - Only show when store is loaded and available */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-end">
-                  <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-between">
+                  {/* Quota exceeded warning message */}
+                  {quotaExceeded && !quotaLoading && (
+                    <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
+                      <span>⚠️ Quota exceeded. Please upgrade your plan to create more products.</span>
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-3 ml-auto">
                     <Button variant="outline" onClick={handleCancel} disabled={loading} > Cancel </Button>
                     <Button
                       variant="success"
                       onClick={() => handleSaveAndPublish(formData)}
-                      disabled={loading}
+                      disabled={loading || quotaExceeded || quotaLoading}
                       loading={loading}
                       leftIcon={Save}
+                      title={quotaExceeded ? 'Quota exceeded. Please upgrade your plan.' : ''}
                     >
                       Save & Publish
                     </Button>
@@ -219,6 +311,19 @@ const AddProductPage = () => {
         onContinue={handleContinue}
         onAddMore={handleAddMore}
         productName={addedProductName}
+      />
+
+      {/* Quota Exceeded Modal */}
+      <QuotaExceededModal
+        isOpen={showQuotaModal}
+        onClose={() => {
+          setShowQuotaModal(false);
+          setQuotaError(null);
+        }}
+        message={quotaError?.message}
+        quota={quotaError?.quota}
+        resetTime={quotaError?.resetTime}
+        canUpgrade={quotaError?.canUpgrade}
       />
 
     </div>

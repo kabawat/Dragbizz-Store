@@ -119,9 +119,7 @@ const EditInventoryPage = ({ inventoryId }) => {
       errors['batchData.purchasePrice'] = 'Purchase price must be greater than 0';
     }
 
-    if (!formData.batchData?.supplier) {
-      errors['batchData.supplier'] = 'Supplier is required';
-    }
+    // Supplier is optional - no validation needed
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;

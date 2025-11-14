@@ -26,8 +26,12 @@ const Input = forwardRef(({
   pattern,
   autoComplete,
   showPasswordToggle = false,
-  rightElement, // Keep for backward compatibility
-  size = 'md', // New size prop with default 'md'
+  rightElement,
+  size = 'sm',
+  min,
+  max,
+  step,
+  precision,
   ...props
 }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +39,57 @@ const Input = forwardRef(({
   const inputType = showPasswordToggle && type === 'password'
     ? (showPassword ? 'text' : 'password')
     : type;
+
+  const handleChange = (e) => {
+    const inputValue = e.target.value;
+    
+    if (type === 'number') {
+      if (inputValue === '' || inputValue === '-') {
+        onChange?.(inputValue);
+        return;
+      }
+      
+      const numValue = parseFloat(inputValue);
+      if (isNaN(numValue)) {
+        return;
+      }
+      
+      let processedValue = numValue;
+      
+      if (min !== undefined && processedValue < min) {
+        processedValue = min;
+      }
+      if (max !== undefined && processedValue > max) {
+        processedValue = max;
+      }
+      
+      if (precision !== undefined) {
+        processedValue = parseFloat(processedValue.toFixed(precision));
+      }
+      
+      onChange?.(processedValue);
+    } else {
+      onChange?.(inputValue);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (type === 'number') {
+      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+      const isNumber = /[0-9]/.test(e.key);
+      const isDecimal = e.key === '.' && precision !== undefined && precision > 0;
+      const isMinus = e.key === '-' && min !== undefined && min < 0;
+      const isCtrlA = e.ctrlKey && e.key === 'a';
+      const isCtrlC = e.ctrlKey && e.key === 'c';
+      const isCtrlV = e.ctrlKey && e.key === 'v';
+      const isCtrlX = e.ctrlKey && e.key === 'x';
+      
+      if (!allowedKeys.includes(e.key) && !isNumber && !isDecimal && !isMinus && !isCtrlA && !isCtrlC && !isCtrlV && !isCtrlX) {
+        e.preventDefault();
+      }
+    }
+    props.onKeyDown?.(e);
+  };
 
   // Size classes - Original padding restored
   const sizeClasses = {
@@ -81,21 +136,36 @@ const Input = forwardRef(({
           </span>
         </label>
       )}
-      {/* Left Icon */}
       <div className="relative">
         {LeftIcon && (
           <div className={`absolute left-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 ps-3' : size === 'lg' ? 'w-12 ps-5' : 'w-10 ps-4'}`}>
-            <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+            {React.isValidElement(LeftIcon) ? (
+              LeftIcon
+            ) : typeof LeftIcon === 'function' ? (
+              (() => {
+                try {
+                  const result = LeftIcon();
+                  if (React.isValidElement(result)) {
+                    return result;
+                  }
+                } catch (e) {
+                  // If LeftIcon is a component constructor, render it
+                }
+                return <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />;
+              })()
+            ) : (
+              <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
+            )}
           </div>
         )}
 
-        {/* Input Field */}
         <input
           ref={ref}
           type={inputType}
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
           autoFocus={autoFocus}
           disabled={disabled}
           required={required}
@@ -105,6 +175,9 @@ const Input = forwardRef(({
           minLength={minLength}
           pattern={pattern}
           autoComplete={autoComplete}
+          min={min}
+          max={max}
+          step={step}
           className={inputClasses}
           style={error ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
           {...props}
@@ -129,9 +202,24 @@ const Input = forwardRef(({
           </button>
         )}
 
-        {/* Right Icon */}
         {RightIcon && !showPasswordToggle && (
-          <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />
+          React.isValidElement(RightIcon) ? (
+            RightIcon
+          ) : typeof RightIcon === 'function' ? (
+            (() => {
+              try {
+                const result = RightIcon();
+                if (React.isValidElement(result)) {
+                  return result;
+                }
+              } catch (e) {
+                // If RightIcon is a component constructor, render it
+              }
+              return <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />;
+            })()
+          ) : (
+            <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />
+          )
         )}
 
         {/* Legacy rightElement support */}

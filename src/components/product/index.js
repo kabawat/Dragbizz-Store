@@ -16,3 +16,6 @@ export { default as ProductDeleteConfirmModal } from './ProductDeleteConfirmModa
 export { default as ProductDeleteSuccessModal } from './ProductDeleteSuccessModal';
 export { default as ProductErrorModal } from './ProductErrorModal';
 export { default as ProductInfoModal } from './ProductInfoModal';
+export { default as QuotaExceededModal } from './QuotaExceededModal';
+export { default as QuotaDisplay } from './QuotaDisplay';
+export { default as QuotaProgressBar } from './QuotaProgressBar';

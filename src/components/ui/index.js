@@ -22,7 +22,6 @@ import Toggle, { ViewToggle } from './Toggle';
 import FileUpload from './FileUpload';
 import MultiSelect from './MultiSelect';
 import TagInput from './TagInput';
-import NumberInput from './NumberInput';
 import RichTextEditor from './RichTextEditor';
 import StepProgress from './StepProgress';
 import StockInDrawer from './StockInDrawer';
@@ -80,7 +79,6 @@ export {
   FileUpload,
   MultiSelect,
   TagInput,
-  NumberInput,
   RichTextEditor,
   StepProgress,
   StockInDrawer,
@@ -144,7 +142,6 @@ export default {
   FileUpload,
   MultiSelect,
   TagInput,
-  NumberInput,
   RichTextEditor,
   StepProgress,
   StockInDrawer,

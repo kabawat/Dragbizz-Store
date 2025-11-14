@@ -20,7 +20,7 @@ const Select = ({
   className = '',
   name,
   id,
-  size = 'md', // New size prop with default 'md'
+  size = 'sm', // New size prop with default 'sm'
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);

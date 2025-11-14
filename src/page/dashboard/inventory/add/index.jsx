@@ -104,9 +104,7 @@ const AddInventoryPage = () => {
       errors['batchData.purchasePrice'] = 'Valid purchase price is required';
     }
     
-    if (!formData.batchData?.supplier) {
-      errors['batchData.supplier'] = 'Supplier selection is required';
-    }
+    // Supplier is optional - no validation needed
     
     return errors;
   };

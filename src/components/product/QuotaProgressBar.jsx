@@ -1,0 +1,79 @@
+"use client"
+import React, { useEffect } from 'react';
+import { useUsageQuota } from '@/hooks/useUsageQuota';
+
+const QuotaProgressBar = ({ featureKey = 'product_management', onRefreshRef }) => {
+  const { quota, isLoading, error, refresh } = useUsageQuota(featureKey);
+
+  // Expose refresh function to parent component
+  useEffect(() => {
+    if (onRefreshRef && typeof onRefreshRef === 'function') {
+      onRefreshRef(refresh);
+    }
+  }, [refresh, onRefreshRef]);
+
+  if (isLoading || error || !quota) {
+    return null; // Don't show anything if loading or error
+  }
+
+  // Handle unlimited quota
+  const isUnlimited = quota.remaining === -1 || quota.limit === -1;
+  const used = quota.used || 0;
+  const limit = quota.limit || 0;
+  const remaining = quota.remaining || 0;
+  const percentage = isUnlimited ? 0 : (limit > 0 ? Math.round((used / limit) * 100) : 0);
+
+  // Determine color based on usage
+  const getProgressColor = () => {
+    if (isUnlimited) return 'bg-green-500';
+    if (percentage >= 90) return 'bg-red-500';
+    if (percentage >= 75) return 'bg-orange-500';
+    return 'bg-blue-500';
+  };
+
+  // Get feature name based on featureKey
+  const getFeatureName = () => {
+    const featureNames = {
+      'product_management': 'Product',
+      'invoice_management': 'Invoice',
+      'customer_management': 'Customer',
+      'stock_management': 'Stock',
+      'inventory_management': 'Inventory'
+    };
+    return featureNames[featureKey] || 'Quota';
+  };
+
+  // Get usage type label
+  const getUsageTypeLabel = () => {
+    if (isUnlimited) return '';
+    const usageType = quota.usageType || '';
+    if (usageType === 'DAILY_FIXED' || usageType === 'DAILY_ROLLING') return 'Daily';
+    if (usageType === 'MONTHLY_TOTAL') return 'Monthly';
+    return '';
+  };
+
+  const featureName = getFeatureName();
+  const usageTypeLabel = getUsageTypeLabel();
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))] whitespace-nowrap">
+        {usageTypeLabel ? `${featureName} ${usageTypeLabel}` : `${featureName} Quota`}
+      </span>
+      <div className="flex items-center gap-2 min-w-[200px]">
+        <div className="flex-1 bg-[rgb(var(--color-bg-tertiary))] rounded-full h-2 overflow-hidden">
+          <div
+            className={`${getProgressColor()} h-2 rounded-full transition-all duration-500 ease-out`}
+            style={{ width: `${Math.min(percentage, 100)}%` }}
+          />
+        </div>
+        <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] whitespace-nowrap">
+          {isUnlimited ? '∞' : `${used}/${limit}`}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default QuotaProgressBar;
+

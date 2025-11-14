@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { subscriptionService } from '@/service/subscription';
-import { cookieManager } from '@/utils/cookieManager';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { FEATURE_ROUTES, getRequiredFeatureForRoute, getRequiredFeatureForMenuItem, FEATURE_NAMES } from '@/constants/featureMapping';
 
 /**
@@ -9,65 +8,53 @@ import { FEATURE_ROUTES, getRequiredFeatureForRoute, getRequiredFeatureForMenuIt
  * @returns {Object} - { hasAccess, features, isLoading, checkFeatureAccess, checkRouteAccess }
  */
 export function useFeatureAccess() {
+  // Get subscription from context (avoids duplicate API call)
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const [features, setFeatures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
-    const fetchSubscription = async () => {
-      try {
-        const authToken = cookieManager.getAuthToken();
-        if (!authToken) {
-          setIsLoading(false);
-          return;
-        }
+    // Wait for subscription to load from context
+    if (subscriptionLoading) {
+      return;
+    }
 
-        // Get user ID from token or Redux store
-        // For now, we'll get it from the subscription service
-        const result = await subscriptionService.getActiveSubscription();
-        
-        if (result.success && result.data) {
-          const subData = result.data;
-          setSubscription(subData);
-          
-          // Extract features from subscription snapshot and package defaults
-          const collected = new Set();
-          
-          if (subData.features && Array.isArray(subData.features)) {
-            subData.features
-              .filter(f => f.enabled !== false)
-              .forEach(f => {
-                if (f.featureKey) {
-                  collected.add(f.featureKey.toLowerCase());
-                }
-                if (f.featureName) {
-                  collected.add(f.featureName.toLowerCase());
-                }
-              });
-          }
-          
-          if (subData.packageId && Array.isArray(subData.packageId.featureUsageLimits)) {
-            subData.packageId.featureUsageLimits.forEach(limit => {
-              if (limit.featureKey) {
-                collected.add(limit.featureKey.toLowerCase());
-              }
-              if (limit.featureName) {
-                collected.add(limit.featureName.toLowerCase());
-              }
-            });
-          }
-          
-          setFeatures(Array.from(collected));
-        }
-      } catch (error) {
-        console.error('Error fetching subscription:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    setIsLoading(false);
 
-    fetchSubscription();
-  }, []);
+    if (!subscription) {
+      setFeatures([]);
+      return;
+    }
+
+    // Extract features from subscription snapshot and package defaults
+    const collected = new Set();
+    
+    if (subscription.features && Array.isArray(subscription.features)) {
+      subscription.features
+        .filter(f => f.enabled !== false)
+        .forEach(f => {
+          if (f.featureKey) {
+            collected.add(f.featureKey.toLowerCase());
+          }
+          if (f.featureName) {
+            collected.add(f.featureName.toLowerCase());
+          }
+        });
+    }
+    
+    if (subscription.packageId && Array.isArray(subscription.packageId.featureUsageLimits)) {
+      subscription.packageId.featureUsageLimits.forEach(limit => {
+        if (limit.featureKey) {
+          collected.add(limit.featureKey.toLowerCase());
+        }
+        if (limit.featureName) {
+          collected.add(limit.featureName.toLowerCase());
+        }
+      });
+    }
+    
+    setFeatures(Array.from(collected));
+  }, [subscription, subscriptionLoading]);
 
   /**
    * Check if user has access to a specific feature
@@ -142,7 +129,7 @@ export function useFeatureAccess() {
   return {
     features,
     subscription,
-    isLoading,
+    isLoading: isLoading || subscriptionLoading,
     hasAccess: features.length > 0,
     checkFeatureAccess,
     checkRouteAccess,

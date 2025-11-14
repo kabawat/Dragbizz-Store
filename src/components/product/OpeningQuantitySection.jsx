@@ -1,8 +1,11 @@
 "use client"
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NumberInput, Input, Select } from '../ui';
-import { Package, IndianRupee, Calculator, Truck } from 'lucide-react';
+import { Input, Select } from '../ui';
+import { Package, IndianRupee, Calculator, Truck, ArrowUp } from 'lucide-react';
 import { supplierService } from '@/service/retailer';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 
 const OpeningQuantitySection = ({
   formData,
@@ -13,9 +16,14 @@ const OpeningQuantitySection = ({
 }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   // Ref to prevent duplicate API calls
   const hasFetchedSuppliers = useRef(false);
+
+  // Check if supplier_management feature is available
+  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
+  const hasSupplierManagement = checkFeatureAccess(FEATURES.SUPPLIER_MANAGEMENT);
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -23,7 +31,7 @@ const OpeningQuantitySection = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
-    if (!storeId || hasFetchedSuppliers.current) return;
+    if (!storeId || hasFetchedSuppliers.current || !hasSupplierManagement) return;
     
     hasFetchedSuppliers.current = true;
     
@@ -43,14 +51,14 @@ const OpeningQuantitySection = ({
     } finally {
       setSuppliersLoading(false);
     }
-  }, [storeId]);
+  }, [storeId, hasSupplierManagement]);
 
-  // Fetch suppliers on component mount and when storeId changes
+  // Fetch suppliers on component mount and when storeId or feature access changes
   useEffect(() => {
-    if (storeId) {
+    if (storeId && hasSupplierManagement && !featuresLoading) {
       fetchSuppliers();
     }
-  }, [storeId, fetchSuppliers]);
+  }, [storeId, fetchSuppliers, hasSupplierManagement, featuresLoading]);
 
   // Format supplier options for dropdown
   const supplierOptions = [
@@ -75,12 +83,12 @@ const OpeningQuantitySection = ({
       {/* Opening Quantity Information */}
       <div className="mb-8">
         
-
         {/* Opening Quantity and Purchase Price */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Opening Quantity */}
           <div>
-            <NumberInput
+            <Input
+              type="number"
               label="Opening Quantity"
               placeholder="0"
               value={formData.openingStock?.quantity || ''}
@@ -98,7 +106,8 @@ const OpeningQuantitySection = ({
 
           {/* Opening Purchase Price */}
           <div>
-            <NumberInput
+            <Input
+              type="number"
               label="Opening Purchase Price"
               placeholder="0.00"
               value={formData.openingStock?.purchasePrice || ''}
@@ -115,21 +124,45 @@ const OpeningQuantitySection = ({
           </div>
         </div>
 
-        {/* Supplier Selection */}
-        <div className="mb-6">
+        {/* Supplier Selection - Enabled only if supplier_management feature is available */}
+        <div className="mb-6 relative">
           <Select
             label="Supplier"
-            placeholder={suppliersLoading ? "Loading suppliers..." : "Select supplier (optional)"}
+            placeholder={
+              suppliersLoading 
+                ? "Loading suppliers..." 
+                : "Select supplier (optional)"
+            }
             value={formData.openingStock?.supplier || ''}
             onChange={(value) => handleFieldChange('openingStock.supplier', value)}
             error={errors.supplier}
             errorMessage={errors.supplier}
             leftIcon={Truck}
             searchable={true}
-            options={supplierOptions}
-            disabled={suppliersLoading}
-            helperText="Select the supplier for this opening stock (optional)"
+            options={hasSupplierManagement ? supplierOptions : []}
+            disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
+            helperText={
+              !hasSupplierManagement 
+                ? "Enable supplier management feature in your subscription to use this field"
+                : "Select the supplier for this opening stock (optional)"
+            }
           />
+          
+          {/* Upgrade Button - Right Side */}
+          {!hasSupplierManagement && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowUpgradeModal(true);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
+              title="Upgrade to enable supplier management"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+              <span>Upgrade</span>
+            </button>
+          )}
         </div>
 
         {/* Expiry Date */}
@@ -195,6 +228,14 @@ const OpeningQuantitySection = ({
           </div>
         ):<></>}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        featureName="Supplier Management"
+        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+      />
     </>
   );
 };

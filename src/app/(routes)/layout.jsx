@@ -5,6 +5,7 @@ import { cookieManager } from '@/utils/cookieManager';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getRetailerDetails } from '@/store/slices/profileSlice';
 import { Button } from '@/components/ui';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
 export default function RoutesLayout({ children }) {
   const router = useRouter();
@@ -43,8 +44,10 @@ export default function RoutesLayout({ children }) {
   }
   // Render routes with profile data available
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
-      {children}
-    </div>
+    <SubscriptionProvider>
+      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+        {children}
+      </div>
+    </SubscriptionProvider>
   );
 }

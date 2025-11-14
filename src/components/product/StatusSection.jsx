@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { Select, Toggle, NumberInput } from '../ui';
+import { Select, Toggle, Input } from '../ui';
 import { Star, Award, Sparkles, Package } from 'lucide-react';
 import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS, getProductStatusColor } from '@/data';
 
