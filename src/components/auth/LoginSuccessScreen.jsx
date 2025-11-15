@@ -133,6 +133,10 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
       if (refreshToken) {
         cookieManager.setRefreshToken(refreshToken);
       }
+      // Set last activity timestamp for inactivity tracking
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dragbizz_last_activity', Date.now().toString());
+      }
       // Redirect to the original page or dashboard
       window.location.href = redirectUrl;
     }
@@ -193,12 +197,16 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
         {/* Manual Continue Button */}
         <button
           onClick={() => {
-            // Save authentication tokens before redirecting
             if (authToken) {
               cookieManager.setAuthToken(authToken);
             }
+            
             if (refreshToken) {
               cookieManager.setRefreshToken(refreshToken);
+            }
+
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('dragbizz_last_activity', Date.now().toString());
             }
             // Redirect to the original page or dashboard
             window.location.href = redirectUrl;
