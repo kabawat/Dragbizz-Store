@@ -77,8 +77,19 @@ export const handleApiSuccess = (response, defaultMessage = 'Operation successfu
     message: response?.data?.message || defaultMessage
   };
   
+  // Preserve nextCursor if it exists at root level of response
+  if (response?.nextCursor) {
+    result.nextCursor = response.nextCursor;
+  }
+  
+  // Preserve pagination if it exists
   if (response?.pagination) {
     result.pagination = response.pagination;
+  }
+  
+  // Also preserve meta.nextCursor if it exists
+  if (response?.meta?.nextCursor) {
+    result.nextCursor = response.meta.nextCursor;
   }
   
   return result;

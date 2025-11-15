@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -77,6 +77,16 @@ const InvoicesPage = () => {
     }
   }, [dispatch]);
 
+  // Debug pagination state changes
+  useEffect(() => {
+    console.log('📊 Pagination state updated:', {
+      hasNextPage: pagination?.hasNextPage,
+      nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null,
+      totalInvoices: invoices.length,
+      limit: pagination?.limit
+    });
+  }, [pagination, invoices.length]);
+
   // Fetch invoices on mount and search changes
   const lastFetchRef = useRef({ storeId: null, searchValue: null });
 
@@ -110,25 +120,145 @@ const InvoicesPage = () => {
     fetchInvoices();
   }, [dispatch, selectedStore, searchValue]);
 
-  // Infinite scroll
+  // Load more invoices - Fixed to properly handle response structure
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !pagination?.hasNextPage || !pagination?.nextCursor) {
+      console.log('🚫 Load more blocked:', {
+        isLoadingMore,
+        hasNextPage: pagination?.hasNextPage,
+        nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
+      });
+      return;
+    }
+
+    console.log('🔄 Loading more invoices...', {
+      currentCount: invoices.length,
+      nextCursor: pagination.nextCursor.toString().slice(-8)
+    });
+
+    setIsLoadingMore(true);
+
+    try {
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      if (!storeId) {
+        console.error('❌ No store ID available');
+        setIsLoadingMore(false);
+        return;
+      }
+
+      const params = {
+        store: storeId,
+        search: searchValue || undefined,
+        limit: 20,
+        cursor: pagination.nextCursor,
+        isFreshLoad: false
+      };
+
+      const result = await dispatch(getInvoices(params));
+
+      // The Redux slice will handle adding the invoices and updating pagination
+      // We just need to ensure the request was successful
+      if (!result.payload?.success) {
+        console.error('❌ Failed to load more invoices:', result.payload?.message);
+      } else {
+        console.log('✅ More invoices loaded successfully');
+      }
+    } catch (error) {
+      console.error('❌ Error loading more invoices:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, searchValue, selectedStore, dispatch, invoices.length]);
+
+  // Infinite scroll - Fixed with proper dependencies and throttling
   useEffect(() => {
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) {
+      console.log('⚠️ Scroll element not found');
+      return;
+    }
+
+    console.log('🎯 Setting up scroll listener:', {
+      element: scrollElement,
+      hasNextPage: pagination?.hasNextPage,
+      nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
+    });
+
+    let isScrolling = false;
+    
     const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
+      // Early return checks
+      if (isScrolling) {
+        return;
+      }
+      
+      if (isLoadingMore) {
+        return;
+      }
+      
+      if (!pagination?.hasNextPage) {
+        return;
+      }
 
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      const threshold = 100;
+      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+      const threshold = 200; // Increased threshold for better UX
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-      if (scrollTop + clientHeight >= scrollHeight - threshold) {
-        handleLoadMore();
+      // Debug scroll position (only log when near bottom to avoid spam)
+      if (distanceFromBottom <= threshold + 100) {
+        console.log('📍 Scroll position:', {
+          distanceFromBottom,
+          threshold,
+          scrollTop,
+          scrollHeight,
+          clientHeight,
+          hasNextPage: pagination?.hasNextPage,
+          canLoadMore: distanceFromBottom <= threshold
+        });
+      }
+
+      // Check if user has scrolled near the bottom
+      if (distanceFromBottom <= threshold) {
+        console.log('🚀 Triggering load more from scroll...', {
+          distanceFromBottom,
+          threshold,
+          hasNextPage: pagination?.hasNextPage,
+          nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
+        });
+        isScrolling = true;
+        handleLoadMore().finally(() => {
+          isScrolling = false;
+        });
       }
     };
 
-    const scrollElement = scrollRef.current;
-    if (scrollElement) {
-      scrollElement.addEventListener('scroll', handleScroll);
-      return () => scrollElement.removeEventListener('scroll', handleScroll);
-    }
-  }, [isLoadingMore, pagination.hasNextPage]);
+    // Throttle scroll events for better performance
+    let scrollTimeout;
+    const throttledHandleScroll = () => {
+      if (scrollTimeout) return;
+      scrollTimeout = setTimeout(() => {
+        handleScroll();
+        scrollTimeout = null;
+      }, 100);
+    };
+
+    scrollElement.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    
+    // Also check on mount if already near bottom
+    setTimeout(() => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+      if (distanceFromBottom <= 200 && pagination?.hasNextPage) {
+        console.log('📍 Already near bottom on mount, triggering load more...');
+        handleLoadMore();
+      }
+    }, 500);
+    
+    return () => {
+      scrollElement.removeEventListener('scroll', throttledHandleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, handleLoadMore]);
 
   const handleStoreChange = (storeObject) => {
     // Store change handled by Redux
@@ -273,33 +403,6 @@ const InvoicesPage = () => {
     localStorage.setItem('invoices-view-mode', mode);
   };
 
-  // Load more invoices
-  const handleLoadMore = async () => {
-    if (isLoadingMore || !pagination.hasNextPage) return;
-
-    setIsLoadingMore(true);
-
-    try {
-      const params = {
-        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
-        search: searchValue,
-        limit: 20,
-        cursor: pagination.nextCursor,
-        isFreshLoad: false
-      };
-
-      const result = await dispatch(getInvoices(params));
-
-      if (result.payload?.success && result.payload?.data?.data) {
-        dispatch(addMoreInvoices(result.payload.data.data));
-      }
-    } catch (error) {
-      console.error('Error loading more invoices:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
-
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
@@ -400,10 +503,17 @@ const InvoicesPage = () => {
                   </div>
                 </div>
                 {/* table or card  */}
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden flex flex-col">
+                  <div 
+                    className="flex-1 overflow-y-auto overscroll-behavior-contain" 
+                    ref={scrollRef}
+                    style={{ 
+                      maxHeight: 'calc(100vh - 280px)',
+                      minHeight: '400px'
+                    }}
+                  >
                     {viewMode === 'table' ? (
-                      <div className="h-full">
+                      <div className="min-h-full">
                         <InvoiceTable
                           invoices={invoices}
                           selectedInvoices={selectedInvoices}
@@ -416,7 +526,7 @@ const InvoicesPage = () => {
                           onRelease={handleReleaseInvoice}
                           loading={isLoading}
                           emptyMessage="No invoices found"
-                          hasMore={pagination.hasNextPage}
+                          hasMore={pagination?.hasNextPage}
                           onLoadMore={handleLoadMore}
                           isLoadingMore={isLoadingMore}
                         />
@@ -478,7 +588,7 @@ const InvoicesPage = () => {
                   <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {pagination.hasNextPage ? (
+                        {pagination?.hasNextPage ? (
                           <>
                             Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
                             <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
@@ -489,7 +599,7 @@ const InvoicesPage = () => {
                           <>
                             Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
                             <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                              • No more invoices
+                              • All invoices loaded
                             </span>
                           </>
                         )}

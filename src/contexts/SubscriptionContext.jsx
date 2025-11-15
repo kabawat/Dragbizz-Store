@@ -127,10 +127,7 @@ export const SubscriptionProvider = ({ children }) => {
     const hasCachedData = subscriptionRef.current !== null;
     const cacheValid = lastFetchTimeRef.current > 0 && (Date.now() - lastFetchTimeRef.current) < CACHE_TTL;
     
-    // Only fetch if:
-    // 1. User changed, OR
-    // 2. We don't have cached data, OR
-    // 3. Cache is expired
+   
     if (userChanged || !hasCachedData || !cacheValid) {
       if (userChanged) {
         userIdRef.current = userId;
