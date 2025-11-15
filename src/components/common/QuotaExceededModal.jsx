@@ -4,10 +4,23 @@ import { AlertTriangle, X, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '@/components/ui';
 import Link from 'next/link';
 
+/**
+ * Common QuotaExceededModal Component
+ * 
+ * A standardized modal component for displaying quota exceeded messages
+ * across all features (products, customers, invoices, etc.)
+ * 
+ * @param {boolean} isOpen - Controls modal visibility
+ * @param {function} onClose - Callback when modal is closed
+ * @param {string} message - Custom message to display
+ * @param {object} quota - Quota information object with used, limit, remaining, usageType
+ * @param {string} resetTime - When the quota will reset (e.g., "in 2 hours")
+ * @param {boolean} canUpgrade - Whether user can upgrade their plan
+ */
 const QuotaExceededModal = ({ 
   isOpen, 
   onClose, 
-  message = "Quota exceeded",
+  message = "Quota exceeded. Please upgrade your plan to continue.",
   quota = null,
   resetTime = null,
   canUpgrade = false
@@ -50,6 +63,7 @@ const QuotaExceededModal = ({
             <button
               onClick={onClose}
               className="p-2 hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors duration-200"
+              aria-label="Close modal"
             >
               <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
             </button>
@@ -79,8 +93,8 @@ const QuotaExceededModal = ({
                 {/* Progress Bar */}
                 <div className="w-full bg-[rgb(var(--color-bg-primary))] rounded-full h-2.5 mb-3">
                   <div 
-                    className="bg-orange-500 h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(usageInfo.percentage, 100)}%` }}
+                    className="bg-orange-500 h-2.5 rounded-full transition-all duration-300" 
+                    style={{ width: `${Math.min(usageInfo.percentage, 100)}%` }} 
                   />
                 </div>
 
@@ -102,15 +116,12 @@ const QuotaExceededModal = ({
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1" >
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Close
             </Button>
             {canUpgrade && (
               <Link href="/dashboard/subscription" className="flex-1">
-                <Button
-                  variant="primary"
-                  className="w-full flex items-center justify-center gap-2"
-                >
+                <Button variant="primary" className="w-full flex items-center justify-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Upgrade Plan
                 </Button>
@@ -122,7 +133,7 @@ const QuotaExceededModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            Upgrade your plan to create more products
+            Upgrade your plan to continue using this feature
           </p>
         </div>
       </div>

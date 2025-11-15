@@ -8,7 +8,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal } from '@/components/product';
-import QuotaExceededModal from '@/components/product/QuotaExceededModal';
+import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -320,10 +320,10 @@ const AddProductPage = () => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message}
-        quota={quotaError?.quota}
-        resetTime={quotaError?.resetTime}
-        canUpgrade={quotaError?.canUpgrade}
+        message={quotaError?.message || 'Quota exceeded. Please upgrade your plan to continue.'}
+        quota={quotaError?.quota || null}
+        resetTime={quotaError?.resetTime || null}
+        canUpgrade={quotaError?.canUpgrade !== false}
       />
 
     </div>

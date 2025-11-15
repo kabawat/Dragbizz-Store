@@ -16,6 +16,7 @@ export { default as ProductDeleteConfirmModal } from './ProductDeleteConfirmModa
 export { default as ProductDeleteSuccessModal } from './ProductDeleteSuccessModal';
 export { default as ProductErrorModal } from './ProductErrorModal';
 export { default as ProductInfoModal } from './ProductInfoModal';
-export { default as QuotaExceededModal } from './QuotaExceededModal';
+// Re-export QuotaExceededModal from common for backward compatibility
+export { QuotaExceededModal } from '@/components/common';
 export { default as QuotaDisplay } from './QuotaDisplay';
 export { default as QuotaProgressBar } from './QuotaProgressBar';

@@ -3,7 +3,7 @@ import { ENV_CONFIG } from '@/config';
 
 export const cookieManager = {
   // Auth Microservice Token (from login/register)
-  setAuthToken: (token, expiresInDays = 7) => {
+  setAuthToken: (token, expiresInDays = 30) => {
     const options = {
       expires: expiresInDays,
       secure: false,
@@ -24,7 +24,7 @@ export const cookieManager = {
   },
 
   // Refresh Token (from login/register)
-  setRefreshToken: (token, expiresInDays = 7) => {
+  setRefreshToken: (token, expiresInDays = 30) => {
     const options = {
       expires: expiresInDays,
       secure: false,
@@ -45,7 +45,7 @@ export const cookieManager = {
   },
 
   // Retailer Microservice Token (from retailer service)
-  setRetailerToken: (token, expiresInDays = 7) => {
+  setRetailerToken: (token, expiresInDays = 30) => {
     const options = {
       expires: expiresInDays,
       secure: false,

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Plus, ArrowLeft, User } from 'lucide-react';
 
@@ -8,18 +8,40 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button, AnimatedBackground } from '@/components/ui';
 import { CustomerForm, CustomerAddSuccessModal } from '@/components/customer';
+import { QuotaExceededModal } from '@/components/common';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import { useUsageQuota } from '@/hooks/useUsageQuota';
 import Link from 'next/link';
 
 const AddCustomerPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+  const quotaRefreshRef = useRef(null);
+
+  // Get quota information for frontend validation
+  const { quota, isLoading: quotaLoading, refresh: refreshQuota } = useUsageQuota('customer_management');
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [addedCustomerName, setAddedCustomerName] = useState('');
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [quotaError, setQuotaError] = useState(null);
+
+  // Check if quota is available
+  const isQuotaAvailable = () => {
+    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
+    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
+    return quota.remaining > 0 && quota.hasAccess !== false;
+  };
+
+  const quotaExceeded = !isQuotaAvailable();
+
+  // Set quota refresh ref
+  useEffect(() => {
+    quotaRefreshRef.current = refreshQuota;
+  }, [refreshQuota]);
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -111,9 +133,31 @@ const AddCustomerPage = () => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
+    // Frontend validation: Check quota before making API call
+    if (!isQuotaAvailable()) {
+      // Show quota exceeded modal
+      const quotaData = quota || {};
+      setQuotaError({
+        message: quota.remaining === 0 
+          ? `Daily limit reached. You have used all ${quota.limit} customers for today. Please try again tomorrow or upgrade your plan.`
+          : 'Quota exceeded. Please upgrade your plan to continue.',
+        quota: quotaData,
+        resetTime: quota.usageType === 'DAILY_FIXED' 
+          ? 'tomorrow' 
+          : quota.usageType === 'MONTHLY_TOTAL' 
+            ? 'next month' 
+            : null,
+        canUpgrade: true
+      });
+      setShowQuotaModal(true);
+      return; // Prevent API call
+    }
+
     try {
       setLoading(true);
       setFieldErrors({});
+      setQuotaError(null);
+      setShowQuotaModal(false);
       
       // Prepare payload: make companyDetails optional (omit when empty)
       const payload = (() => {
@@ -132,11 +176,35 @@ const AddCustomerPage = () => {
       const result = await customerService.createCustomer(payload);
 
       if (result.success) {
+        // Refresh quota after successful customer creation
+        if (quotaRefreshRef.current) {
+          quotaRefreshRef.current();
+        }
         // Show success modal instead of direct redirect
         setAddedCustomerName(formData.name || 'Customer');
         setShowSuccessModal(true);
       } else {
-        if (result?.error && result?.error?.data) {
+        // Check if it's a quota exceeded error (403)
+        const errorData = result?.error || {};
+        const isQuotaError =
+          result?.statusCode === 403 ||
+          errorData.error === 'Quota Exceeded' ||
+          errorData.error === 'Forbidden' ||
+          result.message?.includes('Quota exceeded') ||
+          result.message?.includes('limit reached') ||
+          result.message?.includes('Quota Exceeded');
+
+        if (isQuotaError) {
+          // Extract quota data from backend response structure
+          const quotaData = errorData.data || errorData || {};
+          setQuotaError({
+            message: result.message || errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
+          });
+          setShowQuotaModal(true);
+        } else if (result?.error && result?.error?.data) {
           const errorFields = result?.error?.data?.fields || {};
           const convertedErrors = {};
           Object.keys(errorFields).forEach(key => {
@@ -152,29 +220,48 @@ const AddCustomerPage = () => {
     } catch (error) {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        // Process error response data
         
-        if (errorData.data && errorData.data.fields) {
-          const errorFields = errorData.data.fields;
-          const convertedErrors = {};
-          Object.keys(errorFields).forEach(key => {
-            // Convert addresses[0].pincode to addresses.0.pincode
-            const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
-            convertedErrors[convertedKey] = errorFields[key];
+        // Check if it's a quota exceeded error (403)
+        const isQuotaError =
+          error.response.status === 403 ||
+          errorData.error === 'Quota Exceeded' ||
+          errorData.error === 'Forbidden' ||
+          errorData.message?.includes('Quota exceeded') ||
+          errorData.message?.includes('limit reached');
+
+        if (isQuotaError) {
+          const quotaData = errorData.data || errorData || {};
+          setQuotaError({
+            message: errorData.message || 'Quota exceeded',
+            quota: quotaData.quota || quotaData,
+            resetTime: quotaData.resetTime || null,
+            canUpgrade: quotaData.canUpgrade !== false
           });
-          
-          // Set converted error fields
-          setFieldErrors(convertedErrors);
-        } else if (errorData.fields) {
-          const convertedErrors = {};
-          Object.keys(errorData.fields).forEach(key => {
-            // Convert addresses[0].pincode to addresses.0.pincode
-            const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
-            convertedErrors[convertedKey] = errorData.fields[key];
-          });
-          
-          // Set converted error fields
-          setFieldErrors(convertedErrors);
+          setShowQuotaModal(true);
+        } else {
+          // Process error response data
+          if (errorData.data && errorData.data.fields) {
+            const errorFields = errorData.data.fields;
+            const convertedErrors = {};
+            Object.keys(errorFields).forEach(key => {
+              // Convert addresses[0].pincode to addresses.0.pincode
+              const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+              convertedErrors[convertedKey] = errorFields[key];
+            });
+            
+            // Set converted error fields
+            setFieldErrors(convertedErrors);
+          } else if (errorData.fields) {
+            const convertedErrors = {};
+            Object.keys(errorData.fields).forEach(key => {
+              // Convert addresses[0].pincode to addresses.0.pincode
+              const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+              convertedErrors[convertedKey] = errorData.fields[key];
+            });
+            
+            // Set converted error fields
+            setFieldErrors(convertedErrors);
+          }
         }
       } else {
         // Handle other types of errors
@@ -350,6 +437,16 @@ const AddCustomerPage = () => {
         onContinue={handleContinue}
         onAddMore={handleAddMore}
         customerName={addedCustomerName}
+      />
+
+      {/* Quota Exceeded Modal */}
+      <QuotaExceededModal
+        isOpen={showQuotaModal}
+        onClose={() => setShowQuotaModal(false)}
+        message={quotaError?.message || 'Quota exceeded'}
+        quota={quotaError?.quota || null}
+        resetTime={quotaError?.resetTime || null}
+        canUpgrade={quotaError?.canUpgrade !== false}
       />
     </div>
   );

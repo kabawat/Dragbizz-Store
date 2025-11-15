@@ -10,7 +10,7 @@ import { AnimatedBackground } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
-import QuotaExceededModal from '@/components/product/QuotaExceededModal';
+import { QuotaExceededModal } from '@/components/common';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
 
 const CreateInvoicePage = () => {
@@ -646,10 +646,10 @@ const CreateInvoicePage = () => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message}
-        quota={quotaError?.quota}
-        resetTime={quotaError?.resetTime}
-        canUpgrade={quotaError?.canUpgrade}
+        message={quotaError?.message || 'Quota exceeded. Please upgrade your plan to continue.'}
+        quota={quotaError?.quota || null}
+        resetTime={quotaError?.resetTime || null}
+        canUpgrade={quotaError?.canUpgrade !== false}
       />
     </div>
   );

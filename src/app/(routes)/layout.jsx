@@ -6,10 +6,14 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getRetailerDetails } from '@/store/slices/profileSlice';
 import { Button } from '@/components/ui';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 
 export default function RoutesLayout({ children }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  
+  // Setup inactivity logout (7 days inactivity)
+  useInactivityLogout();
   
   // Get auth state from Redux
   const { isLoading, isAuthenticated, error, agency, stores } = useAppSelector((state) => state.profile);
