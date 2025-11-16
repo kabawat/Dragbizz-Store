@@ -377,7 +377,7 @@ const PurchaseOrders = () => {
             {/* PO list */}
             {purchaseOrders.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
                   {viewMode === 'table' ? (
                     <PurchaseOrderTable
                       bills={normalizedPOs}

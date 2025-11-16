@@ -368,7 +368,7 @@ const EditPurchaseOrder = ({ poId }) => {
             </div>
 
             <div className="flex flex-col h-full" style={{ height: 'calc(100vh-208px)' }}>
-              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-208px)] min-h-[calc(100vh-208px)]">
+              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
                 <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                   <div className="w-full mx-auto">
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

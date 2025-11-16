@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, Users, Search, MoreHorizontal, Edit, Copy, Trash2, Eye } from 'lucide-react';
+import { Plus, Grid3X3, List, Users, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -39,25 +39,6 @@ const CustomersPage = () => {
 
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  // Handle error display
-  useEffect(() => {
-    if (error) {
-      setErrorDetails({
-        title: 'Error loading customers',
-        message: error,
-        details: 'Please check your connection and try again'
-      });
-      setShowErrorModal(true);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    const savedViewMode = localStorage.getItem('customers-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
-      dispatch(setViewMode(savedViewMode));
-    }
-  }, [dispatch]);
-
   // Local state
   const [searchValue, setSearchValue] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -68,25 +49,9 @@ const CustomersPage = () => {
   const [deletedCustomerName, setDeletedCustomerName] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const scrollRef = useRef(null);
-  const menuRefs = useRef({});
   const lastFetchRef = useRef(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [openMenuId]);
 
   // Handle error display
   useEffect(() => {
@@ -218,7 +183,7 @@ const CustomersPage = () => {
     }
   }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor]);
 
-  const handleStoreChange = (storeObject) => {
+  const handleStoreChange = () => {
     // Store change is handled by Redux, no need for local state
   };
 
@@ -246,25 +211,6 @@ const CustomersPage = () => {
 
   const handleViewCustomer = (customerId) => {
     router.push(`/dashboard/customers/view/${customerId}`);
-  };
-
-
-  // Menu action handler
-  const handleMenuAction = (customerId, action) => {
-    setOpenMenuId(null);
-    switch (action) {
-      case 'view':
-        handleViewCustomer(customerId);
-        break;
-      case 'edit':
-        handleEditCustomer(customerId);
-        break;
-      case 'delete':
-        handleDeleteCustomer(customerId);
-        break;
-      default:
-        break;
-    }
   };
 
   // Customer selection handlers
@@ -362,7 +308,7 @@ const CustomersPage = () => {
               <div className="mb-3">
                 <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                   {/* Search */}
-                  <div className="w-100 bg-red">
+                  <div className="w-100">
                     <Input
                       type="text"
                       placeholder="Search customers..."
@@ -429,7 +375,7 @@ const CustomersPage = () => {
             {/* Customers List */}
             {customers.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-208px)] overflow-y-auto" ref={scrollRef}>
+                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
                   {viewMode === 'table' ? (
                     <div className="h-full">
                       <CustomerTable

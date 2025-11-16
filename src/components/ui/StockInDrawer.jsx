@@ -1,8 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { X, Package, Plus, Minus, ArrowUp } from 'lucide-react';
+import { X, Package, ArrowUp } from 'lucide-react';
 import { Button, Input, Select } from '@/components/ui';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAppSelector } from '@/store/hooks';
 import { stockService, supplierService } from '@/service/retailer';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
@@ -12,11 +11,10 @@ import UpgradeModal from '@/components/ui/UpgradeModal';
 const StockInDrawer = ({
   isOpen,
   onClose,
-  item, // Can be product or inventory
+  item,
   onSuccess,
-  type = 'product' // 'product' or 'inventory'
+  type = 'product'
 }) => {
-  const { themeConfig } = useTheme();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [formData, setFormData] = useState({
     quantity: '',
@@ -116,8 +114,8 @@ const StockInDrawer = ({
       }
 
       // Determine product ID based on type
-      const productId = type === 'product' 
-        ? item?.id 
+      const productId = type === 'product'
+        ? item?.id
         : item?.product?.id;
 
       const apiPayload = {
@@ -146,12 +144,6 @@ const StockInDrawer = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuantityChange = (type) => {
-    const currentQuantity = parseInt(formData.quantity) || 0;
-    const newQuantity = type === 'increment' ? currentQuantity + 1 : Math.max(0, currentQuantity - 1);
-    handleInputChange('quantity', newQuantity.toString());
   };
 
   const handleSupplierChange = (value) => {
@@ -192,9 +184,9 @@ const StockInDrawer = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-end z-[9999]">
-      <div className="w-full max-w-md h-full bg-[rgb(var(--color-bg-primary))] shadow-2xl transform transition-transform duration-300 ease-in-out">
+      <div className="w-full max-w-2xl h-full bg-[rgb(var(--color-bg-primary))] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--color-border-primary))]">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-green-600" />
@@ -217,7 +209,7 @@ const StockInDrawer = ({
         </div>
 
         {/* Form */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Product Info */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4">
@@ -246,51 +238,36 @@ const StockInDrawer = ({
               </div>
             </div>
 
-            {/* Quantity */}
-            <div>
-              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuantityChange('decrement')}
-                  className="p-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors"
-                >
-                  <Minus className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                </button>
+            {/* Quantity and Purchase Price - Side by Side */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Quantity */}
+              <div>
+                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
                 <Input
                   type="number"
                   value={formData.quantity}
                   onChange={(value) => handleInputChange('quantity', value)}
                   placeholder="Enter quantity"
                   error={errors.quantity}
-                  className="flex-1 text-center"
                 />
-                <button
-                  type="button"
-                  onClick={() => handleQuantityChange('increment')}
-                  className="p-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors"
-                >
-                  <Plus className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                </button>
               </div>
-            </div>
 
-            {/* Purchase Price */}
-            <div>
-              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Purchase Price (per unit) <span className="text-red-500">*</span>
-              </label>
-              <Input
-                type="number"
-                step="0.01"
-                value={formData.purchasePrice}
-                onChange={(value) => handleInputChange('purchasePrice', value)}
-                placeholder="Enter purchase price per unit"
-                error={errors.purchasePrice}
-                helperText="Price paid to supplier per unit"
-              />
+              {/* Purchase Price */}
+              <div>
+                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                  Purchase Price (per unit) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.purchasePrice}
+                  onChange={(value) => handleInputChange('purchasePrice', value)}
+                  placeholder="Enter purchase price per unit"
+                  error={errors.purchasePrice}
+                />
+              </div>
             </div>
 
             {/* Supplier */}
@@ -303,7 +280,7 @@ const StockInDrawer = ({
                 onChange={handleSupplierChange}
                 options={hasSupplierManagement ? formattedSuppliers : []}
                 placeholder={
-                  !hasSupplierManagement 
+                  !hasSupplierManagement
                     ? "Enable supplier management to select supplier"
                     : "Select supplier (optional)"
                 }
@@ -311,12 +288,12 @@ const StockInDrawer = ({
                 loading={suppliersLoading}
                 disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
                 helperText={
-                  !hasSupplierManagement 
+                  !hasSupplierManagement
                     ? "Enable supplier management feature in your subscription to use this field"
                     : "Optional: Choose the supplier for this stock"
                 }
               />
-              
+
               {/* Upgrade Button */}
               {!hasSupplierManagement && (
                 <button
@@ -352,24 +329,13 @@ const StockInDrawer = ({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[rgb(var(--color-border-primary))]">
+        <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))]">
           <div className="flex space-x-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className="flex-1"
-            >
+            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
               {isLoading ? 'Adding Stock...' : 'Add Stock'}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+              Cancel
             </Button>
           </div>
         </div>

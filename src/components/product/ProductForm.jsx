@@ -1,25 +1,11 @@
 "use client"
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Package, Eye, IndianRupee, Receipt, Settings, GripVertical, Info, X } from 'lucide-react';
+import { Package, Eye, IndianRupee, GripVertical, Info, X } from 'lucide-react';
 
 // Import drag and drop
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, } from '@dnd-kit/sortable';
+import { useSortable, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Import sections
@@ -28,13 +14,8 @@ import AdditionalDetailsSection from './AdditionalDetailsSection';
 import PricingGSTSection from './PricingGSTSection';
 import OpeningQuantitySection from './OpeningQuantitySection';
 
-// Import UI components
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, TagInput, FileUpload } from '@/components/ui';
-
-// Import theme context
 import { useTheme } from '@/contexts/ThemeContext';
-
-// Import services
 import { categoryService } from '@/service/retailer';
 
 // Sortable Section Component
@@ -62,7 +43,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
 
     if (isDark) {
       return {
-        card: `backdrop-blur-md bg-black/20 border border-white/20 shadow-xl`,
+        card: `backdrop-blur-[1px] bg-black/20 border border-white/20 shadow-xl`,
         header: `border-b border-white/15`,
         body: ``,
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm  border-[${themeConfig.primary}]/10`,
@@ -72,7 +53,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
       };
     } else {
       return {
-        card: `backdrop-blur-md bg-white/20 border border-gray-200/30`,
+        card: `backdrop-blur-[1px] bg-white/20 border border-gray-200/30`,
         header: `backdrop-blur-sm border-b border-gray-200/20`,
         body: `backdrop-blur-sm`,
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm border border-gray-200/60`,
@@ -88,7 +69,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
   return (
     <div ref={setNodeRef} style={style} className="break-inside-avoid">
       <Card
-        shadow="sm"
+        // shadow="sm"
         className={`relative ${glassStyles.card}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -136,10 +117,8 @@ const ProductForm = ({
   fieldErrors = {},
   storeId = null,
   className = '',
-  ...props
 }) => {
   const { themeConfig, currentVariant } = useTheme();
-  const [errors, setErrors] = useState({});
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [currentInfoSection, setCurrentInfoSection] = useState(null);
 
@@ -149,7 +128,7 @@ const ProductForm = ({
 
     if (isDark) {
       return {
-        backdrop: 'bg-black/40 backdrop-blur-sm',
+        backdrop: 'backdrop-blur-[1px]',
         drawer: 'bg-gray-900 border-l border-gray-700',
         header: 'bg-gray-800 border-b border-gray-700',
         content: 'bg-gray-900',
@@ -166,7 +145,7 @@ const ProductForm = ({
       };
     } else {
       return {
-        backdrop: 'bg-black/20 backdrop-blur-sm',
+        backdrop: 'backdrop-blur-[1px]',
         drawer: 'bg-white border-l border-gray-200',
         header: 'bg-gray-50 border-b border-gray-200',
         content: 'bg-white',
@@ -196,10 +175,9 @@ const ProductForm = ({
       tags: []
     }
   });
-  const [customCategories, setCustomCategories] = useState([]);
   const [apiCategories, setApiCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
-  
+
   // Ref to prevent duplicate API calls
   const hasFetchedCategories = useRef(false);
 
@@ -282,7 +260,7 @@ const ProductForm = ({
   const fetchCategories = useCallback(async () => {
     if (!storeId || hasFetchedCategories.current) return;
     hasFetchedCategories.current = true;
-    
+
     try {
       setCategoriesLoading(true);
       const response = await categoryService.getCategories({
@@ -318,6 +296,24 @@ const ProductForm = ({
     setShowAddCategoryDrawer(true);
   };
 
+  // Reset category data to initial state
+  const resetCategoryData = () => {
+    setNewCategoryData({
+      name: '',
+      description: '',
+      metadata: {
+        icon: null,
+        tags: []
+      }
+    });
+  };
+
+  // Close category drawer and reset data
+  const handleCloseCategoryDrawer = () => {
+    setShowAddCategoryDrawer(false);
+    resetCategoryData();
+  };
+
   const handleAddCategory = async () => {
     if (newCategoryData.name.trim()) {
       try {
@@ -346,14 +342,7 @@ const ProductForm = ({
           onChange('category', newCategory.value);
 
           // Reset form and close drawer
-          setNewCategoryData({
-            name: '',
-            description: '',
-            metadata: {
-              icon: null,
-              tags: []
-            }
-          });
+          resetCategoryData();
           setShowAddCategoryDrawer(false);
         } else {
           console.error('Failed to create category:', response.message);
@@ -368,15 +357,7 @@ const ProductForm = ({
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && showAddCategoryDrawer) {
-        setShowAddCategoryDrawer(false);
-        setNewCategoryData({
-          name: '',
-          description: '',
-          metadata: {
-            icon: null,
-            tags: []
-          }
-        });
+        handleCloseCategoryDrawer();
       }
     };
 
@@ -454,10 +435,10 @@ const ProductForm = ({
                       categoriesLoading={categoriesLoading}
                     />
                   ) : section.id === 'opening-quantity' ? (
-                    <SectionComponent 
-                      formData={formData} 
-                      onChange={handleFormDataChange} 
-                      errors={fieldErrors} 
+                    <SectionComponent
+                      formData={formData}
+                      onChange={handleFormDataChange}
+                      errors={fieldErrors}
                       storeId={storeId}
                     />
                   ) : (
@@ -525,39 +506,19 @@ const ProductForm = ({
           {/* Backdrop */}
           <div
             className={`fixed inset-0 ${drawerStyles.backdrop} z-[9999] animate-in fade-in duration-300`}
-            onClick={() => {
-              setShowAddCategoryDrawer(false);
-              setNewCategoryData({
-                name: '',
-                description: '',
-                metadata: {
-                  icon: null,
-                  tags: []
-                }
-              });
-            }}
+            onClick={handleCloseCategoryDrawer}
           />
 
           {/* Full Page Drawer - slides from right edge of viewport */}
           <div className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}>
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className={`flex items-center justify-between p-6 ${drawerStyles.header}`}>
+              <div className={`flex items-center justify-between p-4 ${drawerStyles.header}`}>
                 <h2 className={`text-base font-semibold ${drawerStyles.text.primary}`}>
                   Add New Category
                 </h2>
                 <button
-                  onClick={() => {
-                    setShowAddCategoryDrawer(false);
-                    setNewCategoryData({
-                      name: '',
-                      description: '',
-                      metadata: {
-                        icon: null,
-                        tags: []
-                      }
-                    });
-                  }}
+                  onClick={handleCloseCategoryDrawer}
                   className={`p-2 ${drawerStyles.button.hover} rounded-lg transition-colors cursor-pointer`}
                 >
                   <X className={`w-5 h-5 ${drawerStyles.text.primary}`} />
@@ -652,33 +613,18 @@ const ProductForm = ({
               </div>
 
               {/* Footer */}
-              <div className={`p-6 ${drawerStyles.footer}`}>
+              <div className={`p-4 ${drawerStyles.footer}`}>
                 <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={`flex-1 ${drawerStyles.button.outline}`}
-                    onClick={() => {
-                      setShowAddCategoryDrawer(false);
-                      setNewCategoryData({
-                        name: '',
-                        description: '',
-                        metadata: {
-                          icon: null,
-                          tags: []
-                        }
-                      });
-                    }}
-                  >
-                    Cancel
+                  <Button type="button" onClick={handleAddCategory} disabled={!newCategoryData.name.trim()} >
+                    Add Category
                   </Button>
                   <Button
                     type="button"
-                    className="flex-1"
-                    onClick={handleAddCategory}
-                    disabled={!newCategoryData.name.trim()}
+                    variant="outline"
+                    className={drawerStyles.button.outline}
+                    onClick={handleCloseCategoryDrawer}
                   >
-                    Add Category
+                    Cancel
                   </Button>
                 </div>
               </div>

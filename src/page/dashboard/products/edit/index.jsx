@@ -323,10 +323,7 @@ const UpdateProductPage = ({ productId }) => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title="Edit Product"
-          description="Update product information and settings"
-        />
+        <Header title="Edit Product" description="Update product information and settings" />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -341,7 +338,7 @@ const UpdateProductPage = ({ productId }) => {
 
             {/* Form Container - Scrollable */}
             <div className="overflow-hidden">
-              <div className="h-[calc(100vh-240px)] overflow-y-auto pe-3">
+              <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
                 <ProductForm
                   formData={formData}
                   onChange={handleFormDataChange}

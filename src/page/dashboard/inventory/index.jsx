@@ -249,7 +249,7 @@ const InventoryPage = () => {
         <Header title="Stock" description="Manage your store stock levels and inventory" />
 
         {/* Main content */}
-        <div className="flex-1 p-5" ref={scrollRef}>
+        <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Loading */}
             {loading && inventories.length === 0 && (
@@ -268,12 +268,12 @@ const InventoryPage = () => {
               </div>
             )}
 
-            {/* Search and filter */}
+            {/* Search and Filter Card */}
             {inventories.length > 0 && (
               <div className="mb-3">
                 <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                   {/* Search */}
-                  <div className="w-100 bg-red">
+                  <div className="w-100">
                     <Input
                       type="text"
                       placeholder="Search stock..."
@@ -315,7 +315,7 @@ const InventoryPage = () => {
               </div>
             )}
 
-            {/* Empty state */}
+            {/* Empty State */}
             {!loading && inventories.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
                 <div className="flex flex-col items-center justify-center py-16">
@@ -325,64 +325,90 @@ const InventoryPage = () => {
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                     No stock found
                   </h3>
-                  <p className="text-[rgb(var(--color-text-secondary))] mb-6 text-center max-w-md">
+                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     Get started by adding your first stock item to track inventory levels and manage your products.
                   </p>
-                  <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
-                    Add Stock
-                  </Button>
+                  <div className="pt-4">
+                    <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
+                      Add Stock
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Stock List */}
             {inventories.length > 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
-                {viewMode === 'table' ? (
-                  <InventoryTable
-                    inventories={inventories}
-                    onViewDetails={handleViewStock}
-                    onEdit={handleEditStock}
-                    onDelete={handleDeleteStock}
-                    onDuplicate={handleDuplicate}
-                    onStockIn={handleStockIn}
-                    onSelect={handleInventorySelect}
-                    selectedInventories={selectedInventories}
-                    onSelectAll={handleSelectAll}
-                    loading={loading}
-                    hasMore={hasMore}
-                    onLoadMore={handleLoadMore}
-                    isLoadingMore={isLoadingMore}
-                    emptyMessage="No stock found. Add your first stock item to get started."
-                  />
-                ) : (
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {inventories.map((inventory) => (
-                        <InventoryCard
-                          key={inventory.id}
-                          inventory={inventory}
-                          onViewDetails={handleViewStock}
-                          onEdit={handleEditStock}
-                          onDelete={handleDeleteStock}
-                          onDuplicate={handleDuplicate}
-                          onStockIn={handleStockIn}
-                          onSelect={handleCardSelect}
-                          selected={selectedInventories.includes(inventory.id)}
-                        />
-                      ))}
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
+                  {viewMode === 'table' ? (
+                    <div className="h-full">
+                      <InventoryTable
+                        inventories={inventories}
+                        onViewDetails={handleViewStock}
+                        onEdit={handleEditStock}
+                        onDelete={handleDeleteStock}
+                        onDuplicate={handleDuplicate}
+                        onStockIn={handleStockIn}
+                        onSelect={handleInventorySelect}
+                        selectedInventories={selectedInventories}
+                        onSelectAll={handleSelectAll}
+                        loading={loading}
+                        hasMore={hasMore}
+                        onLoadMore={handleLoadMore}
+                        isLoadingMore={isLoadingMore}
+                        emptyMessage="No stock found. Add your first stock item to get started."
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {inventories.map((inventory) => (
+                          <InventoryCard
+                            key={inventory.id}
+                            inventory={inventory}
+                            onViewDetails={handleViewStock}
+                            onEdit={handleEditStock}
+                            onDelete={handleDeleteStock}
+                            onDuplicate={handleDuplicate}
+                            onStockIn={handleStockIn}
+                            onSelect={handleCardSelect}
+                            selected={selectedInventories.includes(inventory.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Fixed Footer */}
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {hasMore ? (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{inventories.length}</span> stock items
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{inventories.length}</span> stock items
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more stock items
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {selectedInventories.length > 0 && (
+                        <span className="font-semibold text-[rgb(var(--color-primary))]">
+                          {selectedInventories.length} selected
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Loading more indicator */}
-            {isLoadingMore && (
-              <div className="flex justify-center py-4">
-                <div className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
-                  <div className="w-4 h-4 border-2 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm">Loading more...</span>
                 </div>
               </div>
             )}

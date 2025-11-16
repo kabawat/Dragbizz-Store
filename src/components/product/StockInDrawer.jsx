@@ -168,86 +168,64 @@ const StockInDrawer = ({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-[9998] transition-opacity duration-300"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/20 z-[9998] transition-opacity duration-300" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-[28rem] bg-[rgb(var(--color-bg-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--color-border-primary))]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-green-500" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                  Stock In
-                </h2>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Add inventory for {product?.name}
-                </p>
-              </div>
+      <div className="fixed right-0 top-0 h-full w-[42rem] bg-[rgb(var(--color-bg-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col">
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-[rgb(var(--color-border-primary))]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+              <Package className="w-5 h-5 text-green-500" />
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
-            </button>
+            <div>
+              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                Stock In
+              </h2>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                Add inventory for {product?.name}
+              </p>
+            </div>
           </div>
+          <button onClick={onClose} className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors cursor-pointer" >
+            <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
+          </button>
+        </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Product Info */}
-              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
-                    <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
-                      {product?.name}
-                    </h3>
-                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      SKU: {product?.sku} | Current Stock: {product?.stock || 0}
-                    </p>
-                  </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Product Info */}
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
+                  <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-[rgb(var(--color-text-primary))]">
+                    {product?.name}
+                  </h3>
+                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                    SKU: {product?.sku} | Current Stock: {product?.stock || 0}
+                  </p>
                 </div>
               </div>
+            </div>
 
+            {/* Quantity and Purchase Price - Side by Side */}
+            <div className="grid grid-cols-2 gap-4">
               {/* Quantity */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                   Quantity *
                 </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange('decrement')}
-                    className="p-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg border border-[rgb(var(--color-border-primary))] transition-colors cursor-pointer"
-                  >
-                    <Minus className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  </button>
-                  <Input
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(value) => handleInputChange('quantity', value)}
-                    placeholder="Enter quantity"
-                    className="flex-1"
-                    error={errors.quantity}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange('increment')}
-                    className="p-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg border border-[rgb(var(--color-border-primary))] transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  </button>
-                </div>
+                <Input
+                  type="number"
+                  value={formData.quantity}
+                  onChange={(value) => handleInputChange('quantity', value)}
+                  placeholder="Enter quantity"
+                  error={errors.quantity}
+                />
                 {errors.quantity && (
                   <p className="text-sm text-red-500 mt-1">{errors.quantity}</p>
                 )}
@@ -256,7 +234,7 @@ const StockInDrawer = ({
               {/* Purchase Price */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Purchase Price (₹) *
+                  Purchase Price (per unit) *
                 </label>
                 <Input
                   type="number"
@@ -270,106 +248,104 @@ const StockInDrawer = ({
                   <p className="text-sm text-red-500 mt-1">{errors.purchasePrice}</p>
                 )}
               </div>
+            </div>
 
-              {/* Supplier */}
-              <div className="relative">
-                <Select
-                  label="Supplier"
-                  placeholder={
-                    !hasSupplierManagement 
-                      ? "Enable supplier management to select supplier"
-                      : "Select supplier (optional)"
-                  }
-                  value={formData.supplier || ''}
-                  onChange={handleSupplierChange}
-                  error={errors.supplier}
-                  errorMessage={errors.supplier}
-                  searchable={true}
-                  options={hasSupplierManagement ? formattedSuppliers : []}
-                  loading={suppliersLoading}
-                  disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
-                  helperText={
-                    !hasSupplierManagement 
-                      ? "Enable supplier management feature in your subscription to use this field"
-                      : "Optional: Select supplier for this stock"
-                  }
-                />
-                
-                {/* Upgrade Button */}
-                {!hasSupplierManagement && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowUpgradeModal(true);
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                    title="Upgrade to enable supplier management"
-                  >
-                    <ArrowUp className="w-3.5 h-3.5" />
-                    <span>Upgrade</span>
-                  </button>
-                )}
-              </div>
+            {/* Supplier */}
+            <div className="relative">
+              <Select
+                label="Supplier"
+                placeholder={
+                  !hasSupplierManagement
+                    ? "Enable supplier management to select supplier"
+                    : "Select supplier (optional)"
+                }
+                value={formData.supplier || ''}
+                onChange={handleSupplierChange}
+                error={errors.supplier}
+                errorMessage={errors.supplier}
+                searchable={true}
+                options={hasSupplierManagement ? formattedSuppliers : []}
+                loading={suppliersLoading}
+                disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
+                helperText={
+                  !hasSupplierManagement
+                    ? "Enable supplier management feature in your subscription to use this field"
+                    : "Optional: Select supplier for this stock"
+                }
+              />
 
-              {/* Summary */}
-              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
-                <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                  Stock In Summary
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Quantity:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                      {formData.quantity || 0} units
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Purchase Price:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                      ₹{formData.purchasePrice || '0.00'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Total Value:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                      ₹{((parseFloat(formData.quantity) || 0) * (parseFloat(formData.purchasePrice) || 0)).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">New Stock:</span>
-                    <span className="text-green-500 font-medium">
-                      {(product?.stock || 0) + (parseInt(formData.quantity) || 0)} units
-                    </span>
-                  </div>
+              {/* Upgrade Button */}
+              {!hasSupplierManagement && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowUpgradeModal(true);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
+                  title="Upgrade to enable supplier management"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                  <span>Upgrade</span>
+                </button>
+              )}
+            </div>
+
+            {/* Summary */}
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
+              <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                Stock In Summary
+              </h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[rgb(var(--color-text-secondary))]">Quantity:</span>
+                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                    {formData.quantity || 0} units
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[rgb(var(--color-text-secondary))]">Purchase Price:</span>
+                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                    ₹{formData.purchasePrice || '0.00'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[rgb(var(--color-text-secondary))]">Total Value:</span>
+                  <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                    ₹{((parseFloat(formData.quantity) || 0) * (parseFloat(formData.purchasePrice) || 0)).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[rgb(var(--color-text-secondary))]">New Stock:</span>
+                  <span className="text-green-500 font-medium">
+                    {(product?.stock || 0) + (parseInt(formData.quantity) || 0)} units
+                  </span>
                 </div>
               </div>
-            </form>
-          </div>
-
-          {/* Footer */}
-          <div className="p-6 border-t border-[rgb(var(--color-border-primary))]">
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1"
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                onClick={handleSubmit}
-                className="flex-1"
-                loading={isLoading}
-                leftIcon={Package}
-              >
-                Add Stock
-              </Button>
             </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))]">
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              loading={isLoading}
+              leftIcon={Package}
+            >
+              Add Stock
+            </Button>
           </div>
         </div>
       </div>
