@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye, CheckCircle } from 'lucide-react';
+import { Plus, Grid3X3, List, FileText, Search, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getInvoices, deleteInvoice, setSelectedInvoices, toggleInvoiceSelection, selectAllInvoices, deselectAllInvoices, setViewMode, addMoreInvoices } from '@/store/slices/invoicesSlice';
+import { getInvoices, deleteInvoice, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
@@ -190,7 +190,7 @@ const InvoicesPage = () => {
     };
   }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, handleLoadMore]);
 
-  const handleStoreChange = (storeObject) => {
+  const handleStoreChange = () => {
     // Store change handled by Redux
   };
 
@@ -212,8 +212,8 @@ const InvoicesPage = () => {
   };
 
   const handlePrintInvoice = (invoiceId) => {
-    // Open print preview page
-    router.push(`/dashboard/invoices/print-preview?id=${invoiceId}`);
+    // Redirect to view invoice page
+    router.push(`/dashboard/invoices/view/${invoiceId}`);
   };
 
   const handleReleaseInvoice = (invoiceId) => {
@@ -247,8 +247,8 @@ const InvoicesPage = () => {
         setShowReleaseModal(false);
         setInvoiceToRelease(null);
 
-        // Auto-redirect to print preview after successful release
-        router.push(`/dashboard/invoices/print-preview?id=${invoiceToRelease.id}`);
+        // Auto-redirect to view invoice page after successful release
+        router.push(`/dashboard/invoices/view/${invoiceToRelease.id}`);
       } else {
         alert('Failed to release invoice. Please try again.');
         setShowReleaseModal(false);
@@ -272,10 +272,6 @@ const InvoicesPage = () => {
   const handleInvoiceSelect = (invoiceIds) => {
     const idsArray = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
     dispatch(setSelectedInvoices(idsArray));
-  };
-
-  const handleCardSelect = (invoiceId) => {
-    dispatch(toggleInvoiceSelection(invoiceId));
   };
 
   const handleSelectAll = (isSelected) => {
@@ -390,7 +386,7 @@ const InvoicesPage = () => {
                 <div className="mb-3">
                   <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                     {/* Search */}
-                    <div className="w-100 bg-red">
+                    <div className="w-100">
                       <Input
                         type="text"
                         placeholder="Search invoices..."

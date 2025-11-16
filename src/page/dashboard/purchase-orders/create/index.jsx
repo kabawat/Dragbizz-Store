@@ -308,7 +308,7 @@ const CreatePurchaseOrder = () => {
             </div>
 
             <div className="flex flex-col h-full" style={{ height: 'calc(100vh-208px)' }}>
-              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-208px)] min-h-[calc(100vh-208px)]">
+              <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
                 <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                   {/* Main Form Container */}
                   <div className="w-full mx-auto">
