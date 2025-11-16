@@ -38,7 +38,8 @@ const QuotaProgressBar = ({ featureKey = 'product_management', onRefreshRef }) =
       'invoice_management': 'Invoice',
       'customer_management': 'Customer',
       'stock_management': 'Stock',
-      'inventory_management': 'Inventory'
+      'inventory_management': 'Inventory',
+      'expense_management': 'Expense'
     };
     return featureNames[featureKey] || 'Quota';
   };

@@ -115,7 +115,7 @@ const EditExpensePage = ({ expenseId }) => {
               <Alert variant="error" className="mb-4">
                 {fetchingError || 'Expense not found. It may have been deleted or you may not have permission to view it.'}
               </Alert>
-              <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Expenses</span>
               </Link>
@@ -144,7 +144,7 @@ const EditExpensePage = ({ expenseId }) => {
           <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-4">
-              <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Expenses</span>
               </Link>
