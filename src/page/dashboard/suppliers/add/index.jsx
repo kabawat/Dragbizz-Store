@@ -6,10 +6,12 @@ import { Save, Plus, ArrowLeft } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
-import { SupplierForm, SupplierAddSuccessModal } from '@/components/supplier';
+import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
+import { SupplierForm } from '@/components/supplier';
 import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 
 const AddSupplierPage = () => {
@@ -18,8 +20,9 @@ const AddSupplierPage = () => {
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
 
   const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [addedSupplierName, setAddedSupplierName] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -87,22 +90,39 @@ const AddSupplierPage = () => {
       const result = await supplierService.createSupplier(formData);
 
       if (result.success) {
-        // Show success modal instead of direct redirect
-        setAddedSupplierName(formData.name || 'Supplier');
-        setShowSuccessModal(true);
+        // Show success toast
+        showSuccess('Supplier created successfully!');
+        // Reset form and redirect after a short delay
+        setTimeout(() => {
+          setFormData(getInitialFormData());
+          setFieldErrors({});
+          router.push('/dashboard/suppliers');
+        }, 1500);
       } else {
-        if (result?.error && result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
+        // Handle validation errors
+        const fieldErrors = extractFieldErrors(result?.error || result);
+        if (Object.keys(fieldErrors).length > 0) {
+          setFieldErrors(fieldErrors);
+        } else {
+          // Show error modal for general errors
+          setErrorMessage(result.message || 'Failed to create supplier. Please try again.');
+          setShowErrorModal(true);
         }
       }
 
     } catch (error) {
-      // Handle API error response
+      // Handle validation errors
       if (error.response && error.response.data) {
-        const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
-          setFieldErrors(errorData.data.fields);
+        const fieldErrors = extractFieldErrors(error.response.data);
+        if (Object.keys(fieldErrors).length > 0) {
+          setFieldErrors(fieldErrors);
+        } else {
+          setErrorMessage(error.response.data.message || 'An error occurred while creating the supplier. Please try again.');
+          setShowErrorModal(true);
         }
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
       }
     } finally {
       setLoading(false);
@@ -114,18 +134,6 @@ const AddSupplierPage = () => {
     router.push('/dashboard/suppliers');
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push('/dashboard/suppliers');
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
-    // Reset form data
-    setFormData(getInitialFormData());
-    setFieldErrors({});
-  };
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -174,13 +182,15 @@ const AddSupplierPage = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
-      <SupplierAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        onAddMore={handleAddMore}
-        supplierName={addedSupplierName}
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
       />
     </div>
   );

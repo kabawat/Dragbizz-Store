@@ -6,13 +6,15 @@ import { Save, ArrowLeft } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
-import { ProductForm, ProductAddSuccessModal } from '@/components/product';
+import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
+import { ProductForm } from '@/components/product';
 import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 import { useRef } from 'react';
 
@@ -26,10 +28,11 @@ const AddProductPage = () => {
   const { quota, isLoading: quotaLoading } = useUsageQuota('product_management');
 
   const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [addedProductName, setAddedProductName] = useState('');
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [quotaError, setQuotaError] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -162,12 +165,16 @@ const AddProductPage = () => {
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
-        // Show success modal instead of direct redirect
-        setAddedProductName(formData.name || 'Product');
-        setShowSuccessModal(true);
+        // Show success toast
+        showSuccess('Product created successfully!');
+        // Reset form and redirect after a short delay
+        setTimeout(() => {
+          setFormData(getInitialFormData());
+          setFieldErrors({});
+          router.push('/dashboard/products');
+        }, 1500);
       } else {
         // Check if it's a quota exceeded error (403)
-        // Backend response structure: { status: "error", message: "...", error: "Quota Exceeded", data: { quota: {...}, ... } }
         const errorData = result?.error || {};
         const isQuotaError = 
           result?.statusCode === 403 || 
@@ -178,8 +185,6 @@ const AddProductPage = () => {
           result.message?.includes('Quota Exceeded');
         
         if (isQuotaError) {
-          // Extract quota data from backend response structure
-          // Backend sends: { status: "error", error: "Quota Exceeded", data: { quota: {...}, canUpgrade: true, resetTime: "...", ... } }
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
             message: result.message || errorData.message || 'Quota exceeded',
@@ -188,8 +193,16 @@ const AddProductPage = () => {
             canUpgrade: quotaData.canUpgrade !== false
           });
           setShowQuotaModal(true);
-        } else if (errorData.data?.fields || errorData.fields) {
-          setFieldErrors(errorData.data?.fields || errorData.fields || {});
+        } else {
+          // Handle validation errors
+          const fieldErrors = extractFieldErrors(result?.error || result);
+          if (Object.keys(fieldErrors).length > 0) {
+            setFieldErrors(fieldErrors);
+          } else {
+            // Show error modal for general errors
+            setErrorMessage(result.message || 'Failed to create product. Please try again.');
+            setShowErrorModal(true);
+          }
         }
       }
 
@@ -208,9 +221,21 @@ const AddProductPage = () => {
             canUpgrade: quotaData.canUpgrade !== false
           });
           setShowQuotaModal(true);
-        } else if (errorData.data && errorData.data.fields) {
-          setFieldErrors(errorData.data.fields);
+        } else {
+          // Handle validation errors
+          const fieldErrors = extractFieldErrors(errorData);
+          if (Object.keys(fieldErrors).length > 0) {
+            setFieldErrors(fieldErrors);
+          } else {
+            // Show error modal for general errors
+            setErrorMessage(errorData.message || 'An error occurred while creating the product. Please try again.');
+            setShowErrorModal(true);
+          }
         }
+      } else {
+        // Handle other types of errors
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
       }
     } finally {
       setLoading(false);
@@ -222,18 +247,6 @@ const AddProductPage = () => {
     router.push('/dashboard/products');
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push('/dashboard/products');
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
-    // Reset form data
-    setFormData(getInitialFormData());
-    setFieldErrors({});
-  };
 
   return (
     <div className="flex h-screen relative overflow-hidden">
@@ -304,13 +317,15 @@ const AddProductPage = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
-      <ProductAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        onAddMore={handleAddMore}
-        productName={addedProductName}
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
       />
 
       {/* Quota Exceeded Modal */}

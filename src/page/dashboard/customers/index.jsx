@@ -14,9 +14,9 @@ import {
 import { customerService } from '@/service';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
+import { AnimatedBackground, Input, SettingsPanel, SideDrawer } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { CustomerTable, CustomerCard } from '@/components/customer';
+import { CustomerTable, CustomerCard, CreateCustomer } from '@/components/customer';
 
 const CustomersPage = () => {
   const router = useRouter();
@@ -69,6 +69,7 @@ const CustomersPage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const scrollRef = useRef(null);
   const menuRefs = useRef({});
   const lastFetchRef = useRef(null);
@@ -227,7 +228,16 @@ const CustomersPage = () => {
   };
 
   const handleAddCustomer = () => {
-    router.push('/dashboard/customers/add');
+    setShowCustomerDrawer(true);
+  };
+
+  // Handle customer creation success from drawer
+  const handleCustomerSuccess = async (customerData) => {
+    // Refresh customers list
+    lastFetchRef.current = null;
+    await fetchCustomers(false);
+    // Close drawer
+    setShowCustomerDrawer(false);
   };
 
   const handleEditCustomer = (customerId) => {
@@ -586,6 +596,29 @@ const CustomersPage = () => {
           </div>
         </div>
       )}
+
+      {/* Customer Drawer */}
+      <SideDrawer
+        isOpen={showCustomerDrawer}
+        onClose={() => {
+          setShowCustomerDrawer(false);
+        }}
+        title="Add New Customer"
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex-1 overflow-y-auto p-6 pb-0">
+            <CreateCustomer
+              storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+              onSuccess={handleCustomerSuccess}
+              onCancel={() => setShowCustomerDrawer(false)}
+              showCancelButton={true}
+              autoRedirect={false}
+              mode="drawer"
+            />
+          </div>
+        </div>
+      </SideDrawer>
     </div>
   );
 };
