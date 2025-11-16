@@ -19,7 +19,9 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
-import { Input, Select, Textarea, Card, Modal } from '@/components/ui';
+import { Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModal } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 
 const CreatePayment = () => {
@@ -68,9 +70,10 @@ const CreatePayment = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [createdPaymentNumber, setCreatedPaymentNumber] = useState('');
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Get bill ID from URL params
   const billId = searchParams.get('billId');
@@ -375,14 +378,41 @@ const CreatePayment = () => {
       const result = await paymentService.createPayment(paymentData);
 
       if (result.success) {
-        setCreatedPaymentNumber(result.data?.paymentNumber || 'Payment');
-        setShowSuccessModal(true);
+        // Show success toast
+        showSuccess('Payment created successfully!');
+        // Redirect after a short delay
+        setTimeout(() => {
+          if (billId) {
+            router.push(`/dashboard/bills/${billId}`);
+          } else {
+            router.push('/dashboard/payments');
+          }
+        }, 1500);
       } else {
-        setErrors({ general: result.message || 'Failed to create payment' });
+        // Handle validation errors
+        const fieldErrors = extractFieldErrors(result?.error || result);
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(fieldErrors);
+        } else {
+          // Show error modal for general errors
+          setErrorMessage(result.message || 'Failed to create payment. Please try again.');
+          setShowErrorModal(true);
+        }
       }
     } catch (error) {
-      console.error('Error creating payment:', error);
-      setErrors({ general: 'Failed to create payment. Please try again.' });
+      // Handle validation errors
+      if (error.response && error.response.data) {
+        const fieldErrors = extractFieldErrors(error.response.data);
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(fieldErrors);
+        } else {
+          setErrorMessage(error.response.data.message || 'An error occurred while creating the payment. Please try again.');
+          setShowErrorModal(true);
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -393,19 +423,6 @@ const CreatePayment = () => {
     router.push('/dashboard/payments');
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    // Redirect to bill page if billId exists in query params, otherwise to payments page
-    if (billId) {
-      router.push(`/dashboard/bills/${billId}`);
-    } else {
-      router.push('/dashboard/payments');
-    }
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
     // Reset form data but preserve billId if it exists
     setFormData({
       supplierId: '',
@@ -936,44 +953,16 @@ const CreatePayment = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
-      <Modal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Payment Created Successfully"
-        size="md"
-      >
-        <div className="space-y-4">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Payment Created Successfully!</h3>
-            <p className="text-gray-600 mb-4">
-              Your payment "{createdPaymentNumber}" has been created and is now pending approval.
-              {billId && (
-                <span className="block mt-2 text-sm text-blue-600">
-                  This payment is linked to the selected bill.
-                </span>
-              )}
-            </p>
-          </div>
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={handleContinue}
-            >
-              {billId ? 'View Bill' : 'Continue to Payments'}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleAddMore}
-            >
-              Create Another Payment
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+      />
 
     </div>
   );

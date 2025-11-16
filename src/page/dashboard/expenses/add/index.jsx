@@ -6,10 +6,12 @@ import { Save, ArrowLeft, IndianRupee } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
-import { ExpenseForm, ExpenseAddSuccessModal } from '@/components/expenses';
+import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
+import { ExpenseForm } from '@/components/expenses';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { createExpense } from '@/store/slices/expensesSlice';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 
 const AddExpensePage = () => {
@@ -20,9 +22,9 @@ const AddExpensePage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [addedExpenseName, setAddedExpenseName] = useState('');
-  const [submitError, setSubmitError] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { toasts, showSuccess, removeToast } = useToast();
 
   const handleSubmit = async (formData) => {
     try {
@@ -37,14 +39,37 @@ const AddExpensePage = () => {
       const result = await dispatch(createExpense(expenseData));
       
       if (result.payload?.success) {
-        setAddedExpenseName(formData.title);
-        setShowSuccessModal(true);
+        // Show success toast
+        showSuccess('Expense created successfully!');
+        // Redirect after a short delay
+        setTimeout(() => {
+          router.push('/dashboard/expenses');
+        }, 1500);
       } else {
-        setSubmitError(result.payload?.message || 'Failed to create expense');
+        // Handle validation errors
+        const fieldErrors = extractFieldErrors(result.payload?.error || result.payload);
+        if (Object.keys(fieldErrors).length > 0) {
+          // Field errors will be handled by the form component
+        } else {
+          // Show error modal for general errors
+          setErrorMessage(result.payload?.message || 'Failed to create expense. Please try again.');
+          setShowErrorModal(true);
+        }
       }
     } catch (error) {
-      console.error('Create expense error:', error);
-      setSubmitError('An unexpected error occurred. Please try again.');
+      // Handle validation errors
+      if (error.response && error.response.data) {
+        const fieldErrors = extractFieldErrors(error.response.data);
+        if (Object.keys(fieldErrors).length > 0) {
+          // Field errors will be handled by the form component
+        } else {
+          setErrorMessage(error.response.data.message || 'An error occurred while creating the expense. Please try again.');
+          setShowErrorModal(true);
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -52,16 +77,6 @@ const AddExpensePage = () => {
 
   const handleCancel = () => {
     router.push('/dashboard/expenses');
-  };
-
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push('/dashboard/expenses');
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
-    // Form will reset to initial state
   };
 
   return (
@@ -97,7 +112,7 @@ const AddExpensePage = () => {
                     onSubmit={handleSubmit}
                     onCancel={handleCancel}
                     isLoading={loading || isCreating}
-                    error={error || submitError}
+                    error={error}
                   />
                 </div>
                 
@@ -210,13 +225,15 @@ const AddExpensePage = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
-      <ExpenseAddSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onContinue={handleContinue}
-        onAddMore={handleAddMore}
-        expenseName={addedExpenseName}
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
       />
     </div>
   );

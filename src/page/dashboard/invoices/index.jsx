@@ -3,27 +3,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Grid3X3, List, FileText, Search, MoreHorizontal, Edit, Copy, Trash2, Eye, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getInvoices,
-  deleteInvoice,
-  setSelectedInvoices,
-  toggleInvoiceSelection,
-  selectAllInvoices,
-  deselectAllInvoices,
-  setViewMode,
-  addMoreInvoices
-} from '@/store/slices/invoicesSlice';
+import { getInvoices, deleteInvoice, setSelectedInvoices, toggleInvoiceSelection, selectAllInvoices, deselectAllInvoices, setViewMode, addMoreInvoices } from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
-
-// Import UI components
 import { Button } from '@/components/ui';
-
-// Import invoice components
 import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal } from '@/components/invoice';
-
-// Import services
 import { invoiceService } from '@/service';
 
 const InvoicesPage = () => {
@@ -77,15 +62,6 @@ const InvoicesPage = () => {
     }
   }, [dispatch]);
 
-  // Debug pagination state changes
-  useEffect(() => {
-    console.log('📊 Pagination state updated:', {
-      hasNextPage: pagination?.hasNextPage,
-      nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null,
-      totalInvoices: invoices.length,
-      limit: pagination?.limit
-    });
-  }, [pagination, invoices.length]);
 
   // Fetch invoices on mount and search changes
   const lastFetchRef = useRef({ storeId: null, searchValue: null });
@@ -123,25 +99,14 @@ const InvoicesPage = () => {
   // Load more invoices - Fixed to properly handle response structure
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination?.hasNextPage || !pagination?.nextCursor) {
-      console.log('🚫 Load more blocked:', {
-        isLoadingMore,
-        hasNextPage: pagination?.hasNextPage,
-        nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
-      });
       return;
     }
-
-    console.log('🔄 Loading more invoices...', {
-      currentCount: invoices.length,
-      nextCursor: pagination.nextCursor.toString().slice(-8)
-    });
 
     setIsLoadingMore(true);
 
     try {
       const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
       if (!storeId) {
-        console.error('❌ No store ID available');
         setIsLoadingMore(false);
         return;
       }
@@ -154,17 +119,9 @@ const InvoicesPage = () => {
         isFreshLoad: false
       };
 
-      const result = await dispatch(getInvoices(params));
-
-      // The Redux slice will handle adding the invoices and updating pagination
-      // We just need to ensure the request was successful
-      if (!result.payload?.success) {
-        console.error('❌ Failed to load more invoices:', result.payload?.message);
-      } else {
-        console.log('✅ More invoices loaded successfully');
-      }
+      await dispatch(getInvoices(params));
     } catch (error) {
-      console.error('❌ Error loading more invoices:', error);
+      // Error handled silently
     } finally {
       setIsLoadingMore(false);
     }
@@ -174,15 +131,8 @@ const InvoicesPage = () => {
   useEffect(() => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) {
-      console.log('⚠️ Scroll element not found');
       return;
     }
-
-    console.log('🎯 Setting up scroll listener:', {
-      element: scrollElement,
-      hasNextPage: pagination?.hasNextPage,
-      nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
-    });
 
     let isScrolling = false;
     
@@ -204,27 +154,8 @@ const InvoicesPage = () => {
       const threshold = 200; // Increased threshold for better UX
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-      // Debug scroll position (only log when near bottom to avoid spam)
-      if (distanceFromBottom <= threshold + 100) {
-        console.log('📍 Scroll position:', {
-          distanceFromBottom,
-          threshold,
-          scrollTop,
-          scrollHeight,
-          clientHeight,
-          hasNextPage: pagination?.hasNextPage,
-          canLoadMore: distanceFromBottom <= threshold
-        });
-      }
-
       // Check if user has scrolled near the bottom
       if (distanceFromBottom <= threshold) {
-        console.log('🚀 Triggering load more from scroll...', {
-          distanceFromBottom,
-          threshold,
-          hasNextPage: pagination?.hasNextPage,
-          nextCursor: pagination?.nextCursor ? pagination.nextCursor.toString().slice(-8) : null
-        });
         isScrolling = true;
         handleLoadMore().finally(() => {
           isScrolling = false;
@@ -249,7 +180,6 @@ const InvoicesPage = () => {
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
       if (distanceFromBottom <= 200 && pagination?.hasNextPage) {
-        console.log('📍 Already near bottom on mount, triggering load more...');
         handleLoadMore();
       }
     }, 500);
@@ -320,13 +250,11 @@ const InvoicesPage = () => {
         // Auto-redirect to print preview after successful release
         router.push(`/dashboard/invoices/print-preview?id=${invoiceToRelease.id}`);
       } else {
-        console.error('Failed to release invoice:', result.message);
         alert('Failed to release invoice. Please try again.');
         setShowReleaseModal(false);
         setInvoiceToRelease(null);
       }
     } catch (error) {
-      console.error('Error releasing invoice:', error);
       alert('An error occurred while releasing the invoice. Please try again.');
       setShowReleaseModal(false);
       setInvoiceToRelease(null);
@@ -386,7 +314,7 @@ const InvoicesPage = () => {
       setShowDeleteModal(false);
       setInvoiceToDelete(null);
     } catch (error) {
-      console.error('Error deleting invoice:', error);
+      // Error handled silently
     } finally {
       setIsDeleting(false);
     }
@@ -508,7 +436,7 @@ const InvoicesPage = () => {
                     className="flex-1 overflow-y-auto overscroll-behavior-contain" 
                     ref={scrollRef}
                     style={{ 
-                      maxHeight: 'calc(100vh - 280px)',
+                      maxHeight: 'calc(100vh - 200px)',
                       minHeight: '400px'
                     }}
                   >

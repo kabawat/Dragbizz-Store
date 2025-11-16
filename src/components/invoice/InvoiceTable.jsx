@@ -229,7 +229,7 @@ const InvoiceTable = ({
 
               return (
                 <tr
-                  key={invoiceId}
+                  key={`${invoiceId}-${index}`}
                   className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''
                     } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                   onMouseEnter={() => setHoveredRow(index)}

@@ -30,6 +30,9 @@ import SendMenu from './SendMenu';
 import ActionMenu from './ActionMenu';
 import SideDrawer from './SideDrawer';
 import Table, { TableHeader, TableBody, TableRow, TableHead, TableCell } from './Table';
+import Toast from './Toast';
+import ToastContainer from './ToastContainer';
+import ErrorModal from './ErrorModal';
 
 // Named exports
 export {
@@ -91,7 +94,10 @@ export {
   TableBody,
   TableRow,
   TableHead,
-  TableCell
+  TableCell,
+  Toast,
+  ToastContainer,
+  ErrorModal
 };
 
 // Default export
@@ -154,5 +160,8 @@ export default {
   TableBody,
   TableRow,
   TableHead,
-  TableCell
+  TableCell,
+  Toast,
+  ToastContainer,
+  ErrorModal
 };

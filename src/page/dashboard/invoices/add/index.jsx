@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import { productService, customerService, invoiceService } from '@/service';
-import { Button, Card, Input, Select, Badge } from '@/components/ui';
+import { Button, Card, Input, Select, Badge, ToastContainer, ErrorModal, SideDrawer } from '@/components/ui';
 import { Plus, Minus, ShoppingCart, User, Calculator, ArrowLeft, Package, IndianRupee, Trash2 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -12,6 +12,9 @@ import Link from 'next/link';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
 import { QuotaExceededModal } from '@/components/common';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
+import { CreateCustomer } from '@/components/customer';
 
 const CreateInvoicePage = () => {
   const router = useRouter();
@@ -25,6 +28,10 @@ const CreateInvoicePage = () => {
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [quotaError, setQuotaError] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -44,6 +51,9 @@ const CreateInvoicePage = () => {
   // Refs to prevent duplicate API calls
   const hasFetchedProducts = useRef(false);
   const hasFetchedCustomers = useRef(false);
+
+  // Customer drawer state
+  const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
 
   const [formData, setFormData] = useState({
     customer: '',
@@ -101,7 +111,8 @@ const CreateInvoicePage = () => {
           ...((result.data || []).map((customer) => ({
             value: customer._id,
             label: `${customer.name || 'Unknown'} - ${customer.phone || 'No phone'}${customer.email ? ` - ${customer.email}` : ''}`
-          })))
+          }))),
+          { value: 'add-new-customer', label: 'Add New Customer', isAddOption: true }
         ];
         setCustomers(serializedOptions);
       }
@@ -119,6 +130,32 @@ const CreateInvoicePage = () => {
       fetchCustomers();
     }
   }, [selectedStore?.storeId, fetchProducts, fetchCustomers]);
+
+
+  // Handle customer select change
+  const handleCustomerChange = (value) => {
+    if (value === 'add-new-customer') {
+      setShowCustomerDrawer(true);
+    } else {
+      setFormData({ ...formData, customer: value });
+    }
+  };
+
+  // Handle customer creation success from drawer
+  const handleCustomerSuccess = async (customerData) => {
+    // Refresh customers list
+    hasFetchedCustomers.current = false;
+    await fetchCustomers();
+    
+    // Auto-select the newly created customer
+    const newCustomerId = customerData?.id || customerData?._id;
+    if (newCustomerId) {
+      setFormData({ ...formData, customer: newCustomerId });
+    }
+    
+    // Close drawer
+    setShowCustomerDrawer(false);
+  };
 
   const handleAddItem = () => {
     if (!selectedProduct) {
@@ -262,14 +299,18 @@ const CreateInvoicePage = () => {
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
+        // Show success toast
+        showSuccess('Invoice created successfully!');
         // Redirect to the created invoice view page
-        const invoiceId = result.data?.id || result.data?._id;
-        if (invoiceId) {
-          router.push(`/dashboard/invoices/view/${invoiceId}`);
-        } else {
-          // Fallback to invoices list if ID not available
-          router.push('/dashboard/invoices');
-        }
+        setTimeout(() => {
+          const invoiceId = result.data?.id || result.data?._id;
+          if (invoiceId) {
+            router.push(`/dashboard/invoices/view/${invoiceId}`);
+          } else {
+            // Fallback to invoices list if ID not available
+            router.push('/dashboard/invoices');
+          }
+        }, 1500);
       } else {
         // Check if it's a quota exceeded error (403)
         const errorData = result?.error || {};
@@ -292,8 +333,15 @@ const CreateInvoicePage = () => {
           });
           setShowQuotaModal(true);
         } else {
-          console.error('Failed to create invoice:', result.message);
-          alert('Failed to create invoice. Please try again.');
+          // Handle validation errors
+          const fieldErrors = extractFieldErrors(result?.error || result);
+          if (Object.keys(fieldErrors).length > 0) {
+            setFieldErrors(fieldErrors);
+          } else {
+            // Show error modal for general errors
+            setErrorMessage(result.message || 'Failed to create invoice. Please try again.');
+            setShowErrorModal(true);
+          }
         }
       }
     } catch (error) {
@@ -312,12 +360,20 @@ const CreateInvoicePage = () => {
           });
           setShowQuotaModal(true);
         } else {
-          console.error('Error creating invoice:', error);
-          alert('An error occurred while creating the invoice. Please try again.');
+          // Handle validation errors
+          const fieldErrors = extractFieldErrors(errorData);
+          if (Object.keys(fieldErrors).length > 0) {
+            setFieldErrors(fieldErrors);
+          } else {
+            // Show error modal for general errors
+            setErrorMessage(errorData.message || 'An error occurred while creating the invoice. Please try again.');
+            setShowErrorModal(true);
+          }
         }
       } else {
-        console.error('Error creating invoice:', error);
-        alert('An error occurred while creating the invoice. Please try again.');
+        // Handle other types of errors
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
       }
     } finally {
       setInvoiceLoading(false);
@@ -551,7 +607,7 @@ const CreateInvoicePage = () => {
                         </label>
                         <Select
                           value={formData.customer}
-                          onChange={(value) => setFormData({ ...formData, customer: value })}
+                          onChange={handleCustomerChange}
                           options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
                           disabled={customersLoading}
                           leftIcon={User}
@@ -638,6 +694,38 @@ const CreateInvoicePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+      />
+
+      {/* Customer Drawer */}
+      <SideDrawer
+        isOpen={showCustomerDrawer}
+        onClose={() => {
+          setShowCustomerDrawer(false);
+        }}
+        title="Add New Customer"
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="p-6">
+          <CreateCustomer
+            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            onSuccess={handleCustomerSuccess}
+            onCancel={() => setShowCustomerDrawer(false)}
+            showCancelButton={true}
+            autoRedirect={false}
+            mode="drawer"
+          />
+        </div>
+      </SideDrawer>
 
       {/* Quota Exceeded Modal */}
       <QuotaExceededModal

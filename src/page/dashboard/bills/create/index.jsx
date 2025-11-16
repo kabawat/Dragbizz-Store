@@ -23,7 +23,9 @@ import {
   Clock,
   Trash2
 } from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal } from '@/components/ui';
+import { Button, Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModal } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
+import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 
 const formInit = {
@@ -67,9 +69,9 @@ const CreateBill = () => {
 
   const [errors, setErrors] = useState({});
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdBillNumber, setCreatedBillNumber] = useState('');
-  const [createdBillId, setCreatedBillId] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -351,16 +353,42 @@ const CreateBill = () => {
       const result = await billService.createBill(billData);
 
       if (result.success) {
-        setCreatedBillNumber(result.data?.billNumber || `Bill-${Date.now()}`);
-        setCreatedBillId(result.data?.id || result.data?._id || '');
-        setShowSuccessModal(true);
+        // Show success toast
+        showSuccess('Bill created successfully!');
+        // Redirect after a short delay
+        setTimeout(() => {
+          const billId = result.data?.id || result.data?._id;
+          if (billId) {
+            router.push(`/dashboard/bills/${billId}`);
+          } else {
+            router.push('/dashboard/bills');
+          }
+        }, 1500);
       } else {
-        setCreateError(result.message || 'Failed to create bill');
-        console.error('Bill creation failed:', result.message);
+        // Handle validation errors
+        const fieldErrors = extractFieldErrors(result?.error || result);
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(fieldErrors);
+        } else {
+          // Show error modal for general errors
+          setErrorMessage(result.message || 'Failed to create bill. Please try again.');
+          setShowErrorModal(true);
+        }
       }
     } catch (error) {
-      console.error('Error creating bill:', error);
-      setCreateError('An unexpected error occurred while creating the bill');
+      // Handle validation errors
+      if (error.response && error.response.data) {
+        const fieldErrors = extractFieldErrors(error.response.data);
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(fieldErrors);
+        } else {
+          setErrorMessage(error.response.data.message || 'An error occurred while creating the bill. Please try again.');
+          setShowErrorModal(true);
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+        setShowErrorModal(true);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -376,19 +404,6 @@ const CreateBill = () => {
     setShowSaveDraftModal(false);
   };
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    // Redirect to the created bill view page if bill ID is available, otherwise to bills list
-    if (createdBillId) {
-      router.push(`/dashboard/bills/${createdBillId}`);
-    } else {
-      router.push('/dashboard/bills');
-    }
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
     setFormData(formInit);
   };
 
@@ -795,40 +810,16 @@ const CreateBill = () => {
         </div>
       </Modal>
 
-      {/* Success Modal */}
-      <Modal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Bill Created Successfully!"
-      >
-        <div className="p-6 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {createdBillNumber} has been created successfully.
-            {createdBillId && (
-              <span className="block mt-2 text-sm text-blue-600">
-                You can now view the bill details.
-              </span>
-            )}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button
-              variant="outline"
-              onClick={handleContinue}
-            >
-              {createdBillId ? 'View Bill' : 'View Bills'}
-            </Button>
-            <Button
-              onClick={handleAddMore}
-              leftIcon={Plus}
-            >
-              Create Another
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+      />
     </div>
   );
 };
