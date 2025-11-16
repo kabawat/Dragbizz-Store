@@ -715,7 +715,7 @@ const CreateInvoicePage = () => {
         title="Add New Customer"
         width="w-full md:w-2/3 lg:w-1/2"
       >
-        <div className="p-6">
+        <div className="p-6 h-full">
           <CreateCustomer
             storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
             onSuccess={handleCustomerSuccess}

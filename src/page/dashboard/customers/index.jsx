@@ -606,17 +606,15 @@ const CustomersPage = () => {
         title="Add New Customer"
         width="w-full md:w-2/3 lg:w-1/2"
       >
-        <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto p-6 pb-0">
-            <CreateCustomer
-              storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
-              onSuccess={handleCustomerSuccess}
-              onCancel={() => setShowCustomerDrawer(false)}
-              showCancelButton={true}
-              autoRedirect={false}
-              mode="drawer"
-            />
-          </div>
+        <div className="p-6 h-full">
+          <CreateCustomer
+            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            onSuccess={handleCustomerSuccess}
+            onCancel={() => setShowCustomerDrawer(false)}
+            showCancelButton={true}
+            autoRedirect={false}
+            mode="drawer"
+          />
         </div>
       </SideDrawer>
     </div>
