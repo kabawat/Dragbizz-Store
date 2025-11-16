@@ -193,18 +193,10 @@ const ViewExpensePage = ({ expenseId }) => {
                         The expense you're looking for doesn't exist or has been removed. Please check the expense ID and try again.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button
-                          variant="outline"
-                          onClick={() => router.push('/dashboard/expenses')}
-                          className="px-6 py-3"
-                        >
+                        <Button variant="outline" onClick={() => router.push('/dashboard/expenses')} className="px-6 py-3" >
                           Back to Expenses
                         </Button>
-                        <Button
-                          variant="primary"
-                          onClick={() => window.location.reload()}
-                          className="px-6 py-3"
-                        >
+                        <Button variant="primary" onClick={() => window.location.reload()} className="px-6 py-3" >
                           Try Again
                         </Button>
                       </div>
