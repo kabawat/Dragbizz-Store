@@ -404,9 +404,6 @@ const CreateBill = () => {
     setShowSaveDraftModal(false);
   };
 
-    setFormData(formInit);
-  };
-
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />

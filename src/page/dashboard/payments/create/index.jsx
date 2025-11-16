@@ -423,33 +423,6 @@ const CreatePayment = () => {
     router.push('/dashboard/payments');
   };
 
-    // Reset form data but preserve billId if it exists
-    setFormData({
-      supplierId: '',
-      paymentType: 'BILL_PAYMENT',
-      billId: billId || '', // Preserve billId from query params
-      notes: '',
-      paymentMethods: [
-        {
-          amount: 0,
-          method: 'cash',
-          reference: '',
-          bankName: '',
-          accountNumber: '',
-          ifscCode: '',
-          holderName: '',
-          upiId: '',
-          transactionId: '',
-          chequeNumber: '',
-          chequeDate: '',
-          chequeBankName: '',
-          chequeBranchName: ''
-        }
-      ]
-    });
-    setErrors({});
-  };
-
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
