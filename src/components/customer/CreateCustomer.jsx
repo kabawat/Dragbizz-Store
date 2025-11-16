@@ -271,37 +271,34 @@ const CreateCustomer = ({
 
   return (
     <>
-      <div className={mode === 'drawer' ? 'space-y-6 pb-6' : ''}>
-        <CustomerForm
-          formData={formData}
-          onChange={handleFormDataChange}
-          fieldErrors={fieldErrors}
-        />
-      </div>
-
-      {/* Action Buttons */}
-      {(mode === 'drawer' || showCancelButton) && (
-        <div className={`${mode === 'drawer' ? 'flex-shrink-0 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-4 -mx-6 -mb-6 mt-auto' : 'mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4'} flex items-center justify-end space-x-3`}>
-          {showCancelButton && onCancel && (
-            <Button 
-              variant="outline" 
-              onClick={onCancel}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-          )}
-          <Button
-            variant="success"
-            onClick={handleSaveAndPublish}
-            disabled={loading}
-            loading={loading}
-            leftIcon={Save}
-          >
-            Save Customer
-          </Button>
+      <div className={`flex flex-col ${mode === 'drawer' ? 'h-full' : 'min-h-full'}`}>
+        <div className={`${mode === 'drawer' ? 'flex-1 overflow-y-auto space-y-6 min-h-0' : ''}`}>
+          <CustomerForm formData={formData} onChange={handleFormDataChange} fieldErrors={fieldErrors} />
         </div>
-      )}
+
+        {/* Action Buttons */}
+        {(mode === 'drawer' || showCancelButton) && (
+          <div className={`flex-shrink-0 ${mode === 'drawer' ? 'bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-4 -mx-6 -mb-6' : 'mt-auto bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4 pb-4'} flex items-center justify-start space-x-3`}>
+            <Button
+              variant="success"
+              onClick={handleSaveAndPublish}
+              disabled={loading}
+              loading={loading}
+              leftIcon={Save} >
+              Save Customer
+            </Button>
+            {showCancelButton && onCancel && (
+              <Button 
+                variant="outline" 
+                onClick={onCancel}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
