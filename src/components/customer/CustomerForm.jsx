@@ -233,7 +233,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             onChange={(value) => handleInputChange('name', value)}
             error={!!fieldErrors.name}
             errorMessage={fieldErrors.name}
-            helperText="Enter the full name of the customer"
             required
             leftIcon={User}
             size="sm"
@@ -248,7 +247,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             onChange={(value) => handleInputChange('phone', value)}
             error={!!fieldErrors.phone}
             errorMessage={fieldErrors.phone}
-            helperText="Enter the customer's phone number"
             required
             leftIcon={Phone}
             size="sm"
@@ -263,7 +261,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             onChange={(value) => handleInputChange('email', value)}
             error={!!fieldErrors.email}
             errorMessage={fieldErrors.email}
-            helperText="Enter the customer's email address (optional)"
             leftIcon={Mail}
             size="sm"
           />
@@ -292,7 +289,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             onChange={(value) => handleCompanyDetailsChange('companyName', value)}
             error={!!fieldErrors['companyDetails.companyName']}
             errorMessage={fieldErrors['companyDetails.companyName']}
-            helperText="Enter the company name"
             leftIcon={Building2}
             size="sm"
           />
@@ -306,7 +302,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             onChange={(value) => handleCompanyDetailsChange('gstin', value)}
             error={!!fieldErrors['companyDetails.gstin']}
             errorMessage={fieldErrors['companyDetails.gstin']}
-            helperText="Enter 15-digit GSTIN number"
             leftIcon={FileText}
             size="sm"
           />

@@ -28,7 +28,8 @@ const ExpenseForm = ({
   onCancel = null,
   isLoading = false,
   error = null,
-  expense = null
+  expense = null,
+  formRef = null
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -135,7 +136,7 @@ const ExpenseForm = ({
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

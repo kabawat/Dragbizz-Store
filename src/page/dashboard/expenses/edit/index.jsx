@@ -26,6 +26,7 @@ const EditExpensePage = ({ expenseId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchingError, setFetchingError] = useState(null);
   const hasFetched = useRef(false);
+  const formRef = useRef(null);
 
   // Fetch expense data on component mount
   useEffect(() => {
@@ -168,6 +169,7 @@ const EditExpensePage = ({ expenseId }) => {
                     onCancel={handleCancel}
                     isLoading={isUpdating}
                     error={error || submitError || fetchingError}
+                    formRef={formRef}
                   />
                 </div>
                 
@@ -179,8 +181,9 @@ const EditExpensePage = ({ expenseId }) => {
                   <Button
                     variant="primary"
                     onClick={() => {
-                      const form = document.querySelector('form');
-                      if (form) form.requestSubmit();
+                      if (formRef.current) {
+                        formRef.current.requestSubmit();
+                      }
                     }}
                     disabled={isUpdating}
                     loading={isUpdating}

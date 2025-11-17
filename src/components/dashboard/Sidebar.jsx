@@ -32,7 +32,7 @@ const Sidebar = ({ onStoreChange }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { agency, stores: reduxStores, selectedStore } = useAppSelector((state) => state.profile);
-  const { features, isLoading: featuresLoading } = useFeatureAccess();
+  const { features, isLoading: featuresLoading, checkFeatureAccess, checkRouteAccess } = useFeatureAccess();
   
   // Unified state management
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
@@ -92,6 +92,20 @@ const Sidebar = ({ onStoreChange }) => {
     'Purchase': ['Purchase Management', 'purchase_management'],
   };
 
+  // Sub-menu item to feature mapping
+  const subMenuToFeatureMap = {
+    'Customers': ['Customer Management', 'customer_management'],
+    'Invoices': ['Invoice Management', 'invoice_management'],
+    'Expenses': ['Expense Management', 'expense_management'],
+    'Products': ['Product Management', 'product_management'],
+    'Stocks': ['Stock Management', 'stock_management'],
+    'Low Stock Alerts': ['Stock Management', 'stock_management'],
+    'Suppliers': ['Purchase Management', 'purchase_management', 'Supplier Management', 'supplier_management'],
+    'Purchase Orders': ['Purchase Management', 'purchase_management'],
+    'Bills': ['Bill Management', 'bill_management'],
+    'Payments': ['Payment Management', 'payment_management'],
+  };
+
   // Helper function to check if user has access to a menu item
   const hasMenuItemAccess = (itemName) => {
     if (itemName === 'Dashboard') return true;
@@ -102,6 +116,36 @@ const Sidebar = ({ onStoreChange }) => {
     if (requiredFeatures.length === 0) return true;
     
     return requiredFeatures.some(featureName => {
+      return features.some(f => {
+        const featureNameStr = typeof f === 'object' ? f.name : f;
+        return featureNameStr && (
+          featureNameStr.toLowerCase().includes(featureName.toLowerCase()) ||
+          featureName.toLowerCase().includes(featureNameStr.toLowerCase())
+        );
+      });
+    });
+  };
+
+  // Helper function to check if user has access to a sub-menu item
+  const hasSubMenuItemAccess = (subItemName, href) => {
+    if (featuresLoading) return true;
+    
+    // First try route-based access check
+    if (checkRouteAccess && href) {
+      const hasRouteAccess = checkRouteAccess(href);
+      if (hasRouteAccess) return true;
+    }
+    
+    // Then check feature-based access
+    const requiredFeatures = subMenuToFeatureMap[subItemName] || [];
+    if (requiredFeatures.length === 0) return true;
+    
+    return requiredFeatures.some(featureName => {
+      if (checkFeatureAccess) {
+        return checkFeatureAccess(featureName);
+      }
+      // Fallback to manual check
+      if (!features || features.length === 0) return false;
       return features.some(f => {
         const featureNameStr = typeof f === 'object' ? f.name : f;
         return featureNameStr && (
@@ -156,6 +200,35 @@ const Sidebar = ({ onStoreChange }) => {
         isOpen: true,
         featureName: item.name,
         requiredFeature: featureMap[item.name] || 'Premium Feature'
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // Handle sub-menu item click - check access and show upgrade modal if needed
+  const handleSubMenuItemClick = (subItem, e) => {
+    if (!hasSubMenuItemAccess(subItem.name, subItem.href)) {
+      e?.preventDefault();
+      e?.stopPropagation();
+      
+      const featureMap = {
+        'Customers': 'Customer Management',
+        'Invoices': 'Invoice Management',
+        'Expenses': 'Expense Management',
+        'Products': 'Product Management',
+        'Stocks': 'Stock Management',
+        'Low Stock Alerts': 'Stock Management',
+        'Suppliers': 'Supplier Management',
+        'Purchase Orders': 'Purchase Management',
+        'Bills': 'Bill Management',
+        'Payments': 'Payment Management',
+      };
+      
+      setUpgradeModal({
+        isOpen: true,
+        featureName: subItem.name,
+        requiredFeature: featureMap[subItem.name] || 'Premium Feature'
       });
       return false;
     }
@@ -373,18 +446,29 @@ const Sidebar = ({ onStoreChange }) => {
                       {item.subMenuItems.map((subItem) => {
                         const SubIcon = subItem.icon;
                         const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href + '/');
+                        const hasSubAccess = hasSubMenuItemAccess(subItem.name, subItem.href);
                         return (
                           <Link
                             key={subItem.name}
-                            href={subItem.href}
+                            href={hasSubAccess ? subItem.href : '#'}
+                            onClick={(e) => {
+                              if (!handleSubMenuItemClick(subItem, e)) {
+                                e.preventDefault();
+                              }
+                            }}
                             className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${
                               isSubActive
                                 ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]'
-                                : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                                : hasSubAccess
+                                  ? 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                                  : 'text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))] cursor-not-allowed'
                             }`}
                           >
-                            <SubIcon className={`w-4 h-4 ${isSubActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
-                            <span className="text-sm font-medium">{subItem.name}</span>
+                            <SubIcon className={`w-4 h-4 ${isSubActive ? 'text-[rgb(var(--color-primary))]' : hasSubAccess ? 'text-[rgb(var(--color-text-tertiary))]' : 'text-[rgb(var(--color-text-tertiary))] opacity-60'}`} />
+                            <span className={`text-sm font-medium ${!hasSubAccess ? 'opacity-60' : ''}`}>
+                              {subItem.name}
+                            </span>
+                            {!hasSubAccess && <Crown className="w-3 h-3 text-yellow-500 ml-auto" />}
                           </Link>
                         );
                       })}
