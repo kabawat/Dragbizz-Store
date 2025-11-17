@@ -272,19 +272,22 @@ const CreateCustomer = ({
   return (
     <>
       <div className={`flex flex-col ${mode === 'drawer' ? 'h-full' : 'min-h-full'}`}>
-        <div className={`${mode === 'drawer' ? 'flex-1 overflow-y-auto space-y-6 min-h-0' : ''}`}>
+        <div className={`${mode === 'drawer' ? 'flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0' : ''}`}>
           <CustomerForm formData={formData} onChange={handleFormDataChange} fieldErrors={fieldErrors} />
         </div>
 
         {/* Action Buttons */}
         {(mode === 'drawer' || showCancelButton) && (
-          <div className={`flex-shrink-0 ${mode === 'drawer' ? 'bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-4 -mx-6 -mb-6' : 'mt-auto bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4 pb-4'} flex items-center justify-start space-x-3`}>
+          <div className={`flex-shrink-0 ${mode === 'drawer' ? 'bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6' : 'mt-auto bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4 pb-4'} flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3`}>
             <Button
               variant="success"
               onClick={handleSaveAndPublish}
               disabled={loading}
               loading={loading}
-              leftIcon={Save} >
+              leftIcon={Save}
+              className="w-full sm:w-auto"
+              size="sm"
+            >
               Save Customer
             </Button>
             {showCancelButton && onCancel && (
@@ -292,6 +295,8 @@ const CreateCustomer = ({
                 variant="outline" 
                 onClick={onCancel}
                 disabled={loading}
+                className="w-full sm:w-auto"
+                size="sm"
               >
                 Cancel
               </Button>

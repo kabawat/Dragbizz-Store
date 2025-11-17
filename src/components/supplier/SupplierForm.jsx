@@ -3,28 +3,20 @@ import React from 'react';
 import { Building, Phone, Mail, Building2, Hash } from 'lucide-react';
 import { Input } from '@/components/ui';
 
-const SupplierForm = ({ formData, onChange, fieldErrors = {} }) => {
+const SupplierForm = ({ formData, onChange, fieldErrors = {}, mode = 'page' }) => {
   const handleInputChange = (fieldName, value) => {
     onChange(fieldName, value);
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className={mode === 'drawer' ? 'space-y-6' : 'grid grid-cols-1 lg:grid-cols-3 gap-8'}>
       {/* Left Side - Form */}
-      <div className="lg:col-span-2 space-y-6">
+      <div className={mode === 'drawer' ? 'space-y-6' : 'lg:col-span-2 space-y-6'}>
         {/* Basic Information Section */}
-        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-sm">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
-              <Building className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Supplier Information</h2>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">Enter the basic details of the supplier</p>
-            </div>
-          </div>
+        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg  p-4">
+        
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Supplier Name */}
             <Input
               type="text"
@@ -96,6 +88,7 @@ const SupplierForm = ({ formData, onChange, fieldErrors = {} }) => {
       </div>
 
       {/* Right Side - Benefits Section */}
+      {mode !== 'drawer' && (
       <div className="lg:col-span-1">
         <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm sticky top-6">
           <div className="flex items-center space-x-3 mb-6">
@@ -177,6 +170,7 @@ const SupplierForm = ({ formData, onChange, fieldErrors = {} }) => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

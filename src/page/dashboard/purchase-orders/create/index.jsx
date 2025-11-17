@@ -10,26 +10,23 @@ import {
   FileText,
   Plus,
   Save,
-  X,
   Building2,
   Package,
   IndianRupee,
   Calendar,
   AlertCircle,
   ArrowLeft,
-  CheckCircle,
-  Trash2,
-  ChevronDown,
-  ChevronRight
+  Trash2
 } from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal, Toggle, AddActionButton } from '@/components/ui';
+import { Button, Input, Select, Textarea, Card, Modal, Toggle, AddActionButton, ToastContainer } from '@/components/ui';
+import { AddSupplierDrawer } from '@/components/supplier';
+import { useToast } from '@/hooks/useToast';
 import Link from 'next/link';
 
 const PAYMENT_METHODS = [
   { value: 'UPI', label: 'UPI' },
   { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-  { value: 'CHEQUE', label: 'Cheque' },
-  { value: 'CASH', label: 'Cash' }
+  { value: 'CHEQUE', label: 'Cheque' }
 ];
 
 const formInit = {
@@ -62,11 +59,10 @@ const CreatePurchaseOrder = () => {
   const [paymentDetails, setPaymentDetails] = useState({});
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdPONumber, setCreatedPONumber] = useState('');
-  const [createdPOId, setCreatedPOId] = useState('');
   const [tempProduct, setTempProduct] = useState('');
   const [tempQuantity, setTempQuantity] = useState(1);
+  const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
+  const { toasts, showSuccess, removeToast } = useToast();
 
   // Fetch suppliers
   const fetchSuppliers = async () => {
@@ -111,30 +107,32 @@ const CreatePurchaseOrder = () => {
     fetchProducts();
   }, [selectedStore]);
 
-  // No auto date rules required for provided payload
-
   const handleInputChange = (field, value) => {
+    // Check if "Add New Supplier" option was selected
+    if (field === 'supplier' && value === '__add_new_supplier__') {
+      setShowAddSupplierDrawer(true);
+      return;
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const handleItemChange = (index, field, value) => {
-    const updated = [...formData.products];
-    updated[index] = { ...updated[index], [field]: value };
-    if (field === 'product') {
-      const selected = products.find(p => (p.id || p._id) === value);
-      if (selected) {
-        updated[index].productName = selected.name || selected.productName || '';
-      }
-    }
-    setFormData(prev => ({ ...prev, products: updated }));
-    const errorKey = `item_${index}_${field}`;
-    if (errors[errorKey]) {
-      setErrors(prev => ({ ...prev, [errorKey]: '' }));
+  const handleSupplierSuccess = async (newSupplier) => {
+    // Refresh suppliers list after successful creation
+    await fetchSuppliers();
+    
+    // Auto-select the newly created supplier
+    if (newSupplier && (newSupplier.id || newSupplier._id)) {
+      setFormData(prev => ({ 
+        ...prev, 
+        supplier: newSupplier.id || newSupplier._id 
+      }));
     }
   };
+
 
   const addItem = () => {
     if (!tempProduct) {
@@ -213,10 +211,7 @@ const CreatePurchaseOrder = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.supplier) newErrors.supplier = 'Supplier is required';
-    if (formData.poDate && new Date(formData.poDate) > new Date()) newErrors.poDate = 'PO date cannot be in the future';
-    if (formData.expectedDeliveryDate && formData.poDate && new Date(formData.expectedDeliveryDate) < new Date(formData.poDate)) newErrors.expectedDeliveryDate = 'Expected delivery cannot be before PO date';
-    if (formData.validUntil && formData.poDate && new Date(formData.validUntil) < new Date(formData.poDate)) newErrors.validUntil = 'Valid until cannot be before PO date';
-    if (formData.notes && formData.notes.length > 500) newErrors.notes = 'Notes cannot exceed 500 characters';
+    if (formData.note && formData.note.length > 500) newErrors.note = 'Notes cannot exceed 500 characters';
 
     if (!formData.products || formData.products.length === 0) newErrors.items = 'At least one product is required';
     formData.products.forEach((item, index) => {
@@ -250,9 +245,21 @@ const CreatePurchaseOrder = () => {
 
       const result = await purchaseOrderService.createPurchaseOrder(poPayload);
       if (result.success) {
-        setCreatedPONumber(result.data?.poNumber || `PO-${Date.now()}`);
-        setCreatedPOId(result.data?.id || result.data?._id || '');
-        setShowSuccessModal(true);
+        const poNumber = result.data?.poNumber || `PO-${Date.now()}`;
+        const poId = result.data?.id || result.data?._id || '';
+        
+        // Show success toast
+        showSuccess(`${poNumber} has been created successfully!`);
+        
+        // Reset form and redirect after a short delay
+        setTimeout(() => {
+          setFormData(formInit);
+          if (poId) {
+            router.push(`/dashboard/purchase-orders/${poId}`);
+          } else {
+            router.push('/dashboard/purchase-orders');
+          }
+        }, 1500);
       } else {
         setCreateError(result.message || 'Failed to create purchase order');
       }
@@ -272,19 +279,6 @@ const CreatePurchaseOrder = () => {
     setShowSaveDraftModal(false);
   };
 
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    if (createdPOId) {
-      router.push(`/dashboard/purchase-orders/${createdPOId}`);
-    } else {
-      router.push('/dashboard/purchase-orders');
-    }
-  };
-
-  const handleAddMore = () => {
-    setShowSuccessModal(false);
-    setFormData(formInit);
-  };
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -338,7 +332,8 @@ const CreatePurchaseOrder = () => {
                                   onChange={(value) => handleInputChange('supplier', value)}
                                   options={[
                                     { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
-                                    ...suppliers.filter(s => s.name || s.supplierName).map(s => ({ value: s.id || s._id, label: s.name || s.supplierName }))
+                                    ...suppliers.filter(s => s.name || s.supplierName).map(s => ({ value: s.id || s._id, label: s.name || s.supplierName })),
+                                    { value: '__add_new_supplier__', label: '+ Add New Supplier', isAddOption: true }
                                   ]}
                                   error={errors.supplier}
                                   disabled={suppliersLoading}
@@ -378,6 +373,7 @@ const CreatePurchaseOrder = () => {
                                   error={errors.expectedDeliveryDate}
                                   leftIcon={Calendar}
                                   placeholder="Select delivery date"
+                                  min={new Date().toISOString().split('T')[0]}
                                 />
                               </div>
 
@@ -687,10 +683,18 @@ const CreatePurchaseOrder = () => {
                                 <div className="md:col-span-7">
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Product *</label>
                                   <Select value={tempProduct}
-                                    onChange={(value) => setTempProduct(value)}
+                                    onChange={(value) => {
+                                      // Check if "Add New Product" option was selected
+                                      if (value === '__add_new_product__') {
+                                        router.push('/dashboard/products/add');
+                                        return;
+                                      }
+                                      setTempProduct(value);
+                                    }}
                                     options={[
                                       { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
-                                      ...products.filter(p => p.name || p.productName).map(p => ({ value: p.id || p._id, label: p.name || p.productName }))
+                                      ...products.filter(p => p.name || p.productName).map(p => ({ value: p.id || p._id, label: p.name || p.productName })),
+                                      { value: '__add_new_product__', label: '+ Add New Product', isAddOption: true }
                                     ]}
                                     error={errors.add_product}
                                     disabled={productsLoading}
@@ -810,6 +814,13 @@ const CreatePurchaseOrder = () => {
         </div>
       </div>
 
+      {/* Add Supplier Drawer */}
+      <AddSupplierDrawer
+        isOpen={showAddSupplierDrawer}
+        onClose={() => setShowAddSupplierDrawer(false)}
+        onSuccess={handleSupplierSuccess}
+      />
+
       {/* Save Draft Modal */}
       <Modal isOpen={showSaveDraftModal} onClose={() => setShowSaveDraftModal(false)}>
         <div className="p-6">
@@ -822,24 +833,8 @@ const CreatePurchaseOrder = () => {
         </div>
       </Modal>
 
-      {/* Success Modal */}
-      <Modal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} title="Purchase Order Created Successfully!">
-        <div className="p-6 text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(var(--color-success), 0.1)' }}>
-            <CheckCircle className="w-8 h-8" style={{ color: 'rgb(var(--color-success))' }} />
-          </div>
-          <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {createdPONumber} has been created successfully.
-            {createdPOId && (
-              <span className="block mt-2 text-sm" style={{ color: 'rgb(var(--color-primary))' }}>You can now view the purchase order details.</span>
-            )}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button variant="outline" onClick={handleContinue}>{createdPOId ? 'View Purchase Order' : 'View Purchase Orders'}</Button>
-            <Button onClick={handleAddMore} leftIcon={Plus}>Create Another</Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

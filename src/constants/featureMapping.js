@@ -23,11 +23,11 @@ export const FEATURE_ROUTES = {
   
   // Expense Management
   'expense_management': {
-    routes: ['/dashboard/expenses', '/dashboard/expenses/add', '/dashboard/expenses/reports'],
+    routes: ['/dashboard/expenses', '/dashboard/expenses/reports'],
     menuItems: ['Daily Expenses'],
     subMenuItems: ['All Expenses', 'Add New Expense', 'Expense Reports']
   },
-  
+
   // Customer Management
   'customer_management': {
     routes: ['/dashboard/customers', '/dashboard/customers/add', '/dashboard/customers/inactive'],
@@ -58,7 +58,7 @@ export const FEATURE_ROUTES = {
   
   // Supplier Management
   'supplier_management': {
-    routes: ['/dashboard/suppliers', '/dashboard/suppliers/add'],
+    routes: ['/dashboard/suppliers'],
     menuItems: ['Purchase'],
     subMenuItems: ['Suppliers']
   }

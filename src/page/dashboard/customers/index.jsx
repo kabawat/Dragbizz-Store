@@ -550,9 +550,11 @@ const CustomersPage = () => {
           setShowCustomerDrawer(false);
         }}
         title="Add New Customer"
+        icon={Users}
+        description="Add a new customer to your database"
         width="w-full md:w-2/3 lg:w-1/2"
       >
-        <div className="p-6 h-full">
+        <div className="p-3 sm:p-4 md:p-6 h-full">
           <CreateCustomer
             storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
             onSuccess={handleCustomerSuccess}
