@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getExpenses, deleteExpense, setViewMode, setSortOptions, toggleExpenseSelection, selectAllExpenses, deselectAllExpenses } from '@/store/slices/expensesSlice';
-import { ExpenseCard, ExpenseTable } from '@/components/expenses';
+import { ExpenseCard, ExpenseTable, AddExpenseDrawer } from '@/components/expenses';
 import { Button, Input, AnimatedBackground } from '@/components/ui';
 import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
@@ -24,6 +24,9 @@ const ExpensesPage = () => {
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedExpenseName, setDeletedExpenseName] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
+  
+  // Drawer state
+  const [showAddExpenseDrawer, setShowAddExpenseDrawer] = useState(false);
 
   // Load view mode from localStorage
   useEffect(() => {
@@ -71,7 +74,12 @@ const ExpensesPage = () => {
   };
 
   const handleAddExpense = () => {
-    router.push('/dashboard/expenses/add');
+    setShowAddExpenseDrawer(true);
+  };
+
+  const handleExpenseSuccess = async () => {
+    // Refresh expenses list after successful creation
+    await fetchExpenses();
   };
 
   const handleEditExpense = (expense) => {
@@ -332,6 +340,13 @@ const ExpensesPage = () => {
           </div>
         </div>
       )}
+
+      {/* Add Expense Drawer */}
+      <AddExpenseDrawer
+        isOpen={showAddExpenseDrawer}
+        onClose={() => setShowAddExpenseDrawer(false)}
+        onSuccess={handleExpenseSuccess}
+      />
     </div>
   );
 };

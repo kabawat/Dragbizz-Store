@@ -60,7 +60,7 @@ export const FEATURE_ROUTES = {
         menuItems: ['Customers'],
     },
     expense_management: {
-        routes: ['/dashboard/expenses', '/dashboard/expenses/add'],
+        routes: ['/dashboard/expenses'],
         menuItems: ['Daily Expenses'],
     },
     purchase_management: {
@@ -68,7 +68,7 @@ export const FEATURE_ROUTES = {
         menuItems: ['Purchase'],
     },
     supplier_management: {
-        routes: ['/dashboard/suppliers', '/dashboard/suppliers/add'],
+        routes: ['/dashboard/suppliers'],
         menuItems: ['Purchase'],
     },
     bill_management: {

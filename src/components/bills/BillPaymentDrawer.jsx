@@ -274,7 +274,14 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
     return (
         <>
-            <SideDrawer isOpen={isOpen && !showSuccessModal} onClose={handleCancel} title="Pay Bill" width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5" >
+            <SideDrawer 
+                isOpen={isOpen && !showSuccessModal} 
+                onClose={handleCancel} 
+                title="Pay Bill" 
+                icon={CreditCard}
+                description="Record payment for the selected bill"
+                width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5" 
+            >
                 <div className="flex flex-col h-full">
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -346,7 +353,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                                                 Amount *
@@ -556,11 +563,11 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="flex items-center justify-start gap-3 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] flex-shrink-0">
-                        <Button onClick={handleSubmit} variant="primary" disabled={loading} loading={loading} leftIcon={Save} size="sm" >
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] flex-shrink-0">
+                        <Button onClick={handleSubmit} variant="primary" disabled={loading} loading={loading} leftIcon={Save} size="sm" className="w-full sm:w-auto">
                             Save Payment
                         </Button>
-                        <Button onClick={handleCancel} variant="outline" disabled={loading} size="sm" >
+                        <Button onClick={handleCancel} variant="outline" disabled={loading} size="sm" className="w-full sm:w-auto">
                             Cancel
                         </Button>
                     </div>

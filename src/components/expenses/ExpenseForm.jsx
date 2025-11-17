@@ -1,22 +1,12 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
   Input,
   Select,
   Textarea,
   Loading,
   Alert
 } from '@/components/ui';
-import {
-  Calendar,
-  IndianRupee,
-  CreditCard,
-  Building,
-  FileText,
-  Save,
-  X
-} from 'lucide-react';
 import {
   EXPENSE_CATEGORIES,
   PAYMENT_METHODS,
@@ -29,7 +19,8 @@ const ExpenseForm = ({
   isLoading = false,
   error = null,
   expense = null,
-  formRef = null
+  formRef = null,
+  mode = 'page' // 'page' or 'drawer'
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -129,16 +120,16 @@ const ExpenseForm = ({
   };
 
   return (
-    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+    <div className={mode === 'drawer' ? '' : 'bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6'}>
       {error && (
         <Alert className="mb-6" variant="error">
           {error}
         </Alert>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
               Title *
@@ -166,7 +157,7 @@ const ExpenseForm = ({
         </div>
 
         {/* Date and Category */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
               Date *
@@ -215,7 +206,7 @@ const ExpenseForm = ({
         </div>
 
         {/* Payment Method and Vendor */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
               Payment Method *

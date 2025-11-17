@@ -210,9 +210,9 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Basic Information Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -223,7 +223,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Customer Name */}
           <Input
             type="text"
@@ -268,7 +268,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
       </div>
 
       {/* Company Details Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <Building2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -279,7 +279,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Company Name */}
           <Input
             type="text"
@@ -309,7 +309,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
       </div>
 
       {/* Addresses Section */}
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
+      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-lg flex items-center justify-center">
             <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -364,7 +364,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Address Line 1 */}
                 <Input
                   type="text"
@@ -443,7 +443,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Address Line 1 */}
                 <Input
                   type="text"

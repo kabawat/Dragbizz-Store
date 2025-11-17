@@ -28,26 +28,58 @@ export const extractFieldErrors = (errorResponse) => {
     errorFields = errorResponse.error.fields;
   }
 
-  if (!errorFields || typeof errorFields !== 'object') {
-    return fieldErrors;
+  // Field name mapping for common API field names to form field names
+  const fieldNameMap = {
+    'validation': 'phone', // API sends "validation" for phone validation errors
+    'phoneNumber': 'phone',
+    'emailAddress': 'email',
+    'supplierName': 'name',
+    'companyName': 'agency'
+  };
+
+  if (errorFields && typeof errorFields === 'object') {
+    // Convert field names from API format to form field format
+    // e.g., addresses[0].pincode -> addresses.0.pincode
+    Object.keys(errorFields).forEach((key) => {
+      // Convert array notation [0] to dot notation .0
+      const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
+      
+      // Map API field name to form field name
+      const formFieldName = fieldNameMap[convertedKey] || convertedKey;
+      
+      // Get error message (could be string or array)
+      const errorMessage = errorFields[key];
+      const message = Array.isArray(errorMessage) 
+        ? errorMessage[0] 
+        : errorMessage;
+
+      if (message) {
+        fieldErrors[formFieldName] = message;
+      }
+    });
   }
 
-  // Convert field names from API format to form field format
-  // e.g., addresses[0].pincode -> addresses.0.pincode
-  Object.keys(errorFields).forEach((key) => {
-    // Convert array notation [0] to dot notation .0
-    const convertedKey = key.replace(/\[(\d+)\]/g, '.$1');
-    
-    // Get error message (could be string or array)
-    const errorMessage = errorFields[key];
-    const message = Array.isArray(errorMessage) 
-      ? errorMessage[0] 
-      : errorMessage;
+  // Also check validationErrors array format
+  let validationErrors = null;
+  if (errorResponse?.data?.validationErrors) {
+    validationErrors = errorResponse.data.validationErrors;
+  } else if (errorResponse?.validationErrors) {
+    validationErrors = errorResponse.validationErrors;
+  } else if (errorResponse?.error?.data?.validationErrors) {
+    validationErrors = errorResponse.error.data.validationErrors;
+  }
 
-    if (message) {
-      fieldErrors[convertedKey] = message;
-    }
-  });
+  if (Array.isArray(validationErrors)) {
+    validationErrors.forEach((error) => {
+      if (error.field && error.message) {
+        // Skip "general" field - it will be handled separately
+        if (error.field !== 'general') {
+          const formFieldName = fieldNameMap[error.field] || error.field;
+          fieldErrors[formFieldName] = error.message;
+        }
+      }
+    });
+  }
 
   return fieldErrors;
 };

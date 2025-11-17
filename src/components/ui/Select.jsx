@@ -36,6 +36,10 @@ const Select = ({
     )
     : options;
 
+  // Separate regular options from add options
+  const regularOptions = filteredOptions.filter(option => !option.isAddOption);
+  const addOptions = filteredOptions.filter(option => option.isAddOption);
+
   // Get selected option(s)
   const selectedOption = multiple
     ? options.filter(option => value?.includes(option.value))
@@ -85,7 +89,7 @@ const Select = ({
         break;
       case 'Enter':
         e.preventDefault();
-        if (highlightedIndex >= 0) {
+        if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
           handleSelect(filteredOptions[highlightedIndex]);
         }
         break;
@@ -249,7 +253,7 @@ const Select = ({
               width: dropdownPosition.width,
               zIndex: 999999
             }}
-            className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden"
+            className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input */}
@@ -290,26 +294,80 @@ const Select = ({
             )}
 
             {/* Options List */}
-            <div
-              className="max-h-48 pb-4 overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option, index) => {
-                  const isSelected = multiple
-                    ? value?.includes(option.value)
-                    : value === option.value;
-                  const isHighlighted = index === highlightedIndex;
+            <div className="flex flex-col" style={{ maxHeight: '240px' }}>
+              {/* Scrollable Regular Options */}
+              <div
+                className="flex-1 overflow-y-auto min-h-0"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                {regularOptions.length > 0 ? (
+                  regularOptions.map((option, index) => {
+                    const isSelected = multiple
+                      ? value?.includes(option.value)
+                      : value === option.value;
+                    const isHighlighted = index === highlightedIndex;
 
-                  // Special styling for add option
-                  if (option.isAddOption) {
+                    return (
+                      <div
+                        key={option.value || `option-${index}`}
+                        className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${(isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
+                          } hover:bg-blue-500 hover:bg-opacity-10`}
+                        style={{
+                          backgroundColor: (isHighlighted || isSelected)
+                            ? 'rgba(59, 130, 246, 0.1)'
+                            : 'transparent'
+                        }}
+                        onClick={() => handleSelect(option)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        onMouseLeave={() => setHighlightedIndex(-1)}
+                      >
+                        <span
+                          className={(isHighlighted || isSelected) ? 'font-medium text-blue-500' : 'text-gray-900 dark:text-white'}
+                          style={{ color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit' }}
+                        >
+                          {option.label}
+                        </span>
+                        {(isHighlighted || isSelected) && (
+                          <Check className="w-4 h-4 text-blue-500" />
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div
+                    className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center"
+                    style={{ color: 'rgb(var(--color-text-secondary))' }}
+                  >
+                    No options found
+                  </div>
+                )}
+              </div>
+
+              {/* Fixed Add Options at Bottom */}
+              {addOptions.length > 0 && (
+                <div
+                  className="flex-shrink-0 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] sticky bottom-0 z-10"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  {addOptions.map((option, index) => {
+                    const addOptionIndex = regularOptions.length + index;
+                    const isHighlighted = addOptionIndex === highlightedIndex;
+                    
                     return (
                       <div
                         key={option.value || `add-option-${index}`}
-                        className="px-4 py-2 cursor-pointer  transition-colors duration-150 border-t border-[rgb(var(--color-border-primary))]"
+                        className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${
+                          isHighlighted ? 'bg-blue-500 bg-opacity-10' : ''
+                        } hover:bg-blue-500 hover:bg-opacity-10`}
+                        style={{
+                          backgroundColor: isHighlighted
+                            ? 'rgba(59, 130, 246, 0.1)'
+                            : 'transparent'
+                        }}
                         onClick={() => handleSelect(option)}
-                        onMouseEnter={() => setHighlightedIndex(index)}
+                        onMouseEnter={() => setHighlightedIndex(addOptionIndex)}
                         onMouseLeave={() => setHighlightedIndex(-1)}
                       >
                         <span className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] font-medium text-sm" style={{ color: 'rgb(var(--color-primary))' }} >
@@ -317,40 +375,7 @@ const Select = ({
                         </span>
                       </div>
                     );
-                  }
-
-                  return (
-                    <div
-                      key={option.value || `option-${index}`}
-                      className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${(isHighlighted || isSelected) ? 'bg-blue-500 bg-opacity-10' : ''
-                        } hover:bg-blue-500 hover:bg-opacity-10`}
-                      style={{
-                        backgroundColor: (isHighlighted || isSelected)
-                          ? 'rgba(59, 130, 246, 0.1)'
-                          : 'transparent'
-                      }}
-                      onClick={() => handleSelect(option)}
-                      onMouseEnter={() => setHighlightedIndex(index)}
-                      onMouseLeave={() => setHighlightedIndex(-1)}
-                    >
-                      <span
-                        className={(isHighlighted || isSelected) ? 'font-medium text-blue-500' : 'text-gray-900 dark:text-white'}
-                        style={{ color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit' }}
-                      >
-                        {option.label}
-                      </span>
-                      {(isHighlighted || isSelected) && (
-                        <Check className="w-4 h-4 text-blue-500" />
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div
-                  className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center"
-                  style={{ color: 'rgb(var(--color-text-secondary))' }}
-                >
-                  No options found
+                  })}
                 </div>
               )}
             </div>

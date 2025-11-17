@@ -16,7 +16,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { SupplierTable, SupplierCard } from '@/components/supplier';
+import { SupplierTable, SupplierCard, AddSupplierDrawer } from '@/components/supplier';
 
 const SuppliersPage = () => {
   const router = useRouter();
@@ -67,6 +67,9 @@ const SuppliersPage = () => {
   const scrollRef = useRef(null);
   const menuRefs = useRef({});
   const lastFetchRef = useRef(null);
+  
+  // Drawer state
+  const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -142,7 +145,20 @@ const SuppliersPage = () => {
   };
 
   const handleAddSupplier = () => {
-    router.push('/dashboard/suppliers/add');
+    setShowAddSupplierDrawer(true);
+  };
+
+  const handleSupplierSuccess = async () => {
+    // Refresh suppliers list after successful creation
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const params = {
+      store: storeId,
+      search: searchValue,
+      limit: 10,
+      nextCursor: null,
+      isFreshLoad: true
+    };
+    await dispatch(getSuppliers(params));
   };
 
   const handleEditSupplier = (supplierId) => {
@@ -536,6 +552,13 @@ const SuppliersPage = () => {
           </div>
         </div>
       )}
+
+      {/* Add Supplier Drawer */}
+      <AddSupplierDrawer
+        isOpen={showAddSupplierDrawer}
+        onClose={() => setShowAddSupplierDrawer(false)}
+        onSuccess={handleSupplierSuccess}
+      />
     </div>
   );
 };
