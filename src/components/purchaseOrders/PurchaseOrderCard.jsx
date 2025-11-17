@@ -28,6 +28,20 @@ const PurchaseOrderCard = ({
 }) => {
   const statusBadge = getStatusBadge(purchaseOrder);
   const StatusIcon = statusBadge.icon;
+  
+  // Check if advance payment has been made
+  const advanceAmount = purchaseOrder.advanceAmount ?? purchaseOrder.paidAmount ?? 0;
+  const hasAdvancePayments = (purchaseOrder.payments || []).some(
+    payment => payment.paymentType === 'ADVANCE_PAYMENT'
+  );
+  const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
+  
+  // Build actions array conditionally
+  const actions = ['view'];
+  if (!hasAdvancePayment) {
+    actions.push('advancePayment');
+  }
+  actions.push('createBill', 'edit', 'delete');
 
   return (
     <div
@@ -61,7 +75,7 @@ const PurchaseOrderCard = ({
             isOpen={openMenuId === (purchaseOrder._id || purchaseOrder.id)}
             onToggle={onMenuToggle}
             menuRef={(el) => menuRefs.current[purchaseOrder._id || purchaseOrder.id] = el}
-            actions={['view', 'advancePayment', 'createBill', 'edit', 'delete']}
+            actions={actions}
             buttonClassName="bg-white/90 hover:bg-white shadow-sm"
           />
         </div>

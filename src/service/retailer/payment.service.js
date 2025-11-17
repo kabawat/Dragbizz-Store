@@ -69,6 +69,11 @@ class PaymentService {
       apiPayload.bill = formData.billId;
     }
 
+    // Add purchaseOrder ID for ADVANCE_PAYMENT type (required by schema)
+    if (formData.paymentType === 'ADVANCE_PAYMENT' && formData.purchaseOrder) {
+      apiPayload.purchaseOrder = formData.purchaseOrder;
+    }
+
     return apiPayload;
   }
 

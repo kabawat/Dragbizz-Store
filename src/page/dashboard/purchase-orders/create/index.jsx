@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/useToast';
 import Link from 'next/link';
 
 const PAYMENT_METHODS = [
+  { value: 'CASH', label: 'Cash' },
   { value: 'UPI', label: 'UPI' },
   { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
   { value: 'CHEQUE', label: 'Cheque' }
@@ -53,7 +54,7 @@ const CreatePurchaseOrder = () => {
 
   const [formData, setFormData] = useState(formInit);
   const [errors, setErrors] = useState({});
-  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDetails, setPaymentDetails] = useState({});
