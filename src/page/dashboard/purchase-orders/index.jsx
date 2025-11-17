@@ -22,6 +22,7 @@ import { Button, Input } from '@/components/ui';
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
 import PurchaseOrderGrid from '@/components/purchaseOrders/PurchaseOrderGrid';
 import CreateBillDrawer from '@/components/purchaseOrders/CreateBillDrawer';
+import AdvancePaymentDrawer from '@/components/purchaseOrders/AdvancePaymentDrawer';
 import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
 
 const PurchaseOrders = () => {
@@ -47,6 +48,10 @@ const PurchaseOrders = () => {
   // Create Bill Drawer state
   const [showCreateBillDrawer, setShowCreateBillDrawer] = useState(false);
   const [selectedPOForBill, setSelectedPOForBill] = useState(null);
+  
+  // Advance Payment Drawer state
+  const [showAdvancePaymentDrawer, setShowAdvancePaymentDrawer] = useState(false);
+  const [selectedPOForPayment, setSelectedPOForPayment] = useState(null);
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -114,8 +119,10 @@ const PurchaseOrders = () => {
         setOpenMenuId(null);
         break;
       case 'advancePayment':
-        // Handle advance payment functionality
-        // TODO: Implement advance payment modal or redirect
+        // Open advance payment drawer with purchase order data
+        setSelectedPOForPayment(po);
+        setShowAdvancePaymentDrawer(true);
+        setOpenMenuId(null);
         break;
       case 'delete':
         handleDelete(po);
@@ -479,6 +486,24 @@ const PurchaseOrders = () => {
           // Handle successful bill creation
           console.log('Bill created successfully:', bill);
           // You can add toast notification or refresh data here
+        }}
+      />
+
+      <AdvancePaymentDrawer
+        isOpen={showAdvancePaymentDrawer}
+        onClose={() => {
+          setShowAdvancePaymentDrawer(false);
+          setSelectedPOForPayment(null);
+        }}
+        purchaseOrder={selectedPOForPayment}
+        onSuccess={() => {
+          // Handle successful advance payment creation
+          console.log('Advance payment created successfully');
+          // Refresh purchase orders list
+          const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+          if (storeId) {
+            dispatch(getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null }));
+          }
         }}
       />
     </div>

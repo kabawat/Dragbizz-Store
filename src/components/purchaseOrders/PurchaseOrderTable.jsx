@@ -157,6 +157,13 @@ const PurchaseOrderTable = ({
                             const statusBadge = getStatusBadge(row);
                             const StatusIcon = statusBadge.icon;
                             const isSelected = selectedBills.includes(row._id || row.id);
+                            
+                            // Check if advance payment has been made
+                            const advanceAmount = row.advanceAmount ?? row.paidAmount ?? 0;
+                            const hasAdvancePayments = (row.payments || []).some(
+                                payment => payment.paymentType === 'ADVANCE_PAYMENT'
+                            );
+                            const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
 
                             return (
                                 <tr
@@ -268,13 +275,15 @@ const PurchaseOrderTable = ({
                                                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                                             View Details
                                                         </button>
-                                                        <button
-                                                            onClick={() => onMenuAction(row._id || row.id, 'advancePayment')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                                                        >
-                                                            <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                            Advance Payment
-                                                        </button>
+                                                        {!hasAdvancePayment && (
+                                                            <button
+                                                                onClick={() => onMenuAction(row._id || row.id, 'advancePayment')}
+                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                                            >
+                                                                <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                                                Advance Payment
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'createBill')}
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"

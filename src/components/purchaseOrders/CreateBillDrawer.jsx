@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { X, Receipt, Building2, Package, IndianRupee, Calendar, Save, Plus, Minus } from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, AddActionButton } from '@/components/ui';
+import { Receipt, Building2, Package, IndianRupee, Calendar, Save, Plus, Minus } from 'lucide-react';
+import { Button, Input, Select, Textarea, Card, AddActionButton, SideDrawer } from '@/components/ui';
 import { productService, billService } from '@/service/retailer';
 import { useAppSelector } from '@/store/hooks';
 
@@ -26,24 +26,6 @@ const CreateBillDrawer = ({
     const [productsLoading, setProductsLoading] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [errors, setErrors] = useState({});
-    // Handle escape key and body scroll lock
-    useEffect(() => {
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'hidden';
-        }
-
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'unset';
-        };
-    }, [isOpen, onClose]);
 
     // Initialize form data when purchase order changes
     useEffect(() => {
@@ -205,35 +187,23 @@ const CreateBillDrawer = ({
     if (!isOpen || !purchaseOrder) return null;
 
     return (
-        <>
-            {/* Backdrop with glass effect */}
-            <div className="fixed inset-0 backdrop-blur-[1px] z-[9998] transition-opacity duration-300"/>
-
-            {/* Drawer */}
-            <div className="fixed right-0 top-0 h-full w-full xl:w-1/2 bg-[rgb(var(--color-bg-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out">
+        <SideDrawer
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Create Bill"
+            icon={Receipt}
+            description={`From Purchase Order #${purchaseOrder.poNumber}`}
+            width="w-full md:w-2/3 lg:w-1/2"
+        >
+            <div className="p-3 sm:p-4 md:p-6 h-full">
                 <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-[rgb(var(--color-border-primary))]">
-                        <div>
-                            <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">
-                                Create Bill
-                            </h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                From Purchase Order #{purchaseOrder.poNumber}
-                            </p>
-                        </div>
-                        <button onClick={onClose} className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                            <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
-                        </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Main Content Area */}
+                    <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0 pb-4">
+                        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" id="create-bill-form">
                             {/* Purchase Order Info and Supplier Info - Side by Side */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Purchase Order Info */}
-                                <Card className="p-4 shadow-none">
+                                <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                                         <Receipt className="w-5 h-5 mr-2" />
                                         Purchase Order Details
@@ -255,7 +225,7 @@ const CreateBillDrawer = ({
                                 </Card>
 
                                 {/* Supplier Info */}
-                                <Card className="p-4 shadow-none">
+                                <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                                         <Building2 className="w-5 h-5 mr-2" />
                                         Supplier Information
@@ -278,7 +248,7 @@ const CreateBillDrawer = ({
                             </div>
 
                             {/* Bill Details */}
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Input label="Bill Date" size="sm" type="date" value={formData.billDate} onChange={(value) => handleInputChange('billDate', value)} leftIcon={Calendar} />
                                 </div>
@@ -408,21 +378,38 @@ const CreateBillDrawer = ({
                                     <p className="text-sm text-red-600 dark:text-red-400">{errors.submit}</p>
                                 </div>
                             )}
-
-                            {/* Actions */}
-                            <div className="flex justify-start gap-3 pt-4">
-                                <Button type="button" variant="outline" onClick={onClose} >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" variant="primary" disabled={isCreating} leftIcon={Save} >
-                                    {isCreating ? 'Creating...' : 'Create Bill'}
-                                </Button>
-                            </div>
                         </form>
+                    </div>
+
+                    {/* Footer - Action Buttons */}
+                    <div className="flex-shrink-0 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3">
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                const form = document.getElementById('create-bill-form');
+                                if (form) form.requestSubmit();
+                            }}
+                            disabled={isCreating}
+                            loading={isCreating}
+                            leftIcon={Save}
+                            className="w-full sm:w-auto"
+                            size="sm"
+                        >
+                            Create Bill
+                        </Button>
+                        <Button 
+                            variant="outline" 
+                            onClick={onClose}
+                            disabled={isCreating}
+                            className="w-full sm:w-auto"
+                            size="sm"
+                        >
+                            Cancel
+                        </Button>
                     </div>
                 </div>
             </div>
-        </>
+        </SideDrawer>
     );
 };
 
