@@ -22,7 +22,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  ChevronRight as ChevronRightIcon,
   AlertTriangle,
   Crown
 } from 'lucide-react';
@@ -38,10 +37,8 @@ const Sidebar = ({ onStoreChange }) => {
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [upgradeModal, setUpgradeModal] = useState({ isOpen: false, featureName: '', requiredFeature: '' });
-  const [openDropdowns, setOpenDropdowns] = useState({});
   
-  // Refs for dropdowns - will be initialized after navigationItems is defined
-  const dropdownRefs = useRef({});
+  // Refs
   const storeDropdownRef = useRef(null);
 
   // Menu item configurations - Grouped by category, removed "create/add" items
@@ -73,13 +70,6 @@ const Sidebar = ({ onStoreChange }) => {
     { name: 'Inventory', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: inventorySubMenuItems, key: 'inventory' },
     { name: 'Purchase', icon: ShoppingCart, href: '/dashboard/purchase-orders', hasSubMenu: true, subMenuItems: purchaseSubMenuItems, key: 'purchase' },
   ];
-
-  // Initialize refs for dropdowns
-  navigationItems.forEach(item => {
-    if (item.key && !dropdownRefs.current[item.key]) {
-      dropdownRefs.current[item.key] = React.createRef();
-    }
-  });
 
   const bottomItems = [
     { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
@@ -156,34 +146,6 @@ const Sidebar = ({ onStoreChange }) => {
     });
   };
 
-  // Unified dropdown toggle function
-  const toggleDropdown = (key, e) => {
-    if (e) e.stopPropagation();
-    setOpenDropdowns(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  // Check if dropdown should be open based on pathname
-  const shouldDropdownBeOpen = (item) => {
-    if (!item.hasSubMenu || !item.subMenuItems) return false;
-    return item.subMenuItems.some(subItem => pathname === subItem.href || pathname.startsWith(subItem.href + '/'));
-  };
-
-  // Auto-open dropdowns when pathname matches
-  useEffect(() => {
-    const newOpenDropdowns = {};
-    navigationItems.forEach(item => {
-      if (item.key && shouldDropdownBeOpen(item)) {
-        newOpenDropdowns[item.key] = true;
-      }
-    });
-    if (Object.keys(newOpenDropdowns).length > 0) {
-      setOpenDropdowns(prev => ({ ...prev, ...newOpenDropdowns }));
-    }
-  }, [pathname]);
-
   // Handle menu item click - check access and show upgrade modal if needed
   const handleMenuItemClick = (item, e) => {
     if (!hasMenuItemAccess(item.name)) {
@@ -248,24 +210,15 @@ const Sidebar = ({ onStoreChange }) => {
     setIsStoreDropdownOpen(false);
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (only for store dropdown)
   useEffect(() => {
     const handleClickOutside = (event) => {
       const isDropdownToggle = event.target.closest('button[data-dropdown-toggle]');
       if (isDropdownToggle) return;
 
-      // Close store dropdown
       if (storeDropdownRef.current && !storeDropdownRef.current.contains(event.target)) {
         setIsStoreDropdownOpen(false);
       }
-
-      // Close all menu dropdowns
-      Object.keys(dropdownRefs.current).forEach(key => {
-        const ref = dropdownRefs.current[key]?.current;
-        if (ref && !ref.contains(event.target)) {
-          setOpenDropdowns(prev => ({ ...prev, [key]: false }));
-        }
-      });
     };
 
     const timeoutId = setTimeout(() => {
@@ -277,11 +230,9 @@ const Sidebar = ({ onStoreChange }) => {
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
-
-  // Close all dropdowns when sidebar is collapsed
+  
   useEffect(() => {
     if (isCollapsed) {
-      setOpenDropdowns({});
       setIsStoreDropdownOpen(false);
     }
   }, [isCollapsed]);
@@ -398,47 +349,33 @@ const Sidebar = ({ onStoreChange }) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.hasSubMenu && pathname.startsWith(item.href));
             const hasAccess = hasMenuItemAccess(item.name);
-            const isDropdownOpen = item.key ? openDropdowns[item.key] : false;
+            const isDropdownOpen = item.hasSubMenu && !isCollapsed;
 
             if (item.hasSubMenu && item.key) {
               return (
-                <div key={item.name} className="relative" ref={dropdownRefs.current[item.key]}>
-                  <button
-                    onClick={(e) => {
-                      if (!handleMenuItemClick(item, e)) return;
-                      toggleDropdown(item.key, e);
-                    }}
-                    data-dropdown-toggle
-                    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer ${
-                      isActive
-                        ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
-                        : hasAccess 
-                          ? 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          : 'text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))]'
+                <div key={item.name} className="relative">
+                  <div
+                    className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between px-2'} py-2 ${
+                      hasAccess ? 'text-[rgb(var(--color-text-secondary))]' : 'text-[rgb(var(--color-text-tertiary))] opacity-60'
                     }`}
                     title={isCollapsed ? item.name : ''}
                   >
-                    <div className="flex items-center space-x-3">
-                      <Icon className={`w-5 h-5 transition-all duration-300 ${
-                        isActive ? 'text-[rgb(var(--color-primary))]' : hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : 'text-[rgb(var(--color-text-tertiary))] opacity-60'
-                      }`} />
-                      {!isCollapsed && (
-                        <span className={`font-medium ${!hasAccess ? 'text-[rgb(var(--color-text-tertiary))]' : ''}`}>
+                    {!isCollapsed ? (
+                      <div className="flex items-center space-x-3 text-[rgb(var(--color-text-secondary))]">
+                        <Icon className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                        <span className="font-semibold tracking-wide uppercase text-xs">
                           {item.name}
                         </span>
-                      )}
-                    </div>
-                    {!isCollapsed && (
+                      </div>
+                    ) : (
+                      <Icon className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                    )}
+                    {!isCollapsed && !hasAccess && (
                       <div className="flex items-center space-x-1">
-                        {!hasAccess && <Crown className="w-3.5 h-3.5 text-yellow-500" />}
-                        <ChevronRightIcon
-                          className={`w-4 h-4 transition-all duration-300 ${
-                            isDropdownOpen ? 'rotate-90' : ''
-                          } ${isActive ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`}
-                        />
+                        <Crown className="w-3.5 h-3.5 text-yellow-500" />
                       </div>
                     )}
-                  </button>
+                  </div>
 
                   {/* Sub-menu */}
                   {isDropdownOpen && !isCollapsed && item.subMenuItems && (
@@ -488,7 +425,7 @@ const Sidebar = ({ onStoreChange }) => {
                       e.preventDefault();
                     }
                   }}
-                  className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-2'} px-2 py-1.5 rounded-lg transition-all duration-300 cursor-pointer ${
+                  className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'space-x-2 px-2'} py-1.5 rounded-lg transition-all duration-300 cursor-pointer ${
                     isActive
                       ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]'
                       : hasAccess
