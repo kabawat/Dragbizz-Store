@@ -38,7 +38,7 @@ class AuthService {
         useOtp: credentials.useOtp || false,
         deviceId: credentials.deviceId || 'web_device_' + Date.now(),
         platform: credentials.platform || 'web',
-        token: credentials.deviceToken || '',
+        deviceToken: credentials.deviceToken || '',
         location: credentials.location || '0,0'
       };
 
@@ -58,7 +58,7 @@ class AuthService {
         useOtp: true,
         deviceId: credentials.deviceId || 'web_device_' + Date.now(),
         platform: credentials.platform || 'web',
-        token: credentials.deviceToken || '',
+        deviceToken: credentials.deviceToken || '',
         location: credentials.location || '0,0'
       };
       const response = await unauthAxios.post(API_CONFIG.AUTH.LOGIN, loginData);

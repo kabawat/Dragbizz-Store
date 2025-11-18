@@ -284,7 +284,6 @@ export default function Login() {
       };
 
       const result = await authService.verifyLoginOTP(verifyData);
-      setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
       if (result.success) {
         if (result.data.token) {
           // Set success data and show success screen
