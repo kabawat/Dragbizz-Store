@@ -39,6 +39,7 @@ const API_CONFIG = {
     BILL: '/retailer/supplier-account/bills',
     INVOICE: '/retailer/invoices',
     EXPENSE: '/retailer/expense',
+    DASHBOARD: '/retailer/dashboard',
   },
   
   // Subscription Service Endpoints
