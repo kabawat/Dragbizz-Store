@@ -1,0 +1,16 @@
+import React from 'react';
+
+import ViewPurchaseOrderPage from '@/page/view/purchase-order'
+export const metadata = {
+    title: 'Purchase Order | DragBizz',
+    description: 'View shared purchase order details.'
+};
+
+export default function PublicPurchaseOrderView({ params }) {
+    const publicId = params?.publicId;
+
+    return <ViewPurchaseOrderPage purchaseOrderId={publicId} />;
+}
+
+
+
