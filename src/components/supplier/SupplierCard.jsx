@@ -245,6 +245,27 @@ const SupplierCard = ({
               {new Date(supplier.createdAt || Date.now()).toLocaleDateString()}
             </span>
           </div>
+          
+          {/* Account Summary */}
+          {supplier.account && (
+            <>
+              <div className="border-t border-[rgb(var(--color-border-primary))] pt-2 mt-2"></div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>Total Paid</span>
+                  <span className="text-sm font-semibold text-green-600">
+                    ₹{(supplier.account?.totalPaid || 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>Total Due</span>
+                  <span className="text-sm font-semibold text-red-600">
+                    ₹{(supplier.account?.totalDue || supplier.account?.dueAmount || 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Last Updated */}
