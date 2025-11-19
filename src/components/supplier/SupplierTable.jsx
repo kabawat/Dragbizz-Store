@@ -231,11 +231,11 @@ const SupplierTable = ({
                 {/* Account Column */}
                 <td className="px-6 py-4">
                   <div className="space-y-1">
-                    <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                      ₹{supplier.account?.totalPurchases?.toLocaleString() || '0'}
+                    <div className="text-sm font-semibold text-green-600">
+                      Paid: ₹{supplier.account?.totalPaid?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                      Due: ₹{supplier.account?.dueAmount?.toLocaleString() || '0'}
+                    <div className="text-sm font-semibold text-red-600">
+                      Due: ₹{supplier.account?.totalDue?.toLocaleString() || supplier.account?.dueAmount?.toLocaleString() || '0'}
                     </div>
                   </div>
                 </td>

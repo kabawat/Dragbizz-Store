@@ -16,7 +16,8 @@ import {
   Calendar,
   AlertCircle,
   ArrowLeft,
-  Trash2
+  Trash2,
+  MapPin
 } from 'lucide-react';
 import { Button, Input, Select, Textarea, Card, Modal, Toggle, AddActionButton, ToastContainer } from '@/components/ui';
 import { AddSupplierDrawer } from '@/components/supplier';
@@ -30,6 +31,17 @@ const PAYMENT_METHODS = [
   { value: 'CHEQUE', label: 'Cheque' }
 ];
 
+const ADDRESS_INIT = {
+  addressLine1: '',
+  addressLine2: '',
+  city: '',
+  state: '',
+  pincode: '',
+  country: 'India',
+  phone: '',
+  sameAsStore: false
+};
+
 const formInit = {
   supplier: '',
   expectedDeliveryDate: '',
@@ -37,7 +49,9 @@ const formInit = {
   reference: '',
   note: '',
   products: [],
-  payment: []
+  payment: [],
+  billingAddress: null,
+  shippingAddress: null
 }
 
 const CreatePurchaseOrder = () => {
@@ -60,6 +74,8 @@ const CreatePurchaseOrder = () => {
   const [paymentDetails, setPaymentDetails] = useState({});
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
+  const [showBillingAddress, setShowBillingAddress] = useState(false);
+  const [showShippingAddress, setShowShippingAddress] = useState(false);
   const [tempProduct, setTempProduct] = useState('');
   const [tempQuantity, setTempQuantity] = useState(1);
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
@@ -108,8 +124,15 @@ const CreatePurchaseOrder = () => {
     fetchProducts();
   }, [selectedStore]);
 
+  useEffect(() => {
+    setShowBillingAddress(!!formData.billingAddress);
+  }, [formData.billingAddress]);
+
+  useEffect(() => {
+    setShowShippingAddress(!!formData.shippingAddress);
+  }, [formData.shippingAddress]);
+
   const handleInputChange = (field, value) => {
-    // Check if "Add New Supplier" option was selected
     if (field === 'supplier' && value === '__add_new_supplier__') {
       setShowAddSupplierDrawer(true);
       return;
@@ -132,6 +155,94 @@ const CreatePurchaseOrder = () => {
         supplier: newSupplier.id || newSupplier._id 
       }));
     }
+  };
+
+  const buildStoreAddressPayload = () => {
+    const address = selectedStore?.address || {};
+    return {
+      addressLine1: address.line1 || address.addressLine1 || '',
+      addressLine2: address.line2 || address.addressLine2 || '',
+      city: address.city || '',
+      state: address.state || '',
+      pincode: address.pincode || '',
+      country: address.country || 'India',
+      phone: selectedStore?.phone || ''
+    };
+  };
+
+  const hasStoreAddress = Boolean(
+    selectedStore?.address &&
+    (selectedStore.address.line1 ||
+      selectedStore.address.addressLine1 ||
+      selectedStore.address.city ||
+      selectedStore.address.state ||
+      selectedStore.address.pincode)
+  );
+
+  const addAddress = (type) => {
+    const key = type === 'billing' ? 'billingAddress' : 'shippingAddress';
+    const setShow = type === 'billing' ? setShowBillingAddress : setShowShippingAddress;
+    setShow(true);
+    setFormData(prev => ({
+      ...prev,
+      [key]: prev[key] ? { ...prev[key] } : { ...ADDRESS_INIT }
+    }));
+  };
+
+  const removeAddress = (type) => {
+    const key = type === 'billing' ? 'billingAddress' : 'shippingAddress';
+    const setShow = type === 'billing' ? setShowBillingAddress : setShowShippingAddress;
+    setShow(false);
+    setFormData(prev => ({
+      ...prev,
+      [key]: null
+    }));
+  };
+
+  const handleAddressFieldChange = (type, field, value) => {
+    const key = type === 'billing' ? 'billingAddress' : 'shippingAddress';
+    setFormData(prev => {
+      const current = prev[key] ? { ...prev[key] } : { ...ADDRESS_INIT };
+      return {
+        ...prev,
+        [key]: {
+          ...current,
+          [field]: value
+        }
+      };
+    });
+  };
+
+  const handleSameAsStoreToggle = (type, checked) => {
+    if (checked && !hasStoreAddress) {
+      return;
+    }
+    const key = type === 'billing' ? 'billingAddress' : 'shippingAddress';
+    const setShow = type === 'billing' ? setShowBillingAddress : setShowShippingAddress;
+    setShow(true);
+
+    setFormData(prev => {
+      const current = prev[key] ? { ...prev[key] } : { ...ADDRESS_INIT };
+      if (checked) {
+        const storeAddress = buildStoreAddressPayload();
+        return {
+          ...prev,
+          [key]: {
+            ...current,
+            ...storeAddress,
+            sameAsStore: true
+          }
+        };
+      }
+
+      return {
+        ...prev,
+        [key]: {
+          ...current,
+          sameAsStore: false
+        }
+      };
+    });
   };
 
 
@@ -224,6 +335,21 @@ const CreatePurchaseOrder = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const formatAddressPayload = (address) => {
+    if (!address) return undefined;
+    const payload = {};
+    const fields = ['label', 'name', 'phone', 'addressLine1', 'addressLine2', 'city', 'state', 'pincode', 'country', 'sameAsStore'];
+    fields.forEach((field) => {
+      if (address[field]) {
+        payload[field] = address[field];
+      }
+    });
+    if (payload.addressLine1 && !payload.address) {
+      payload.address = payload.addressLine1;
+    }
+    return Object.keys(payload).length > 0 ? payload : undefined;
+  };
+
   const handleSubmit = async (isDraft = false) => {
     if (!validateForm() && !isDraft) return;
     try {
@@ -243,6 +369,16 @@ const CreatePurchaseOrder = () => {
         note: formData.note || undefined,
         expectedDeliveryDate: formData.expectedDeliveryDate || undefined
       };
+
+      const billingPayload = formatAddressPayload(formData.billingAddress);
+      if (billingPayload) {
+        poPayload.billingAddress = billingPayload;
+      }
+
+      const shippingPayload = formatAddressPayload(formData.shippingAddress);
+      if (shippingPayload) {
+        poPayload.deliveryAddress = shippingPayload;
+      }
 
       const result = await purchaseOrderService.createPurchaseOrder(poPayload);
       if (result.success) {
@@ -403,6 +539,226 @@ const CreatePurchaseOrder = () => {
                               />
                               {formData.note && (
                                 <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">{formData.note.length}/500 characters</div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* Address Details Card */}
+                        <Card>
+                          <div className="p-5">
+                            <div className="flex items-center mb-6">
+                              <div className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                                <MapPin className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Billing & Shipping Addresses</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add billing and shipping information for this order</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-6">
+                              <div className="flex flex-wrap gap-3">
+                                {!showBillingAddress && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => addAddress('billing')}
+                                    leftIcon={Plus}
+                                  >
+                                    Add Billing Address
+                                  </Button>
+                                )}
+                                {!showShippingAddress && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => addAddress('shipping')}
+                                    leftIcon={Plus}
+                                  >
+                                    Add Shipping Address
+                                  </Button>
+                                )}
+                              </div>
+
+                              {showBillingAddress && (
+                                <div className="border border-[rgb(var(--color-border-primary))]/40 rounded-lg p-4 space-y-4">
+                                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                    <div className="flex items-center">
+                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">Billing Address</h3>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                      <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
+                                        <span>Same as store address</span>
+                                        <Toggle
+                                          size="sm"
+                                          checked={!!formData.billingAddress?.sameAsStore}
+                                          onChange={(value) => handleSameAsStoreToggle('billing', value)}
+                                          disabled={!hasStoreAddress}
+                                        />
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeAddress('billing')}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                      type="text"
+                                      label="Address Line 1"
+                                      placeholder="Enter address line 1"
+                                      value={formData.billingAddress?.addressLine1 || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'addressLine1', value)}
+                                      className="md:col-span-2"
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Address Line 2"
+                                      placeholder="Apartment, suite, etc."
+                                      value={formData.billingAddress?.addressLine2 || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'addressLine2', value)}
+                                      className="md:col-span-2"
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="City"
+                                      placeholder="Enter city"
+                                      value={formData.billingAddress?.city || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'city', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="State"
+                                      placeholder="Enter state"
+                                      value={formData.billingAddress?.state || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'state', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Pincode"
+                                      placeholder="Enter pincode"
+                                      value={formData.billingAddress?.pincode || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'pincode', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Country"
+                                      placeholder="Enter country"
+                                      value={formData.billingAddress?.country || 'India'}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'country', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Phone Number"
+                                      placeholder="Contact number"
+                                      value={formData.billingAddress?.phone || ''}
+                                      onChange={(value) => handleAddressFieldChange('billing', 'phone', value)}
+                                      size="sm"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+
+                              {showShippingAddress && (
+                                <div className="border border-[rgb(var(--color-border-primary))]/40 rounded-lg p-4 space-y-4">
+                                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                    <div className="flex items-center">
+                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">Shipping Address</h3>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                      <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
+                                        <span>Same as store address</span>
+                                        <Toggle
+                                          size="sm"
+                                          checked={!!formData.shippingAddress?.sameAsStore}
+                                          onChange={(value) => handleSameAsStoreToggle('shipping', value)}
+                                          disabled={!hasStoreAddress}
+                                        />
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeAddress('shipping')}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                      type="text"
+                                      label="Address Line 1"
+                                      placeholder="Enter address line 1"
+                                      value={formData.shippingAddress?.addressLine1 || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'addressLine1', value)}
+                                      className="md:col-span-2"
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Address Line 2"
+                                      placeholder="Apartment, suite, etc."
+                                      value={formData.shippingAddress?.addressLine2 || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'addressLine2', value)}
+                                      className="md:col-span-2"
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="City"
+                                      placeholder="Enter city"
+                                      value={formData.shippingAddress?.city || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'city', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="State"
+                                      placeholder="Enter state"
+                                      value={formData.shippingAddress?.state || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'state', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Pincode"
+                                      placeholder="Enter pincode"
+                                      value={formData.shippingAddress?.pincode || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'pincode', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Country"
+                                      placeholder="Enter country"
+                                      value={formData.shippingAddress?.country || 'India'}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'country', value)}
+                                      size="sm"
+                                    />
+                                    <Input
+                                      type="text"
+                                      label="Phone Number"
+                                      placeholder="Contact number"
+                                      value={formData.shippingAddress?.phone || ''}
+                                      onChange={(value) => handleAddressFieldChange('shipping', 'phone', value)}
+                                      size="sm"
+                                    />
+                                  </div>
+                                </div>
                               )}
                             </div>
                           </div>
