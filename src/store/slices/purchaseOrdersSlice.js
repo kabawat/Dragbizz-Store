@@ -40,7 +40,14 @@ export const deletePurchaseOrder = createAsyncThunk(
     try {
       const result = await purchaseOrderService.deletePurchaseOrder(id, store);
       if (result?.success) {
-        return { id };
+        const payload = result?.data || {};
+        return { 
+          id, 
+          jobId: payload.jobId, 
+          poNumber: payload.poNumber, 
+          status: payload.status, 
+          message: result?.message 
+        };
       }
       return rejectWithValue(result?.message || 'Failed to delete');
     } catch (e) {
