@@ -133,9 +133,6 @@ const PurchaseOrderTable = ({
                                 Expected Delivery
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Total Amount
-                            </th>
-                            <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                                 Advance Paid
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
@@ -210,7 +207,6 @@ const PurchaseOrderTable = ({
                                     </td>
                                     <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(row.billDate)}</td>
                                     <td className="w-1/5 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(row.dueDate)}</td>
-                                    <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(row.totalAmount)}</td>
                                     <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(row.paidAmount || 0)}</td>
                                     <td className="w-1/6 px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>

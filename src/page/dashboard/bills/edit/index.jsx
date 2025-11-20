@@ -87,26 +87,67 @@ const EditBill = ({ billId }) => {
           
           // Transform API data to form data
           const billData = result.data;
+          
+          // Create a map of product IDs to batches for expiry date lookup
+          const batchMap = new Map();
+          if (billData.batches && Array.isArray(billData.batches)) {
+            billData.batches.forEach(batch => {
+              // If batch has product reference, use it as key
+              const productId = batch.product?._id || batch.product || null;
+              if (productId) {
+                batchMap.set(productId.toString(), batch);
+              }
+            });
+          }
+          
+          // Map items from billData.items (primary source) or fallback to batches
+          let mappedItems = [];
+          if (billData.items && Array.isArray(billData.items) && billData.items.length > 0) {
+            // Use items array (has product info and unitPrice)
+            mappedItems = billData.items.map(item => {
+              const productId = item.product?._id || item.product?._id?.toString() || item.product?.toString() || item.product || '';
+              const productName = item.productName || item.product?.name || '';
+              const batch = batchMap.get(productId.toString());
+              
+              return {
+                product: productId.toString(),
+                productName: productName,
+                quantity: item.quantity || 1,
+                purchasePrice: item.unitPrice || item.purchasePrice || 0,
+                expiryDate: batch?.expiryDate ? new Date(batch.expiryDate).toISOString().split('T')[0] : ''
+              };
+            });
+          } else if (billData.batches && Array.isArray(billData.batches) && billData.batches.length > 0) {
+            // Fallback to batches if items array is not available
+            mappedItems = billData.batches.map(batch => {
+              const productId = batch.product?._id || batch.product?.toString() || batch.product || '';
+              return {
+                product: productId.toString(),
+                productName: batch.productName || batch.product?.name || '',
+                quantity: batch.quantity || 1,
+                purchasePrice: batch.purchasePrice || 0,
+                expiryDate: batch.expiryDate ? new Date(batch.expiryDate).toISOString().split('T')[0] : ''
+              };
+            });
+          }
+          
+          // Ensure at least one empty item if no items found
+          if (mappedItems.length === 0) {
+            mappedItems = [{
+              product: '',
+              productName: '',
+              quantity: 1,
+              purchasePrice: 0,
+              expiryDate: ''
+            }];
+          }
+          
           setFormData({
             supplier: billData.supplier?._id || billData.supplier?.id || '',
             billDate: billData.billDate ? new Date(billData.billDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split('T')[0] : '',
             notes: billData.notes || '',
-            items: billData.batches && billData.batches.length > 0 ? billData.batches.map(batch => ({
-              product: batch.product || '',
-              productName: batch.productName || '',
-              quantity: batch.quantity || 1,
-              purchasePrice: batch.purchasePrice || 0,
-              expiryDate: batch.expiryDate || ''
-            })) : [
-              {
-                product: '',
-                productName: '',
-                quantity: 1,
-                purchasePrice: 0,
-                expiryDate: ''
-              }
-            ]
+            items: mappedItems
           });
         } else {
           setFetchError(result.message || 'Failed to fetch bill data');
