@@ -158,14 +158,6 @@ const PurchaseOrderCard = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-              <span className="font-medium">Total Amount:</span>
-            </div>
-            <div className="text-lg sm:text-lg xl:text-lg font-bold text-[rgb(var(--color-text-primary))]">
-              {formatCurrency(purchaseOrder.totalAmount)}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               <span className="font-medium">Advance Paid:</span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
