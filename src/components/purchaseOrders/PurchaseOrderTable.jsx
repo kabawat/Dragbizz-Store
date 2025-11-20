@@ -157,7 +157,9 @@ const PurchaseOrderTable = ({
                             const statusBadge = getStatusBadge(row);
                             const StatusIcon = statusBadge.icon;
                             const isSelected = selectedBills.includes(row._id || row.id);
-                            
+                            const poStatus = (row.status || '').toUpperCase();
+                            const isDeleted = poStatus === 'DELETED';
+
                             // Check if advance payment has been made
                             const advanceAmount = row.advanceAmount ?? row.paidAmount ?? 0;
                             const hasAdvancePayments = (row.payments || []).some(
@@ -275,7 +277,7 @@ const PurchaseOrderTable = ({
                                                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                                             View Details
                                                         </button>
-                                                        {!hasAdvancePayment && (
+                                                        {!hasAdvancePayment && !isDeleted && (
                                                             <button
                                                                 onClick={() => onMenuAction(row._id || row.id, 'advancePayment')}
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
@@ -284,20 +286,24 @@ const PurchaseOrderTable = ({
                                                                 Advance Payment
                                                             </button>
                                                         )}
-                                                        <button
+                                                        {!isDeleted && (
+                                                          <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'createBill')}
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                         >
                                                             <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                                             Create Bill
-                                                        </button>
-                                                        <button
+                                                          </button>
+                                                        )}
+                                                        {!isDeleted && (
+                                                          <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'edit')}
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                         >
                                                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                                             Edit
-                                                        </button>
+                                                          </button>
+                                                        )}
                                                         <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'delete')}
                                                             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"

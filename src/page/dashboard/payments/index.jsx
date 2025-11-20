@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPayments } from '@/store/slices/paymentsSlice';
+import { getPayments, deletePayment } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -203,11 +203,27 @@ const Payments = () => {
   };
 
   // Confirm delete
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (paymentToDelete) {
-      // Implement delete logic here
-      setShowDeleteModal(false);
-      setPaymentToDelete(null);
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const paymentId = paymentToDelete._id || paymentToDelete.id;
+      
+      if (storeId && paymentId) {
+        try {
+          await dispatch(deletePayment({ paymentId, storeId })).unwrap();
+          setShowDeleteModal(false);
+          setPaymentToDelete(null);
+          // Refresh payments list
+          dispatch(getPayments({ 
+            store: storeId,
+            limit: pagination?.limit || 20,
+            page: 1
+          }));
+        } catch (error) {
+          console.error('Failed to delete payment:', error);
+          // Error is already handled by the slice
+        }
+      }
     }
   };
 

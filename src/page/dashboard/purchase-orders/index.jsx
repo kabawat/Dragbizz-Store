@@ -1,8 +1,8 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPurchaseOrders as getPOs, addMorePurchaseOrders } from '@/store/slices/purchaseOrdersSlice';
+import { getPurchaseOrders as getPOs, addMorePurchaseOrders, deletePurchaseOrder } from '@/store/slices/purchaseOrdersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -32,7 +32,7 @@ const PurchaseOrders = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [selectedPOs, setSelectedPOs] = useState([]);
@@ -44,6 +44,9 @@ const PurchaseOrders = () => {
   const scrollRef = useRef(null);
   const [viewMode, setViewMode] = useState('table');
   const lastFetchRef = useRef({ storeId: null, search: null, cursor: null });
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteInfo, setDeleteInfo] = useState(null);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState([]);
   
   // Create Bill Drawer state
   const [showCreateBillDrawer, setShowCreateBillDrawer] = useState(false);
@@ -81,6 +84,15 @@ const PurchaseOrders = () => {
     };
   }, [openMenuId]);
 
+useEffect(() => {
+  if (pendingDeleteIds.length === 0) return;
+  setPendingDeleteIds((prev) =>
+    prev.filter((id) =>
+      purchaseOrders.some((po) => (po._id || po.id) === id)
+    )
+  );
+}, [purchaseOrders]);
+
   // Fetch POs
   useEffect(() => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -105,20 +117,26 @@ const PurchaseOrders = () => {
   const handleMenuAction = (id, action) => {
     const po = purchaseOrders.find(b => (b._id || b.id) === id);
     if (!po) return;
+    const poStatus = (po.status || '').toUpperCase();
+    const isDeleted = poStatus === 'DELETED';
+
     switch (action) {
       case 'view':
         router.push(`/dashboard/purchase-orders/${po._id || po.id}`);
         break;
       case 'edit':
+        if (isDeleted) return;
         router.push(`/dashboard/purchase-orders/${po._id || po.id}/edit`);
         break;
       case 'createBill':
+        if (isDeleted) return;
         // Open create bill drawer with purchase order data
         setSelectedPOForBill(po);
         setShowCreateBillDrawer(true);
         setOpenMenuId(null);
         break;
       case 'advancePayment':
+        if (isDeleted) return;
         // Open advance payment drawer with purchase order data
         setSelectedPOForPayment(po);
         setShowAdvancePaymentDrawer(true);
@@ -161,8 +179,20 @@ const PurchaseOrders = () => {
     }
   };
 
-  const getFilteredPOs = () => {
-    let filtered = [...purchaseOrders];
+const pendingDeleteSet = useMemo(() => new Set(pendingDeleteIds), [pendingDeleteIds]);
+
+const getFilteredPOs = () => {
+  let filtered = purchaseOrders
+    .filter(po => !pendingDeleteSet.has(po._id || po.id))
+    .filter(po => {
+      if (statusFilter === 'deleted') {
+        return (po.status || '').toUpperCase() === 'DELETED';
+      }
+      if (statusFilter === 'active') {
+        return (po.status || '').toUpperCase() !== 'DELETED';
+      }
+      return true;
+    });
     if (statusFilter !== 'all') {
       filtered = filtered.filter(po => {
         const isOverdue = new Date(po.dueDate) < new Date() && (po.dueAmount || 0) > 0;
@@ -246,10 +276,32 @@ const PurchaseOrders = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    if (poToDelete) {
+  const confirmDelete = async () => {
+    if (!poToDelete || isDeleting) return;
+
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const poId = poToDelete._id || poToDelete.id;
+    if (!poId) return;
+
+    try {
+      setIsDeleting(true);
+      const result = await dispatch(deletePurchaseOrder({ id: poId, store: storeId })).unwrap();
+      setPendingDeleteIds((prev) => (prev.includes(poId) ? prev : [...prev, poId]));
+      setSelectedPOs((prev) => prev.filter((id) => id !== poId));
       setShowDeleteModal(false);
       setPoToDelete(null);
+      const friendlyPo = poToDelete?.poNumber || poToDelete?.billNumber || poId;
+      setDeleteInfo({
+        message: result?.message || `We're tidying up PO ${friendlyPo} in the background.`,
+        poNumber: result?.poNumber || friendlyPo,
+        status: result?.status || 'QUEUED',
+        jobId: result?.jobId || null,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to delete purchase order:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -311,45 +363,91 @@ const PurchaseOrders = () => {
             {/* Search and filter */}
             {purchaseOrders.length > 0 && (
               <div className="mb-3">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                {deleteInfo && (
+                  <div className="mb-4 p-4 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))] shadow-sm flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        We’re finishing the cleanup for PO {deleteInfo.poNumber}.
+                      </p>
+                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        The system is safely deleting related bills and payments in the background. This may take a little time, but you’re free to keep working—nothing else is needed from you.
+                      </p>
+                      {deleteInfo.jobId && (
+                        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
+                          Tracking ID: {deleteInfo.jobId} • Status: {deleteInfo.status}
+                        </p>
+                      )}
+                    </div>
+                    <button onClick={() => setDeleteInfo(null)} className="mt-2 md:mt-0 inline-flex cursor-pointer items-center justify-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-white bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/90 transition-colors">
+                      Got it
+                    </button>
+                  </div>
+                )}
+                <div className="flex flex-col lg:flex-row gap-4 mb-0">
                   {/* Search */}
-                  <div className="w-100 bg-red">
+                  <div className="w-full">
                     <Input
                       type="text"
                       placeholder="Search purchase orders..."
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
-                      className="w-100"
+                      className="w-full"
                     />
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="flex gap-3">
-                    {/* View toggle */}
-                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                  <div className="flex flex-wrap gap-3 items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                        Status:
+                      </label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="cursor-pointer rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                       >
-                        <List className="w-4 h-4" />
-                        Table
-                      </button>
-                      <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        Cards
-                      </button>
+                        <option value="active">Active</option>
+                        <option value="deleted">Deleted</option>
+                        <option value="all">All</option>
+                      </select>
                     </div>
 
-                    <Button variant="primary" onClick={() => router.push('/dashboard/purchase-orders/create')} leftIcon={Plus}>
-                      Create PO
-                    </Button>
+                    {/* Action buttons */}
+                    <div className="flex gap-3">
+                      {/* View toggle */}
+                      <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                        <button
+                          onClick={() => handleViewModeChange('table')}
+                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                            viewMode === 'table'
+                              ? 'bg-[rgb(var(--color-primary))] text-white'
+                              : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                        >
+                          <List className="w-4 h-4" />
+                          Table
+                        </button>
+                        <button
+                          onClick={() => handleViewModeChange('card')}
+                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                            viewMode === 'card'
+                              ? 'bg-[rgb(var(--color-primary))] text-white'
+                              : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                          Cards
+                        </button>
+                      </div>
+
+                      <Button
+                        variant="primary"
+                        onClick={() => router.push('/dashboard/purchase-orders/create')}
+                        leftIcon={Plus}
+                      >
+                        Create PO
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -472,6 +570,7 @@ const PurchaseOrders = () => {
         onConfirm={confirmDelete}
         billToDelete={poToDelete}
         formatCurrency={formatCurrency}
+        isDeleting={isDeleting}
       />
 
       {/* Create Bill Drawer */}

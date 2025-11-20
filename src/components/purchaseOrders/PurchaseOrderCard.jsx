@@ -28,6 +28,8 @@ const PurchaseOrderCard = ({
 }) => {
   const statusBadge = getStatusBadge(purchaseOrder);
   const StatusIcon = statusBadge.icon;
+  const poStatus = (purchaseOrder.status || '').toUpperCase();
+  const isDeleted = poStatus === 'DELETED';
   
   // Check if advance payment has been made
   const advanceAmount = purchaseOrder.advanceAmount ?? purchaseOrder.paidAmount ?? 0;
@@ -38,10 +40,13 @@ const PurchaseOrderCard = ({
   
   // Build actions array conditionally
   const actions = ['view'];
-  if (!hasAdvancePayment) {
+  if (!hasAdvancePayment && !isDeleted) {
     actions.push('advancePayment');
   }
-  actions.push('createBill', 'edit', 'delete');
+  if (!isDeleted) {
+    actions.push('createBill', 'edit');
+  }
+  actions.push('delete');
 
   return (
     <div
