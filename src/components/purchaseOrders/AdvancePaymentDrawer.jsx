@@ -246,7 +246,7 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             const paymentData = {
                 supplierId: formData.supplierId,
                 paymentType: 'ADVANCE_PAYMENT',
-                purchaseOrder: purchaseOrder._id || purchaseOrder.id || purchaseOrder, // Required for ADVANCE_PAYMENT
+                purchaseOrder: purchaseOrder._id || purchaseOrder.id || purchaseOrder, // Optional
                 paymentMethods: transformedPaymentMethods, // Service expects paymentMethods array
                 notes: formData.notes || '',
                 store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id
@@ -321,9 +321,9 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                         <span className="font-semibold text-[rgb(var(--color-text-primary))]">{purchaseOrder?.poNumber || purchaseOrder?.billNumber || 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Total Amount:</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">Items Ordered:</span>
                                         <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                                            {formatCurrency(purchaseOrder?.totalAmount || 0)}
+                                            {(purchaseOrder?.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">

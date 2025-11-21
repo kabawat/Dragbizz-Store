@@ -32,11 +32,13 @@ const PurchaseOrderCard = ({
   const isDeleted = poStatus === 'DELETED';
   
   // Check if advance payment has been made
-  const advanceAmount = purchaseOrder.advanceAmount ?? purchaseOrder.paidAmount ?? 0;
+  const advanceAmount = purchaseOrder.advanceAmount ?? 0;
   const hasAdvancePayments = (purchaseOrder.payments || []).some(
     payment => payment.paymentType === 'ADVANCE_PAYMENT'
   );
   const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
+  const totalQuantity = purchaseOrder.totalQuantity ?? (purchaseOrder.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const receivedQuantity = purchaseOrder.receivedQuantity ?? (purchaseOrder.items || []).reduce((sum, item) => sum + (item.receivedQuantity || 0), 0);
   
   // Build actions array conditionally
   const actions = ['view'];
@@ -154,14 +156,22 @@ const PurchaseOrderCard = ({
           </div>
         </div>
 
-        {/* Amount Details */}
+        {/* Metrics */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               <span className="font-medium">Advance Paid:</span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-              {formatCurrency(purchaseOrder.paidAmount || 0)}
+              {formatCurrency(advanceAmount)}
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
+              <span className="font-medium">Items Received:</span>
+            </div>
+            <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+              {receivedQuantity}/{totalQuantity}
             </div>
           </div>
         </div>

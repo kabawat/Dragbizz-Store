@@ -16,7 +16,8 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
-import { Button, Input } from '@/components/ui';
+import { Button, Input, ToastContainer } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
 
 // Import dedicated purchase order components
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
@@ -30,6 +31,7 @@ const PurchaseOrders = () => {
   const dispatch = useAppDispatch();
   const { list: purchaseOrders, isLoading, pagination } = useAppSelector((state) => state.purchaseOrders);
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { toasts, showToast, removeToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [supplierFilter, setSupplierFilter] = useState('all');
@@ -44,7 +46,6 @@ const PurchaseOrders = () => {
   const [viewMode, setViewMode] = useState('table');
   const lastFetchRef = useRef({ storeId: null, search: null, cursor: null });
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteInfo, setDeleteInfo] = useState(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState([]);
   
   // Create Bill Drawer state
@@ -158,7 +159,6 @@ useEffect(() => {
       setIsLoadingMore(true);
       const nextCursor = pagination.nextCursor;
 
-      // Prevent duplicate load-more with the same cursor
       if (
         lastFetchRef.current.storeId === storeId &&
         lastFetchRef.current.search === searchTerm &&
@@ -206,10 +206,11 @@ const getFilteredPOs = () => {
       });
     }
     if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(po =>
-        (po.poNumber || po.billNumber)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        po.supplier?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        po.totalAmount?.toString().includes(searchTerm)
+        (po.poNumber || po.billNumber)?.toLowerCase().includes(lowerSearch) ||
+        po.supplier?.name?.toLowerCase().includes(lowerSearch) ||
+        (po.advanceAmount ?? 0).toString().includes(lowerSearch)
       );
     }
     return filtered;
@@ -221,17 +222,20 @@ const getFilteredPOs = () => {
     const billNumber = po.poNumber || po.billNumber;
     const billDate = po.poDate || po.billDate;
     const dueDate = po.expectedDeliveryDate || po.dueDate;
-    const totalAmount = po.totalAmount ?? 0;
-    const paidAmount = po.advanceAmount ?? po.paidAmount ?? 0;
-    const dueAmount = po.remainingAmount ?? po.dueAmount ?? Math.max(totalAmount - paidAmount, 0);
+    const items = po.items || [];
+    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const receivedQuantity = items.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0);
+    const pendingQuantity = Math.max(totalQuantity - receivedQuantity, 0);
+    const advanceAmount = po.advanceAmount ?? 0;
     return {
       ...po,
       billNumber,
       billDate,
       dueDate,
-      totalAmount,
-      paidAmount,
-      dueAmount,
+      totalQuantity,
+      receivedQuantity,
+      pendingQuantity,
+      advanceAmount,
     };
   });
 
@@ -267,13 +271,16 @@ const getFilteredPOs = () => {
       setShowDeleteModal(false);
       setPoToDelete(null);
       const friendlyPo = poToDelete?.poNumber || poToDelete?.billNumber || poId;
-      setDeleteInfo({
-        message: result?.message || `We're tidying up PO ${friendlyPo} in the background.`,
-        poNumber: result?.poNumber || friendlyPo,
-        status: result?.status || 'QUEUED',
-        jobId: result?.jobId || null,
-        timestamp: new Date().toISOString()
-      });
+      const poNumber = result?.poNumber || friendlyPo;
+      const status = result?.status || 'QUEUED';
+      const jobId = result?.jobId || null;
+      
+      // Show toast notification for 5 seconds
+      let toastMessage = `Purchase Order ${poNumber} deletion has been scheduled.\nThe PO will be deleted in the background. Related bills and payments will remain unchanged.`;
+      if (jobId) {
+        toastMessage += `\nTracking ID: ${jobId} • Status: ${status}`;
+      }
+      showToast(toastMessage, 'success', 5000);
     } catch (error) {
       console.error('Failed to delete purchase order:', error);
     } finally {
@@ -281,11 +288,18 @@ const getFilteredPOs = () => {
     }
   };
 
-  const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-  const formatDate = (date) => new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  const formatCurrency = (amount = 0) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+  const formatDate = (date) => {
+    if (!date) return '--';
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return '--';
+    return parsed.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
 
   const getStatusBadge = (po) => {
-    const isOverdue = new Date(po.dueDate) < new Date() && (po.dueAmount || 0) > 0;
+    const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
+    const hasPending = (po.pendingQuantity ?? Math.max((po.totalQuantity || 0) - (po.receivedQuantity || 0), 0)) > 0;
+    const isOverdue = !!dueDateObj && !Number.isNaN(dueDateObj.getTime()) && dueDateObj < new Date() && hasPending;
     if (isOverdue) {
       return { variant: 'danger', icon: AlertTriangle, text: 'Overdue', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
     }
@@ -339,26 +353,6 @@ const getFilteredPOs = () => {
             {/* Search and filter */}
             {purchaseOrders.length > 0 && (
               <div className="mb-3">
-                {deleteInfo && (
-                  <div className="mb-4 p-4 rounded-xl border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))] shadow-sm flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                        We're finishing the cleanup for PO {deleteInfo.poNumber}.
-                      </p>
-                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        The system is safely deleting related bills and payments in the background. This may take a little time, but you're free to keep working—nothing else is needed from you.
-                      </p>
-                      {deleteInfo.jobId && (
-                        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
-                          Tracking ID: {deleteInfo.jobId} • Status: {deleteInfo.status}
-                        </p>
-                      )}
-                    </div>
-                    <button onClick={() => setDeleteInfo(null)} className="mt-2 md:mt-0 inline-flex cursor-pointer items-center justify-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-white bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/90 transition-colors">
-                      Got it
-                    </button>
-                  </div>
-                )}
                 <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
                   {/* Search */}
                   <div className="w-100 bg-red">
@@ -555,6 +549,9 @@ const getFilteredPOs = () => {
           }
         }}
       />
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

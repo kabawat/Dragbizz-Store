@@ -80,9 +80,13 @@ const Toast = ({
 
         {/* Message */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white">
-            {message}
-          </p>
+          <div className="text-sm font-medium text-white">
+            {message.split('\n').map((line, index) => (
+              <p key={index} className={index > 0 ? 'mt-1' : ''}>
+                {line}
+              </p>
+            ))}
+          </div>
         </div>
 
         {/* Close button (optional, can be hidden for auto-dismiss) */}
