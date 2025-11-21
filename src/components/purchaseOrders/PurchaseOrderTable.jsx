@@ -81,7 +81,7 @@ const PurchaseOrderTable = ({
     const handleWhatsAppShare = (row) => {
         const shareUrl = buildShareUrl(row);
         const message = `Hello *${row.supplier?.name || 'Supplier'}*, Thanks for your business! *Purchase Order: ${row.billNumber || row.poNumber || 'N/A'}* *Link:* ${shareUrl} Thanks *${row.store?.name || 'DragBizz Store'}* *${row.store?.phone || 'N/A'}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
-        
+
         // Get supplier's phone number and format it for WhatsApp
         const supplierPhone = row.supplier?.phone;
         if (supplierPhone) {
@@ -93,7 +93,7 @@ const PurchaseOrderTable = ({
             // Fallback to general WhatsApp if no phone number
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
-        
+
         setOpenSendMenuId(null);
     };
 
@@ -132,6 +132,9 @@ const PurchaseOrderTable = ({
                             <th className="w-1/5 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                                 Expected Delivery
                             </th>
+                            <th className="w-28 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                                Items
+                            </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                                 Advance Paid
                             </th>
@@ -158,7 +161,10 @@ const PurchaseOrderTable = ({
                             const isDeleted = poStatus === 'DELETED';
 
                             // Check if advance payment has been made
-                            const advanceAmount = row.advanceAmount ?? row.paidAmount ?? 0;
+                            const advanceAmount = row.advanceAmount ?? 0;
+                            const totalQuantity = row.totalQuantity ?? row.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) ?? 0;
+                            const receivedQuantity = row.receivedQuantity ?? row.items?.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0) ?? 0;
+                            const pendingQuantity = row.pendingQuantity ?? Math.max(totalQuantity - receivedQuantity, 0);
                             const hasAdvancePayments = (row.payments || []).some(
                                 payment => payment.paymentType === 'ADVANCE_PAYMENT'
                             );
@@ -183,31 +189,45 @@ const PurchaseOrderTable = ({
                                     <td className="w-1/6 px-6 py-4">
                                         <div className="flex items-start">
                                             <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2 mt-0.5" />
-                                            <div>
-                                                <div className="text-[rgb(var(--color-text-primary))] font-medium">
-                                                    {row.supplier?.name || 'N/A'}
-                                                </div>
-                                                {(row.supplier?.phone || row.supplier?.email) && (
-                                                    <div className="text-xs mt-0.5 flex items-center gap-1.5">
-                                                        {row.supplier?.phone ? (
-                                                            <>
-                                                                <Phone className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-success))' }} />
-                                                                <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier.phone}</span>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Mail className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-primary))' }} />
-                                                                <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier?.email}</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                )}
+                                            <div className="text-[rgb(var(--color-text-primary))] font-medium">
+                                                {row.supplier?.name || 'N/A'}
                                             </div>
+                                        </div>
+  
+                                        <div>
+                                            {(row.supplier?.phone || row.supplier?.email) && (
+                                                <div className="text-xs mt-0.5 flex items-center justify-start gap-1.5">
+                                                    {row.supplier?.phone ? (
+                                                        <>
+                                                            <Phone className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-success))' }} />
+                                                            <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier.phone}</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Mail className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-primary))' }} />
+                                                            <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier?.email}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(row.billDate)}</td>
                                     <td className="w-1/5 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(row.dueDate)}</td>
-                                    <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(row.paidAmount || 0)}</td>
+                                    <td className="w-28 px-6 py-4">
+                                        <div className="text-sm text-[rgb(var(--color-text-primary))] font-medium">
+                                            {receivedQuantity}/{totalQuantity || 0}
+                                        </div>
+                                        {totalQuantity > 0 && (
+                                            <div className="w-full h-1.5 bg-[rgb(var(--color-bg-tertiary))] rounded-full mt-1">
+                                                <div
+                                                    className="h-full rounded-full bg-[rgb(var(--color-primary))]"
+                                                    style={{ width: `${Math.min(100, Math.round((receivedQuantity / totalQuantity) * 100))}%` }}
+                                                ></div>
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(advanceAmount)}</td>
                                     <td className="w-1/6 px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>
                                             <StatusIcon className="w-3 h-3 mr-1" />
@@ -228,8 +248,8 @@ const PurchaseOrderTable = ({
                                                     />
                                                     {openSendMenuId === (row._id || row.id) && (
                                                         <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                                                            <button 
-                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200" 
+                                                            <button
+                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 style={{ color: '#25D366' }}
                                                                 onClick={() => handleWhatsAppShare(row)}
                                                             >
@@ -242,8 +262,8 @@ const PurchaseOrderTable = ({
                                                                 <MessageSquare className="w-4 h-4" /> Message
                                                             </button>
                                                             <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                                            <button 
-                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200" 
+                                                            <button
+                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 style={{ color: '#7C3AED' }}
                                                                 onClick={() => handleCopyLink(row)}
                                                             >
@@ -283,22 +303,22 @@ const PurchaseOrderTable = ({
                                                             </button>
                                                         )}
                                                         {!isDeleted && (
-                                                          <button
-                                                            onClick={() => onMenuAction(row._id || row.id, 'createBill')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                                                        >
-                                                            <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                            Create Bill
-                                                          </button>
+                                                            <button
+                                                                onClick={() => onMenuAction(row._id || row.id, 'createBill')}
+                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                                            >
+                                                                <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                                                Create Bill
+                                                            </button>
                                                         )}
                                                         {!isDeleted && (
-                                                          <button
-                                                            onClick={() => onMenuAction(row._id || row.id, 'edit')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                                                        >
-                                                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                            Edit
-                                                          </button>
+                                                            <button
+                                                                onClick={() => onMenuAction(row._id || row.id, 'edit')}
+                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                                            >
+                                                                <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                                                Edit
+                                                            </button>
                                                         )}
                                                         <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'delete')}

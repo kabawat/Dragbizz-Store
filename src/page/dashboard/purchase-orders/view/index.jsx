@@ -160,9 +160,9 @@ export default function ViewPurchaseOrderPage() {
                         <div className="overflow-y-auto max-h-64 border border-[rgb(var(--color-border-primary))] rounded-lg">
                           <div className="grid grid-cols-12 text-xs text-[rgb(var(--color-text-secondary))] sticky top-0 z-10 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
                             <div className="col-span-6 p-3">Product</div>
-                            <div className="col-span-2 p-3 text-right">Qty</div>
-                            <div className="col-span-2 p-3 text-right">Unit Price</div>
-                            <div className="col-span-2 p-3 text-right">Total</div>
+                            <div className="col-span-2 p-3 text-right">Ordered</div>
+                            <div className="col-span-2 p-3 text-right">Received</div>
+                            <div className="col-span-2 p-3 text-right">Pending</div>
                           </div>
                           {po.items?.map((item, idx) => (
                             <div key={idx} className="grid grid-cols-12 text-sm border-t border-[rgb(var(--color-border-primary))]">
@@ -171,8 +171,8 @@ export default function ViewPurchaseOrderPage() {
                                 <div className="text-xs text-[rgb(var(--color-text-secondary))]">SKU: {item.product?.sku}</div>
                               </div>
                               <div className="col-span-2 p-3 text-right">{item.quantity}</div>
-                              <div className="col-span-2 p-3 text-right">{formatCurrency(item.unitPrice)}</div>
-                              <div className="col-span-2 p-3 text-right">{formatCurrency(item.totalAmount)}</div>
+                              <div className="col-span-2 p-3 text-right">{item.receivedQuantity || 0}</div>
+                              <div className="col-span-2 p-3 text-right">{item.pendingQuantity ?? Math.max((item.quantity || 0) - (item.receivedQuantity || 0), 0)}</div>
                             </div>
                           ))}
                         </div>
@@ -180,28 +180,30 @@ export default function ViewPurchaseOrderPage() {
                         <div className="flex justify-end mt-6">
                           <div className="w-full md:w-80 space-y-2">
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Subtotal</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(po.subtotal)}</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Items</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {(po.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)}
+                              </span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-[rgb(var(--color-text-secondary))]">GST</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(po.gstAmount)}</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">Items Received</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {(po.items || []).reduce((sum, item) => sum + (item.receivedQuantity || 0), 0)}
+                              </span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Discount</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(po.discount)}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Advance Paid</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(po.advanceAmount)}</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">Pending Items</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {Math.max(
+                                  (po.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0) -
+                                    (po.items || []).reduce((sum, item) => sum + (item.receivedQuantity || 0), 0),
+                                  0
+                                )}
+                              </span>
                             </div>
                             <div className="flex items-center justify-between text-sm border-t border-[rgb(var(--color-border-primary))] pt-2">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total</span>
-                              <span className="font-semibold text-[rgb(var(--color-text-primary))]">{formatCurrency(po.totalAmount)}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Remaining</span>
-                              <span className="font-semibold" style={{ color: 'rgb(var(--color-danger))' }}>{formatCurrency(po.remainingAmount)}</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">Advance Paid</span>
+                              <span className="font-semibold text-[rgb(var(--color-text-primary))]">{formatCurrency(po.advanceAmount)}</span>
                             </div>
                           </div>
                         </div>
