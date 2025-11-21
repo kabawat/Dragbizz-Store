@@ -34,6 +34,7 @@ const formInit = {
   billDate: new Date().toISOString().split('T')[0],
   dueDate: '',
   notes: '',
+  goodsReceived: true,
   items: [
     {
       product: '',
@@ -179,7 +180,6 @@ const CreateBill = () => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    // Handle special "Add New" options
     if (value === 'add-new-supplier') {
       router.push('/dashboard/suppliers/add');
       return;
@@ -195,7 +195,6 @@ const CreateBill = () => {
       [field]: value
     }));
 
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -338,6 +337,7 @@ const CreateBill = () => {
         store: selectedStore.storeId,
         supplier: formData.supplier,
         purchaseOrder: formData.purchaseOrder || undefined,
+        goodsReceived: !!formData.goodsReceived,
         items: formData.items.map(item => ({
           product: item.product,
           quantity: parseInt(item.quantity),
@@ -353,9 +353,7 @@ const CreateBill = () => {
       const result = await billService.createBill(billData);
 
       if (result.success) {
-        // Show success toast
         showSuccess('Bill created successfully!');
-        // Redirect after a short delay
         setTimeout(() => {
           const billId = result.data?.id || result.data?._id;
           if (billId) {
@@ -544,6 +542,26 @@ const CreateBill = () => {
                             </div>
                           )}
                         </div>
+
+                      <div className="mt-4 border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                            Turn this on to stock add these items to stock when the bill is created.
+                          </p>
+                        </div>
+                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            className="w-5 h-5 accent-[rgb(var(--color-primary))] rounded"
+                            checked={formData.goodsReceived}
+                            onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                          />
+                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                            {formData.goodsReceived ? 'Yes' : 'No'}
+                          </span>
+                        </label>
+                      </div>
                       </div>
                     </Card>
 

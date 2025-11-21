@@ -5,12 +5,7 @@ import { Button, Input, Select, Textarea, Card, AddActionButton, SideDrawer } fr
 import { productService, billService } from '@/service/retailer';
 import { useAppSelector } from '@/store/hooks';
 
-const CreateBillDrawer = ({
-    isOpen,
-    onClose,
-    purchaseOrder,
-    onSuccess
-}) => {
+const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
     const [formData, setFormData] = useState({
@@ -19,6 +14,7 @@ const CreateBillDrawer = ({
         billDate: new Date().toISOString().split('T')[0],
         dueDate: '',
         notes: '',
+        goodsReceived: true,
         items: []
     });
 
@@ -39,6 +35,7 @@ const CreateBillDrawer = ({
                 billDate: new Date().toISOString().split('T')[0],
                 dueDate: dueDate.toISOString().split('T')[0],
                 notes: '',
+                goodsReceived: true,
                 items: purchaseOrder.items?.map(item => ({
                     product: item.product,
                     productName: '',
@@ -148,6 +145,7 @@ const CreateBillDrawer = ({
 
             const billData = {
                 ...formData,
+                goodsReceived: !!formData.goodsReceived,
                 store: storeId,
                 totalAmount: calculateTotal(),
                 items: formData.items.map(item => ({
@@ -263,7 +261,7 @@ const CreateBillDrawer = ({
                                     <Package className="w-5 h-5 mr-2" />
                                     Items ({formData.items.length})
                                 </h3>
-                                <AddActionButton 
+                                <AddActionButton
                                     onClick={addItem}
                                     label="Add Item"
                                     Icon={Plus}
@@ -360,6 +358,26 @@ const CreateBillDrawer = ({
                                 />
                             </div>
 
+                            <div className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
+                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                                        Enable this to immediately add these items into stock when the bill is created.
+                                    </p>
+                                </div>
+                                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        className="w-5 h-5 accent-[rgb(var(--color-primary))] rounded"
+                                        checked={formData.goodsReceived}
+                                        onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                                    />
+                                    <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                        {formData.goodsReceived ? 'Yes' : 'No'}
+                                    </span>
+                                </label>
+                            </div>
+
                             {/* Total */}
                             <Card className="p-4 border-0 shadow-none">
                                 <div className="flex items-center justify-end gap-3">
@@ -397,8 +415,8 @@ const CreateBillDrawer = ({
                         >
                             Create Bill
                         </Button>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={onClose}
                             disabled={isCreating}
                             className="w-full sm:w-auto"
