@@ -6,7 +6,7 @@ export const metadata = {
   keywords: 'edit bill, update bill, bill management, DragBizz Store',
 };
 
-export default function BillEditPage({ params }) {
-  const billId = params.id;
-  return <EditBill billId={billId} />;
+export default async function BillEditPage({ params }) {
+  const { id } = await params;
+  return <EditBill billId={id} />;
 }

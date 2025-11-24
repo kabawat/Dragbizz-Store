@@ -121,12 +121,12 @@ const PurchaseOrderCard = ({
                 <div className="text-xs mt-0.5 flex items-center gap-1.5">
                   {purchaseOrder.supplier?.phone ? (
                     <>
-                      <Phone className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-success))' }} />
+                      <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
                       <span className="text-[rgb(var(--color-text-secondary))]">{purchaseOrder.supplier.phone}</span>
                     </>
                   ) : (
                     <>
-                      <Mail className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-primary))' }} />
+                      <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
                       <span className="text-[rgb(var(--color-text-secondary))]">{purchaseOrder.supplier?.email}</span>
                     </>
                   )}
@@ -139,7 +139,7 @@ const PurchaseOrderCard = ({
         {/* Status Badge */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
           <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}>
-            <StatusIcon className="w-3 h-3 mr-1" />
+            <StatusIcon className="w-3 h-3 mr-1 currentColor" />
             {statusBadge.text}
           </span>
         </div>
@@ -147,11 +147,11 @@ const PurchaseOrderCard = ({
         {/* PO Details */}
         <div className="space-y-2">
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
             <span>PO Date: {formatDate(purchaseOrder.billDate)}</span>
           </div>
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
             <span>Expected Delivery: {formatDate(purchaseOrder.dueDate)}</span>
           </div>
         </div>

@@ -272,15 +272,9 @@ const getFilteredPOs = () => {
       setPoToDelete(null);
       const friendlyPo = poToDelete?.poNumber || poToDelete?.billNumber || poId;
       const poNumber = result?.poNumber || friendlyPo;
-      const status = result?.status || 'QUEUED';
-      const jobId = result?.jobId || null;
       
-      // Show toast notification for 5 seconds
-      let toastMessage = `Purchase Order ${poNumber} deletion has been scheduled.\nThe PO will be deleted in the background. Related bills and payments will remain unchanged.`;
-      if (jobId) {
-        toastMessage += `\nTracking ID: ${jobId} • Status: ${status}`;
-      }
-      showToast(toastMessage, 'success', 5000);
+      // Show simple toast notification
+      showToast(`Purchase Order ${poNumber} deletion has been scheduled.`, 'success', 3000);
     } catch (error) {
       console.error('Failed to delete purchase order:', error);
     } finally {
@@ -377,14 +371,14 @@ const getFilteredPOs = () => {
                           : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                           }`}
                       >
-                        <List className="w-4 h-4" />
+                        <List className={`w-4 h-4 ${viewMode === 'table' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
                         Table
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
-                        <Grid3X3 className="w-4 h-4" />
+                        <Grid3X3 className={`w-4 h-4 ${viewMode === 'card' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
                         Cards
                       </button>
                     </div>
@@ -415,7 +409,7 @@ const getFilteredPOs = () => {
                       variant="primary"
                       onClick={() => router.push('/dashboard/purchase-orders/create')}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-2 text-white" />
                       Create PO
                     </Button>
                   </div>
