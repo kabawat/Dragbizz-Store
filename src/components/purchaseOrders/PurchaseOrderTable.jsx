@@ -199,12 +199,12 @@ const PurchaseOrderTable = ({
                                                 <div className="text-xs mt-0.5 flex items-center justify-start gap-1.5">
                                                     {row.supplier?.phone ? (
                                                         <>
-                                                            <Phone className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-success))' }} />
+                                                            <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
                                                             <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier.phone}</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Mail className="w-3.5 h-3.5" style={{ color: 'rgb(var(--color-primary))' }} />
+                                                            <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
                                                             <span className="text-[rgb(var(--color-text-secondary))]">{row.supplier?.email}</span>
                                                         </>
                                                     )}
@@ -230,7 +230,7 @@ const PurchaseOrderTable = ({
                                     <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(advanceAmount)}</td>
                                     <td className="w-1/6 px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>
-                                            <StatusIcon className="w-3 h-3 mr-1" />
+                                            <StatusIcon className="w-3 h-3 mr-1 currentColor" />
                                             {statusBadge.text}
                                         </span>
                                     </td>
@@ -249,25 +249,23 @@ const PurchaseOrderTable = ({
                                                     {openSendMenuId === (row._id || row.id) && (
                                                         <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                                                             <button
-                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                                                style={{ color: '#25D366' }}
+                                                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 onClick={() => handleWhatsAppShare(row)}
                                                             >
-                                                                <MessageCircle className="w-4 h-4" /> WhatsApp
+                                                                <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> WhatsApp
                                                             </button>
-                                                            <button className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer" style={{ color: '#2563EB' }}>
-                                                                <Mail className="w-4 h-4" /> Email
+                                                            <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
+                                                                <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> Email
                                                             </button>
-                                                            <button className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer" style={{ color: '#6B7280' }}>
-                                                                <MessageSquare className="w-4 h-4" /> Message
+                                                            <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
+                                                                <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> Message
                                                             </button>
                                                             <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                                                             <button
-                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
-                                                                style={{ color: '#7C3AED' }}
+                                                                className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 onClick={() => handleCopyLink(row)}
                                                             >
-                                                                <Copy className="w-4 h-4" /> Copy link
+                                                                <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> Copy link
                                                             </button>
                                                         </div>
                                                     )}
@@ -322,9 +320,9 @@ const PurchaseOrderTable = ({
                                                         )}
                                                         <button
                                                             onClick={() => onMenuAction(row._id || row.id, 'delete')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                                                            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                                                         >
-                                                            <Trash2 className="w-4 h-4 text-red-500" />
+                                                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                                                             Delete
                                                         </button>
                                                     </div>

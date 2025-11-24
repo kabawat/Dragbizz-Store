@@ -49,6 +49,7 @@ const EditBill = ({ billId }) => {
     billDate: new Date().toISOString().split('T')[0],
     dueDate: '',
     notes: '',
+    goodsReceived: true,
     items: [
       {
         product: '',
@@ -147,6 +148,7 @@ const EditBill = ({ billId }) => {
             billDate: billData.billDate ? new Date(billData.billDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split('T')[0] : '',
             notes: billData.notes || '',
+            goodsReceived: billData.goodsReceived ?? true,
             items: mappedItems
           });
         } else {
@@ -335,6 +337,7 @@ const EditBill = ({ billId }) => {
       const billData = {
         store: selectedStore.storeId,
         supplier: formData.supplier,
+        goodsReceived: formData.goodsReceived,
         items: formData.items.map(item => ({
           product: item.product,
           quantity: parseInt(item.quantity),
@@ -571,6 +574,29 @@ const EditBill = ({ billId }) => {
                               {formData.notes.length}/500 characters
                             </div>
                           )}
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between p-4 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-tertiary))]/30">
+                          <div>
+                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Goods Received</p>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              Toggle ON if stock has already been received for this bill.
+                            </p>
+                          </div>
+                          <label className="inline-flex items-center cursor-pointer gap-3">
+                            <span className={`text-sm font-semibold ${formData.goodsReceived ? 'text-green-500' : 'text-[rgb(var(--color-text-secondary))]'}`}>
+                              {formData.goodsReceived ? 'Yes' : 'No'}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={formData.goodsReceived}
+                              onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                            />
+                            <div className={`w-12 h-6 rounded-full transition-colors duration-200 ${formData.goodsReceived ? 'bg-green-500' : 'bg-[rgb(var(--color-border-primary))]'}`}>
+                              <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 translate-y-0.5 ${formData.goodsReceived ? 'translate-x-6' : 'translate-x-1'}`}></div>
+                            </div>
+                          </label>
                         </div>
                       </div>
                     </Card>
