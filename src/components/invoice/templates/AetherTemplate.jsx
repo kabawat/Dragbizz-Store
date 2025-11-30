@@ -24,85 +24,89 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           padding: 0;
         }
 
-    /* ✅ MINI PRINTER MODE FIX */
-body.print-mode-mini .aether-invoice {
-  flex-direction: column !important;
-  width: 74mm !important;
-  max-width: 74mm !important;
-  padding: 4px !important;
-}
+          /* ✅ MINI PRINTER MODE FIX */
+      body.print-mode-mini .aether-invoice {
+        flex-direction: column !important;
+        width: 74mm !important;
+        max-width: 74mm !important;
+        padding: 4px !important;
+      }
 
-/* ✅ Left panel mini-mode */
-body.print-mode-mini .aether-left {
-  width: 100% !important;
-  padding: 8px !important;
-  border-radius: 0 !important;
-  text-align: center !important;
-}
+      /* ✅ Left panel mini-mode */
+      body.print-mode-mini .aether-left {
+        width: 100% !important;
+        padding: 8px !important;
+        border-radius: 0 !important;
+        text-align: center !important;
+      }
 
-body.print-mode-mini .aether-left h2 {
-  font-size: 14px !important;
-}
+      body.print-mode-mini .aether-left h2 {
+        font-size: 14px !important;
+      }
 
-body.print-mode-mini .aether-left p {
-  font-size: 10px !important;
-}
+      body.print-mode-mini .aether-left p {
+        font-size: 10px !important;
+      }
 
-/* ✅ Right panel mini-mode */
-body.print-mode-mini .aether-right {
-  width: 100% !important;
-  padding: 6px !important;
-}
+      /* ✅ Right panel mini-mode */
+      body.print-mode-mini .aether-right {
+        width: 100% !important;
+        padding: 6px !important;
+      }
 
-/* ✅ Header */
-body.print-mode-mini .aether-header h1 {
-  font-size: 16px !important;
-}
+      /* ✅ Header */
+      body.print-mode-mini .aether-header {
+        flex-direction: column !important;
+        align-items: center !important;
+      }
+      body.print-mode-mini .aether-header h1 {
+        font-size: 16px !important;
+      }
 
-body.print-mode-mini .aether-header .date {
-  font-size: 10px !important;
-}
+      body.print-mode-mini .aether-header .date {
+        font-size: 10px !important;
+      }
 
-/* ✅ Bill To etc */
-body.print-mode-mini .info-section {
-  flex-direction: column !important;
-  gap: 4px !important;
-}
+      /* ✅ Bill To etc */
+      body.print-mode-mini .info-section {
+        flex-direction: column !important;
+        gap: 4px !important;
+      }
 
-body.print-mode-mini .info-section .block {
-  width: 100% !important;
-}
+      body.print-mode-mini .info-section .block {
+        width: 100% !important;
+      }
 
-body.print-mode-mini .info-section .value {
-  font-size: 12px !important;
-}
+      body.print-mode-mini .info-section .value {
+        font-size: 12px !important;
+      }
 
-/* ✅ Table Compact */
-body.print-mode-mini table th {
-  font-size: 9px !important;
-  padding: 4px 0 !important;
-}
+      /* ✅ Table Compact */
+      body.print-mode-mini table th {
+        font-size: 9px !important;
+        padding: 4px 0 !important;
+      }
 
-body.print-mode-mini table td {
-  font-size: 10px !important;
-  padding: 4px 0 !important;
-}
+      body.print-mode-mini table td {
+        font-size: 10px !important;
+        padding: 4px 0 !important;
+      }
 
-/* ✅ Totals */
-body.print-mode-mini .totals .row {
-  width: 100% !important;
-}
+      /* ✅ Totals */
+      body.print-mode-mini .totals .row {
+        width: 100% !important;
+      }
 
-body.print-mode-mini .totals .label,
-body.print-mode-mini .totals .amount {
-  font-size: 10px !important;
-}
+      body.print-mode-mini .totals .label,
+      body.print-mode-mini .totals .amount {
+        font-size: 10px !important;
+      }
 
-/* ✅ Footer */
-body.print-mode-mini .footer {
-  font-size: 9px !important;
-  margin-top: 10px !important;
-}
+      /* ✅ Footer */
+      body.print-mode-mini .footer {
+        font-size: 9px !important;
+        margin-top: 10px !important;
+      }
 
 
         .aether-invoice {
