@@ -29,18 +29,31 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
           background-color: #fcfaf7 !important; /* Light beige background */
         }
 
-         body.print-mode-mini .vintage-invoice {
-    width: 74mm !important;
-    max-width: 74mm !important;
-    padding: 6px !important;
-    border: none !important; /* thermal usually no border */
-    box-shadow: none !important;
-  }
+        body.print-mode-mini .vintage-invoice {
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          border: none !important; /* thermal usually no border */
+          box-shadow: none !important;
+        }
+        body.print-mode-mini .vintage-header {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
 
-  body.print-mode-standard .vintage-invoice {
-    max-width: 800px !important;
-    padding: 40px !important;
-  }
+            .invoice-title-box {
+              text-align: center !important;
+            }
+        }
+        body.print-mode-mini .vintage-info {
+            grid-template-columns: 1fr !important;
+        }
+
+        body.print-mode-standard .vintage-invoice {
+          max-width: 800px !important;
+          padding: 40px !important;
+        }
+ 
           
         .vintage-invoice {
           max-width: 800px !important;

@@ -173,35 +173,36 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
             width: 100% !important;
             max-width: 850px !important;
             margin: 0 auto !important;
-            padding: 60px 50px !important;
+            padding: 40px 35px !important;
             background: white !important;
             border: 2px solid #1a1a1a !important;
           }
           
           .professional-header {
             text-align: center !important;
-            margin-bottom: 50px !important;
-            padding-bottom: 30px !important;
-            border-bottom: 3px solid #1a1a1a !important;
+            margin-bottom: 40px !important;
+            padding-bottom: 20px !important;
+            border-bottom: 2px solid #1a1a1a !important;
             position: relative !important;
           }
           
-          .professional-header::after {
-            content: '' !important;
-            position: absolute !important;
-            bottom: -3px !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            width: 100px !important;
-            height: 3px !important;
-            background: #1a1a1a !important;
-          }
+          // .professional-header::after {
+          //   content: '' !important;
+          //   position: absolute !important;
+          //   bottom: -3px !important;
+          //   left: 50% !important;
+          //   transform: translateX(-50%) !important;
+          //   width: 100px !important;
+          //   height: 3px !important;
+          //   background: #1a1a1a !important;
+          // }
           
           .professional-header h1 {
-            font-size: 42px !important;
+            font-size: 36px !important;
+            line-height: 40px !important;
             font-weight: bold !important;
             color: #1a1a1a !important;
-            margin-bottom: 15px !important;
+            margin-bottom: 10px !important;
             letter-spacing: 4px !important;
             text-transform: uppercase !important;
           }
@@ -209,7 +210,7 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
           .professional-header .subtitle {
             font-size: 14px !important;
             color: #666 !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 15px !important;
             font-style: italic !important;
           }
           
@@ -228,24 +229,24 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
           .professional-info {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
-            gap: 60px !important;
-            margin-bottom: 50px !important;
+            gap: 40px !important;
+            margin-bottom: 40px !important;
           }
           
           .professional-info .section {
             border: 1px solid #ddd !important;
-            padding: 25px !important;
+            padding: 20px !important;
             background: #fafafa !important;
           }
           
           .professional-info h3 {
-            font-size: 18px !important;
+            font-size: 15px !important;
             font-weight: bold !important;
             color: #1a1a1a !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 10px !important;
             text-transform: uppercase !important;
             letter-spacing: 1px !important;
-            border-bottom: 2px solid #1a1a1a !important;
+            border-bottom: 1px solid #ccc !important;
             padding-bottom: 8px !important;
           }
           
@@ -254,7 +255,7 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
             font-size: 20px !important;
             font-weight: bold !important;
             color: #1a1a1a !important;
-            margin-bottom: 15px !important;
+            margin-bottom: 10px !important;
           }
           
           .professional-info p {

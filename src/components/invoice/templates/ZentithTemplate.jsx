@@ -33,30 +33,39 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
           }
 
           /* ✅ Left panel mini-mode */
-          body.print-mode-mini .zenith-left {
+          body.print-mode-mini .zenith-sidebar {
             width: 100% !important;
             padding: 8px !important;
             border-radius: 0 !important;
             text-align: center !important;
           }
 
-          body.print-mode-mini .zenith-left h2 {
+          body.print-mode-mini .zenith-sidebar h2 {
             font-size: 14px !important;
           }
 
-          body.print-mode-mini .zenith-left p {
+          body.print-mode-mini .zenith-sidebar p {
             font-size: 10px !important;
           }
 
           /* ✅ Right panel mini-mode */
-          body.print-mode-mini .zenith-right {
+          body.print-mode-mini .zenith-main {
             width: 100% !important;
             padding: 6px !important;
           }
 
           /* ✅ Header */
+          body.print-mode-mini .zenith-header {
+            flex-direction: column !important;
+            align-items: center;
+          }
           body.print-mode-mini .zenith-header h1 {
             font-size: 16px !important;
+            text-align: center !important;
+          }
+          body.print-mode-mini .zenith-header .right {
+            width: 100% !important;
+            text-align: center !important;
           }
 
           body.print-mode-mini .zenith-header .date {
