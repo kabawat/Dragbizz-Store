@@ -1351,6 +1351,55 @@ button:disabled {
   box-shadow: 0 0 20px rgba(var(--color-primary), 0.3);
 }
 
+/* Scale down fonts for screens below 1440px */
+@media (max-width: 1440px) {
+  html {
+    font-size: 87.5%; /* 14px base instead of 16px (0.875 * 16 = 14) */
+  }
+}
+
+/* Further scale down for screens below 1366px */
+@media (max-width: 1366px) {
+  html {
+    font-size: 81.25%; /* 13px base (0.8125 * 16 = 13) */
+  }
+  
+  /* Login page specific font-size reduction */
+  [data-login-page] {
+    font-size: 0.875rem; /* 14px base */
+  }
+  
+  [data-login-page] h1 {
+    font-size: 2rem !important; /* Reduced from larger sizes */
+  }
+  
+  [data-login-page] h2 {
+    font-size: 1.75rem !important;
+  }
+  
+  [data-login-page] h3 {
+    font-size: 1.25rem !important;
+  }
+  
+  [data-login-page] p,
+  [data-login-page] span,
+  [data-login-page] label {
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  [data-login-page] .text-xl {
+    font-size: 1rem !important; /* 16px instead of 20px */
+  }
+  
+  [data-login-page] .text-4xl {
+    font-size: 2rem !important; /* 32px instead of 36px */
+  }
+  
+  [data-login-page] .text-5xl {
+    font-size: 2.5rem !important; /* 40px instead of 48px */
+  }
+}
+
 /* Mobile optimizations */
 @media (max-width: 640px) {
   .mobile-optimized {

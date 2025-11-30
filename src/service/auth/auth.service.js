@@ -69,22 +69,56 @@ class AuthService {
     }
   }
 
-  // veirfy otp 
+  // verify otp 
   async verifyLoginOTP(otpData) {
     try {
-      const verifyData = {
-        code: otpData.code,
-        deviceId: otpData.deviceId || 'web_device_' + Date.now(),
-        platform: otpData.platform || 'web',
-        deviceToken: otpData.deviceToken || '',
-        location: otpData.location || '0,0'
-      };
+      const { code, token } = otpData;
+      
+      if (!code) {
+        return {
+          success: false,
+          message: 'Verification code is required',
+          error: 'Missing OTP code'
+        };
+      }
 
-      const response = await unauthAxios.put(API_CONFIG.AUTH.LOGIN_VERIFY, verifyData, {
-        headers: {
-          'Authorization': `Bearer ${otpData.token}`
+      if (!token) {
+        return {
+          success: false,
+          message: 'OTP token is required',
+          error: 'Missing OTP token'
+        };
+      }
+
+      // OTP verification uses PUT method
+      // Convert location string "lat,lng" to object { latitude, longitude }
+      let locationData = null;
+      if (otpData.location) {
+        if (typeof otpData.location === 'string') {
+          const [lat, lng] = otpData.location.split(',').map(Number);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            locationData = { latitude: lat, longitude: lng };
+          }
+        } else if (typeof otpData.location === 'object' && otpData.location.latitude && otpData.location.longitude) {
+          locationData = otpData.location;
         }
-      });
+      }
+
+      const response = await unauthAxios.put(
+        API_CONFIG.AUTH.LOGIN_VERIFY,
+        { 
+          code: code,
+          deviceId: otpData.deviceId || 'web_device_' + Date.now(),
+          platform: otpData.platform || 'web',
+          deviceToken: otpData.deviceToken || '',
+          location: locationData
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
 
       return handleApiSuccess(response, 'OTP verified successfully');
     } catch (error) {
