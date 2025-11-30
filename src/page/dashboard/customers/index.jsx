@@ -39,6 +39,9 @@ const CustomersPage = () => {
 
   const { selectedStore } = useAppSelector((state) => state.profile);
 
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
   // Local state
   const [searchValue, setSearchValue] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -52,6 +55,7 @@ const CustomersPage = () => {
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const scrollRef = useRef(null);
   const lastFetchRef = useRef(null);
+  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
 
   // Handle error display
   useEffect(() => {
@@ -75,7 +79,7 @@ const CustomersPage = () => {
 
   // Fetch customers from API
   const fetchCustomers = useCallback(async (isLoadMore = false, cursor = null) => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    if (!storeId && !isLoadMore) return;
     
     const params = {
       search: searchValue,
@@ -86,12 +90,24 @@ const CustomersPage = () => {
     if (storeId) {
       params.store = storeId;
     }
+    
     // Create a unique key for this fetch
     const fetchKey = `${storeId}-${searchValue}-${isLoadMore}-${cursor}`;
 
     // Prevent duplicate calls with same parameters
     if (lastFetchRef.current === fetchKey) {
       return;
+    }
+
+    if (!isLoadMore) {
+      const lastFetched = hasFetchedRef.current;
+      if (
+        lastFetched.fetched &&
+        lastFetched.storeId === storeId &&
+        lastFetched.searchValue === searchValue
+      ) {
+        return;
+      }
     }
 
     lastFetchRef.current = fetchKey;
@@ -113,6 +129,12 @@ const CustomersPage = () => {
           setCustomers(prev => [...prev, ...customersData]);
         } else {
           setCustomers(customersData);
+          // Update fetch ref for initial load
+          hasFetchedRef.current = {
+            storeId,
+            searchValue,
+            fetched: true
+          };
         }
         
         // Update pagination
@@ -132,21 +154,40 @@ const CustomersPage = () => {
         setIsLoading(false);
       }
     }
-  }, [selectedStore, searchValue]);
+  }, [storeId, searchValue]);
 
-  // Reset fetch ref and pagination when search or store changes
+  // Reset fetch refs and pagination when search or store changes
   useEffect(() => {
     lastFetchRef.current = null;
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
     setPagination({
       hasNextPage: false,
       nextCursor: null
     });
-  }, [selectedStore, searchValue]);
+  }, [storeId, searchValue]);
 
-  // Fetch customers on component mount and when search changes
+  // Fetch customers on component mount and when dependencies change
   useEffect(() => {
+    if (!storeId) return;
+    
+    // Prevent duplicate calls
+    const lastFetched = hasFetchedRef.current;
+    if (
+      lastFetched.fetched &&
+      lastFetched.storeId === storeId &&
+      lastFetched.searchValue === searchValue
+    ) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (isLoading) {
+      return;
+    }
+
     fetchCustomers(false);
-  }, [fetchCustomers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeId, searchValue]);
 
   // Infinite scroll logic - load more customers
   const handleLoadMore = async () => {

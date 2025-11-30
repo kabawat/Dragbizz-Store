@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getExpenses, deleteExpense, setViewMode, setSortOptions, toggleExpenseSelection, selectAllExpenses, deselectAllExpenses } from '@/store/slices/expensesSlice';
@@ -15,6 +15,13 @@ const ExpensesPage = () => {
 
   const { expenses, selectedExpenses, isLoading, error, viewMode, currentFilter, sortBy, sortOrder } = useAppSelector((state) => state.expenses);
   const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Refs to prevent duplicate API calls
+  const lastFetchedRef = useRef({ storeId: null, filter: null, sortBy: null, sortOrder: null });
+  const hasFetched = useRef(false);
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Local state
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,13 +43,11 @@ const ExpensesPage = () => {
     }
   }, [dispatch]);
 
-  useEffect(() => {
-    fetchExpenses();
-  }, [selectedStore, currentFilter, sortBy, sortOrder]);
-
   const fetchExpenses = async () => {
+    if (!storeId) return;
+
     const params = {
-      store: selectedStore?.storeId,
+      store: storeId,
       limit: 20,
       ...(currentFilter !== 'all' && { status: currentFilter }),
       ...(sortBy && { sortBy }),
@@ -51,6 +56,48 @@ const ExpensesPage = () => {
 
     await dispatch(getExpenses(params));
   };
+
+  // Reset refs when storeId changes
+  useEffect(() => {
+    if (storeId && lastFetchedRef.current.storeId !== storeId) {
+      lastFetchedRef.current = { storeId: null, filter: null, sortBy: null, sortOrder: null };
+      hasFetched.current = false;
+    }
+  }, [storeId]);
+
+  // Fetch expenses on mount or when dependencies change (only once per combination)
+  useEffect(() => {
+    if (!storeId) return;
+
+    // Check if we've already fetched for this exact combination
+    const lastFetched = lastFetchedRef.current;
+    if (
+      hasFetched.current &&
+      lastFetched.storeId === storeId &&
+      lastFetched.filter === currentFilter &&
+      lastFetched.sortBy === sortBy &&
+      lastFetched.sortOrder === sortOrder
+    ) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (isLoading) {
+      return;
+    }
+
+    // Update refs
+    lastFetchedRef.current = {
+      storeId,
+      filter: currentFilter,
+      sortBy,
+      sortOrder
+    };
+    hasFetched.current = true;
+
+    fetchExpenses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeId, currentFilter, sortBy, sortOrder]);
 
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
