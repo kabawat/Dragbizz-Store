@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { supplierService, productService, billService, purchaseOrderService } from '@/service/retailer';
@@ -74,22 +74,40 @@ const CreateBill = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const { toasts, showSuccess, removeToast } = useToast();
 
+  // Refs to prevent duplicate API calls
+  const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
+  const productsFetchedRef = useRef({ storeId: null, fetched: false });
+  const purchaseOrdersFetchedRef = useRef({ storeId: null, fetched: false });
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) return;
+
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) {
+      return;
+    }
+
+    if (suppliersLoading) {
+      return;
+    }
+
+    suppliersFetchedRef.current = { storeId, fetched: true };
+
     try {
       setSuppliersLoading(true);
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
         setSuppliers(suppliersData);
       }
     } catch (error) {
-      // Error handled by error handler
     } finally {
       setSuppliersLoading(false);
     }
@@ -97,13 +115,23 @@ const CreateBill = () => {
 
   // Fetch products from API
   const fetchProducts = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) return;
+
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+      return;
+    }
+
+    if (productsLoading) {
+      return;
+    }
+
+    productsFetchedRef.current = { storeId, fetched: true };
     try {
       setProductsLoading(true);
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         const productsData = result.data?.data || result.data || [];
@@ -118,13 +146,26 @@ const CreateBill = () => {
 
   // Fetch purchase orders from API
   const fetchPurchaseOrders = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) return;
+
+    // Prevent duplicate calls for the same store
+    if (purchaseOrdersFetchedRef.current.storeId === storeId && purchaseOrdersFetchedRef.current.fetched) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (purchaseOrdersLoading) {
+      return;
+    }
+
+    purchaseOrdersFetchedRef.current = { storeId, fetched: true };
+
     try {
       setPurchaseOrdersLoading(true);
       const result = await purchaseOrderService.getPurchaseOrders({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         const purchaseOrdersData = result.data?.data || result.data || [];
@@ -140,9 +181,9 @@ const CreateBill = () => {
   // Handle URL parameters for purchase order
   useEffect(() => {
     const poNumber = searchParams.get('poNumber');
-    
+
     if (poNumber && purchaseOrders.length > 0) {
-      const foundPO = purchaseOrders.find(po => 
+      const foundPO = purchaseOrders.find(po =>
         (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber
       );
       if (foundPO) {
@@ -155,12 +196,27 @@ const CreateBill = () => {
     }
   }, [searchParams, purchaseOrders]);
 
-  // Fetch data on mount
+  // Reset refs when storeId changes
   useEffect(() => {
+    if (storeId && (
+      suppliersFetchedRef.current.storeId !== storeId ||
+      productsFetchedRef.current.storeId !== storeId ||
+      purchaseOrdersFetchedRef.current.storeId !== storeId
+    )) {
+      suppliersFetchedRef.current = { storeId: null, fetched: false };
+      productsFetchedRef.current = { storeId: null, fetched: false };
+      purchaseOrdersFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [storeId]);
+
+  // Fetch data on mount or store change (only once per store)
+  useEffect(() => {
+    if (!storeId) return;
+
     fetchSuppliers();
     fetchProducts();
     fetchPurchaseOrders();
-  }, [selectedStore]);
+  }, [storeId]);
 
   // Auto-set due date as 30 days from bill date
   useEffect(() => {
@@ -184,7 +240,7 @@ const CreateBill = () => {
       router.push('/dashboard/suppliers/add');
       return;
     }
-    
+
     if (value === 'add-new-purchase-order') {
       router.push('/dashboard/purchase-orders/create');
       return;
@@ -412,8 +468,8 @@ const CreateBill = () => {
         {/* Header */}
         <Header
           title="Create Bill"
-          description={searchParams.get('poNumber') ? 
-            `Bill for Purchase Order #${searchParams.get('poNumber')}` : 
+          description={searchParams.get('poNumber') ?
+            `Bill for Purchase Order #${searchParams.get('poNumber')}` :
             "Add new purchase bill to track inventory purchases"
           }
         />
@@ -543,25 +599,25 @@ const CreateBill = () => {
                           )}
                         </div>
 
-                      <div className="mt-4 border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                            Turn this on to stock add these items to stock when the bill is created.
-                          </p>
+                        <div className="mt-4 border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
+                              Turn this on to stock add these items to stock when the bill is created.
+                            </p>
+                          </div>
+                          <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              className="w-5 h-5 accent-[rgb(var(--color-primary))] rounded"
+                              checked={formData.goodsReceived}
+                              onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                            />
+                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                              {formData.goodsReceived ? 'Yes' : 'No'}
+                            </span>
+                          </label>
                         </div>
-                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            className="w-5 h-5 accent-[rgb(var(--color-primary))] rounded"
-                            checked={formData.goodsReceived}
-                            onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
-                          />
-                          <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                            {formData.goodsReceived ? 'Yes' : 'No'}
-                          </span>
-                        </label>
-                      </div>
                       </div>
                     </Card>
 

@@ -47,6 +47,11 @@ const Payments = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const scrollRef = useRef(null);
+  const lastFetchedStoreId = useRef(null);
+  const hasFetched = useRef(false);
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Handle view mode change
   const handleViewModeChange = (mode) => {
@@ -102,17 +107,29 @@ const Payments = () => {
     setOpenMenuId(null);
   };
 
-  // Fetch payments on component mount
+  // Fetch payments on component mount or store change (only once per store)
   useEffect(() => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) return;
+    
+    // Prevent duplicate calls for the same store
+    if (lastFetchedStoreId.current === storeId && hasFetched.current) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (isLoading) {
+      return;
+    }
+
+    lastFetchedStoreId.current = storeId;
+    hasFetched.current = true;
 
     dispatch(getPayments({
       store: storeId,
       limit: 20,
       page: 1
     }));
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeId, isLoading]);
 
   // Handle search
   const handleSearch = (value) => {

@@ -49,8 +49,11 @@ const CreateInvoicePage = () => {
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // Refs to prevent duplicate API calls
-  const hasFetchedProducts = useRef(false);
-  const hasFetchedCustomers = useRef(false);
+  const productsFetchedRef = useRef({ storeId: null, fetched: false });
+  const customersFetchedRef = useRef({ storeId: null, fetched: false });
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Customer drawer state
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
@@ -67,42 +70,51 @@ const CreateInvoicePage = () => {
 
   // Fetch products from API
   const fetchProducts = useCallback(async () => {
-    if (!selectedStore?.storeId || hasFetchedProducts.current) return;
-    hasFetchedProducts.current = true;
+    if (!storeId) return;
+
+    // Prevent duplicate calls for the same store
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+      return;
+    }
+
+    productsFetchedRef.current = { storeId, fetched: true };
 
     try {
       setProductsLoading(true);
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         setProducts(result?.data || []);
       }
     } catch (error) {
       console.error('❌ Error fetching products:', error);
-      hasFetchedProducts.current = false; // Reset on error
+      productsFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
     } finally {
       setProductsLoading(false);
     }
-  }, [selectedStore?.storeId]);
+  }, [storeId]);
 
   // Fetch customers from API
   const fetchCustomers = useCallback(async () => {
-    if (hasFetchedCustomers.current) return;
+    if (!storeId) return;
 
-    hasFetchedCustomers.current = true;
+    // Prevent duplicate calls for the same store
+    if (customersFetchedRef.current.storeId === storeId && customersFetchedRef.current.fetched) {
+      return;
+    }
+
+    customersFetchedRef.current = { storeId, fetched: true };
 
     try {
       setCustomersLoading(true);
       const params = {
         limit: 100,
-        lightweight: true
+        lightweight: true,
+        store: storeId
       };
-      if (selectedStore?.storeId) {
-        params.store = selectedStore.storeId;
-      }
 
       const result = await customerService.getCustomers(params);
       if (result.success) {
@@ -117,19 +129,30 @@ const CreateInvoicePage = () => {
         setCustomers(serializedOptions);
       }
     } catch (error) {
-      hasFetchedCustomers.current = false; // Reset on error
+      customersFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
     } finally {
       setCustomersLoading(false);
     }
-  }, [selectedStore?.storeId]);
+  }, [storeId]);
 
-  // Load products and customers on component mount
+  // Reset refs when storeId changes
   useEffect(() => {
-    if (selectedStore?.storeId) {
-      fetchProducts();
-      fetchCustomers();
+    if (storeId && (
+      productsFetchedRef.current.storeId !== storeId ||
+      customersFetchedRef.current.storeId !== storeId
+    )) {
+      productsFetchedRef.current = { storeId: null, fetched: false };
+      customersFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [selectedStore?.storeId, fetchProducts, fetchCustomers]);
+  }, [storeId]);
+
+  // Load products and customers on component mount or store change (only once per store)
+  useEffect(() => {
+    if (!storeId) return;
+
+    fetchProducts();
+    fetchCustomers();
+  }, [storeId, fetchProducts, fetchCustomers]);
 
 
   // Handle customer select change

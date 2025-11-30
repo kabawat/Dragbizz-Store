@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { supplierService, paymentService, billService } from '@/service/retailer';
@@ -75,6 +75,13 @@ const CreatePayment = () => {
   const [loading, setLoading] = useState(false);
   const { toasts, showSuccess, removeToast } = useToast();
 
+  // Refs to prevent duplicate API calls
+  const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
+  const billsFetchedRef = useRef({ storeId: null, supplierId: null, fetched: false });
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
   // Get bill ID from URL params
   const billId = searchParams.get('billId');
 
@@ -91,13 +98,33 @@ const CreatePayment = () => {
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) {
+      setSuppliers([
+        { id: '1', name: 'Default Supplier 1' },
+        { id: '2', name: 'Default Supplier 2' },
+        { id: '3', name: 'Default Supplier 3' }
+      ]);
+      return;
+    }
+
+    // Prevent duplicate calls for the same store
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (suppliersLoading) {
+      return;
+    }
+
+    suppliersFetchedRef.current = { storeId, fetched: true };
+
     try {
       setSuppliersLoading(true);
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
 
       if (result.success) {
@@ -105,7 +132,6 @@ const CreatePayment = () => {
         setSuppliers(suppliersData);
       } else {
         console.error('Failed to fetch suppliers:', result.message);
-        // Set some mock data for testing if API fails
         setSuppliers([
           { id: '1', name: 'Supplier 1' },
           { id: '2', name: 'Supplier 2' },
@@ -125,15 +151,28 @@ const CreatePayment = () => {
 
   // Fetch bills from API
   const fetchBills = async (supplierId) => {
-    if (!supplierId || !selectedStore?.storeId) {
+    if (!supplierId || !storeId) {
       setBills([]);
       return;
     }
+    if (
+      billsFetchedRef.current.storeId === storeId &&
+      billsFetchedRef.current.supplierId === supplierId &&
+      billsFetchedRef.current.fetched
+    ) {
+      return;
+    }
+
+    if (billsLoading) {
+      return;
+    }
+
+    billsFetchedRef.current = { storeId, supplierId, fetched: true };
 
     try {
       setBillsLoading(true);
       const result = await billService.getBills({
-        store: selectedStore.storeId,
+        store: storeId,
         supplier: supplierId,
         lightweight: true,
         limit: 100
@@ -153,30 +192,33 @@ const CreatePayment = () => {
     }
   };
 
-  // Fetch suppliers on component mount and when selectedStore changes
+  // Reset refs when storeId changes
   useEffect(() => {
-
-    if (selectedStore?.storeId) {
-      fetchSuppliers();
-    } else {
-      // If no store selected, set some default suppliers for testing
-
-      setSuppliers([
-        { id: '1', name: 'Default Supplier 1' },
-        { id: '2', name: 'Default Supplier 2' },
-        { id: '3', name: 'Default Supplier 3' }
-      ]);
+    if (storeId && suppliersFetchedRef.current.storeId !== storeId) {
+      suppliersFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [selectedStore?.storeId]);
+    if (storeId && billsFetchedRef.current.storeId !== storeId) {
+      billsFetchedRef.current = { storeId: null, supplierId: null, fetched: false };
+    }
+  }, [storeId]);
+
+  // Fetch suppliers on component mount or store change (only once per store)
+  useEffect(() => {
+    fetchSuppliers();
+  }, [storeId]);
 
   // Fetch available bills when supplier is selected
   useEffect(() => {
-    if (formData.supplierId && selectedStore?.storeId) {
+    if (formData.supplierId && storeId) {
+      // Reset bills ref when supplier changes
+      if (billsFetchedRef.current.supplierId !== formData.supplierId) {
+        billsFetchedRef.current = { storeId: null, supplierId: null, fetched: false };
+      }
       fetchBills(formData.supplierId);
     } else {
       setBills([]);
     }
-  }, [formData.supplierId, selectedStore]);
+  }, [formData.supplierId, storeId]);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -802,8 +844,8 @@ const CreatePayment = () => {
                                   </div>
                                 )}
                               </div>
-                          </Card>
-                        ))}
+                            </Card>
+                          ))}
                         </div>
                       </div>
                     </Card>

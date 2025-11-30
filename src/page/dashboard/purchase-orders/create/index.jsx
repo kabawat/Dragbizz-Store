@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { supplierService, productService, purchaseOrderService } from '@/service/retailer';
@@ -81,15 +81,35 @@ const CreatePurchaseOrder = () => {
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
   const { toasts, showSuccess, removeToast } = useToast();
 
+  // Refs to prevent duplicate API calls
+  const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
+  const productsFetchedRef = useRef({ storeId: null, fetched: false });
+
+  // Get stable storeId
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
   // Fetch suppliers
   const fetchSuppliers = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) return;
+
+    // Prevent duplicate calls for the same store
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) {
+      return;
+    }
+
+    // Prevent call if already loading
+    if (suppliersLoading) {
+      return;
+    }
+
+    suppliersFetchedRef.current = { storeId, fetched: true };
+
     try {
       setSuppliersLoading(true);
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         const data = result.data?.data || result.data || [];
@@ -102,13 +122,24 @@ const CreatePurchaseOrder = () => {
 
   // Fetch products
   const fetchProducts = async () => {
-    if (!selectedStore?.storeId) return;
+    if (!storeId) return;
+
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+      return;
+    }
+
+    if (productsLoading) {
+      return;
+    }
+
+    productsFetchedRef.current = { storeId, fetched: true };
+
     try {
       setProductsLoading(true);
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: storeId
       });
       if (result.success) {
         const data = result.data?.data || result.data || [];
@@ -119,10 +150,21 @@ const CreatePurchaseOrder = () => {
     }
   };
 
+  // Reset refs when storeId changes
   useEffect(() => {
+    if (storeId && (suppliersFetchedRef.current.storeId !== storeId || productsFetchedRef.current.storeId !== storeId)) {
+      suppliersFetchedRef.current = { storeId: null, fetched: false };
+      productsFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [storeId]);
+
+  // Fetch data on mount or store change (only once per store)
+  useEffect(() => {
+    if (!storeId) return;
+
     fetchSuppliers();
     fetchProducts();
-  }, [selectedStore]);
+  }, [storeId]);
 
   useEffect(() => {
     setShowBillingAddress(!!formData.billingAddress);
@@ -137,7 +179,7 @@ const CreatePurchaseOrder = () => {
       setShowAddSupplierDrawer(true);
       return;
     }
-    
+
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -145,14 +187,17 @@ const CreatePurchaseOrder = () => {
   };
 
   const handleSupplierSuccess = async (newSupplier) => {
+    // Reset ref to allow refresh after new supplier creation
+    suppliersFetchedRef.current = { storeId: null, fetched: false };
+
     // Refresh suppliers list after successful creation
     await fetchSuppliers();
-    
+
     // Auto-select the newly created supplier
     if (newSupplier && (newSupplier.id || newSupplier._id)) {
-      setFormData(prev => ({ 
-        ...prev, 
-        supplier: newSupplier.id || newSupplier._id 
+      setFormData(prev => ({
+        ...prev,
+        supplier: newSupplier.id || newSupplier._id
       }));
     }
   };
@@ -384,10 +429,10 @@ const CreatePurchaseOrder = () => {
       if (result.success) {
         const poNumber = result.data?.poNumber || `PO-${Date.now()}`;
         const poId = result.data?.id || result.data?._id || '';
-        
+
         // Show success toast
         showSuccess(`${poNumber} has been created successfully!`);
-        
+
         // Reset form and redirect after a short delay
         setTimeout(() => {
           setFormData(formInit);
