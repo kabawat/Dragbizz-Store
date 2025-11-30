@@ -84,6 +84,11 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
             padding-bottom: 2px !important;
           }
 
+          body.print-mode-mini .modern-info  .company-name,
+          body.print-mode-mini .modern-info .customer-name {
+            font-size: 15px !important;
+            margin-bottom: 5px 0 !important;
+          }
           body.print-mode-mini .modern-info p {
             font-size: 9px !important;
             margin: 2px 0 !important;

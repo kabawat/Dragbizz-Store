@@ -17,6 +17,15 @@
   border: none !important;
   box-shadow: none !important;
 }
+:global(body.print-mode-mini) .classicInfo {
+  flex-direction: column;
+
+   .companyInfo,
+  .customerInfo {
+    width: 100% !important;
+  }
+}
+
 
 :global(body.print-mode-standard) .classicInvoice {
   max-width: 800px !important;

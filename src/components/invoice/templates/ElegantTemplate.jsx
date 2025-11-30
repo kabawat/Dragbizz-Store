@@ -21,7 +21,9 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
 
           /* ✅ Header */
           body.print-mode-mini .elegant-header {
+            width : 100% !important;
             flex-direction: column !important;
+            align-items: center !important;
             text-align: center !important;
             gap: 4px !important;
           }
@@ -36,10 +38,12 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
 
           body.print-mode-mini .elegant-details .elegant-title {
             font-size: 16px !important;
+            text-align:center !important;
           }
 
           body.print-mode-mini .elegant-details p {
             font-size: 10px !important;
+            text-align:center !important;
           }
 
           /* ✅ Info boxes compact */
