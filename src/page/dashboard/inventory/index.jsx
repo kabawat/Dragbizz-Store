@@ -1,8 +1,8 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input } from '@/components/ui';
@@ -40,11 +40,42 @@ const InventoryPage = () => {
   
   // Refs
   const scrollRef = useRef(null);
-  const hasFetched = useRef(false);
+  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
+  const isFetchingRef = useRef(false);
+  const lastFetchKeyRef = useRef(null);
 
   // Fetch inventories
-  const fetchInventories = async (page = 1, append = false) => {
+  const fetchInventories = useCallback(async (page = 1, append = false) => {
     if (!storeId) return;
+    
+    // Create a unique key for this fetch
+    const fetchKey = `${storeId}-${searchValue}-${page}-${append}`;
+    
+    // Prevent duplicate calls with same parameters
+    if (lastFetchKeyRef.current === fetchKey) {
+      return;
+    }
+
+    // For initial load (page 1, not append), check if we've already fetched
+    if (page === 1 && !append) {
+      const lastFetched = hasFetchedRef.current;
+      if (
+        lastFetched.fetched &&
+        lastFetched.storeId === storeId &&
+        lastFetched.searchValue === searchValue &&
+        !isFetchingRef.current
+      ) {
+        return;
+      }
+    }
+
+    // Prevent call if already fetching
+    if (isFetchingRef.current && !append) {
+      return;
+    }
+
+    lastFetchKeyRef.current = fetchKey;
+    isFetchingRef.current = true;
     
     try {
       if (page === 1) {
@@ -69,6 +100,12 @@ const InventoryPage = () => {
           setInventories(prev => [...prev, ...newInventories]);
         } else {
           setInventories(newInventories);
+          // Update fetch ref for initial load
+          hasFetchedRef.current = {
+            storeId,
+            searchValue,
+            fetched: true
+          };
         }
         
         setHasMore(response.data?.pagination?.hasNext || false);
@@ -78,24 +115,40 @@ const InventoryPage = () => {
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
+      isFetchingRef.current = false;
     }
-  };
+  }, [storeId, searchValue]);
 
-  // Initial fetch
+  // Fetch inventories on mount or when dependencies change
   useEffect(() => {
-    if (storeId && !hasFetched.current) {
-      hasFetched.current = true;
-      fetchInventories();
-    }
-  }, [storeId]);
+    if (!storeId) return;
 
-  // Refetch when search changes
-  useEffect(() => {
-    if (storeId) {
-      hasFetched.current = false;
-      fetchInventories(1);
+    const lastFetched = hasFetchedRef.current;
+    const storeChanged = lastFetched.storeId !== storeId;
+    const searchChanged = lastFetched.searchValue !== searchValue;
+
+    if (storeChanged || searchChanged) {
+      hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+      lastFetchKeyRef.current = null;
     }
-  }, [searchValue]);
+
+    if (
+      !storeChanged &&
+      !searchChanged &&
+      lastFetched.fetched &&
+      lastFetched.storeId === storeId &&
+      lastFetched.searchValue === searchValue
+    ) {
+      return;
+    }
+
+    // Prevent call if already fetching (but allow if store/search changed)
+    if (isFetchingRef.current && !storeChanged && !searchChanged) {
+      return;
+    }
+
+    fetchInventories(1, false);
+  }, [storeId, searchValue]);
 
   // Infinite scroll
   useEffect(() => {
@@ -119,28 +172,9 @@ const InventoryPage = () => {
 
   // Load more function
   const handleLoadMore = async () => {
-    if (hasMore && !isLoadingMore) {
-      try {
-        setIsLoadingMore(true);
-        const params = {
-          store: storeId,
-          page: Math.floor(inventories.length / 20) + 1,
-          limit: 20,
-          search: searchValue || undefined
-        };
-
-        const response = await inventoryService.getInventories(params);
-        
-        if (response.success) {
-          const newInventories = response.data?.inventories || response.data || [];
-          setInventories(prev => [...prev, ...newInventories]);
-          setHasMore(response.data?.pagination?.hasNext || false);
-        }
-      } catch (error) {
-        console.error('Error loading more inventories:', error);
-      } finally {
-        setIsLoadingMore(false);
-      }
+    if (hasMore && !isLoadingMore && !isFetchingRef.current) {
+      const nextPage = Math.floor(inventories.length / 20) + 1;
+      await fetchInventories(nextPage, true);
     }
   };
 
@@ -171,8 +205,9 @@ const InventoryPage = () => {
     // Show success message
     alert(message);
     // Refresh the inventory list
-    hasFetched.current = false;
-    fetchInventories(1);
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+    lastFetchKeyRef.current = null;
+    fetchInventories(1, false);
   };
 
   const handleCloseStockInDrawer = () => {
