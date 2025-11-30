@@ -25,12 +25,19 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
             color: #34495e !important; /* Darker text */
             background: #f8f9fa !important;
           }
-                  body.print-mode-mini .modern-invoice {
+          body.print-mode-mini .modern-invoice {
             width: 74mm !important;
             max-width: 74mm !important;
             padding: 6px !important;
             border: none !important;
             box-shadow: none !important;
+        }
+          body.print-mode-mini .modern-header {
+            flex-direction: column !important;
+            align-items: center !important;
+            .modern-header-right {
+            text-align: center !important;
+          }
         }
         body.print-mode-standard .modern-invoice {
             max-width: 800px !important;

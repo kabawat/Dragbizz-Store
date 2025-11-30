@@ -37,17 +37,40 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         }
 
          body.print-mode-mini .aero-invoice {
-    width: 74mm !important;
-    max-width: 74mm !important;
-    padding: 6px !important;
-    border: none !important; /* thermal usually no border */
-    box-shadow: none !important;
-  }
+          width: 74mm !important;
+          max-width: 74mm !important;
+          padding: 6px !important;
+          border: none !important; /* thermal usually no border */
+          box-shadow: none !important;
+        }
+        body.print-mode-mini .aero-header {
+          flex-direction: column !important;
+          align-items: center !important;
+          text-align: center !important;
 
-  body.print-mode-standard .aero-invoice {
-    max-width: 800px !important;
-    padding: 40px !important;
-  }
+          .invoice-title-box {
+            text-align: center !important;
+          }
+        }
+        body.print-mode-mini .info-section {
+            flex-direction: column !important;
+            .info-card {
+              width: 100% !important;
+            }
+        }
+        body.print-mode-mini table th,
+        body.print-mode-mini table td {
+            font-size: 10px !important;
+        }
+
+        body.print-mode-standard .aero-invoice {
+          max-width: 800px !important;
+          padding: 40px !important;
+        }
+        body.print-mode-standard .aero-invoice {
+          max-width: 800px !important;
+          padding: 40px !important;
+        }
 
         
         .aero-invoice {
@@ -233,7 +256,7 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Table */}
-        <table>
+        <table width={"100%"}>
           <thead>
             <tr>
               <th>Description</th>
