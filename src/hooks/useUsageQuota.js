@@ -25,6 +25,7 @@ export function useUsageQuota(featureKey = null) {
   const hasFetchedRef = useRef(false);
   const lastFeatureKeyRef = useRef(null);
   const isFetchingRef = useRef(false);
+  const lastFetchCacheKeyRef = useRef(null);
 
   const getCacheKey = useCallback((sub, fKey) => {
     const subId = sub?._id || sub?.id || 'no-sub';
@@ -194,7 +195,12 @@ export function useUsageQuota(featureKey = null) {
       ? (featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`)
       : null;
     
-    if (cacheKey) {
+    if (!cacheKey) {
+      return;
+    }
+
+    // Check if already fetching for this exact cache key
+    if (isFetchingRef.current && pendingRequests.has(cacheKey)) {
       const existingRequest = pendingRequests.get(cacheKey);
       if (existingRequest) {
         existingRequest.then((pendingData) => {
@@ -208,9 +214,12 @@ export function useUsageQuota(featureKey = null) {
         }).catch(() => {});
         return;
       }
+    }
 
+    // Check cache first (only if subscription and featureKey haven't changed)
+    if (!subChanged && !featureKeyChanged) {
       const cached = quotaCache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL && !subChanged && !featureKeyChanged) {
+      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL) {
         if (featureKey) {
           setQuota(cached.data.quota);
         } else {
@@ -218,24 +227,34 @@ export function useUsageQuota(featureKey = null) {
         }
         setIsLoading(false);
         hasFetchedRef.current = true;
+        subscriptionRef.current = subscriptionId;
+        lastFeatureKeyRef.current = featureKey;
         return;
       }
     }
     
+    // Prevent duplicate calls if already fetching
     if (isFetchingRef.current) {
       return;
     }
     
-    if (!hasFetchedRef.current || subChanged || featureKeyChanged) {
-      if (subChanged) {
-        subscriptionRef.current = subscriptionId;
-        hasFetchedRef.current = false;
-      }
-      if (featureKeyChanged) {
-        lastFeatureKeyRef.current = featureKey;
-        hasFetchedRef.current = false;
-      }
-      
+    // Update refs if subscription or featureKey changed
+    if (subChanged) {
+      subscriptionRef.current = subscriptionId;
+      hasFetchedRef.current = false;
+      lastFetchCacheKeyRef.current = null; // Reset cache key ref on subscription change
+    }
+    if (featureKeyChanged) {
+      lastFeatureKeyRef.current = featureKey;
+      hasFetchedRef.current = false;
+      lastFetchCacheKeyRef.current = null; // Reset cache key ref on featureKey change
+    }
+    
+    // Only fetch if not already fetched for this exact combination
+    // Also check if we're not already fetching for the same cache key
+    const isSameCacheKey = lastFetchCacheKeyRef.current === cacheKey;
+    if ((!hasFetchedRef.current || subChanged || featureKeyChanged) && !isSameCacheKey && !isFetchingRef.current) {
+      lastFetchCacheKeyRef.current = cacheKey;
       fetchQuota();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
