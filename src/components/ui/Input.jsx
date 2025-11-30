@@ -159,33 +159,8 @@ const Input = forwardRef(({
           </div>
         )}
 
-        <input
-          ref={ref}
-          type={inputType}
-          placeholder={placeholder}
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          autoFocus={autoFocus}
-          disabled={disabled}
-          required={required}
-          name={name}
-          id={id}
-          maxLength={maxLength}
-          minLength={minLength}
-          pattern={pattern}
-          autoComplete={autoComplete}
-          min={min}
-          max={max}
-          step={step}
-          className={inputClasses}
-          style={error ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
-          {...props}
-        />
-      </div>
-
-      {/* Right Elements */}
-      <div className={`absolute top-1/2 -translate-y-1/2 z-10 flex items-center justify-center ${size === 'sm' ? 'right-2' : size === 'lg' ? 'right-4' : 'right-3'}`}>
+        {/* Right Elements - Inside input container */}
+        <div className={`absolute right-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 pe-3' : size === 'lg' ? 'w-12 pe-5' : 'w-10 pe-4'}`}>
         {/* Password Toggle */}
         {showPasswordToggle && type === 'password' && (
           <button
@@ -233,6 +208,31 @@ const Input = forwardRef(({
         {(error || success) && (
           <AlertCircle className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-green-500'}`} />
         )}
+        </div>
+
+        <input
+          ref={ref}
+          type={inputType}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          autoFocus={autoFocus}
+          disabled={disabled}
+          required={required}
+          name={name}
+          id={id}
+          maxLength={maxLength}
+          minLength={minLength}
+          pattern={pattern}
+          autoComplete={autoComplete}
+          min={min}
+          max={max}
+          step={step}
+          className={inputClasses}
+          style={error ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
+          {...props}
+        />
       </div>
 
       {/* Helper Text / Error Message / Success Message */}

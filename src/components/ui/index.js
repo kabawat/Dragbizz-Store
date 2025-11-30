@@ -14,6 +14,7 @@ import Loading, { Spinner, Skeleton, SkeletonText, SkeletonCard, ProgressBar, Ci
 import Tabs, { TabPanel } from './Tabs';
 import Accordion, { AccordionItem } from './Accordion';
 import AnimatedBackground from './AnimatedBackground';
+import AnimatedGridPattern from './AnimatedGridPattern';
 import SVGBackground from './SVGBackground';
 import SettingsPanel from './ThemeSelector';
 import Dropdown from './Dropdown';
@@ -73,6 +74,7 @@ export {
   Accordion,
   AccordionItem,
   AnimatedBackground,
+  AnimatedGridPattern,
   SVGBackground,
   SettingsPanel,
   Dropdown,
@@ -139,6 +141,7 @@ export default {
   Accordion,
   AccordionItem,
   AnimatedBackground,
+  AnimatedGridPattern,
   SVGBackground,
   SettingsPanel,
   Dropdown,
