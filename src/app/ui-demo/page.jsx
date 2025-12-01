@@ -136,15 +136,6 @@ const UIDemoPage = () => {
                 label="Rich Text Content"
               />
             </Card>
-
-            {/* Theme Selector */}
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
-                Settings Panel (Theme Selector)
-              </h3>
-              <SettingsPanel />
-            </Card>
-
             {/* Tabs */}
             <Card className="p-6">
               <h3 className="text-xl font-semibold mb-4 text-[rgb(var(--color-text-primary))]">

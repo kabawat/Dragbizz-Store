@@ -544,9 +544,6 @@ const InvoicesPage = () => {
         </div>
       </div>
 
-      {/* Theme selector */}
-      <SettingsPanel />
-
       {/* Delete confirmation modal */}
       <InvoiceDeleteConfirmModal
         isOpen={showDeleteModal}

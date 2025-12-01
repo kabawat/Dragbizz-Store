@@ -2,6 +2,7 @@
 import { authAxios } from '@/service/config/axiosConfig';
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
+import { attachQueryParams } from '@/utils/queryParams';
 
 class StoreService {
   constructor() {
@@ -77,7 +78,7 @@ class StoreService {
   // Get store details
   async getStore(storeId) {
     try {
-      const response = await authAxios.get(`${API_CONFIG?.RETAILER?.STORE}/${storeId}`);
+      const response = await authAxios.get(`${API_CONFIG?.RETAILER?.STORE}?id=${storeId}`);
       return handleApiSuccess(response?.data, 'Store fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'store-get');
@@ -97,8 +98,8 @@ class StoreService {
   // Get all stores for retailer
   async getStores(params = {}) {
     try {
-      const queryParams = new URLSearchParams(params).toString();
-      const response = await authAxios.get(`${API_CONFIG?.RETAILER?.STORE}?${queryParams}`);
+      const url = attachQueryParams(API_CONFIG?.RETAILER?.STORE, params);
+      const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Stores fetched successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'stores-list');

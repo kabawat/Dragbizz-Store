@@ -467,9 +467,6 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      {/* Theme selector */}
-      <SettingsPanel />
-
       {/* Delete confirmation modal */}
       <ProductDeleteConfirmModal
         isOpen={showDeleteModal}

@@ -518,8 +518,6 @@ const CustomersPage = () => {
         </div>
       </div>
 
-      {/* Theme Selector */}
-      <SettingsPanel />
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (

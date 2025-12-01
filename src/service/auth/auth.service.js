@@ -1,5 +1,5 @@
 // src/service/auth/auth.service.js
-import { unauthAxios } from '../config/axiosConfig';
+import { unauthAxios, authAxios } from '../config/axiosConfig';
 import { API_CONFIG } from '@/config';
 import { getUserLocation } from '@/utils/locationUtils';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
@@ -271,6 +271,26 @@ class AuthService {
       return handleApiSuccess(response, 'Token refreshed successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'token-refresh');
+    }
+  }
+
+  // Get authenticated user profile from auth service
+  async getProfile() {
+    try {
+      const response = await authAxios.get(API_CONFIG.AUTH.PROFILE);
+      return handleApiSuccess(response, 'Profile fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'get-profile');
+    }
+  }
+
+  // Update authenticated user profile in auth service
+  async updateProfile(profileData) {
+    try {
+      const response = await authAxios.put(API_CONFIG.AUTH.PROFILE, profileData);
+      return handleApiSuccess(response, 'Profile updated successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'update-profile');
     }
   }
 }

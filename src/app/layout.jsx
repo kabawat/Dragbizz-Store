@@ -6,6 +6,7 @@ import { LocationProvider } from "./LocationProvider";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
+import { SettingsPanel } from "@/components/ui";
 import ToastInitializer from "@/components/ToastInitializer";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
 import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
                   {children}
                   <GlobalToastContainer />
                   <NetworkErrorWrapper />
+                  <SettingsPanel />
                 </LocationProvider>
               </NetworkErrorProvider>
             </ToastProvider>

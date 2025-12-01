@@ -1,55 +1,74 @@
 "use client"
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
   const { currentTheme, currentVariant, themes, changeTheme } = useTheme();
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const scrollContainerRef = useRef(null);
+
+  const handleThemeScroll = (e) => {
+    const target = e.currentTarget;
+    const atBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 4;
+    setShowScrollHint(!atBottom);
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full flex flex-col">
       <div>
-        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">Appearance Settings</h2>
+        <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">Appearance Settings</h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
           Customize your theme and appearance
         </p>
       </div>
 
       {/* Theme and Mode - Side by Side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 overflow-hidden">
         {/* Theme Selection */}
-        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 flex flex-col">
+        <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 flex flex-col min-h-0 h-full">
           <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex-shrink-0">Choose Theme</h3>
-          <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-2 flex-1 min-h-0">
-            {Object.entries(themes).map(([themeKey, theme]) => (
-              <button
-                key={themeKey}
-                onClick={() => changeTheme(themeKey)}
-                className={`relative p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${currentTheme === themeKey
-                  ? 'border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-10'
-                  : 'border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]'
-                  }`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: theme.colors.light.primary }}
-                  />
-                  <span className={`text-xs font-medium ${currentTheme === themeKey
-                    ? 'text-white'
-                    : 'text-[rgb(var(--color-text-primary))]'
+          <div className="relative flex-1 min-h-0 overflow-hidden pb-4">
+            <div ref={scrollContainerRef} onScroll={handleThemeScroll} className="grid grid-cols-2 gap-3 overflow-y-auto pr-2 h-full" >
+              {Object.entries(themes).map(([themeKey, theme]) => (
+                <button
+                  key={themeKey}
+                  onClick={() => changeTheme(themeKey)}
+                  className={`relative p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${currentTheme === themeKey
+                    ? 'border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-10'
+                    : 'border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]'
+                    }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: theme.colors.light.primary }}
+                    />
+                    <span className={`text-xs font-medium ${currentTheme === themeKey
+                      ? 'text-white'
+                      : 'text-[rgb(var(--color-text-primary))]'
+                      }`}>
+                      {theme.name}
+                    </span>
+                  </div>
+                  <p className={`text-xs text-left ${currentTheme === themeKey
+                    ? 'text-white/80'
+                    : 'text-[rgb(var(--color-text-secondary))]'
                     }`}>
-                    {theme.name}
-                  </span>
+                    {theme.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            {/* Scroll hint at bottom (hide when scrolled to end) */}
+            {showScrollHint && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-primary))]/70 to-transparent flex items-end justify-center">
+                <div className="mb-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgb(var(--color-bg-secondary))]/80 border border-[rgb(var(--color-border-primary))]/60 text-[10px] text-[rgb(var(--color-text-secondary))]">
+                  {/* <span>Scroll for more themes</span> */}
                 </div>
-                <p className={`text-xs text-left ${currentTheme === themeKey
-                  ? 'text-white/80'
-                  : 'text-[rgb(var(--color-text-secondary))]'
-                  }`}>
-                  {theme.description}
-                </p>
-              </button>
-            ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -100,11 +119,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
 
             {/* Moon Icon - Moves from top to its position */}
             {currentVariant === 'dark' && (
-              <div
-                className="absolute"
-                style={{ right: '25%', bottom: '20%' }}
-                key={`moon-${animationKey}`}
-              >
+              <div className="absolute" style={{ right: '25%', bottom: '20%' }} key={`moon-${animationKey}`} >
                 <div
                   className="relative w-16 h-16 rounded-full flex items-center justify-center moon-appear"
                   style={{
