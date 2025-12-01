@@ -169,10 +169,10 @@ const VerificationStep = ({
                 <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mb-6 border border-indigo-300/30">
                   <MessageSquare className="w-8 h-8 text-indigo-700" />
                 </div>
-                <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-4">
+                <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
                   Almost there! 🎯
                 </h1>
-                <p className="text-xl text-gray-700 leading-relaxed mb-8">
+                <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
                   Verify your account with the code we just sent
                 </p>
               </div>
@@ -184,8 +184,8 @@ const VerificationStep = ({
                     <Mail className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Secure Verification</h3>
-                    <p className="text-gray-600 text-sm">5-digit code sent to your {contactType}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure Verification</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">5-digit code sent to your {contactType}</p>
                   </div>
                 </div>
 
@@ -194,8 +194,8 @@ const VerificationStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Quick Process</h3>
-                    <p className="text-gray-600 text-sm">Auto-submits when all digits are entered</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Process</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Auto-submits when all digits are entered</p>
                   </div>
                 </div>
 
@@ -204,15 +204,15 @@ const VerificationStep = ({
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Safe & Secure</h3>
-                    <p className="text-gray-600 text-sm">Your verification code expires in 10 minutes</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Safe & Secure</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Your verification code expires in 10 minutes</p>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
-                <p className="text-gray-600 text-sm">
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
                   © 2025 DragBizz. All rights reserved.
                 </p>
               </div>
@@ -224,13 +224,13 @@ const VerificationStep = ({
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10">
           {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
-            <div className="w-full max-w-xl bg-white rounded-xl border border-gray-200 shadow-lg p-8 sm:p-10">
+            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg p-8 sm:p-10">
               {/* Mobile Logo */}
               <div className="lg:hidden text-center mb-8">
                 <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
                   <MessageSquare className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
                   DragBizz Store
                 </h1>
               </div>
@@ -367,9 +367,9 @@ const VerificationStep = ({
 
                   {/* Demo Hint - Only show in development */}
                   {ENV_CONFIG.ENV.IS_DEVELOPMENT && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 sm:p-4 text-center mt-4">
-                      <p className="text-yellow-700 text-xs sm:text-sm">
-                        💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">00000</code> to continue
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 sm:p-4 text-center mt-4">
+                      <p className="text-yellow-700 dark:text-yellow-300 text-xs sm:text-sm">
+                        💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 dark:bg-yellow-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">00000</code> to continue
                       </p>
                     </div>
                   )}

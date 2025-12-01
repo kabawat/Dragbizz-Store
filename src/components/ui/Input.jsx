@@ -24,7 +24,7 @@ const Input = forwardRef(({
   maxLength,
   minLength,
   pattern,
-  autoComplete,
+  autoComplete = 'off',
   showPasswordToggle = false,
   rightElement,
   size = 'sm',
@@ -225,7 +225,7 @@ const Input = forwardRef(({
           maxLength={maxLength}
           minLength={minLength}
           pattern={pattern}
-          autoComplete={autoComplete}
+          autoComplete={autoComplete || 'off'}
           min={min}
           max={max}
           step={step}

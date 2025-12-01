@@ -82,10 +82,10 @@ const BasicInfoStep = ({
                 <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mb-6 border border-indigo-300/30">
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
-                <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-4">
+                <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
                   Let's get started! 🚀
                 </h1>
-                <p className="text-xl text-gray-700 leading-relaxed mb-8">
+                <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
                   We just need a few details to create your account
                 </p>
               </div>
@@ -97,8 +97,8 @@ const BasicInfoStep = ({
                     <User className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Quick Setup</h3>
-                    <p className="text-gray-600 text-sm">Just your name and contact information</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Setup</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Just your name and contact information</p>
                   </div>
                 </div>
 
@@ -107,8 +107,8 @@ const BasicInfoStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Smart Detection</h3>
-                    <p className="text-gray-600 text-sm">We automatically detect email or phone</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Smart Detection</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">We automatically detect email or phone</p>
                   </div>
                 </div>
 
@@ -117,15 +117,15 @@ const BasicInfoStep = ({
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Secure & Private</h3>
-                    <p className="text-gray-600 text-sm">Your information is always protected</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure & Private</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Your information is always protected</p>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
-                <p className="text-gray-600 text-sm">
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
                   © 2025 DragBizz. All rights reserved.
                 </p>
               </div>
@@ -137,13 +137,13 @@ const BasicInfoStep = ({
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10">
           {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
-            <div className="w-full max-w-xl bg-white rounded-xl border border-gray-200 shadow-lg p-8 sm:p-10">
+            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg p-8 sm:p-10">
               {/* Mobile Logo */}
               <div className="lg:hidden text-center mb-8">
                 <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
                   <Shield className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
                   DragBizz Store
                 </h1>
               </div>
@@ -153,10 +153,10 @@ const BasicInfoStep = ({
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
                   <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
-                <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+                <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
                   Nice to meet you! 👋
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
                   Let's start with some basic information
                 </p>
                 
@@ -165,16 +165,16 @@ const BasicInfoStep = ({
                   <div className="w-6 h-6 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-xs font-semibold">
                     1
                   </div>
-                  <div className="w-8 h-1 bg-gray-300"></div>
-                  <div className="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs font-semibold">
+                  <div className="w-8 h-1 bg-[rgb(var(--color-border-primary))]"></div>
+                  <div className="w-6 h-6 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] rounded-full flex items-center justify-center text-xs font-semibold">
                     2
                   </div>
-                  <div className="w-8 h-1 bg-gray-300"></div>
-                  <div className="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs font-semibold">
+                  <div className="w-8 h-1 bg-[rgb(var(--color-border-primary))]"></div>
+                  <div className="w-6 h-6 bg-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] rounded-full flex items-center justify-center text-xs font-semibold">
                     3
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Step 1 of 3</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">Step 1 of 3</p>
               </div>
 
               {/* Form */}
@@ -272,13 +272,13 @@ const BasicInfoStep = ({
                   {/* Helper Text */}
                   <div className="mt-2">
                     {validationStatus === 'available' && (
-                      <p className="text-green-600 text-sm flex items-center">
+                      <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Great! This {contactType} is available
                       </p>
                     )}
                     {validationStatus === 'taken' && (
-                      <p className="text-red-500 text-sm flex items-center">
+                      <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
                         <AlertCircle className="w-4 h-4 mr-1" />
                         This {contactType} is already registered
                       </p>
@@ -302,7 +302,7 @@ const BasicInfoStep = ({
                   <button 
                     type="button"
                     onClick={onBack} 
-                    className="px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50/30 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center"
+                    className="px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center"
                   >
                     <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Back
