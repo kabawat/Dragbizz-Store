@@ -96,12 +96,11 @@ const SettingsPanel = () => {
   const tabs = [
     { id: 'appearance', label: 'Appearance', icon: Palette },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'privacy', label: 'Privacy', icon: Shield },
     { id: 'general', label: 'General', icon: Settings }
   ];
 
   return (
-    <div className="settings-panel fixed bottom-6 right-6 z-[10000]">
+    <div className="settings-panel fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000]">
       {/* Main Settings Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -116,7 +115,7 @@ const SettingsPanel = () => {
       {isOpen && (
         <div 
           data-drawer
-          className="fixed top-0 right-0 h-full w-[30.5rem] bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col isolate"
+          className="fixed inset-y-0 right-0 w-full max-w-full sm:max-w-md md:w-[30.5rem] bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col isolate"
         >
           {/* Header */}
           <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex-shrink-0 relative z-10">
@@ -156,14 +155,42 @@ const SettingsPanel = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
             {/* Appearance Tab */}
             {activeTab === 'appearance' && (
               <div className="space-y-6">
+                {/* Dark Mode Toggle */}
+                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {currentVariant === 'light' ? (
+                      <Sun className="w-5 h-5 text-yellow-500" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-blue-500" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Dark Mode</p>
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                        {currentVariant === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleVariantToggle}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                      currentVariant === 'dark' ? 'bg-[rgb(var(--color-primary))]' : 'bg-[rgb(var(--color-border-primary))]'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        currentVariant === 'dark' ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
                 {/* Theme Selection */}
                 <div>
                   <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">Theme</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.entries(themes).map(([themeKey, theme]) => (
                       <button
                         key={themeKey}
@@ -198,35 +225,6 @@ const SettingsPanel = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    {currentVariant === 'light' ? (
-                      <Sun className="w-5 h-5 text-yellow-500" />
-                    ) : (
-                      <Moon className="w-5 h-5 text-blue-500" />
-                    )}
-                    <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Dark Mode</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        {currentVariant === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleVariantToggle}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      currentVariant === 'dark' ? 'bg-[rgb(var(--color-primary))]' : 'bg-[rgb(var(--color-border-primary))]'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        currentVariant === 'dark' ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
                 </div>
               </div>
             )}
@@ -280,38 +278,6 @@ const SettingsPanel = () => {
               </div>
             )}
 
-            {/* Privacy Tab */}
-            {activeTab === 'privacy' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                    <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Analytics</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">Help improve the app</p>
-                    </div>
-                  </div>
-                  <button className="w-10 h-6 bg-[rgb(var(--color-primary))] rounded-full cursor-pointer">
-                    <span className="w-4 h-4 bg-white rounded-full block ml-1 mt-1"></span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                    <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Data Collection</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">Allow data collection</p>
-                    </div>
-                  </div>
-                  <button className="w-10 h-6 bg-[rgb(var(--color-border-primary))] rounded-full cursor-pointer">
-                    <span className="w-4 h-4 bg-white rounded-full block ml-1 mt-1"></span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            
 
             {/* General Tab */}
             {activeTab === 'general' && (

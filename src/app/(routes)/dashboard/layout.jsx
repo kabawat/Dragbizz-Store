@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { SettingsPanel } from '@/components/ui';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -85,7 +86,7 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
       {children}
     </div>
   );

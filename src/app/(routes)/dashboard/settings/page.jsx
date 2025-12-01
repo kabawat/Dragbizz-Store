@@ -88,8 +88,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="w-full mx-auto">
+            <div className="flex-1 min-h-0 overflow-hidden p-4 sm:p-6">
+              <div className="w-full h-full mx-auto">
                 {/* Tab Content */}
                 {activeTab === 'appearance' && (
                   <AppearanceSettings animationKey={animationKey} handleToggleVariant={handleToggleVariant} />

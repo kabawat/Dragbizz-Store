@@ -487,9 +487,6 @@ const SuppliersPage = () => {
         </div>
       </div>
 
-      {/* Theme Selector */}
-      <SettingsPanel />
-
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
