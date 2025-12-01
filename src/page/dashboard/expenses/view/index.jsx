@@ -50,7 +50,6 @@ const ViewExpensePage = ({ expenseId }) => {
           setError(result.message || 'Failed to fetch expense data');
         }
       } catch (error) {
-        console.error('Error fetching expense:', error);
         setError('Failed to fetch expense data. Please try again.');
       } finally {
         setFetching(false);
@@ -87,7 +86,6 @@ const ViewExpensePage = ({ expenseId }) => {
         setShowDeleteModal(false);
       }
     } catch (error) {
-      console.error('Error deleting expense:', error);
       setError('Failed to delete expense. Please try again.');
       setShowDeleteModal(false);
     } finally {

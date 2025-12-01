@@ -86,7 +86,6 @@ export const SubscriptionProvider = ({ children }) => {
         lastFetchTimeRef.current = Date.now();
       }
     } catch (err) {
-      console.error('Error fetching subscription:', err);
       setError(err.message || 'Failed to fetch subscription');
       setSubscription(null);
     } finally {

@@ -44,7 +44,6 @@ class CustomerService {
       const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Customers fetched successfully');
     } catch (error) {
-      console.error('Customer API error:', error);
       return handleApiErrorResponse(error, 'customers-list');
     }
   }

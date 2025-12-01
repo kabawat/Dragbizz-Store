@@ -56,7 +56,6 @@ const FileUpload = ({
     });
 
     if (errors.length > 0) {
-      console.warn('File upload errors:', errors);
     }
 
     if (validFiles.length > 0) {

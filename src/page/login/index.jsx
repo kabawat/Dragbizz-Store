@@ -191,7 +191,6 @@ export default function Login() {
         setErrors({ general: result.message || 'Login failed. Please try again.' });
       }
     } catch (error) {
-      console.error('Login error:', error);
       setErrors({ general: handleApiError(error, 'login') });
     } finally {
       setIsLoading(false);
@@ -224,7 +223,6 @@ export default function Login() {
       if (result.success) {
         const token = result.data?.token;
         if (!token) {
-          console.error('No token received from sendOTP:', result);
           setErrors(prev => ({ ...prev, otp: 'Failed to receive verification token. Please try again.' }));
           return;
         }
@@ -238,7 +236,6 @@ export default function Login() {
         setErrors(prev => ({ ...prev, otp: result.message || 'Failed to send OTP. Please try again.' }));
       }
     } catch (error) {
-      console.error('Send OTP error:', error);
       setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-send') }));
     } finally {
       setIsLoading(false);
@@ -281,7 +278,6 @@ export default function Login() {
   const handleOtpVerification = async (code) => {
     // Prevent duplicate API calls
     if (isVerifyingRef.current || isLoading) {
-      console.log('Verification already in progress, skipping duplicate call');
       return;
     }
 
@@ -320,7 +316,6 @@ export default function Login() {
           });
           setShowSuccessScreen(true);
         } else {
-          console.error('No auth token in verification response:', result);
           setErrors(prev => ({ ...prev, otp: 'Login successful but token not received. Please try again.' }));
           setOtpDigits(['', '', '', '', '']);
           inputRefs.current[0]?.focus();
@@ -331,7 +326,6 @@ export default function Login() {
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
       setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp') }));
       setOtpDigits(['', '', '', '', '']);
       inputRefs.current[0]?.focus();
@@ -373,7 +367,6 @@ export default function Login() {
         // Update the verification token - same structure as other responses
         const token = result.data?.token;
         if (!token) {
-          console.error('No token received from resendOTP:', result);
           setErrors(prev => ({ ...prev, otp: 'Failed to receive verification token. Please try again.' }));
           return;
         }
@@ -387,7 +380,6 @@ export default function Login() {
         setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
       }
     } catch (error) {
-      console.error('Resend OTP error:', error);
       setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-resend') }));
     } finally {
       setIsLoading(false);

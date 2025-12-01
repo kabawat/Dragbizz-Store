@@ -12,7 +12,6 @@ const PricingSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    console.log('PricingSection - Field:', field, 'Value:', value);
     onChange(field, value);
   };
 

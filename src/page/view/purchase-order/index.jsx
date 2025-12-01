@@ -23,7 +23,6 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
           setError('Purchase order not found');
         }
       } catch (err) {
-        console.error('Error fetching purchase order:', err);
         setError('Failed to load purchase order');
       } finally {
         setLoading(false);

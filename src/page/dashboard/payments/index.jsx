@@ -169,7 +169,6 @@ const Payments = () => {
         page: pagination?.page ? pagination.page + 1 : 2
       }));
     } catch (error) {
-      console.error('Error loading more payments:', error);
     } finally {
       setIsLoadingMore(false);
     }
@@ -237,7 +236,6 @@ const Payments = () => {
             page: 1
           }));
         } catch (error) {
-          console.error('Failed to delete payment:', error);
           // Error is already handled by the slice
         }
       }

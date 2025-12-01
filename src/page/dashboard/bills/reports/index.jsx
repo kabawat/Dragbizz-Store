@@ -80,7 +80,6 @@ const BillReports = () => {
   // Handle export
   const handleExport = () => {
     // Implement export logic
-    console.log('Exporting report:', { reportType, dateRange, supplierFilter });
   };
 
   // Format currency

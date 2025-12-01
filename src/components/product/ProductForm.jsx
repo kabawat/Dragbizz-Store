@@ -277,7 +277,6 @@ const ProductForm = ({
         setApiCategories(formattedCategories);
       }
     } catch (error) {
-      console.error('❌ Error fetching categories:', error);
       hasFetchedCategories.current = false; // Reset on error
     } finally {
       setCategoriesLoading(false);
@@ -345,10 +344,8 @@ const ProductForm = ({
           resetCategoryData();
           setShowAddCategoryDrawer(false);
         } else {
-          console.error('Failed to create category:', response.message);
         }
       } catch (error) {
-        console.error('Error creating category:', error);
       }
     }
   };

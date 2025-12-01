@@ -74,7 +74,6 @@ const UpdateProductPage = ({ productId }) => {
           id: productId
         };
         const result = await productService.getProducts(params);
-        console.log('API Response:', result);
 
         if (result.success && result.data) {
           const product = result.data;
@@ -124,14 +123,12 @@ const UpdateProductPage = ({ productId }) => {
             },
           };
 
-          console.log('Transformed Data:', transformedData);
 
           setFormData(transformedData);
         } else {
           setProductNotFound(true);
         }
       } catch (error) {
-        console.error('Error fetching product:', error);
         setProductNotFound(true);
       } finally {
         setInitialLoading(false);
@@ -156,7 +153,6 @@ const UpdateProductPage = ({ productId }) => {
   const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
-      console.error('fieldName must be a string:', fieldName);
       return;
     }
 
@@ -208,7 +204,6 @@ const UpdateProductPage = ({ productId }) => {
         }
       };
 
-      console.log('Sending update data:', updateData);
       const result = await productService.updateProduct(productId, updateData, storeId);
 
       if (result.success) {

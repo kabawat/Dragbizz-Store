@@ -76,7 +76,6 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                 }));
             }
         } catch (error) {
-            console.error('Error fetching products:', error);
         } finally {
             setProductsLoading(false);
         }

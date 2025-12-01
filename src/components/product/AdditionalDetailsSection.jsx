@@ -10,8 +10,6 @@ const AdditionalDetailsSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    console.log('AdditionalDetails - Field:', field, 'Value:', value);
-    console.log('Calling onChange with:', field, value);
     onChange(field, value);
   };
 

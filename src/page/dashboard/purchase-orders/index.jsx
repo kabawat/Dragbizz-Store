@@ -276,7 +276,6 @@ const getFilteredPOs = () => {
       // Show simple toast notification
       showToast(`Purchase Order ${poNumber} deletion has been scheduled.`, 'success', 3000);
     } catch (error) {
-      console.error('Failed to delete purchase order:', error);
     } finally {
       setIsDeleting(false);
     }
@@ -521,7 +520,6 @@ const getFilteredPOs = () => {
         purchaseOrder={selectedPOForBill}
         onSuccess={(bill) => {
           // Handle successful bill creation
-          console.log('Bill created successfully:', bill);
           // You can add toast notification or refresh data here
         }}
       />
@@ -535,7 +533,6 @@ const getFilteredPOs = () => {
         purchaseOrder={selectedPOForPayment}
         onSuccess={() => {
           // Handle successful advance payment creation
-          console.log('Advance payment created successfully');
           // Refresh purchase orders list
           const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
           if (storeId) {

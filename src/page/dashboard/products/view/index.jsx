@@ -43,13 +43,11 @@ const ViewProductPage = ({ productId }) => {
         const result = await productService.getProducts(params);
         
         if (result.success && result.data) {
-          console.log('Product data:', result.data);
           setProductData(result.data);
         } else {
           setError(result.message || 'Failed to fetch product data');
         }
       } catch (error) {
-        console.error('Error fetching product:', error);
         setError('Failed to fetch product data. Please try again.');
       } finally {
         setFetching(false);
@@ -86,7 +84,6 @@ const ViewProductPage = ({ productId }) => {
         setShowDeleteModal(false);
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
       setError('Failed to delete product. Please try again.');
       setShowDeleteModal(false);
     } finally {

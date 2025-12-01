@@ -37,7 +37,6 @@ const ViewInventoryPage = ({ inventoryId }) => {
           setError('Failed to fetch inventory details');
         }
       } catch (error) {
-        console.error('Error fetching inventory:', error);
         setError('Error loading inventory details');
       } finally {
         setLoading(false);

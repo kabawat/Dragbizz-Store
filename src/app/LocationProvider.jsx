@@ -20,7 +20,6 @@ export const LocationProvider = ({ children }) => {
       setUserLocation(result.location);
       
       if (!result.success && result.error) {
-        console.error('App Layout - Failed to get location:', result.error.message);
         setLocationError(result.error.message);
       }
       

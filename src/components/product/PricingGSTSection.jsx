@@ -11,7 +11,6 @@ const PricingGSTSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    console.log('PricingGSTSection - Field:', field, 'Value:', value);
     onChange(field, value);
   };
 

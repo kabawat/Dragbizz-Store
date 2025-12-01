@@ -12,8 +12,6 @@ export default function StoreCreation() {
   const router = useRouter();
   const { agency, isLoading: profileLoading, error } = useAppSelector((state) => state.profile);
   const { userLocation } = useLocation();
-  console.log('agency from Redux:', agency);
-  console.log('user location:', userLocation);
   const [formData, setFormData] = useState({
     agency: '',
     name: '',
@@ -130,10 +128,8 @@ export default function StoreCreation() {
       const result = await storeService.createStore(storeData);
       
       if (result && result.success) {
-        console.log('Store created successfully');
         setShowSuccessScreen(true);
       } else {
-        console.log('Store creation failed:', result);
         if (result?.error && result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields ||{});
         }

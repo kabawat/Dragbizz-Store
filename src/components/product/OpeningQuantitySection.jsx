@@ -46,7 +46,6 @@ const OpeningQuantitySection = ({
         setSuppliers(result.data?.data || result.data || []);
       }
     } catch (error) {
-      console.error('❌ Error fetching suppliers:', error);
       hasFetchedSuppliers.current = false; // Reset on error
     } finally {
       setSuppliersLoading(false);

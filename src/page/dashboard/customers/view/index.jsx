@@ -38,13 +38,11 @@ const ViewCustomerPage = ({ customerId }) => {
 
         const result = await customerService.getCustomers({ id: customerId, store: storeId });
         if (result.success && result.data) {
-          console.log(result.data);
           setCustomerData(result.data);
         } else {
           setError(result.message || 'Failed to fetch customer data');
         }
       } catch (error) {
-        console.error('Error fetching customer:', error);
         setError('Failed to fetch customer data. Please try again.');
       } finally {
         setFetching(false);
@@ -82,7 +80,6 @@ const ViewCustomerPage = ({ customerId }) => {
         setShowDeleteModal(false);
       }
     } catch (error) {
-      console.error('Error deleting customer:', error);
       setError('Failed to delete customer. Please try again.');
       setShowDeleteModal(false);
     } finally {

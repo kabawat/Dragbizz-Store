@@ -188,7 +188,6 @@ const EditPayment = ({ paymentId }) => {
           setFetchError(result.message || 'Failed to fetch payment data');
         }
       } catch (error) {
-        console.error('Error fetching payment:', error);
         setFetchError('Failed to fetch payment data. Please try again.');
       } finally {
         setFetching(false);
@@ -213,10 +212,8 @@ const EditPayment = ({ paymentId }) => {
         const suppliersData = result.data?.data || result.data || [];
         setSuppliers(suppliersData);
       } else {
-        console.error('Failed to fetch suppliers:', result.message);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
     } finally {
       setSuppliersLoading(false);
     }
@@ -241,11 +238,9 @@ const EditPayment = ({ paymentId }) => {
         const billsData = result.data?.data || result.data || [];
         setBills(billsData);
       } else {
-        console.error('Failed to fetch bills:', result.message);
         setBills([]);
       }
     } catch (error) {
-      console.error('Error fetching bills:', error);
       setBills([]);
     } finally {
       setBillsLoading(false);
@@ -486,7 +481,6 @@ const EditPayment = ({ paymentId }) => {
         setErrors({ general: result.message || 'Failed to update payment' });
       }
     } catch (error) {
-      console.error('Error updating payment:', error);
       setUpdateError('Failed to update payment. Please try again.');
       setErrors({ general: 'Failed to update payment. Please try again.' });
     } finally {

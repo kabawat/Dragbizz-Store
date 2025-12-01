@@ -45,7 +45,6 @@ const EditExpensePage = ({ expenseId }) => {
           setFetchingError(result.message || 'Failed to fetch expense data');
         }
       } catch (error) {
-        console.error('Error fetching expense:', error);
         setFetchingError('Failed to fetch expense data. Please try again.');
       } finally {
         setIsLoading(false);
@@ -80,7 +79,6 @@ const EditExpensePage = ({ expenseId }) => {
         setSubmitError(result.payload?.message || 'Failed to update expense');
       }
     } catch (error) {
-      console.error('Update expense error:', error);
       setSubmitError('An unexpected error occurred. Please try again.');
     }
   };

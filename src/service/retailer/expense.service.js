@@ -43,7 +43,6 @@ class ExpenseService {
       const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, params.id ? 'Expense fetched successfully' : 'Expenses fetched successfully');
     } catch (error) {
-      console.error('Expense API error:', error);
       return handleApiErrorResponse(error, 'expenses-list');
     }
   }

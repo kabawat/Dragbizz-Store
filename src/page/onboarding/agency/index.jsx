@@ -51,7 +51,6 @@ export default function AgencyCreation() {
         setErrors({ general: result.payload?.message || 'Failed to create agency' });
       }
     } catch (error) {
-      console.error('Agency creation error:', error);
       setErrors({ general: 'An error occurred while creating agency. Please try again.' });
     }
   };

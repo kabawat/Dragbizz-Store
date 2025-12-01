@@ -17,44 +17,37 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     // Don't redirect while loading
     if (isLoading || subscriptionLoading) {
-      console.log('Still loading, waiting...');
       return;
     }
     
     // Don't redirect if not authenticated (handled by parent layout)
     if (!isAuthenticated) {
-      console.log('Not authenticated, waiting for parent layout...');
       return;
     }
 
     // Check subscription first - redirect to packages if no subscription
     if (!hasSubscription) {
-      console.log('❌ No active subscription found, redirecting to packages');
       router.push('/packages');
       return;
     }
     
     // Handle explicit redirects
     if (redirectTo) {
-      console.log('Explicit redirect found:', redirectTo);
       router.push(redirectTo);
       return;
     }
     
     // Check for missing data and redirect accordingly
     if (!agency) {
-      console.log('❌ No agency found, redirecting to agency onboarding');
       router.push('/onboarding/agency');
       return;
     }
     
     if (agency && (!stores || stores.length === 0)) {
-      console.log('✅ Agency exists but no stores, redirecting to store onboarding');
       router.push('/onboarding/store');
       return;
     }
     
-    console.log('✅ All data present, showing dashboard');
   }, [redirectTo, agency, stores, isLoading, isAuthenticated, hasSubscription, subscriptionLoading, router]);
 
   // Show loading while checking data

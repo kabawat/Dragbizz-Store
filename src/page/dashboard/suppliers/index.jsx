@@ -230,7 +230,6 @@ const SuppliersPage = () => {
       setShowDeleteModal(false);
       setSupplierToDelete(null);
     } catch (error) {
-      console.error('Error deleting supplier:', error);
     } finally {
       setIsDeleting(false);
     }
@@ -264,7 +263,6 @@ const SuppliersPage = () => {
 
       await dispatch(getSuppliers(params));
     } catch (error) {
-      console.error('Error loading more suppliers:', error);
     } finally {
       setIsLoadingMore(false);
     }

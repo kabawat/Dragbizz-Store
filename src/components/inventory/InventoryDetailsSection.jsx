@@ -35,7 +35,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         setProducts(result.data?.data || result.data || []);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +50,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         setSuppliers(result.data?.data || result.data || []);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
     } finally {
       setSuppliersLoading(false);
     }

@@ -11,7 +11,6 @@ const StatusSection = ({
   ...props
 }) => {
   const handleFieldChange = (field, value) => {
-    console.log('StatusSection - Field:', field, 'Value:', value);
     onChange(field, value);
   };
 

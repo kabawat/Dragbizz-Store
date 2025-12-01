@@ -183,7 +183,6 @@ const Bills = () => {
         dispatch(addMoreBills(result.payload.data.data));
       }
     } catch (error) {
-      console.error('Error loading more bills:', error);
     } finally {
       setIsLoadingMore(false);
     }
@@ -320,11 +319,9 @@ const Bills = () => {
         setShowDeleteModal(false);
         setBillToDelete(null);
       } else {
-        console.error('Failed to delete bill:', result.message);
         // You can add a toast notification here
       }
     } catch (error) {
-      console.error('Error deleting bill:', error);
       // You can add a toast notification here
     } finally {
       setIsDeleting(false);

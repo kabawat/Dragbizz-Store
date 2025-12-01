@@ -135,7 +135,6 @@ const CreateAccount = () => {
         router.push('/dashboard/accounts');
       }
     } catch (error) {
-      console.error('Error creating account:', error);
     }
   };
 

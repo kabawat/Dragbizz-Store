@@ -69,7 +69,6 @@ const PackagesContent = () => {
         setError('Failed to load packages');
       }
     } catch (err) {
-      console.error('Error fetching packages:', err);
       setError(err.message || 'Failed to load packages');
     } finally {
       setLoading(false);

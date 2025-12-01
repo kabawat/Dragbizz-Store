@@ -61,7 +61,6 @@ const EditSupplierPage = ({ supplierId }) => {
           setError(result.message || 'Failed to fetch supplier data');
         }
       } catch (error) {
-        console.error('Error fetching supplier:', error);
         setError('Failed to fetch supplier data. Please try again.');
       } finally {
         setFetching(false);

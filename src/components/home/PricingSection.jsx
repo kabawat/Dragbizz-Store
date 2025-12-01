@@ -119,7 +119,6 @@ const PricingSection = ({
           setPlans(defaultPlans);
         }
       } catch (err) {
-        console.error('Error fetching packages:', err);
         setError(err.message);
         setPlans(defaultPlans);
       } finally {
