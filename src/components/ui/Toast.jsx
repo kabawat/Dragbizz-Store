@@ -40,12 +40,6 @@ const Toast = ({
     ? 'bg-red-500' 
     : 'bg-blue-500';
 
-  const iconColor = type === 'success' 
-    ? 'text-green-600' 
-    : type === 'error' 
-    ? 'text-red-600' 
-    : 'text-blue-600';
-
   const positionClasses = {
     'top-right': 'top-4 right-4',
     'bottom-center': 'bottom-4 left-1/2',
@@ -83,18 +77,23 @@ const Toast = ({
         flex items-center gap-3
       `}>
         {/* Icon */}
-        <div className={`
-          flex-shrink-0 
-          w-8 h-8 
-          rounded-full 
-          bg-white 
-          flex items-center justify-center
-        `}>
+        <div 
+          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+          style={{
+            backgroundColor: `rgb(var(--color-bg-primary))`
+          }}
+        >
           {type === 'success' && (
-            <CheckCircle className={`w-5 h-5 ${iconColor}`} />
+            <CheckCircle 
+              className="w-5 h-5" 
+              style={{ color: '#22c55e' }}
+            />
           )}
           {type === 'error' && (
-            <WifiOff className={`w-5 h-5 ${iconColor}`} />
+            <WifiOff 
+              className="w-5 h-5" 
+              style={{ color: '#ef4444' }}
+            />
           )}
         </div>
 
