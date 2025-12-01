@@ -55,7 +55,6 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
     // Reset form when drawer opens
     useEffect(() => {
         if (isOpen && purchaseOrder) {
-            // Initialize form with purchase order data
             setFormData(prev => ({
                 ...prev,
                 supplierId: purchaseOrder.supplier?._id || purchaseOrder.supplier?.id || purchaseOrder.supplier || '',
@@ -289,13 +288,13 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
 
     return (
         <>
-            <SideDrawer 
-                isOpen={isOpen} 
-                onClose={onClose} 
-                title="Advance Payment" 
+            <SideDrawer
+                isOpen={isOpen}
+                onClose={onClose}
+                title="Advance Payment"
                 icon={IndianRupee}
                 description={`Add advance payment for PO: ${purchaseOrder.poNumber || purchaseOrder.billNumber || ''}`}
-                width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5" 
+                width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5"
             >
                 <div className="p-3 sm:p-4 md:p-6 h-full">
                     <div className="flex flex-col h-full">
@@ -583,8 +582,8 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                             >
                                 Create Payment
                             </Button>
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 onClick={onClose}
                                 disabled={loading}
                                 className="w-full sm:w-auto"

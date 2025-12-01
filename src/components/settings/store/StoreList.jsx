@@ -5,13 +5,25 @@ const StoreList = ({
   stores = [],
   isLoading = false,
   selectedStore,
-  deletingStoreId,
   onAddStore,
   onEditStore,
   onDeleteStore,
 }) => {
   const currentStoreId =
     selectedStore?._id || selectedStore?.id || selectedStore || null;
+
+  // Handle edit store - open edit drawer
+  const handleEditStore = (storeId) => {
+    onEditStore?.(storeId);
+  };
+
+  // Handle delete store - open delete modal
+  const handleDeleteStore = (storeId) => {
+    if (!storeId) return;
+
+    const store = stores.find(s => (s._id || s.id) === storeId);
+    onDeleteStore?.(store);
+  };
 
   // Loading state
   if (isLoading) {
@@ -30,7 +42,7 @@ const StoreList = ({
   // Empty state
   if (!isLoading && stores.length === 0) {
     return (
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-12 text-center">
+      <div className="backdrop-blur-[1px] rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-12 text-center">
         <Building2 className="w-16 h-16 mx-auto mb-4 text-[rgb(var(--color-text-tertiary))]" />
         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
           No stores found
@@ -66,7 +78,7 @@ const StoreList = ({
         return (
           <div
             key={storeId}
-            className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6 hover:shadow-md transition-shadow relative flex flex-col h-full"
+            className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/70 p-6 relative flex flex-col h-full"
           >
             {/* Card Header with Icon and Actions */}
             <div className="flex items-start justify-between mb-4">
@@ -78,20 +90,15 @@ const StoreList = ({
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => onEditStore(storeId)}
+                  onClick={() => handleEditStore(storeId)}
                   className="w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer"
                 >
                   <Edit2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                 </button>
                 {!isCurrent && stores.length > 1 && (
                   <button
-                    onClick={() => onDeleteStore(storeId)}
-                    className={`w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer ${
-                      deletingStoreId === storeId
-                        ? 'opacity-50 cursor-not-allowed'
-                        : ''
-                    }`}
-                    disabled={deletingStoreId === storeId}
+                    onClick={() => handleDeleteStore(storeId)}
+                    className="w-8 h-8 flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   </button>
