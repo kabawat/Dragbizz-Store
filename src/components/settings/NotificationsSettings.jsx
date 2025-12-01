@@ -25,11 +25,11 @@ const NotificationsSettings = () => {
         </p>
       </div>
 
-      <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 space-y-3">
+      <div className="backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/40 p-6 space-y-3">
         {Object.entries(notifications).map(([key, value]) => (
           <div
             key={key}
-            className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-primary))] rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+            className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-primary))]/50 rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
           >
             <div>
               <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">

@@ -5,12 +5,12 @@ import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
 import { useAppSelector } from '@/store/hooks';
 
-const Header = ({ 
-  title = "Dashboard", 
+const Header = ({
+  title = "Dashboard",
   description
 }) => {
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
-  
+
   // Get user data from Redux
   const { user, agency, selectedStore } = useAppSelector((state) => state.profile);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -85,9 +85,8 @@ const Header = ({
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${
-                          notification.unread ? 'bg-[rgb(var(--color-primary))]/10' : ''
-                        }`}
+                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${notification.unread ? 'bg-[rgb(var(--color-primary))]/10' : ''
+                          }`}
                       >
                         <p className={`text-xs ${notification.unread ? 'font-semibold text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-secondary))]'}`}>
                           {notification.message}
@@ -131,9 +130,7 @@ const Header = ({
                 </div>
 
                 {/* Dropdown Arrow */}
-                <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${
-                  isProfileDropdownOpen ? 'rotate-180' : ''
-                }`} />
+                <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Profile Dropdown */}
@@ -150,7 +147,7 @@ const Header = ({
                       Preferences
                     </button>
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                    <button 
+                    <button
                       onClick={handleLogout}
                       className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 cursor-pointer"
                     >
@@ -172,7 +169,7 @@ const Header = ({
           onConfirm={confirmLogout}
         />
       )}
-      
+
     </>
   );
 };
