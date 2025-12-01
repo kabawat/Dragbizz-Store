@@ -45,25 +45,19 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 }
               })
               .catch(error => {
-                console.log('Reverse geocoding failed:', error);
                 // Don't show error to user as this is optional
               });
           },
           (error) => {
-            console.log('Geolocation error:', error);
             // Handle different geolocation errors
             switch(error.code) {
               case error.PERMISSION_DENIED:
-                console.log('User denied geolocation permission');
                 break;
               case error.POSITION_UNAVAILABLE:
-                console.log('Location information unavailable');
                 break;
               case error.TIMEOUT:
-                console.log('Location request timed out');
                 break;
               default:
-                console.log('Unknown geolocation error');
                 break;
             }
           },
@@ -74,7 +68,6 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           }
         );
       } else {
-        console.log('Geolocation is not supported by this browser');
       }
     };
 

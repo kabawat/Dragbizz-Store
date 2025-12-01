@@ -138,7 +138,6 @@ const CreateBill = () => {
         setProducts(productsData);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
     } finally {
       setProductsLoading(false);
     }
@@ -172,7 +171,6 @@ const CreateBill = () => {
         setPurchaseOrders(purchaseOrdersData);
       }
     } catch (error) {
-      console.error('Error fetching purchase orders:', error);
     } finally {
       setPurchaseOrdersLoading(false);
     }

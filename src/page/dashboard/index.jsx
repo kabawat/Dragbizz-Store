@@ -511,7 +511,6 @@ export default function Dashboard() {
           }
         }));
       } catch (error) {
-        console.error(`❌ Error fetching ${label}:`, error);
         setRecentData((prev) => ({
           ...prev,
           [key]: {
@@ -544,8 +543,6 @@ export default function Dashboard() {
           loadRecentSections(storeId)
         ]);
       } catch (error) {
-        console.error('❌ Error fetching dashboard data:', error);
-        console.error('Error details:', error.response?.data || error.message);
       } finally {
         setLoading(false);
       }
@@ -570,7 +567,6 @@ export default function Dashboard() {
           return reorderedMetrics.length === prevMetrics.length ? reorderedMetrics : prevMetrics;
         });
       } catch (error) {
-        console.error('Error loading metrics order:', error);
       }
     }
 
@@ -584,7 +580,6 @@ export default function Dashboard() {
           return reorderedSections.length === prevSections.length ? reorderedSections : prevSections;
         });
       } catch (error) {
-        console.error('Error loading sections order:', error);
       }
     }
   }, [loading]);

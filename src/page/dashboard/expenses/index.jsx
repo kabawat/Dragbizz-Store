@@ -156,7 +156,6 @@ const ExpensesPage = () => {
       setExpenseToDelete(null);
       setShowDeleteSuccessModal(true);
     } catch (error) {
-      console.error('Delete error:', error);
     } finally {
       setIsDeleting(false);
     }

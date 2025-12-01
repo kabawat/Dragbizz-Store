@@ -61,7 +61,6 @@ const EditInvoicePage = ({ invoiceId }) => {
         setProducts(result?.data || []);
       }
     } catch (error) {
-      console.error('❌ Error fetching products:', error);
       hasFetchedProducts.current = false; // Reset on error
     } finally {
       setProductsLoading(false);
@@ -139,7 +138,6 @@ const EditInvoicePage = ({ invoiceId }) => {
           setError(result.message || 'Failed to fetch invoice data');
         }
       } catch (err) {
-        console.error('Error fetching invoice:', err);
         setError('Failed to fetch invoice data. Please try again.');
       } finally {
         setFetching(false);
@@ -228,11 +226,9 @@ const EditInvoicePage = ({ invoiceId }) => {
         // Redirect to the updated invoice view page
         router.push(`/dashboard/invoices/view/${invoiceId}`);
       } else {
-        console.error('Failed to update invoice:', result.message);
         alert('Failed to update invoice. Please try again.');
       }
     } catch (error) {
-      console.error('Error updating invoice:', error);
       alert('An error occurred while updating the invoice. Please try again.');
     } finally {
       setInvoiceLoading(false);

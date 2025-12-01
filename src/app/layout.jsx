@@ -3,6 +3,12 @@ import "./globals.scss";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
+import { ToastProvider } from "@/contexts/ToastContext";
+import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
+import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
+import ToastInitializer from "@/components/ToastInitializer";
+import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
+import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +31,17 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
         <ReduxProvider>
           <ThemeProvider>
-            <LocationProvider>
-              {children}
-            </LocationProvider>
+            <ToastProvider>
+              <NetworkErrorProvider>
+                <ToastInitializer />
+                <NetworkErrorInitializer />
+                <LocationProvider>
+                  {children}
+                  <GlobalToastContainer />
+                  <NetworkErrorWrapper />
+                </LocationProvider>
+              </NetworkErrorProvider>
+            </ToastProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>

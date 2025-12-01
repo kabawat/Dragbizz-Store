@@ -38,13 +38,11 @@ const ViewSupplierPage = ({ supplierId }) => {
 
         const result = await supplierService.getSuppliers({ id: supplierId, store: storeId });
         if (result.success && result.data) {
-          console.log(result.data);
           setSupplierData(result.data);
         } else {
           setError(result.message || 'Failed to fetch supplier data');
         }
       } catch (error) {
-        console.error('Error fetching supplier:', error);
         setError('Failed to fetch supplier data. Please try again.');
       } finally {
         setFetching(false);
@@ -81,7 +79,6 @@ const ViewSupplierPage = ({ supplierId }) => {
         setShowDeleteModal(false);
       }
     } catch (error) {
-      console.error('Error deleting supplier:', error);
       setError('Failed to delete supplier. Please try again.');
       setShowDeleteModal(false);
     } finally {

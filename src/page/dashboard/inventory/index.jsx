@@ -111,7 +111,6 @@ const InventoryPage = () => {
         setHasMore(response.data?.pagination?.hasNext || false);
       }
     } catch (error) {
-      console.error('Error fetching inventories:', error);
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -257,7 +256,6 @@ const InventoryPage = () => {
       setShowDeleteModal(false);
       setInventoryToDelete(null);
     } catch (error) {
-      console.error('Error deleting inventory:', error);
       alert('Failed to delete stock. Please try again.');
     } finally {
       setIsDeleting(false);
@@ -266,7 +264,6 @@ const InventoryPage = () => {
 
   const handleDuplicate = (inventoryId) => {
     // TODO: Implement duplicate functionality
-    console.log('Duplicate stock:', inventoryId);
   };
 
   const handleViewModeChange = (mode) => {

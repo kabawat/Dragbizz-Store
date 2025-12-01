@@ -105,7 +105,6 @@ const Accounts = () => {
   const confirmDelete = () => {
     if (accountToDelete) {
       // Implement delete logic here
-      console.log('Deleting account:', accountToDelete.id);
       setShowDeleteModal(false);
       setAccountToDelete(null);
     }

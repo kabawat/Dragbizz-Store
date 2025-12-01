@@ -42,7 +42,6 @@ const SendMenu = ({
         // You can add a toast notification here
       } 
     } catch (error) {
-      console.error('Failed to copy:', error);
     }
   };
 

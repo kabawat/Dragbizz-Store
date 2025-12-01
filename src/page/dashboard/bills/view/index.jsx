@@ -70,7 +70,6 @@ const ViewBillPage = ({ billId }) => {
           setError(result.message || 'Failed to fetch bill data');
         }
       } catch (error) {
-        console.error('Error fetching bill:', error);
         setError('Failed to fetch bill data. Please try again.');
       } finally {
         setFetching(false);
@@ -117,7 +116,6 @@ const ViewBillPage = ({ billId }) => {
         setShowDeleteModal(false);
       }
     } catch (error) {
-      console.error('Error deleting bill:', error);
       setError('Failed to delete bill. Please try again.');
       setShowDeleteModal(false);
     } finally {

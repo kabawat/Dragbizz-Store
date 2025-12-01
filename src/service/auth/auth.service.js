@@ -138,7 +138,6 @@ class AuthService {
         message: 'Password reset email sent'
       };
     } catch (error) {
-      console.error('Forgot password error:', error);
       
       return {
         success: false,
@@ -162,7 +161,6 @@ class AuthService {
         message: 'Password reset successful'
       };
     } catch (error) {
-      console.error('Reset password error:', error);
       
       return {
         success: false,
@@ -185,7 +183,6 @@ class AuthService {
         message: 'Email verified successfully'
       };
     } catch (error) {
-      console.error('Email verification error:', error);
       
       return {
         success: false,

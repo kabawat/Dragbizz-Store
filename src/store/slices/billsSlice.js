@@ -20,7 +20,6 @@ export const getBills = createAsyncThunk(
         message: 'Bills fetched successfully'
       };
     } catch (error) {
-      console.error('Bills API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch bills. Please try again.'
       });
@@ -47,7 +46,6 @@ export const getBillStats = createAsyncThunk(
         message: 'Bill analytics fetched successfully'
       };
     } catch (error) {
-      console.error('Bill Analytics API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch bill analytics. Please try again.'
       });
@@ -74,7 +72,6 @@ export const getBillReports = createAsyncThunk(
         message: 'Bill reports fetched successfully'
       };
     } catch (error) {
-      console.error('Bill Reports API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch bill reports. Please try again.'
       });

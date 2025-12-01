@@ -52,7 +52,6 @@ const ProductHeader = () => {
           try {
             await dispatch(getRetailerDetails()).unwrap();
           } catch (error) {
-            console.error('Error fetching profile:', error);
           }
         }
       } else {

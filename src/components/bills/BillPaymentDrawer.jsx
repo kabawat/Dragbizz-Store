@@ -224,7 +224,6 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                 setErrors({ general: result.message || 'Failed to create payment' });
             }
         } catch (error) {
-            console.error('Error creating payment:', error);
             setErrors({ general: 'Failed to create payment. Please try again.' });
         } finally {
             setLoading(false);

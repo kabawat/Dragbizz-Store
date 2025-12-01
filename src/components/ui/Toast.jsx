@@ -1,12 +1,13 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, X } from 'lucide-react';
+import { CheckCircle, X, WifiOff } from 'lucide-react';
 
 const Toast = ({ 
   message, 
   type = 'success', 
   duration = 3000,
-  onClose 
+  onClose,
+  position = 'top-right'
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -45,13 +46,32 @@ const Toast = ({
     ? 'text-red-600' 
     : 'text-blue-600';
 
+  const positionClasses = {
+    'top-right': 'top-4 right-4',
+    'bottom-center': 'bottom-4 left-1/2',
+    'top-center': 'top-4 left-1/2',
+    'bottom-right': 'bottom-4 right-4'
+  };
+
+  const getAnimationClasses = () => {
+    if (position === 'bottom-center') {
+      return isVisible && !isExiting
+        ? '-translate-x-1/2 translate-y-0 opacity-100'
+        : '-translate-x-1/2 translate-y-8 opacity-0';
+    }
+    if (position === 'top-center') {
+      return isVisible && !isExiting
+        ? '-translate-x-1/2 translate-y-0 opacity-100'
+        : '-translate-x-1/2 -translate-y-4 opacity-0';
+    }
+    return isVisible && !isExiting
+      ? 'translate-x-0 opacity-100'
+      : 'translate-x-full opacity-0';
+  };
+
   return (
     <div 
-      className={`fixed top-4 right-4 z-[10000] transform transition-all duration-300 ease-out ${
-        isVisible && !isExiting 
-          ? 'translate-x-0 opacity-100' 
-          : 'translate-x-full opacity-0'
-      }`}
+      className={`fixed ${positionClasses[position] || positionClasses['top-right']} z-[10000] transform transition-all duration-300 ease-out ${getAnimationClasses()}`}
     >
       <div className={`
         min-w-[300px] max-w-md 
@@ -74,7 +94,7 @@ const Toast = ({
             <CheckCircle className={`w-5 h-5 ${iconColor}`} />
           )}
           {type === 'error' && (
-            <X className={`w-5 h-5 ${iconColor}`} />
+            <WifiOff className={`w-5 h-5 ${iconColor}`} />
           )}
         </div>
 
@@ -89,7 +109,7 @@ const Toast = ({
           </div>
         </div>
 
-        {/* Close button (optional, can be hidden for auto-dismiss) */}
+        {/* Close button */}
         <button
           onClick={handleClose}
           className="flex-shrink-0 text-white/80 hover:text-white transition-colors"

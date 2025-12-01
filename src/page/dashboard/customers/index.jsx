@@ -198,7 +198,6 @@ const CustomersPage = () => {
     try {
       await fetchCustomers(true, pagination.nextCursor);
     } catch (error) {
-      console.error('Error loading more customers:', error);
     } finally {
       setIsLoadingMore(false);
     }
@@ -297,7 +296,6 @@ const CustomersPage = () => {
       setShowDeleteModal(false);
       setCustomerToDelete(null);
     } catch (error) {
-      console.error('Error deleting customer:', error);
     } finally {
       setIsDeleting(false);
     }

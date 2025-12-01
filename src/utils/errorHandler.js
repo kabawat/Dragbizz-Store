@@ -1,6 +1,4 @@
 export const handleApiError = (error, context = 'general') => {
-  console.error(`${context} error:`, error);
-
   // Handle specific HTTP status codes
   if (error.response?.status === 401) {
     switch (context) {
@@ -44,7 +42,16 @@ export const handleApiError = (error, context = 'general') => {
     return 'Server error. Please try again later.';
   }
 
-  if (error.code === 'NETWORK_ERROR' || !navigator.onLine) {
+  // Check for network errors
+  const isNetworkError = error.code === 'ERR_NETWORK' || 
+                        error.code === 'NETWORK_ERROR' || 
+                        error.message === 'Network Error' ||
+                        (!error.response && error.request) ||
+                        (error.message && error.message.includes('Network Error')) ||
+                        (!navigator.onLine);
+
+  if (isNetworkError) {
+    // Show toast will be handled by axios interceptor
     return 'Network error. Please check your internet connection.';
   }
 
@@ -99,6 +106,25 @@ export const handleApiSuccess = (response, defaultMessage = 'Operation successfu
 export const handleApiErrorResponse = (error, context = 'general') => {
   const backendMessage = error.response?.data?.message || error.response?.data?.error;
   const statusCode = error.response?.status;
+
+  // Check for network errors and show toast
+  if (error.code === 'ERR_NETWORK' || error.message === 'Network Error' || (!error.response && error.request)) {
+    // Show network error toast at bottom center
+    if (typeof window !== 'undefined') {
+      // Try to get global toast
+      try {
+        // Dynamic import to avoid circular dependency
+        import('@/contexts/ToastContext').then(({ useGlobalToast }) => {
+          // This will be handled by axios interceptor, but we can also handle here
+          // The toast will be shown by axios interceptor
+        }).catch(() => {
+          // Toast will be shown by axios interceptor
+        });
+      } catch (e) {
+        // Toast will be shown by axios interceptor
+      }
+    }
+  }
 
   return {
     success: false,

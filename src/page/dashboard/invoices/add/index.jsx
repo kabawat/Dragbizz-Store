@@ -90,7 +90,6 @@ const CreateInvoicePage = () => {
         setProducts(result?.data || []);
       }
     } catch (error) {
-      console.error('❌ Error fetching products:', error);
       productsFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
     } finally {
       setProductsLoading(false);

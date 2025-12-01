@@ -53,7 +53,6 @@ const AddInventoryPage = () => {
   const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
-      console.error('fieldName must be a string:', fieldName);
       return;
     }
 
@@ -141,7 +140,6 @@ const AddInventoryPage = () => {
       setShowSuccessModal(true);
 
     } catch (error) {
-      console.error('Error creating inventory:', error);
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;

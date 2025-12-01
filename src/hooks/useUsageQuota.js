@@ -165,7 +165,6 @@ export function useUsageQuota(featureKey = null) {
         }
       } catch (err) {
         setError(err.message || 'Error fetching quota');
-        console.error('Error fetching quota:', err);
         isFetchingRef.current = false;
         requestReject(err);
         throw err;
@@ -308,7 +307,6 @@ export function useFeatureUsage(featureKey, quantity = 1) {
         setQuota(null);
       }
     } catch (err) {
-      console.error('Error checking usage:', err);
       setCanUse(false);
       setQuota(null);
     } finally {

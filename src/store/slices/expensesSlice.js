@@ -20,7 +20,6 @@ export const getExpenses = createAsyncThunk(
         message: 'Expenses fetched successfully'
       };
     } catch (error) {
-      console.error('Expenses API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch expenses. Please try again.'
       });
@@ -47,7 +46,6 @@ export const createExpense = createAsyncThunk(
         message: 'Expense created successfully'
       };
     } catch (error) {
-      console.error('Create Expense API Error:', error);
       return rejectWithValue({
         message: 'Failed to create expense. Please try again.'
       });
@@ -75,7 +73,6 @@ export const updateExpense = createAsyncThunk(
         message: 'Expense updated successfully'
       };
     } catch (error) {
-      console.error('Update Expense API Error:', error);
       return rejectWithValue({
         message: 'Failed to update expense. Please try again.'
       });
@@ -102,7 +99,6 @@ export const deleteExpense = createAsyncThunk(
         message: 'Expense deleted successfully'
       };
     } catch (error) {
-      console.error('Delete Expense API Error:', error);
       return rejectWithValue({
         message: 'Failed to delete expense. Please try again.'
       });
@@ -129,7 +125,6 @@ export const getExpenseStats = createAsyncThunk(
         message: 'Expense statistics fetched successfully'
       };
     } catch (error) {
-      console.error('Expense Stats API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch expense statistics. Please try again.'
       });
@@ -156,7 +151,6 @@ export const getExpenseAnalytics = createAsyncThunk(
         message: 'Expense analytics fetched successfully'
       };
     } catch (error) {
-      console.error('Expense Analytics API Error:', error);
       return rejectWithValue({
         message: 'Failed to fetch expense analytics. Please try again.'
       });

@@ -71,10 +71,8 @@ const PurchaseOrderTable = ({
             if (navigator?.clipboard?.writeText) {
                 await navigator.clipboard.writeText(text);
                 // You can add a toast notification here
-                console.log('Link copied to clipboard:', text);
             }
         } catch (error) {
-            console.error('Failed to copy link:', error);
         }
     };
 

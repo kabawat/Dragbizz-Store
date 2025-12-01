@@ -66,7 +66,6 @@ const EditInventoryPage = ({ inventoryId }) => {
           setError('Failed to fetch inventory details');
         }
       } catch (error) {
-        console.error('Error fetching inventory:', error);
         setError('Error loading inventory details');
       } finally {
         setLoading(false);
@@ -154,7 +153,6 @@ const EditInventoryPage = ({ inventoryId }) => {
         setError(response.message || 'Failed to update stock');
       }
     } catch (error) {
-      console.error('Error updating inventory:', error);
       setError('Error updating stock. Please try again.');
     } finally {
       setSaving(false);

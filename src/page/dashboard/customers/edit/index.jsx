@@ -53,7 +53,6 @@ const EditCustomerPage = ({ customerId }) => {
         const result = await customerService.getCustomers({ id: customerId, store: storeId });
         if (result.success && result.data) {
           const customerData = result.data;
-          console.log("customerData : ",customerData);
           
           // Initialize addresses properly
           let addresses = null;
@@ -80,7 +79,6 @@ const EditCustomerPage = ({ customerId }) => {
           setError(result.message || 'Failed to fetch customer data');
         }
       } catch (error) {
-        console.error('Error fetching customer:', error);
         setError('Failed to fetch customer data. Please try again.');
       } finally {
         setFetching(false);
@@ -97,7 +95,6 @@ const EditCustomerPage = ({ customerId }) => {
       setFieldErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[value];
-        console.log(`Cleared error for: ${value}`);
         return newErrors;
       });
       return;
@@ -105,7 +102,6 @@ const EditCustomerPage = ({ customerId }) => {
 
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
-      console.error('fieldName must be a string:', fieldName);
       return;
     }
 
@@ -172,7 +168,6 @@ const EditCustomerPage = ({ customerId }) => {
       }
 
     } catch (error) {
-      console.error('Error updating customer:', error);
       if (error.response && error.response.data) {
         const errorData = error.response.data;
         if (errorData.data && errorData.data.fields) {

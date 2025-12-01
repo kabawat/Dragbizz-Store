@@ -63,7 +63,6 @@ const StockInDrawer = ({
         setSuppliers(result.data?.data || result.data || []);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
     } finally {
       setSuppliersLoading(false);
     }
@@ -135,7 +134,6 @@ const StockInDrawer = ({
       }
 
     } catch (error) {
-      console.error('Error adding stock:', error);
       alert(`Error adding stock: ${error.message || 'Please try again.'}`);
     } finally {
       setIsLoading(false);

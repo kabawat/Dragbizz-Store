@@ -131,7 +131,6 @@ const CreatePayment = () => {
         const suppliersData = result.data?.data || result.data || [];
         setSuppliers(suppliersData);
       } else {
-        console.error('Failed to fetch suppliers:', result.message);
         setSuppliers([
           { id: '1', name: 'Supplier 1' },
           { id: '2', name: 'Supplier 2' },
@@ -181,11 +180,9 @@ const CreatePayment = () => {
         const billsData = result.data?.data || result.data || [];
         setBills(billsData);
       } else {
-        console.error('Failed to fetch bills:', result.message);
         setBills([]);
       }
     } catch (error) {
-      console.error('Error fetching bills:', error);
       setBills([]);
     } finally {
       setBillsLoading(false);

@@ -49,7 +49,6 @@ class BillService {
       const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Bills fetched successfully');
     } catch (error) {
-      console.error('BillService.getBills error:', error);
       return handleApiErrorResponse(error, 'bills-list');
     }
   }

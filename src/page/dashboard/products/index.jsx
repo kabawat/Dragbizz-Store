@@ -103,7 +103,6 @@ const ProductsPage = () => {
         limit: 20,
         cursor: null 
       };
-      // console.log("params:", params)
       await dispatch(getProducts(params));
     };
 
@@ -216,7 +215,6 @@ const ProductsPage = () => {
       setShowDeleteModal(false);
       setProductToDelete(null);
     } catch (error) {
-      console.error('Error deleting product:', error);
     } finally {
       setIsDeleting(false);
     }
@@ -254,7 +252,6 @@ const ProductsPage = () => {
         dispatch(addMoreProducts(result.payload.data.data));
       }
     } catch (error) {
-      console.error('Error loading more products:', error);
     } finally {
       setIsLoadingMore(false);
     }

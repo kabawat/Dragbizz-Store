@@ -84,7 +84,6 @@ const EditBill = ({ billId }) => {
         const result = await billService.getBills(params);
         
         if (result.success && result.data) {
-          console.log('Bill data for edit:', result.data);
           
           // Transform API data to form data
           const billData = result.data;
@@ -155,7 +154,6 @@ const EditBill = ({ billId }) => {
           setFetchError(result.message || 'Failed to fetch bill data');
         }
       } catch (error) {
-        console.error('Error fetching bill:', error);
         setFetchError('Failed to fetch bill data. Please try again.');
       } finally {
         setFetching(false);
@@ -167,7 +165,6 @@ const EditBill = ({ billId }) => {
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    console.log('Fetching suppliers for store:', selectedStore?.storeId);
     if (!selectedStore?.storeId) return;
     try {
       setSuppliersLoading(true);
@@ -176,16 +173,12 @@ const EditBill = ({ billId }) => {
         lightweight: true,
         store: selectedStore.storeId
       });
-      console.log('Fetched suppliers:', result);
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
-        console.log('Fetched suppliers:', suppliersData);
         setSuppliers(suppliersData);
       } else {
-        console.error('Failed to fetch suppliers:', result.message);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
     } finally {
       setSuppliersLoading(false);
     }
@@ -193,7 +186,6 @@ const EditBill = ({ billId }) => {
 
   // Fetch products from API
   const fetchProducts = async () => {
-    console.log('Fetching products for store:', selectedStore?.storeId);
     if (!selectedStore?.storeId) return;
     try {
       setProductsLoading(true);
@@ -202,16 +194,12 @@ const EditBill = ({ billId }) => {
         lightweight: true,
         store: selectedStore.storeId
       });
-      console.log('Fetched products:', result);
       if (result.success) {
         const productsData = result.data?.data || result.data || [];
-        console.log('Fetched products:', productsData);
         setProducts(productsData);
       } else {
-        console.error('Failed to fetch products:', result.message);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
     } finally {
       setProductsLoading(false);
     }
@@ -357,10 +345,8 @@ const EditBill = ({ billId }) => {
         setShowSuccessModal(true);
       } else {
         setUpdateError(result.message || 'Failed to update bill');
-        console.error('Bill update failed:', result.message);
       }
     } catch (error) {
-      console.error('Error updating bill:', error);
       setUpdateError('An unexpected error occurred while updating the bill');
     } finally {
       setIsUpdating(false);

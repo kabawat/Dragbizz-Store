@@ -94,7 +94,6 @@ const AddProductPage = () => {
   const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
     if (typeof fieldName !== 'string') {
-      console.error('fieldName must be a string:', fieldName);
       return;
     }
 

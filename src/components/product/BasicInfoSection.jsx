@@ -16,7 +16,6 @@ const BasicInfoSection = ({
   const [customCategories, setCustomCategories] = useState([]);
 
   const handleFieldChange = (field, value) => {
-    console.log('Field:', field, 'Value:', value);
     onChange(field, value);
   };
 

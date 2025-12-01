@@ -4,6 +4,17 @@ import { cookieManager } from '@/utils/cookieManager';
 import ENV_CONFIG from '@/config/env.config';
 import API_CONFIG from '@/config/api.config';
 
+let globalToastShowError = null;
+let networkErrorHandler = null;
+
+export const setGlobalToast = (showErrorFn) => {
+  globalToastShowError = showErrorFn;
+};
+
+export const setNetworkErrorHandler = (handler) => {
+  networkErrorHandler = handler;
+};
+
 // Base configuration
 const BASE_URL = API_CONFIG.BASE.URL;
 
@@ -71,6 +82,24 @@ authAxios.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+
+    // Check for network errors
+    const isNetworkError = error.code === 'ERR_NETWORK' || 
+                          error.message === 'Network Error' || 
+                          (!error.response && error.request) ||
+                          (error.message && error.message.includes('Network Error'));
+
+    if (isNetworkError) {
+      if (typeof window !== 'undefined') {
+        if (networkErrorHandler) {
+          networkErrorHandler();
+        }
+        if (globalToastShowError) {
+          globalToastShowError('Network error. Please check your internet connection and try again.');
+        }
+      }
+      return Promise.reject(error);
+    }
 
     // If 401 and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -160,6 +189,22 @@ unauthAxios.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Check for network errors
+    const isNetworkError = error.code === 'ERR_NETWORK' || 
+                          error.message === 'Network Error' || 
+                          (!error.response && error.request) ||
+                          (error.message && error.message.includes('Network Error'));
+
+    if (isNetworkError) {
+      if (typeof window !== 'undefined') {
+        if (networkErrorHandler) {
+          networkErrorHandler();
+        }
+        if (globalToastShowError) {
+          globalToastShowError('Network error. Please check your internet connection and try again.');
+        }
+      }
+    }
     return Promise.reject(error);
   }
 );

@@ -106,7 +106,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
                     showError(result.message || 'Failed to fetch invoice data');
                 }
             } catch (error) {
-                console.error('Error fetching invoice:', error);
                 showError('Failed to fetch invoice data. Please try again.');
             } finally {
                 setFetching(false);
@@ -167,7 +166,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 setShowDeleteModal(false);
             }
         } catch (error) {
-            console.error('Error deleting invoice:', error);
             showError('Failed to delete invoice. Please try again.');
             setShowDeleteModal(false);
         } finally {
@@ -211,7 +209,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 setShowCancelModal(false);
             }
         } catch (error) {
-            console.error('Error cancelling invoice:', error);
             showError('Failed to cancel invoice. Please try again.');
             setShowCancelModal(false);
         } finally {
@@ -244,7 +241,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 setShowReleaseModal(false);
             }
         } catch (error) {
-            console.error('Error releasing invoice:', error);
             showError('Failed to release invoice. Please try again.');
             setShowReleaseModal(false);
         } finally {
@@ -364,7 +360,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
             setTimeout(cleanup, 8000);
             setShowPrintMenu(false);
         } catch (e) {
-            console.error(e);
             alert("Printing failed.");
         }
     };
@@ -393,7 +388,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
             pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
             pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
         } catch (error) {
-            console.error('Error generating PDF:', error);
             alert('Failed to download PDF. Please try again.');
         }
     };

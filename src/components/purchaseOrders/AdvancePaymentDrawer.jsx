@@ -263,7 +263,6 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                 showError(result.message || 'Failed to create advance payment');
             }
         } catch (error) {
-            console.error('Error creating advance payment:', error);
             const errorMessage = error.response?.data?.message || 'Failed to create advance payment. Please try again.';
             setErrors({ general: errorMessage });
             showError(errorMessage);

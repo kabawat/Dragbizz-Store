@@ -93,7 +93,6 @@ const PurchaseOrderCard = ({
             <SendMenu
               item={purchaseOrder}
               onShare={(type, item) => {
-                console.log(`Shared via ${type}:`, item);
               }}
               getShareUrl={getShareUrl}
               formatCurrency={formatCurrency}

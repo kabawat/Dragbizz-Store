@@ -103,7 +103,6 @@ export default function Register() {
         });
       }
     } catch (error) {
-      console.error('Registration error:', error);
       setErrors({
         general: 'An unexpected error occurred. Please try again.'
       });
@@ -182,48 +181,44 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-3 sm:p-4">
-      {/* <AnimatedBackground variant="default" /> */}
-      <AnimatedBackground variant="register" />
-      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
-        {currentState === 'basic-info' && (
-          <BasicInfoStep
-            firstName={formData.firstName}
-            lastName={formData.lastName}
-            contact={formData.contact}
-            contactType={formData.contactType}
-            onUpdate={updateFormData}
-            onNext={handleBasicInfoNext}
-            onBack={handleBackToWelcome}
-            errors={errors}
-          />
-        )}
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
+      {currentState === 'basic-info' && (
+        <BasicInfoStep
+          firstName={formData.firstName}
+          lastName={formData.lastName}
+          contact={formData.contact}
+          contactType={formData.contactType}
+          onUpdate={updateFormData}
+          onNext={handleBasicInfoNext}
+          onBack={handleBackToWelcome}
+          errors={errors}
+        />
+      )}
 
-        {currentState === 'password' && (
-          <PasswordStep
-            password={formData.password}
-            onUpdate={updateFormData}
-            onNext={handlePasswordNext}
-            onBack={handleBackToBasicInfo}
-            firstName={formData.firstName}
-            isLoading={isLoading}
-            errors={errors}
-          />
-        )}
+      {currentState === 'password' && (
+        <PasswordStep
+          password={formData.password}
+          onUpdate={updateFormData}
+          onNext={handlePasswordNext}
+          onBack={handleBackToBasicInfo}
+          firstName={formData.firstName}
+          isLoading={isLoading}
+          errors={errors}
+        />
+      )}
 
-        {currentState === 'verification' && (
-          <VerificationStep
-            contactType={formData.contactType}
-            contact={formData.contact}
-            firstName={formData.firstName}
-            onVerificationComplete={handleVerificationComplete}
-            onChangeContact={handleChangeContact}
-            registrationToken={registrationToken}
-            registrationData={formData}
-            onTokenUpdate={setRegistrationToken}
-          />
-        )}
-      </div>
+      {currentState === 'verification' && (
+        <VerificationStep
+          contactType={formData.contactType}
+          contact={formData.contact}
+          firstName={formData.firstName}
+          onVerificationComplete={handleVerificationComplete}
+          onChangeContact={handleChangeContact}
+          registrationToken={registrationToken}
+          registrationData={formData}
+          onTokenUpdate={setRegistrationToken}
+        />
+      )}
     </div>
   );
 }

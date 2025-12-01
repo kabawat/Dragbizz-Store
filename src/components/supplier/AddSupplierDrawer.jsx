@@ -51,7 +51,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     if (typeof fieldName !== 'string') {
-      console.error('fieldName must be a string:', fieldName);
       return;
     }
 

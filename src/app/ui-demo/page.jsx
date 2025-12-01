@@ -198,7 +198,6 @@ const UIDemoPage = () => {
               <MultiSelect
                 options={multiSelectOptions}
                 value={['react', 'vue']}
-                onChange={(value) => console.log('MultiSelect changed:', value)}
                 placeholder="Select frameworks..."
                 label="Frameworks"
                 searchable={true}
@@ -213,7 +212,6 @@ const UIDemoPage = () => {
               <Pagination
                 currentPage={3}
                 totalPages={10}
-                onPageChange={(page) => console.log('Page changed:', page)}
                 showFirstLast={true}
                 showPrevNext={true}
               />
