@@ -14,7 +14,6 @@ import styles from '../style/Login.module.scss';
 export default function Login() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams?.get('redirect') || '/dashboard';
-  // Get location from context
   const { userLocation } = useLocation();
 
   const [formData, setFormData] = useState({
@@ -42,9 +41,8 @@ export default function Login() {
     general: ''
   });
   const inputRefs = useRef([]);
-  const isVerifyingRef = useRef(false); // Guard to prevent duplicate API calls
+  const isVerifyingRef = useRef(false);
 
-  // OTP Timer Effect
   useEffect(() => {
     if (otpSent && timeLeft > 0) {
       const timer = setInterval(() => {
@@ -61,29 +59,35 @@ export default function Login() {
     }
   }, [otpSent, timeLeft]);
 
-  // Smart contact detection
   const detectContactType = (value) => {
     const cleanValue = value.replace(/\s+/g, '');
 
-    // Check for email pattern
     if (value.includes('@') && value.includes('.')) {
       setContactType('email');
+      if (loginMethod === 'otp' && !otpSent) {
+        setLoginMethod('password');
+      }
     }
-    // Check for phone pattern (digits, +, -, spaces, parentheses)
     else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
       setContactType('phone');
+      if (loginMethod === 'password' && !otpSent) {
+        setLoginMethod('otp');
+      }
     }
-    // If user starts typing numbers, assume phone
     else if (/^\d/.test(cleanValue)) {
       setContactType('phone');
+      if (loginMethod === 'password' && !otpSent) {
+        setLoginMethod('otp');
+      }
     }
-    // If user starts typing letters or @, assume email
     else if (/^[a-zA-Z@]/.test(cleanValue)) {
       setContactType('email');
+      if (loginMethod === 'otp' && !otpSent) {
+        setLoginMethod('password');
+      }
     }
   };
 
-  // Simulate contact validation
   useEffect(() => {
     if (formData.contact && formData.contact.length > 3) {
       setIsValidating(true);
@@ -104,7 +108,6 @@ export default function Login() {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Clear specific field error and general error when user starts typing
     if (errors[field] || errors.general) {
       setErrors(prev => ({ ...prev, [field]: '', general: '' }));
     }
@@ -163,7 +166,6 @@ export default function Login() {
     setErrors({});
 
     try {
-      // Call login API with password
       const loginData = {
         identifier: formData.contact,
         password: formData.password,
@@ -177,9 +179,7 @@ export default function Login() {
       const result = await authService.login(loginData);
 
       if (result.success) {
-        // Save authentication tokens
         if (result.data.token) {
-          // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
             authToken: result.data.token,
@@ -204,13 +204,12 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    setErrors(prev => ({ ...prev, otp: '' }));
+    setErrors(prev => ({ ...prev, otp: '', general: '' }));
 
     try {
-      // Call login API with OTP option
-      const loginData = {
+        const loginData = {
         identifier: formData.contact,
-        password: '', // Empty for OTP login
+        password: '',
         useOtp: true,
         deviceId: 'web_device_' + Date.now(),
         platform: 'web',
@@ -220,23 +219,36 @@ export default function Login() {
 
       const result = await authService.sendOTP(loginData);
 
+      console.log('OTP Send Result:', result);
+
       if (result.success) {
-        const token = result.data?.token;
-        if (!token) {
-          setErrors(prev => ({ ...prev, otp: 'Failed to receive verification token. Please try again.' }));
-          return;
+        const token = result.data?.token || result.token || result.data?.data?.token || result.data?.otpToken;
+        
+        if (token) {
+          setLoginToken(token);
+        } else {
+          setLoginToken(formData.contact);
         }
-        setLoginToken(token);
+        
         setOtpSent(true);
         setTimeLeft(60);
         setCanResend(false);
         setOtpDigits(['', '', '', '', '']);
-        setErrors(prev => ({ ...prev, otp: '' }));
+        setErrors(prev => ({ ...prev, otp: '', contact: '', general: '' }));
+        
+        setTimeout(() => {
+          inputRefs.current[0]?.focus();
+        }, 100);
       } else {
-        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to send OTP. Please try again.' }));
+        setOtpSent(false);
+        const errorMessage = result.message || result.error?.message || 'Failed to send OTP. Please try again.';
+        setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-send') }));
+      console.error('OTP Send Error:', error);
+      setOtpSent(false);
+      const errorMessage = handleApiError(error, 'otp-send');
+      setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
     } finally {
       setIsLoading(false);
     }
@@ -245,24 +257,20 @@ export default function Login() {
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
     
-    // Prevent changes if verification is in progress
     if (isVerifyingRef.current || isLoading) return;
 
     const newOtp = [...otpDigits];
     newOtp[index] = value;
     setOtpDigits(newOtp);
 
-    // Clear OTP error when user starts typing
     if (errors.otp) {
       setErrors(prev => ({ ...prev, otp: '' }));
     }
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto-submit when all fields are filled
     if (newOtp.every(digit => digit !== '')) {
       const otpCode = newOtp.join('');
       handleOtpVerification(otpCode);
@@ -276,7 +284,6 @@ export default function Login() {
   };
 
   const handleOtpVerification = async (code) => {
-    // Prevent duplicate API calls
     if (isVerifyingRef.current || isLoading) {
       return;
     }
@@ -288,13 +295,11 @@ export default function Login() {
       return;
     }
 
-    // Set guard flag
     isVerifyingRef.current = true;
     setIsLoading(true);
     setErrors(prev => ({ ...prev, otp: '' }));
 
     try {
-      // Call OTP verification API
       const verifyData = {
         code: code,
         token: loginToken,
@@ -306,9 +311,7 @@ export default function Login() {
 
       const result = await authService.verifyLoginOTP(verifyData);
       if (result.success) {
-        // Save authentication tokens - same structure as password login
         if (result.data.token) {
-          // Set success data and show success screen
           setSuccessData({
             firstName: result.data.user?.firstName || 'User',
             authToken: result.data.token,
@@ -331,7 +334,7 @@ export default function Login() {
       inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
-      isVerifyingRef.current = false; // Reset guard flag
+      isVerifyingRef.current = false; 
     }
   };
 
@@ -364,7 +367,6 @@ export default function Login() {
       const result = await authService.sendOTP(loginData);
 
       if (result.success) {
-        // Update the verification token - same structure as other responses
         const token = result.data?.token;
         if (!token) {
           setErrors(prev => ({ ...prev, otp: 'Failed to receive verification token. Please try again.' }));
@@ -399,7 +401,6 @@ export default function Login() {
 
   const toggleLoginMethod = () => {
     setLoginMethod(prev => prev === 'password' ? 'otp' : 'password');
-    // Clear related fields when switching
     setFormData(prev => ({ ...prev, password: '', otp: '' }));
     setErrors({ contact: '', password: '', otp: '', general: '' });
     setOtpSent(false);
@@ -409,10 +410,8 @@ export default function Login() {
   };
 
   const handleSocialLogin = (provider) => {
-    // Handle social login logic here
   };
 
-  // Show success screen if login was successful
   if (showSuccessScreen && successData) {
     return (
       <LoginSuccessScreen
@@ -426,38 +425,32 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-login-page>
-      {/* Animated Background */}
       <AnimatedBackground variant="login" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
-      {/* Full width wrapper */}
       <div className="w-full min-h-screen flex relative z-10">
-        {/* Left Side - Welcome Content */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center">
-          {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center relative z-10 pl-4 sm:pl-6 lg:pl-8 xl:pl-10">
-            {/* Content */}
             <div className="flex flex-col justify-center xl:pl-35 pr-8 xl:pr-22 py-12 w-full max-w-full">
               <div className="mb-8">
                 <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mb-6 border border-indigo-300/30">
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
-                <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-4">
+                <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
                   Welcome to DragBizz Store
                 </h1>
-                <p className="text-xl text-gray-700 leading-relaxed mb-8">
+                <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
                   Manage your store with powerful tools and insights
                 </p>
               </div>
 
-              {/* Features List */}
               <div className="mt-16 space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-300/30">
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Powerful Management</h3>
-                    <p className="text-gray-600 text-sm">Complete control over inventory, orders, and customers</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Powerful Management</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Complete control over inventory, orders, and customers</p>
                   </div>
                 </div>
 
@@ -466,8 +459,8 @@ export default function Login() {
                     <BarChart3 className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Analytics & Insights</h3>
-                    <p className="text-gray-600 text-sm">Track performance with real-time analytics</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Analytics & Insights</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Track performance with real-time analytics</p>
                   </div>
                 </div>
 
@@ -476,15 +469,14 @@ export default function Login() {
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Secure Access</h3>
-                    <p className="text-gray-600 text-sm">Enterprise-grade security for your store operations</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure Access</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Enterprise-grade security for your store operations</p>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Text */}
               <div className="mt-auto pt-8">
-                <p className="text-gray-600 text-sm">
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
                   © 2025 DragBizz. All rights reserved.
                 </p>
               </div>
@@ -492,12 +484,9 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10">
-          {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
-            <div className="w-full max-w-xl bg-[#fff] rounded-xl border border-[#e0e0e0]/40 p-8 sm:p-10">
-              {/* Mobile Logo */}
+            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/40 p-8 sm:p-10">
               <div className="lg:hidden text-center mb-8">
                 <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-white" />
@@ -507,7 +496,6 @@ export default function Login() {
                 </h1>
               </div>
 
-              {/* Header */}
               <div className="text-center mb-6 sm:mb-8">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
                   <Lock className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
@@ -521,9 +509,7 @@ export default function Login() {
               </div>
 
 
-              {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-                {/* Contact Type Indicator - Only show when OTP not sent */}
                 {formData.contact && !otpSent && (
                   <div className="mb-2">
                     <div className="flex items-center justify-start">
@@ -577,17 +563,27 @@ export default function Login() {
                             ''
                       }
                     />
+                    
+                    {/* Phone detection helper - suggest OTP */}
+                    {contactType === 'phone' && formData.contact && formData.contact.length >= 10 && loginMethod === 'password' && (
+                      <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p className="text-blue-700 dark:text-blue-300 text-xs flex items-center">
+                          <MessageSquare className="w-3 h-3 mr-1" />
+                          Phone detected! Switch to OTP for easier login.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Helper Text */}
                     <div className="mt-2">
                       {validationStatus === 'valid' && (
-                        <p className="text-green-600 text-sm flex items-center">
+                        <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Account found
                         </p>
                       )}
                       {validationStatus === 'invalid' && (
-                        <p className="text-red-500 text-sm flex items-center">
+                        <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
                           <AlertCircle className="w-4 h-4 mr-1" />
                           No account found with this {contactType}
                         </p>
@@ -605,7 +601,7 @@ export default function Login() {
                 {/* Login Method Toggle - Show when OTP not sent */}
                 {!otpSent && (
                   <div className="mb-4">
-                    <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
+                    <div className="flex items-center gap-2 p-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         type="button"
                         onClick={() => {
@@ -614,8 +610,8 @@ export default function Login() {
                           setErrors({ contact: '', password: '', otp: '', general: '' });
                         }}
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${loginMethod === 'password'
-                            ? 'bg-white text-[rgb(var(--color-primary))] shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-primary))] shadow-sm'
+                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                           }`}
                       >
                         <div className="flex items-center justify-center gap-2">
@@ -631,8 +627,8 @@ export default function Login() {
                           setErrors({ contact: '', password: '', otp: '', general: '' });
                         }}
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${loginMethod === 'otp'
-                            ? 'bg-white text-[rgb(var(--color-primary))] shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-primary))] shadow-sm'
+                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                           }`}
                       >
                         <div className="flex items-center justify-center gap-2">
@@ -818,15 +814,14 @@ export default function Login() {
 
                 {/* General Error Display - Above submit button */}
                 {errors.general && (
-                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                     <div className="flex items-center">
-                      <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-                      <span className="text-red-700 text-sm">{errors.general}</span>
+                      <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mr-2" />
+                      <span className="text-red-700 dark:text-red-300 text-sm">{errors.general}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Submit Button - Only show for password method */}
                 {loginMethod === 'password' && (
                   <button
                     type="submit"
@@ -846,7 +841,6 @@ export default function Login() {
                 )}
               </form>
 
-              {/* Sign Up Link */}
               <div className="text-center mt-4 sm:mt-6">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
                   Don't have an account?{' '}
@@ -859,7 +853,6 @@ export default function Login() {
                 </p>
               </div>
 
-              {/* Forgot Password - Only show for password method */}
               {loginMethod === 'password' && (
                 <div className="text-center mt-3 sm:mt-4">
                   <Link
