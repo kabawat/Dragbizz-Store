@@ -106,16 +106,31 @@ class StoreService {
     }
   }
 
-  // Delete store
-  async deleteStore(storeId) {
+  // Request OTP for store delete
+  async requestDeleteStoreOtp(storeId, channel = 'sms') {
     try {
-      const response = await authAxios.delete(`${API_CONFIG?.RETAILER?.STORE}/${storeId}`);
-      return handleApiSuccess(response?.data, 'Store deleted successfully');
+      const response = await authAxios.post(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/delete/request`,
+        { channel }
+      );
+      return handleApiSuccess(response?.data, 'OTP sent successfully');
     } catch (error) {
-      return handleApiErrorResponse(error, 'store-delete');
+      return handleApiErrorResponse(error, 'store-delete-request');
     }
   }
 
+  // Verify OTP and delete store
+  async verifyDeleteStoreOtp(storeId, signature, otp) {
+    try {
+      const response = await authAxios.post(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/delete/verify`,
+        { signature, otp }
+      );
+      return handleApiSuccess(response?.data, 'Store deleted successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'store-delete-verify');
+    }
+  }
 }
 
 // Create and export a singleton instance

@@ -2,6 +2,13 @@
 // This maps feature names to routes and menu items
 
 export const FEATURE_ROUTES = {
+  // Store Management
+  'store_management': {
+    routes: ['/dashboard/settings', '/onboarding/store'],
+    menuItems: ['Settings'],
+    subMenuItems: ['Store Settings']
+  },
+  
   // Product & Stock Management
   'product_management': {
     routes: ['/dashboard/products', '/dashboard/products/add', '/dashboard/products/edit', '/dashboard/products/view'],
@@ -66,6 +73,7 @@ export const FEATURE_ROUTES = {
 
 // Feature names that should match feature.name in database
 export const FEATURE_NAMES = {
+  STORE_MANAGEMENT: 'Store Management',
   PRODUCT_MANAGEMENT: 'Product Management',
   STOCK_MANAGEMENT: 'Stock Management',
   INVOICE_MANAGEMENT: 'Invoice Management',
