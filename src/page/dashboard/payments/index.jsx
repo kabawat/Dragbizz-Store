@@ -27,6 +27,7 @@ import {
   Grid3X3
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const Payments = () => {
   const router = useRouter();
@@ -242,24 +243,33 @@ const Payments = () => {
     }
   };
 
-  // Get status badge variant
+  // Get status badge variant - using common function
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'COMPLETED':
-      case 'approved':
-        return { variant: 'success', icon: CheckCircle, text: 'Completed' };
-      case 'PENDING':
-      case 'pending':
-        return { variant: 'warning', icon: Clock, text: 'Pending' };
-      case 'FAILED':
-      case 'rejected':
-        return { variant: 'danger', icon: XCircle, text: 'Failed' };
-      case 'DRAFT':
-      case 'draft':
-        return { variant: 'secondary', icon: Edit, text: 'Draft' };
-      default:
-        return { variant: 'secondary', icon: Clock, text: 'Unknown' };
+    const statusUpper = String(status).toUpperCase();
+    let mappedStatus = statusUpper;
+    
+    // Map payment-specific statuses
+    if (statusUpper === 'COMPLETED' || statusUpper === 'APPROVED') {
+      mappedStatus = 'COMPLETED';
+    } else if (statusUpper === 'FAILED' || statusUpper === 'REJECTED') {
+      mappedStatus = 'FAILED';
     }
+    
+    const config = getCommonStatusBadge(mappedStatus, 'general');
+    
+    // Map icons for compatibility
+    const iconMap = {
+      'COMPLETED': CheckCircle,
+      'PENDING': Clock,
+      'FAILED': XCircle,
+      'DRAFT': Edit
+    };
+    
+    return {
+      variant: config.variant,
+      icon: iconMap[statusUpper] || Clock,
+      text: config.text
+    };
   };
 
   // Get payment method badge

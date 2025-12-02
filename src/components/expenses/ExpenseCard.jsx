@@ -19,6 +19,7 @@ import {
   getStatusLabel, 
   getStatusColor 
 } from '@/data/constants/expenses';
+import { getStatusBadge } from '@/utils/statusBadge';
 
 const ExpenseCard = ({ 
   expense, 
@@ -57,13 +58,16 @@ const ExpenseCard = ({
   };
 
   const getStatusBadgeColor = (status) => {
+    const config = getStatusBadge(status, 'general');
+    // Map variant to color name for Badge component
     const colorMap = {
-      'PAID': 'green',
-      'PENDING': 'yellow',
-      'OVERDUE': 'red',
-      'CANCELLED': 'gray'
+      'success': 'green',
+      'warning': 'yellow',
+      'danger': 'red',
+      'secondary': 'gray',
+      'primary': 'blue'
     };
-    return colorMap[status] || 'gray';
+    return colorMap[config.variant] || 'gray';
   };
 
   return (

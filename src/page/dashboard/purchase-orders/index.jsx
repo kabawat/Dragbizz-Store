@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button, Input, ToastContainer } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 // Import dedicated purchase order components
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
@@ -293,21 +294,42 @@ const getFilteredPOs = () => {
     const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
     const hasPending = (po.pendingQuantity ?? Math.max((po.totalQuantity || 0) - (po.receivedQuantity || 0), 0)) > 0;
     const isOverdue = !!dueDateObj && !Number.isNaN(dueDateObj.getTime()) && dueDateObj < new Date() && hasPending;
+    
     if (isOverdue) {
-      return { variant: 'danger', icon: AlertTriangle, text: 'Overdue', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
+      const config = getCommonStatusBadge('OVERDUE', 'purchase-order');
+      return {
+        variant: config.variant,
+        icon: AlertTriangle,
+        text: config.text,
+        color: 'bg-red-500/10 text-red-600 border-red-500/20'
+      };
     }
 
     const approval = (po.approvalStatus || '').toUpperCase();
-    switch (approval) {
-      case 'PENDING':
-        return { variant: 'info', icon: Clock, text: 'Pending', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
-      case 'APPROVED':
-        return { variant: 'success', icon: CheckCircle, text: 'Approved', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
-      case 'REJECTED':
-        return { variant: 'danger', icon: AlertTriangle, text: 'Rejected', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
-      default:
-        break;
-    }
+    const config = getCommonStatusBadge(approval || 'PENDING', 'purchase-order');
+    
+    // Map icons for compatibility
+    const iconMap = {
+      'PENDING': Clock,
+      'APPROVED': CheckCircle,
+      'REJECTED': AlertTriangle
+    };
+    
+    const getColorClass = (variant) => {
+      switch(variant) {
+        case 'success': return 'bg-green-500/10 text-green-600 border-green-500/20';
+        case 'danger': return 'bg-red-500/10 text-red-600 border-red-500/20';
+        case 'primary': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
+      }
+    };
+    
+    return {
+      variant: config.variant,
+      icon: iconMap[approval] || Clock,
+      text: config.text,
+      color: getColorClass(config.variant)
+    };
   };
 
   return (
@@ -438,7 +460,6 @@ const getFilteredPOs = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
-                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}
@@ -457,7 +478,6 @@ const getFilteredPOs = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
-                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}

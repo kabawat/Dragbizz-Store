@@ -5,6 +5,7 @@ import { purchaseOrderService } from '@/service/retailer';
 import { SideDrawer } from '@/components/ui';
 import PurchaseOrderDetails from '@/components/purchaseOrders/PurchaseOrderDetails';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const ViewPurchaseOrder = ({ purchaseOrderId }) => {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
@@ -50,30 +51,41 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
   };
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      'PENDING': { 
-        icon: Clock, 
-        text: 'Pending', 
-        color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700' 
-      },
-      'APPROVED': { 
-        icon: CheckCircle, 
-        text: 'Approved', 
-        color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700' 
-      },
-      'REJECTED': { 
-        icon: AlertTriangle, 
-        text: 'Rejected', 
-        color: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700' 
-      },
-      'OPEN': { 
-        icon: AlertTriangle, 
-        text: 'Open', 
-        color: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 border-orange-200 dark:border-orange-700' 
+    const statusUpper = (status || '').toUpperCase();
+    const config = getCommonStatusBadge(statusUpper, 'purchase-order');
+    
+    // Map icons for compatibility
+    const iconMap = {
+      'PENDING': Clock,
+      'APPROVED': CheckCircle,
+      'REJECTED': AlertTriangle,
+      'OPEN': AlertTriangle
+    };
+    
+    // Convert to color class format for compatibility
+    const getColorClass = (variant) => {
+      switch(variant) {
+        case 'success': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
+        case 'danger': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
+        case 'primary': return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700';
+        default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700';
       }
     };
     
-    return statusConfig[status?.toUpperCase()] || statusConfig['PENDING'];
+    // Handle OPEN status separately
+    if (statusUpper === 'OPEN') {
+      return {
+        icon: AlertTriangle,
+        text: 'Open',
+        color: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 border-orange-200 dark:border-orange-700'
+      };
+    }
+    
+    return {
+      icon: iconMap[statusUpper] || Clock,
+      text: config.text,
+      color: getColorClass(config.variant)
+    };
   };
 
   const handleDownload = () => {

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getStatusBadge } from '@/utils/statusBadge';
 
 const InvoiceCard = ({
   invoice,
@@ -35,22 +36,6 @@ const InvoiceCard = ({
     };
   }, []);
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      DRAFT: { className: 'bg-yellow-100 text-yellow-800', text: 'Draft' },
-      RELEASED: { className: 'bg-green-100 text-green-800', text: 'Released' },
-      CANCELLED: { className: 'bg-red-100 text-red-800', text: 'Cancelled' },
-      PAID: { className: 'bg-green-100 text-green-800', text: 'Paid' },
-      UNPAID: { className: 'bg-yellow-100 text-yellow-800', text: 'Unpaid' },
-      PAY_LATTER: { className: 'bg-blue-100 text-blue-800', text: 'Pay Later' }
-    };
-    const config = statusConfig[status] || { className: 'bg-gray-100 text-gray-800', text: status };
-    return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}>
-        {config.text}
-      </span>
-    );
-  };
 
 
   const actionMenuItems = [
@@ -186,7 +171,17 @@ const InvoiceCard = ({
           </div>
           {/* Status Badge */}
           <div className="flex-shrink-0">
-            {getStatusBadge(invoice.paymentStatus)}
+            {(() => {
+              const config = getStatusBadge(invoice.paymentStatus || invoice.invoiceStatus, 'invoice');
+              return (
+                <span 
+                  className="invoice-status-badge px-2 py-1 text-xs font-medium rounded-full border"
+                  style={config.style}
+                >
+                  {config.text}
+                </span>
+              );
+            })()}
           </div>
         </div>
 

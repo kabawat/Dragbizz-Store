@@ -4,6 +4,7 @@ import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDown, AlertTriangle, IndianRupee, Calendar, Building2, BarChart3 } from 'lucide-react';
 import Image from 'next/image';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const InventoryCard = ({
   inventory,
@@ -37,26 +38,21 @@ const InventoryCard = ({
   }, []);
   
   const getStatusBadge = (inventory) => {
+    let status = 'INACTIVE';
     if (inventory.status?.isOutOfStock) {
-      return <Badge variant="danger">Out of Stock</Badge>;
+      status = 'OUT_OF_STOCK';
     } else if (inventory.status?.isLowStock) {
-      return <Badge variant="warning">Low Stock</Badge>;
+      status = 'LOW_STOCK';
     } else if (inventory.status?.isActive) {
-      return <Badge variant="success">Active</Badge>;
-    } else {
-      return <Badge variant="secondary">Inactive</Badge>;
+      status = 'ACTIVE';
     }
+    
+    const config = getCommonStatusBadge(status, 'general');
+    return <Badge variant={config.variant}>{config.text}</Badge>;
   };
   
   const getPaymentStatusBadge = (paymentStatus) => {
-    const statusConfig = {
-      PAID: { variant: 'success', text: 'Paid' },
-      UNPAID: { variant: 'danger', text: 'Unpaid' },
-      PARTIAL: { variant: 'warning', text: 'Partial' },
-      OVERDUE: { variant: 'danger', text: 'Overdue' }
-    };
-    
-    const config = statusConfig[paymentStatus] || { variant: 'secondary', text: paymentStatus };
+    const config = getCommonStatusBadge(paymentStatus, 'bill');
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
   

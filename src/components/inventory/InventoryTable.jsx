@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDown, AlertTriangle, IndianRupee, Calendar, Building2 } from 'lucide-react';
 import Image from 'next/image';
+import { getStatusBadge as getCommonStatusBadge, renderStatusBadge } from '@/utils/statusBadge';
 
 const InventoryTable = ({
   inventories = [],
@@ -41,32 +42,22 @@ const InventoryTable = ({
     };
   }, [openMenuId]);
   
-  const getStatusBadge = (inventory) => {
+  const getInventoryStatusBadge = (inventory) => {
+    let status = 'INACTIVE';
     if (inventory.status?.isOutOfStock) {
-      return { variant: 'danger', text: 'Out of Stock', color: 'bg-red-500/10 text-red-600 border-red-500/20' };
+      status = 'OUT_OF_STOCK';
     } else if (inventory.status?.isLowStock) {
-      return { variant: 'warning', text: 'Low Stock', color: 'bg-orange-500/10 text-orange-600 border-orange-500/20' };
+      status = 'LOW_STOCK';
     } else if (inventory.status?.isActive) {
-      return { variant: 'success', text: 'Active', color: 'bg-green-500/10 text-green-600 border-green-500/20' };
-    } else {
-      return { variant: 'secondary', text: 'Inactive', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
+      status = 'ACTIVE';
     }
+
+    return renderStatusBadge(status, 'general');
   };
   
   const getPaymentStatusBadge = (paymentStatus) => {
-    const statusConfig = {
-      PAID: { variant: 'success', text: 'Paid', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
-      UNPAID: { variant: 'danger', text: 'Unpaid', color: 'bg-red-500/10 text-red-600 border-red-500/20' },
-      PARTIAL: { variant: 'warning', text: 'Partial', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' },
-      OVERDUE: { variant: 'danger', text: 'Overdue', color: 'bg-red-500/10 text-red-600 border-red-500/20' }
-    };
-    
-    const config = statusConfig[paymentStatus] || { variant: 'secondary', text: paymentStatus, color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' };
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.color}`}>
-        {config.text}
-      </span>
-    );
+    if (!paymentStatus) return null;
+    return renderStatusBadge(paymentStatus, 'bill');
   };
   
   const actionMenuItems = (inventory) => [
@@ -223,7 +214,6 @@ const InventoryTable = ({
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {inventories.map((inventory, index) => {
               const isSelected = selectedInventories.includes(inventory.id);
-              const statusConfig = getStatusBadge(inventory);
               
               return (
                 <tr
@@ -293,9 +283,7 @@ const InventoryTable = ({
                   
                   {/* Status Column */}
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}>
-                      {statusConfig.text}
-                    </span>
+                    {getInventoryStatusBadge(inventory)}
                   </td>
                   
                   {/* Batches Column */}

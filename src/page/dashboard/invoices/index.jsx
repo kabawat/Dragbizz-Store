@@ -427,14 +427,10 @@ const InvoicesPage = () => {
                   </div>
                 </div>
                 {/* table or card  */}
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden flex flex-col">
+                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                   <div 
-                    className="flex-1 overflow-y-auto overscroll-behavior-contain" 
+                    className="h-[calc(100vh-200px)] overflow-y-auto" 
                     ref={scrollRef}
-                    style={{ 
-                      maxHeight: 'calc(100vh - 200px)',
-                      minHeight: '400px'
-                    }}
                   >
                     {viewMode === 'table' ? (
                       <div className="min-h-full">

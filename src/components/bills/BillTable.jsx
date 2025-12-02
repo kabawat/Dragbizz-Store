@@ -12,8 +12,12 @@ import {
   MessageCircle,
   Mail,
   MessageSquare,
-  Copy
+  Copy,
+  CheckCircle,
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
+import { renderStatusBadge } from '@/utils/statusBadge';
 
 const BillTable = ({
   bills,
@@ -32,7 +36,6 @@ const BillTable = ({
   onMenuToggle,
   onMenuAction,
   menuRefs,
-  getStatusBadge,
   formatCurrency,
   formatDate,
   enableSendMenu = false,
@@ -65,7 +68,7 @@ const BillTable = ({
   const handleCopy = async (text) => {
     try {
       if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(text);
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -122,9 +125,22 @@ const BillTable = ({
         <table className="w-full min-w-[800px] table-fixed">
           <tbody className="divide-y divide-gray-100">
             {bills.map((bill, index) => {
-              const statusBadge = getStatusBadge(bill);
-              const StatusIcon = statusBadge.icon;
               const isSelected = selectedBills.includes(bill._id || bill.id);
+
+              // Determine status for renderStatusBadge
+              let status = bill.paymentStatus || 'UNPAID';
+              if (new Date(bill.dueDate) < new Date() && bill.dueAmount > 0) {
+                status = 'OVERDUE';
+              }
+
+              // Map icons for bills
+              const iconMap = {
+                'PAID': CheckCircle,
+                'PARTIAL': Clock,
+                'UNPAID': Clock,
+                'OVERDUE': AlertTriangle
+              };
+              const StatusIcon = iconMap[status] || Clock;
 
               return (
                 <tr
@@ -155,10 +171,7 @@ const BillTable = ({
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.paidAmount || 0)}</td>
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.dueAmount || Math.max((bill.totalAmount || 0) - (bill.paidAmount || 0), 0))}</td>
                   <td className="w-1/6 px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>
-                      <StatusIcon className="w-3 h-3 mr-1" />
-                      {statusBadge.text}
-                    </span>
+                    {renderStatusBadge(status, 'bill', StatusIcon)}
                   </td>
                   <td className="w-32 px-6 py-4 text-center">
                     <div className="relative inline-flex items-center gap-2">
@@ -224,47 +237,47 @@ const BillTable = ({
                       )}
 
                       <div className="relative inline-block" ref={(el) => (menuRefs.current[bill._id || bill.id] = el)}>
-                      <button
-                        onClick={() => onMenuToggle(bill._id || bill.id)}
-                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title="More Actions"
-                      >
-                        <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                      </button>
+                        <button
+                          onClick={() => onMenuToggle(bill._id || bill.id)}
+                          className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                          title="More Actions"
+                        >
+                          <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                        </button>
 
-                      {/* Popup Menu */}
-                      {openMenuId === (bill._id || bill.id) && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() => onMenuAction(bill._id || bill.id, 'view')}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            View Details
-                          </button>
-                          <button
-                            onClick={() => onMenuAction(bill._id || bill.id, 'edit')}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => onMenuAction(bill._id || bill.id, 'payment')}
-                            className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
-                          >
-                            <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                            Pay Bill
-                          </button>
-                          <button
-                            onClick={() => onMenuAction(bill._id || bill.id, 'delete')}
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                            Delete
-                          </button>
-                        </div>
-                      )}
+                        {/* Popup Menu */}
+                        {openMenuId === (bill._id || bill.id) && (
+                          <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                            <button
+                              onClick={() => onMenuAction(bill._id || bill.id, 'view')}
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => onMenuAction(bill._id || bill.id, 'edit')}
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => onMenuAction(bill._id || bill.id, 'payment')}
+                              className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                            >
+                              <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
+                              Pay Bill
+                            </button>
+                            <button
+                              onClick={() => onMenuAction(bill._id || bill.id, 'delete')}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
