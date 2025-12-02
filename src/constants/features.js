@@ -4,6 +4,9 @@
  */
 
 export const FEATURES = {
+    // Store Management
+    STORE_MANAGEMENT: 'store_management',
+    
     // Product & Inventory Management
     PRODUCT_MANAGEMENT: 'product_management',
     INVENTORY_MANAGEMENT: 'inventory_management',
@@ -25,6 +28,7 @@ export const FEATURES = {
 
 // Feature display names
 export const FEATURE_DISPLAY_NAMES = {
+    store_management: 'Store Management',
     product_management: 'Product Management',
     inventory_management: 'Inventory Management',
     stock_management: 'Stock Management',
@@ -39,6 +43,10 @@ export const FEATURE_DISPLAY_NAMES = {
 
 // Feature to route mapping
 export const FEATURE_ROUTES = {
+    store_management: {
+        routes: ['/dashboard/settings', '/onboarding/store'],
+        menuItems: ['Settings'],
+    },
     product_management: {
         routes: ['/dashboard/products', '/dashboard/products/add', '/dashboard/products/edit'],
         menuItems: ['Product & Stock'],

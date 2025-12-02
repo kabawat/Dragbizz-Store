@@ -63,7 +63,7 @@ const Modal = ({
     <div className="fixed inset-0 z-[9999] overflow-y-auto">
       {/* Overlay */}
       <div
-        className={`fixed inset-0 backdrop-blur-sm bg-black/50 duration-300 ${overlayClassName}`}
+        className={`fixed inset-0 backdrop-blur-[1px] bg-black/50 duration-300 ${overlayClassName}`}
         onClick={closeOnOverlayClick ? onClose : undefined}
       />
       
