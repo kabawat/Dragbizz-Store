@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { Plus, Save } from 'lucide-react';
 import { FormDrawer } from '@/components/common';
+import { QuotaExceededModal } from '@/components/common';
 import StoreEditForm from './StoreEditForm';
 import storeService from '@/service/retailer/store.service';
+import { useUsageQuota } from '@/hooks/useUsageQuota';
 
 const StoreAddDrawer = ({
   isOpen,
@@ -12,6 +14,9 @@ const StoreAddDrawer = ({
   onSuccess,
   onError,
 }) => {
+  // Get quota information for frontend validation
+  const { quota, isLoading: quotaLoading } = useUsageQuota('store_management');
+
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -30,6 +35,15 @@ const StoreAddDrawer = ({
   });
   const [errors, setErrors] = useState({});
   const [isCreating, setIsCreating] = useState(false);
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [quotaError, setQuotaError] = useState(null);
+
+  // Check if quota is available
+  const isQuotaAvailable = () => {
+    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
+    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
+    return quota.remaining > 0 && quota.hasAccess !== false;
+  };
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -113,6 +127,37 @@ const StoreAddDrawer = ({
       return;
     }
 
+    // Frontend validation: Check quota before making API call
+    if (!isQuotaAvailable()) {
+      // Show quota exceeded modal
+      const quotaData = quota || {};
+      
+      // Store management uses TOTAL usage type (overall limit, no daily/monthly reset)
+      let message = 'Quota exceeded. Please upgrade your plan to continue.';
+      let resetTime = null;
+      
+      if (quota.remaining === 0) {
+        if (quota.usageType === 'TOTAL') {
+          message = `Store limit reached. You have used all ${quota.limit} stores allowed in your plan. Please upgrade your plan to create more stores.`;
+        } else if (quota.usageType === 'DAILY_FIXED') {
+          message = `Daily limit reached. You have used all ${quota.limit} stores for today. Please try again tomorrow or upgrade your plan.`;
+          resetTime = 'tomorrow';
+        } else if (quota.usageType === 'MONTHLY_TOTAL') {
+          message = `Monthly limit reached. You have used all ${quota.limit} stores for this month. Please upgrade your plan.`;
+          resetTime = 'next month';
+        }
+      }
+      
+      setQuotaError({
+        message,
+        quota: quotaData,
+        resetTime,
+        canUpgrade: true
+      });
+      setShowQuotaModal(true);
+      return; // Prevent API call
+    }
+
     try {
       setIsCreating(true);
       setErrors({});
@@ -184,23 +229,31 @@ const StoreAddDrawer = ({
   };
 
   return (
-    <FormDrawer
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title="Add New Store"
-      icon={Plus}
-      description="Create a new store for your agency"
-      width="w-full md:w-2/3 lg:w-1/2"
-      onSave={handleSave}
-      onCancel={handleCancel}
-      saveLabel={isCreating ? 'Creating...' : 'Create Store'}
-      cancelLabel="Cancel"
-      isSaving={isCreating}
-      saveIcon={Save}
-      saveVariant="primary"
-    >
-      <StoreEditForm form={form} onChange={handleChange} errors={errors} />
-    </FormDrawer>
+    <>
+      <FormDrawer
+        isOpen={isOpen}
+        onClose={handleCancel}
+        title="Add New Store"
+        icon={Plus}
+        description="Create a new store for your agency"
+        width="w-full md:w-2/3 lg:w-1/2"
+        onSave={handleSave}
+        onCancel={handleCancel}
+        saveLabel={isCreating ? 'Creating...' : 'Create Store'}
+        cancelLabel="Cancel"
+        isSaving={isCreating}
+        saveIcon={Save}
+        saveVariant="primary"
+      >
+        <StoreEditForm form={form} onChange={handleChange} errors={errors} />
+      </FormDrawer>
+
+      <QuotaExceededModal
+        isOpen={showQuotaModal}
+        onClose={() => setShowQuotaModal(false)}
+        error={quotaError}
+      />
+    </>
   );
 };
 
