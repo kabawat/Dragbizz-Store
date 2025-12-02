@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Calendar, IndianRupee, User, Settings, Printer, CheckCircle } from 'lucide-react';
+import { renderStatusBadge } from '@/utils/statusBadge';
 
 const InvoiceTable = ({
   invoices = [],
@@ -106,19 +107,6 @@ const InvoiceTable = ({
     }
   ];
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      DRAFT: { className: 'bg-yellow-100 text-yellow-800', text: 'Draft' },
-      RELEASED: { className: 'bg-green-100 text-green-800', text: 'Released' },
-      CANCELLED: { className: 'bg-red-100 text-red-800', text: 'Cancelled' }
-    };
-    const config = statusConfig[status] || { className: 'bg-gray-100 text-gray-800', text: status };
-    return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}>
-        {config.text}
-      </span>
-    );
-  };
 
 
   const formatDate = (dateString) => {
@@ -168,11 +156,11 @@ const InvoiceTable = ({
   }
 
   return (
-    <div className={`${className}`} {...props}>
-      <div className="relative">
-        <table className="w-full min-w-[800px]">
-          {/* Table Header */}
-          <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
+    <div className={`h-full ${className}`} {...props}>
+      {/* Fixed Header */}
+      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
+        <table className="w-full min-w-[800px] table-fixed">
+          <thead>
             <tr>
               <th className="px-6 py-4 text-left">
                 <div className="flex items-center gap-4">
@@ -208,7 +196,7 @@ const InvoiceTable = ({
               <th className="px-6 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-2 py-4 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider w-24">
+              <th className="w-24 px-6 py-4 text-center">
                 <div className="flex items-center justify-center">
                   <div className="p-2">
                     <svg className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,7 +207,12 @@ const InvoiceTable = ({
               </th>
             </tr>
           </thead>
-          {/* Table Body */}
+        </table>
+      </div>
+
+      {/* Scrollable Body */}
+      <div className="overflow-auto min-h-[calc(100vh-400px)]">
+        <table className="w-full min-w-[800px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {invoices.map((invoice, index) => {
               const invoiceId = invoice.id || invoice._id;
@@ -320,11 +313,11 @@ const InvoiceTable = ({
 
                   {/* Status Column */}
                   <td className="px-6 py-4 text-center">
-                    {getStatusBadge(invoice.invoiceStatus)}
+                    {renderStatusBadge(invoice.invoiceStatus, 'invoice')}
                   </td>
 
                   {/* Actions Column */}
-                  <td className="px-2 py-4 text-center w-24">
+                  <td className="w-24 px-6 py-4 text-center">
                     <div className="relative flex justify-center" ref={(el) => (menuRefs.current[invoiceId] = el)}>
                       <button
                         onClick={() => setOpenMenuId(isMenuOpen ? null : invoiceId)}
@@ -366,19 +359,15 @@ const InvoiceTable = ({
             })}
           </tbody>
         </table>
-      </div>
 
-      {/* Infinite Scroll Loading */}
-      {isLoadingMore && (
-        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-          <div className="flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
-            </div>
+        {/* Loading More Indicator */}
+        {isLoadingMore && (
+          <div className="text-center py-4">
+            <div className="w-6 h-6 border-2 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

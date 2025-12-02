@@ -11,6 +11,7 @@ import {
   Trash2,
   Eye
 } from 'lucide-react';
+import { getStatusBadge, renderStatusBadge } from '@/utils/statusBadge';
 import {
   getCategoryLabel,
   getPaymentMethodLabel,
@@ -100,13 +101,16 @@ const ExpenseTable = ({
   };
 
   const getStatusBadgeColor = (status) => {
+    const config = getStatusBadge(status, 'general');
+    // Map variant to color name for Badge component
     const colorMap = {
-      'PAID': 'green',
-      'PENDING': 'yellow',
-      'OVERDUE': 'red',
-      'CANCELLED': 'gray'
+      'success': 'green',
+      'warning': 'yellow',
+      'danger': 'red',
+      'secondary': 'gray',
+      'primary': 'blue'
     };
-    return colorMap[status] || 'gray';
+    return colorMap[config.variant] || 'gray';
   };
 
   const isAllSelected = expenses.length > 0 && selectedExpenses.length === expenses.length;
@@ -271,12 +275,7 @@ const ExpenseTable = ({
                   </td>
                   
                   <td className="px-6 py-4">
-                    <Badge
-                      color={getStatusBadgeColor(expense.status)}
-                      size="sm"
-                    >
-                      {getStatusLabel(expense.status)}
-                    </Badge>
+                    {renderStatusBadge(expense.status, 'general')}
                   </td>
                   
                   <td className="w-24 px-6 py-4 text-center">

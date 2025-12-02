@@ -27,6 +27,7 @@ import {
   TrendingDown
 } from 'lucide-react';
 import { Button, Input, Select, Badge, Card, Modal } from '@/components/ui';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const Accounts = () => {
   const router = useRouter();
@@ -112,18 +113,22 @@ const Accounts = () => {
 
   // Get status badge variant
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'active':
-        return { variant: 'success', icon: CheckCircle, text: 'Active' };
-      case 'suspended':
-        return { variant: 'danger', icon: XCircle, text: 'Suspended' };
-      case 'pending':
-        return { variant: 'warning', icon: Clock, text: 'Pending' };
-      case 'inactive':
-        return { variant: 'secondary', icon: Clock, text: 'Inactive' };
-      default:
-        return { variant: 'secondary', icon: Clock, text: 'Unknown' };
-    }
+    const statusUpper = String(status).toUpperCase();
+    const config = getCommonStatusBadge(statusUpper, 'general');
+    
+    // Map icons for compatibility
+    const iconMap = {
+      'ACTIVE': CheckCircle,
+      'SUSPENDED': XCircle,
+      'PENDING': Clock,
+      'INACTIVE': Clock
+    };
+    
+    return {
+      variant: config.variant,
+      icon: iconMap[statusUpper] || Clock,
+      text: config.text
+    };
   };
 
   // Get risk level badge

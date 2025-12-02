@@ -921,9 +921,13 @@
 }
 
 /* Ensure all text elements use theme variables */
-[data-variant="dark"] * {
+/* Exclude status badges to allow inline style colors */
+[data-variant="dark"] *:not(.invoice-status-badge) {
   color: rgb(var(--color-text-primary)) !important;
 }
+
+/* Invoice Status Badge - Excluded from global dark mode text color rule */
+/* Inline style colors will work automatically since badge is excluded from [data-variant="dark"] * rule */
 
 [data-variant="dark"] .text-gray-900,
 [data-variant="dark"] .text-gray-800,
@@ -2231,4 +2235,13 @@ body>div[style*="z-index: 999999"] {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--color-text-secondary), 0.5);
+}
+
+/* Status Badge - Ensure theme variable colors are visible in dark mode */
+[data-variant="dark"] [style*="color: rgb(var(--color-success))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-warning))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-danger))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-primary))"] {
+  /* Theme variables automatically adapt, but ensure they're not overridden */
+  opacity: 1 !important;
 }

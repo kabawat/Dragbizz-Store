@@ -13,9 +13,13 @@ import {
     Copy,
     Phone,
     IndianRupee,
-    Receipt
+    Receipt,
+    AlertTriangle,
+    CheckCircle,
+    Clock
 } from 'lucide-react';
 import { AddActionButton } from '@/components/ui';
+import { renderStatusBadge } from '@/utils/statusBadge';
 
 const PurchaseOrderTable = ({
     bills,
@@ -34,12 +38,28 @@ const PurchaseOrderTable = ({
     onMenuToggle,
     onMenuAction,
     menuRefs,
-    getStatusBadge,
     formatCurrency,
     formatDate,
     enableSendMenu = true,
     getShareUrl
 }) => {
+  const getPurchaseOrderStatusBadge = (row) => {
+    const dueDateObj = row.dueDate ? new Date(row.dueDate) : null;
+    const hasPending = (row.pendingQuantity ?? Math.max((row.totalQuantity || 0) - (row.receivedQuantity || 0), 0)) > 0;
+    const isOverdue = !!dueDateObj && !Number.isNaN(dueDateObj.getTime()) && dueDateObj < new Date() && hasPending;
+    
+    const iconMap = {
+      'PENDING': Clock,
+      'APPROVED': CheckCircle,
+      'REJECTED': AlertTriangle,
+      'OVERDUE': AlertTriangle
+    };
+    
+    const status = isOverdue ? 'OVERDUE' : (row.approvalStatus || 'PENDING');
+    const StatusIcon = iconMap[status] || Clock;
+    
+    return renderStatusBadge(status, 'purchase-order', StatusIcon);
+  };
     const [openSendMenuId, setOpenSendMenuId] = useState(null);
     const sendMenuRefs = useRef({});
 
@@ -152,8 +172,6 @@ const PurchaseOrderTable = ({
                 <table className="w-full min-w-[800px] table-fixed">
                     <tbody className="divide-y divide-gray-100">
                         {bills.map((row) => {
-                            const statusBadge = getStatusBadge(row);
-                            const StatusIcon = statusBadge.icon;
                             const isSelected = selectedBills.includes(row._id || row.id);
                             const poStatus = (row.status || '').toUpperCase();
                             const isDeleted = poStatus === 'DELETED';
@@ -227,10 +245,7 @@ const PurchaseOrderTable = ({
                                     </td>
                                     <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(advanceAmount)}</td>
                                     <td className="w-1/6 px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}>
-                                            <StatusIcon className="w-3 h-3 mr-1 currentColor" />
-                                            {statusBadge.text}
-                                        </span>
+                                        {getPurchaseOrderStatusBadge(row)}
                                     </td>
                                     <td className="w-50 py-4 text-center">
                                         <div className="relative inline-flex items-center gap-2">

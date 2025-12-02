@@ -11,6 +11,7 @@ import { Button, AnimatedBackground, Badge } from '@/components/ui';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const ViewProductPage = ({ productId }) => {
   const router = useRouter();
@@ -104,16 +105,16 @@ const ViewProductPage = ({ productId }) => {
 
   // Get status badge
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      ACTIVE: { variant: 'success', text: 'Active', icon: CheckCircle2 },
-      INACTIVE: { variant: 'secondary', text: 'Inactive', icon: XCircle },
-      DRAFT: { variant: 'warning', text: 'Draft', icon: Clock },
-      OUT_OF_STOCK: { variant: 'danger', text: 'Out of Stock', icon: AlertTriangle },
-      LOW_STOCK: { variant: 'warning', text: 'Low Stock', icon: AlertTriangle }
+    const config = getCommonStatusBadge(status, 'general');
+    // Map icons for products
+    const iconMap = {
+      'ACTIVE': CheckCircle2,
+      'INACTIVE': XCircle,
+      'DRAFT': Clock,
+      'OUT_OF_STOCK': AlertTriangle,
+      'LOW_STOCK': AlertTriangle
     };
-    
-    const config = statusConfig[status] || { variant: 'secondary', text: status, icon: Package };
-    const IconComponent = config.icon;
+    const IconComponent = iconMap[status] || Package;
     
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">

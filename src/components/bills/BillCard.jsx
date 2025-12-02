@@ -7,8 +7,12 @@ import {
   Edit,
   Trash2,
   Calendar,
-  CreditCard
+  CreditCard,
+  CheckCircle,
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
+import { renderStatusBadge } from '@/utils/statusBadge';
 
 const BillCard = ({
   bill,
@@ -21,17 +25,26 @@ const BillCard = ({
   onMenuToggle,
   onMenuAction,
   menuRefs,
-  getStatusBadge,
   formatCurrency,
   formatDate
 }) => {
-  const statusBadge = getStatusBadge(bill);
-  const StatusIcon = statusBadge.icon;
+  // Determine status for renderStatusBadge
+  let status = bill.paymentStatus || 'UNPAID';
+  if (new Date(bill.dueDate) < new Date() && bill.dueAmount > 0) {
+    status = 'OVERDUE';
+  }
+  
+  // Map icons for bills
+  const iconMap = {
+    'PAID': CheckCircle,
+    'PARTIAL': Clock,
+    'UNPAID': Clock,
+    'OVERDUE': AlertTriangle
+  };
+  const StatusIcon = iconMap[status] || Clock;
 
   return (
-    <div
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''}`}
-    >
+    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''}`} >
       {/* Checkbox */}
       <div className="absolute top-4 left-4 z-10">
         <input
@@ -105,10 +118,7 @@ const BillCard = ({
 
         {/* Status Badge */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}>
-            <StatusIcon className="w-3 h-3 mr-1" />
-            {statusBadge.text}
-          </span>
+          {renderStatusBadge(status, 'bill', StatusIcon)}
         </div>
 
         {/* Bill Details */}

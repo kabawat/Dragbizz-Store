@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Users, Phone, Mail, Calendar } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const CustomerCard = ({
   customer,
@@ -34,14 +35,7 @@ const CustomerCard = ({
   }, []);
   
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      ACTIVE: { variant: 'success', text: 'Active' },
-      INACTIVE: { variant: 'secondary', text: 'Inactive' },
-      PENDING: { variant: 'warning', text: 'Pending' },
-      BLOCKED: { variant: 'danger', text: 'Blocked' }
-    };
-    
-    const config = statusConfig[status] || { variant: 'success', text: 'Active' };
+    const config = getCommonStatusBadge(status, 'general');
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
   

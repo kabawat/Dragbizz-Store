@@ -15,7 +15,6 @@ const BillGrid = ({
   onMenuToggle,
   onMenuAction,
   menuRefs,
-  getStatusBadge,
   formatCurrency,
   formatDate
 }) => {
@@ -57,7 +56,6 @@ const BillGrid = ({
             onMenuToggle={onMenuToggle}
             onMenuAction={onMenuAction}
             menuRefs={menuRefs}
-            getStatusBadge={getStatusBadge}
             formatCurrency={formatCurrency}
             formatDate={formatDate}
           />

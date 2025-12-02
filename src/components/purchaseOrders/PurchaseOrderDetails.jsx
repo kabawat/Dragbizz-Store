@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import { Calendar, Building2, FileText, IndianRupee, Phone, Mail, Barcode } from 'lucide-react';
+import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const PurchaseOrderDetails = ({ purchaseOrder }) => {
   const formatCurrency = (amount) => {
@@ -19,26 +20,21 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
   };
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      'PENDING': {
-        text: 'Pending',
-        color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700'
-      },
-      'APPROVED': {
-        text: 'Approved',
-        color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
-      },
-      'REJECTED': {
-        text: 'Rejected',
-        color: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
-      },
-      'DRAFT': {
-        text: 'Draft',
-        color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+    const config = getCommonStatusBadge(status, 'purchase-order');
+    // Convert to color class format for compatibility
+    const getColorClass = (variant) => {
+      switch(variant) {
+        case 'success': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
+        case 'danger': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
+        case 'primary': return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700';
+        default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700';
       }
     };
-
-    return statusConfig[status?.toUpperCase()] || statusConfig['PENDING'];
+    
+    return {
+      text: config.text,
+      color: getColorClass(config.variant)
+    };
   };
 
   const statusBadge = getStatusBadge(purchaseOrder.approvalStatus || purchaseOrder.status);

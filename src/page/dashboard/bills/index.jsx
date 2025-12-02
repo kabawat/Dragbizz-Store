@@ -19,6 +19,7 @@ import {
 import { Button, Input } from '@/components/ui';
 import { BillTable, BillGrid, BillDeleteConfirmModal, BillPaymentDrawer } from '@/components/bills';
 import { billService } from '@/service/retailer';
+import { getStatusBadge } from '@/utils/statusBadge';
 
 const Bills = () => {
   const router = useRouter();
@@ -328,8 +329,8 @@ const Bills = () => {
     }
   };
 
-  // Get status badge variant
-  const getStatusBadge = (bill) => {
+  // Get status badge variant - wrapper to handle overdue logic and compatibility
+  const getBillStatusBadge = (bill) => {
     // Check if bill is overdue
     const isOverdue = new Date(bill.dueDate) < new Date() && bill.dueAmount > 0;
 
@@ -342,36 +343,31 @@ const Bills = () => {
       };
     }
 
-    switch (bill.paymentStatus) {
-      case 'PAID':
-        return {
-          variant: 'success',
-          icon: CheckCircle,
-          text: 'Paid',
-          color: 'bg-green-500/10 text-green-600 border-green-500/20'
-        };
-      case 'PARTIAL':
-        return {
-          variant: 'warning',
-          icon: Clock,
-          text: 'Partial',
-          color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
-        };
-      case 'UNPAID':
-        return {
-          variant: 'secondary',
-          icon: Clock,
-          text: 'Pending',
-          color: 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-        };
-      default:
-        return {
-          variant: 'secondary',
-          icon: Clock,
-          text: 'Unknown',
-          color: 'bg-gray-500/10 text-gray-600 border-gray-500/20'
-        };
-    }
+    const config = getStatusBadge(bill.paymentStatus, 'bill');
+    // Map icons for compatibility with BillTable/BillCard
+    const iconMap = {
+      'PAID': CheckCircle,
+      'PARTIAL': Clock,
+      'UNPAID': Clock
+    };
+    
+    // Convert style object to className string for compatibility
+    const getColorClass = (variant) => {
+      switch(variant) {
+        case 'success': return 'bg-green-500/10 text-green-600 border-green-500/20';
+        case 'warning': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
+        case 'danger': return 'bg-red-500/10 text-red-600 border-red-500/20';
+        case 'primary': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
+      }
+    };
+    
+    return {
+      variant: config.variant,
+      icon: iconMap[bill.paymentStatus] || Clock,
+      text: config.text,
+      color: getColorClass(config.variant)
+    };
   };
 
   // Format currency
@@ -519,7 +515,6 @@ const Bills = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
-                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                     />
@@ -537,7 +532,6 @@ const Bills = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
-                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                     />
