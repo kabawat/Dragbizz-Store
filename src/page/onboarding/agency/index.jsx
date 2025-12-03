@@ -1,16 +1,17 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Building2, ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Users, Shield, Zap } from 'lucide-react';
 import { Input, Button, AnimatedBackground, AnimatedGridPattern } from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createAgency } from '@/store/slices/profileSlice';
+import { createAgency, getRetailerDetails } from '@/store/slices/profileSlice';
 import { useRouter } from 'next/navigation';
 
 export default function AgencyCreation() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoading, error, agency, stores } = useAppSelector((state) => state.profile);
-  
+  const isCreatingRef = useRef(false);
+
   const [formData, setFormData] = useState({
     name: ''
   });
@@ -41,16 +42,25 @@ export default function AgencyCreation() {
     if (!validateForm()) return;
 
     setErrors({});
+    isCreatingRef.current = true;
 
     try {
       const result = await dispatch(createAgency(formData));
-      
+
       if (createAgency.fulfilled.match(result)) {
-        router.push('/onboarding/store');
+        // Refresh retailer details to get proper structure in Redux
+        await dispatch(getRetailerDetails({ forceRefresh: true }));
+        // Wait a bit for state to update, then redirect
+        setTimeout(() => {
+          isCreatingRef.current = false;
+          router.push('/onboarding/store');
+        }, 200);
       } else if (createAgency.rejected.match(result)) {
+        isCreatingRef.current = false;
         setErrors({ general: result.payload?.message || 'Failed to create agency' });
       }
     } catch (error) {
+      isCreatingRef.current = false;
       setErrors({ general: 'An error occurred while creating agency. Please try again.' });
     }
   };
@@ -68,8 +78,9 @@ export default function AgencyCreation() {
   };
 
   // If agency already exists, redirect based on stores
+  // Only redirect if we're not currently creating an agency
   useEffect(() => {
-    if (agency) {
+    if (agency && !isLoading && !isCreatingRef.current) {
       if (stores && stores.length > 0) {
         // Has stores - redirect to dashboard
         router.push('/dashboard');
@@ -78,7 +89,7 @@ export default function AgencyCreation() {
         router.push('/onboarding/store');
       }
     }
-  }, [agency, stores, router]);
+  }, [agency, stores, isLoading, router]);
 
   // Don't show "agency already exists" screen - just redirect
   if (agency) {
@@ -97,7 +108,7 @@ export default function AgencyCreation() {
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden">
       <AnimatedBackground variant="register" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
-      
+
       <div className="w-full min-h-screen flex relative z-10">
         {/* Left Side - Welcome Content */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center">

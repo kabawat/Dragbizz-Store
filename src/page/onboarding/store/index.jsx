@@ -42,13 +42,17 @@ export default function StoreCreation() {
 
   // Load agency data from Redux
   useEffect(() => {
-    if (agency && agency.agencyId) {
-      setFormData(prev => ({ ...prev, agency: agency.agencyId }));
-    } else {
-      // If no agency data, redirect to agency creation
+    // Check if agency exists with any of the possible ID fields
+    const agencyId = agency?.agencyId || agency?._id || agency?.id;
+    
+    if (agency && agencyId) {
+      setFormData(prev => ({ ...prev, agency: agencyId }));
+    } else if (agency === null && !profileLoading) {
+      // Only redirect if agency is explicitly null and not loading
+      // This prevents redirect loop when agency is being fetched
       router.push('/onboarding/agency');
     }
-  }, [agency, router]);
+  }, [agency, profileLoading, router]);
 
   const updateFormData = (field, value) => {
     if (field.includes('.')) {
