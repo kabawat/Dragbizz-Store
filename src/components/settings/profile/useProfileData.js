@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState, useCallback } from 'react';
-import authService from '@/service/auth/auth.service';
+import { useAppSelector } from '@/store/hooks';
 
 const formatDate = (date) => {
   if (!date) return '';
@@ -15,35 +15,22 @@ const resetForm = (source) => ({
 });
 
 export const useProfileData = (initialUser) => {
+  const { authProfile } = useAppSelector((state) => state.profile);
   const [isEditing, setIsEditing] = useState(false);
   const [apiUser, setApiUser] = useState(initialUser || null);
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState(() => resetForm(initialUser));
 
+  // Sync from Redux authProfile when available
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchProfile = async () => {
-      try {
-        const result = await authService.getProfile();
-        if (!isMounted) return;
-
-        if (result?.success && result.data) {
-          const data = result.data.data || result.data;
-          setApiUser(data);
-          setForm(resetForm(data));
-        }
-      } catch (e) {
-        // Silent fail; existing Redux user will still show
-      }
-    };
-
-    fetchProfile();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    if (authProfile) {
+      setApiUser(authProfile);
+      setForm(resetForm(authProfile));
+    } else if (initialUser) {
+      setApiUser(initialUser);
+      setForm(resetForm(initialUser));
+    }
+  }, [authProfile, initialUser]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;

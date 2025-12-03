@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { getRetailerDetails } from '@/store/slices/profileSlice';
 import storeService from '@/service/retailer/store.service';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui';
@@ -11,6 +12,7 @@ import StoreEditDrawer from './StoreEditDrawer';
 import StoreDeleteModal from './StoreDeleteModal';
 
 const StoreSettings = () => {
+  const dispatch = useAppDispatch();
   const { stores: reduxStores, selectedStore, agency } = useAppSelector((state) => state.profile);
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -108,18 +110,24 @@ const StoreSettings = () => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
+    // Refresh global retailer profile so Redux stores/selectedStore stay in sync
+    dispatch(getRetailerDetails({ forceRefresh: true }));
   };
 
   const handleEditSuccess = (message) => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
+    // Refresh global retailer profile after store update
+    dispatch(getRetailerDetails({ forceRefresh: true }));
   };
 
   const handleDeleteSuccess = (message) => {
     showSuccess(message);
     hasFetchedRef.current = false;
     fetchStores();
+    // Refresh global retailer profile after store delete
+    dispatch(getRetailerDetails({ forceRefresh: true }));
   };
 
   return (

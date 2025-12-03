@@ -169,6 +169,22 @@ const StoreList = ({
           </div>
         );
       })}
+      {/* Create New Store Card */}
+      <button
+        type="button"
+        onClick={onAddStore}
+        className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-dashed border-[rgb(var(--color-border-primary))]/70 p-6 relative flex flex-col items-center justify-center h-full min-h-[220px] hover:border-[rgb(var(--color-primary))]/60 hover:bg-[rgb(var(--color-primary))]/5 transition-colors cursor-pointer"
+      >
+        <div className="w-12 h-12 mb-4 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center">
+          <Plus className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+        </div>
+        <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+          Create New Store
+        </h3>
+        <p className="text-sm text-[rgb(var(--color-text-secondary))] text-center max-w-[220px]">
+          Add another store to your account.
+        </p>
+      </button>
     </div>
   );
 };

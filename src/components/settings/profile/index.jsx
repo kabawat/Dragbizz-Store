@@ -4,6 +4,8 @@ import { FormDrawer } from '@/components/common';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui';
 import authService from '@/service/auth/auth.service';
+import { useAppDispatch } from '@/store/hooks';
+import { getAuthProfile } from '@/store/slices/profileSlice';
 import { useProfileData } from './useProfileData';
 import ProfilePictureSection from './ProfilePictureSection';
 import PersonalInfoSection from './PersonalInfoSection';
@@ -11,6 +13,7 @@ import AccountActionsSection from './AccountActionsSection';
 import ProfileEditForm from './ProfileEditForm';
 
 const ProfileSettings = ({ user }) => {
+  const dispatch = useAppDispatch();
   const {
     isEditing,
     apiUser,
@@ -52,6 +55,9 @@ const ProfileSettings = ({ user }) => {
           dob: updated.dob ? String(updated.dob).slice(0, 10) : prev.dob,
           gender: updated.gender || prev.gender,
         }));
+
+        // Refresh global auth profile in Redux so all places get latest data
+        dispatch(getAuthProfile());
 
         showSuccess(result.message || 'Profile updated successfully!');
         handleCancel();

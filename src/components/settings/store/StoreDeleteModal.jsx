@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { Mail, Phone, AlertCircle } from 'lucide-react';
-import { authService } from '@/service/auth';
+import { useAppSelector } from '@/store/hooks';
 import storeService from '@/service/retailer/store.service';
 
 const StoreDeleteModal = ({
@@ -20,32 +20,18 @@ const StoreDeleteModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
-  const [userProfile, setUserProfile] = useState(null);
+  const { authProfile: userProfile } = useAppSelector((state) => state.profile);
   const inputRefs = useRef([]);
-
   useEffect(() => {
-    if (isOpen && step === 1) {
-      const fetchUserProfile = async () => {
-        try {
-          const result = await authService.getProfile();
-          if (result?.success) {
-            const data = result.data?.data || result.data;
-            setUserProfile(data);
-
-            // Auto-select available channel
-            if (data?.phone && !data?.email) {
-              setChannel('sms');
-            } else if (data?.email && !data?.phone) {
-              setChannel('email');
-            }
-          }
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
-      };
-      fetchUserProfile();
+    if (isOpen && step === 1 && userProfile) {
+      // Auto-select available channel based on existing profile
+      if (userProfile?.phone && !userProfile?.email) {
+        setChannel('sms');
+      } else if (userProfile?.email && !userProfile?.phone) {
+        setChannel('email');
+      }
     }
-  }, [isOpen, step]);
+  }, [isOpen, step, userProfile]);
 
   const formatPhoneNumber = (phone, countryCode) => {
     if (!phone) return 'Not available';
