@@ -1,6 +1,3 @@
-// Feature to Route/Menu Mapping
-// This maps feature names to routes and menu items
-
 export const FEATURE_ROUTES = {
   // Store Management
   'store_management': {
@@ -16,9 +13,14 @@ export const FEATURE_ROUTES = {
     subMenuItems: ['Products', 'Stocks', 'Low Stock Alerts']
   },
   'stock_management': {
-    routes: ['/dashboard/stock', '/dashboard/stock/alerts', '/dashboard/inventory'],
+    routes: ['/dashboard/stock', '/dashboard/stock/alerts', '/dashboard/stock/add', '/dashboard/stock/edit', '/dashboard/stock/view'],
     menuItems: ['Product & Stock'],
     subMenuItems: ['Stocks', 'Low Stock Alerts']
+  },
+  'inventory_management': {
+    routes: ['/dashboard/inventory', '/dashboard/inventory/add', '/dashboard/inventory/edit', '/dashboard/inventory/view', '/dashboard/stock'],
+    menuItems: ['Product & Stock'],
+    subMenuItems: ['Inventory', 'Stocks']
   },
   
   // Invoice Management
@@ -30,21 +32,21 @@ export const FEATURE_ROUTES = {
   
   // Expense Management
   'expense_management': {
-    routes: ['/dashboard/expenses', '/dashboard/expenses/reports'],
+    routes: ['/dashboard/expenses', '/dashboard/expenses/reports', '/dashboard/expenses/edit', '/dashboard/expenses/view'],
     menuItems: ['Daily Expenses'],
     subMenuItems: ['All Expenses', 'Add New Expense', 'Expense Reports']
   },
 
   // Customer Management
   'customer_management': {
-    routes: ['/dashboard/customers', '/dashboard/customers/add', '/dashboard/customers/inactive'],
+    routes: ['/dashboard/customers', '/dashboard/customers/add', '/dashboard/customers/edit', '/dashboard/customers/view', '/dashboard/customers/inactive'],
     menuItems: ['Customers'],
     subMenuItems: ['All Customers', 'Add New Customer', 'Inactive Customers']
   },
   
   // Purchase Management
   'purchase_management': {
-    routes: ['/dashboard/purchase', '/dashboard/purchase-orders', '/dashboard/suppliers'],
+    routes: ['/dashboard/purchase', '/dashboard/purchase-orders', '/dashboard/purchase-orders/create', '/dashboard/purchase-orders/edit', '/dashboard/purchase-orders/view', '/dashboard/suppliers'],
     menuItems: ['Purchase'],
     subMenuItems: ['Suppliers', 'Purchase Orders']
   },
@@ -65,7 +67,7 @@ export const FEATURE_ROUTES = {
   
   // Supplier Management
   'supplier_management': {
-    routes: ['/dashboard/suppliers'],
+    routes: ['/dashboard/suppliers', '/dashboard/suppliers/edit', '/dashboard/suppliers/view'],
     menuItems: ['Purchase'],
     subMenuItems: ['Suppliers']
   }
@@ -75,6 +77,7 @@ export const FEATURE_ROUTES = {
 export const FEATURE_NAMES = {
   STORE_MANAGEMENT: 'Store Management',
   PRODUCT_MANAGEMENT: 'Product Management',
+  INVENTORY_MANAGEMENT: 'Inventory Management',
   STOCK_MANAGEMENT: 'Stock Management',
   INVOICE_MANAGEMENT: 'Invoice Management',
   EXPENSE_MANAGEMENT: 'Expense Management',
