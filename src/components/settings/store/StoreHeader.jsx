@@ -14,13 +14,7 @@ const StoreHeader = ({ storesCount = 0, isLoading = false, onAddStore }) => {
             : `${storesCount} ${storesCount === 1 ? 'store' : 'stores'} registered`}
         </p>
       </div>
-      <button
-        onClick={onAddStore}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer font-medium"
-      >
-        <Plus className="w-5 h-5" />
-        Add New Store
-      </button>
+      {/* Add New Store button removed as per latest design */}
     </div>
   );
 };

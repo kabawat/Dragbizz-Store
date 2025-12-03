@@ -12,7 +12,27 @@ const Header = ({
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
 
   // Get user data from Redux
-  const { user, agency, selectedStore } = useAppSelector((state) => state.profile);
+  const { user, agency, selectedStore, authProfile } = useAppSelector((state) => state.profile);
+  
+  // Get user name and role
+  const userName = user?.firstName && user?.lastName 
+    ? `${user.firstName} ${user.lastName}` 
+    : user?.name || authProfile?.firstName && authProfile?.lastName
+    ? `${authProfile.firstName} ${authProfile.lastName}`
+    : authProfile?.name || user?.email || 'User';
+  
+  const userRole = user?.role || authProfile?.role || null;
+  
+  // Format role for display
+  const formatRole = (role) => {
+    if (!role) return null;
+    return role
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+  
+  const displayRole = formatRole(userRole) || 'User';
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -122,10 +142,10 @@ const Header = ({
                 {/* User Info */}
                 <div className="text-left">
                   <div className="text-xs font-medium text-[rgb(var(--color-text-primary))]">
-                    {user?.name || user?.email || 'User'}
+                    {userName}
                   </div>
                   <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                    {agency?.agencyName || 'Admin'}
+                    {displayRole}
                   </div>
                 </div>
 

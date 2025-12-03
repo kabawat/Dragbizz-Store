@@ -1,5 +1,6 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
@@ -33,10 +34,34 @@ const settingsTabs = [
 ];
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { user, selectedStore } = useAppSelector((state) => state.profile);
   const { toggleVariant, currentVariant } = useTheme();
   const [activeTab, setActiveTab] = useState('appearance');
   const [animationKey, setAnimationKey] = useState(0);
+
+  // Sync active tab from query params on mount / URL change
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (!tabFromUrl) return;
+
+    const isValidTab = settingsTabs.some((tab) => tab.id === tabFromUrl);
+    if (isValidTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
+  // Helper to update URL when tab changes (without full page reload)
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tabId);
+
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const handleToggleVariant = () => {
     setAnimationKey(prev => prev + 1);
@@ -68,7 +93,7 @@ export default function SettingsPage() {
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => handleTabChange(tab.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
                           activeTab === tab.id
                             ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20'
