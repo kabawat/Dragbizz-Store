@@ -5,22 +5,28 @@ import { Button, Card, Input, Loading, Select } from '@/components/ui';
 import { packageService, checkoutService } from '@/service';
 import { cookieManager } from '@/utils/cookieManager';
 import { getCurrencySymbol } from '@/data/constants/currencies';
-  import {
-    CheckCircle,
-    CreditCard,
-    Lock,
-    ArrowLeft,
-    Calendar,
-    Tag,
-    Shield,
-    Sparkles
-  } from 'lucide-react';
-  import ProductHeader from '@/components/layout/ProductHeader';
+import { useAppSelector } from '@/store/hooks';
+import {
+  CheckCircle,
+  CreditCard,
+  Lock,
+  ArrowLeft,
+  Calendar,
+  Tag,
+  Shield,
+  Sparkles,
+  Star,
+  Package,
+  Users
+} from 'lucide-react';
+import ProductHeader from '@/components/layout/ProductHeader';
+import PackageFeaturesCompact from '@/components/package/PackageFeaturesCompact';
 
   const CheckoutContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const packageId = searchParams.get('packageId');
+    const { authProfile, selectedStore, user } = useAppSelector((state) => state.profile);
 
     const [packageData, setPackageData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -31,7 +37,41 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
       couponCode: ''
     });
     const [orderData, setOrderData] = useState(null);
-  const [showRazorpay, setShowRazorpay] = useState(false);
+    const [showRazorpay, setShowRazorpay] = useState(false);
+
+    // Get email and phone from authProfile first, then from store/user
+    const getUserContactInfo = () => {
+      let email = '';
+      let phone = '';
+      let name = '';
+
+      // First check authProfile
+      if (authProfile) {
+        email = authProfile.email || '';
+        phone = authProfile.phone || '';
+        name = authProfile.firstName && authProfile.lastName 
+          ? `${authProfile.firstName} ${authProfile.lastName}`
+          : authProfile.name || '';
+      }
+
+      // If not found in authProfile, check store
+      if (!email && selectedStore?.email) {
+        email = selectedStore.email;
+      }
+      if (!phone && selectedStore?.phone) {
+        phone = selectedStore.phone;
+      }
+
+      // If still not found, check user from retailer service
+      if (!email && user?.email) {
+        email = user.email;
+      }
+      if (!phone && user?.phone) {
+        phone = user.phone;
+      }
+
+      return { email, phone, name };
+    };
 
   const getDurationOptions = () => {
     if (!packageData?.pricing?.durationPricing) {
@@ -144,10 +184,14 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
       setProcessing(true);
       setError(null);
 
+      const { email, phone } = getUserContactInfo();
+
       const orderPayload = {
         packageId,
         months: formData.months,
-        ...(formData.couponCode && { couponCode: formData.couponCode })
+        ...(formData.couponCode && { couponCode: formData.couponCode }),
+        ...(email && { email }),
+        ...(phone && { phone })
       };
 
       const response = await checkoutService.createPaymentOrder(orderPayload);
@@ -179,6 +223,8 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
   };
 
   const openRazorpay = (order) => {
+    const { email, phone, name } = getUserContactInfo();
+
     const options = {
       key: order.keyId,
       amount: order.amount * 100,
@@ -190,9 +236,9 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
         await handlePaymentSuccess(response, order);
       },
       prefill: {
-        name: '',
-        email: '',
-        contact: ''
+        name: name || '',
+        email: email || '',
+        contact: phone || ''
       },
       theme: {
         color: '#6366f1'
@@ -280,71 +326,117 @@ import { getCurrencySymbol } from '@/data/constants/currencies';
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Card className="p-6 md:p-8">
-              <h1 className="text-2xl md:text-3xl font-bold mb-6 text-[rgb(var(--color-text-primary))]">
-                Package Details
-              </h1>
+            <Card className="p-6 md:p-8 relative overflow-visible">
+              {/* Popular/Recommended Badge */}
+              {packageData?.isPopular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <span className="bg-[rgb(var(--color-primary))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
+                    MOST POPULAR
+                  </span>
+                </div>
+              )}
+              {packageData?.isRecommended && !packageData?.isPopular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
+                    RECOMMENDED
+                  </span>
+                </div>
+              )}
 
               {packageData && (
                 <div className="space-y-6">
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {packageData.name}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {packageData.shortDescription || packageData.description}
-                    </p>
-                  </div>
-
-                  {packageData.featureUsageLimits && packageData.featureUsageLimits.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
-                        What's Included
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {packageData.featureUsageLimits.filter(f => f.enabled !== false).map((feature, idx) => (
-                          <div key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {feature.featureName || feature.featureKey}
-                              {feature.usageType && feature.usageType !== 'UNLIMITED' && feature.totalLimit
-                                ? ` (${feature.usageType.replace(/_/g, ' ')} - ${feature.totalLimit})`
-                                : ''}
+                  {/* Package Header */}
+                  <div className="mb-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-xl flex items-center justify-center border border-[rgb(var(--color-primary))]/20 flex-shrink-0">
+                        <Package className="w-8 h-8 text-[rgb(var(--color-primary))]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <h1 className="text-xl md:text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                            {packageData.name}
+                          </h1>
+                          {packageData.isPopular && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex-shrink-0">
+                              <Star className="w-3 h-3" />
+                              Popular
                             </span>
-                          </div>
-                        ))}
-                        {packageData.maxSubscribers && (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.maxSubscribers.toLocaleString()} total subscriptions available
+                          )}
+                          {packageData.isRecommended && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium flex-shrink-0">
+                              Recommended
                             </span>
-                          </div>
-                        )}
-                        {packageData.trialPeriod?.enabled && packageData.trialPeriod?.days && (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-[rgb(var(--color-text-secondary))]">
-                              {packageData.trialPeriod.days} Days Free Trial
-                            </span>
-                          </div>
+                          )}
+                        </div>
+                        {packageData.shortDescription && (
+                          <p className="text-[rgb(var(--color-text-secondary))] mb-3">
+                            {packageData.shortDescription}
+                          </p>
                         )}
                       </div>
                     </div>
+
+                    {/* Price Display */}
+                    
+                  </div>
+
+                  {/* Features Section */}
+                  {packageData.featureUsageLimits && packageData.featureUsageLimits.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                        What's Included
+                      </h3>
+                      <PackageFeaturesCompact features={packageData.featureUsageLimits} />
+                      {packageData.maxSubscribers && (
+                        <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
+                          <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            Limited to {packageData.maxSubscribers.toLocaleString()} subscribers
+                          </p>
+                        </div>
+                      )}
+                      {packageData.trialPeriod?.enabled && packageData.trialPeriod?.days && (
+                        <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/20">
+                          <p className="text-sm text-[rgb(var(--color-success))] flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            {packageData.trialPeriod.days} Days Free Trial
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   )}
 
-                  <div className="pt-4 border-t border-[rgb(var(--color-border-primary))] space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))]">
-                      <Shield className="w-5 h-5" />
-                      <span>Secure Payment</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))]">
-                      <Sparkles className="w-5 h-5" />
-                      <span>Instant Activation</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))]">
-                      <Calendar className="w-5 h-5" />
-                      <span>Cancel Anytime</span>
+                  {/* Trust Indicators */}
+                  <div className="pt-6 border-t border-[rgb(var(--color-border-primary))]">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                        <div className="p-2 bg-[rgb(var(--color-success))]/20 rounded-lg">
+                          <Shield className="w-5 h-5 text-[rgb(var(--color-success))]" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-[rgb(var(--color-success))] font-medium">Secure</div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Payment</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                        <div className="p-2 bg-[rgb(var(--color-primary))]/20 rounded-lg">
+                          <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-[rgb(var(--color-primary))] font-medium">Instant</div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Activation</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                        <div className="p-2 bg-purple-500/20 rounded-lg">
+                          <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">Cancel</div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Anytime</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

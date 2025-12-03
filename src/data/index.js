@@ -1,60 +1,38 @@
-// Currency related
-export {  CURRENCY_OPTIONS } from './constants/currencies.js';
-
-// GST related
-export { 
-  GST_RATE_OPTIONS
-} from './constants/gstRates.js';
-
-// UOM related
-export { 
-  UOM_OPTIONS 
-} from './enums/productUOM.js';
-
-// Product Status related
-export { 
+// Import all constants for default export
+import { CURRENCY_OPTIONS } from './constants/currencies.js';
+import { GST_RATE_OPTIONS } from './constants/gstRates.js';
+import { STORE_CATEGORIES } from './constants/storeCategories.js';
+import { UOM_OPTIONS } from './enums/productUOM.js';
+import {
   PRODUCT_STATUS,
   PRODUCT_STATUS_OPTIONS,
   PRODUCT_VISIBILITY_OPTIONS,
   getProductStatusColor
 } from './enums/productStatus.js';
+import { PRODUCT_CATEGORY_OPTIONS } from './selectOptions/categories.js';
 
-// Select options
+// Named exports
+export { CURRENCY_OPTIONS } from './constants/currencies.js';
+export { GST_RATE_OPTIONS } from './constants/gstRates.js';
+export { STORE_CATEGORIES } from './constants/storeCategories.js';
+export { UOM_OPTIONS } from './enums/productUOM.js';
+export {
+  PRODUCT_STATUS,
+  PRODUCT_STATUS_OPTIONS,
+  PRODUCT_VISIBILITY_OPTIONS,
+  getProductStatusColor
+} from './enums/productStatus.js';
 export { PRODUCT_CATEGORY_OPTIONS } from './selectOptions/categories.js';
 
-import { 
-  GST_RATE_OPTIONS
-} from './constants/gstRates.js';
-
-import { 
-  UOM_OPTIONS 
-} from './enums/productUOM.js';
-
-import { 
-  PRODUCT_STATUS,
-  PRODUCT_STATUS_OPTIONS,
-  PRODUCT_VISIBILITY_OPTIONS,
-  getProductStatusColor
-} from './enums/productStatus.js';
-
-import { 
-  PRODUCT_CATEGORY_OPTIONS
-} from './selectOptions/categories.js';
-
-// Re-export everything as default for convenience
+// Default export for convenience
 export default {
-  // GST
+  CURRENCY_OPTIONS,
   GST_RATE_OPTIONS,
-  
-  // Product Status
+  STORE_CATEGORIES,
+  UOM_OPTIONS,
   PRODUCT_STATUS,
   PRODUCT_STATUS_OPTIONS,
   PRODUCT_VISIBILITY_OPTIONS,
   getProductStatusColor,
-  
-  // UOM
-  UOM_OPTIONS,
-  
-  // Select Options
   PRODUCT_CATEGORY_OPTIONS
 };

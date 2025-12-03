@@ -1,10 +1,10 @@
 "use client"
 import React from 'react';
-import { Rocket, Users, Shield, Zap, Github, Chrome } from 'lucide-react';
+import { Rocket, Users, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { AnimatedBackground, AnimatedGridPattern } from '../ui';
 
-const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
+const WelcomeScreen = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
       {/* Animated Background */}
@@ -101,41 +101,6 @@ const WelcomeScreen = ({ onGetStarted, onSocialLogin }) => {
                   Create your account in less than a minute 🚀
                 </p>
               </div>
-
-              {/* Social Login Buttons */}
-              {onSocialLogin && (
-                <>
-                  <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-                    <button
-                      onClick={() => onSocialLogin('google')}
-                      className="w-full flex items-center justify-center gap-2 sm:gap-3 p-2.5 sm:p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors text-sm sm:text-base font-medium"
-                    >
-                      <Chrome className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                      <span>Continue with Google</span>
-                    </button>
-
-                    <button
-                      onClick={() => onSocialLogin('github')}
-                      className="w-full flex items-center justify-center gap-2 sm:gap-3 p-2.5 sm:p-3 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors text-sm sm:text-base font-medium"
-                    >
-                      <Github className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800 dark:text-gray-200" />
-                      <span>Continue with GitHub</span>
-                    </button>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="relative my-4 sm:my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-[rgb(var(--color-border-primary))]"></div>
-                    </div>
-                    <div className="relative flex justify-center text-xs sm:text-sm">
-                      <span className="px-3 bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-secondary))]">
-                        Or create account with email
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
 
               {/* CTA Button */}
               <button
