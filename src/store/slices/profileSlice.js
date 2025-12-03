@@ -56,7 +56,7 @@ export const getRetailerDetails = createAsyncThunk(
       if (existingAgency && !forceRefresh) {
         const existingStores = currentState.profile.stores || [];
         
-        // If agency exists but no stores, redirect to store onboarding
+        // If agency exists but no stores, redirect to store onboarding (first-time only)
         if (existingStores.length === 0) {
           return {
             success: true,
@@ -70,7 +70,7 @@ export const getRetailerDetails = createAsyncThunk(
           };
         }
         
-        // Both agency and stores exist
+        // Both agency and stores exist - no redirect needed (onboarding complete)
         return {
           success: true,
           data: {
@@ -78,7 +78,8 @@ export const getRetailerDetails = createAsyncThunk(
             agency: existingAgency,
             stores: existingStores
           },
-          message: 'Retailer details already available'
+          message: 'Retailer details already available',
+          redirectTo: null // No redirect - onboarding is complete
         };
       }
             

@@ -30,6 +30,7 @@ export default function RoutesLayout({ children }) {
     authProfile,
     authProfileLoading,
     authProfileError,
+    redirectTo,
   } = useAppSelector((state) => state.profile);
   useEffect(() => {
     const checkAuth = async () => {
@@ -69,6 +70,17 @@ export default function RoutesLayout({ children }) {
     authProfileLoading,
     authProfileError,
   ]);
+
+  // Handle redirectTo from profile state (for onboarding flow)
+  useEffect(() => {
+    if (redirectTo && !isLoading) {
+      const currentPath = window.location.pathname;
+      // Only redirect if not already on the target path
+      if (!currentPath.startsWith(redirectTo)) {
+        router.push(redirectTo);
+      }
+    }
+  }, [redirectTo, isLoading, router]);
 
   // Show loading screen while profile is being fetched
   if (isLoading) {

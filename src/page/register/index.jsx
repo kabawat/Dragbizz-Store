@@ -133,14 +133,8 @@ export default function Register() {
     window.location.href = '/onboarding/agency';
   };
 
-  const handleSocialLogin = (provider) => {
-    // Handle social login logic here
-    // For now, just show a message
-    alert(`Social login with ${provider} - This would integrate with OAuth providers`);
-  };
-
   if (currentState === 'welcome') {
-    return <WelcomeScreen onGetStarted={handleGetStarted} onSocialLogin={handleSocialLogin} />;
+    return <WelcomeScreen onGetStarted={handleGetStarted} />;
   }
 
   if (currentState === 'success') {
