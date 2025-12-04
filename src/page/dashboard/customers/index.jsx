@@ -240,6 +240,7 @@ const CustomersPage = () => {
   const handleCustomerSuccess = async (customerData) => {
     // Refresh customers list
     lastFetchRef.current = null;
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
     await fetchCustomers(false);
     // Close drawer
     setShowCustomerDrawer(false);
