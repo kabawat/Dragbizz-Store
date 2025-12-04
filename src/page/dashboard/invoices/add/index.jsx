@@ -166,7 +166,7 @@ const CreateInvoicePage = () => {
   // Handle customer creation success from drawer
   const handleCustomerSuccess = async (customerData) => {
     // Refresh customers list
-    hasFetchedCustomers.current = false;
+    customersFetchedRef.current = { storeId: null, fetched: false };
     await fetchCustomers();
     
     // Auto-select the newly created customer
