@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import moment from 'moment';
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ModernTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -373,35 +374,31 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Items Table */}
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th style={{ width: '45%' }}>Description</th>
-              <th style={{ width: '15%', textAlign: 'center' }}>Qty</th>
-              <th style={{ width: '20%', textAlign: 'right' }}>Rate</th>
-              <th style={{ width: '20%', textAlign: 'right' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items?.map((item, index) => (
-              <tr key={index}>
-                <td>
-                  <div className="product-name">
-                    {item.product?.name || 'Unknown Product'}
-                  </div>
-                  {item.product?.sku && (
-                    <div className="product-sku">
-                      SKU: {item.product.sku}
+        <InvoiceItemsTable
+            items={invoiceData.items}
+            className="modern-table"
+            renderProductCell={(item) => (
+                <>
+                    <div className="product-name">
+                        {item.product?.name || 'Unknown Product'}
                     </div>
-                  )}
-                </td>
-                <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right' }}>₹{item.price?.toLocaleString()}</td>
-                <td style={{ textAlign: 'right' }}>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {item.product?.sku && (
+                        <div className="product-sku">
+                            SKU: {item.product.sku}
+                        </div>
+                    )}
+                    {item.gstRate && item.gstRate > 0 && (
+                        <div className="product-sku" style={{ fontSize: '10px', color: '#666' }}>
+                            GST: {item.gstRate}%
+                        </div>
+                    )}
+                </>
+            )}
+            renderTotalCell={(item) => {
+                const total = item.calculatedTotal || (item.quantity * item.price);
+                return `₹${total.toLocaleString()}`;
+            }}
+        />
 
         {/* Totals */}
         <div className="modern-totals">
