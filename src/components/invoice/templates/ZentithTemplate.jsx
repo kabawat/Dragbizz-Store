@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ZenithTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -323,31 +324,24 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
             </div>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: "50%" }}>Item</th>
-                <th style={{ width: "15%" }}>Qty</th>
-                <th style={{ width: "20%" }}>Price</th>
-                <th style={{ width: "15%" }}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items?.map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    <div className="product-name">{item.product?.name}</div>
-                    {item.product?.sku && (
-                      <small style={{ color: "#9ca3af" }}>SKU: {item.product.sku}</small>
-                    )}
-                  </td>
-                  <td>{item.quantity}</td>
-                  <td>₹{item.price?.toLocaleString()}</td>
-                  <td>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InvoiceItemsTable
+            items={invoiceData.items}
+            columnWidths={{
+              product: '40%',
+              quantity: '15%',
+              unitPrice: '20%',
+              gst: '10%',
+              total: '15%'
+            }}
+            renderProductCell={(item) => (
+              <>
+                <div className="product-name">{item.product?.name}</div>
+                {item.product?.sku && (
+                  <small style={{ color: "#9ca3af" }}>SKU: {item.product.sku}</small>
+                )}
+              </>
+            )}
+          />
 
           <div className="totals">
             <div className="totals-box">

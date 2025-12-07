@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle, Building2, FileText } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle, Building2, FileText, Wallet, TrendingUp, ShoppingCart, Receipt, IndianRupee, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 
 // Import components
@@ -295,6 +295,142 @@ const ViewCustomerPage = ({ customerId }) => {
                       </div>
                     )}
 
+                    {/* Account Details Card */}
+                    {customerData.account && (
+                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                        <div className="flex items-center space-x-3 mb-6">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
+                            <Wallet className="w-6 h-6 text-blue-500" />
+                          </div>
+                          <div>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Account Details</h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Customer purchase and payment information</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Total Amount */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Amount</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                {customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Total Invoices */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Invoices</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <Receipt className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                {customerData.account.totalInvoices || 0}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Total Items Purchased */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Items Purchased</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                {customerData.account.totalItemsPurchased || 0}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Total Profit */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Profit</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <TrendingUp className="w-4 h-4 text-green-500" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-green-500">
+                                ₹{customerData.account.totalProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Total Paid */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Paid</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-green-500">
+                                ₹{customerData.account.totalPaid?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Total Due */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Due</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <AlertCircle className="w-4 h-4 text-orange-500" />
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-orange-500">
+                                ₹{customerData.account.totalDue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Account Status */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Account Status</label>
+                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                              <div className={`w-2 h-2 rounded-full ${customerData.account.accountStatus === 'ACTIVE' ? 'bg-green-500' : customerData.account.accountStatus === 'BLOCKED' ? 'bg-red-500' : 'bg-gray-500'}`}></div>
+                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                {customerData.account.accountStatus || 'ACTIVE'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Joined At */}
+                          {customerData.account.joinedAt && (
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Joined At</label>
+                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  {moment(customerData.account.joinedAt).format('DD MMM YYYY')}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Additional Account Info */}
+                        {(customerData.account.totalReturns > 0 || customerData.account.netProfit !== undefined) && (
+                          <div className="mt-6 pt-6 border-t border-[rgb(var(--color-border-primary))]">
+                            <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-4">Additional Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {customerData.account.totalReturns > 0 && (
+                                <div className="space-y-2">
+                                  <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Total Returns</label>
+                                  <div className="p-2 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] text-sm">
+                                      {customerData.account.totalReturns || 0}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              {customerData.account.netProfit !== undefined && (
+                                <div className="space-y-2">
+                                  <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Net Profit</label>
+                                  <div className="p-2 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                    <span className="text-[rgb(var(--color-text-primary))] text-sm">
+                                      ₹{customerData.account.netProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Addresses Card */}
                     {customerData.addresses && (customerData.addresses.billing || customerData.addresses.shipping) && (
                       <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
@@ -448,20 +584,45 @@ const ViewCustomerPage = ({ customerId }) => {
 
                     {/* Customer Stats */}
                     <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Customer Stats</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Quick Stats</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Total Orders:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Total Spent:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Last Order:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">Never</span>
-                        </div>
+                        {customerData.account ? (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Invoices:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerData.account.totalInvoices || 0}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Spent:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">₹{customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Due:</span>
+                              <span className={`font-medium ${customerData.account.totalDue > 0 ? 'text-orange-500' : 'text-[rgb(var(--color-text-primary))]'}`}>
+                                ₹{customerData.account.totalDue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Items Purchased:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerData.account.totalItemsPurchased || 0}</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Orders:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Total Spent:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">Last Order:</span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">Never</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

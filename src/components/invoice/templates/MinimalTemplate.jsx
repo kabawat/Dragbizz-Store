@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import moment from 'moment';
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const MinimalTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -238,35 +239,29 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Items Table */}
-        <table className="minimal-table">
-          <thead>
-            <tr>
-              <th style={{ width: '50%' }}>Description</th>
-              <th style={{ width: '15%' }}>Qty</th>
-              <th style={{ width: '20%' }}>Rate</th>
-              <th style={{ width: '15%' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items?.map((item, index) => (
-              <tr key={index}>
-                <td>
-                  <div className="product-name">
-                    {item.product?.name || 'Unknown Product'}
-                  </div>
-                  {item.product?.sku && (
-                    <div className="product-sku">
-                      SKU: {item.product.sku}
-                    </div>
-                  )}
-                </td>
-                <td>{item.quantity}</td>
-                <td>₹{item.price?.toLocaleString()}</td>
-                <td>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <InvoiceItemsTable
+          items={invoiceData.items}
+          className="minimal-table"
+          columnWidths={{
+            product: '40%',
+            quantity: '12%',
+            unitPrice: '18%',
+            gst: '12%',
+            total: '18%'
+          }}
+          renderProductCell={(item) => (
+            <>
+              <div className="product-name">
+                {item.product?.name || 'Unknown Product'}
+              </div>
+              {item.product?.sku && (
+                <div className="product-sku">
+                  SKU: {item.product.sku}
+                </div>
+              )}
+            </>
+          )}
+        />
 
         {/* Totals */}
         <div className="minimal-totals">

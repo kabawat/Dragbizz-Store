@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
   const formatCurrency = (amount) => {
@@ -274,28 +275,23 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
           </div>
 
           {/* Table */}
-          <table className="flexview-table">
-            <thead>
-              <tr>
-                <th>Product / Service</th>
-                <th style={{ textAlign: "center" }}>Qty</th>
-                <th style={{ textAlign: "right" }}>Rate</th>
-                <th style={{ textAlign: "right" }}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items?.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.product?.name || "Unnamed Item"}</td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "right" }}>{formatCurrency(item.price)}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {formatCurrency(item.quantity * item.price)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InvoiceItemsTable
+            items={invoiceData.items}
+            className="flexview-table"
+            columnWidths={{
+              product: '40%',
+              quantity: '12%',
+              unitPrice: '18%',
+              gst: '12%',
+              total: '18%'
+            }}
+            renderProductCell={(item) => item.product?.name || "Unnamed Item"}
+            renderUnitPriceCell={(item) => formatCurrency(item.price)}
+            renderTotalCell={(item) => {
+              const total = item.calculatedTotal || (item.quantity * item.price);
+              return formatCurrency(total);
+            }}
+          />
 
           {/* Totals */}
           <div className="flexview-totals">

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ApexTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency
@@ -280,39 +281,34 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
           </div>
 
           {/* Items Table */}
-          <table className="apex-table">
-            <thead>
-              <tr>
-                <th style={{ width: "50%" }}>Description</th>
-                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                <th style={{ width: "20%", textAlign: "right" }}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items?.map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    <div className="apex-product-name">
-                      {item.product?.name || "Unnamed Product"}
-                    </div>
-                    {item.product?.sku && (
-                      <div className="apex-product-sku">
-                        SKU: {item.product.sku}
-                      </div>
-                    )}
-                  </td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {formatCurrency(item.price)}
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    {formatCurrency(item.quantity * item.price)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InvoiceItemsTable
+            items={invoiceData.items}
+            className="apex-table"
+            columnWidths={{
+              product: '40%',
+              quantity: '12%',
+              unitPrice: '18%',
+              gst: '12%',
+              total: '18%'
+            }}
+            renderProductCell={(item) => (
+              <>
+                <div className="apex-product-name">
+                  {item.product?.name || "Unnamed Product"}
+                </div>
+                {item.product?.sku && (
+                  <div className="apex-product-sku">
+                    SKU: {item.product.sku}
+                  </div>
+                )}
+              </>
+            )}
+            renderUnitPriceCell={(item) => formatCurrency(item.price)}
+            renderTotalCell={(item) => {
+              const total = item.calculatedTotal || (item.quantity * item.price);
+              return formatCurrency(total);
+            }}
+          />
 
           {/* Totals Section */}
           <div className="apex-totals-section">

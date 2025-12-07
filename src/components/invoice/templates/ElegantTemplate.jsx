@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ElegantTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -347,28 +348,28 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Items Table */}
-        <table className="elegant-table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th className="align-center">Qty</th>
-              <th className="align-right">Rate</th>
-              <th className="align-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items?.map((item, index) => (
-              <tr key={index}>
-                <td>{item.product?.name || "Product"}</td>
-                <td className="align-center">{item.quantity}</td>
-                <td className="align-right">₹{item.price?.toLocaleString()}</td>
-                <td className="align-right">
-                  ₹{(item.quantity * item.price)?.toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <InvoiceItemsTable
+          items={invoiceData.items}
+          className="elegant-table"
+          thClassName="align-center"
+          columnWidths={{
+            product: '35%',
+            quantity: '12%',
+            unitPrice: '18%',
+            gst: '15%',
+            total: '20%'
+          }}
+          renderQuantityCell={(item) => <span className="align-center">{item.quantity}</span>}
+          renderUnitPriceCell={(item) => <span className="align-right">₹{item.price?.toLocaleString()}</span>}
+          renderGstCell={(item) => {
+            const itemGst = item.calculatedGst || 0;
+            return <span className="align-right">{itemGst > 0 ? `₹${itemGst.toLocaleString()}` : '-'}</span>;
+          }}
+          renderTotalCell={(item) => {
+            const total = item.calculatedTotal || (item.quantity * item.price);
+            return <span className="align-right">₹{total.toLocaleString()}</span>;
+          }}
+        />
 
         {/* Totals */}
         <div className="elegant-totals-section">

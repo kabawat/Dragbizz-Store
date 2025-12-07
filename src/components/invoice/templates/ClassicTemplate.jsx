@@ -2,6 +2,7 @@
 import React from 'react';
 import moment from 'moment';
 import styles from './ClassicTemplate.module.scss';
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ClassicTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -42,35 +43,30 @@ const ClassicTemplate = ({ invoiceData, selectedStore }) => {
       </div>
 
       {/* Items Table */}
-      <table className={styles.classicTable}>
-        <thead>
-          <tr>
-            <th style={{ width: '40%' }}>Description</th>
-            <th style={{ width: '15%' }}>Qty</th>
-            <th style={{ width: '20%' }}>Rate</th>
-            <th style={{ width: '25%' }}>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoiceData.items?.map((item, index) => (
-            <tr key={index}>
-              <td className={styles.description}>
-                <div style={{ fontWeight: 'bold' }}>
-                  {item.product?.name || 'Unknown Product'}
-                </div>
-                {item.product?.sku && (
-                  <div style={{ fontSize: '10px', color: '#666' }}>
-                    SKU: {item.product.sku}
-                  </div>
-                )}
-              </td>
-              <td>{item.quantity}</td>
-              <td>₹{item.price?.toLocaleString()}</td>
-              <td>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <InvoiceItemsTable
+        items={invoiceData.items}
+        className={styles.classicTable}
+        tdClassName={styles.description}
+        columnWidths={{
+          product: '40%',
+          quantity: '15%',
+          unitPrice: '20%',
+          gst: '10%',
+          total: '15%'
+        }}
+        renderProductCell={(item) => (
+          <>
+            <div style={{ fontWeight: 'bold' }}>
+              {item.product?.name || 'Unknown Product'}
+            </div>
+            {item.product?.sku && (
+              <div style={{ fontSize: '10px', color: '#666' }}>
+                SKU: {item.product.sku}
+              </div>
+            )}
+          </>
+        )}
+      />
 
       {/* Totals */}
       <div className={styles.classicTotals}>

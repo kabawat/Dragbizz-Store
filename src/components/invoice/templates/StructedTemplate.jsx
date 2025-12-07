@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import moment from 'moment';
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const StructuredTemplate = ({ invoiceData, selectedStore }) => {
   const accentColor = '#2980b9'; // Deep Blue for modern touch
@@ -273,35 +274,29 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Items Table */}
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th style={{ width: '50%' }}>Item Description</th>
-              <th style={{ width: '10%', textAlign: 'center' }}>Qty</th>
-              <th style={{ width: '20%', textAlign: 'right' }}>Unit Price</th>
-              <th style={{ width: '20%', textAlign: 'right' }}>Line Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items?.map((item, index) => (
-              <tr key={index}>
-                <td>
-                  <span className="product-detail">
-                    {item.product?.name || 'Unknown Product'}
-                  </span>
-                  {item.product?.sku && (
-                    <span className="product-sku">
-                      SKU: {item.product.sku}
-                    </span>
-                  )}
-                </td>
-                <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right' }}>₹{item.price?.toLocaleString()}</td>
-                <td style={{ textAlign: 'right' }}>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <InvoiceItemsTable
+          items={invoiceData.items}
+          className="modern-table"
+          columnWidths={{
+            product: '40%',
+            quantity: '12%',
+            unitPrice: '18%',
+            gst: '12%',
+            total: '18%'
+          }}
+          renderProductCell={(item) => (
+            <>
+              <span className="product-detail">
+                {item.product?.name || 'Unknown Product'}
+              </span>
+              {item.product?.sku && (
+                <span className="product-sku">
+                  SKU: {item.product.sku}
+                </span>
+              )}
+            </>
+          )}
+        />
 
         {/* Totals */}
         <div className="modern-totals-summary">

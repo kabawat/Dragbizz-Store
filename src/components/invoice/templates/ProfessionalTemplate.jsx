@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import moment from 'moment';
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -406,35 +407,30 @@ const ProfessionalTemplate = ({ invoiceData, selectedStore }) => {
         </div>
 
         {/* Items Table */}
-        <table className="professional-table">
-          <thead>
-            <tr>
-              <th style={{ width: '40%' }}>Description</th>
-              <th style={{ width: '15%' }}>Quantity</th>
-              <th style={{ width: '20%' }}>Rate</th>
-              <th style={{ width: '25%' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items?.map((item, index) => (
-              <tr key={index}>
-                <td className="description">
-                  <div className="product-name">
-                    {item.product?.name || 'Unknown Product'}
-                  </div>
-                  {item.product?.sku && (
-                    <div className="product-sku">
-                      SKU: {item.product.sku}
-                    </div>
-                  )}
-                </td>
-                <td>{item.quantity}</td>
-                <td>₹{item.price?.toLocaleString()}</td>
-                <td>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <InvoiceItemsTable
+          items={invoiceData.items}
+          className="professional-table"
+          tdClassName="description"
+          columnWidths={{
+            product: '35%',
+            quantity: '12%',
+            unitPrice: '18%',
+            gst: '15%',
+            total: '20%'
+          }}
+          renderProductCell={(item) => (
+            <>
+              <div className="product-name">
+                {item.product?.name || 'Unknown Product'}
+              </div>
+              {item.product?.sku && (
+                <div className="product-sku">
+                  SKU: {item.product.sku}
+                </div>
+              )}
+            </>
+          )}
+        />
 
         {/* Totals */}
         <div className="professional-totals">

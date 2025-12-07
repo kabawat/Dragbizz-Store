@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const PrismTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency, using a monospaced font style
@@ -321,40 +322,35 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
             </div>
           </div>
 
-          {/* Items Table - Note the use of default monospaced font for amounts */}
-          <table className="prism-table">
-            <thead>
-              <tr>
-                <th style={{ width: "50%", paddingLeft: '40px' }}>Description</th>
-                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                <th style={{ width: "20%", textAlign: "right", paddingRight: '40px' }}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items?.map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    <div className="prism-product-name">
-                      {item.product?.name || "Unnamed Product"}
-                    </div>
-                    {item.product?.sku && (
-                      <div className="prism-product-sku">
-                        SKU: {item.product.sku}
-                      </div>
-                    )}
-                  </td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {formatCurrency(item.price)}
-                  </td>
-                  <td style={{ textAlign: "right", paddingRight: '40px' }}>
-                    {formatCurrency(item.quantity * item.price)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Items Table */}
+          <InvoiceItemsTable
+            items={invoiceData.items}
+            className="prism-table"
+            columnWidths={{
+              product: '40%',
+              quantity: '12%',
+              unitPrice: '18%',
+              gst: '12%',
+              total: '18%'
+            }}
+            renderProductCell={(item) => (
+              <>
+                <div className="prism-product-name">
+                  {item.product?.name || "Unnamed Product"}
+                </div>
+                {item.product?.sku && (
+                  <div className="prism-product-sku">
+                    SKU: {item.product.sku}
+                  </div>
+                )}
+              </>
+            )}
+            renderUnitPriceCell={(item) => formatCurrency(item.price)}
+            renderTotalCell={(item) => {
+              const total = item.calculatedTotal || (item.quantity * item.price);
+              return formatCurrency(total);
+            }}
+          />
 
           {/* Totals Section */}
           <div className="prism-totals-container">

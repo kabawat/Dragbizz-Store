@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
+import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
 
 const LumosTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -308,28 +309,17 @@ const LumosTemplate = ({ invoiceData, selectedStore }) => {
           </div>
 
           {/* Product Table */}
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: "50%" }}>Item</th>
-                <th style={{ width: "15%" }}>Qty</th>
-                <th style={{ width: "20%" }}>Rate</th>
-                <th style={{ width: "15%" }}>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items?.map((item, index) => (
-                <tr key={index}>
-                  <td className="product-name">
-                    {item.product?.name || "Unnamed Product"}
-                  </td>
-                  <td>{item.quantity}</td>
-                  <td>₹{item.price?.toLocaleString()}</td>
-                  <td>₹{(item.quantity * item.price)?.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InvoiceItemsTable
+            items={invoiceData.items}
+            tdClassName="product-name"
+            columnWidths={{
+              product: '40%',
+              quantity: '15%',
+              unitPrice: '20%',
+              gst: '10%',
+              total: '15%'
+            }}
+          />
 
           {/* Totals */}
           <div className="totals">
