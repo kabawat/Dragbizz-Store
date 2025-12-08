@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard } from 'lucide-react';
 import { renderStatusBadge } from '@/utils/statusBadge';
 
 const InvoicesListTable = ({
@@ -13,6 +13,7 @@ const InvoicesListTable = ({
     onViewDetails,
     onPrint,
     onRelease,
+    onUpdatePaymentStatus,
     loading = false,
     emptyMessage = 'No invoices found',
     hasMore = false,
@@ -216,6 +217,18 @@ const InvoicesListTable = ({
                                                                 Release
                                                             </button>
                                                         </>
+                                                    )}
+                                                    {invoice.invoiceStatus === 'RELEASED' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                onUpdatePaymentStatus?.(invoiceId, invoice);
+                                                                setOpenMenuId(null);
+                                                            }}
+                                                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                        >
+                                                            <CreditCard className="w-4 h-4" />
+                                                            Payment Status
+                                                        </button>
                                                     )}
                                                     <button
                                                         onClick={() => {

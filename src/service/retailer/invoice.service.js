@@ -30,14 +30,35 @@ class InvoiceService {
     }
   }
 
-  // Update Draft Invoice
+  // Update Draft Invoice (Only for DRAFT invoices)
   async updateDraftInvoice(invoiceId, updateData) {
     try {
       const url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}`;
-      const response = await authAxios.put(url, updateData);
+      // Remove paymentStatus from updateData as it's now UNPAID by default for drafts
+      const { paymentStatus, ...dataToUpdate } = updateData;
+      const response = await authAxios.put(url, dataToUpdate);
       return handleApiSuccess(response.data, 'Draft invoice updated successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-update');
+    }
+  }
+
+  // Update Payment Status (Only for RELEASED invoices)
+  async updatePaymentStatus(invoiceId, paymentStatus, paymentMode = null, storeId = null) {
+    try {
+      let url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}/payment-status`;
+      const payload = { paymentStatus };
+      if (paymentMode) {
+        payload.paymentMode = paymentMode;
+      }
+      // Add store ID to query params if provided (required by middleware)
+      if (storeId) {
+        url = attachQueryParams(url, { store: storeId });
+      }
+      const response = await authAxios.patch(url, payload);
+      return handleApiSuccess(response.data, 'Payment status updated successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'payment-status-update');
     }
   }
 
