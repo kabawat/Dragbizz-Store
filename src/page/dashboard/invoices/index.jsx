@@ -10,10 +10,12 @@ import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal } from '@/components/invoice';
 import { invoiceService } from '@/service';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InvoicesPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { showError, showSuccess } = useGlobalToast();
 
   // Redux store data
   const {
@@ -28,19 +30,23 @@ const InvoicesPage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Local state
-  const [searchValue, setSearchValue] = useState('');
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
+  const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [invoiceToUpdatePayment, setInvoiceToUpdatePayment] = useState(null);
   const [deletedInvoiceName, setDeletedInvoiceName] = useState('');
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorDetails, setErrorDetails] = useState(null);
+  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
+  const [newPaymentStatus, setNewPaymentStatus] = useState('UNPAID');
   const [showReleaseModal, setShowReleaseModal] = useState(false);
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
-  const [isReleasing, setIsReleasing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('PAID');
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [errorDetails, setErrorDetails] = useState(null);
+  const [searchValue, setSearchValue] = useState('');
+  const [isReleasing, setIsReleasing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const scrollRef = useRef(null);
 
   // Error display
@@ -250,12 +256,12 @@ const InvoicesPage = () => {
         // Auto-redirect to view invoice page after successful release
         router.push(`/dashboard/invoices/view/${invoiceToRelease.id}`);
       } else {
-        alert('Failed to release invoice. Please try again.');
+        showError('Failed to release invoice. Please try again.');
         setShowReleaseModal(false);
         setInvoiceToRelease(null);
       }
     } catch (error) {
-      alert('An error occurred while releasing the invoice. Please try again.');
+      showError('An error occurred while releasing the invoice. Please try again.');
       setShowReleaseModal(false);
       setInvoiceToRelease(null);
     } finally {
@@ -266,6 +272,62 @@ const InvoicesPage = () => {
   const handleCancelRelease = () => {
     setShowReleaseModal(false);
     setInvoiceToRelease(null);
+  };
+
+  const handleUpdatePaymentStatus = (invoiceId, invoice) => {
+    setInvoiceToUpdatePayment({
+      id: invoiceId,
+      invoice: invoice
+    });
+    setNewPaymentStatus(invoice.paymentStatus || 'UNPAID');
+    setShowPaymentStatusModal(true);
+  };
+
+  const handleConfirmPaymentStatusUpdate = async () => {
+    if (!invoiceToUpdatePayment) return;
+
+    setIsUpdatingPayment(true);
+    try {
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      if (!storeId) {
+        showError('Store ID is missing. Please select a store.');
+        setIsUpdatingPayment(false);
+        return;
+      }
+
+      // Use new payment status update API (only for RELEASED invoices)
+      const result = await invoiceService.updatePaymentStatus(
+        invoiceToUpdatePayment.id,
+        newPaymentStatus,
+        null, // paymentMode (optional)
+        storeId // storeId (required for middleware)
+      );
+
+      if (result.success) {
+        showSuccess('Payment status updated successfully');
+        const refreshParams = {
+          store: storeId,
+          search: searchValue,
+          limit: 20,
+          cursor: null,
+          isFreshLoad: true
+        };
+        await dispatch(getInvoices(refreshParams));
+        setShowPaymentStatusModal(false);
+        setInvoiceToUpdatePayment(null);
+      } else {
+        showError(result.message || 'Failed to update payment status. Please try again.');
+      }
+    } catch (error) {
+      showError('An error occurred while updating payment status. Please try again.');
+    } finally {
+      setIsUpdatingPayment(false);
+    }
+  };
+
+  const handleCancelPaymentStatusUpdate = () => {
+    setShowPaymentStatusModal(false);
+    setInvoiceToUpdatePayment(null);
   };
 
   // InvoiceTable handlers
@@ -444,6 +506,7 @@ const InvoicesPage = () => {
                           onViewDetails={handleViewInvoice}
                           onPrint={handlePrintInvoice}
                           onRelease={handleReleaseInvoice}
+                          onUpdatePaymentStatus={handleUpdatePaymentStatus}
                           loading={isLoading}
                           emptyMessage="No invoices found"
                           hasMore={pagination?.hasNextPage}
@@ -612,6 +675,57 @@ const InvoicesPage = () => {
                 disabled={isReleasing}
               >
                 {isReleasing ? 'Releasing...' : 'Release Invoice'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Status Update Modal */}
+      {showPaymentStatusModal && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-[9999]">
+          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 border border-[rgb(var(--color-border-primary))]">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Update Payment Status</h3>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Change payment status for released invoice</p>
+              </div>
+            </div>
+            <p className="text-[rgb(var(--color-text-primary))] mb-4">
+              Invoice: <strong>{invoiceToUpdatePayment?.invoice?.invoiceNumber || `INV-${invoiceToUpdatePayment?.id?.slice(-6)}`}</strong>
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                Payment Status
+              </label>
+              <select
+                value={newPaymentStatus}
+                onChange={(e) => setNewPaymentStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
+              >
+                <option value="UNPAID">Unpaid</option>
+                <option value="PAID">Paid</option>
+                <option value="PARTIAL">Partial</option>
+              </select>
+            </div>
+            <div className="flex space-x-3">
+              <Button
+                onClick={handleCancelPaymentStatusUpdate}
+                variant="outline"
+                className="flex-1"
+                disabled={isUpdatingPayment}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmPaymentStatusUpdate}
+                className="flex-1"
+                disabled={isUpdatingPayment}
+              >
+                {isUpdatingPayment ? 'Updating...' : 'Update Status'}
               </Button>
             </div>
           </div>
