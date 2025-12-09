@@ -8,7 +8,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal } from '@/components/invoice';
+import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal, UpdatePaymentStatusModal, ReleaseInvoiceModal } from '@/components/invoice';
 import { invoiceService } from '@/service';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
@@ -35,7 +35,6 @@ const InvoicesPage = () => {
   const [invoiceToUpdatePayment, setInvoiceToUpdatePayment] = useState(null);
   const [deletedInvoiceName, setDeletedInvoiceName] = useState('');
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
-  const [newPaymentStatus, setNewPaymentStatus] = useState('UNPAID');
   const [showReleaseModal, setShowReleaseModal] = useState(false);
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -226,18 +225,25 @@ const InvoicesPage = () => {
     const invoice = invoices.find(i => (i.id || i._id) === invoiceId);
     setInvoiceToRelease({
       id: invoiceId,
+      invoice: invoice,
       name: invoice?.invoiceNumber || `INV-${invoiceId?.slice(-6)}`
     });
+    setPaymentStatus(invoice?.paymentStatus || 'PAID');
     setShowReleaseModal(true);
   };
 
-  const handleConfirmRelease = async () => {
+  const handleConfirmRelease = async (payload) => {
     if (!invoiceToRelease) return;
 
     setIsReleasing(true);
     try {
       const storeId = selectedStore?.storeId;
-      const result = await invoiceService.releaseInvoice(invoiceToRelease.id, paymentStatus, storeId);
+      const result = await invoiceService.releaseInvoice(
+        invoiceToRelease.id, 
+        payload.paymentStatus, 
+        storeId,
+        payload.paidAmount || null
+      );
 
       if (result.success) {
         // Refresh the invoices list to show updated status
@@ -279,11 +285,10 @@ const InvoicesPage = () => {
       id: invoiceId,
       invoice: invoice
     });
-    setNewPaymentStatus(invoice.paymentStatus || 'UNPAID');
     setShowPaymentStatusModal(true);
   };
 
-  const handleConfirmPaymentStatusUpdate = async () => {
+  const handleConfirmPaymentStatusUpdate = async (payload) => {
     if (!invoiceToUpdatePayment) return;
 
     setIsUpdatingPayment(true);
@@ -298,9 +303,10 @@ const InvoicesPage = () => {
       // Use new payment status update API (only for RELEASED invoices)
       const result = await invoiceService.updatePaymentStatus(
         invoiceToUpdatePayment.id,
-        newPaymentStatus,
+        payload.paymentStatus,
         null, // paymentMode (optional)
-        storeId // storeId (required for middleware)
+        storeId, // storeId (required for middleware)
+        payload.paidAmount || null // paidAmount (optional, for PAY_LATTER)
       );
 
       if (result.success) {
@@ -629,108 +635,27 @@ const InvoicesPage = () => {
       />
 
       {/* Release confirmation modal */}
-      {showReleaseModal && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 border border-[rgb(var(--color-border-primary))]">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-[rgb(var(--color-success))]/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-[rgb(var(--color-success))]" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Release Invoice</h3>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">This will finalize the invoice</p>
-              </div>
-            </div>
-            <p className="text-[rgb(var(--color-text-primary))] mb-4">
-              Are you sure you want to release invoice <strong>{invoiceToRelease?.name}</strong>?
-              This will finalize the invoice and it cannot be edited afterwards.
-            </p>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Payment Status
-              </label>
-              <select
-                value={paymentStatus}
-                onChange={(e) => setPaymentStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-              >
-                <option value="UNPAID">Unpaid</option>
-                <option value="PAID">Paid</option>
-                <option value="PAY_LATTER">Pay Later</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-            </div>
-            <div className="flex space-x-3">
-              <Button
-                onClick={handleCancelRelease}
-                variant="outline"
-                className="flex-1"
-                disabled={isReleasing}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmRelease}
-                className="flex-1"
-                disabled={isReleasing}
-              >
-                {isReleasing ? 'Releasing...' : 'Release Invoice'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ReleaseInvoiceModal
+        isOpen={showReleaseModal}
+        onClose={handleCancelRelease}
+        onConfirm={handleConfirmRelease}
+        invoiceNumber={invoiceToRelease?.name}
+        paymentStatus={paymentStatus}
+        onPaymentStatusChange={(value) => setPaymentStatus(value)}
+        isReleasing={isReleasing}
+        totalAmount={invoiceToRelease?.invoice?.totalAmount || 0}
+      />
 
       {/* Payment Status Update Modal */}
-      {showPaymentStatusModal && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 border border-[rgb(var(--color-border-primary))]">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Update Payment Status</h3>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Change payment status for released invoice</p>
-              </div>
-            </div>
-            <p className="text-[rgb(var(--color-text-primary))] mb-4">
-              Invoice: <strong>{invoiceToUpdatePayment?.invoice?.invoiceNumber || `INV-${invoiceToUpdatePayment?.id?.slice(-6)}`}</strong>
-            </p>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Payment Status
-              </label>
-              <select
-                value={newPaymentStatus}
-                onChange={(e) => setNewPaymentStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
-              >
-                <option value="UNPAID">Unpaid</option>
-                <option value="PAID">Paid</option>
-                <option value="PARTIAL">Partial</option>
-              </select>
-            </div>
-            <div className="flex space-x-3">
-              <Button
-                onClick={handleCancelPaymentStatusUpdate}
-                variant="outline"
-                className="flex-1"
-                disabled={isUpdatingPayment}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmPaymentStatusUpdate}
-                className="flex-1"
-                disabled={isUpdatingPayment}
-              >
-                {isUpdatingPayment ? 'Updating...' : 'Update Status'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <UpdatePaymentStatusModal
+        isOpen={showPaymentStatusModal}
+        onClose={handleCancelPaymentStatusUpdate}
+        onConfirm={handleConfirmPaymentStatusUpdate}
+        invoiceNumber={invoiceToUpdatePayment?.invoice?.invoiceNumber || `INV-${invoiceToUpdatePayment?.id?.slice(-6)}`}
+        currentPaymentStatus={invoiceToUpdatePayment?.invoice?.paymentStatus}
+        totalAmount={invoiceToUpdatePayment?.invoice?.totalAmount || 0}
+        isUpdating={isUpdatingPayment}
+      />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import DeleteInvoiceModal from './components/DeleteInvoiceModal';
 import CancelInvoiceModal from './components/CancelInvoiceModal';
-import ReleaseInvoiceModal from './components/ReleaseInvoiceModal';
+import { ReleaseInvoiceModal, UpdatePaymentStatusModal } from '@/components/invoice';
 import InvoiceSummaryCard from './components/InvoiceSummaryCard';
 import InvoiceActionButtons from './components/InvoiceActionButtons';
 import { calculateGstAmount, getItemsWithGst, calculateSubtotal } from './utils/invoiceCalculations.utils';
@@ -33,6 +33,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
     const [showReleaseModal, setShowReleaseModal] = useState(false);
     const [isReleasing, setIsReleasing] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState('PAID');
+    const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+    const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState('modern');
     const hasFetched = useRef(false);
     const { showSuccess, showError } = useGlobalToast();
@@ -143,15 +145,21 @@ const ViewInvoicePage = ({ invoiceId }) => {
     };
 
     // Handle confirm release
-    const handleConfirmRelease = async () => {
+    const handleConfirmRelease = async (payload) => {
         if (!invoiceId) return;
 
         setIsReleasing(true);
         try {
-            const result = await invoiceService.releaseInvoice(invoiceId, paymentStatus, storeId);
+            const result = await invoiceService.releaseInvoice(
+                invoiceId, 
+                payload.paymentStatus, 
+                storeId,
+                payload.paidAmount || null
+            );
 
             if (result.success) {
                 showSuccess('Invoice released successfully');
+                setShowReleaseModal(false);
                 const refreshResult = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
                 if (refreshResult.success && refreshResult.data) {
                     setInvoiceData(refreshResult.data);
@@ -163,6 +171,42 @@ const ViewInvoicePage = ({ invoiceId }) => {
             showError('Failed to release invoice. Please try again.');
         } finally {
             setIsReleasing(false);
+        }
+    };
+
+    // Handle update payment status
+    const handleUpdatePaymentStatus = () => {
+        setShowPaymentStatusModal(true);
+    };
+
+    // Handle confirm payment status update
+    const handleConfirmPaymentStatusUpdate = async (payload) => {
+        if (!invoiceId) return;
+
+        setIsUpdatingPayment(true);
+        try {
+            const result = await invoiceService.updatePaymentStatus(
+                invoiceId,
+                payload.paymentStatus,
+                null, // paymentMode (optional)
+                storeId,
+                payload.paidAmount || null // paidAmount (optional, for PAY_LATTER)
+            );
+
+            if (result.success) {
+                showSuccess('Payment status updated successfully');
+                setShowPaymentStatusModal(false);
+                const refreshResult = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
+                if (refreshResult.success && refreshResult.data) {
+                    setInvoiceData(refreshResult.data);
+                }
+            } else {
+                showError(result.message || 'Failed to update payment status');
+            }
+        } catch (error) {
+            showError('Failed to update payment status. Please try again.');
+        } finally {
+            setIsUpdatingPayment(false);
         }
     };
 
@@ -292,6 +336,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                                     invoiceData={invoiceData}
                                                     onEdit={handleEditInvoice}
                                                     onRelease={handleReleaseInvoice}
+                                                    onUpdatePaymentStatus={handleUpdatePaymentStatus}
                                                     onDownloadPDF={() => handleDownloadPDF(invoiceData, invoiceId)}
                                                     onPrint={handlePrint}
                                                 />
@@ -330,6 +375,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
                     paymentStatus={paymentStatus}
                     onPaymentStatusChange={(value) => setPaymentStatus(value)}
                     isReleasing={isReleasing}
+                    totalAmount={invoiceData?.totalAmount || 0}
+                />
+
+                <UpdatePaymentStatusModal
+                    isOpen={showPaymentStatusModal}
+                    onClose={() => setShowPaymentStatusModal(false)}
+                    onConfirm={handleConfirmPaymentStatusUpdate}
+                    invoiceNumber={invoiceData?.invoiceNumber}
+                    currentPaymentStatus={invoiceData?.paymentStatus}
+                    totalAmount={invoiceData?.totalAmount || 0}
+                    isUpdating={isUpdatingPayment}
                 />
             </div>
         </>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle, MessageSquare, Shield, Zap } from 'lucide-react';
+import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle, MessageSquare, Shield, Zap, ArrowRight } from 'lucide-react';
 import { authService } from '@/service/auth';
 import { ENV_CONFIG } from '@/config';
-import { AnimatedBackground, AnimatedGridPattern } from '../ui';
+import { AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
 import styles from '../../page/style/Login.module.scss';
 
 const VerificationStep = ({
@@ -53,6 +53,13 @@ const VerificationStep = ({
     // Auto-submit when all fields are filled
     if (newOtp.every(digit => digit !== '')) {
       handleVerification(newOtp.join(''));
+    }
+  };
+
+  const handleManualSubmit = () => {
+    const otpCode = otp.join('');
+    if (otpCode.length === 5 && !isVerifying) {
+      handleVerification(otpCode);
     }
   };
 
@@ -341,6 +348,22 @@ const VerificationStep = ({
                         <span className={styles.otpLoadingText}>Verifying...</span>
                       </div>
                     )}
+
+                    {/* Submit Button */}
+                    <div className="mt-4 flex justify-center">
+                      <Button
+                        type="button"
+                        onClick={handleManualSubmit}
+                        disabled={otp.join('').length !== 5 || isVerifying}
+                        loading={isVerifying}
+                        variant="primary"
+                        size="lg"
+                        rightIcon={!isVerifying ? ArrowRight : undefined}
+                        className="w-[14.5rem]"
+                      >
+                        {isVerifying ? 'Verifying...' : 'Verify Code'}
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Resend Section */}
@@ -364,15 +387,6 @@ const VerificationStep = ({
                       </p>
                     )}
                   </div>
-
-                  {/* Demo Hint - Only show in development */}
-                  {ENV_CONFIG.ENV.IS_DEVELOPMENT && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 sm:p-4 text-center mt-4">
-                      <p className="text-yellow-700 dark:text-yellow-300 text-xs sm:text-sm">
-                        💡 <strong>Demo:</strong> Use code <code className="bg-yellow-200 dark:bg-yellow-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">00000</code> to continue
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

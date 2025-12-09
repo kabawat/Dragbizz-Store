@@ -9,10 +9,12 @@ import Header from '@/components/dashboard/Header';
 import { AnimatedBackground } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 const EditInvoicePage = ({ invoiceId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { showError } = useGlobalToast();
 
   // Local loading state for invoice update
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -205,7 +207,7 @@ const EditInvoicePage = ({ invoiceId }) => {
     const validItems = formData.items.filter(item => item.product && item.quantity > 0);
 
     if (validItems.length === 0) {
-      alert('Please add at least one item to the invoice');
+      showError('Please add at least one item to the invoice');
         return;
       }
 
@@ -226,10 +228,10 @@ const EditInvoicePage = ({ invoiceId }) => {
         // Redirect to the updated invoice view page
         router.push(`/dashboard/invoices/view/${invoiceId}`);
       } else {
-        alert('Failed to update invoice. Please try again.');
+        showError('Failed to update invoice. Please try again.');
       }
     } catch (error) {
-      alert('An error occurred while updating the invoice. Please try again.');
+      showError('An error occurred while updating the invoice. Please try again.');
     } finally {
       setInvoiceLoading(false);
     }

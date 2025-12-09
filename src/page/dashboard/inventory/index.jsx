@@ -14,10 +14,12 @@ import { StockInDrawer } from '@/components/ui';
 
 // Import services
 import inventoryService from '@/service/retailer/inventory.service';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InventoryPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { showSuccess, showError } = useGlobalToast();
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
 
   // State management
@@ -202,7 +204,7 @@ const InventoryPage = () => {
 
   const handleStockInSuccess = (message) => {
     // Show success message
-    alert(message);
+    showSuccess(message);
     // Refresh the inventory list
     hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
     lastFetchKeyRef.current = null;
@@ -256,7 +258,7 @@ const InventoryPage = () => {
       setShowDeleteModal(false);
       setInventoryToDelete(null);
     } catch (error) {
-      alert('Failed to delete stock. Please try again.');
+      showError('Failed to delete stock. Please try again.');
     } finally {
       setIsDeleting(false);
     }

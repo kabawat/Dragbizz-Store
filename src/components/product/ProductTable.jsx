@@ -45,10 +45,10 @@ const ProductTable = ({
 
   const getVisibilityBadge = (visibility) => {
     const visibilityConfig = {
-      VISIBLE: { variant: 'success', text: 'Visible', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
-      HIDDEN: { variant: 'secondary', text: 'Hidden', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' },
-      PRIVATE: { variant: 'warning', text: 'Private', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' },
-      PUBLIC: { variant: 'success', text: 'Public', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' }
+      VISIBLE: { variant: 'success', text: 'Visible', color: 'bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30' },
+      HIDDEN: { variant: 'secondary', text: 'Hidden', color: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/20 dark:border-gray-500/30' },
+      PRIVATE: { variant: 'warning', text: 'Private', color: 'bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 dark:border-yellow-500/30' },
+      PUBLIC: { variant: 'success', text: 'Public', color: 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/20 dark:border-blue-500/30' }
     };
 
     const config = visibilityConfig[visibility] || { variant: 'secondary', text: visibility, color: 'bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] border-[rgb(var(--color-border-primary))]' };
@@ -220,13 +220,16 @@ const ProductTable = ({
               return (
                 <tr
                   key={product.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
                     } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Product Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 relative">
+                    {isSelected && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
+                    )}
                     <div className="flex items-center gap-4">
                       <input
                         type="checkbox"
@@ -275,11 +278,11 @@ const ProductTable = ({
                   {/* Categories Column */}
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 border border-purple-500/20">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 dark:border-purple-500/30">
                         {product.category.split(' > ')[0]}
                       </span>
                       {product.category.split(' > ')[1] && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30">
                           {product.category.split(' > ')[1]}
                         </span>
                       )}
@@ -302,7 +305,7 @@ const ProductTable = ({
                             <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
                               {product.gst || product.gstRate || 18}%
                             </span>
-                            <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 text-green-600 border border-green-500/20">
+                            <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 dark:border-green-500/30">
                               GST
                             </span>
                           </div>
@@ -333,7 +336,7 @@ const ProductTable = ({
                     <div className="relative" ref={(el) => menuRefs.current[product.id] = el}>
                       <button
                         onClick={() => handleMenuToggle(product.id)}
-                        className="p-2 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title="More Actions"
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
@@ -351,9 +354,9 @@ const ProductTable = ({
                           </button>
                           <button
                             onClick={() => handleMenuAction(product.id, 'stock-in')}
-                            className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                            className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
                           >
-                            <ArrowDownToLine className="w-4 h-4 text-green-500" />
+                            <ArrowDownToLine className="w-4 h-4 text-green-500 dark:text-green-400" />
                             Stock In
                           </button>
                           <button
@@ -373,9 +376,9 @@ const ProductTable = ({
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
                             onClick={() => handleMenuAction(product.id, 'delete')}
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                           >
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                             Delete
                           </button>
                         </div>

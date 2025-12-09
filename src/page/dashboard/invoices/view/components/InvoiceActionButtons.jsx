@@ -1,13 +1,14 @@
 "use client"
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Edit, CheckCircle, Printer, Download, BookOpen, Receipt, ChevronDown, Settings } from 'lucide-react';
+import { Edit, CheckCircle, Printer, Download, BookOpen, Receipt, ChevronDown, Settings, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 const InvoiceActionButtons = ({ 
     invoiceData, 
     onEdit, 
     onRelease, 
+    onUpdatePaymentStatus,
     onDownloadPDF, 
     onPrint 
 }) => {
@@ -95,16 +96,28 @@ const InvoiceActionButtons = ({
                     </Button>
                 </div>
             ) : (
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
-                            ₹{invoiceData.totalAmount?.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                            Total Amount
+                <>
+                    {invoiceData?.invoiceStatus === 'RELEASED' && onUpdatePaymentStatus && (
+                        <Button
+                            onClick={onUpdatePaymentStatus}
+                            variant="outline"
+                            className="w-full flex items-center justify-center gap-2 h-10 text-sm font-medium mb-3"
+                        >
+                            <CreditCard className="w-4 h-4" />
+                            <span>Update Payment Status</span>
+                        </Button>
+                    )}
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
+                                ₹{invoiceData.totalAmount?.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                Total Amount
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

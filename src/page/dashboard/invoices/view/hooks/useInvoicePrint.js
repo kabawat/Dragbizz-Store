@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 export const useInvoicePrint = (fetching, invoiceData) => {
+    const { showError } = useGlobalToast();
     const [showPrintMenu, setShowPrintMenu] = useState(false);
 
     useEffect(() => {
@@ -59,14 +61,14 @@ export const useInvoicePrint = (fetching, invoiceData) => {
             setTimeout(cleanup, 8000);
             setShowPrintMenu(false);
         } catch (e) {
-            alert("Printing failed.");
+            showError("Printing failed.");
         }
     };
 
     const handleDownloadPDF = async (invoiceData, invoiceId) => {
         const invoice = document.getElementById("invoice-area");
         if (!invoice) {
-            alert("Invoice not found!");
+            showError("Invoice not found!");
             return;
         }
 
@@ -89,7 +91,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
             pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
             pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
         } catch (error) {
-            alert('Failed to download PDF. Please try again.');
+            showError('Failed to download PDF. Please try again.');
         }
     };
 

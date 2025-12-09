@@ -44,12 +44,15 @@ class InvoiceService {
   }
 
   // Update Payment Status (Only for RELEASED invoices)
-  async updatePaymentStatus(invoiceId, paymentStatus, paymentMode = null, storeId = null) {
+  async updatePaymentStatus(invoiceId, paymentStatus, paymentMode = null, storeId = null, paidAmount = null) {
     try {
       let url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}/payment-status`;
       const payload = { paymentStatus };
       if (paymentMode) {
         payload.paymentMode = paymentMode;
+      }
+      if (paidAmount !== null && paidAmount !== undefined) {
+        payload.paidAmount = paidAmount;
       }
       // Add store ID to query params if provided (required by middleware)
       if (storeId) {
@@ -63,12 +66,17 @@ class InvoiceService {
   }
 
   // Release Invoice
-  async releaseInvoice(invoiceId, paymentStatus = 'PAID', storeId = null) {
+  async releaseInvoice(invoiceId, paymentStatus = 'PAID', storeId = null, paidAmount = null) {
     try {
       const payload = {
         id: invoiceId,
         paymentStatus
       };
+      
+      // Add paidAmount if provided (for PAY_LATTER or PAID with partial payment)
+      if (paidAmount !== null && paidAmount !== undefined) {
+        payload.paidAmount = paidAmount;
+      }
       
       // Add store ID if provided
       if (storeId) {

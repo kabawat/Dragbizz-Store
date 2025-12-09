@@ -31,7 +31,7 @@ const CreateInvoicePage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-  const { toasts, showSuccess, removeToast } = useToast();
+  const { toasts, showSuccess, showError, removeToast } = useToast();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -181,13 +181,13 @@ const CreateInvoicePage = () => {
 
   const handleAddItem = () => {
     if (!selectedProduct) {
-      alert('Please select a product');
+      showError('Please select a product');
       return;
     }
 
     const product = products.find(p => p._id === selectedProduct);
     if (!product) {
-      alert('Product not found');
+      showError('Product not found');
       return;
     }
 
@@ -276,7 +276,7 @@ const CreateInvoicePage = () => {
     const validItems = formData.items.filter(item => item.product && item.quantity > 0);
 
     if (validItems.length === 0) {
-      alert('Please add at least one item to the invoice');
+      showError('Please add at least one item to the invoice');
       return;
     }
 

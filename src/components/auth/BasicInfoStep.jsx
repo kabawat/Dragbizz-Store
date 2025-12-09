@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, Shield, Zap, Users } from 'lucide-react';
-import { Input, AnimatedBackground, AnimatedGridPattern } from '../ui';
+import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
 
 const BasicInfoStep = ({
   firstName,
@@ -299,26 +299,29 @@ const BasicInfoStep = ({
 
                 {/* Navigation */}
                 <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 mt-6">
-                  <button 
+                  <Button
                     type="button"
-                    onClick={onBack} 
-                    className="px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center"
+                    onClick={onBack}
+                    variant="ghost"
+                    // size="md"
+                    leftIcon={ArrowLeft}
+                    fullWidth
+                    className="sm:w-auto"
                   >
-                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Back
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="submit"
                     disabled={!isFormValid}
-                    className={`px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 w-full sm:w-auto flex items-center justify-center bg-[rgb(var(--color-primary))] text-white shadow-md hover:shadow-lg ${isFormValid
-                      ? 'hover:brightness-[1.01] cursor-pointer'
-                      : 'opacity-70 cursor-not-allowed'
-                      }`}
+                    variant="primary"
+                    // size="md"
+                    rightIcon={ArrowRight}
+                    fullWidth
+                    className="sm:w-auto shadow-md hover:shadow-lg"
                   >
                     Continue
-                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-2" />
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

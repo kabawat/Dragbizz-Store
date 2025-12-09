@@ -218,13 +218,16 @@ const InventoryTable = ({
               return (
                 <tr
                   key={inventory.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
                     } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Product Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 relative">
+                    {isSelected && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
+                    )}
                     <div className="flex items-center gap-4">
                       <input
                         type="checkbox"
@@ -320,7 +323,7 @@ const InventoryTable = ({
                     <div className="relative" ref={(el) => menuRefs.current[inventory.id] = el}>
                       <button
                         onClick={() => handleMenuToggle(inventory.id)}
-                        className="p-2 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                         title="More Actions"
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
@@ -338,9 +341,9 @@ const InventoryTable = ({
                           </button>
                           <button
                             onClick={() => handleMenuAction(inventory.id, 'stock-in')}
-                            className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                            className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
                           >
-                            <TrendingUp className="w-4 h-4 text-green-500" />
+                            <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
                             Add Stock
                           </button>
                           <button
@@ -360,9 +363,9 @@ const InventoryTable = ({
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
                             onClick={() => handleMenuAction(inventory.id, 'delete')}
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                           >
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                             Delete
                           </button>
                         </div>

@@ -814,12 +814,10 @@ export default function Login() {
 
                 {/* General Error Display - Above submit button */}
                 {errors.general && (
-                  <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                    <div className="flex items-center">
-                      <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mr-2" />
-                      <span className="text-red-700 dark:text-red-300 text-sm">{errors.general}</span>
-                    </div>
-                  </div>
+                  <p className="text-red-500 text-sm flex items-center mb-2">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.general}
+                  </p>
                 )}
 
                 {loginMethod === 'password' && (
