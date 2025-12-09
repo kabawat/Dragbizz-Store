@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle, MessageCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getStatusBadge } from '@/utils/statusBadge';
 
@@ -50,6 +50,14 @@ const InvoiceCard = ({
       label: 'Print Invoice',
       icon: Printer,
       onClick: () => onPrint?.(invoice.id || invoice._id)
+    },
+    {
+      value: 'whatsapp',
+      label: 'Share on WhatsApp',
+      icon: MessageCircle,
+      onClick: () => {
+        // TODO: Add WhatsApp share functionality
+      }
     },
     {
       value: 'release',

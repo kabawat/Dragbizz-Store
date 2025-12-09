@@ -215,40 +215,39 @@ const ViewCustomerPage = ({ customerId }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Customer Name */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Customer Name</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-xl overflow-hidden">
+                          <User className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Customer Name</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {customerData.name || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Phone Number */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Phone Number</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Phone className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
+                          <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Phone Number</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {customerData.phone || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Email Address */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Email Address</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Mail className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
+                          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Email Address</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
                               {customerData.email || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
-
                       </div>
                     </div>
 
@@ -265,29 +264,33 @@ const ViewCustomerPage = ({ customerId }) => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-6">
                           {/* Company Name */}
                           {customerData.companyDetails.companyName && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Company Name</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                            <div className="flex items-start space-x-4 pb-4 border-b border-[rgb(var(--color-border-primary))]/30">
+                              <div className="flex-shrink-0 w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                                <Building2 className="w-5 h-5 text-green-500" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Company Name</p>
+                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                   {customerData.companyDetails.companyName}
-                                </span>
+                                </p>
                               </div>
                             </div>
                           )}
 
                           {/* GSTIN */}
                           {customerData.companyDetails.gstin && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GSTIN</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                            <div className="flex items-start space-x-4">
+                              <div className="flex-shrink-0 w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                                <FileText className="w-5 h-5 text-orange-500" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GSTIN</p>
+                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
                                   {customerData.companyDetails.gstin}
-                                </span>
+                                </p>
                               </div>
                             </div>
                           )}
@@ -308,93 +311,95 @@ const ViewCustomerPage = ({ customerId }) => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                           {/* Total Amount */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Amount</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                                {customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                              </span>
+                          <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
+                            <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Amount</p>
+                              <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+                                ₹{customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              </p>
                             </div>
                           </div>
 
                           {/* Total Invoices */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Invoices</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <Receipt className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
+                            <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400" style={{ opacity: '0.4' }} />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Invoices</p>
+                              <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                 {customerData.account.totalInvoices || 0}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* Total Items Purchased */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Items Purchased</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          <div className="relative p-4 bg-gradient-to-br from-indigo-50/15 to-indigo-100/10 dark:from-indigo-900/5 dark:to-indigo-800/3 rounded-xl overflow-hidden">
+                            <ShoppingCart className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-indigo-500/35 dark:!text-indigo-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Items Purchased</p>
+                              <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                 {customerData.account.totalItemsPurchased || 0}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* Total Profit */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Profit</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <TrendingUp className="w-4 h-4 text-green-500" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-green-500">
+                          <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-xl overflow-hidden">
+                            <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Profit</p>
+                              <p className="text-lg font-bold text-green-600 dark:text-green-400">
                                 ₹{customerData.account.totalProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* Total Paid */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Paid</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-green-500">
+                          <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-xl overflow-hidden">
+                            <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-emerald-500/35 dark:text-emerald-400/40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Paid</p>
+                              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                                 ₹{customerData.account.totalPaid?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* Total Due */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Total Due</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <AlertCircle className="w-4 h-4 text-orange-500" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium text-orange-500">
+                          <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-xl overflow-hidden">
+                            <AlertCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Due</p>
+                              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                                 ₹{customerData.account.totalDue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                              </span>
+                              </p>    
                             </div>
                           </div>
 
                           {/* Account Status */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Account Status</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <div className={`w-2 h-2 rounded-full ${customerData.account.accountStatus === 'ACTIVE' ? 'bg-green-500' : customerData.account.accountStatus === 'BLOCKED' ? 'bg-red-500' : 'bg-gray-500'}`}></div>
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          <div className="relative p-4 bg-gradient-to-br from-gray-50/15 to-gray-100/10 dark:from-gray-900/5 dark:to-gray-800/3 rounded-xl overflow-hidden">
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center">
+                              <div className={`w-8 h-8 rounded-full ${customerData.account.accountStatus === 'ACTIVE' ? 'bg-green-500/35 dark:!bg-green-400 dark:opacity-40' : customerData.account.accountStatus === 'BLOCKED' ? 'bg-red-500/35 dark:!bg-red-400 dark:opacity-40' : 'bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40'}`}></div>
+                            </div>
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Account Status</p>
+                              <p className={`text-lg font-bold ${customerData.account.accountStatus === 'ACTIVE' ? 'text-green-600 dark:text-green-400' : customerData.account.accountStatus === 'BLOCKED' ? 'text-red-600 dark:text-red-400' : 'text-[rgb(var(--color-text-primary))]'}`}>
                                 {customerData.account.accountStatus || 'ACTIVE'}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* Joined At */}
                           {customerData.account.joinedAt && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Joined At</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                            <div className="relative p-4 bg-gradient-to-br from-teal-50/15 to-teal-100/10 dark:from-teal-900/5 dark:to-teal-800/3 rounded-xl overflow-hidden">
+                              <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-teal-500/35 dark:!text-teal-400 dark:opacity-40" />
+                              <div className="relative z-10">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Joined At</p>
+                                <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                   {moment(customerData.account.joinedAt).format('DD MMM YYYY')}
-                                </span>
+                                </p>
                               </div>
                             </div>
                           )}
@@ -406,23 +411,19 @@ const ViewCustomerPage = ({ customerId }) => {
                             <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-4">Additional Information</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {customerData.account.totalReturns > 0 && (
-                                <div className="space-y-2">
-                                  <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Total Returns</label>
-                                  <div className="p-2 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] text-sm">
-                                      {customerData.account.totalReturns || 0}
-                                    </span>
-                                  </div>
+                                <div>
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Total Returns</p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                    {customerData.account.totalReturns || 0}
+                                  </p>
                                 </div>
                               )}
                               {customerData.account.netProfit !== undefined && (
-                                <div className="space-y-2">
-                                  <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Net Profit</label>
-                                  <div className="p-2 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] text-sm">
-                                      ₹{customerData.account.netProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                                    </span>
-                                  </div>
+                                <div>
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Net Profit</p>
+                                  <p className="text-base font-semibold text-green-600 dark:text-green-400">
+                                    ₹{customerData.account.netProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -449,45 +450,37 @@ const ViewCustomerPage = ({ customerId }) => {
                           {customerData.addresses.billing && (
                             <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
                               <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Billing Address</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Address Line 1</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.billing.addressLine1 || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">City</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.billing.city || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">State</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.billing.state || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Pincode</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.billing.pincode || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Country</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.billing.country || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -498,45 +491,37 @@ const ViewCustomerPage = ({ customerId }) => {
                           {customerData.addresses.shipping && (
                             <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
                               <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Shipping Address</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Address Line 1</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.shipping.addressLine1 || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">City</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.shipping.city || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">State</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.shipping.state || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Pincode</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.shipping.pincode || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Country</label>
-                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                  <div>
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                       {customerData.addresses.shipping.country || 'N/A'}
-                                    </span>
+                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -562,10 +547,10 @@ const ViewCustomerPage = ({ customerId }) => {
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="flex gap-3">
                       <Button
                         variant="primary"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleEditCustomer}
                         leftIcon={Edit}
                       >
@@ -574,7 +559,7 @@ const ViewCustomerPage = ({ customerId }) => {
 
                       <Button
                         variant="danger"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleDeleteCustomer}
                         leftIcon={Trash2}
                       >

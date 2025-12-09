@@ -8,6 +8,7 @@ import { stockService, supplierService } from '@/service/retailer';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
 import UpgradeModal from '@/components/ui/UpgradeModal';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 const StockInDrawer = ({
   isOpen,
@@ -17,6 +18,7 @@ const StockInDrawer = ({
 }) => {
   const { themeConfig } = useTheme();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { showError } = useGlobalToast();
   const [formData, setFormData] = useState({
     quantity: '',
     purchasePrice: '',
@@ -134,7 +136,7 @@ const StockInDrawer = ({
       }
 
     } catch (error) {
-      alert(`Error adding stock: ${error.message || 'Please try again.'}`);
+      showError(`Error adding stock: ${error.message || 'Please try again.'}`);
     } finally {
       setIsLoading(false);
     }

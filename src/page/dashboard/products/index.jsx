@@ -24,6 +24,7 @@ import { Button } from '@/components/ui';
 // Import product components
 import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
 import { StockInDrawer } from '@/components/ui';
+import { useGlobalToast } from '@/contexts/ToastContext';
 
 const ProductsPage = () => {
   const router = useRouter();
@@ -40,6 +41,7 @@ const ProductsPage = () => {
   } = useAppSelector((state) => state.products);
 
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { showSuccess } = useGlobalToast();
 
   // Local state
   const [searchValue, setSearchValue] = useState('');
@@ -162,7 +164,7 @@ const ProductsPage = () => {
 
   const handleStockInSuccess = (message) => {
     // Show success message
-    alert(message);
+    showSuccess(message);
   };
 
   const handleCloseStockInDrawer = () => {

@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Shield, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, BarChart3, Zap } from 'lucide-react';
-import { Input, AnimatedBackground, AnimatedGridPattern } from '../ui';
+import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
 
 const PasswordStep = ({
   password,
@@ -248,36 +248,30 @@ const PasswordStep = ({
 
                 {/* Navigation */}
                 <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 mt-6">
-                  <button
+                  <Button
                     type="button"
                     onClick={onBack}
-                    className="px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center"
+                    variant="ghost"
+                    // size="md"
+                    leftIcon={ArrowLeft}
+                    fullWidth
+                    className="sm:w-auto"
                   >
-                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Back
-                  </button>
+                  </Button>
                   
-                  <button
+                  <Button
                     type="submit"
                     disabled={!isValid || isLoading}
-                    className={`px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 w-full sm:w-auto flex items-center justify-center bg-[rgb(var(--color-primary))] text-white shadow-md hover:shadow-lg ${
-                      isValid && !isLoading
-                        ? 'hover:brightness-[1.01] cursor-pointer'
-                        : 'opacity-70 cursor-not-allowed'
-                    }`}
+                    loading={isLoading}
+                    variant="primary"
+                    // size="lg"
+                    rightIcon={!isLoading ? ArrowRight : undefined}
+                    fullWidth
+                    className="sm:w-auto shadow-md hover:shadow-lg"
                   >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-2"></div>
-                        <span className="text-sm sm:text-base">Creating Account...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-sm sm:text-base">Continue</span>
-                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-2" />
-                      </>
-                    )}
-                  </button>
+                    {isLoading ? 'Creating Account...' : 'Continue'}
+                  </Button>
                 </div>
               </form>
             </div>

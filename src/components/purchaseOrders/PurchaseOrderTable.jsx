@@ -189,9 +189,12 @@ const PurchaseOrderTable = ({
                             return (
                                 <tr
                                     key={row._id || row.id || row.billNumber}
-                                    className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))] border-l-4 border-l-[rgb(var(--color-primary))]' : ''}`}
+                                    className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
                                 >
-                                    <td className="w-1/6 px-6 py-4">
+                                    <td className="w-1/6 px-6 py-4 relative">
+                                        {isSelected && (
+                                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
+                                        )}
                                         <div className="flex items-center gap-4">
                                             <input
                                                 type="checkbox"

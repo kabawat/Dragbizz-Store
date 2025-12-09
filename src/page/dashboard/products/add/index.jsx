@@ -6,14 +6,14 @@ import { Save, ArrowLeft } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
+import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm } from '@/components/product';
 import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
-import { useToast } from '@/hooks/useToast';
+import { useGlobalToast } from '@/contexts/ToastContext';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 import { useRef } from 'react';
@@ -30,9 +30,7 @@ const AddProductPage = () => {
   const [loading, setLoading] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [quotaError, setQuotaError] = useState(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const { toasts, showSuccess, removeToast } = useToast();
+  const { showSuccess, showError } = useGlobalToast();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -197,10 +195,10 @@ const AddProductPage = () => {
           const fieldErrors = extractFieldErrors(result?.error || result);
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
+            showError('Please fix the validation errors in the form.');
           } else {
-            // Show error modal for general errors
-            setErrorMessage(result.message || 'Failed to create product. Please try again.');
-            setShowErrorModal(true);
+            // Show error toast for general errors
+            showError(result.message || 'Failed to create product. Please try again.');
           }
         }
       }
@@ -315,17 +313,6 @@ const AddProductPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title="Error"
-        message={errorMessage}
-      />
 
       {/* Quota Exceeded Modal */}
       <QuotaExceededModal

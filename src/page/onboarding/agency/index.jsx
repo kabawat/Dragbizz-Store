@@ -48,9 +48,7 @@ export default function AgencyCreation() {
       const result = await dispatch(createAgency(formData));
 
       if (createAgency.fulfilled.match(result)) {
-        // Refresh retailer details to get proper structure in Redux
         await dispatch(getRetailerDetails({ forceRefresh: true }));
-        // Wait a bit for state to update, then redirect
         setTimeout(() => {
           isCreatingRef.current = false;
           router.push('/onboarding/store');
@@ -82,10 +80,8 @@ export default function AgencyCreation() {
   useEffect(() => {
     if (agency && !isLoading && !isCreatingRef.current) {
       if (stores && stores.length > 0) {
-        // Has stores - redirect to dashboard
         router.push('/dashboard');
       } else {
-        // No stores - redirect to store onboarding
         router.push('/onboarding/store');
       }
     }
@@ -93,7 +89,6 @@ export default function AgencyCreation() {
 
   // Don't show "agency already exists" screen - just redirect
   if (agency) {
-    // Show loading while redirecting
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
         <div className="text-center">
@@ -249,10 +244,11 @@ export default function AgencyCreation() {
                 <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-6">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleBack}
                     leftIcon={ArrowLeft}
-                    className="w-full sm:w-auto"
+                    fullWidth
+                    className="sm:w-auto"
                   >
                     Back
                   </Button>
@@ -263,7 +259,8 @@ export default function AgencyCreation() {
                     disabled={isLoading || !formData.name.trim()}
                     rightIcon={ArrowRight}
                     loading={isLoading}
-                    className="w-full sm:w-auto"
+                    fullWidth
+                    className="sm:w-auto"
                   >
                     {isLoading ? 'Creating Agency...' : 'Create Agency'}
                   </Button>

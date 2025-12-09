@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard, MessageCircle } from 'lucide-react';
 import { renderStatusBadge } from '@/utils/statusBadge';
 
 const InvoicesListTable = ({
@@ -133,7 +133,10 @@ const InvoicesListTable = ({
                                 key={invoiceId}
                                 className={`hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}
                             >
-                                <td className="px-4 py-3">
+                                <td className="px-4 py-3 relative">
+                                    {isSelected && (
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
+                                    )}
                                     <input
                                         type="checkbox"
                                         checked={isSelected}
@@ -240,6 +243,17 @@ const InvoicesListTable = ({
                                                         <Printer className="w-4 h-4" />
                                                         Print
                                                     </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            // TODO: Add WhatsApp share functionality
+                                                            setOpenMenuId(null);
+                                                        }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                    >
+                                                        <MessageCircle className="w-4 h-4" />
+                                                        Share on WhatsApp
+                                                    </button>
+                                                    <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                                                     <button
                                                         onClick={() => {
                                                             onDelete?.(invoiceId);
