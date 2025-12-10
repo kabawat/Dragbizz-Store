@@ -253,17 +253,21 @@ const InvoicesListTable = ({
                                                         <MessageCircle className="w-4 h-4" />
                                                         Share on WhatsApp
                                                     </button>
-                                                    <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                                    <button
-                                                        onClick={() => {
-                                                            onDelete?.(invoiceId);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                    {invoice.invoiceStatus === 'DRAFT' && (
+                                                        <>
+                                                            <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                                            <button
+                                                                onClick={() => {
+                                                                    onDelete?.(invoiceId);
+                                                                    setOpenMenuId(null);
+                                                                }}
+                                                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                         Delete
                                                     </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}

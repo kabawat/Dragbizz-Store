@@ -94,7 +94,7 @@ const Payments = () => {
 
     switch (action) {
       case 'view':
-        router.push(`/dashboard/payments/${payment._id || payment.id}`);
+        router.push(`/dashboard/payments/view/${payment._id || payment.id}`);
         break;
       case 'edit':
         router.push(`/dashboard/payments/${payment._id || payment.id}/edit`);

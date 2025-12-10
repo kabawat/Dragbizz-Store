@@ -114,7 +114,7 @@ const UpdatePaymentStatusModal = ({
                         <Input
                             type="number"
                             value={paidAmount}
-                            onChange={(e) => handlePaidAmountChange(e.target.value)}
+                            onChange={(value) => handlePaidAmountChange(value)}
                             placeholder={
                                 paymentStatus === 'PAY_LATTER'
                                     ? `Enter paid amount (max ₹${totalAmount?.toLocaleString() || 0})`
