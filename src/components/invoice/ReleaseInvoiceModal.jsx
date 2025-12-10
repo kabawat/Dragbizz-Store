@@ -108,7 +108,7 @@ const ReleaseInvoiceModal = ({
                         <Input
                             type="number"
                             value={paidAmount}
-                            onChange={(e) => handlePaidAmountChange(e.target.value)}
+                            onChange={(value) => handlePaidAmountChange(value)}
                             placeholder={`Enter paid amount (max ₹${totalAmount?.toLocaleString() || 0})`}
                             min="0"
                             step="0.01"

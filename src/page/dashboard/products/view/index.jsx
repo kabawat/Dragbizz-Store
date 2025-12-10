@@ -248,7 +248,7 @@ const ViewProductPage = ({ productId }) => {
                   <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
                     
                     {/* Basic Information Card */}
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
@@ -259,83 +259,83 @@ const ViewProductPage = ({ productId }) => {
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic product details</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {getStatusBadge(productData.status)}
-                          {getVisibilityBadge(productData.visibility)}
-                        </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Product Name */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Product Name</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Package className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-lg overflow-hidden">
+                          <Package className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Product Name</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.name || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Brand */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Brand</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
+                          <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Brand</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.brand || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Category */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Category</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Tag className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
+                          <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Category</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.category?.name || productData.category || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* SKU */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">SKU</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Hash className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                          <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">SKU</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
                               {productData.sku || 'N/A'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Barcode */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Barcode</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Barcode className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.barcode || 'N/A'}
-                            </span>
+                        {productData.barcode && (
+                          <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
+                            <Barcode className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Barcode</p>
+                              <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                                {productData.barcode || 'N/A'}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {/* UOM */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Unit of Measure</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Scale className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.uom || 'N/A'}
-                            </span>
+                        {productData.uom && (
+                          <div className="relative p-4 bg-gradient-to-br from-teal-50/15 to-teal-100/10 dark:from-teal-900/5 dark:to-teal-800/3 rounded-lg overflow-hidden">
+                            <Scale className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-teal-500/35 dark:!text-teal-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Unit of Measure</p>
+                              <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                {productData.uom || 'N/A'}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Pricing Information Card */}
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
                           <IndianRupee className="w-6 h-6 text-green-500" />
@@ -346,56 +346,58 @@ const ViewProductPage = ({ productId }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Base Price */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Base Price</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice}` : 'N/A'}
-                            </span>
+                        <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
+                          <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Base Price</p>
+                            <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+                              {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                            </p>
                           </div>
                         </div>
 
                         {/* MRP */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">MRP</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Tag className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.mrp ? `${productData.currency || '₹'}${productData.mrp}` : 'N/A'}
-                            </span>
+                        <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
+                          <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">MRP</p>
+                            <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+                              {productData.mrp ? `${productData.currency || '₹'}${productData.mrp?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                            </p>
                           </div>
                         </div>
 
                         {/* Selling Price */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Selling Price</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.sellingPrice ? `${productData.currency || '₹'}${productData.sellingPrice}` : 'N/A'}
-                            </span>
+                        <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-lg overflow-hidden">
+                          <ShoppingCart className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-emerald-500/35 dark:!text-emerald-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Selling Price</p>
+                            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                              {productData.sellingPrice ? `${productData.currency || '₹'}${productData.sellingPrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                            </p>
                           </div>
                         </div>
 
                         {/* Discount */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Discount</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Percent className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {productData.discount && productData.discount !== '' ? `${productData.discount}%` : 'N/A'}
-                            </span>
+                        {productData.discount && productData.discount !== '' && (
+                          <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                            <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Discount</p>
+                              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                                {productData.discount}%
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
 
                     {/* GST Information Card */}
                     {productData.gstInfo && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                         <div className="flex items-center space-x-3 mb-6">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
                             <Shield className="w-6 h-6 text-blue-500" />
@@ -406,53 +408,53 @@ const ViewProductPage = ({ productId }) => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                           {/* GST Applicable */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GST Applicable</label>
-                            <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                              <Shield className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                              <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
+                            <Shield className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                            <div className="relative z-10">
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Applicable</p>
+                              <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                 {productData.gstInfo.isGstApplicable ? 'Yes' : 'No'}
-                              </span>
+                              </p>
                             </div>
                           </div>
 
                           {/* GST Rate */}
-                          {productData.gstInfo.isGstApplicable && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GST Rate</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <Percent className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                                  {productData.gstInfo.gstRate ? `${productData.gstInfo.gstRate}%` : 'N/A'}
-                                </span>
+                          {productData.gstInfo.isGstApplicable && productData.gstInfo.gstRate && (
+                            <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
+                              <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                              <div className="relative z-10">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Rate</p>
+                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                  {productData.gstInfo.gstRate}%
+                                </p>
                               </div>
                             </div>
                           )}
 
                           {/* GST Type */}
-                          {productData.gstInfo.isGstApplicable && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">GST Type</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          {productData.gstInfo.isGstApplicable && productData.gstInfo.gstType && (
+                            <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
+                              <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                              <div className="relative z-10">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Type</p>
+                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                   {productData.gstInfo.gstType || 'N/A'}
-                                </span>
+                                </p>
                               </div>
                             </div>
                           )}
 
                           {/* HSN Code */}
-                          {productData.gstInfo.isGstApplicable && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">HSN Code</label>
-                              <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <Hash className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                                <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                          {productData.gstInfo.isGstApplicable && productData.gstInfo.hsnCode && (
+                            <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                              <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                              <div className="relative z-10">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">HSN Code</p>
+                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
                                   {productData.gstInfo.hsnCode || 'N/A'}
-                                </span>
+                                </p>
                               </div>
                             </div>
                           )}
@@ -461,7 +463,7 @@ const ViewProductPage = ({ productId }) => {
                     )}
 
                     {/* Product Features Card */}
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
                           <Zap className="w-6 h-6 text-purple-500" />
@@ -472,37 +474,37 @@ const ViewProductPage = ({ productId }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Featured */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Featured</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Star className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-yellow-50/15 to-yellow-100/10 dark:from-yellow-900/5 dark:to-yellow-800/3 rounded-lg overflow-hidden">
+                          <Star className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-yellow-500/35 dark:!text-yellow-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Featured</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.featured ? 'Yes' : 'No'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Best Seller */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Best Seller</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <TrendingUp className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-lg overflow-hidden">
+                          <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-emerald-500/35 dark:!text-emerald-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Best Seller</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.bestSeller ? 'Yes' : 'No'}
-                            </span>
+                            </p>
                           </div>
                         </div>
 
                         {/* New Arrival */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">New Arrival</label>
-                          <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                            <Package2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                        <div className="relative p-4 bg-gradient-to-br from-pink-50/15 to-pink-100/10 dark:from-pink-900/5 dark:to-pink-800/3 rounded-lg overflow-hidden">
+                          <Package2 className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-pink-500/35 dark:!text-pink-400 dark:opacity-40" />
+                          <div className="relative z-10">
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">New Arrival</p>
+                            <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {productData.newArrival ? 'Yes' : 'No'}
-                            </span>
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -510,7 +512,7 @@ const ViewProductPage = ({ productId }) => {
 
                     {/* Product Description Card */}
                     {productData.content && (productData.content.shortDescription || productData.content.longDescription) && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                         <div className="flex items-center space-x-3 mb-6">
                           <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-500/10 rounded-full flex items-center justify-center">
                             <FileText className="w-6 h-6 text-orange-500" />
@@ -549,12 +551,70 @@ const ViewProductPage = ({ productId }) => {
                       </div>
                     )}
 
+                    {/* Additional Information Card */}
+                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="w-12 h-12 bg-gradient-to-br from-gray-500/20 to-gray-500/10 rounded-full flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-gray-500" />
+                        </div>
+                        <div>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Additional Information</h2>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product status and metadata</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Status */}
+                        <div>
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Status</p>
+                          {getStatusBadge(productData.status)}
+                        </div>
+
+                        {/* Visibility */}
+                        <div>
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Visibility</p>
+                          {getVisibilityBadge(productData.visibility)}
+                        </div>
+
+                        {/* Product ID */}
+                        {productData.id && (
+                          <div>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Product ID</p>
+                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                              {productData.id}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Created Date */}
+                        {productData.createdAt && (
+                          <div>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Created Date</p>
+                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                              {moment(productData.createdAt).format('DD MMM YYYY')}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Last Updated */}
+                        {productData.updatedAt && (
+                          <div>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Last Updated</p>
+                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                              {moment(productData.updatedAt).format('DD MMM YYYY')}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
                 {/* Right Side - Quick Actions */}
                 <div className="lg:col-span-1">
-                  <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 sticky top-6">
+                  <div className="sticky top-6">
+                    <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
                         <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -565,10 +625,10 @@ const ViewProductPage = ({ productId }) => {
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="flex gap-3">
                       <Button
                         variant="primary"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleEditProduct}
                         leftIcon={Edit}
                       >
@@ -577,7 +637,7 @@ const ViewProductPage = ({ productId }) => {
 
                       <Button
                         variant="danger"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleDeleteProduct}
                         leftIcon={Trash2}
                       >
@@ -587,12 +647,12 @@ const ViewProductPage = ({ productId }) => {
 
                     {/* Product Stats */}
                     <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Product Stats</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Quick Stats</h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-[rgb(var(--color-text-secondary))]">Stock:</span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            {productData.stock || 'N/A'} units
+                            {productData.stock || 0} units
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -603,13 +663,16 @@ const ViewProductPage = ({ productId }) => {
                           <span className="text-[rgb(var(--color-text-secondary))]">Revenue:</span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Last Updated:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            {productData.updatedAt ? moment(productData.updatedAt).format('MMM DD, YYYY') : 'Never'}
-                          </span>
-                        </div>
+                        {productData.updatedAt && (
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">Last Updated:</span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {moment(productData.updatedAt).format('MMM DD, YYYY')}
+                            </span>
+                          </div>
+                        )}
                       </div>
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -646,8 +709,8 @@ const ViewProductPage = ({ productId }) => {
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-20 z-[9999]">
           <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                 Product Deleted Successfully!

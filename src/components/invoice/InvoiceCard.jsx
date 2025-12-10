@@ -38,6 +38,9 @@ const InvoiceCard = ({
 
 
 
+  const invoiceStatus = invoice.invoiceStatus || invoice.status;
+  const isDraft = invoiceStatus === 'DRAFT';
+
   const actionMenuItems = [
     {
       value: 'view',
@@ -64,7 +67,7 @@ const InvoiceCard = ({
       label: 'Release Invoice',
       icon: CheckCircle,
       onClick: () => onRelease?.(invoice.id || invoice._id),
-      disabled: invoice.status !== 'DRAFT',
+      disabled: !isDraft,
       className: 'cursor-pointer text-green-600 hover:text-green-700'
     },
     {
@@ -72,7 +75,7 @@ const InvoiceCard = ({
       label: 'Edit',
       icon: Edit,
       onClick: () => onEdit?.(invoice.id || invoice._id),
-      disabled: invoice.status !== 'DRAFT'
+      disabled: !isDraft
     },
     {
       value: 'duplicate',
@@ -80,13 +83,14 @@ const InvoiceCard = ({
       icon: Copy,
       onClick: () => onDuplicate?.(invoice.id || invoice._id)
     },
-    {
+    // Only show delete if invoice is DRAFT
+    ...(isDraft ? [{
       value: 'delete',
       label: 'Delete',
       icon: Trash2,
       onClick: () => onDelete?.(invoice.id || invoice._id),
       className: 'cursor-pointer text-red-600 hover:text-red-700'
-    }
+    }] : [])
   ];
 
   const formatDate = (dateString) => {

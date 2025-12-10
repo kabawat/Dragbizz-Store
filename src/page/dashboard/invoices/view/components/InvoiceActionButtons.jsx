@@ -107,16 +107,16 @@ const InvoiceActionButtons = ({
                             <span>Update Payment Status</span>
                         </Button>
                     )}
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
-                                ₹{invoiceData.totalAmount?.toLocaleString()}
-                            </div>
-                            <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                Total Amount
-                            </div>
+                <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
+                            ₹{invoiceData.totalAmount?.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Total Amount
                         </div>
                     </div>
+                </div>
                 </>
             )}
         </div>

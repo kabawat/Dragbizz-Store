@@ -8,7 +8,6 @@ const Input = forwardRef(({
   value,
   onChange,
   leftIcon: LeftIcon,
-  rightIcon: RightIcon,
   error,
   errorMessage,
   success,
@@ -42,31 +41,31 @@ const Input = forwardRef(({
 
   const handleChange = (e) => {
     const inputValue = e.target.value;
-    
+
     if (type === 'number') {
       if (inputValue === '' || inputValue === '-') {
         onChange?.(inputValue);
         return;
       }
-      
+
       const numValue = parseFloat(inputValue);
       if (isNaN(numValue)) {
         return;
       }
-      
+
       let processedValue = numValue;
-      
+
       if (min !== undefined && processedValue < min) {
         processedValue = min;
       }
       if (max !== undefined && processedValue > max) {
         processedValue = max;
       }
-      
+
       if (precision !== undefined) {
         processedValue = parseFloat(processedValue.toFixed(precision));
       }
-      
+
       onChange?.(processedValue);
     } else {
       onChange?.(inputValue);
@@ -83,7 +82,7 @@ const Input = forwardRef(({
       const isCtrlC = e.ctrlKey && e.key === 'c';
       const isCtrlV = e.ctrlKey && e.key === 'v';
       const isCtrlX = e.ctrlKey && e.key === 'x';
-      
+
       if (!allowedKeys.includes(e.key) && !isNumber && !isDecimal && !isMinus && !isCtrlA && !isCtrlC && !isCtrlV && !isCtrlX) {
         e.preventDefault();
       }
@@ -109,9 +108,9 @@ const Input = forwardRef(({
   };
 
   const rightPaddingClasses = {
-    sm: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-8' : 'pr-2.5',
-    md: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-10' : 'pr-3', // Default padding
-    lg: (RightIcon || showPasswordToggle || error || success || rightElement) ? 'pr-12' : 'pr-4'
+    sm: rightElement ? 'pr-8' : 'pr-2.5',
+    md: rightElement ? 'pr-10' : 'pr-3', // Default padding
+    lg: rightElement ? 'pr-12' : 'pr-4'
   };
 
   // State classes - Theme aware with higher specificity
@@ -137,78 +136,16 @@ const Input = forwardRef(({
         </label>
       )}
       <div className="relative">
+        {/* Left Icon - Support for React element or icon component */}
         {LeftIcon && (
-          <div className={`absolute left-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 ps-3' : size === 'lg' ? 'w-12 ps-5' : 'w-10 ps-4'}`}>
+          <div className={`absolute left-0 top-0 h-full ${type === 'date' ? 'pointer-events-none' : 'z-10'} flex items-center justify-center ${size === 'sm' ? 'w-8 ps-3' : size === 'lg' ? 'w-12 ps-5' : 'w-10 ps-4'}`}>
             {React.isValidElement(LeftIcon) ? (
               LeftIcon
-            ) : typeof LeftIcon === 'function' ? (
-              (() => {
-                try {
-                  const result = LeftIcon();
-                  if (React.isValidElement(result)) {
-                    return result;
-                  }
-                } catch (e) {
-                  // If LeftIcon is a component constructor, render it
-                }
-                return <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />;
-              })()
             ) : (
               <LeftIcon className={`pointer-events-none ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`} />
             )}
           </div>
         )}
-
-        {/* Right Elements - Inside input container */}
-        <div className={`absolute right-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 pe-3' : size === 'lg' ? 'w-12 pe-5' : 'w-10 pe-4'}`}>
-        {/* Password Toggle */}
-        {showPasswordToggle && type === 'password' && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-            tabIndex={-1}
-          >
-            {showPassword ? (
-              <EyeOff className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} />
-            ) : (
-              <Eye className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} />
-            )}
-          </button>
-        )}
-
-        {RightIcon && !showPasswordToggle && (
-          React.isValidElement(RightIcon) ? (
-            RightIcon
-          ) : typeof RightIcon === 'function' ? (
-            (() => {
-              try {
-                const result = RightIcon();
-                if (React.isValidElement(result)) {
-                  return result;
-                }
-              } catch (e) {
-                // If RightIcon is a component constructor, render it
-              }
-              return <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />;
-            })()
-          ) : (
-            <RightIcon className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} text-[rgb(var(--color-text-tertiary))] pointer-events-none`} />
-          )
-        )}
-
-        {/* Legacy rightElement support */}
-        {rightElement && !RightIcon && !showPasswordToggle && (
-          <div>
-            {rightElement}
-          </div>
-        )}
-
-        {/* Error/Success Icon */}
-        {(error || success) && (
-          <AlertCircle className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} ${error ? 'text-red-500' : 'text-green-500'}`} />
-        )}
-        </div>
 
         <input
           ref={ref}
@@ -233,6 +170,13 @@ const Input = forwardRef(({
           style={error ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
           {...props}
         />
+
+        {/* Right Element - Only rightElement renders here */}
+        {rightElement && (
+          <div className={`absolute right-0 top-0 h-full z-10 flex items-center justify-center ${size === 'sm' ? 'w-8 pe-3' : size === 'lg' ? 'w-12 pe-5' : 'w-10 pe-4'}`}>
+            {rightElement}
+          </div>
+        )}
       </div>
 
       {/* Helper Text / Error Message / Success Message */}
