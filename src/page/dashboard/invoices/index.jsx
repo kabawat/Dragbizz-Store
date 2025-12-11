@@ -1,15 +1,15 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, Search, CheckCircle } from 'lucide-react';
+import { Plus, Grid3X3, List, FileText, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getInvoices, deleteInvoice, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
+import { AnimatedBackground, SettingsPanel, Select } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal, UpdatePaymentStatusModal, ReleaseInvoiceModal } from '@/components/invoice';
-import { invoiceService } from '@/service';
+import { invoiceService, customerService } from '@/service';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InvoicesPage = () => {
@@ -43,7 +43,9 @@ const InvoicesPage = () => {
   const [paymentStatus, setPaymentStatus] = useState('PAID');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
-  const [searchValue, setSearchValue] = useState('');
+  const [customerFilter, setCustomerFilter] = useState('');
+  const [customerOptions, setCustomerOptions] = useState([]);
+  const [isCustomerOptionsLoading, setIsCustomerOptionsLoading] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const scrollRef = useRef(null);
@@ -68,8 +70,8 @@ const InvoicesPage = () => {
   }, [dispatch]);
 
 
-  // Fetch invoices on mount and search changes
-  const lastFetchRef = useRef({ storeId: null, searchValue: null });
+  // Fetch invoices on mount and customer filter changes
+  const lastFetchRef = useRef({ storeId: null, customerKey: null });
 
   useEffect(() => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -77,29 +79,66 @@ const InvoicesPage = () => {
     // Fetch only if store exists
     if (!storeId) return;
 
+    const customerKey = customerFilter || '';
+
     // Prevent duplicate fetch
     if (
       lastFetchRef.current.storeId === storeId &&
-      lastFetchRef.current.searchValue === searchValue
+      lastFetchRef.current.customerKey === customerKey
     ) {
       return;
     }
 
-    lastFetchRef.current = { storeId, searchValue };
+    lastFetchRef.current = { storeId, customerKey };
 
     const fetchInvoices = async () => {
       const params = {
         store: storeId,
-        search: searchValue,
         limit: 20,
         cursor: null,
-        isFreshLoad: true
+        isFreshLoad: true,
+        customer: customerFilter || undefined
       };
       await dispatch(getInvoices(params));
     };
 
     fetchInvoices();
-  }, [dispatch, selectedStore, searchValue]);
+  }, [dispatch, selectedStore, customerFilter]);
+
+  // Load customer options for filter (lightweight)
+  useEffect(() => {
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    if (!storeId) return;
+
+    const loadCustomers = async () => {
+      try {
+        setIsCustomerOptionsLoading(true);
+        const result = await customerService.getCustomers({
+          store: storeId,
+          lightweight: true,
+          limit: 200
+        });
+        if (result.success) {
+          const customers = result.data?.data || result.data || [];
+          const options = customers
+            .map((c) => ({
+              label: c.name || c.phone || 'Customer',
+              value: c._id || c.id
+            }))
+            .filter((opt) => opt.value);
+          setCustomerOptions(options);
+        } else {
+          setCustomerOptions([]);
+        }
+      } catch (error) {
+        setCustomerOptions([]);
+      } finally {
+        setIsCustomerOptionsLoading(false);
+      }
+    };
+
+    loadCustomers();
+  }, [selectedStore]);
 
   // Load more invoices - Fixed to properly handle response structure
   const handleLoadMore = useCallback(async () => {
@@ -118,7 +157,7 @@ const InvoicesPage = () => {
 
       const params = {
         store: storeId,
-        search: searchValue || undefined,
+        customer: customerFilter || undefined,
         limit: 20,
         cursor: pagination.nextCursor,
         isFreshLoad: false
@@ -130,7 +169,7 @@ const InvoicesPage = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, searchValue, selectedStore, dispatch, invoices.length]);
+  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, customerFilter, selectedStore, dispatch, invoices.length]);
 
   // Infinite scroll - Fixed with proper dependencies and throttling
   useEffect(() => {
@@ -199,9 +238,9 @@ const InvoicesPage = () => {
     // Store change handled by Redux
   };
 
-  // Search
-  const handleSearch = (value) => {
-    setSearchValue(value);
+  // Customer filter change
+  const handleCustomerFilterChange = (value) => {
+    setCustomerFilter(value || '');
   };
 
   const handleAddInvoice = () => {
@@ -249,7 +288,7 @@ const InvoicesPage = () => {
         // Refresh the invoices list to show updated status
         const refreshParams = {
           store: storeId,
-          search: searchValue,
+          customer: customerFilter || undefined,
           limit: 20,
           cursor: null,
           isFreshLoad: true
@@ -313,7 +352,7 @@ const InvoicesPage = () => {
         showSuccess('Payment status updated successfully');
         const refreshParams = {
           store: storeId,
-          search: searchValue,
+          customer: customerFilter || undefined,
           limit: 20,
           cursor: null,
           isFreshLoad: true
@@ -450,18 +489,19 @@ const InvoicesPage = () => {
             {/* Invoices list */}
             {invoices.length > 0 && (
               <>
-                {/* search and filter  */}
+                {/* Filters */}
                 <div className="mb-3">
                   <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                    {/* Search */}
+                    {/* Customer filter */}
                     <div className="w-100">
-                      <Input
-                        type="text"
-                        placeholder="Search invoices..."
-                        value={searchValue}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        leftIcon={Search}
-                        className="w-100"
+                      <Select
+                        placeholder="Filter by customer"
+                        options={customerOptions}
+                        value={customerFilter}
+                        onChange={handleCustomerFilterChange}
+                        disabled={isCustomerOptionsLoading}
+                        searchable
+                        clearable
                       />
                     </div>
 
