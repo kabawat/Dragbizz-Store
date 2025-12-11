@@ -206,9 +206,6 @@ const CustomerTable = ({
                       <h3 className="font-semibold text-gray-900 text-sm truncate">
                         {customer.name || 'N/A'}
                       </h3>
-                      <p className="text-xs text-gray-600 font-medium">
-                        Customer ID: {customer.id}
-                      </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-[rgb(var(--color-text-secondary))]">Added: {new Date(customer.createdAt || Date.now()).toLocaleDateString()}</span>
                       </div>

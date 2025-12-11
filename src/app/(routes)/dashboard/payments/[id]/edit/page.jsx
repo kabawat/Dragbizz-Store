@@ -6,7 +6,7 @@ export const metadata = {
   keywords: 'edit payment, update payment, payment management, DragBizz Store',
 };
 
-export default function PaymentEditPage({ params }) {
-  const paymentId = params.id;
-  return <EditPayment paymentId={paymentId} />;
+export default async function PaymentEditPage({ params }) {
+  const { id } = await params;
+  return <EditPayment paymentId={id} />;
 }

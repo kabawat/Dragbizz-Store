@@ -1,7 +1,8 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard, MessageCircle } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard, MessageCircle, Copy, Send, Mail, MessageSquare } from 'lucide-react';
 import { renderStatusBadge } from '@/utils/statusBadge';
+import { AddActionButton } from '@/components/ui';
 
 const InvoicesListTable = ({
     invoices = [],
@@ -22,12 +23,17 @@ const InvoicesListTable = ({
     ...props
 }) => {
     const [openMenuId, setOpenMenuId] = useState(null);
+    const [openSendMenuId, setOpenSendMenuId] = useState(null);
     const menuRefs = useRef({});
+    const sendMenuRefs = useRef({});
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
                 setOpenMenuId(null);
+            }
+            if (openSendMenuId && sendMenuRefs.current[openSendMenuId] && !sendMenuRefs.current[openSendMenuId].contains(event.target)) {
+                setOpenSendMenuId(null);
             }
         };
 
@@ -61,6 +67,49 @@ const InvoicesListTable = ({
 
     const allSelected = invoices.length > 0 && selectedInvoices.length === invoices.length;
     const someSelected = selectedInvoices.length > 0 && selectedInvoices.length < invoices.length;
+
+    const buildShareUrl = (row) => {
+        if (typeof window === 'undefined') return '';
+        const publicId = row.publicId;
+        if (!publicId) return '';
+        const base = window.location.origin;
+        return `${base}/view/invoice/${publicId}`;
+    };
+
+    const handleCopy = async (text) => {
+        try {
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            }
+        } catch (error) {
+        }
+    };
+
+    const handleCopyLink = (row) => {
+        const shareUrl = buildShareUrl(row);
+        if (!shareUrl) return;
+        handleCopy(shareUrl);
+        setOpenMenuId(null);
+        setOpenSendMenuId(null);
+    };
+
+    const handleWhatsAppShare = (row) => {
+        const shareUrl = buildShareUrl(row);
+        if (!shareUrl) return;
+        const message = `Hello *${row.customer?.name || 'Customer'}*, Thanks for your business! *Invoice: ${row.invoiceNumber || 'N/A'}* *Link:* ${shareUrl} Thanks *${row.store?.name || 'DragBizz Store'}* *${row.store?.phone || 'N/A'}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
+
+        const customerPhone = row.customer?.phone;
+        if (customerPhone) {
+            const cleanPhone = customerPhone.replace(/\D/g, '');
+            const whatsappPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+            window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        setOpenMenuId(null);
+        setOpenSendMenuId(null);
+    };
 
     if (loading && invoices.length === 0) {
         return (
@@ -129,10 +178,7 @@ const InvoicesListTable = ({
                         const isMenuOpen = openMenuId === invoiceId;
 
                         return (
-                            <tr
-                                key={invoiceId}
-                                className={`hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}
-                            >
+                            <tr key={invoiceId} className={`hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
                                 <td className="px-4 py-3 relative">
                                     {isSelected && (
                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
@@ -177,100 +223,128 @@ const InvoicesListTable = ({
                                     {renderStatusBadge(invoice.paymentStatus, 'invoice')}
                                 </td>
                                 <td className="px-4 py-3 text-center">
-                                    <div className="relative inline-block" ref={(el) => { if (el) menuRefs.current[invoiceId] = el; }}>
-                                        <button
-                                            onClick={() => setOpenMenuId(isMenuOpen ? null : invoiceId)}
-                                            className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-                                        >
-                                            <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                        </button>
-                                        {isMenuOpen && (
-                                            <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
-                                                <div className="py-1">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {/* Send / Share menu */}
+                                        <div className="relative inline-block" ref={(el) => { if (el) sendMenuRefs.current[invoiceId] = el; }}>
+                                            <AddActionButton
+                                                onClick={() => setOpenSendMenuId(openSendMenuId === invoiceId ? null : invoiceId)}
+                                                Icon={Send}
+                                                label="Send"
+                                                size="sm"
+                                                title="Send"
+                                                className="h-9 px-3 rounded-lg"
+                                            />
+                                            {openSendMenuId === invoiceId && (
+                                                <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                                                     <button
-                                                        onClick={() => {
-                                                            onViewDetails?.(invoiceId);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                        className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                                        onClick={() => handleWhatsAppShare(invoice)}
                                                     >
-                                                        <Eye className="w-4 h-4" />
-                                                        View Details
+                                                        <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> WhatsApp
                                                     </button>
-                                                    {invoice.invoiceStatus === 'DRAFT' && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => {
-                                                                    onEdit?.(invoiceId);
-                                                                    setOpenMenuId(null);
-                                                                }}
-                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    onRelease?.(invoiceId);
-                                                                    setOpenMenuId(null);
-                                                                }}
-                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                                            >
-                                                                <CheckCircle className="w-4 h-4" />
-                                                                Release
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                    {invoice.invoiceStatus === 'RELEASED' && (
+                                                    <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
+                                                        <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> Email
+                                                    </button>
+                                                    <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
+                                                        <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> Message
+                                                    </button>
+                                                    <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                                    <button
+                                                        className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                                        onClick={() => handleCopyLink(invoice)}
+                                                    >
+                                                        <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> Copy link
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Actions menu */}
+                                        <div className="relative inline-block" ref={(el) => { if (el) menuRefs.current[invoiceId] = el; }}>
+                                            <button
+                                                onClick={() => setOpenMenuId(isMenuOpen ? null : invoiceId)}
+                                                className="p-2 rounded-md hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                                            >
+                                                <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                            </button>
+                                            {isMenuOpen && (
+                                                <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
+                                                    <div className="py-1">
                                                         <button
                                                             onClick={() => {
-                                                                onUpdatePaymentStatus?.(invoiceId, invoice);
+                                                                onViewDetails?.(invoiceId);
                                                                 setOpenMenuId(null);
                                                             }}
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                         >
-                                                            <CreditCard className="w-4 h-4" />
-                                                            Payment Status
+                                                            <Eye className="w-4 h-4" />
+                                                            View Details
                                                         </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => {
-                                                            onPrint?.(invoiceId);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                                    >
-                                                        <Printer className="w-4 h-4" />
-                                                        Print
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            // TODO: Add WhatsApp share functionality
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                                    >
-                                                        <MessageCircle className="w-4 h-4" />
-                                                        Share on WhatsApp
-                                                    </button>
-                                                    {invoice.invoiceStatus === 'DRAFT' && (
-                                                        <>
-                                                            <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                                        {invoice.invoiceStatus === 'DRAFT' && (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        onEdit?.(invoiceId);
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                                >
+                                                                    <Edit className="w-4 h-4" />
+                                                                    Edit
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        onRelease?.(invoiceId);
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                                >
+                                                                    <CheckCircle className="w-4 h-4" />
+                                                                    Release
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        {invoice.invoiceStatus === 'RELEASED' && (
                                                             <button
                                                                 onClick={() => {
-                                                                    onDelete?.(invoiceId);
+                                                                    onUpdatePaymentStatus?.(invoiceId, invoice);
                                                                     setOpenMenuId(null);
                                                                 }}
-                                                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                        Delete
-                                                    </button>
-                                                        </>
-                                                    )}
+                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                            >
+                                                                <CreditCard className="w-4 h-4" />
+                                                                Payment Status
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => {
+                                                                onPrint?.(invoiceId);
+                                                                setOpenMenuId(null);
+                                                            }}
+                                                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                        >
+                                                            <Printer className="w-4 h-4" />
+                                                            Print
+                                                        </button>
+                                                        {invoice.invoiceStatus === 'DRAFT' && (
+                                                            <>
+                                                                <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                                                <button
+                                                                    onClick={() => {
+                                                                        onDelete?.(invoiceId);
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                    Delete
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

@@ -118,7 +118,7 @@ const CustomerCard = ({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => handleMenuToggle(customer.id)}
-              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
+              className="p-2 bg-white/90 dark:bg-[rgb(var(--color-bg-primary))]/90 hover:bg-white dark:hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm border border-[rgb(var(--color-border-primary))]/20"
               title="More Actions"
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
@@ -144,9 +144,9 @@ const CustomerCard = ({
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
                   onClick={() => handleMenuAction(customer.id, 'delete')}
-                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                 >
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                   Delete
                 </button>
               </div>
@@ -169,9 +169,6 @@ const CustomerCard = ({
           <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
             {customer.name || 'N/A'}
           </h3>
-          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
-            Customer ID: {customer.id}
-          </p>
         </div>
         
         {/* Contact Information */}

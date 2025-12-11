@@ -1,6 +1,6 @@
 import { API_CONFIG } from '@/config';
 import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
+import { authAxios, unauthAxios } from '@/service/config/axiosConfig';
 import { attachQueryParams } from '@/utils/queryParams';
 
 class InvoiceService {
@@ -118,6 +118,18 @@ class InvoiceService {
       return handleApiSuccess(response.data, 'Invoice deleted successfully');
     } catch (error) {
       return handleApiErrorResponse(error, 'invoice-deletion');
+    }
+  }
+
+  // Public Invoice (unauthenticated)
+  async getPublicInvoice(publicId) {
+    try {
+      const response = await unauthAxios.post('/retailer/public/invoices', {
+        id: publicId,
+      });
+      return handleApiSuccess(response?.data, 'Public invoice fetched successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'public-invoice-details');
     }
   }
 }
