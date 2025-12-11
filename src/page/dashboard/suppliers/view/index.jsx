@@ -275,8 +275,8 @@ const ViewSupplierPage = ({ supplierId }) => {
 
                   {/* Address Information Card */}
                   {supplierData.address && (
-                    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-                      <div className="flex items-center space-x-3 mb-6">
+                  <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                    <div className="flex items-center space-x-3 mb-6">
                         <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
                           <MapPin className="w-6 h-6 text-purple-500" />
                         </div>
@@ -329,7 +329,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                             </div>
                           )}
                           {supplierData.address?.country && (
-                            <div>
+                      <div>
                               <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
                               <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                 {supplierData.address.country}
@@ -385,8 +385,8 @@ const ViewSupplierPage = ({ supplierId }) => {
                             <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                               ₹{supplierData.account.dueAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
                             </p>    
-                          </div>
                         </div>
+                      </div>
 
                         {/* Total Bills */}
                         <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
@@ -488,7 +488,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                                     : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
                                 }`}>
                                   {supplierData.account.riskLevel}
-                                </span>
+                          </span>
                               </div>
                             )}
                             {supplierData.account.riskScore !== undefined && (
@@ -616,10 +616,10 @@ const ViewSupplierPage = ({ supplierId }) => {
                               <span className="text-[rgb(var(--color-text-secondary))]">Total Bills:</span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">{supplierData.account.totalBills || 0}</span>
                             </div>
-                            <div className="flex justify-between">
+                        <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">Total Purchases:</span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">₹{supplierData.account.totalPurchases?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}</span>
-                            </div>
+                        </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">Total Due:</span>
                               <span className={`font-medium ${supplierData.account.dueAmount > 0 ? 'text-orange-500' : 'text-[rgb(var(--color-text-primary))]'}`}>
@@ -635,22 +635,22 @@ const ViewSupplierPage = ({ supplierId }) => {
                           </>
                         ) : (
                           <>
-                            <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Orders:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
-                            </div>
+                        <div className="flex justify-between">
+                          <span className="text-[rgb(var(--color-text-secondary))]">Total Orders:</span>
+                          <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
+                        </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">Total Purchases:</span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Last Order:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">Never</span>
+                        <div className="flex justify-between">
+                          <span className="text-[rgb(var(--color-text-secondary))]">Last Order:</span>
+                          <span className="font-medium text-[rgb(var(--color-text-primary))]">Never</span>
                             </div>
                           </>
                         )}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </div>

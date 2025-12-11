@@ -59,7 +59,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
         <AnimatedBackground variant="default" />
-        <Sidebar />
+          <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
           <Header title="View Stock" description="Stock information and details" />
@@ -76,8 +76,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                     <p className="text-[rgb(var(--color-text-secondary))]">
                       Please wait while we fetch the stock information
                     </p>
-                  </div>
-                </div>
+        </div>
+      </div>
               </div>
             </div>
           </div>
@@ -88,29 +88,29 @@ const ViewInventoryPage = ({ inventoryId }) => {
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      {/* Sidebar */}
+        {/* Sidebar */}
       <AnimatedBackground variant="default" />
-      <Sidebar />
-
-      {/* Main Content */}
+        <Sidebar />
+        
+        {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
-        {/* Header */}
+          {/* Header */}
         <Header
           title="View Stock"
           description="Stock information and details"
         />
-
+          
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="">
             {/* Back Button */}
             <div className="mb-6">
               <Link href="/dashboard/stock" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
-                <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Stock</span>
-              </Link>
-            </div>
-
+                  </Link>
+                </div>
+                
             {/* Error State - Full Page */}
             {error && (
               <div className="w-full">
@@ -127,20 +127,20 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         The stock you're looking for doesn't exist or has been removed. Please check the stock ID and try again.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button
-                          variant="outline"
+                  <Button
+                    variant="outline"
                           onClick={() => router.push('/dashboard/stock')}
                           className="px-6 py-3"
-                        >
+                  >
                           Back to Stock
-                        </Button>
-                        <Button
+                  </Button>
+                  <Button
                           variant="primary"
                           onClick={() => window.location.reload()}
                           className="px-6 py-3"
-                        >
+                  >
                           Try Again
-                        </Button>
+                  </Button>
                       </div>
                     </div>
                   </div>
@@ -154,8 +154,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                 {/* Left Side - Stock Info */}
                 <div className="lg:col-span-2 flex flex-col h-full">
                   <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
-                    
-                    {/* Stats Cards */}
+
+              {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Available Stock */}
                       <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
@@ -163,20 +163,20 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         <div className="relative z-10">
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Available Stock</p>
                           <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                            {inventory.stockSummary?.availableQuantity || 0}
-                          </p>
-                        </div>
-                      </div>
-
+                        {inventory.stockSummary?.availableQuantity || 0}
+                      </p>
+                  </div>
+                </div>
+                
                       {/* Total Batches */}
                       <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                         <BarChart3 className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                         <div className="relative z-10">
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Batches</p>
                           <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                            {inventory.batchSummary?.totalBatches || 0}
-                          </p>
-                        </div>
+                        {inventory.batchSummary?.totalBatches || 0}
+                      </p>
+                    </div>
                       </div>
 
                       {/* Profit Margin */}
@@ -187,9 +187,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                             {inventory.pricingSummary?.profitMargin?.toFixed(1) || 0}%
                           </p>
-                        </div>
-                      </div>
-
+                  </div>
+                </div>
+                
                       {/* Total Value */}
                       <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                         <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
@@ -197,7 +197,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Value</p>
                           <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
                             ₹{inventory.pricingSummary?.totalSellingValue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
-                          </p>
+                      </p>
                         </div>
                       </div>
                     </div>
@@ -211,9 +211,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         <div>
                           <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Information</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic product details</p>
-                        </div>
-                      </div>
-
+                  </div>
+                </div>
+                
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Product Name */}
                         <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-lg overflow-hidden">
@@ -222,9 +222,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Product Name</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {inventory.product?.name || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
+                      </p>
+                    </div>
+                  </div>
 
                         {/* Brand */}
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
@@ -234,8 +234,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {inventory.product?.brand || 'N/A'}
                             </p>
-                          </div>
-                        </div>
+                </div>
+              </div>
 
                         {/* Category */}
                         <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
@@ -258,9 +258,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 {inventory.product.sku || 'N/A'}
                               </p>
                             </div>
-                          </div>
+                    </div>
                         )}
-                      </div>
+                    </div>
                     </div>
 
                     {/* Stock Information Card */}
@@ -268,12 +268,12 @@ const ViewInventoryPage = ({ inventoryId }) => {
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
                           <Package className="w-6 h-6 text-green-500" />
-                        </div>
+                    </div>
                         <div>
                           <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Stock Information</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Stock quantity details</p>
-                        </div>
-                      </div>
+                  </div>
+                </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Total Quantity */}
@@ -282,10 +282,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Quantity</p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {inventory.stockSummary?.totalQuantity || 0}
+                        {inventory.stockSummary?.totalQuantity || 0}
                             </p>
                           </div>
-                        </div>
+                    </div>
 
                         {/* Available */}
                         <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-lg overflow-hidden">
@@ -293,10 +293,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Available</p>
                             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                              {inventory.stockSummary?.availableQuantity || 0}
+                        {inventory.stockSummary?.availableQuantity || 0}
                             </p>
                           </div>
-                        </div>
+                    </div>
 
                         {/* Reserved */}
                         <div className="relative p-4 bg-gradient-to-br from-yellow-50/15 to-yellow-100/10 dark:from-yellow-900/5 dark:to-yellow-800/3 rounded-lg overflow-hidden">
@@ -304,10 +304,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Reserved</p>
                             <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                              {inventory.stockSummary?.reservedQuantity || 0}
+                        {inventory.stockSummary?.reservedQuantity || 0}
                             </p>
                           </div>
-                        </div>
+                    </div>
 
                         {/* Sold */}
                         <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
@@ -315,7 +315,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Sold</p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {inventory.stockSummary?.soldQuantity || 0}
+                        {inventory.stockSummary?.soldQuantity || 0}
                             </p>
                           </div>
                         </div>
@@ -365,8 +365,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                               ₹{inventory.pricingSummary?.totalPurchaseValue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
                             </p>
-                          </div>
-                        </div>
+                  </div>
+                </div>
 
                         {/* Total Profit */}
                         <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
@@ -377,8 +377,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹{inventory.pricingSummary?.totalProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
                             </p>
                           </div>
-                        </div>
-                      </div>
+                    </div>
+                    </div>
                     </div>
 
                     {/* Payment Information Card */}
@@ -387,12 +387,12 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         <div className="flex items-center space-x-3 mb-6">
                           <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
                             <Wallet className="w-6 h-6 text-purple-500" />
-                          </div>
+                    </div>
                           <div>
                             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Payment Information</h2>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">Payment status and details</p>
-                          </div>
-                        </div>
+                  </div>
+                </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {/* Payment Status */}
@@ -411,9 +411,9 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 inventory.paymentSummary?.paymentStatus === 'PAID' ? 'text-green-600 dark:text-green-400' :
                                 inventory.paymentSummary?.paymentStatus === 'UNPAID' ? 'text-red-600 dark:text-red-400' :
                                 inventory.paymentSummary?.paymentStatus === 'PARTIAL' ? 'text-yellow-600 dark:text-yellow-400' :
-                                'text-[rgb(var(--color-text-primary))]'
-                              }`}>
-                                {inventory.paymentSummary?.paymentStatus || 'N/A'}
+                        'text-[rgb(var(--color-text-primary))]'
+                      }`}>
+                        {inventory.paymentSummary?.paymentStatus || 'N/A'}
                               </p>
                             </div>
                           </div>
@@ -426,8 +426,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                                 ₹{inventory.paymentSummary?.totalPaidAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
                               </p>
-                            </div>
-                          </div>
+                    </div>
+                    </div>
 
                           {/* Total Due */}
                           <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
@@ -437,14 +437,14 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                                 ₹{inventory.paymentSummary?.totalDueAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
                               </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
                     )}
 
-                    {/* Batches Information */}
-                    {inventory.batches && inventory.batches.length > 0 && (
+              {/* Batches Information */}
+              {inventory.batches && inventory.batches.length > 0 && (
                       <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                         <div className="flex items-center space-x-3 mb-6">
                           <div className="w-12 h-12 bg-gradient-to-br from-indigo-500/20 to-indigo-500/10 rounded-full flex items-center justify-center">
@@ -456,52 +456,52 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                          <table className="w-full">
-                            <thead>
-                              <tr className="border-b border-[rgb(var(--color-border-primary))]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-[rgb(var(--color-border-primary))]">
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Batch No</th>
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Quantity</th>
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Purchase Price</th>
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Supplier</th>
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Expiry Date</th>
                                 <th className="text-left py-2 text-[rgb(var(--color-text-secondary))] text-sm font-medium">Status</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {inventory.batches.map((batch, index) => (
-                                <tr key={batch.id || index} className="border-b border-[rgb(var(--color-border-primary))]">
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {inventory.batches.map((batch, index) => (
+                          <tr key={batch.id || index} className="border-b border-[rgb(var(--color-border-primary))]">
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
-                                    {batch.batchNo || 'N/A'}
-                                  </td>
+                              {batch.batchNo || 'N/A'}
+                            </td>
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
-                                    {batch.quantity || 0}
-                                  </td>
+                              {batch.quantity || 0}
+                            </td>
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
                                     ₹{batch.purchasePrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0'}
-                                  </td>
+                            </td>
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
-                                    {batch.supplier?.name || 'N/A'}
-                                  </td>
+                              {batch.supplier?.name || 'N/A'}
+                            </td>
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
                                     {batch.expiryDate ? moment(batch.expiryDate).format('DD MMM YYYY') : 'N/A'}
-                                  </td>
+                            </td>
                                   <td className="py-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                       batch.isActive ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20' :
                                       batch.isExpired ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20' :
                                       'bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20'
-                                    }`}>
-                                      {batch.isExpired ? 'Expired' : batch.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
+                              }`}>
+                                {batch.isExpired ? 'Expired' : batch.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
                   </div>
                 </div>
@@ -573,7 +573,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                     </div>
                   </div>
                 </div>
-              </div>
+            </div>
             )}
           </div>
         </div>

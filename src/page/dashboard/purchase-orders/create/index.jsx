@@ -1154,9 +1154,6 @@ const CreatePurchaseOrder = () => {
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
                                               {item.productName || 'Selected Product'}
                                             </span>
-                                            <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                              Product ID: {item.product}
-                                            </span>
                                           </div>
                                           <div className="flex-shrink-0">
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)', color: 'rgb(var(--color-primary))' }}>

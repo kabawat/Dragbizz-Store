@@ -576,15 +576,6 @@ const ViewProductPage = ({ productId }) => {
                           {getVisibilityBadge(productData.visibility)}
                         </div>
 
-                        {/* Product ID */}
-                        {productData.id && (
-                          <div>
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Product ID</p>
-                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                              {productData.id}
-                            </p>
-                          </div>
-                        )}
 
                         {/* Created Date */}
                         {productData.createdAt && (
