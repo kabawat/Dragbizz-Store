@@ -23,11 +23,26 @@ const InvoiceTemplateSettingsContent = () => {
     }, []);
 
     // Handle template change
-    const handleTemplateChange = (template) => {
+    // const handleTemplateChange = (template) => {
+    //     setSelectedTemplate(template);
+    //     setSaved(false);
+    // };
+    const handleTemplateChange = async(template) => {
         setSelectedTemplate(template);
-        setSaved(false);
+        await localStorage.setItem('invoice-template', template);
+        setSaved(true);
+        setTimeout(() => {
+            setSaved(false);
+            goBack()
+        }, 500);
     };
-
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            router.push('/dashboard/invoices')
+        }
+    }
     // Handle save template as default
     const handleSaveTemplate = () => {
         localStorage.setItem('invoice-template', selectedTemplate);
@@ -56,13 +71,13 @@ const InvoiceTemplateSettingsContent = () => {
                     <div className="flex-shrink-0 p-6 pb-4 bg-[rgb(var(--color-bg-secondary))] sticky top-0 z-10">
                         <div className="flex items-center justify-between">
                             <button
-                                onClick={() => router.push('/dashboard/invoices')}
+                                onClick={() => goBack()}
                                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 <span className="text-sm font-medium">Back to Invoices</span>
                             </button>
-                            <Button
+                            {/* <Button
                                 onClick={handleSaveTemplate}
                                 variant="primary"
                                 className="flex items-center gap-2"
@@ -79,7 +94,7 @@ const InvoiceTemplateSettingsContent = () => {
                                         Save as Default
                                     </>
                                 )}
-                            </Button>
+                            </Button> */}
                         </div>
                     </div>
 
@@ -89,68 +104,67 @@ const InvoiceTemplateSettingsContent = () => {
                             {/* Settings Card */}
                             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl">
 
-                            {/* Template Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                {TEMPLATE_OPTIONS.map((template) => (
-                                    <button
-                                        key={template.value}
-                                        onClick={() => handleTemplateChange(template.value)}
-                                        className={`relative p-1 rounded-lg border-2 overflow-hidden transition-all ${
-                                            selectedTemplate === template.value
+                                {/* Template Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {TEMPLATE_OPTIONS.map((template) => (
+                                        <button
+                                            key={template.value}
+                                            onClick={() => handleTemplateChange(template.value)}
+                                            className={`relative p-1 rounded-lg border-2 overflow-hidden transition-all ${selectedTemplate === template.value
                                                 ? 'border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/40 bg-[rgb(var(--color-primary))]/10'
                                                 : 'border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]'
-                                        }`}
-                                    >
-                                        {selectedTemplate === template.value && (
-                                            <div className="absolute top-2 right-2 z-10">
-                                                <div className="w-6 h-6 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center shadow-lg">
-                                                    <CheckCircle className="w-4 h-4 text-white" />
+                                                }`}
+                                        >
+                                            {selectedTemplate === template.value && (
+                                                <div className="absolute top-2 right-2 z-10">
+                                                    <div className="w-6 h-6 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center shadow-lg">
+                                                        <CheckCircle className="w-4 h-4 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="relative">
+                                                <img
+                                                    src={template.preview}
+                                                    alt={template.label}
+                                                    className="w-full h-40 object-cover rounded-md"
+                                                    onError={(e) => {
+                                                        // Fallback if image doesn't load
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextElementSibling.style.display = 'flex';
+                                                    }}
+                                                />
+                                                <div className="hidden flex-col items-center justify-center h-40 bg-[rgb(var(--color-bg-tertiary))] rounded-md">
+                                                    <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                                                        {template.label}
+                                                    </div>
+                                                    <div className="text-xs text-[rgb(var(--color-text-secondary))] text-center px-2">
+                                                        {template.description}
+                                                    </div>
+                                                </div>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 rounded-b-md">
+                                                    <div className="text-xs font-semibold text-white text-center">
+                                                        {template.label}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        )}
-                                        <div className="relative">
-                                            <img
-                                                src={template.preview}
-                                                alt={template.label}
-                                                className="w-full h-40 object-cover rounded-md"
-                                                onError={(e) => {
-                                                    // Fallback if image doesn't load
-                                                    e.target.style.display = 'none';
-                                                    e.target.nextElementSibling.style.display = 'flex';
-                                                }}
-                                            />
-                                            <div className="hidden flex-col items-center justify-center h-40 bg-[rgb(var(--color-bg-tertiary))] rounded-md">
-                                                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
-                                                    {template.label}
-                                                </div>
-                                                <div className="text-xs text-[rgb(var(--color-text-secondary))] text-center px-2">
-                                                    {template.description}
-                                                </div>
-                                            </div>
-                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 rounded-b-md">
-                                                <div className="text-xs font-semibold text-white text-center">
-                                                    {template.label}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Current Selection Info */}
-                            <div className="mt-6 p-4 bg-[rgb(var(--color-bg-tertiary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
-                                <div className="flex items-center gap-2">
-                                    <Settings className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                                    <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                        Current Selection: <span className="text-[rgb(var(--color-primary))]">
-                                            {TEMPLATE_OPTIONS.find(t => t.value === selectedTemplate)?.label || 'Modern'}
-                                        </span>
-                                    </span>
+                                        </button>
+                                    ))}
                                 </div>
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
-                                    Click "Save as Default" to set this template as your default. It will be automatically used for all new invoices.
-                                </p>
-                            </div>
+
+                                {/* Current Selection Info */}
+                                <div className="mt-6 p-4 bg-[rgb(var(--color-bg-tertiary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
+                                    <div className="flex items-center gap-2">
+                                        <Settings className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                                        <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                            Current Selection: <span className="text-[rgb(var(--color-primary))]">
+                                                {TEMPLATE_OPTIONS.find(t => t.value === selectedTemplate)?.label || 'Modern'}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
+                                        Click "Save as Default" to set this template as your default. It will be automatically used for all new invoices.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
