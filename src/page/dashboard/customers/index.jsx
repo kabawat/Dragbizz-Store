@@ -113,10 +113,13 @@ const CustomersPage = () => {
     lastFetchRef.current = fetchKey;
     
     try {
+      const isInitialLoad = !isLoadMore && customers.length === 0;
+
       if (isLoadMore) {
         setIsLoadingMore(true);
       } else {
-        setIsLoading(true);
+        // Only trigger skeleton when we truly have no data; keep table visible during refresh/search
+        setIsLoading(isInitialLoad);
       }
       setError(null);
       
@@ -154,7 +157,7 @@ const CustomersPage = () => {
         setIsLoading(false);
       }
     }
-  }, [storeId, searchValue]);
+  }, [storeId, searchValue, customers.length]);
 
   // Reset fetch refs and pagination when search or store changes
   useEffect(() => {
@@ -166,27 +169,26 @@ const CustomersPage = () => {
     });
   }, [storeId, searchValue]);
 
-  // Fetch customers on component mount and when dependencies change
+  // Fetch customers on component mount and when dependencies change (debounced for search)
   useEffect(() => {
     if (!storeId) return;
-    
-    // Prevent duplicate calls
-    const lastFetched = hasFetchedRef.current;
-    if (
-      lastFetched.fetched &&
-      lastFetched.storeId === storeId &&
-      lastFetched.searchValue === searchValue
-    ) {
-      return;
-    }
 
-    // Prevent call if already loading
-    if (isLoading) {
-      return;
-    }
+    const shouldSkip = () => {
+      const lastFetched = hasFetchedRef.current;
+      return (
+        lastFetched.fetched &&
+        lastFetched.storeId === storeId &&
+        lastFetched.searchValue === searchValue
+      ) || isLoading;
+    };
 
-    fetchCustomers(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (shouldSkip()) return;
+
+    const timer = setTimeout(() => {
+      fetchCustomers(false);
+    }, 350); 
+
+    return () => clearTimeout(timer);
   }, [storeId, searchValue]);
 
   // Infinite scroll logic - load more customers
@@ -313,6 +315,8 @@ const CustomersPage = () => {
     localStorage.setItem('customers-view-mode', mode);
   };
 
+  const showSkeleton = isLoading && customers.length === 0 && !error;
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
@@ -326,8 +330,8 @@ const CustomersPage = () => {
         {/* Main Content */}
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-            {/* Loading State */}
-            {isLoading && customers.length === 0 && (
+            {/* Loading State - only when loading with no data and no error */}
+            {showSkeleton && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
@@ -343,52 +347,50 @@ const CustomersPage = () => {
               </div>
             )}
 
-            {/* Search and Filter Card */}
-            {customers.length > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                  {/* Search */}
-                  <div className="w-100">
-                    <Input
-                      type="text"
-                      placeholder="Search customers..."
-                      value={searchValue}
-                      onChange={(value) => handleSearch(value)}
-                      leftIcon={Search}
-                      className="w-100"
-                    />
+            {/* Search and Filter Card - always visible so search stays on empty results */}
+            <div className="mb-3">
+              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                {/* Search */}
+                <div className="w-100">
+                  <Input
+                    type="text"
+                    placeholder="Search customers..."
+                    value={searchValue}
+                    onChange={(value) => handleSearch(value)}
+                    leftIcon={Search}
+                    className="w-100"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  {/* View Toggle */}
+                  <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                    <button
+                      onClick={() => handleViewModeChange('table')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                        }`}
+                    >
+                      <List className="w-4 h-4" />
+                      Table
+                    </button>
+                    <button
+                      onClick={() => handleViewModeChange('card')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                      Cards
+                    </button>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-3">
-                    {/* View Toggle */}
-                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                            ? 'bg-[rgb(var(--color-primary))] text-white'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
-                      >
-                        <List className="w-4 h-4" />
-                        Table
-                      </button>
-                      <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        Cards
-                      </button>
-                    </div>
-
-                    <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
-                      Add Customer
-                    </Button>
-                  </div>
+                  <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
+                    Add Customer
+                  </Button>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Empty State */}
             {!isLoading && customers.length === 0 && (
@@ -401,9 +403,18 @@ const CustomersPage = () => {
                     No customers found
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    {error ? `Error: ${error}` : 'No customers match your current criteria. Try adjusting your search or add new customers.'}
+                    {error
+                      ? `Error: ${error}`
+                      : searchValue
+                        ? `No customers match "${searchValue}". Try a different search or clear the filter.`
+                        : 'No customers match your current criteria. Try adjusting your search or add new customers.'}
                   </p>
-                  <div className="pt-4">
+                  <div className="pt-4 flex gap-3">
+                    {searchValue && (
+                      <Button variant="outline" onClick={() => setSearchValue('')}>
+                        Clear search
+                      </Button>
+                    )}
                     <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
                       Add Customer
                     </Button>
