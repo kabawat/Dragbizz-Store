@@ -1,99 +1,137 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { FileText, Building2, User, Calendar, IndianRupee, AlertTriangle, CheckCircle, Clock, Percent, Download } from 'lucide-react';
+import moment from 'moment';
+import {
+  FileText,
+  Building2,
+  User,
+  IndianRupee,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Percent,
+  Download
+} from 'lucide-react';
 import { invoiceService } from '@/service/retailer';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
-const ViewInvoicePublic = ({ invoiceId }) => {
-  const router = useRouter();
+/**
+ * ViewInvoiceStructured
+ * - Fetches public invoice by invoiceId
+ * - Renders structured modern template (matches second template styles)
+ * - Keeps status badges (payment & invoice)
+ * - Web + Print friendly
+ *
+ * Usage: <ViewInvoiceStructured invoiceId={publicId} />
+ */
+
+const accentColor = '#2980b9';
+
+const getStatusBadgeCommon = (status, type = 'invoice') => {
+  // minimal mapping similar to first component
+  const s = (status || '').toString().toUpperCase();
+  const config = {
+    text: status || 'Unknown',
+    variant: 'secondary',
+  };
+
+  if (s === 'PAID' || s === 'RELEASED') {
+    config.variant = 'success';
+    config.text = 'Paid';
+  } else if (s === 'UNPAID') {
+    config.variant = 'danger';
+    config.text = 'Unpaid';
+  } else if (s === 'PAY_LATER' || s === 'PAY_LATTER' || s === 'DRAFT') {
+    config.variant = 'warning';
+    config.text = 'Pending';
+  } else if (s === 'CANCELLED') {
+    config.variant = 'danger';
+    config.text = 'Cancelled';
+  } else {
+    config.variant = 'primary';
+  }
+
+  const colorMap = {
+    success: `background: rgba(16,185,129,0.08); color: #065f46; border: 1px solid rgba(16,185,129,0.18);`,
+    danger: `background: rgba(239,68,68,0.08); color: #7f1d1d; border: 1px solid rgba(239,68,68,0.18);`,
+    warning: `background: rgba(234,179,8,0.08); color: #7c2d12; border: 1px solid rgba(234,179,8,0.18);`,
+    primary: `background: rgba(41,128,185,0.08); color: ${accentColor}; border: 1px solid rgba(41,128,185,0.18);`,
+    secondary: `background: rgba(107,114,128,0.06); color: #374151; border: 1px solid rgba(107,114,128,0.12);`,
+  };
+
+  const iconMap = {
+    PAID: CheckCircle,
+    UNPAID: AlertTriangle,
+    PAY_LATER: Clock,
+    PAY_LATTER: Clock,
+    RELEASED: CheckCircle,
+    DRAFT: Clock,
+    CANCELLED: AlertTriangle,
+  };
+
+  return {
+    text: config.text,
+    style: colorMap[config.variant] || colorMap.secondary,
+    Icon: iconMap[s] || Clock,
+  };
+};
+
+const formatCurrency = (amount) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount || 0);
+
+const formatDate = (d) =>
+  d ? moment(d).format('D MMM, YYYY') : '-';
+
+const formatAddress = (addr) => {
+  if (!addr) return 'N/A';
+  if (typeof addr === 'string') return addr;
+  const { line1, line2, city, state, pincode, country, location, ...rest } = addr || {};
+  const parts = [line1, line2, city, state, pincode, country, location].filter(Boolean);
+  const extra = Object.values(rest || {}).filter(Boolean);
+  return [...parts, ...extra].join(', ') || 'N/A';
+};
+
+const ViewInvoiceStructured = ({ invoiceId }) => {
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!invoiceId) return;
+    let mounted = true;
     const fetchInvoice = async () => {
-      if (!invoiceId) return;
       try {
         setLoading(true);
-        const result = await invoiceService.getPublicInvoice(invoiceId);
-        if (result.success && result.data) {
-          setInvoice(result.data);
+        const res = await invoiceService.getPublicInvoice(invoiceId);
+        if (!mounted) return;
+        if (res?.success && res?.data) {
+          setInvoice(res.data);
         } else {
           setError('Invoice not found');
         }
-      } catch (err) {
+      } catch (e) {
         setError('Failed to load invoice');
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
-
     fetchInvoice();
+    return () => { mounted = false; };
   }, [invoiceId]);
 
-  const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount || 0);
-  const formatDate = (date) => (date ? new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '-');
-  const formatAddress = (addr) => {
-    if (!addr) return 'N/A';
-    if (typeof addr === 'string') return addr;
-    if (typeof addr === 'object') {
-      const { line1, line2, city, state, pincode, country, location, ...rest } = addr;
-      const parts = [
-        line1,
-        line2,
-        city,
-        state,
-        pincode,
-        country,
-        location,
-      ].filter(Boolean);
-      // Include other fields if present
-      const extra = Object.values(rest || {}).filter(Boolean);
-      return [...parts, ...extra].join(', ') || 'N/A';
-    }
-    return String(addr);
-  };
-
   const handleDownload = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
-  };
-
-  const getStatusBadge = (status, type) => {
-    const config = getCommonStatusBadge(status, type || 'invoice');
-    const variant = config.variant || 'secondary';
-    const colorMap = {
-      success: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700',
-      danger: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700',
-      warning: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700',
-      primary: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700',
-      secondary: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700',
-    };
-    const iconMap = {
-      PAID: CheckCircle,
-      UNPAID: AlertTriangle,
-      PAY_LATTER: Clock,
-      RELEASED: CheckCircle,
-      DRAFT: Clock,
-      CANCELLED: AlertTriangle,
-    };
-    return {
-      text: config.text,
-      Icon: iconMap[(status || '').toUpperCase()] || Clock,
-      color: colorMap[variant] || colorMap.secondary,
-    };
+    if (typeof window !== 'undefined') window.print();
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(var(--color-bg-primary, 248 249 250))' }}>
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">Loading Invoice...</h2>
-          <p className="text-[rgb(var(--color-text-secondary))]">Please wait while we fetch the details</p>
+          <div style={{
+            width: 64, height: 64, border: '4px solid rgba(0,0,0,0.08)',
+            borderTopColor: accentColor, borderRadius: '9999px'
+          }} className="animate-spin mx-auto mb-4" />
+          <h2 style={{ fontSize: 20, fontWeight: 600 }}>Loading Invoice...</h2>
         </div>
       </div>
     );
@@ -101,212 +139,341 @@ const ViewInvoicePublic = ({ invoiceId }) => {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(var(--color-bg-primary, 248 249 250))' }}>
+        <div className="text-center p-8">
+          <div style={{ width: 64, height: 64, borderRadius: 9999, background: 'rgba(239,68,68,0.08)' }} className="mx-auto mb-4 flex items-center justify-center">
+            <AlertTriangle style={{ color: '#dc2626' }} />
           </div>
-          <h2 className="text-xl font-semibold text-[rgb(var(--color-text-primary))] mb-2">Invoice Not Found</h2>
-          <p className="text-[rgb(var(--color-text-secondary))]">{error || 'The invoice you are looking for does not exist.'}</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700 }}>Invoice Not Found</h2>
+          <p style={{ color: '#6b7280' }}>{error || 'The invoice you are looking for does not exist.'}</p>
         </div>
       </div>
     );
   }
 
-  const paymentBadge = getStatusBadge(invoice.paymentStatus, 'invoice');
-  const invoiceBadge = getStatusBadge(invoice.invoiceStatus, 'invoice');
+  const paymentBadge = getStatusBadgeCommon(invoice.paymentStatus, 'invoice');
+  const invoiceBadge = getStatusBadgeCommon(invoice.invoiceStatus, 'invoice');
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
-        {/* Decorative Background */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] opacity-5">
-          <svg className="w-full h-full" viewBox="0 0 1200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,60 C300,120 900,0 1200,60 L1200,0 L0,0 Z" fill="currentColor" className="text-[rgb(var(--color-primary))]"/>
-          </svg>
+      <>
+        <style jsx global>{`
+          @media print {
+            body {
+              background: white !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            .modern-invoice { box-shadow: none !important; margin: 0 !important; }
+          }
+
+          body {
+            font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+            background: #f3f4f6 !important;
+            color: #34495e !important;
+          }
+
+          .modern-invoice {
+            width: 100%;
+            max-width: 900px;
+            margin: 32px auto;
+            background: white;
+            padding: 36px;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+          }
+
+          .modern-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 18px;
+            border-bottom: 3px solid ${accentColor};
+            gap: 16px;
+          }
+
+          .modern-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+          }
+
+          .brand-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 9999px;
+            background: ${accentColor};
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-shadow: 0 6px 18px rgba(41,128,185,0.12);
+          }
+
+          .modern-header-left h1 {
+            font-size: 28px;
+            color: ${accentColor};
+            margin: 0;
+            font-weight: 700;
+          }
+
+          .modern-header-right { text-align: right; }
+          .modern-header-right .invoice-detail { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+          .modern-header-right .invoice-detail span { font-weight: 400; color: #6b7280; margin-left: 8px; }
+
+          .badges-row { display:flex; gap:12px; justify-content:center; margin:18px 0; flex-wrap:wrap; }
+
+          .badge {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 12px;
+            border-radius:999px;
+            font-size:13px;
+            font-weight:600;
+            border:1px solid rgba(0,0,0,0.06);
+          }
+
+          .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:20px; }
+
+          .info-card {
+            background: #fafafa;
+            padding:14px;
+            border-radius:10px;
+          }
+
+          .info-card h3 {
+            margin:0 0 8px 0;
+            font-size:13px;
+            color:${accentColor};
+            text-transform:uppercase;
+            letter-spacing:0.6px;
+            border-bottom:1px solid #eef2f6;
+            padding-bottom:6px;
+          }
+
+          .amounts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:20px; }
+
+          .amount-card {
+            padding:14px;
+            border-radius:10px;
+            position:relative;
+            overflow:hidden;
+            background: linear-gradient(180deg, rgba(41,128,185,0.03), rgba(41,128,185,0.01));
+          }
+
+          .items-table-wrap {
+            margin-top:18px;
+            border-radius:10px;
+            overflow:hidden;
+            border:1px solid #eef2f6;
+          }
+
+          table.modern-table {
+            width:100%;
+            border-collapse: collapse;
+          }
+          table.modern-table thead th {
+            padding:12px 10px;
+            text-align:left;
+            font-weight:700;
+            font-size:12px;
+            color:white;
+            background:${accentColor};
+            text-transform:uppercase;
+          }
+          table.modern-table td {
+            padding:12px 10px;
+            border-bottom:1px solid #eef2f6;
+            font-size:14px;
+          }
+          table.modern-table tbody tr:nth-child(even) { background:#fbfcfd; }
+
+          .totals {
+            display:flex;
+            justify-content:flex-end;
+            margin-top:18px;
+          }
+          .totals .box {
+            width:320px;
+            background:transparent;
+          }
+          .total-row { display:flex; justify-content:space-between; padding:8px 0; font-size:15px; color:#34495e; }
+          .total-row.final { border-top:2px solid ${accentColor}; padding-top:12px; margin-top:8px; font-weight:800; color:${accentColor}; font-size:18px; }
+
+          .modern-footer { margin-top:28px; border-top:1px solid #eef2f6; padding-top:18px; display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+          .modern-footer .terms { width:65%; color:#6b7280; font-size:13px; }
+          .modern-footer .signature { width:30%; text-align:right; color:#9ca3af; font-size:13px; border-top:1px dashed #d1d5db; padding-top:10px; }
+
+          .print-btn { display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:8px; background:${accentColor}; color:white; font-weight:700; border:none; cursor:pointer; }
+        `}</style>
+
+        <div className="modern-invoice">
+          <div className="modern-header">
+            <div className="modern-header-left">
+              <div className="brand-circle" aria-hidden>
+                <FileText style={{ color: 'white' }} />
+              </div>
+              <div>
+                <h1>INVOICE</h1>
+                <div style={{ color: '#6b7280', marginTop: 6 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>
+                    #{invoice.invoiceNumber || invoice.publicId || invoiceId}
+                  </div>
+                  <div style={{ fontSize: 13 }}>{invoice.store?.name || 'Store'}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="modern-header-right">
+              <div className="invoice-detail">Invoice #: <span>{invoice.invoiceNumber || invoice.publicId || invoiceId}</span></div>
+              <div className="invoice-detail">Date: <span>{formatDate(invoice.createdAt || invoice.releasedAt)}</span></div>
+              <div className="invoice-detail">Released: <span>{invoice.releasedAt ? formatDate(invoice.releasedAt) : '-'}</span></div>
+
+              <div style={{ marginTop: 12 }}>
+                <button className="print-btn no-print" onClick={handleDownload}>
+                  <Download style={{ width: 16, height: 16 }} />
+                  Print / Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="badges-row">
+            <span className="badge" style={{ ...parseStyle(invoiceBadge.style) }}>
+              <invoiceBadge.Icon style={{ width: 16, height: 16 }} />
+              {invoiceBadge.text}
+            </span>
+            <span className="badge" style={{ ...parseStyle(paymentBadge.style) }}>
+              <paymentBadge.Icon style={{ width: 16, height: 16 }} />
+              {paymentBadge.text}
+            </span>
+          </div>
+
+          <div className="info-grid">
+            <div className="info-card">
+              <h3><Building2 style={{ width: 14, height: 14, marginRight: 8 }} /> Store Information</h3>
+              <p style={{ fontWeight: 700 }}>{invoice.store?.name || 'N/A'}</p>
+              <p>{formatAddress(invoice.store?.address)}</p>
+              <p>Phone: {invoice.store?.phone || 'N/A'}</p>
+              <p>Email: {invoice.store?.email || 'N/A'}</p>
+              {invoice.store?.gstNumber && <p>GST: {invoice.store.gstNumber}</p>}
+            </div>
+
+            <div className="info-card">
+              <h3><User style={{ width: 14, height: 14, marginRight: 8 }} /> Customer Information</h3>
+              <p style={{ fontWeight: 700 }}>{invoice.customer?.name || 'Walk-in Customer'}</p>
+              {invoice.customer?.address && <p>{invoice.customer.address}</p>}
+              <p>Phone: {invoice.customer?.phone || 'N/A'}</p>
+              <p>Email: {invoice.customer?.email || 'N/A'}</p>
+              {invoice.releasedAt && <p>Released: {formatDate(invoice.releasedAt)}</p>}
+            </div>
+          </div>
+
+          <div className="amounts-grid">
+            <div className="amount-card">
+              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Subtotal</div>
+              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{formatCurrency(invoice.subtotal)}</div>
+            </div>
+            <div className="amount-card">
+              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>GST</div>
+              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{formatCurrency(invoice.gstAmount)}</div>
+            </div>
+            <div className="amount-card">
+              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Total Amount</div>
+              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 8, color: accentColor }}>{formatCurrency(invoice.totalAmount)}</div>
+            </div>
+            <div className="amount-card">
+              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Paid / Due</div>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Paid: {formatCurrency(invoice.paidAmount)}</div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Due: {formatCurrency(invoice.dueAmount)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="items-table-wrap">
+            <table className="modern-table" role="table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>GST</th>
+                  <th>Discount</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(invoice.items) && invoice.items.length > 0 ? invoice.items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <div style={{ fontWeight: 700 }}>{item.name || (item.product?.name) || 'Item'}</div>
+                      {item.barcode && <div style={{ fontSize: 12, color: '#6b7280' }}>Barcode: {item.barcode}</div>}
+                    </td>
+                    <td>{item.quantity || 0}</td>
+                    <td>{formatCurrency(item.price)}</td>
+                    <td>{item.gstRate ? `${item.gstRate}%` : '0%'}</td>
+                    <td>{item.discount ? `${item.discount}%` : '0%'}</td>
+                    <td>{formatCurrency(item.total)}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={6} style={{ padding: 20, textAlign: 'center', color: '#6b7280' }}>No items available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="totals">
+            <div className="box">
+              <div className="total-row">
+                <div className="label">Subtotal</div>
+                <div>{formatCurrency(invoice.subtotal)}</div>
+              </div>
+              <div className="total-row">
+                <div className="label">GST</div>
+                <div>{formatCurrency(invoice.gstAmount)}</div>
+              </div>
+              {invoice.totalDiscount > 0 && (
+                <div className="total-row">
+                  <div className="label">Discount</div>
+                  <div style={{ color: '#e11d48' }}>- {formatCurrency(invoice.totalDiscount)}</div>
+                </div>
+              )}
+              <div className="total-row final">
+                <div className="label">Grand Total</div>
+                <div>{formatCurrency(invoice.totalAmount)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="modern-footer">
+            <div className="terms">
+              <h4 style={{ margin: 0, color: accentColor }}>Payment Terms & Notes</h4>
+              <p style={{ marginTop: 8 }}>Payment due within 7 days of invoice date. Thank you for choosing our services.</p>
+              <p style={{ marginTop: 8, color: '#6b7280' }}>Generated on {moment(invoice.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
+            </div>
+            <div className="signature">Authorized Signature</div>
+          </div>
         </div>
-
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-8 py-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <FileText className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
-              Invoice #{invoice.invoiceNumber || invoice.publicId || invoiceId}
-            </h1>
-            <p className="text-lg text-[rgb(var(--color-text-secondary))]">
-              Thank you for your business!
-            </p>
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={handleDownload}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[rgb(var(--color-primary))] text-white hover:opacity-90 transition-colors shadow-md"
-              >
-                <Download className="w-4 h-4" />
-                Download / Print
-              </button>
-            </div>
-          </div>
-
-          {/* Invoice Card */}
-          <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-sm p-10 max-w-5xl w-full mb-8">
-            {/* Badges */}
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${invoiceBadge.color}`}>
-                <invoiceBadge.Icon className="w-4 h-4 mr-1" />
-                {invoiceBadge.text}
-              </span>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${paymentBadge.color}`}>
-                <paymentBadge.Icon className="w-4 h-4 mr-1" />
-                {paymentBadge.text}
-              </span>
-            </div>
-
-            {/* Store & Customer */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
-                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                  <Building2 className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-                  Store Information
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Store Name:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold text-right">{invoice.store?.name || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Phone:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold">{invoice.store?.phone || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Email:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold">{invoice.store?.email || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Address:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold text-right max-w-[60%]">
-                      {formatAddress(invoice.store?.address)}
-                    </span>
-                  </div>
-                  {invoice.store?.gstNumber && (
-                    <div className="flex justify-between">
-                      <span className="text-[rgb(var(--color-text-secondary))]">GST:</span>
-                      <span className="text-[rgb(var(--color-text-primary))] font-semibold">{invoice.store.gstNumber}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6">
-                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                  <User className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-                  Customer Information
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Customer Name:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold text-right">{invoice.customer?.name || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Phone:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold">{invoice.customer?.phone || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">Email:</span>
-                    <span className="text-[rgb(var(--color-text-primary))] font-semibold break-all">{invoice.customer?.email || 'N/A'}</span>
-                  </div>
-                  {invoice.releasedAt && (
-                    <div className="flex justify-between">
-                      <span className="text-[rgb(var(--color-text-secondary))]">Released:</span>
-                      <span className="text-[rgb(var(--color-text-primary))] font-semibold">{formatDate(invoice.releasedAt)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Amounts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
-                <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
-                <div className="relative z-10">
-                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Subtotal</p>
-                  <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(invoice.subtotal)}</p>
-                </div>
-              </div>
-              <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
-                <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
-                <div className="relative z-10">
-                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST</p>
-                  <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(invoice.gstAmount)}</p>
-                </div>
-              </div>
-              <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
-                <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
-                <div className="relative z-10">
-                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Amount</p>
-                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{formatCurrency(invoice.totalAmount)}</p>
-                </div>
-              </div>
-              <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
-                <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
-                <div className="relative z-10">
-                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Paid / Due</p>
-                  <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Paid: {formatCurrency(invoice.paidAmount)}</p>
-                  <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Due: {formatCurrency(invoice.dueAmount)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            {invoice.items && invoice.items.length > 0 && (
-              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-6 border border-[rgb(var(--color-border-primary))] mb-8">
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                  <FileText className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-                  Items
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))]">
-                        <th className="py-2 text-left font-medium">Item</th>
-                        <th className="py-2 text-left font-medium">Qty</th>
-                        <th className="py-2 text-left font-medium">Price</th>
-                        <th className="py-2 text-left font-medium">GST</th>
-                        <th className="py-2 text-left font-medium">Discount</th>
-                        <th className="py-2 text-left font-medium">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-                      {invoice.items.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">
-                            <div className="font-semibold">{item.name || 'Item'}</div>
-                            {item.barcode && <div className="text-xs text-[rgb(var(--color-text-secondary))]">Barcode: {item.barcode}</div>}
-                          </td>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">{item.quantity || 0}</td>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">{formatCurrency(item.price)}</td>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">{item.gstRate ? `${item.gstRate}%` : '0%'}</td>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">{item.discount ? `${item.discount}%` : '0%'}</td>
-                          <td className="py-2 text-[rgb(var(--color-text-primary))]">{formatCurrency(item.total)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="mt-8 text-center text-[rgb(var(--color-text-secondary))] text-sm">
-            <p className="font-semibold">Powered by <span className="text-[rgb(var(--color-primary))] font-bold">DragBizz</span></p>
-          </div>
-        </div>
-      </div>
+      </>
     </ThemeProvider>
   );
 };
 
-export default ViewInvoicePublic;
+// Helper to convert inline style string to object used above badges
+function parseStyle(styleStr = '') {
+  // styleStr like "background:...; color:...; border:..."
+  const obj = {};
+  styleStr.split(';').forEach(s => {
+    const [k, v] = s.split(':') || [];
+    if (!k || !v) return;
+    const key = k.trim().replace(/-([a-z])/g, (m, p1) => p1.toUpperCase());
+    obj[key] = v.trim();
+  });
+  return obj;
+}
+
+export default ViewInvoiceStructured;
