@@ -135,7 +135,7 @@ const InvoicesListTable = ({
     return (
         <div className="w-full">
             <table className="w-full">
-                <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
+                <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
                     <tr>
                         <th className="px-4 py-3 text-left">
                             <input
@@ -294,7 +294,7 @@ const InvoicesListTable = ({
                                                                 </button>
                                                                 <button
                                                                     onClick={() => {
-                                                                        onRelease?.(invoiceId);
+                                                                        onRelease?.(invoice);
                                                                         setOpenMenuId(null);
                                                                     }}
                                                                     className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
@@ -331,7 +331,7 @@ const InvoicesListTable = ({
                                                                 <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                                                                 <button
                                                                     onClick={() => {
-                                                                        onDelete?.(invoiceId);
+                                                                        onDelete?.(invoice);
                                                                         setOpenMenuId(null);
                                                                     }}
                                                                     className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
