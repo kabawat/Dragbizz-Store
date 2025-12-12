@@ -5,3 +5,4 @@ export { default as InvoiceDeleteSuccessModal } from './InvoiceDeleteSuccessModa
 export { default as InvoiceErrorModal } from './InvoiceErrorModal';
 export { default as UpdatePaymentStatusModal } from './UpdatePaymentStatusModal';
 export { default as ReleaseInvoiceModal } from './ReleaseInvoiceModal';
+export { default as InvoiceDownloadDrawer } from './InvoiceDownloadDrawer';
