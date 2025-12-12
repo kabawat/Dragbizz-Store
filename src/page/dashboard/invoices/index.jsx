@@ -1,21 +1,21 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, CheckCircle, Download } from 'lucide-react';
+import { Plus, Grid3X3, List, FileText, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getInvoices, deleteInvoice, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
+import { getInvoices, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, SettingsPanel, Select } from '@/components/ui';
+import { AnimatedBackground, Select } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
-import { invoiceService, customerService } from '@/service';
+import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
+import { customerService } from '@/service';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InvoicesPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { showError, showSuccess } = useGlobalToast();
+  const { showError } = useGlobalToast();
 
   // Redux store data
   const {
@@ -30,38 +30,22 @@ const InvoicesPage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Local state
-  const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [invoiceToUpdatePayment, setInvoiceToUpdatePayment] = useState(null);
-  const [deletedInvoiceName, setDeletedInvoiceName] = useState('');
-  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
-  const [showReleaseModal, setShowReleaseModal] = useState(false);
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState('PAID');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [errorDetails, setErrorDetails] = useState(null);
   const [customerFilter, setCustomerFilter] = useState('');
   const [customerOptions, setCustomerOptions] = useState([]);
   const [isCustomerOptionsLoading, setIsCustomerOptionsLoading] = useState(false);
-  const [isReleasing, setIsReleasing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
 
   // Error display
   useEffect(() => {
     if (error) {
-      setErrorDetails({
-        title: 'Error loading invoices',
-        message: error,
-        details: 'Please check your connection and try again'
-      });
-      setShowErrorModal(true);
+      showError(error || 'Failed to load invoices. Please check your connection and try again.');
     }
-  }, [error]);
+  }, [error, showError]);
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem('invoices-view-mode');
@@ -235,10 +219,6 @@ const InvoicesPage = () => {
     };
   }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, handleLoadMore]);
 
-  const handleStoreChange = () => {
-    // Store change handled by Redux
-  };
-
   // Customer filter change
   const handleCustomerFilterChange = (value) => {
     setCustomerFilter(value || '');
@@ -261,118 +241,19 @@ const InvoicesPage = () => {
     router.push(`/dashboard/invoices/view/${invoiceId}`);
   };
 
-  const handleReleaseInvoice = (invoiceId) => {
-    const invoice = invoices.find(i => (i.id || i._id) === invoiceId);
-    setInvoiceToRelease({
-      id: invoiceId,
-      invoice: invoice,
-      name: invoice?.invoiceNumber || `INV-${invoiceId?.slice(-6)}`
-    });
-    setPaymentStatus(invoice?.paymentStatus || 'PAID');
-    setShowReleaseModal(true);
-  };
-
-  const handleConfirmRelease = async (payload) => {
-    if (!invoiceToRelease) return;
-
-    setIsReleasing(true);
-    try {
-      const storeId = selectedStore?.storeId;
-      const result = await invoiceService.releaseInvoice(
-        invoiceToRelease.id, 
-        payload.paymentStatus, 
-        storeId,
-        payload.paidAmount || null
-      );
-
-      if (result.success) {
-        // Refresh the invoices list to show updated status
-        const refreshParams = {
-          store: storeId,
-          customer: customerFilter || undefined,
-          limit: 20,
-          cursor: null,
-          isFreshLoad: true
-        };
-        await dispatch(getInvoices(refreshParams));
-
-        setShowReleaseModal(false);
-        setInvoiceToRelease(null);
-
-        // Auto-redirect to view invoice page after successful release
-        router.push(`/dashboard/invoices/view/${invoiceToRelease.id}`);
-      } else {
-        showError('Failed to release invoice. Please try again.');
-        setShowReleaseModal(false);
-        setInvoiceToRelease(null);
-      }
-    } catch (error) {
-      showError('An error occurred while releasing the invoice. Please try again.');
-      setShowReleaseModal(false);
-      setInvoiceToRelease(null);
-    } finally {
-      setIsReleasing(false);
-    }
+  const handleReleaseInvoice = (invoice) => {
+    setInvoiceToRelease(invoice);
   };
 
   const handleCancelRelease = () => {
-    setShowReleaseModal(false);
     setInvoiceToRelease(null);
   };
 
   const handleUpdatePaymentStatus = (invoiceId, invoice) => {
-    setInvoiceToUpdatePayment({
-      id: invoiceId,
-      invoice: invoice
-    });
-    setShowPaymentStatusModal(true);
-  };
-
-  const handleConfirmPaymentStatusUpdate = async (payload) => {
-    if (!invoiceToUpdatePayment) return;
-
-    setIsUpdatingPayment(true);
-    try {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-      if (!storeId) {
-        showError('Store ID is missing. Please select a store.');
-        setIsUpdatingPayment(false);
-        return;
-      }
-
-      // Use new payment status update API (only for RELEASED invoices)
-      const result = await invoiceService.updatePaymentStatus(
-        invoiceToUpdatePayment.id,
-        payload.paymentStatus,
-        null, // paymentMode (optional)
-        storeId, // storeId (required for middleware)
-        payload.paidAmount || null // paidAmount (optional, for PAY_LATTER)
-      );
-
-      if (result.success) {
-        showSuccess('Payment status updated successfully');
-        const refreshParams = {
-          store: storeId,
-          customer: customerFilter || undefined,
-          limit: 20,
-          cursor: null,
-          isFreshLoad: true
-        };
-        await dispatch(getInvoices(refreshParams));
-        setShowPaymentStatusModal(false);
-        setInvoiceToUpdatePayment(null);
-      } else {
-        showError(result.message || 'Failed to update payment status. Please try again.');
-      }
-    } catch (error) {
-      showError('An error occurred while updating payment status. Please try again.');
-    } finally {
-      setIsUpdatingPayment(false);
-    }
+    setInvoiceToUpdatePayment(invoice);
   };
 
   const handleCancelPaymentStatusUpdate = () => {
-    setShowPaymentStatusModal(false);
     setInvoiceToUpdatePayment(null);
   };
 
@@ -390,42 +271,11 @@ const InvoicesPage = () => {
     }
   };
 
-  const handleDeleteInvoice = (invoiceId) => {
-    const invoice = invoices.find(i => (i.id || i._id) === invoiceId);
-    setInvoiceToDelete({
-      id: invoiceId,
-      name: invoice?.invoiceNumber || `INV-${invoiceId?.slice(-6)}`
-    });
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!invoiceToDelete) return;
-
-    setIsDeleting(true);
-    try {
-      const storeId = selectedStore?.storeId;
-      const result = await dispatch(deleteInvoice({
-        invoiceId: invoiceToDelete.id,
-        storeId: storeId
-      }));
-
-      if (result.payload?.success) {
-        setDeletedInvoiceName(invoiceToDelete.name);
-        setShowDeleteSuccessModal(true);
-      }
-
-      setShowDeleteModal(false);
-      setInvoiceToDelete(null);
-    } catch (error) {
-      // Error handled silently
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDeleteInvoice = (invoice) => {
+    setInvoiceToDelete(invoice);
   };
 
   const handleCancelDelete = () => {
-    setShowDeleteModal(false);
     setInvoiceToDelete(null);
   };
 
@@ -438,7 +288,7 @@ const InvoicesPage = () => {
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
-      <Sidebar onStoreChange={handleStoreChange} />
+      <Sidebar />
 
       {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
@@ -660,52 +510,28 @@ const InvoicesPage = () => {
       </div>
 
       {/* Delete confirmation modal */}
-      <InvoiceDeleteConfirmModal
-        isOpen={showDeleteModal}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        invoiceNumber={invoiceToDelete?.name}
-        isLoading={isDeleting}
-      />
-
-      {/* Delete success modal */}
-      <InvoiceDeleteSuccessModal
-        isOpen={showDeleteSuccessModal}
-        onClose={() => setShowDeleteSuccessModal(false)}
-        invoiceNumber={deletedInvoiceName}
-      />
-
-      {/* Error modal */}
-      <InvoiceErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={errorDetails?.title}
-        message={errorDetails?.message}
-        details={errorDetails?.details}
-      />
+      {invoiceToDelete && (
+        <InvoiceDeleteConfirmModal
+          onClose={handleCancelDelete}
+          invoice={invoiceToDelete}
+        />
+      )}
 
       {/* Release confirmation modal */}
-      <ReleaseInvoiceModal
-        isOpen={showReleaseModal}
-        onClose={handleCancelRelease}
-        onConfirm={handleConfirmRelease}
-        invoiceNumber={invoiceToRelease?.name}
-        paymentStatus={paymentStatus}
-        onPaymentStatusChange={(value) => setPaymentStatus(value)}
-        isReleasing={isReleasing}
-        totalAmount={invoiceToRelease?.invoice?.totalAmount || 0}
-      />
+      {invoiceToRelease && (
+        <ReleaseInvoiceModal
+          onClose={handleCancelRelease}
+          invoice={invoiceToRelease}
+        />
+      )}
 
       {/* Payment Status Update Modal */}
-      <UpdatePaymentStatusModal
-        isOpen={showPaymentStatusModal}
-        onClose={handleCancelPaymentStatusUpdate}
-        onConfirm={handleConfirmPaymentStatusUpdate}
-        invoiceNumber={invoiceToUpdatePayment?.invoice?.invoiceNumber || `INV-${invoiceToUpdatePayment?.id?.slice(-6)}`}
-        currentPaymentStatus={invoiceToUpdatePayment?.invoice?.paymentStatus}
-        totalAmount={invoiceToUpdatePayment?.invoice?.totalAmount || 0}
-        isUpdating={isUpdatingPayment}
-      />
+      {invoiceToUpdatePayment && (
+        <UpdatePaymentStatusModal
+          onClose={handleCancelPaymentStatusUpdate}
+          invoice={invoiceToUpdatePayment}
+        />
+      )}
 
       {/* Download Drawer */}
       <InvoiceDownloadDrawer

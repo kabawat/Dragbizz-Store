@@ -2,34 +2,41 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { Button, Select, Input } from '@/components/ui';
+import { invoiceService } from '@/service';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getInvoices } from '@/store/slices/invoicesSlice';
+import { useGlobalToast } from '@/contexts/ToastContext';
+import { useRouter } from 'next/navigation';
 
 const ReleaseInvoiceModal = ({ 
-    isOpen, 
     onClose, 
-    onConfirm, 
-    invoiceNumber, 
-    paymentStatus, 
-    onPaymentStatusChange, 
-    isReleasing,
-    totalAmount = 0 
+    invoice
 }) => {
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const { showError, showSuccess } = useGlobalToast();
+    const [paymentStatus, setPaymentStatus] = useState('PAID');
     const [paidAmount, setPaidAmount] = useState('');
     const [errors, setErrors] = useState({});
+    const [isReleasing, setIsReleasing] = useState(false);
+
+    const totalAmount = invoice?.totalAmount || 0;
+    const invoiceNumber = invoice?.invoiceNumber || invoice?.name || `INV-${(invoice?.id || invoice?._id)?.slice(-6)}`;
 
     useEffect(() => {
-        if (isOpen) {
-            // Set default paidAmount to totalAmount
+        if (invoice) {
+            // Set default payment status and paidAmount
+            setPaymentStatus(invoice?.paymentStatus || 'PAID');
             setPaidAmount(totalAmount ? totalAmount.toString() : '');
             setErrors({});
         }
-    }, [isOpen, totalAmount]);
+    }, [invoice, totalAmount]);
 
-    if (!isOpen) return null;
+    if (!invoice) return null;
 
     const handlePaymentStatusChange = (value) => {
-        if (onPaymentStatusChange) {
-            onPaymentStatusChange(value);
-        }
+        setPaymentStatus(value);
         setErrors({});
         if (value === 'UNPAID') {
             setPaidAmount('');
@@ -49,7 +56,7 @@ const ReleaseInvoiceModal = ({
         setErrors({});
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         // Validate if PAY_LATTER or PAID with paidAmount
         if ((paymentStatus === 'PAY_LATTER' || paymentStatus === 'PAID') && paidAmount) {
             const numPaidAmount = parseFloat(paidAmount);
@@ -59,12 +66,48 @@ const ReleaseInvoiceModal = ({
             }
         }
 
-        const payload = {
-            paymentStatus,
-            ...(paidAmount ? { paidAmount: parseFloat(paidAmount) } : {})
-        };
+        if (!invoice) return;
 
-        onConfirm(payload);
+        setIsReleasing(true);
+        try {
+            const invoiceId = invoice.id || invoice._id;
+            const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+            
+            if (!storeId) {
+                showError('Store ID is missing. Please select a store.');
+                setIsReleasing(false);
+                return;
+            }
+
+            const result = await invoiceService.releaseInvoice(
+                invoiceId,
+                paymentStatus,
+                storeId,
+                paidAmount ? parseFloat(paidAmount) : null
+            );
+
+            if (result.success) {
+                showSuccess('Invoice released successfully');
+                const refreshParams = {
+                    store: storeId,
+                    limit: 20,
+                    cursor: null,
+                    isFreshLoad: true
+                };
+                await dispatch(getInvoices(refreshParams));
+
+                onClose();
+
+                // Auto-redirect to view invoice page after successful release
+                router.push(`/dashboard/invoices/view/${invoiceId}`);
+            } else {
+                showError(result.message || 'Failed to release invoice. Please try again.');
+            }
+        } catch (error) {
+            showError('An error occurred while releasing the invoice. Please try again.');
+        } finally {
+            setIsReleasing(false);
+        }
     };
 
     return (

@@ -66,7 +66,7 @@ const InvoiceCard = ({
       value: 'release',
       label: 'Release Invoice',
       icon: CheckCircle,
-      onClick: () => onRelease?.(invoice.id || invoice._id),
+      onClick: () => onRelease?.(invoice),
       disabled: !isDraft,
       className: 'cursor-pointer text-green-600 hover:text-green-700'
     },
@@ -88,7 +88,7 @@ const InvoiceCard = ({
       value: 'delete',
       label: 'Delete',
       icon: Trash2,
-      onClick: () => onDelete?.(invoice.id || invoice._id),
+      onClick: () => onDelete?.(invoice),
       className: 'cursor-pointer text-red-600 hover:text-red-700'
     }] : [])
   ];
