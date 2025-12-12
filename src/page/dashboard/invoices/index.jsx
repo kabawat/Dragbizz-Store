@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, CheckCircle } from 'lucide-react';
+import { Plus, Grid3X3, List, FileText, CheckCircle, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getInvoices, deleteInvoice, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
@@ -8,7 +8,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, SettingsPanel, Select } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal, UpdatePaymentStatusModal, ReleaseInvoiceModal } from '@/components/invoice';
+import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, InvoiceDeleteSuccessModal, InvoiceErrorModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
 import { invoiceService, customerService } from '@/service';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
@@ -48,6 +48,7 @@ const InvoicesPage = () => {
   const [isCustomerOptionsLoading, setIsCustomerOptionsLoading] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
 
   // Error display
@@ -506,12 +507,12 @@ const InvoicesPage = () => {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-center">
                       {/* View toggle */}
                       <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                         <button
                           onClick={() => handleViewModeChange('table')}
-                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          className={`h-9 px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
                             ? 'bg-[rgb(var(--color-primary))] text-white'
                             : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
                             }`}
@@ -521,14 +522,26 @@ const InvoicesPage = () => {
                         </button>
                         <button
                           onClick={() => handleViewModeChange('card')}
-                          className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                          className={`h-9 px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                         >
                           <Grid3X3 className="w-4 h-4" />
                           Cards
                         </button>
                       </div>
 
-                      <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                      {/* Download Button */}
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setShowDownloadDrawer(true);
+                        }} 
+                        className="flex items-center gap-2 h-9"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </Button>
+
+                      <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus} className="h-9">
                         Add Invoice
                       </Button>
                     </div>
@@ -536,10 +549,7 @@ const InvoicesPage = () => {
                 </div>
                 {/* table or card  */}
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div 
-                    className="h-[calc(100vh-200px)] overflow-y-auto" 
-                    ref={scrollRef}
-                  >
+                  <div  className="h-[calc(100vh-200px)] overflow-y-auto"  ref={scrollRef} >
                     {viewMode === 'table' ? (
                       <div className="min-h-full">
                         <InvoiceTable
@@ -695,6 +705,12 @@ const InvoicesPage = () => {
         currentPaymentStatus={invoiceToUpdatePayment?.invoice?.paymentStatus}
         totalAmount={invoiceToUpdatePayment?.invoice?.totalAmount || 0}
         isUpdating={isUpdatingPayment}
+      />
+
+      {/* Download Drawer */}
+      <InvoiceDownloadDrawer
+        isOpen={showDownloadDrawer}
+        onClose={() => setShowDownloadDrawer(false)}
       />
     </div>
   );
