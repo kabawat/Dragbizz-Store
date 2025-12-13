@@ -37,6 +37,8 @@ const InvoicesPage = () => {
   const [customerFilter, setCustomerFilter] = useState('');
   const [customerOptions, setCustomerOptions] = useState([]);
   const [isCustomerOptionsLoading, setIsCustomerOptionsLoading] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
 
@@ -55,8 +57,8 @@ const InvoicesPage = () => {
   }, [dispatch]);
 
 
-  // Fetch invoices on mount and customer filter changes
-  const lastFetchRef = useRef({ storeId: null, customerKey: null });
+  // Fetch invoices on mount and filter changes
+  const lastFetchRef = useRef({ storeId: null, customerKey: null, dateKey: null });
 
   useEffect(() => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -65,16 +67,18 @@ const InvoicesPage = () => {
     if (!storeId) return;
 
     const customerKey = customerFilter || '';
+    const dateKey = `${startDate || ''}_${endDate || ''}`;
 
     // Prevent duplicate fetch
     if (
       lastFetchRef.current.storeId === storeId &&
-      lastFetchRef.current.customerKey === customerKey
+      lastFetchRef.current.customerKey === customerKey &&
+      lastFetchRef.current.dateKey === dateKey
     ) {
       return;
     }
 
-    lastFetchRef.current = { storeId, customerKey };
+    lastFetchRef.current = { storeId, customerKey, dateKey };
 
     const fetchInvoices = async () => {
       const params = {
@@ -82,13 +86,15 @@ const InvoicesPage = () => {
         limit: 20,
         cursor: null,
         isFreshLoad: true,
-        customer: customerFilter || undefined
+        customer: customerFilter || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
       };
       await dispatch(getInvoices(params));
     };
 
     fetchInvoices();
-  }, [dispatch, selectedStore, customerFilter]);
+  }, [dispatch, selectedStore, customerFilter, startDate, endDate]);
 
   // Load customer options for filter (lightweight)
   useEffect(() => {
@@ -143,6 +149,8 @@ const InvoicesPage = () => {
       const params = {
         store: storeId,
         customer: customerFilter || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         limit: 20,
         cursor: pagination.nextCursor,
         isFreshLoad: false
@@ -342,18 +350,60 @@ const InvoicesPage = () => {
               <>
                 {/* Filters */}
                 <div className="mb-3">
-                  <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                    {/* Customer filter */}
-                    <div className="w-100">
-                      <Select
-                        placeholder="Filter by customer"
-                        options={customerOptions}
-                        value={customerFilter}
-                        onChange={handleCustomerFilterChange}
-                        disabled={isCustomerOptionsLoading}
-                        searchable
-                        clearable
-                      />
+                  <div className="flex flex-wrap justify-between items-center lg:flex-row gap-4 mb-0">
+                    {/* Filters Row */}
+                    <div className="flex flex-wrap gap-4 flex-1">
+                      {/* Customer filter */}
+                      <div className="flex-1 min-w-[200px]">
+                        <Select
+                          placeholder="Filter by customer"
+                          options={customerOptions}
+                          value={customerFilter}
+                          onChange={handleCustomerFilterChange}
+                          disabled={isCustomerOptionsLoading}
+                          searchable
+                          clearable
+                        />
+                      </div>
+
+                      {/* Date filters */}
+                      <div className="flex gap-2 items-end">
+                        <div className="min-w-[150px]">
+                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-3 py-2 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent h-9"
+                          />
+                        </div>
+                        <div className="min-w-[150px]">
+                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            min={startDate}
+                            className="w-full px-3 py-2 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent h-9"
+                          />
+                        </div>
+                        {(startDate || endDate) && (
+                          <button
+                            onClick={() => {
+                              setStartDate('');
+                              setEndDate('');
+                            }}
+                            className="px-2 py-2 text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] h-9"
+                            title="Clear date filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Action buttons */}
@@ -456,6 +506,7 @@ const InvoicesPage = () => {
                               onViewDetails={handleViewInvoice}
                               onPrint={handlePrintInvoice}
                               onRelease={handleReleaseInvoice}
+                              onUpdatePaymentStatus={handleUpdatePaymentStatus}
                             />
                           ))}
 

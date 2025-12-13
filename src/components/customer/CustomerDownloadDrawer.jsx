@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { Download, Calendar } from 'lucide-react';
 import { SideDrawer, Select, Button } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
-import { invoiceService } from '@/service';
+import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 
-const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
+const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -117,25 +117,33 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         store: storeId,
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        downloadAll: true
+        limit: 10000
       };
       
-      const result = await invoiceService.getInvoices(params);
+      const result = await customerService.getCustomers(params);
       
       // Console log the response data
-      console.log('Download invoices API response:', result);
-      console.log('Invoices data:', result.data);
+      console.log('Download customers API response:', result);
+      console.log('Customers data:', result.data);
       
       if (result.success && result.data) {
+        const customersData = result.data?.data || result.data || [];
+        
+        if (customersData.length === 0) {
+          showError('No customers found to download');
+          setIsDownloading(false);
+          return;
+        }
+        
         // Download file
-        await downloadInvoicesFile(result.data);
-        showSuccess('Invoices downloaded successfully');
+        await downloadCustomersFile(customersData);
+        showSuccess('Customers downloaded successfully');
       } else {
-        showError(result.message || 'Failed to download invoices');
+        showError(result.message || 'Failed to download customers');
       }
     } catch (error) {
-      console.error('Download invoices error:', error);
-      showError('An error occurred while downloading invoices');
+      console.error('Download customers error:', error);
+      showError('An error occurred while downloading customers');
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -172,61 +180,54 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         store: storeId,
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        downloadAll: true
+        limit: 10000
       };
       
-      const result = await invoiceService.getInvoices(params);
+      const result = await customerService.getCustomers(params);
       
       // Console log the response data
-      console.log('Download invoices API response:', result);
-      console.log('Invoices data:', result.data);
+      console.log('Download customers API response:', result);
+      console.log('Customers data:', result.data);
       
       if (result.success && result.data) {
+        const customersData = result.data?.data || result.data || [];
+        
+        if (customersData.length === 0) {
+          showError('No customers found to download');
+          setIsDownloading(false);
+          return;
+        }
+        
         // Download file
-        await downloadInvoicesFile(result.data);
-        showSuccess('Invoices downloaded successfully');
+        await downloadCustomersFile(customersData);
+        showSuccess('Customers downloaded successfully');
       } else {
-        showError(result.message || 'Failed to download invoices');
+        showError(result.message || 'Failed to download customers');
       }
     } catch (error) {
-      console.error('Download invoices error:', error);
-      showError('An error occurred while downloading invoices');
+      console.error('Download customers error:', error);
+      showError('An error occurred while downloading customers');
     } finally {
       setIsDownloading(false);
       handleClose();
     }
   };
 
-  // Transform invoice data for export
-  const transformInvoiceData = (invoices) => {
-    if (!invoices || !Array.isArray(invoices)) return [];
+  // Transform customer data for export
+  const transformCustomerData = (customers) => {
+    if (!customers || !Array.isArray(customers)) return [];
     
     const storeName = selectedStore?.storeName || selectedStore?.name || 'N/A';
     
-    return invoices.map((invoice) => {
-      const customerName = invoice.customer?.name || 'Walk-in Customer';
-      const customerPhone = invoice.customer?.phone || 'N/A';
-      const items = invoice.items || [];
-      const itemsList = items.map(item => 
-        `${item.product?.name || 'N/A'} (Qty: ${item.quantity}, Price: ₹${item.price})`
-      ).join('; ');
-      
+    return customers.map((customer) => {
       return {
-        'Store/Supplier Name': storeName,
-        'Invoice Number': invoice.invoiceNumber || 'N/A',
-        'Customer Name': customerName,
-        'Customer Phone': customerPhone,
-        'Date': invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString('en-IN') : 'N/A',
-        'Items': itemsList,
-        'Subtotal': `₹${invoice.subtotal || 0}`,
-        'GST Amount': `₹${invoice.gstAmount || 0}`,
-        'Total Discount': `₹${invoice.totalDiscount || 0}`,
-        'Total Amount': `₹${invoice.totalAmount || 0}`,
-        'Total Profit': `₹${invoice.totalProfit || 0}`,
-        'Payment Status': invoice.paymentStatus || 'N/A',
-        'Invoice Status': invoice.invoiceStatus || 'N/A',
-        'Payment Mode': invoice.paymentMode || 'N/A',
-        'Released At': invoice.releasedAt ? new Date(invoice.releasedAt).toLocaleDateString('en-IN') : 'N/A'
+        'Store Name': storeName,
+        'Customer Name': customer.name || 'N/A',
+        'Phone': customer.phone || 'N/A',
+        'Email': customer.email || 'N/A',
+        'Address': customer.address || 'N/A',
+        'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : 'N/A',
+        'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : 'N/A'
       };
     });
   };
@@ -277,7 +278,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
 
       const worksheet = XLSX.utils.json_to_sheet(data);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Invoices');
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
       
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
@@ -293,19 +294,19 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   };
 
   // Handle file download
-  const downloadInvoicesFile = async (invoices) => {
-    if (!invoices || invoices.length === 0) {
-      showError('No invoices to download');
+  const downloadCustomersFile = async (customers) => {
+    if (!customers || customers.length === 0) {
+      showError('No customers to download');
       return;
     }
 
-    const transformedData = transformInvoiceData(invoices);
+    const transformedData = transformCustomerData(customers);
     const timestamp = new Date().toISOString().split('T')[0];
     
     if (downloadFormat === 'xlsx') {
-      await exportToXLSX(transformedData, `invoices_${timestamp}`);
+      await exportToXLSX(transformedData, `customers_${timestamp}`);
     } else {
-      exportToCSV(transformedData, `invoices_${timestamp}.csv`);
+      exportToCSV(transformedData, `customers_${timestamp}.csv`);
     }
   };
 
@@ -321,9 +322,9 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title="Download Invoices"
+      title="Download Customers"
       icon={Download}
-      description="Select a time period to download invoices"
+      description="Select a time period to download customers"
       width="w-full md:w-[500px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6">
@@ -469,5 +470,4 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   );
 };
 
-export default InvoiceDownloadDrawer;
-
+export default CustomerDownloadDrawer;
