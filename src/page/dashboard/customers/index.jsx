@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, Users, Search } from 'lucide-react';
+import { Plus, Grid3X3, List, Users, Search, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -17,6 +17,7 @@ import Header from '@/components/dashboard/Header';
 import { AnimatedBackground, Input, SettingsPanel, SideDrawer } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { CustomerTable, CustomerCard, CreateCustomer } from '@/components/customer';
+import CustomerDownloadDrawer from '@/components/customer/CustomerDownloadDrawer';
 
 const CustomersPage = () => {
   const router = useRouter();
@@ -53,6 +54,7 @@ const CustomersPage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
+  const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
   const lastFetchRef = useRef(null);
   const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
@@ -385,6 +387,18 @@ const CustomersPage = () => {
                     </button>
                   </div>
 
+                  {/* Download Button */}
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setShowDownloadDrawer(true);
+                    }} 
+                    className="flex items-center gap-2 h-9"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </Button>
+
                   <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
                     Add Customer
                   </Button>
@@ -614,6 +628,14 @@ const CustomersPage = () => {
           />
         </div>
       </SideDrawer>
+
+      {/* Download Drawer */}
+      {showDownloadDrawer && (
+        <CustomerDownloadDrawer
+          isOpen={showDownloadDrawer}
+          onClose={() => setShowDownloadDrawer(false)}
+        />
+      )}
     </div>
   );
 };

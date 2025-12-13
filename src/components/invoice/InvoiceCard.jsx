@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle, MessageCircle } from 'lucide-react';
+import { MoreHorizontal, Edit, Copy, Trash2, Eye, FileText, Phone, Mail, Calendar, IndianRupee, User, Printer, CheckCircle, MessageCircle, CreditCard } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getStatusBadge } from '@/utils/statusBadge';
 
@@ -13,6 +13,7 @@ const InvoiceCard = ({
   onViewDetails,
   onPrint,
   onRelease,
+  onUpdatePaymentStatus,
   onSelect,
   selected = false,
   className = '',
@@ -40,6 +41,7 @@ const InvoiceCard = ({
 
   const invoiceStatus = invoice.invoiceStatus || invoice.status;
   const isDraft = invoiceStatus === 'DRAFT';
+  const isReleased = invoiceStatus === 'RELEASED';
 
   const actionMenuItems = [
     {
@@ -83,6 +85,14 @@ const InvoiceCard = ({
       icon: Copy,
       onClick: () => onDuplicate?.(invoice.id || invoice._id)
     },
+    // Show payment status update for RELEASED invoices
+    ...(isReleased && onUpdatePaymentStatus ? [{
+      value: 'paymentStatus',
+      label: 'Payment Status',
+      icon: CreditCard,
+      onClick: () => onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
+      className: 'cursor-pointer'
+    }] : []),
     // Only show delete if invoice is DRAFT
     ...(isDraft ? [{
       value: 'delete',
