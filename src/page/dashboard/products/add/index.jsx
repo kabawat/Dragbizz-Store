@@ -6,7 +6,6 @@ import { Save, ArrowLeft } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm } from '@/components/product';
 import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
@@ -248,7 +247,6 @@ const AddProductPage = () => {
   return (
     <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

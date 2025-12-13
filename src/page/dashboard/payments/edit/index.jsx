@@ -5,7 +5,6 @@ import { useAppSelector } from '@/store/hooks';
 import { supplierService, paymentService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Button } from '@/components/ui';
 import {
   CreditCard,
   Save,
@@ -503,7 +502,6 @@ const EditPayment = ({ paymentId }) => {
   if (fetching) {
     return (
       <div className="flex h-screen w-full relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
           <Header title="Edit Payment" description="Update payment information and details" />
@@ -522,7 +520,6 @@ const EditPayment = ({ paymentId }) => {
   if (fetchError) {
     return (
       <div className="flex h-screen w-full relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
           <Header title="Edit Payment" description="Update payment information and details" />
@@ -556,7 +553,6 @@ const EditPayment = ({ paymentId }) => {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main Content */}

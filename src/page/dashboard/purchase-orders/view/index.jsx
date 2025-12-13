@@ -4,7 +4,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Card, Button, Loading, AnimatedBackground } from '@/components/ui';
 import { CheckCircle, ArrowLeft, Package, Calendar, FileText, Share2, MessageCircle, Mail, MessageSquare, Send } from 'lucide-react';
 import moment from 'moment';
 import { purchaseOrderService } from '@/service/retailer';
@@ -72,7 +71,6 @@ export default function ViewPurchaseOrderPage() {
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">

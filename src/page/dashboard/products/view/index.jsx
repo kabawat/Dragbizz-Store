@@ -7,7 +7,6 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, Badge } from '@/components/ui';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -147,7 +146,6 @@ const ViewProductPage = ({ productId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -181,7 +179,6 @@ const ViewProductPage = ({ productId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

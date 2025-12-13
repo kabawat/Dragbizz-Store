@@ -6,7 +6,6 @@ import { Save, Plus, ArrowLeft, Info, Warehouse, TrendingUp, Users, BarChart3, S
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import InventoryForm from '@/components/inventory/InventoryForm';
@@ -174,7 +173,6 @@ const AddInventoryPage = () => {
     <>
       <div className="flex h-screen relative overflow-hidden">
         {/* Sidebar */}
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         {/* Main Content */}

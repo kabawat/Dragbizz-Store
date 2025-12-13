@@ -6,7 +6,6 @@ import { Button, Card, Input, Select, Badge, ToastContainer, ErrorModal, SideDra
 import { Plus, Minus, ShoppingCart, User, Calculator, ArrowLeft, Package, IndianRupee, Trash2 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
@@ -406,7 +405,6 @@ const CreateInvoicePage = () => {
   if (!selectedStore?.storeId) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex items-center justify-center">
           <div className="text-center">
@@ -425,7 +423,6 @@ const CreateInvoicePage = () => {
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">

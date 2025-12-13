@@ -7,7 +7,6 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
@@ -58,7 +57,6 @@ const ViewInventoryPage = ({ inventoryId }) => {
   if (loading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
           <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -89,7 +87,6 @@ const ViewInventoryPage = ({ inventoryId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
         {/* Sidebar */}
-      <AnimatedBackground variant="default" />
         <Sidebar />
         
         {/* Main Content */}

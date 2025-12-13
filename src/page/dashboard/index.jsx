@@ -1,16 +1,17 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { IndianRupee, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, FileText, UserPlus, PackagePlus, Building, GripVertical, Loader2, CreditCard, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { dashboardService, paymentService, expenseService, invoiceService } from '@/service/retailer';
+import { dashboardService } from '@/service/retailer';
 import { useAppSelector } from '@/store/hooks';
+
+// Lazy load components
+const Sidebar = lazy(() => import('@/components/dashboard/Sidebar'));
+const Header = lazy(() => import('@/components/dashboard/Header'));
 
 const quickActions = [
   { title: 'Add Customer', icon: UserPlus, path: '/dashboard/customers/add' },
@@ -450,6 +451,11 @@ export default function Dashboard() {
   };
 
   const loadRecentSections = async (storeId) => {
+    // Dynamically import services only when needed
+    const { paymentService } = await import('@/service/retailer');
+    const { expenseService } = await import('@/service/retailer');
+    const { invoiceService } = await import('@/service/retailer');
+
     const recentFetchers = [
       {
         key: 'payments',
@@ -671,16 +677,23 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[rgb(var(--color-bg-secondary))] relative">
-      <AnimatedBackground variant="default" />
-      <Sidebar onStoreChange={handleStoreChange} />
+      <Suspense fallback={<div className="w-64 bg-[rgb(var(--color-bg-primary))] border-r border-[rgb(var(--color-border-primary))]" />}>
+        <Sidebar onStoreChange={handleStoreChange} />
+      </Suspense>
 
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col overflow-hidden">
         {/* Header */}
-        <Header
-          title="Dashboard"
-          description="Overview of your store performance and analytics"
-        />
+        <Suspense fallback={
+          <div className="h-20 bg-[rgb(var(--color-bg-primary))] border-b border-[rgb(var(--color-border-primary))] flex items-center px-6">
+            <div className="h-6 bg-[rgb(var(--color-bg-secondary))] rounded w-48 animate-pulse" />
+          </div>
+        }>
+          <Header
+            title="Dashboard"
+            description="Overview of your store performance and analytics"
+          />
+        </Suspense>
 
         {/* Main Content */}
         <div className="flex-1 p-6 overflow-y-auto">

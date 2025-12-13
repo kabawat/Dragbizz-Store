@@ -5,7 +5,6 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getPayments, deletePayment } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import {
   CreditCard,
   Plus,
@@ -326,7 +325,6 @@ const Payments = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

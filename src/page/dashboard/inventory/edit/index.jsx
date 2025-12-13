@@ -6,7 +6,6 @@ import { ArrowLeft, Save, Package } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
@@ -166,7 +165,6 @@ const EditInventoryPage = ({ inventoryId }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-        <AnimatedBackground />
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -183,7 +181,6 @@ const EditInventoryPage = ({ inventoryId }) => {
   if (error || !inventory) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-        <AnimatedBackground />
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -213,7 +210,6 @@ const EditInventoryPage = ({ inventoryId }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--color-bg-primary))] via-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))]">
-      <AnimatedBackground />
       
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}

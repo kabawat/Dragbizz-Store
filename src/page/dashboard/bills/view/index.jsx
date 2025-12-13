@@ -29,7 +29,6 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, Badge } from '@/components/ui';
 import { billService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -204,7 +203,6 @@ const ViewBillPage = ({ billId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -238,7 +236,6 @@ const ViewBillPage = ({ billId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

@@ -14,7 +14,7 @@ import {
 import { customerService } from '@/service';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input, SettingsPanel, SideDrawer } from '@/components/ui';
+import { Input, SettingsPanel, SideDrawer } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { CustomerTable, CustomerCard, CreateCustomer } from '@/components/customer';
 import CustomerDownloadDrawer from '@/components/customer/CustomerDownloadDrawer';
@@ -321,7 +321,6 @@ const CustomersPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main Content Area */}

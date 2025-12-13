@@ -5,7 +5,6 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getBills, getBillStats } from '@/store/slices/billsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { 
   AlertTriangle, 
   Search, 
@@ -115,7 +114,6 @@ const OverdueBills = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

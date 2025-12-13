@@ -5,7 +5,7 @@ import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input } from '@/components/ui';
+import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
 
 // Import inventory components
@@ -274,7 +274,6 @@ const InventoryPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar/>
 
       {/* Main content */}
