@@ -20,7 +20,7 @@ const Select = ({
   className = '',
   name,
   id,
-  size = 'sm', // New size prop with default 'sm'
+  size = 'sm',
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -323,8 +323,12 @@ const Select = ({
                         onMouseLeave={() => setHighlightedIndex(-1)}
                       >
                         <span
-                          className={(isHighlighted || isSelected) ? 'font-medium text-blue-500' : 'text-gray-900 dark:text-white'}
-                          style={{ color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit' }}
+                          className={(isHighlighted || isSelected) ? 'text-blue-500' : 'text-gray-900 dark:text-white'}
+                          style={{ 
+                            color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit',
+                            fontSize: 'inherit',
+                            fontWeight: 'inherit'
+                          }}
                         >
                           {option.label}
                         </span>
@@ -370,7 +374,14 @@ const Select = ({
                         onMouseEnter={() => setHighlightedIndex(addOptionIndex)}
                         onMouseLeave={() => setHighlightedIndex(-1)}
                       >
-                        <span className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] font-medium text-sm" style={{ color: 'rgb(var(--color-primary))' }} >
+                        <span 
+                          className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] text-sm" 
+                          style={{ 
+                            color: 'rgb(var(--color-primary))',
+                            fontSize: 'inherit',
+                            fontWeight: 'inherit'
+                          }}
+                        >
                           {option.label}
                         </span>
                       </div>
