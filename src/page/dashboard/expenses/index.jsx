@@ -7,6 +7,7 @@ import { ExpenseCard, ExpenseTable, AddExpenseDrawer } from '@/components/expens
 import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
+import { Button } from '@/components/ui';
 
 const ExpensesPage = () => {
   const router = useRouter();

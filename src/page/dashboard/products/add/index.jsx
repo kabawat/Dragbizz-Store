@@ -9,6 +9,7 @@ import Header from '@/components/dashboard/Header';
 import { ProductForm } from '@/components/product';
 import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
+import { Button } from '@/components/ui';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
@@ -57,7 +58,7 @@ const AddProductPage = () => {
       gstRate: '',
       gstType: 'CGST_SGST',
       hsnCode: '',
-      isGstIncluded: false
+      isGstIncluded: true
     },
     content: {
       shortDescription: '',
@@ -222,16 +223,15 @@ const AddProductPage = () => {
           const fieldErrors = extractFieldErrors(errorData);
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
+            showError('Please fix the validation errors in the form.');
           } else {
-            // Show error modal for general errors
-            setErrorMessage(errorData.message || 'An error occurred while creating the product. Please try again.');
-            setShowErrorModal(true);
+            // Show error toast for general errors
+            showError(errorData.message || 'An error occurred while creating the product. Please try again.');
           }
         }
       } else {
         // Handle other types of errors
-        setErrorMessage('An unexpected error occurred. Please try again.');
-        setShowErrorModal(true);
+        showError('An unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -295,7 +295,7 @@ const AddProductPage = () => {
                     <Button variant="outline" onClick={handleCancel} disabled={loading} > Cancel </Button>
                     <Button
                       variant="success"
-                      onClick={() => handleSaveAndPublish(formData)}
+                      onClick={handleSaveAndPublish}
                       disabled={loading || quotaExceeded || quotaLoading}
                       loading={loading}
                       leftIcon={Save}
