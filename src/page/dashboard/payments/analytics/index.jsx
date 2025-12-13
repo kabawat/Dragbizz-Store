@@ -4,7 +4,6 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getPayments } from '@/store/slices/paymentsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { 
   TrendingUp, 
   TrendingDown,
@@ -114,7 +113,6 @@ const PaymentAnalytics = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

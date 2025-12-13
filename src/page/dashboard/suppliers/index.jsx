@@ -14,7 +14,7 @@ import {
 } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
+import { Input, SettingsPanel } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { SupplierTable, SupplierCard, AddSupplierDrawer } from '@/components/supplier';
 
@@ -270,7 +270,6 @@ const SuppliersPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main Content Area */}

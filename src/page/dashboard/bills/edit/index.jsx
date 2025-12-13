@@ -5,7 +5,6 @@ import { useAppSelector } from '@/store/hooks';
 import { supplierService, productService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import {
   Receipt,
   Plus,
@@ -368,7 +367,6 @@ const EditBill = ({ billId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -403,7 +401,6 @@ const EditBill = ({ billId }) => {
   if (fetchError) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -454,7 +451,6 @@ const EditBill = ({ billId }) => {
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main Content Area */}

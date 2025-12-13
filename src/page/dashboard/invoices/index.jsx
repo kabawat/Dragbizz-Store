@@ -1,16 +1,15 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, Download } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Plus, Grid3X3, List, FileText, Download, Search } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
 import { getInvoices, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
+import { Input } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { useRouter } from 'next/navigation';
+import { useGlobalToast } from '@/contexts/ToastContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Select } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
-import { customerService } from '@/service';
-import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InvoicesPage = () => {
   const router = useRouter();
@@ -34,11 +33,7 @@ const InvoicesPage = () => {
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [customerFilter, setCustomerFilter] = useState('');
-  const [customerOptions, setCustomerOptions] = useState([]);
-  const [isCustomerOptionsLoading, setIsCustomerOptionsLoading] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
 
@@ -58,80 +53,62 @@ const InvoicesPage = () => {
 
 
   // Fetch invoices on mount and filter changes
-  const lastFetchRef = useRef({ storeId: null, customerKey: null, dateKey: null });
+  const lastFetchRef = useRef(null);
+  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
+
+  // Reset fetch refs and pagination when search or store changes
+  useEffect(() => {
+    lastFetchRef.current = null;
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+  }, [selectedStore, searchValue]);
 
   useEffect(() => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-
-    // Fetch only if store exists
     if (!storeId) return;
-
-    const customerKey = customerFilter || '';
-    const dateKey = `${startDate || ''}_${endDate || ''}`;
-
-    // Prevent duplicate fetch
-    if (
-      lastFetchRef.current.storeId === storeId &&
-      lastFetchRef.current.customerKey === customerKey &&
-      lastFetchRef.current.dateKey === dateKey
-    ) {
-      return;
-    }
-
-    lastFetchRef.current = { storeId, customerKey, dateKey };
-
-    const fetchInvoices = async () => {
-      const params = {
-        store: storeId,
-        limit: 20,
-        cursor: null,
-        isFreshLoad: true,
-        customer: customerFilter || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined
-      };
-      await dispatch(getInvoices(params));
+    const shouldSkip = () => {
+      const lastFetched = hasFetchedRef.current;
+      return (
+        lastFetched.fetched &&
+        lastFetched.storeId === storeId &&
+        lastFetched.searchValue === searchValue
+      ) || isLoading;
     };
 
-    fetchInvoices();
-  }, [dispatch, selectedStore, customerFilter, startDate, endDate]);
+    if (shouldSkip()) return;
 
-  // Load customer options for filter (lightweight)
-  useEffect(() => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-    if (!storeId) return;
+    const timer = setTimeout(() => {
+      const fetchInvoices = async () => {
+        const fetchKey = `${storeId}-${searchValue}`;
 
-    const loadCustomers = async () => {
-      try {
-        setIsCustomerOptionsLoading(true);
-        const result = await customerService.getCustomers({
-          store: storeId,
-          lightweight: true,
-          limit: 200
-        });
-        if (result.success) {
-          const customers = result.data?.data || result.data || [];
-          const options = customers
-            .map((c) => ({
-              label: c.name || c.phone || 'Customer',
-              value: c._id || c.id
-            }))
-            .filter((opt) => opt.value);
-          setCustomerOptions(options);
-        } else {
-          setCustomerOptions([]);
+        if (lastFetchRef.current === fetchKey) {
+          return;
         }
-      } catch (error) {
-        setCustomerOptions([]);
-      } finally {
-        setIsCustomerOptionsLoading(false);
-      }
-    };
 
-    loadCustomers();
-  }, [selectedStore]);
+        lastFetchRef.current = fetchKey;
 
-  // Load more invoices - Fixed to properly handle response structure
+        const params = {
+          store: storeId,
+          limit: 20,
+          cursor: null,
+          isFreshLoad: true,
+          search: searchValue || undefined
+        };
+
+        await dispatch(getInvoices(params));
+
+        hasFetchedRef.current = {
+          storeId,
+          searchValue,
+          fetched: true
+        };
+      };
+
+      fetchInvoices();
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, selectedStore, searchValue, isLoading]);
+
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination?.hasNextPage || !pagination?.nextCursor) {
       return;
@@ -148,9 +125,7 @@ const InvoicesPage = () => {
 
       const params = {
         store: storeId,
-        customer: customerFilter || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
+        search: searchValue || undefined,
         limit: 20,
         cursor: pagination.nextCursor,
         isFreshLoad: false
@@ -158,13 +133,11 @@ const InvoicesPage = () => {
 
       await dispatch(getInvoices(params));
     } catch (error) {
-      // Error handled silently
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, customerFilter, selectedStore, dispatch, invoices.length]);
+  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, searchValue, selectedStore, dispatch]);
 
-  // Infinite scroll - Fixed with proper dependencies and throttling
   useEffect(() => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) {
@@ -172,26 +145,24 @@ const InvoicesPage = () => {
     }
 
     let isScrolling = false;
-    
+
     const handleScroll = () => {
-      // Early return checks
       if (isScrolling) {
         return;
       }
-      
+
       if (isLoadingMore) {
         return;
       }
-      
+
       if (!pagination?.hasNextPage) {
         return;
       }
 
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-      const threshold = 200; // Increased threshold for better UX
+      const threshold = 200;
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-      // Check if user has scrolled near the bottom
       if (distanceFromBottom <= threshold) {
         isScrolling = true;
         handleLoadMore().finally(() => {
@@ -200,7 +171,6 @@ const InvoicesPage = () => {
       }
     };
 
-    // Throttle scroll events for better performance
     let scrollTimeout;
     const throttledHandleScroll = () => {
       if (scrollTimeout) return;
@@ -211,8 +181,7 @@ const InvoicesPage = () => {
     };
 
     scrollElement.addEventListener('scroll', throttledHandleScroll, { passive: true });
-    
-    // Also check on mount if already near bottom
+
     setTimeout(() => {
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
@@ -220,16 +189,15 @@ const InvoicesPage = () => {
         handleLoadMore();
       }
     }, 500);
-    
+
     return () => {
       scrollElement.removeEventListener('scroll', throttledHandleScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, handleLoadMore]);
 
-  // Customer filter change
-  const handleCustomerFilterChange = (value) => {
-    setCustomerFilter(value || '');
+  const handleSearch = (value) => {
+    setSearchValue(value);
   };
 
   const handleAddInvoice = () => {
@@ -265,7 +233,6 @@ const InvoicesPage = () => {
     setInvoiceToUpdatePayment(null);
   };
 
-  // InvoiceTable handlers
   const handleInvoiceSelect = (invoiceIds) => {
     const idsArray = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
     dispatch(setSelectedInvoices(idsArray));
@@ -287,27 +254,26 @@ const InvoicesPage = () => {
     setInvoiceToDelete(null);
   };
 
-  // Save view mode
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
     localStorage.setItem('invoices-view-mode', mode);
   };
 
+  const showSkeleton = isLoading && invoices.length === 0 && !error;
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
-      {/* Main content */}
+      {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header title="Invoices" description="Manage your customer invoices and billing" />
 
-        {/* Main content */}
+        {/* Main Content */}
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-            {/* Loading */}
-            {isLoading && invoices.length === 0 && (
+            {showSkeleton && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
@@ -323,7 +289,6 @@ const InvoicesPage = () => {
               </div>
             )}
 
-            {/* Empty state */}
             {!isLoading && invoices.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
                 <div className="flex flex-col items-center justify-center py-16">
@@ -334,9 +299,18 @@ const InvoicesPage = () => {
                     No invoices found
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    No invoices match your current criteria. Try adjusting your search or add new invoices.
+                    {error
+                      ? `Error: ${error}`
+                      : searchValue
+                        ? `No invoices match "${searchValue}". Try a different search or clear the filter.`
+                        : 'No invoices match your current criteria. Try adjusting your search or add new invoices.'}
                   </p>
-                  <div className="pt-4">
+                  <div className="pt-4 flex gap-3">
+                    {searchValue && (
+                      <Button variant="outline" onClick={() => setSearchValue('')}>
+                        Clear search
+                      </Button>
+                    )}
                     <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
                       Add Invoice
                     </Button>
@@ -345,111 +319,62 @@ const InvoicesPage = () => {
               </div>
             )}
 
-            {/* Invoices list */}
+            <div className="mb-3">
+              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                <div className="w-100">
+                  <Input
+                    type="text"
+                    placeholder="Search invoices..."
+                    value={searchValue}
+                    onChange={(value) => handleSearch(value)}
+                    leftIcon={Search}
+                    className="w-100"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                    <button
+                      onClick={() => handleViewModeChange('table')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                        ? 'bg-[rgb(var(--color-primary))] text-white'
+                        : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                        }`}
+                    >
+                      <List className="w-4 h-4" />
+                      Table
+                    </button>
+                    <button
+                      onClick={() => handleViewModeChange('card')}
+                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                      Cards
+                    </button>
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setShowDownloadDrawer(true);
+                    }}
+                    className="flex items-center gap-2 h-9"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </Button>
+
+                  <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                    Add Invoice
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {invoices.length > 0 && (
               <>
-                {/* Filters */}
-                <div className="mb-3">
-                  <div className="flex flex-wrap justify-between items-center lg:flex-row gap-4 mb-0">
-                    {/* Filters Row */}
-                    <div className="flex flex-wrap gap-4 flex-1">
-                      {/* Customer filter */}
-                      <div className="flex-1 min-w-[200px]">
-                        <Select
-                          placeholder="Filter by customer"
-                          options={customerOptions}
-                          value={customerFilter}
-                          onChange={handleCustomerFilterChange}
-                          disabled={isCustomerOptionsLoading}
-                          searchable
-                          clearable
-                        />
-                      </div>
-
-                      {/* Date filters */}
-                      <div className="flex gap-2 items-end">
-                        <div className="min-w-[150px]">
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            Start Date
-                          </label>
-                          <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full px-3 py-2 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent h-9"
-                          />
-                        </div>
-                        <div className="min-w-[150px]">
-                          <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                            End Date
-                          </label>
-                          <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            min={startDate}
-                            className="w-full px-3 py-2 text-sm text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent h-9"
-                          />
-                        </div>
-                        {(startDate || endDate) && (
-                          <button
-                            onClick={() => {
-                              setStartDate('');
-                              setEndDate('');
-                            }}
-                            className="px-2 py-2 text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] h-9"
-                            title="Clear date filter"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Action buttons */}
-                    <div className="flex gap-3 items-center">
-                      {/* View toggle */}
-                      <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                        <button
-                          onClick={() => handleViewModeChange('table')}
-                          className={`h-9 px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                            ? 'bg-[rgb(var(--color-primary))] text-white'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                            }`}
-                        >
-                          <List className="w-4 h-4" />
-                          Table
-                        </button>
-                        <button
-                          onClick={() => handleViewModeChange('card')}
-                          className={`h-9 px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                        >
-                          <Grid3X3 className="w-4 h-4" />
-                          Cards
-                        </button>
-                      </div>
-
-                      {/* Download Button */}
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setShowDownloadDrawer(true);
-                        }} 
-                        className="flex items-center gap-2 h-9"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </Button>
-
-                      <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus} className="h-9">
-                        Add Invoice
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                {/* table or card  */}
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div  className="h-[calc(100vh-200px)] overflow-y-auto"  ref={scrollRef} >
+                  <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef} >
                     {viewMode === 'table' ? (
                       <div className="min-h-full">
                         <InvoiceTable
@@ -472,7 +397,6 @@ const InvoicesPage = () => {
                       </div>
                     ) : (
                       <div>
-                        {/* Select all header */}
                         {invoices.length > 0 && (
                           <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
                             <div className="flex items-center gap-4">
@@ -510,7 +434,6 @@ const InvoicesPage = () => {
                             />
                           ))}
 
-                          {/* Infinite scroll loading */}
                           {isLoadingMore && (
                             <div className="col-span-full flex items-center justify-center py-8">
                               <div className="flex items-center gap-3">
@@ -524,7 +447,6 @@ const InvoicesPage = () => {
                     )}
                   </div>
 
-                  {/* Footer */}
                   <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-[rgb(var(--color-text-secondary))]">
@@ -539,7 +461,7 @@ const InvoicesPage = () => {
                           <>
                             Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
                             <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                              • All invoices loaded
+                              • No more invoices
                             </span>
                           </>
                         )}

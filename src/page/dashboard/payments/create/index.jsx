@@ -5,7 +5,6 @@ import { useAppSelector } from '@/store/hooks';
 import { supplierService, paymentService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Button } from '@/components/ui';
 import {
   CreditCard,
   Save,
@@ -465,7 +464,6 @@ const CreatePayment = () => {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getExpenses, deleteExpense, setViewMode, setSortOptions, toggleExpenseSelection, selectAllExpenses, deselectAllExpenses } from '@/store/slices/expensesSlice';
 import { ExpenseCard, ExpenseTable, AddExpenseDrawer } from '@/components/expenses';
-import { Button, Input, AnimatedBackground } from '@/components/ui';
 import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
@@ -163,7 +162,6 @@ const ExpensesPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

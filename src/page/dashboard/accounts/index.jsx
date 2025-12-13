@@ -5,7 +5,6 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getAccounts, getAccountStats, setCurrentFilter, setViewMode } from '@/store/slices/accountsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { 
   Building2, 
   Plus, 
@@ -183,7 +182,6 @@ const Accounts = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

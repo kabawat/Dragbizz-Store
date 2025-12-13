@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { invoiceService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -215,7 +214,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
     if (fetching) {
         return (
             <div className="flex h-screen relative w-full overflow-hidden">
-                <AnimatedBackground variant="default" />
                 <Sidebar />
                 <div className="min-h-screen w-full flex flex-col">
                     <Header
@@ -274,7 +272,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
             <div className="flex h-screen relative w-full overflow-hidden">
                 {/* Sidebar */}
-                <AnimatedBackground variant="default" />
                 <div className="no-print">
                     <Sidebar />
                 </div>

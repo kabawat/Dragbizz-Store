@@ -6,7 +6,6 @@ import { Save, ArrowLeft, Loader2, Info } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/components/product';
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -246,7 +245,6 @@ const UpdateProductPage = ({ productId }) => {
     return (
 
       <div className="flex h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="flex-1 min-h-screen flex flex-col">
@@ -280,7 +278,6 @@ const UpdateProductPage = ({ productId }) => {
   if (productNotFound) {
     return (
       <div className="flex h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="flex-1 min-h-screen flex flex-col">
@@ -312,7 +309,6 @@ const UpdateProductPage = ({ productId }) => {
   return (
     <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

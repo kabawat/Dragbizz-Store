@@ -6,7 +6,6 @@ import { Save, ArrowLeft, IndianRupee } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
 import { ExpenseForm } from '@/components/expenses';
 import { QuotaExceededModal } from '@/components/common';
 import QuotaProgressBar from '@/components/product/QuotaProgressBar';
@@ -159,7 +158,6 @@ const AddExpensePage = () => {
 
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

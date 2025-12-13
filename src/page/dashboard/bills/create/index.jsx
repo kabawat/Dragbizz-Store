@@ -5,7 +5,6 @@ import { useAppSelector } from '@/store/hooks';
 import { supplierService, productService, billService, purchaseOrderService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import {
   Receipt,
   Plus,
@@ -458,7 +457,6 @@ const CreateBill = () => {
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main Content Area */}

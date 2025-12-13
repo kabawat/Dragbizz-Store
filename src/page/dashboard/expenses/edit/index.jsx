@@ -6,7 +6,6 @@ import { Save, ArrowLeft, IndianRupee } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, Alert, Loading } from '@/components/ui';
 import { ExpenseForm } from '@/components/expenses';
 import { expenseService } from '@/service';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -90,7 +89,6 @@ const EditExpensePage = ({ expenseId }) => {
   if (isLoading) {
     return (
       <div className="flex h-screen w-full relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col items-center justify-center">
           <Loading />
@@ -102,7 +100,6 @@ const EditExpensePage = ({ expenseId }) => {
   if (!isLoading && (!expense || fetchingError)) {
     return (
       <div className="flex h-screen w-full relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
           <Header 
@@ -127,7 +124,6 @@ const EditExpensePage = ({ expenseId }) => {
 
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

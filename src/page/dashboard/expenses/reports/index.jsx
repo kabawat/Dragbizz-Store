@@ -5,13 +5,11 @@ import { ArrowLeft, Download, TrendingUp, BarChart3, PieChart, IndianRupee, Cale
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, Card, CardHeader, CardTitle, CardBody } from '@/components/ui';
 import Link from 'next/link';
 
 const ExpenseReportsPage = () => {
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

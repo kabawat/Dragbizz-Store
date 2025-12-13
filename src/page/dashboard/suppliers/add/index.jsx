@@ -6,7 +6,6 @@ import { Save, Plus, ArrowLeft } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground, ToastContainer, ErrorModal } from '@/components/ui';
 import { SupplierForm } from '@/components/supplier';
 import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -137,7 +136,6 @@ const AddSupplierPage = () => {
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}

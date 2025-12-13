@@ -16,7 +16,7 @@ import {
 import { transformProductsArray } from '@/utils/productUtils';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground, Input, SettingsPanel } from '@/components/ui';
+import { Input, SettingsPanel } from '@/components/ui';
 
 // Import UI components
 import { Button } from '@/components/ui';
@@ -261,7 +261,6 @@ const ProductsPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar onStoreChange={handleStoreChange} />
 
       {/* Main content */}

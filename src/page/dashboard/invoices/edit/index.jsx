@@ -6,7 +6,6 @@ import { Button, Card, Input, Select, Badge } from '@/components/ui';
 import { Plus, Minus, ShoppingCart, User, Calculator, ArrowLeft, Package, IndianRupee, Trash2, Save, FileText } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useGlobalToast } from '@/contexts/ToastContext';
@@ -241,7 +240,6 @@ const EditInvoicePage = ({ invoiceId }) => {
   if (!selectedStore?.storeId) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex items-center justify-center">
           <div className="text-center">
@@ -261,7 +259,6 @@ const EditInvoicePage = ({ invoiceId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex items-center justify-center">
                   <div className="text-center">
@@ -281,7 +278,6 @@ const EditInvoicePage = ({ invoiceId }) => {
   if (error) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="min-h-screen w-full flex items-center justify-center">
                   <div className="text-center">
@@ -310,7 +306,6 @@ const EditInvoicePage = ({ invoiceId }) => {
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">

@@ -34,7 +34,7 @@ const Sidebar = ({ onStoreChange }) => {
   const inventorySubMenuItems = [
     { name: 'Products', icon: Package, href: '/dashboard/products' },
     { name: 'Stocks', icon: Warehouse, href: '/dashboard/stock' },
-    { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/stock/alerts' },
+    // { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/stock/alerts' },
   ];
 
   // Purchase Category

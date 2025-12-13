@@ -6,7 +6,6 @@ import { createAccount } from '@/store/slices/accountsSlice';
 import { getSuppliers } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
 import { 
   Building2, 
   Save, 
@@ -159,7 +158,6 @@ const CreateAccount = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

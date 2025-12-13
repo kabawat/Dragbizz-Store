@@ -6,7 +6,6 @@ import { Save, ArrowLeft, Building } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { SupplierForm, SupplierAddSuccessModal } from '@/components/supplier';
 import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -160,7 +159,6 @@ const EditSupplierPage = ({ supplierId }) => {
   if (fetching) {
     return (
       <div className="w-full flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="w-full flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
           <Header title="Edit Supplier" description="Update supplier information and details" />
@@ -189,7 +187,6 @@ const EditSupplierPage = ({ supplierId }) => {
   if (error) {
     return (
       <div className="w-full flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
         <div className="w-full flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
           <Header title="Edit Supplier" description="Update supplier information and details" />
@@ -227,7 +224,6 @@ const EditSupplierPage = ({ supplierId }) => {
 
   return (
     <div className="w-full flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content Area */}

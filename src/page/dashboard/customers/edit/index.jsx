@@ -6,7 +6,6 @@ import { Save, ArrowLeft, User } from 'lucide-react';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Button, AnimatedBackground } from '@/components/ui';
 import { CustomerForm, CustomerAddSuccessModal } from '@/components/customer';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -202,7 +201,6 @@ const EditCustomerPage = ({ customerId }) => {
   if (fetching) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
-        <AnimatedBackground variant="default" />
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
@@ -236,7 +234,6 @@ const EditCustomerPage = ({ customerId }) => {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       {/* Sidebar */}
-      <AnimatedBackground variant="default" />
       <Sidebar />
 
       {/* Main Content */}
