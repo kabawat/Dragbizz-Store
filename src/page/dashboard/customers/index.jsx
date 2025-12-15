@@ -82,7 +82,7 @@ const CustomersPage = () => {
   // Fetch customers from API
   const fetchCustomers = useCallback(async (isLoadMore = false, cursor = null) => {
     if (!storeId && !isLoadMore) return;
-    
+
     const params = {
       search: searchValue,
       limit: 10,
@@ -92,7 +92,7 @@ const CustomersPage = () => {
     if (storeId) {
       params.store = storeId;
     }
-    
+
     // Create a unique key for this fetch
     const fetchKey = `${storeId}-${searchValue}-${isLoadMore}-${cursor}`;
 
@@ -113,7 +113,7 @@ const CustomersPage = () => {
     }
 
     lastFetchRef.current = fetchKey;
-    
+
     try {
       const isInitialLoad = !isLoadMore && customers.length === 0;
 
@@ -124,28 +124,28 @@ const CustomersPage = () => {
         setIsLoading(isInitialLoad);
       }
       setError(null);
-      
+
       const result = await customerService.getCustomers(params);
-      
+
       if (result.success) {
         const customersData = result.data?.data || result.data || [];
-        
+
         if (isLoadMore) {
           setCustomers(prev => [...prev, ...customersData]);
         } else {
           setCustomers(customersData);
-          // Update fetch ref for initial load
           hasFetchedRef.current = {
             storeId,
             searchValue,
             fetched: true
           };
         }
-        
+
         // Update pagination
+        const paginationData = result.pagination || result.data?.pagination;
         setPagination({
-          hasNextPage: result.data?.hasNextPage || false,
-          nextCursor: result.data?.nextCursor || null
+          hasNextPage: paginationData?.hasNextPage ?? paginationData?.hasNext ?? false,
+          nextCursor: paginationData?.nextCursor ?? result.nextCursor ?? null
         });
       } else {
         setError(result.message || 'Failed to fetch customers');
@@ -188,7 +188,7 @@ const CustomersPage = () => {
 
     const timer = setTimeout(() => {
       fetchCustomers(false);
-    }, 350); 
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [storeId, searchValue]);
@@ -348,10 +348,9 @@ const CustomersPage = () => {
               </div>
             )}
 
-            {/* Search and Filter Card - always visible so search stays on empty results */}
             <div className="mb-3">
               <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                {/* Search */}
+                {/* Search (always visible) */}
                 <div className="w-100">
                   <Input
                     type="text"
@@ -365,33 +364,31 @@ const CustomersPage = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  {/* View Toggle */}
-                  <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                    <button
-                      onClick={() => handleViewModeChange('table')}
-                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                  {customers.length > 0 && (
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
                           ? 'bg-[rgb(var(--color-primary))] text-white'
                           : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                        }`}
-                    >
-                      <List className="w-4 h-4" />
-                      Table
-                    </button>
-                    <button
-                      onClick={() => handleViewModeChange('card')}
-                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                      Cards
-                    </button>
-                  </div>
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
+                    </div>
+                  )}
 
                   {/* Download Button */}
                   <Button
                     variant="secondary"
                     onClick={() => {
                       setShowDownloadDrawer(true);
-                    }} 
+                    }}
                     className="flex items-center gap-2 h-9"
                   >
                     <Download className="w-4 h-4" />

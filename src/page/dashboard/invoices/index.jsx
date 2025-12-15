@@ -289,6 +289,57 @@ const InvoicesPage = () => {
               </div>
             )}
 
+            <div className="mb-3">
+              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                <div className="w-100">
+                  <Input
+                    type="text"
+                    placeholder="Search invoices..."
+                    value={searchValue}
+                    onChange={(value) => handleSearch(value)}
+                    leftIcon={Search}
+                    className="w-100"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  {invoices.length > 0 && (
+                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <button
+                        onClick={() => handleViewModeChange('table')}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
+                          ? 'bg-[rgb(var(--color-primary))] text-white'
+                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+                          }`}
+                      >
+                        <List className="w-4 h-4" />
+                        Table
+                      </button>
+                      <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
+                        <Grid3X3 className="w-4 h-4" />
+                        Cards
+                      </button>
+                    </div>
+                  )}
+
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setShowDownloadDrawer(true);
+                    }}
+                    className="flex items-center gap-2 h-9"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </Button>
+
+                  <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                    Add Invoice
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {!isLoading && invoices.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
                 <div className="flex flex-col items-center justify-center py-16">
@@ -318,58 +369,6 @@ const InvoicesPage = () => {
                 </div>
               </div>
             )}
-
-            <div className="mb-3">
-              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                <div className="w-100">
-                  <Input
-                    type="text"
-                    placeholder="Search invoices..."
-                    value={searchValue}
-                    onChange={(value) => handleSearch(value)}
-                    leftIcon={Search}
-                    className="w-100"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                    <button
-                      onClick={() => handleViewModeChange('table')}
-                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                        ? 'bg-[rgb(var(--color-primary))] text-white'
-                        : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                        }`}
-                    >
-                      <List className="w-4 h-4" />
-                      Table
-                    </button>
-                    <button
-                      onClick={() => handleViewModeChange('card')}
-                      className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                      Cards
-                    </button>
-                  </div>
-
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setShowDownloadDrawer(true);
-                    }}
-                    className="flex items-center gap-2 h-9"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download
-                  </Button>
-
-                  <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                    Add Invoice
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             {invoices.length > 0 && (
               <>
