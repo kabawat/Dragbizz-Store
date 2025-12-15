@@ -5,10 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   deleteCustomer,
-  setSelectedCustomers,
-  toggleCustomerSelection,
-  selectAllCustomers,
-  deselectAllCustomers,
   setViewMode
 } from '@/store/slices/customersSlice';
 import { customerService } from '@/service';
@@ -25,7 +21,6 @@ const CustomersPage = () => {
 
   // Get data from Redux store
   const {
-    selectedCustomers,
     viewMode
   } = useAppSelector((state) => state.customers);
 
@@ -194,7 +189,7 @@ const CustomersPage = () => {
   }, [storeId, searchValue]);
 
   // Infinite scroll logic - load more customers
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination.hasNextPage || !pagination.nextCursor) return;
 
     setIsLoadingMore(true);
@@ -205,7 +200,7 @@ const CustomersPage = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor, fetchCustomers]);
 
   // Infinite scroll detection
   useEffect(() => {
@@ -225,7 +220,7 @@ const CustomersPage = () => {
       scrollElement.addEventListener('scroll', handleScroll);
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
-  }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor]);
+  }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor, handleLoadMore]);
 
   const handleStoreChange = () => {
     // Store change is handled by Redux, no need for local state
@@ -256,24 +251,6 @@ const CustomersPage = () => {
 
   const handleViewCustomer = (customerId) => {
     router.push(`/dashboard/customers/view/${customerId}`);
-  };
-
-  // Customer selection handlers
-  const handleCustomerSelect = (customerIds) => {
-    const idsArray = Array.isArray(customerIds) ? customerIds : [customerIds];
-    dispatch(setSelectedCustomers(idsArray));
-  };
-
-  const handleCardSelect = (customerId) => {
-    dispatch(toggleCustomerSelection(customerId));
-  };
-
-  const handleSelectAll = (isSelected) => {
-    if (isSelected) {
-      dispatch(selectAllCustomers());
-    } else {
-      dispatch(deselectAllCustomers());
-    }
   };
 
   const handleDeleteCustomer = (customerId) => {
@@ -341,7 +318,7 @@ const CustomersPage = () => {
                       Loading Customers...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your customers
+                      Please wait while we fetch your customers 
                     </p>
                   </div>
                 </div>
@@ -441,9 +418,6 @@ const CustomersPage = () => {
                     <div className="h-full">
                       <CustomerTable
                         customers={customers}
-                        selectedCustomers={selectedCustomers}
-                        onSelect={handleCustomerSelect}
-                        onSelectAll={handleSelectAll}
                         onEdit={handleEditCustomer}
                         onDelete={handleDeleteCustomer}
                         onViewDetails={handleViewCustomer}
@@ -456,35 +430,11 @@ const CustomersPage = () => {
                     </div>
                   ) : (
                     <div>
-                      {/* Select All Header for Card View */}
-                      {customers.length > 0 && (
-                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="checkbox"
-                              checked={selectedCustomers.length === customers.length && customers.length > 0}
-                              onChange={(e) => handleSelectAll(e.target.checked)}
-                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                              Select all {customers.length} customers
-                            </span>
-                            {selectedCustomers.length > 0 && (
-                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                ({selectedCustomers.length} selected)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {customers.map((customer) => (
                           <CustomerCard
                             key={customer.id}
                             customer={customer}
-                            onSelect={handleCardSelect}
-                            selected={selectedCustomers.includes(customer.id)}
                             onEdit={handleEditCustomer}
                             onDelete={handleDeleteCustomer}
                             onViewDetails={handleViewCustomer}
@@ -525,13 +475,7 @@ const CustomersPage = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedCustomers.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedCustomers.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

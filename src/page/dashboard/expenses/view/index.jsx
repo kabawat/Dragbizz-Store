@@ -7,6 +7,7 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { Button, Badge } from '@/components/ui';
 import { expenseService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -30,14 +31,15 @@ const ViewExpensePage = ({ expenseId }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedExpenseName, setDeletedExpenseName] = useState('');
-  const hasFetched = useRef(false);
 
   // Fetch expense data on component mount
   useEffect(() => {
     const fetchExpenseData = async () => {
-      if (!expenseId || !storeId || hasFetched.current) return;
+      if (!expenseId || !storeId) {
+        setFetching(false);
+        return;
+      }
 
-      hasFetched.current = true;
       try {
         setFetching(true);
         setError(null);
@@ -203,9 +205,10 @@ const ViewExpensePage = ({ expenseId }) => {
 
             {/* Expense Details - Only show when no error */}
             {!error && expenseData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: 'calc(100vh - 300px)' }}>
                 {/* Left Side - Expense Info */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 flex flex-col h-full">
+                  <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
                   {/* Basic Information Card */}
                   <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
                     <div className="flex items-center justify-between mb-6">
@@ -225,48 +228,48 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Expense Title */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Expense Title</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-xl overflow-hidden">
+                        <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Expense Title</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {expenseData.title || 'N/A'}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Bill Number */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Bill Number</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <Hash className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
+                        <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Bill Number</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {expenseData.billNumber || 'N/A'}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Date */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Date</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Date</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {formatDate(expenseData.date)}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Amount */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Amount</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-xl overflow-hidden">
+                        <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Amount</p>
+                          <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                             ₹{formatCurrency(expenseData.amount)}
-                          </span>
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -284,44 +287,45 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Category */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Category</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-xl overflow-hidden">
+                        <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Category</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {getCategoryLabel(expenseData.category?.name || expenseData.category)}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Vendor */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Vendor</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <Building className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
+                        <Building className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Vendor</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {expenseData.vendor?.name || expenseData.vendor || 'N/A'}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Payment Method */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Payment Method</label>
-                        <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                          <CreditCard className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                          <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                      <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
+                        <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Payment Method</p>
+                          <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                             {getPaymentMethodIcon(expenseData.paymentMethod)} {getPaymentMethodLabel(expenseData.paymentMethod)}
-                          </span>
+                          </p>
                         </div>
                       </div>
 
                       {/* Status */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Status</label>
-                        <div className="p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                      <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-xl overflow-hidden">
+                        <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                        <div className="relative z-10">
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Status</p>
                           <Badge variant={expenseData.status === 'PAID' ? 'success' : expenseData.status === 'PENDING' ? 'warning' : 'danger'}>
                             {getStatusLabel(expenseData.status)}
                           </Badge>
@@ -334,11 +338,11 @@ const ViewExpensePage = ({ expenseId }) => {
                   {expenseData.description && (
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center space-x-3 mb-6">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-blue-500" />
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-blue-500" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Description</h3>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Description</h2>
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">Additional details</p>
                         </div>
                       </div>
@@ -350,6 +354,7 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
 
                 {/* Right Side - Quick Actions */}
@@ -365,10 +370,10 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
                     </div>
 
-                    <div className="space-y-3 mb-6">
+                    <div className="flex gap-3 mb-6">
                       <Button
                         variant="primary"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleEditExpense}
                         leftIcon={Edit}
                       >
@@ -377,7 +382,7 @@ const ViewExpensePage = ({ expenseId }) => {
 
                       <Button
                         variant="danger"
-                        className="w-full"
+                        className="flex-1"
                         onClick={handleDeleteExpense}
                         leftIcon={Trash2}
                       >

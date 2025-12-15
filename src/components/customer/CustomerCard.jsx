@@ -11,8 +11,6 @@ const CustomerCard = ({
   onDelete,
   onDuplicate,
   onViewDetails,
-  onSelect,
-  selected = false,
   className = '',
   ...props
 }) => {
@@ -83,24 +81,7 @@ const CustomerCard = ({
   
   // Grid view - Modern Card Design
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
-      {/* Checkbox */}
-      {onSelect && (
-        <div className="absolute top-4 left-4 z-10">
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={(e) => onSelect(customer.id, e.target.checked)}
-            className="w-4 h-4 rounded focus:ring-blue-500"
-            style={{
-              color: themeConfig.primary,
-              borderColor: themeConfig.border,
-              backgroundColor: themeConfig.background
-            }}
-          />
-        </div>
-      )}
-      
+    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`} {...props}>
       {/* Customer Avatar Section with Gradient Background */}
       <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative">
         {/* Customer Avatar */}

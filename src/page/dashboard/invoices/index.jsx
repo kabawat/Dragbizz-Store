@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Grid3X3, List, FileText, Download, Search } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
-import { getInvoices, setSelectedInvoices, selectAllInvoices, deselectAllInvoices, setViewMode } from '@/store/slices/invoicesSlice';
+import { getInvoices, setViewMode } from '@/store/slices/invoicesSlice';
 import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,6 @@ const InvoicesPage = () => {
   // Redux store data
   const {
     invoices,
-    selectedInvoices,
     isLoading,
     error,
     pagination,
@@ -233,19 +232,6 @@ const InvoicesPage = () => {
     setInvoiceToUpdatePayment(null);
   };
 
-  const handleInvoiceSelect = (invoiceIds) => {
-    const idsArray = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
-    dispatch(setSelectedInvoices(idsArray));
-  };
-
-  const handleSelectAll = (isSelected) => {
-    if (isSelected) {
-      dispatch(selectAllInvoices());
-    } else {
-      dispatch(deselectAllInvoices());
-    }
-  };
-
   const handleDeleteInvoice = (invoice) => {
     setInvoiceToDelete(invoice);
   };
@@ -378,9 +364,6 @@ const InvoicesPage = () => {
                       <div className="min-h-full">
                         <InvoiceTable
                           invoices={invoices}
-                          selectedInvoices={selectedInvoices}
-                          onSelect={handleInvoiceSelect}
-                          onSelectAll={handleSelectAll}
                           onEdit={handleEditInvoice}
                           onDelete={handleDeleteInvoice}
                           onViewDetails={handleViewInvoice}
@@ -396,34 +379,11 @@ const InvoicesPage = () => {
                       </div>
                     ) : (
                       <div>
-                        {invoices.length > 0 && (
-                          <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                            <div className="flex items-center gap-4">
-                              <input
-                                type="checkbox"
-                                checked={selectedInvoices.length === invoices.length && invoices.length > 0}
-                                onChange={(e) => handleSelectAll(e.target.checked)}
-                                className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                              />
-                              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Select all {invoices.length} invoices
-                              </span>
-                              {selectedInvoices.length > 0 && (
-                                <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                  ({selectedInvoices.length} selected)
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
                         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                           {invoices.map((invoice) => (
                             <InvoiceCard
                               key={invoice.id || invoice._id}
                               invoice={invoice}
-                              onSelect={handleInvoiceSelect}
-                              selected={selectedInvoices.includes(invoice.id || invoice._id)}
                               onEdit={handleEditInvoice}
                               onDelete={handleDeleteInvoice}
                               onViewDetails={handleViewInvoice}
@@ -465,13 +425,7 @@ const InvoicesPage = () => {
                           </>
                         )}
                       </div>
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {selectedInvoices.length > 0 && (
-                          <span className="font-semibold text-[rgb(var(--color-primary))]">
-                            {selectedInvoices.length} selected
-                          </span>
-                        )}
-                      </div>
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                     </div>
                   </div>
                 </div>

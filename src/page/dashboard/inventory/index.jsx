@@ -383,9 +383,6 @@ const InventoryPage = () => {
                         onDelete={handleDeleteStock}
                         onDuplicate={handleDuplicate}
                         onStockIn={handleStockIn}
-                        onSelect={handleInventorySelect}
-                        selectedInventories={selectedInventories}
-                        onSelectAll={handleSelectAll}
                         loading={loading}
                         hasMore={hasMore}
                         onLoadMore={handleLoadMore}
@@ -405,8 +402,6 @@ const InventoryPage = () => {
                             onDelete={handleDeleteStock}
                             onDuplicate={handleDuplicate}
                             onStockIn={handleStockIn}
-                            onSelect={handleCardSelect}
-                            selected={selectedInventories.includes(inventory.id)}
                           />
                         ))}
                       </div>

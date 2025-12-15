@@ -6,10 +6,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   getSuppliers,
   deleteSupplier,
-  setSelectedSuppliers,
-  toggleSupplierSelection,
-  selectAllSuppliers,
-  deselectAllSuppliers,
   setViewMode
 } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
@@ -26,7 +22,6 @@ const SuppliersPage = () => {
   // Get data from Redux store
   const {
     suppliers,
-    selectedSuppliers,
     isLoading,
     error,
     pagination,
@@ -205,23 +200,6 @@ const SuppliersPage = () => {
     }
   };
 
-  // Supplier selection handlers
-  const handleSupplierSelect = (supplierIds) => {
-    const idsArray = Array.isArray(supplierIds) ? supplierIds : [supplierIds];
-    dispatch(setSelectedSuppliers(idsArray));
-  };
-
-  const handleCardSelect = (supplierId) => {
-    dispatch(toggleSupplierSelection(supplierId));
-  };
-
-  const handleSelectAll = (isSelected) => {
-    if (isSelected) {
-      dispatch(selectAllSuppliers());
-    } else {
-      dispatch(deselectAllSuppliers());
-    }
-  };
 
   const handleDeleteSupplier = (supplierId) => {
     const supplier = suppliers.find(s => s.id === supplierId);
@@ -456,9 +434,6 @@ const SuppliersPage = () => {
                     <div className="h-full">
                       <SupplierTable
                         suppliers={suppliers}
-                        selectedSuppliers={selectedSuppliers}
-                        onSelect={handleSupplierSelect}
-                        onSelectAll={handleSelectAll}
                         onEdit={handleEditSupplier}
                         onDelete={handleDeleteSupplier}
                         onViewDetails={handleViewSupplier}
@@ -471,35 +446,11 @@ const SuppliersPage = () => {
                     </div>
                   ) : (
                     <div>
-                      {/* Select All Header for Card View */}
-                      {suppliers.length > 0 && (
-                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="checkbox"
-                              checked={selectedSuppliers.length === suppliers.length && suppliers.length > 0}
-                              onChange={(e) => handleSelectAll(e.target.checked)}
-                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                              Select all {suppliers.length} suppliers
-                            </span>
-                            {selectedSuppliers.length > 0 && (
-                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                ({selectedSuppliers.length} selected)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {suppliers.map((supplier) => (
                           <SupplierCard
                             key={supplier.id}
                             supplier={supplier}
-                            onSelect={handleCardSelect}
-                            selected={selectedSuppliers.includes(supplier.id)}
                             onEdit={handleEditSupplier}
                             onDelete={handleDeleteSupplier}
                             onViewDetails={handleViewSupplier}
@@ -540,13 +491,7 @@ const SuppliersPage = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedSuppliers.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedSuppliers.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

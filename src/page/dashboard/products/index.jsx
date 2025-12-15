@@ -6,10 +6,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   getProducts,
   deleteProduct,
-  setSelectedProducts,
-  toggleProductSelection,
-  selectAllProducts,
-  deselectAllProducts,
   setViewMode,
   addMoreProducts
 } from '@/store/slices/productsSlice';
@@ -50,7 +46,6 @@ const ProductsPage = () => {
   // Redux store data
   const {
     products,
-    selectedProducts,
     isLoading,
     error,
     pagination,
@@ -390,23 +385,6 @@ const ProductsPage = () => {
   }, []);
 
 
-  // ProductTable handlers - memoized callbacks
-  const handleProductSelect = useCallback((productIds) => {
-    const idsArray = Array.isArray(productIds) ? productIds : [productIds];
-    dispatch(setSelectedProducts(idsArray));
-  }, [dispatch]);
-
-  const handleCardSelect = useCallback((productId) => {
-    dispatch(toggleProductSelection(productId));
-  }, [dispatch]);
-
-  const handleSelectAll = useCallback((isSelected) => {
-    if (isSelected) {
-      dispatch(selectAllProducts());
-    } else {
-      dispatch(deselectAllProducts());
-    }
-  }, [dispatch]);
 
 
   const handleDeleteProduct = useCallback((productId) => {
@@ -602,9 +580,6 @@ const ProductsPage = () => {
                     <div className="h-full">
                       <ProductTable
                         products={transformedProducts}
-                        selectedProducts={selectedProducts}
-                        onSelect={handleProductSelect}
-                        onSelectAll={handleSelectAll}
                         onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
                         onViewDetails={handleViewProduct}
@@ -618,35 +593,11 @@ const ProductsPage = () => {
                     </div>
                   ) : (
                     <div>
-                      {/* Select all header */}
-                      {transformedProducts.length > 0 && (
-                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="checkbox"
-                              checked={selectedProducts.length === transformedProducts.length && transformedProducts.length > 0}
-                              onChange={(e) => handleSelectAll(e.target.checked)}
-                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                              Select all {transformedProducts.length} products
-                            </span>
-                            {selectedProducts.length > 0 && (
-                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                ({selectedProducts.length} selected)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {transformedProducts.map((product) => (
                           <ProductCard
                             key={product.id}
                             product={product}
-                            onSelect={handleProductSelect}
-                            selected={selectedProducts.includes(product.id)}
                             onEdit={handleEditProduct}
                             onDelete={handleDeleteProduct}
                             onViewDetails={handleViewProduct}
@@ -688,13 +639,7 @@ const ProductsPage = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedProducts.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedProducts.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

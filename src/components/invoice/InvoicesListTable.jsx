@@ -6,9 +6,6 @@ import { AddActionButton } from '@/components/ui';
 
 const InvoicesListTable = ({
     invoices = [],
-    selectedInvoices = [],
-    onSelect,
-    onSelectAll,
     onEdit,
     onDelete,
     onViewDetails,
@@ -56,17 +53,6 @@ const InvoicesListTable = ({
             year: 'numeric'
         });
     };
-
-    const handleSelectAll = (checked) => {
-        if (checked) {
-            onSelectAll?.(true);
-        } else {
-            onSelectAll?.(false);
-        }
-    };
-
-    const allSelected = invoices.length > 0 && selectedInvoices.length === invoices.length;
-    const someSelected = selectedInvoices.length > 0 && selectedInvoices.length < invoices.length;
 
     const buildShareUrl = (row) => {
         if (typeof window === 'undefined') return '';
@@ -137,17 +123,6 @@ const InvoicesListTable = ({
             <table className="w-full">
                 <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
                     <tr>
-                        <th className="px-4 py-3 text-left">
-                            <input
-                                type="checkbox"
-                                checked={allSelected}
-                                ref={(el) => {
-                                    if (el) el.indeterminate = someSelected;
-                                }}
-                                onChange={(e) => handleSelectAll(e.target.checked)}
-                                className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                        </th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                             Invoice Number
                         </th>
@@ -174,22 +149,10 @@ const InvoicesListTable = ({
                 <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
                     {invoices.map((invoice) => {
                         const invoiceId = invoice.id || invoice._id;
-                        const isSelected = selectedInvoices.includes(invoiceId);
                         const isMenuOpen = openMenuId === invoiceId;
 
                         return (
-                            <tr key={invoiceId} className={`hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? 'bg-[rgb(var(--color-primary))]/5' : ''}`}>
-                                <td className="px-4 py-3 relative">
-                                    {isSelected && (
-                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                                    )}
-                                    <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        onChange={(e) => onSelect?.(e.target.checked ? [...selectedInvoices, invoiceId] : selectedInvoices.filter(id => id !== invoiceId))}
-                                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                                    />
-                                </td>
+                            <tr key={invoiceId} className="hover:bg-[rgb(var(--color-bg-secondary))] transition-colors">
                                 <td className="px-4 py-3">
                                     <div className="font-medium text-[rgb(var(--color-text-primary))]">
                                         {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}

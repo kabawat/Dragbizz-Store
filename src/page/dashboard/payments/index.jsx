@@ -39,7 +39,6 @@ const Payments = () => {
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [methodFilter, setMethodFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
-  const [selectedPayments, setSelectedPayments] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
   const [viewMode, setViewMode] = useState('card');
@@ -191,24 +190,6 @@ const Payments = () => {
         break;
       default:
         break;
-    }
-  };
-
-  // Handle payment selection
-  const handlePaymentSelect = (paymentId) => {
-    setSelectedPayments(prev =>
-      prev.includes(paymentId)
-        ? prev.filter(id => id !== paymentId)
-        : [...prev, paymentId]
-    );
-  };
-
-  // Handle select all
-  const handleSelectAll = (isSelected) => {
-    if (isSelected) {
-      setSelectedPayments(payments.map(payment => payment._id || payment.id));
-    } else {
-      setSelectedPayments([]);
     }
   };
 
@@ -439,18 +420,8 @@ const Payments = () => {
                         <table className="w-full min-w-[1000px] table-fixed">
                           <thead>
                             <tr>
-                              <th className="w-1/6 px-6 py-4 text-left">
-                                <div className="flex items-center gap-4">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedPayments.length === payments.length && payments.length > 0}
-                                    onChange={(e) => handleSelectAll(e.target.checked)}
-                                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                                  />
-                                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                    Payment
-                                  </span>
-                                </div>
+                              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                                Payment
                               </th>
                               <th className="w-1/7 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Supplier</th>
                               <th className="w-1/7 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Date</th>
@@ -480,15 +451,7 @@ const Payments = () => {
                               return (
                                 <tr key={paymentId} className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
                                   <td className="w-1/6 px-6 py-4">
-                                    <div className="flex items-center gap-4">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedPayments.includes(paymentId)}
-                                        onChange={() => handlePaymentSelect(paymentId)}
-                                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                                      />
-                                      <div className="font-medium text-[rgb(var(--color-text-primary))]">{payment.paymentNumber}</div>
-                                    </div>
+                                    <div className="font-medium text-[rgb(var(--color-text-primary))]">{payment.paymentNumber}</div>
                                   </td>
                                   <td className="w-1/7 px-6 py-4">
                                     <div className="flex items-center">
@@ -749,13 +712,7 @@ const Payments = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedPayments.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedPayments.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

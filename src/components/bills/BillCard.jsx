@@ -16,8 +16,6 @@ import { renderStatusBadge } from '@/utils/statusBadge';
 
 const BillCard = ({
   bill,
-  onSelect,
-  selected,
   onEdit,
   onDelete,
   onViewDetails,
@@ -44,17 +42,7 @@ const BillCard = ({
   const StatusIcon = iconMap[status] || Clock;
 
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''}`} >
-      {/* Checkbox */}
-      <div className="absolute top-4 left-4 z-10">
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={() => onSelect(bill._id || bill.id)}
-          className="w-4 h-4 rounded focus:ring-blue-500"
-        />
-      </div>
-
+    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden" >
       {/* Bill Header with Gradient Background */}
       <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 relative">
         <div className="w-full h-full flex items-center justify-center">

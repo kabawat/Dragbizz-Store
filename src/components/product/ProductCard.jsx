@@ -12,8 +12,6 @@ const ProductCard = ({
   onDuplicate,
   onViewDetails,
   onStockIn,
-  onSelect,
-  selected = false,
   className = '',
   ...props
 }) => {
@@ -132,23 +130,7 @@ const ProductCard = ({
   
   // Grid view - Modern Card Design
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
-      {/* Checkbox */}
-      {onSelect && (
-        <div className="absolute top-4 left-4 z-10">
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={(e) => onSelect(product.id, e.target.checked)}
-            className="w-4 h-4 rounded focus:ring-blue-500"
-            style={{
-              color: themeConfig.primary,
-              borderColor: themeConfig.border,
-              backgroundColor: themeConfig.background
-            }}
-          />
-        </div>
-      )}
+    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`} {...props}>
       
       {/* Product Image with Gradient Overlay */}
       <div 
@@ -243,20 +225,48 @@ const ProductCard = ({
         
         {/* Category Tags */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          <span 
-            className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-            style={getCategoryBadgeStyle('#8b5cf6')}
-          >
-            {product.category.split(' > ')[0]}
-          </span>
-          {product.category.split(' > ')[1] && (
-            <span 
-              className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-              style={getCategoryBadgeStyle('#3b82f6')}
-            >
-              {product.category.split(' > ')[1]}
-            </span>
-          )}
+          {(() => {
+            let categoryParts = [];
+            const rawCategory = product.category;
+            
+            if (Array.isArray(rawCategory)) {
+              categoryParts = rawCategory.filter(Boolean);
+            } else if (typeof rawCategory === 'string' && rawCategory.trim()) {
+              categoryParts = rawCategory.split(' > ').filter(Boolean);
+            } else if (rawCategory) {
+              categoryParts = [String(rawCategory)];
+            }
+            
+            if (categoryParts.length === 0) {
+              return (
+                <span 
+                  className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
+                  style={getCategoryBadgeStyle('#6b7280')}
+                >
+                  Uncategorized
+                </span>
+              );
+            }
+            
+            return (
+              <>
+                <span 
+                  className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
+                  style={getCategoryBadgeStyle('#8b5cf6')}
+                >
+                  {categoryParts[0]}
+                </span>
+                {categoryParts[1] && (
+                  <span 
+                    className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
+                    style={getCategoryBadgeStyle('#3b82f6')}
+                  >
+                    {categoryParts[1]}
+                  </span>
+                )}
+              </>
+            );
+          })()}
         </div>
         
         {/* Stock Info */}
