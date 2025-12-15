@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, Building, Search, MoreHorizontal, Edit, Copy, Trash2, Eye } from 'lucide-react';
+import { Plus, Grid3X3, List, Building, Search, Trash2, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -14,9 +14,10 @@ import {
 } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Input, SettingsPanel } from '@/components/ui';
+import { Input, SettingsPanel, Select } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { SupplierTable, SupplierCard, AddSupplierDrawer } from '@/components/supplier';
+import SupplierDownloadDrawer from '@/components/supplier/SupplierDownloadDrawer';
 
 const SuppliersPage = () => {
   const router = useRouter();
@@ -56,6 +57,11 @@ const SuppliersPage = () => {
   // Local state
   const [searchValue, setSearchValue] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Filters
+  const [accountStatus, setAccountStatus] = useState('');
+  const [riskLevel, setRiskLevel] = useState('');
+  const [isActive, setIsActive] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -67,9 +73,10 @@ const SuppliersPage = () => {
   const scrollRef = useRef(null);
   const menuRefs = useRef({});
   const lastFetchRef = useRef(null);
-  
+
   // Drawer state
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
+  const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -85,20 +92,31 @@ const SuppliersPage = () => {
     };
   }, [openMenuId]);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchValue);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+
   // Fetch suppliers on component mount and when search changes
   useEffect(() => {
     const fetchSuppliers = async () => {
       const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
       const params = {
         store: storeId,
-        search: searchValue,
+        search: debouncedSearch,
         limit: 10,
         nextCursor: null,
-        isFreshLoad: true
+        isFreshLoad: true,
+        accountStatus: accountStatus || undefined,
+        riskLevel: riskLevel || undefined,
+        isActive: isActive === '' ? undefined : isActive
       };
 
       // Create a unique key for this fetch
-      const fetchKey = `${storeId}-${searchValue}`;
+      const fetchKey = `${storeId}-${debouncedSearch}-${accountStatus}-${riskLevel}-${isActive}`;
 
       // Prevent duplicate calls with same parameters
       if (lastFetchRef.current === fetchKey) {
@@ -113,7 +131,7 @@ const SuppliersPage = () => {
     if (selectedStore && (selectedStore.storeId || selectedStore._id || selectedStore.id)) {
       fetchSuppliers();
     }
-  }, [selectedStore, searchValue]);
+  }, [selectedStore, debouncedSearch, accountStatus, riskLevel, isActive, dispatch]);
 
   // Infinite scroll detection
   useEffect(() => {
@@ -255,10 +273,13 @@ const SuppliersPage = () => {
     try {
       const params = {
         store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
-        search: searchValue,
+        search: debouncedSearch,
         limit: 10,
         nextCursor: pagination.nextCursor,
-        isFreshLoad: false
+        isFreshLoad: false,
+        accountStatus: accountStatus || undefined,
+        riskLevel: riskLevel || undefined,
+        isActive: isActive === '' ? undefined : isActive
       };
 
       await dispatch(getSuppliers(params));
@@ -283,42 +304,67 @@ const SuppliersPage = () => {
         {/* Main Content */}
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-            {/* Loading State */}
-            {isLoading && suppliers.length === 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Suppliers...
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your suppliers
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Search and Filter Card */}
-            {suppliers.length > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                  {/* Search */}
-                  <div className="w-100 bg-red">
-                    <Input
-                      type="text"
-                      placeholder="Search suppliers..."
-                      value={searchValue}
-                      onChange={(value) => handleSearch(value)}
-                      leftIcon={Search}
-                      className="w-100"
+            {/* Search and actions */}
+            <div className="mb-3">
+              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
+                {/* Search (always visible) */}
+                <div className="w-100">
+                  <Input
+                    type="text"
+                    placeholder="Search suppliers..."
+                    value={searchValue}
+                    onChange={(value) => handleSearch(value)}
+                    leftIcon={Search}
+                    className="w-100"
+                  />
+                </div>
+
+                {/* Filters & Actions */}
+                <div className="flex flex-wrap gap-3 items-center">
+                  <div className="min-w-[160px]">
+                    <Select
+                      placeholder="Account Status"
+                      value={accountStatus}
+                      onChange={setAccountStatus}
+                      options={[
+                        { value: '', label: 'All statuses' },
+                        { value: 'ACTIVE', label: 'Active' },
+                        { value: 'INACTIVE', label: 'Inactive' },
+                        { value: 'SUSPENDED', label: 'Suspended' }
+                      ]}
+                      clearable
                     />
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3">
-                    {/* View Toggle */}
+                  <div className="min-w-[150px]">
+                    <Select
+                      placeholder="Risk Level"
+                      value={riskLevel}
+                      onChange={setRiskLevel}
+                      options={[
+                        { value: '', label: 'All risk levels' },
+                        { value: 'LOW', label: 'Low' },
+                        { value: 'MEDIUM', label: 'Medium' },
+                        { value: 'HIGH', label: 'High' }
+                      ]}
+                      clearable
+                    />
+                  </div>
+                  <div className="min-w-[140px]">
+                    <Select
+                      placeholder="Status"
+                      value={isActive}
+                      onChange={setIsActive}
+                      options={[
+                        { value: '', label: 'All' },
+                        { value: 'true', label: 'Active' },
+                        { value: 'false', label: 'Inactive' }
+                      ]}
+                      clearable
+                    />
+                  </div>
+                  {/* View Toggle (hide when no data) */}
+                  {suppliers.length > 0 && (
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange('table')}
@@ -341,10 +387,32 @@ const SuppliersPage = () => {
                         Cards
                       </button>
                     </div>
+                  )}
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDownloadDrawer(true)}
+                    leftIcon={Download}
+                  >
+                    Download
+                  </Button>
+                  <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
+                    Add Supplier
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-                    <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
-                      Add Supplier
-                    </Button>
+            {isLoading && suppliers.length === 0 && (
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      Loading Suppliers...
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      Please wait while we fetch your suppliers
+                    </p>
                   </div>
                 </div>
               </div>
@@ -374,6 +442,7 @@ const SuppliersPage = () => {
                     <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
                       Add Supplier
                     </Button>
+                   
                   </div>
                 </div>
               </div>
@@ -552,6 +621,10 @@ const SuppliersPage = () => {
         isOpen={showAddSupplierDrawer}
         onClose={() => setShowAddSupplierDrawer(false)}
         onSuccess={handleSupplierSuccess}
+      />
+      <SupplierDownloadDrawer
+        isOpen={showDownloadDrawer}
+        onClose={() => setShowDownloadDrawer(false)}
       />
     </div>
   );
