@@ -8,9 +8,6 @@ const SupplierTable = ({
   onDelete,
   onDuplicate,
   onViewDetails,
-  onSelect,
-  selectedSuppliers = [],
-  onSelectAll,
   loading = false,
   emptyMessage = 'No suppliers found',
   className = '',
@@ -18,7 +15,6 @@ const SupplierTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
-  ...props
 }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -59,21 +55,6 @@ const SupplierTable = ({
     }
   ];
   
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      onSelectAll?.(suppliers.map(s => s.id));
-    } else {
-      onSelectAll?.([]);
-    }
-  };
-  
-  const handleSupplierSelect = (supplierId, checked) => {
-    if (checked) {
-      onSelect?.([...selectedSuppliers, supplierId]);
-    } else {
-      onSelect?.(selectedSuppliers.filter(id => id !== supplierId));
-    }
-  };
   
   const handleMenuToggle = (supplierId) => {
     setOpenMenuId(openMenuId === supplierId ? null : supplierId);
@@ -96,8 +77,6 @@ const SupplierTable = ({
     }
   };
   
-  const isAllSelected = suppliers.length > 0 && selectedSuppliers.length === suppliers.length;
-  const isIndeterminate = selectedSuppliers.length > 0 && selectedSuppliers.length < suppliers.length;
   
   if (loading) {
     return (
@@ -126,27 +105,16 @@ const SupplierTable = ({
   }
   
   return (
-    <div className={`${className}`} {...props}>
+    <div className={`${className}`}>
       <div className="relative">
         <table className="w-full min-w-[800px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>
             <th className="px-6 py-4 text-left">
-              <div className="flex items-center gap-4">
-                <input
-                  type="checkbox"
-                  checked={isAllSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = isIndeterminate;
-                  }}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                />
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  Supplier
-                </span>
-              </div>
+              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Supplier
+              </span>
             </th>
             <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
               Contact
@@ -169,29 +137,18 @@ const SupplierTable = ({
         {/* Table Body */}
         <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
           {suppliers.map((supplier, index) => {
-            const isSelected = selectedSuppliers.includes(supplier.id);
-            
             return (
               <tr
                 key={supplier.id}
                 className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                  isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
-                } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                  hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                }`}
                 onMouseEnter={() => setHoveredRow(index)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
                 {/* Supplier Column */}
-                <td className="px-6 py-4 relative">
-                  {isSelected && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                  )}
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) => handleSupplierSelect(supplier.id, e.target.checked)}
-                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                    />
                     
                     {/* Supplier Avatar */}
                     <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">

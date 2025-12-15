@@ -23,9 +23,6 @@ import { renderStatusBadge } from '@/utils/statusBadge';
 
 const PurchaseOrderTable = ({
     bills,
-    selectedBills,
-    onSelect,
-    onSelectAll,
     onEdit,
     onDelete,
     onViewDetails,
@@ -129,17 +126,9 @@ const PurchaseOrderTable = ({
                     <thead>
                         <tr>
                             <th className="w-1/6 px-6 py-4 text-left">
-                                <div className="flex items-center gap-4">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedBills.length === bills.length && bills.length > 0}
-                                        onChange={(e) => onSelectAll(e.target.checked)}
-                                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                                    />
-                                    <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                        PO
-                                    </span>
-                                </div>
+                                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                                    PO
+                                </span>
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                                 Supplier
@@ -172,7 +161,6 @@ const PurchaseOrderTable = ({
                 <table className="w-full min-w-[800px] table-fixed">
                     <tbody className="divide-y divide-gray-100">
                         {bills.map((row) => {
-                            const isSelected = selectedBills.includes(row._id || row.id);
                             const poStatus = (row.status || '').toUpperCase();
                             const isDeleted = poStatus === 'DELETED';
 
@@ -189,21 +177,10 @@ const PurchaseOrderTable = ({
                             return (
                                 <tr
                                     key={row._id || row.id || row.billNumber}
-                                    className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                                    className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                                 >
-                                    <td className="w-1/6 px-6 py-4 relative">
-                                        {isSelected && (
-                                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                                        )}
-                                        <div className="flex items-center gap-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={isSelected}
-                                                onChange={() => onSelect(row._id || row.id)}
-                                                className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                                            />
-                                            <div className="font-medium text-[rgb(var(--color-text-primary))]">{row.billNumber}</div>
-                                        </div>
+                                    <td className="w-1/6 px-6 py-4">
+                                        <div className="font-medium text-[rgb(var(--color-text-primary))]">{row.billNumber}</div>
                                     </td>
                                     <td className="w-1/6 px-6 py-4">
                                         <div className="flex items-start">

@@ -30,7 +30,6 @@ const Bills = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
-  const [selectedBills, setSelectedBills] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -278,24 +277,6 @@ const Bills = () => {
     }
   };
 
-  // Handle bill selection
-  const handleBillSelect = (billId) => {
-    setSelectedBills(prev =>
-      prev.includes(billId)
-        ? prev.filter(id => id !== billId)
-        : [...prev, billId]
-    );
-  };
-
-  // Handle select all
-  const handleSelectAll = () => {
-    if (selectedBills.length === bills.length) {
-      setSelectedBills([]);
-    } else {
-      setSelectedBills(bills.map(bill => bill._id || bill.id));
-    }
-  };
-
   // Handle delete bill
   const handleDeleteBill = (bill) => {
     setBillToDelete(bill);
@@ -498,9 +479,6 @@ const Bills = () => {
                   {viewMode === 'table' ? (
                     <BillTable
                       bills={filteredBills}
-                      selectedBills={selectedBills}
-                      onSelect={handleBillSelect}
-                      onSelectAll={handleSelectAll}
                       onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
                       onDelete={handleDeleteBill}
                       onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
@@ -519,9 +497,6 @@ const Bills = () => {
                   ) : (
                     <BillGrid
                       bills={filteredBills}
-                      selectedBills={selectedBills}
-                      onSelect={handleBillSelect}
-                      onSelectAll={handleSelectAll}
                       onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
                       onDelete={handleDeleteBill}
                       onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
@@ -556,13 +531,7 @@ const Bills = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedBills.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedBills.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

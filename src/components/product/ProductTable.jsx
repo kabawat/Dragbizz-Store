@@ -10,9 +10,6 @@ const ProductTable = ({
   onDuplicate,
   onViewDetails,
   onStockIn,
-  onSelect,
-  selectedProducts = [],
-  onSelectAll,
   loading = false,
   emptyMessage = 'No products found',
   className = '',
@@ -20,7 +17,6 @@ const ProductTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
-  ...props
 }) => {
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -99,21 +95,6 @@ const ProductTable = ({
     }
   ];
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      onSelectAll?.(products.map(p => p.id));
-    } else {
-      onSelectAll?.([]);
-    }
-  };
-
-  const handleProductSelect = (productId, checked) => {
-    if (checked) {
-      onSelect?.([...selectedProducts, productId]);
-    } else {
-      onSelect?.(selectedProducts.filter(id => id !== productId));
-    }
-  };
 
   const handleMenuToggle = (productId) => {
     setOpenMenuId(openMenuId === productId ? null : productId);
@@ -142,8 +123,6 @@ const ProductTable = ({
     }
   };
 
-  const isAllSelected = products.length > 0 && selectedProducts.length === products.length;
-  const isIndeterminate = selectedProducts.length > 0 && selectedProducts.length < products.length;
 
   if (loading) {
     return (
@@ -153,7 +132,6 @@ const ProductTable = ({
           {Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="h-20 border-b border-[rgb(var(--color-border-primary))]">
               <div className="flex items-center h-full px-6">
-                <div className="w-4 h-4 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
                 <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg mr-4"></div>
                 <div className="flex-1 space-y-2">
                   <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
@@ -172,27 +150,16 @@ const ProductTable = ({
   }
 
   return (
-    <div className={`${className}`} {...props}>
+    <div className={`${className}`}>
       <div className="relative">
         <table className="w-full min-w-[1000px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
               <th className="px-6 py-4 text-left">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                  />
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                    Product
-                  </span>
-                </div>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  Product
+                </span>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Visibility
@@ -215,28 +182,18 @@ const ProductTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {products.map((product, index) => {
-              const isSelected = selectedProducts.includes(product.id);
-
               return (
                 <tr
                   key={product.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
-                    } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
+                    hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                  }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Product Column */}
-                  <td className="px-6 py-4 relative">
-                    {isSelected && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                    )}
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => handleProductSelect(product.id, e.target.checked)}
-                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                      />
 
                       {/* Product Image */}
                       <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
@@ -278,14 +235,41 @@ const ProductTable = ({
                   {/* Categories Column */}
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 dark:border-purple-500/30">
-                        {product.category.split(' > ')[0]}
-                      </span>
-                      {product.category.split(' > ')[1] && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30">
-                          {product.category.split(' > ')[1]}
-                        </span>
-                      )}
+                      {(() => {
+                        // Safely handle category - could be string, array, null, or undefined
+                        let categoryParts = [];
+                        const rawCategory = product.category;
+                        
+                        if (Array.isArray(rawCategory)) {
+                          categoryParts = rawCategory.filter(Boolean);
+                        } else if (typeof rawCategory === 'string' && rawCategory.trim()) {
+                          categoryParts = rawCategory.split(' > ').filter(Boolean);
+                        } else if (rawCategory) {
+                          // Fallback: convert to string and split
+                          categoryParts = [String(rawCategory)];
+                        }
+                        
+                        if (categoryParts.length === 0) {
+                          return (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/10 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border border-gray-500/20 dark:border-gray-500/30">
+                              Uncategorized
+                            </span>
+                          );
+                        }
+                        
+                        return (
+                          <>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 dark:border-purple-500/30">
+                              {categoryParts[0]}
+                            </span>
+                            {categoryParts[1] && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30">
+                                {categoryParts[1]}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </td>
 

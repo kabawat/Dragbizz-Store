@@ -36,7 +36,6 @@ const PurchaseOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [supplierFilter, setSupplierFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
-  const [selectedPOs, setSelectedPOs] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -239,17 +238,6 @@ const getFilteredPOs = () => {
     };
   });
 
-  const handleSelect = (id) => {
-    setSelectedPOs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedPOs.length === purchaseOrders.length) {
-      setSelectedPOs([]);
-    } else {
-      setSelectedPOs(purchaseOrders.map(po => po._id || po.id));
-    }
-  };
 
   const handleDelete = (po) => {
     setPoToDelete(po);
@@ -443,9 +431,6 @@ const getFilteredPOs = () => {
                   {viewMode === 'table' ? (
                     <PurchaseOrderTable
                       bills={normalizedPOs}
-                      selectedBills={selectedPOs}
-                      onSelect={handleSelect}
-                      onSelectAll={handleSelectAll}
                       onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
                       onDelete={handleDelete}
                       onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
@@ -465,9 +450,6 @@ const getFilteredPOs = () => {
                   ) : (
                     <PurchaseOrderGrid
                       purchaseOrders={normalizedPOs}
-                      selectedPurchaseOrders={selectedPOs}
-                      onSelect={handleSelect}
-                      onSelectAll={handleSelectAll}
                       onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
                       onDelete={handleDelete}
                       onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
@@ -476,6 +458,7 @@ const getFilteredPOs = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
+                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}
@@ -503,13 +486,7 @@ const getFilteredPOs = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedPOs.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedPOs.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

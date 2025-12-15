@@ -23,9 +23,6 @@ import {
 const ExpenseTable = ({
   expenses = [],
   isLoading = false,
-  selectedExpenses = [],
-  onSelectExpense,
-  onSelectAllExpenses,
   onEdit,
   onDelete,
   onView,
@@ -36,7 +33,6 @@ const ExpenseTable = ({
   loading = false,
   emptyMessage = 'No expenses found',
   className = '',
-  ...props
 }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -60,13 +56,6 @@ const ExpenseTable = ({
     setOpenMenuId(openMenuId === expenseId ? null : expenseId);
   };
 
-  const handleSelectAll = (checked) => {
-    onSelectAllExpenses?.(checked);
-  };
-
-  const handleExpenseSelect = (expenseId, checked) => {
-    onSelectExpense?.(expenseId);
-  };
 
   const handleMenuAction = (expenseId, action) => {
     setOpenMenuId(null);
@@ -113,18 +102,15 @@ const ExpenseTable = ({
     return colorMap[config.variant] || 'gray';
   };
 
-  const isAllSelected = expenses.length > 0 && selectedExpenses.length === expenses.length;
-  const isIndeterminate = selectedExpenses.length > 0 && selectedExpenses.length < expenses.length;
   
   if (isLoading || loading) {
     return (
-      <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`} {...props}>
+      <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}>
         <div className="animate-pulse">
           <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
           {Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="h-20 border-b border-[rgb(var(--color-border-primary))]">
               <div className="flex items-center h-full px-6">
-                <div className="w-4 h-4 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
                 <div className="flex-1 space-y-2">
                   <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
                   <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/6"></div>
@@ -142,7 +128,7 @@ const ExpenseTable = ({
   
   if (expenses.length === 0) {
     return (
-      <div className={`${className}`} {...props}>
+      <div className={`${className}`}>
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm">
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-[rgb(var(--color-text-tertiary))] mx-auto mb-4" />
@@ -159,27 +145,16 @@ const ExpenseTable = ({
   }
 
   return (
-    <div className={`${className}`} {...props}>
+    <div className={`${className}`}>
       <div className="relative">
         <table className="w-full min-w-[800px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
               <th className="px-6 py-4 text-left">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2 cursor-pointer"
-                  />
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                    Title
-                  </span>
-                </div>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  Title
+                </span>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Date
@@ -208,28 +183,17 @@ const ExpenseTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {expenses.map((expense, index) => {
-              const isSelected = selectedExpenses.includes(expense.id);
-              
               return (
                 <tr
                   key={expense.id}
                   className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
-                  } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                    hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                  }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  <td className="px-6 py-4 relative">
-                    {isSelected && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                    )}
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => handleExpenseSelect(expense.id, e.target.checked)}
-                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2 cursor-pointer"
-                      />
                       <div>
                         <div className="font-medium text-[rgb(var(--color-text-primary))]">
                           {expense.title}

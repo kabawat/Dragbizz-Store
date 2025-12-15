@@ -2,18 +2,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getExpenses, deleteExpense, setViewMode, setSortOptions, toggleExpenseSelection, selectAllExpenses, deselectAllExpenses } from '@/store/slices/expensesSlice';
+import { getExpenses, deleteExpense, setViewMode, setSortOptions } from '@/store/slices/expensesSlice';
 import { ExpenseCard, ExpenseTable, AddExpenseDrawer } from '@/components/expenses';
 import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
-import { Button } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 
 const ExpensesPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { expenses, selectedExpenses, isLoading, error, viewMode, currentFilter, sortBy, sortOrder } = useAppSelector((state) => state.expenses);
+  const { expenses, isLoading, error, viewMode, currentFilter, sortBy, sortOrder } = useAppSelector((state) => state.expenses);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Refs to prevent duplicate API calls
@@ -108,17 +108,6 @@ const ExpensesPage = () => {
     dispatch(setSortOptions({ sortBy: column, sortOrder: order }));
   };
 
-  const handleExpenseSelect = (expenseId) => {
-    dispatch(toggleExpenseSelection(expenseId));
-  };
-
-  const handleSelectAll = () => {
-    if (selectedExpenses.length === expenses.length) {
-      dispatch(deselectAllExpenses());
-    } else {
-      dispatch(selectAllExpenses());
-    }
-  };
 
   const handleAddExpense = () => {
     setShowAddExpenseDrawer(true);
@@ -269,9 +258,6 @@ const ExpensesPage = () => {
                     <div className="h-full">
                       <ExpenseTable
                         expenses={expenses}
-                        selectedExpenses={selectedExpenses}
-                        onSelectExpense={handleExpenseSelect}
-                        onSelectAllExpenses={handleSelectAll}
                         onEdit={handleEditExpense}
                         onDelete={handleDeleteExpense}
                         onView={handleViewExpense}
@@ -282,35 +268,11 @@ const ExpensesPage = () => {
                     </div>
                   ) : (
                     <div>
-                      {/* Select All Header for Card View */}
-                      {expenses.length > 0 && (
-                        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] px-6 py-4 sticky top-0 z-20">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="checkbox"
-                              checked={selectedExpenses.length === expenses.length && expenses.length > 0}
-                              onChange={(e) => handleSelectAll(e.target.checked)}
-                              className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                            />
-                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                              Select all {expenses.length} expenses
-                            </span>
-                            {selectedExpenses.length > 0 && (
-                              <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                                ({selectedExpenses.length} selected)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {expenses.map((expense) => (
                           <ExpenseCard
                             key={expense.id}
                             expense={expense}
-                            isSelected={selectedExpenses.includes(expense.id)}
-                            onSelect={handleExpenseSelect}
                             onEdit={handleEditExpense}
                             onDelete={handleDeleteExpense}
                             onView={handleViewExpense}
@@ -330,13 +292,7 @@ const ExpensesPage = () => {
                         • All expenses loaded
                       </span>
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedExpenses.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedExpenses.length} selected
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

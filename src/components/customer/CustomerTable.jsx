@@ -8,9 +8,6 @@ const CustomerTable = ({
   onDelete,
   onDuplicate,
   onViewDetails,
-  onSelect,
-  selectedCustomers = [],
-  onSelectAll,
   loading = false,
   emptyMessage = 'No customers found',
   className = '',
@@ -18,7 +15,6 @@ const CustomerTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
-  ...props
 }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -59,22 +55,6 @@ const CustomerTable = ({
     }
   ];
   
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      onSelectAll?.(customers.map(c => c.id));
-    } else {
-      onSelectAll?.([]);
-    }
-  };
-  
-  const handleCustomerSelect = (customerId, checked) => {
-    if (checked) {
-      onSelect?.([...selectedCustomers, customerId]);
-    } else {
-      onSelect?.(selectedCustomers.filter(id => id !== customerId));
-    }
-  };
-  
   const handleMenuToggle = (customerId) => {
     setOpenMenuId(openMenuId === customerId ? null : customerId);
   };
@@ -96,12 +76,9 @@ const CustomerTable = ({
     }
   };
   
-  const isAllSelected = customers.length > 0 && selectedCustomers.length === customers.length;
-  const isIndeterminate = selectedCustomers.length > 0 && selectedCustomers.length < customers.length;
-  
   if (loading) {
     return (
-      <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`} {...props}>
+      <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}>
         <div className="animate-pulse">
           <div className="h-16 bg-gray-50 border-b border-gray-200"></div>
           {Array.from({ length: 5 }).map((_, index) => (
@@ -126,27 +103,16 @@ const CustomerTable = ({
   }
   
   return (
-    <div className={`${className}`} {...props}>
+    <div className={`${className}`}>
       {/* Fixed Header */}
       <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
         <table className="w-full min-w-[600px] table-fixed">
           <thead>
             <tr>
               <th className="w-1/3 px-6 py-4 text-left">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                  />
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                    Customer
-                  </span>
-                </div>
+                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  Customer
+                </span>
               </th>
               <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Phone
@@ -165,37 +131,23 @@ const CustomerTable = ({
         </table>
       </div>
       
-      {/* Scrollable Body */}
-      <div className="overflow-auto min-h-[calc(100vh-400px)]">
+      {/* Table Body */}
+      <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] table-fixed">
-        
-        {/* Table Body */}
         <tbody className="divide-y divide-gray-100">
           {customers.map((customer, index) => {
-            const isSelected = selectedCustomers.includes(customer.id);
-            
             return (
               <tr
                 key={customer.id}
                 className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                  isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
-                } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                  hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                }`}
                 onMouseEnter={() => setHoveredRow(index)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
                 {/* Customer Column */}
                 <td className="w-1/3 px-6 py-4 relative">
-                  {isSelected && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                  )}
                   <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) => handleCustomerSelect(customer.id, e.target.checked)}
-                      className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                    />
-                    
                     {/* Customer Avatar */}
                     <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
                       <Users className="w-6 h-6 text-[rgb(var(--color-primary))]" />

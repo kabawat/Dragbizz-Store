@@ -11,9 +11,6 @@ const InventoryTable = ({
   onDuplicate,
   onViewDetails,
   onStockIn,
-  onSelect,
-  selectedInventories = [],
-  onSelectAll,
   loading = false,
   emptyMessage = 'No inventory found',
   className = '',
@@ -21,7 +18,6 @@ const InventoryTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
-  ...props
 }) => {
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -94,22 +90,6 @@ const InventoryTable = ({
     }
   ];
   
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      onSelectAll?.(inventories.map(i => i.id));
-    } else {
-      onSelectAll?.([]);
-    }
-  };
-  
-  const handleInventorySelect = (inventoryId, checked) => {
-    if (checked) {
-      onSelect?.([...selectedInventories, inventoryId]);
-    } else {
-      onSelect?.(selectedInventories.filter(id => id !== inventoryId));
-    }
-  };
-  
   const handleMenuToggle = (inventoryId) => {
     setOpenMenuId(openMenuId === inventoryId ? null : inventoryId);
   };
@@ -136,9 +116,6 @@ const InventoryTable = ({
         break;
     }
   };
-  
-  const isAllSelected = inventories.length > 0 && selectedInventories.length === inventories.length;
-  const isIndeterminate = selectedInventories.length > 0 && selectedInventories.length < inventories.length;
   
   if (loading) {
     return (
@@ -167,27 +144,14 @@ const InventoryTable = ({
   }
   
   return (
-    <div className={`${className}`} {...props}>
+    <div className={`${className}`}>
       <div className="relative">
         <table className="w-full min-w-[1200px]">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-4 text-left">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                  />
-                  <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                    Product
-                  </span>
-                </div>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                Product
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Stock
@@ -213,29 +177,18 @@ const InventoryTable = ({
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {inventories.map((inventory, index) => {
-              const isSelected = selectedInventories.includes(inventory.id);
-              
               return (
                 <tr
                   key={inventory.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${isSelected ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
-                    } ${hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''}`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
+                    hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                  }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Product Column */}
                   <td className="px-6 py-4 relative">
-                    {isSelected && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[rgb(var(--color-primary))]"></div>
-                    )}
                     <div className="flex items-center gap-4">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => handleInventorySelect(inventory.id, e.target.checked)}
-                        className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
-                      />
-                      
                       {/* Product Image */}
                       <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
                         {inventory.product?.image && !imageError[inventory.id] ? (

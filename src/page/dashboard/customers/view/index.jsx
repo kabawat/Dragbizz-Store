@@ -7,6 +7,7 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { Button } from '@/components/ui';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';

@@ -1,6 +1,6 @@
 import ViewExpensePage from '@/page/dashboard/expenses/view/';
 
-export default function ViewExpenseRoute({ params }) {
-  const expenseId = params?.id;
-  return <ViewExpensePage expenseId={expenseId} />;
+export default async function ViewExpenseRoute({ params }) {
+  const { id } = await params;
+  return <ViewExpensePage expenseId={id} />;
 }
