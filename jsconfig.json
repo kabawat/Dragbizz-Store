@@ -22,6 +22,9 @@
       "@/*": ["./src/*"]
     }
   },
+  "typeAcquisition": {
+    "exclude": ["trusted-types", "node"]
+  },
   "include": ["**/*.js", "**/*.jsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
