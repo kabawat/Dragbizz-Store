@@ -115,7 +115,10 @@ export function useUsageQuota(featureKey = null) {
           hasFetchedRef.current = true;
           isFetchingRef.current = false;
           return;
-        } catch (err) {}
+        } catch (err) {
+          console.error('[useUsageQuota] Error handling pending request:', err);
+          pendingRequests.delete(cacheKey);
+        }
       }
       return;
     }
@@ -210,7 +213,9 @@ export function useUsageQuota(featureKey = null) {
           }
           setIsLoading(false);
           hasFetchedRef.current = true;
-        }).catch(() => {});
+        }).catch((err) => {
+          console.error('[useUsageQuota] Error in pending request:', err);
+        });
         return;
       }
     }
