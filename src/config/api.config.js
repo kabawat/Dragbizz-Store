@@ -42,6 +42,11 @@ const API_CONFIG = {
     DASHBOARD: '/retailer/dashboard',
   },
   
+  // Voice AI Service Endpoints
+  VOICE_AI: {
+    CUSTOMER_CHAT: '/voice-ai/api/v1/customer/chat',
+  },
+  
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     PACKAGES: '/plans/packages',

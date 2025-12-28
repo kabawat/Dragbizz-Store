@@ -4,3 +4,4 @@ export { default as CustomerAddSuccessModal } from './CustomerAddSuccessModal';
 export { default as CustomerTable } from './CustomerTable';
 export { default as CustomerCard } from './CustomerCard';
 export { default as CreateCustomer } from './CreateCustomer';
+export { default as VoiceAICustomer } from './VoiceAICustomer';

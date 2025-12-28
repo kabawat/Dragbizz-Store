@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, Users, Search, Download } from 'lucide-react';
+import { Plus, Grid3X3, List, Users, Search, Download, Mic } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -12,7 +12,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Input, SettingsPanel, SideDrawer } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { CustomerTable, CustomerCard, CreateCustomer } from '@/components/customer';
+import { CustomerTable, CustomerCard, CreateCustomer, VoiceAICustomer } from '@/components/customer';
 import CustomerDownloadDrawer from '@/components/customer/CustomerDownloadDrawer';
 
 const CustomersPage = () => {
@@ -49,6 +49,7 @@ const CustomersPage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
+  const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
   const lastFetchRef = useRef(null);
@@ -235,6 +236,10 @@ const CustomersPage = () => {
     setShowCustomerDrawer(true);
   };
 
+  const handleVoiceAICustomer = () => {
+    setShowVoiceAIDrawer(true);
+  };
+
   // Handle customer creation success from drawer
   const handleCustomerSuccess = async (customerData) => {
     // Refresh customers list
@@ -370,6 +375,16 @@ const CustomersPage = () => {
                   >
                     <Download className="w-4 h-4" />
                     Download
+                  </Button>
+
+                  {/* Voice AI Button */}
+                  <Button
+                    variant="secondary"
+                    onClick={handleVoiceAICustomer}
+                    className="flex items-center gap-2 h-9"
+                  >
+                    <Mic className="w-4 h-4" />
+                    Voice AI
                   </Button>
 
                   <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
@@ -565,6 +580,29 @@ const CustomersPage = () => {
             showCancelButton={true}
             autoRedirect={false}
             mode="drawer"
+          />
+        </div>
+      </SideDrawer>
+
+      {/* Voice AI Drawer */}
+      <SideDrawer
+        isOpen={showVoiceAIDrawer}
+        onClose={() => {
+          setShowVoiceAIDrawer(false);
+        }}
+        title="Create Customer with Voice AI"
+        icon={Mic}
+        description="Chat with AI to create a customer naturally"
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="h-full">
+          <VoiceAICustomer
+            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            onSuccess={(customerData) => {
+              handleCustomerSuccess(customerData);
+              setShowVoiceAIDrawer(false);
+            }}
+            onCancel={() => setShowVoiceAIDrawer(false)}
           />
         </div>
       </SideDrawer>
