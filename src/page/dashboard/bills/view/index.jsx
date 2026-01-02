@@ -85,12 +85,12 @@ const ViewBillPage = ({ billId }) => {
 
   // Handle make payment
   const handleMakePayment = () => {
-    // TODO: Implement payment functionality
+    console.warn('Payment functionality is not yet implemented');
   };
 
   // Handle payment completed
   const handlePaymentCompleted = () => {
-    // TODO: Implement payment completed functionality
+    console.warn('Payment completed functionality is not yet implemented');
   };
 
   // Handle delete bill

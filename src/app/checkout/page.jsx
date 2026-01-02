@@ -20,7 +20,6 @@ import {
   Users
 } from 'lucide-react';
 import ProductHeader from '@/components/layout/ProductHeader';
-import PackageFeaturesCompact from '@/components/package/PackageFeaturesCompact';
 
   const CheckoutContent = () => {
     const searchParams = useSearchParams();
@@ -387,7 +386,26 @@ import PackageFeaturesCompact from '@/components/package/PackageFeaturesCompact'
                         <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         What's Included
                       </h3>
-                      <PackageFeaturesCompact features={packageData.featureUsageLimits} />
+                        <div className="space-y-2">
+                        {packageData.featureUsageLimits
+                          .filter(feature => feature.enabled !== false && feature.highlight)
+                          .map((feature, index) => (
+                            <div
+                              key={index}
+                              className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
+                              <p className="text-sm text-[rgb(var(--color-text-primary))]">
+                                {feature.highlight}
+                              </p>
+                            </div>
+                          ))}
+                        {packageData.featureUsageLimits.filter(feature => feature.enabled !== false && feature.highlight).length === 0 && (
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
+                            No highlights available
+                          </p>
+                        )}
+                      </div>
                       {packageData.maxSubscribers && (
                         <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
                           <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">

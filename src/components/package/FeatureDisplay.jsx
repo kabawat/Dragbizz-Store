@@ -124,6 +124,7 @@ const FeatureDisplay = ({
     const isEnabled = feature.enabled !== false;
     const usageType = feature.usageType;
     const totalLimit = feature.totalLimit;
+    const highlight = feature.highlight;
     const badge = getUsageTypeBadge(usageType, totalLimit);
     const BadgeIcon = badge.icon;
 
@@ -145,11 +146,18 @@ const FeatureDisplay = ({
                 ? 'text-[rgb(var(--color-primary))]' 
                 : 'text-gray-400'
             }`} />
-            <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">
-              {featureName}
-            </span>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm text-[rgb(var(--color-text-primary))] truncate block">
+                {featureName}
+              </span>
+              {highlight && (
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5 italic truncate">
+                  {highlight}
+                </p>
+              )}
+            </div>
           </div>
-          {isEnabled && badge && (
+          {isEnabled && !highlight && badge && (
             <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}>
               <BadgeIcon className={`w-3 h-3 ${badge.iconClassName}`} />
               <span>{badge.label}</span>
@@ -192,11 +200,17 @@ const FeatureDisplay = ({
           <h4 className="font-semibold text-[rgb(var(--color-text-primary))] mb-1">
             {featureName}
           </h4>
-          {isEnabled && badge && (
-            <div className={`flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium ${badge.className}`}>
-              <BadgeIcon className={`w-3.5 h-3.5 ${badge.iconClassName}`} />
-              <span>{badge.label}</span>
-            </div>
+          {highlight ? (
+            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 italic">
+              {highlight}
+            </p>
+          ) : (
+            isEnabled && badge && (
+              <div className={`flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium ${badge.className}`}>
+                <BadgeIcon className={`w-3.5 h-3.5 ${badge.iconClassName}`} />
+                <span>{badge.label}</span>
+              </div>
+            )
           )}
         </div>
       );
@@ -231,13 +245,19 @@ const FeatureDisplay = ({
               <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 {featureName}
               </h4>
-              {isEnabled && usageType && usageType !== 'UNLIMITED' && (
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                  {usageType === 'TOTAL' && 'Overall limit for subscription period'}
-                  {usageType === 'DAILY_FIXED' && 'Resets daily'}
-                  {usageType === 'MONTHLY_TOTAL' && 'Resets monthly'}
-                  {usageType === 'DAILY_ROLLING' && 'Daily limit with monthly total'}
+              {highlight ? (
+                <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 italic">
+                  {highlight}
                 </p>
+              ) : (
+                isEnabled && usageType && usageType !== 'UNLIMITED' && (
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                    {usageType === 'TOTAL' && 'Overall limit for subscription period'}
+                    {usageType === 'DAILY_FIXED' && 'Resets daily'}
+                    {usageType === 'MONTHLY_TOTAL' && 'Resets monthly'}
+                    {usageType === 'DAILY_ROLLING' && 'Daily limit with monthly total'}
+                  </p>
+                )
               )}
             </div>
             {isEnabled ? (
@@ -246,7 +266,7 @@ const FeatureDisplay = ({
               <XCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
             )}
           </div>
-          {isEnabled && badge && (
+          {isEnabled && !highlight && badge && (
             <div className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-medium ${badge.className}`}>
               <BadgeIcon className={`w-3.5 h-3.5 ${badge.iconClassName}`} />
               <span>{badge.label}</span>

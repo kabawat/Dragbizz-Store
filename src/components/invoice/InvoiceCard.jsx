@@ -61,7 +61,12 @@ const InvoiceCard = ({
       label: 'Share on WhatsApp',
       icon: MessageCircle,
       onClick: () => {
-        // TODO: Add WhatsApp share functionality
+        const invoiceNumber = invoice.invoiceNumber || invoice.invoice_number || invoice.id || 'N/A';
+        const totalAmount = invoice.totalAmount || invoice.total_amount || invoice.total || 0;
+        const customerName = invoice.customer?.name || invoice.customerName || 'Customer';
+        const message = `Invoice Details\n\nInvoice Number: ${invoiceNumber}\nCustomer: ${customerName}\nTotal Amount: ₹${totalAmount}\n\nView invoice for more details.`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
       }
     },
     {

@@ -23,6 +23,20 @@ export const handleApiError = (error, context = 'general') => {
     return error.response?.data?.message || 'Invalid request. Please check your input.';
   }
 
+  if (error.response?.status === 403) {
+    // Handle subscription errors (AI is boolean-based, not quota-based)
+    const errorData = error.response?.data;
+    const quota = errorData?.fields?.quota || errorData?.data?.quota || {};
+    
+    // For AI features, only check hasAccess (enabled/disabled), not quota
+    if (quota.hasAccess === false) {
+      return 'Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.';
+    } else if (errorData?.message) {
+      return errorData.message;
+    }
+    return 'Access denied. Please check your subscription plan.';
+  }
+
   if (error.response?.status === 429) {
     switch (context) {
       case 'login':
