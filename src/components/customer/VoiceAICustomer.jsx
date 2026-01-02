@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Send, Loader2, MessageSquare, X, Bot, User, CheckCircle2, AlertCircle, Sparkles, Clock } from 'lucide-react';
+import { Mic, Send, Loader2, MessageSquare, X, Bot, User, CheckCircle2, AlertCircle, Sparkles, Clock, MicOff } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { voiceAIService } from '@/service';
 import { customerService } from '@/service';
@@ -11,13 +11,71 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Check if speech recognition is supported
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSpeechSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US'; // English only
+      
+      recognition.onstart = () => {
+        setIsRecording(true);
+      };
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputValue(prev => prev ? `${prev} ${transcript}` : transcript);
+        setIsRecording(false);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+        
+        let errorMsg = 'Voice recognition error. Please try again.';
+        if (event.error === 'no-speech') {
+          errorMsg = 'No speech detected. Please try again.';
+        } else if (event.error === 'not-allowed') {
+          errorMsg = 'Microphone permission denied. Please allow microphone access.';
+        }
+        
+        setMessages(prev => [...prev, {
+          type: 'ai',
+          content: errorMsg,
+          timestamp: new Date(),
+          isError: true
+        }]);
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   // Focus input on mount
   useEffect(() => {
@@ -28,7 +86,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   useEffect(() => {
     setMessages([{
       type: 'ai',
-      content: 'Namaste! 👋\n\nMain aapki madad kar sakta hoon naya customer create karne mein. Aap mujhe customer ki details bata sakte hain jaise:\n\n• Customer ka naam\n• Phone number\n• Email address\n• Company details (agar ho)\n• Address (optional)\n\nAap simple language mein bataiye, main automatically customer create kar dunga!',
+      content: 'Hello! 👋\n\nI can help you create a new customer. You can tell me customer details such as:\n\n• Customer name\n• Phone number\n• Email address\n• Company details (if any)\n• Address (optional)\n\nYou can type in simple language or click the microphone button to speak, and I will automatically create the customer for you!',
       timestamp: new Date()
     }]);
     setIsReady(true);
@@ -92,7 +150,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
             if (createResult.success) {
               setMessages(prev => [...prev, {
                 type: 'ai',
-                content: `Customer "${aiResponse.extractedData.name}" successfully create ho gaya hai! 🎉`,
+                content: `Customer "${aiResponse.extractedData.name}" has been successfully created! 🎉`,
                 timestamp: new Date(),
                 isSuccess: true
               }]);
@@ -106,7 +164,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
             } else {
               setMessages(prev => [...prev, {
                 type: 'ai',
-                content: `Error: ${createResult.message || 'Customer create karne mein problem aayi. Please try again.'}`,
+                content: `Error: ${createResult.message || 'There was a problem creating the customer. Please try again.'}`,
                 timestamp: new Date(),
                 isError: true
               }]);
@@ -114,7 +172,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
           } catch (error) {
             setMessages(prev => [...prev, {
               type: 'ai',
-              content: `Error: Customer create karne mein problem aayi. Please try again.`,
+              content: `Error: There was a problem creating the customer. Please try again.`,
               timestamp: new Date(),
               isError: true
             }]);
@@ -122,12 +180,12 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
         }
       } else {
         // Handle error response
-        let errorMessage = result.message || 'Kuch error aaya hai. Please try again.';
+        let errorMessage = result.message || 'An error occurred. Please try again.';
         
         if (result.error || result.fields?.quota) {
           const quota = result.fields?.quota || {};
           if (quota.hasAccess === false) {
-            errorMessage = 'Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.';
+            errorMessage = 'Voice AI feature is not available in your current subscription plan. Please upgrade your plan.';
           }
         }
         
@@ -140,7 +198,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
       }
     } catch (error) {
       // Handle network/API errors
-      let errorMessage = 'Kuch error aaya hai. Please try again.';
+      let errorMessage = 'An error occurred. Please try again.';
       
       if (error.response?.data) {
         const errorData = error.response.data;
@@ -150,7 +208,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
           const quota = errorData.fields?.quota || errorData.data?.quota || {};
           // For AI, only check hasAccess (enabled/disabled), not quota
           if (quota.hasAccess === false) {
-            errorMessage = 'Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.';
+            errorMessage = 'Voice AI feature is not available in your current subscription plan. Please upgrade your plan.';
           } else if (errorData.message) {
             errorMessage = errorData.message;
           }
@@ -194,6 +252,42 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   const handleQuickExample = (example) => {
     setInputValue(example);
     inputRef.current?.focus();
+  };
+
+  // Handle voice recording
+  const handleVoiceRecord = () => {
+    if (!isSpeechSupported) {
+      setMessages(prev => [...prev, {
+        type: 'ai',
+        content: 'Voice input is not supported in your browser. Please use Chrome, Edge, or Safari.',
+        timestamp: new Date(),
+        isError: true
+      }]);
+      return;
+    }
+
+    if (isRecording) {
+      // Stop recording
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      // Start recording
+      try {
+        if (recognitionRef.current) {
+          recognitionRef.current.start();
+        }
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setMessages(prev => [...prev, {
+          type: 'ai',
+          content: 'Could not start voice recording. Please check microphone permissions.',
+          timestamp: new Date(),
+          isError: true
+        }]);
+      }
+    }
   };
 
   return (
@@ -314,10 +408,10 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
               value={inputValue}
               onChange={(value) => setInputValue(value)}
               onKeyPress={handleKeyPress}
-              disabled={isLoading}
+              disabled={isLoading || isRecording}
               className="w-full pr-12"
             />
-            {inputValue && (
+            {inputValue && !isRecording && (
               <button
                 onClick={() => setInputValue('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors"
@@ -325,11 +419,32 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
                 <X className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
               </button>
             )}
+            {isRecording && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-red-600 font-medium">Recording...</span>
+              </div>
+            )}
           </div>
+          
+          {/* Voice Record Button */}
+          {isSpeechSupported && (
+            <Button
+              variant={isRecording ? "danger" : "outline"}
+              onClick={handleVoiceRecord}
+              disabled={isLoading}
+              size="sm"
+              className={`shrink-0 ${isRecording ? 'animate-pulse' : ''}`}
+              leftIcon={isRecording ? MicOff : Mic}
+            >
+              {isRecording ? 'Stop' : 'Voice'}
+            </Button>
+          )}
+          
           <Button
             variant="primary"
             onClick={handleSend}
-            disabled={!inputValue.trim() || isLoading}
+            disabled={!inputValue.trim() || isLoading || isRecording}
             loading={isLoading}
             leftIcon={Send}
             size="sm"
@@ -339,9 +454,16 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-xs">Enter</kbd> to send
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-xs">Enter</kbd> to send
+            </p>
+            {isSpeechSupported && (
+              <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                or click <kbd className="px-1.5 py-0.5 rounded bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-xs">Voice</kbd> to speak
+              </p>
+            )}
+          </div>
           {sessionId && (
             <div className="flex items-center gap-1 text-xs text-[rgb(var(--color-text-tertiary))]">
               <MessageSquare className="w-3 h-3" />
