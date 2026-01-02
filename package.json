@@ -16,6 +16,7 @@
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
+    "dompurify": "^3.3.1",
     "html2canvas": "^1.4.1",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.3",

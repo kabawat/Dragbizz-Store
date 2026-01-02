@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Send, Loader2, MessageSquare, X } from 'lucide-react';
+import { Mic, Send, Loader2, MessageSquare, X, Bot, User, CheckCircle2, AlertCircle, Sparkles, Clock } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { voiceAIService } from '@/service';
 import { customerService } from '@/service';
@@ -28,7 +28,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   useEffect(() => {
     setMessages([{
       type: 'ai',
-      content: 'Namaste! Main aapki madad kar sakta hoon naya customer create karne mein. Customer ka naam, email ya phone number bataiye.',
+      content: 'Namaste! 👋\n\nMain aapki madad kar sakta hoon naya customer create karne mein. Aap mujhe customer ki details bata sakte hain jaise:\n\n• Customer ka naam\n• Phone number\n• Email address\n• Company details (agar ho)\n• Address (optional)\n\nAap simple language mein bataiye, main automatically customer create kar dunga!',
       timestamp: new Date()
     }]);
     setIsReady(true);
@@ -121,17 +121,47 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
           }
         }
       } else {
+        // Handle error response
+        let errorMessage = result.message || 'Kuch error aaya hai. Please try again.';
+        
+        if (result.error || result.fields?.quota) {
+          const quota = result.fields?.quota || {};
+          if (quota.hasAccess === false) {
+            errorMessage = 'Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.';
+          }
+        }
+        
         setMessages(prev => [...prev, {
           type: 'ai',
-          content: result.message || 'Kuch error aaya hai. Please try again.',
+          content: errorMessage,
           timestamp: new Date(),
           isError: true
         }]);
       }
     } catch (error) {
+      // Handle network/API errors
+      let errorMessage = 'Kuch error aaya hai. Please try again.';
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // Parse subscription errors (AI is boolean-based, not quota-based)
+        if (error.response.status === 403 || error.response.status === 429) {
+          const quota = errorData.fields?.quota || errorData.data?.quota || {};
+          // For AI, only check hasAccess (enabled/disabled), not quota
+          if (quota.hasAccess === false) {
+            errorMessage = 'Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.';
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      }
+      
       setMessages(prev => [...prev, {
         type: 'ai',
-        content: 'Kuch error aaya hai. Please try again.',
+        content: errorMessage,
         timestamp: new Date(),
         isError: true
       }]);
@@ -148,36 +178,106 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
     }
   };
 
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString('en-IN', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  const quickExamples = [
+    "Create customer name Mukesh Singh, phone 9876543210",
+    "Add customer: Rajesh Kumar, email rajesh@example.com",
+    "New customer: Priya Sharma, phone 9876543210, email priya@example.com"
+  ];
+
+  const handleQuickExample = (example) => {
+    setInputValue(example);
+    inputRef.current?.focus();
+  };
+
   return (
     <div className="flex flex-col h-full bg-[rgb(var(--color-bg-primary))]">
+      {/* Header with Info */}
+      <div className="px-4 py-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-[rgb(var(--color-primary))]/10">
+            <Sparkles className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+              AI Assistant
+            </p>
+            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+              Tell me customer details and I'll create it for you
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))]/30">
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'} transition-opacity duration-300`}
           >
-            <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.type === 'user'
-                  ? 'bg-[rgb(var(--color-primary))] text-white'
-                  : message.isError
-                  ? 'bg-red-50 text-red-800 border border-red-200'
-                  : message.isSuccess
-                  ? 'bg-green-50 text-green-800 border border-green-200'
-                  : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))]'
-              }`}
-            >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            {message.type === 'ai' && (
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+              </div>
+            )}
+            
+            <div className={`flex flex-col gap-1 max-w-[75%] ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
+              <div
+                className={`rounded-2xl px-4 py-3 shadow-sm ${
+                  message.type === 'user'
+                    ? 'bg-[rgb(var(--color-primary))] text-white rounded-br-sm'
+                    : message.isError
+                    ? 'bg-red-50 text-red-800 border border-red-200 rounded-bl-sm'
+                    : message.isSuccess
+                    ? 'bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm'
+                    : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] border border-[rgb(var(--color-border-primary))] rounded-bl-sm'
+                }`}
+              >
+                {message.isSuccess && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700">Success!</span>
+                  </div>
+                )}
+                {message.isError && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-xs font-semibold text-red-700">Error</span>
+                  </div>
+                )}
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              </div>
+              <div className="flex items-center gap-1 px-2">
+                <Clock className="w-3 h-3 text-[rgb(var(--color-text-tertiary))]" />
+                <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                  {formatTime(message.timestamp)}
+                </span>
+              </div>
             </div>
+
+            {message.type === 'user' && (
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[rgb(var(--color-primary))]/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+              </div>
+            )}
           </div>
         ))}
         
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-3 flex items-center gap-2">
+          <div className="flex justify-start gap-3 transition-opacity duration-300">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[rgb(var(--color-primary))]/10 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+            </div>
+            <div className="bg-[rgb(var(--color-bg-secondary))] rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-3 border border-[rgb(var(--color-border-primary))] shadow-sm">
               <Loader2 className="w-4 h-4 animate-spin text-[rgb(var(--color-primary))]" />
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Processing...</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">AI is thinking...</span>
             </div>
           </div>
         )}
@@ -185,19 +285,47 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Quick Examples */}
+      {messages.length === 1 && !isLoading && (
+        <div className="px-4 py-3 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
+          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-2">Quick Examples:</p>
+          <div className="flex flex-wrap gap-2">
+            {quickExamples.map((example, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleQuickExample(example)}
+                className="text-xs px-3 py-1.5 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-primary))]/10 hover:border-[rgb(var(--color-primary))]/30 transition-colors"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="border-t border-[rgb(var(--color-border-primary))] p-4 bg-[rgb(var(--color-bg-primary))]">
         <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            type="text"
-            placeholder="Type your message... (e.g., 'Create customer name Mukesh Singh, email mukesh@example.com')"
-            value={inputValue}
-            onChange={(value) => setInputValue(value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-            className="flex-1"
-          />
+          <div className="flex-1 relative">
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Type customer details... (e.g., 'Create customer name Mukesh Singh, email mukesh@example.com')"
+              value={inputValue}
+              onChange={(value) => setInputValue(value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              className="w-full pr-12"
+            />
+            {inputValue && (
+              <button
+                onClick={() => setInputValue('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors"
+              >
+                <X className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+              </button>
+            )}
+          </div>
           <Button
             variant="primary"
             onClick={handleSend}
@@ -205,13 +333,22 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
             loading={isLoading}
             leftIcon={Send}
             size="sm"
+            className="shrink-0"
           >
             Send
           </Button>
         </div>
-        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2">
-          Example: "Create customer name Mukesh Singh, phone 9876543210"
-        </p>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+            Press <kbd className="px-1.5 py-0.5 rounded bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] text-xs">Enter</kbd> to send
+          </p>
+          {sessionId && (
+            <div className="flex items-center gap-1 text-xs text-[rgb(var(--color-text-tertiary))]">
+              <MessageSquare className="w-3 h-3" />
+              <span>Session active</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

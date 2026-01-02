@@ -1,15 +1,58 @@
 "use client"
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Card, Button, Loading } from '@/components/ui';
-import { CheckCircle, Sparkles, ArrowLeft, Crown, Star, TrendingUp, Users, Shield, Lock, RefreshCw } from 'lucide-react';
+import { Button, Loading, Card } from '@/components/ui';
+import { ArrowLeft, RefreshCw, Sparkles, CheckCircle, Crown, Users, Star, TrendingUp, Lock } from 'lucide-react';
 import { packageService } from '@/service';
 import ProductHeader from '@/components/layout/ProductHeader';
 import AnimatedBackground from '@/components/ui/AnimatedBackground';
+import PackageCard from '@/components/package/PackageCard';
 import { getCurrencySymbol } from '@/data/constants/currencies';
-import FeatureDisplay from '@/components/package/FeatureDisplay';
-import PackageFeaturesSummary from '@/components/package/PackageFeaturesSummary';
-import PackageFeaturesCompact from '@/components/package/PackageFeaturesCompact';
+
+// Helper functions for package display
+const planTypeColors = {
+  'BASIC': 'blue',
+  'PROFESSIONAL': 'purple',
+  'ENTERPRISE': 'orange',
+  'CUSTOM': 'blue'
+};
+
+const getColorClasses = (color) => {
+  const colors = {
+    blue: {
+      border: 'border-[rgb(var(--color-primary))]/30',
+      button: 'bg-[rgb(var(--color-primary))] hover:opacity-90',
+    },
+    purple: {
+      border: 'border-purple-500/30',
+      button: 'bg-purple-500 hover:bg-purple-600',
+    },
+    orange: {
+      border: 'border-orange-500/30',
+      button: 'bg-orange-500 hover:bg-orange-600',
+    }
+  };
+  return colors[color] || colors.blue;
+};
+
+const getLowestPrice = (pkg) => {
+  if (!pkg.pricing?.durationPricing || pkg.pricing.durationPricing.length === 0) {
+    return { price: 0, months: 1, currency: 'INR' };
+  }
+  
+  const sortedPricing = [...pkg.pricing.durationPricing].sort((a, b) => {
+    const priceA = a.discountedPrice || a.price || 0;
+    const priceB = b.discountedPrice || b.price || 0;
+    return priceA - priceB;
+  });
+  
+  const lowest = sortedPricing[0];
+  return {
+    price: lowest.discountedPrice || lowest.price || 0,
+    months: lowest.months || 1,
+    currency: pkg.pricing?.currency || 'INR'
+  };
+};
 
 const PackagesContent = () => {
   const searchParams = useSearchParams();
@@ -19,34 +62,6 @@ const PackagesContent = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const planTypeColors = {
-    'BASIC': 'blue',
-    'PROFESSIONAL': 'purple',
-    'ENTERPRISE': 'orange',
-    'CUSTOM': 'blue'
-  };
-
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: {
-        ribbon: 'bg-[rgb(var(--color-primary))]',
-        button: 'bg-[rgb(var(--color-primary))] hover:opacity-90',
-        border: 'border-[rgb(var(--color-primary))]/30'
-      },
-      purple: {
-        ribbon: 'bg-purple-500',
-        button: 'bg-purple-500 hover:bg-purple-600',
-        border: 'border-purple-500/30'
-      },
-      orange: {
-        ribbon: 'bg-orange-500',
-        button: 'bg-orange-500 hover:bg-orange-600',
-        border: 'border-orange-500/30'
-      }
-    };
-    return colors[color] || colors.blue;
-  };
 
   useEffect(() => {
     fetchPackages();
@@ -80,22 +95,6 @@ const PackagesContent = () => {
 
   const handleSelectPackage = (packageId) => {
     router.push(`/checkout?packageId=${packageId}`);
-  };
-
-  const getLowestPrice = (pkg) => {
-    if (!pkg.pricing?.durationPricing || pkg.pricing.durationPricing.length === 0) {
-      return { price: 0, months: 1, currency: 'INR' };
-    }
-    
-    const sorted = [...pkg.pricing.durationPricing].sort((a, b) => 
-      (a.discountedPrice || a.price) - (b.discountedPrice || b.price)
-    );
-    
-    return {
-      price: sorted[0].discountedPrice || sorted[0].price,
-      months: sorted[0].months,
-      currency: pkg.pricing.currency || 'INR'
-    };
   };
 
   if (loading) {
@@ -301,7 +300,26 @@ const PackagesContent = () => {
                         <Sparkles className="w-4 h-4 text-[rgb(var(--color-primary))]" />
                         What's Included
                       </h4>
-                      <PackageFeaturesCompact features={features} />
+                      <div className="space-y-2">
+                        {features
+                          .filter(feature => feature.enabled !== false && feature.highlight)
+                          .map((feature, index) => (
+                            <div
+                              key={index}
+                              className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
+                              <p className="text-sm text-[rgb(var(--color-text-primary))]">
+                                {feature.highlight}
+                              </p>
+                            </div>
+                          ))}
+                        {features.filter(feature => feature.enabled !== false && feature.highlight).length === 0 && (
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
+                            No highlights available
+                          </p>
+                        )}
+                      </div>
                       {pkg.maxSubscribers && (
                         <div className="mt-3 p-2 rounded-lg bg-[rgb(var(--color-primary))]/10">
                           <p className="text-xs text-[rgb(var(--color-primary))]">

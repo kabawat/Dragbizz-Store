@@ -215,22 +215,34 @@ const PackageFeaturesSummary = ({ features = [] }) => {
               <div className="border-t border-[rgb(var(--color-border-primary))] p-3 bg-[rgb(var(--color-bg-secondary))] space-y-2">
                 {categoryFeatures.map((feature, idx) => {
                   const featureName = feature.featureName || FEATURE_NAMES[feature.featureKey || feature.key] || feature.featureKey || feature.key;
+                  const highlight = feature.highlight;
                   return (
                     <div
                       key={idx}
-                      className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-[rgb(var(--color-bg-tertiary))]"
+                      className="flex items-start justify-between py-1.5 px-2 rounded hover:bg-[rgb(var(--color-bg-tertiary))]"
                     >
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                          {featureName}
-                        </span>
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm text-[rgb(var(--color-text-primary))] block">
+                            {featureName}
+                          </span>
+                          {highlight && (
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1 italic">
+                              {highlight}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      {feature.usageType && feature.usageType !== 'UNLIMITED' && (
-                        getUsageBadge(feature.usageType, feature.totalLimit)
-                      )}
-                      {feature.usageType === 'UNLIMITED' && (
-                        getUsageBadge('UNLIMITED', null)
+                      {!highlight && (
+                        <>
+                          {feature.usageType && feature.usageType !== 'UNLIMITED' && (
+                            getUsageBadge(feature.usageType, feature.totalLimit)
+                          )}
+                          {feature.usageType === 'UNLIMITED' && (
+                            getUsageBadge('UNLIMITED', null)
+                          )}
+                        </>
                       )}
                     </div>
                   );

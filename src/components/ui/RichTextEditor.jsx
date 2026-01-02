@@ -1,6 +1,7 @@
 "use client"
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Bold, Italic, Underline, List, ListOrdered, Link, Image, AlignLeft, AlignCenter, AlignRight, Quote } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 const RichTextEditor = ({
   value = '',
@@ -88,6 +89,16 @@ const RichTextEditor = ({
   const currentLength = getCurrentLength();
   const isNearLimit = maxLength && currentLength > maxLength * 0.8;
   const isAtLimit = maxLength && currentLength >= maxLength;
+
+  // Sanitize HTML to prevent XSS attacks
+  const sanitizedValue = useMemo(() => {
+    if (!value) return '';
+    return DOMPurify.sanitize(value, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'div', 'span'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style'],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+    });
+  }, [value]);
   
   // Toolbar buttons
   const toolbarButtons = [
@@ -173,7 +184,7 @@ const RichTextEditor = ({
           onInput={handleInput}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          dangerouslySetInnerHTML={{ __html: value }}
+          dangerouslySetInnerHTML={{ __html: sanitizedValue }}
           className={`
             p-4 min-h-[120px] max-h-[300px] overflow-y-auto
             ${disabled ? 'cursor-not-allowed' : 'cursor-text'}

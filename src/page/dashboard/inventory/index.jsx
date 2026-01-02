@@ -265,7 +265,7 @@ const InventoryPage = () => {
   };
 
   const handleDuplicate = (inventoryId) => {
-    // TODO: Implement duplicate functionality
+    console.warn('Duplicate functionality is not yet implemented');
   };
 
   const handleViewModeChange = (mode) => {
