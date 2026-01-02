@@ -45,6 +45,7 @@ const API_CONFIG = {
   // Voice AI Service Endpoints
   VOICE_AI: {
     CUSTOMER_CHAT: '/voice-ai/api/v1/customer/chat',
+    SUPPLIER_CHAT: '/voice-ai/api/v1/supplier/chat',
   },
   
   // Subscription Service Endpoints

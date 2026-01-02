@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, Building, Search, Trash2, Download } from 'lucide-react';
+import { Plus, Grid3X3, List, Building, Search, Trash2, Download, Mic } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -12,7 +12,8 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Input, SettingsPanel, Select } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { SupplierTable, SupplierCard, AddSupplierDrawer } from '@/components/supplier';
+import { SupplierTable, SupplierCard, AddSupplierDrawer, VoiceAISupplier } from '@/components/supplier';
+import { SideDrawer } from '@/components/ui';
 import SupplierDownloadDrawer from '@/components/supplier/SupplierDownloadDrawer';
 
 const SuppliersPage = () => {
@@ -72,6 +73,7 @@ const SuppliersPage = () => {
   // Drawer state
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
+  const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -373,6 +375,13 @@ const SuppliersPage = () => {
                   >
                     Download
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowVoiceAIDrawer(true)}
+                    leftIcon={Mic}
+                  >
+                    Voice AI
+                  </Button>
                   <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
                     Add Supplier
                   </Button>
@@ -567,6 +576,30 @@ const SuppliersPage = () => {
         onClose={() => setShowAddSupplierDrawer(false)}
         onSuccess={handleSupplierSuccess}
       />
+
+      {/* Voice AI Drawer */}
+      <SideDrawer
+        isOpen={showVoiceAIDrawer}
+        onClose={() => {
+          setShowVoiceAIDrawer(false);
+        }}
+        title="Create Supplier with Voice AI"
+        icon={Mic}
+        description="Chat with AI to create a supplier naturally"
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="h-full">
+          <VoiceAISupplier
+            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            onSuccess={(supplierData) => {
+              handleSupplierSuccess(supplierData);
+              setShowVoiceAIDrawer(false);
+            }}
+            onCancel={() => setShowVoiceAIDrawer(false)}
+          />
+        </div>
+      </SideDrawer>
+
       <SupplierDownloadDrawer
         isOpen={showDownloadDrawer}
         onClose={() => setShowDownloadDrawer(false)}
