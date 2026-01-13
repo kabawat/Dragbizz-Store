@@ -42,6 +42,28 @@ class VoiceAIService {
       return handleApiErrorResponse(error, 'voice-ai-chat');
     }
   }
+
+  // Extract product data from image using AI
+  async extractProductFromImage(imageFile) {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const response = await authAxios.post(
+        API_CONFIG.VOICE_AI.PRODUCT_EXTRACT,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      return handleApiSuccess(response?.data, 'Product data extracted successfully');
+    } catch (error) {
+      return handleApiErrorResponse(error, 'product-extract');
+    }
+  }
 }
 
 // Create and export a singleton instance
