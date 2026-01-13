@@ -20,3 +20,4 @@ export { default as ProductInfoModal } from './ProductInfoModal';
 export { QuotaExceededModal } from '@/components/common';
 export { default as QuotaDisplay } from './QuotaDisplay';
 export { default as QuotaProgressBar } from './QuotaProgressBar';
+export { default as AIProductExtract } from './AIProductExtract';

@@ -1,5 +1,6 @@
 // Import all components
 import Button from './Button';
+import AIButton from './AIButton';
 import Input from './Input';
 import Checkbox, { CheckboxGroup } from './Checkbox';
 import Select from './Select';
@@ -38,6 +39,7 @@ import ErrorModal from './ErrorModal';
 // Named exports
 export {
   Button,
+  AIButton,
   Input,
   Checkbox,
   CheckboxGroup,
@@ -105,6 +107,7 @@ export {
 // Default export
 export default {
   Button,
+  AIButton,
   Input,
   Checkbox,
   CheckboxGroup,
