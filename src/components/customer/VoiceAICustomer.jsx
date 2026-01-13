@@ -4,8 +4,10 @@ import { Mic, Send, Loader2, MessageSquare, X, Bot, User, CheckCircle2, AlertCir
 import { Button, Input } from '@/components/ui';
 import { voiceAIService } from '@/service';
 import { customerService } from '@/service';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
+  const { currentVariant } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -328,22 +330,26 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
                   message.type === 'user'
                     ? 'bg-[rgb(var(--color-primary))] text-white rounded-br-sm'
                     : message.isError
-                    ? 'bg-red-50 text-red-800 border border-red-200 rounded-bl-sm'
+                    ? currentVariant === 'dark'
+                      ? 'bg-red-900/30 text-red-200 border border-red-800 rounded-bl-sm'
+                      : 'bg-red-50 text-red-800 border border-red-200 rounded-bl-sm'
                     : message.isSuccess
-                    ? 'bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm'
+                    ? currentVariant === 'dark'
+                      ? 'bg-green-900/30 text-green-200 border-2 border-green-700 rounded-bl-sm'
+                      : 'bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm'
                     : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] border border-[rgb(var(--color-border-primary))] rounded-bl-sm'
                 }`}
               >
                 {message.isSuccess && (
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span className="text-xs font-semibold text-green-700">Success!</span>
+                    <CheckCircle2 className={`w-4 h-4 ${currentVariant === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
+                    <span className={`text-xs font-semibold ${currentVariant === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Success!</span>
                   </div>
                 )}
                 {message.isError && (
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <span className="text-xs font-semibold text-red-700">Error</span>
+                    <AlertCircle className={`w-4 h-4 ${currentVariant === 'dark' ? 'text-red-400' : 'text-red-600'}`} />
+                    <span className={`text-xs font-semibold ${currentVariant === 'dark' ? 'text-red-300' : 'text-red-700'}`}>Error</span>
                   </div>
                 )}
                 <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
@@ -421,8 +427,8 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
             )}
             {isRecording && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-red-600 font-medium">Recording...</span>
+                <div className={`w-2 h-2 ${currentVariant === 'dark' ? 'bg-red-400' : 'bg-red-500'} rounded-full animate-pulse`}></div>
+                <span className={`text-xs ${currentVariant === 'dark' ? 'text-red-400' : 'text-red-600'} font-medium`}>Recording...</span>
               </div>
             )}
           </div>
