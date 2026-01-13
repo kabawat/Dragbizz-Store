@@ -28,12 +28,7 @@ const CreatePayment = () => {
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  // Local state for suppliers
-  const [suppliers, setSuppliers] = useState([
-    { id: '1', name: 'Test Supplier 1' },
-    { id: '2', name: 'Test Supplier 2' },
-    { id: '3', name: 'Test Supplier 3' }
-  ]);
+  const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   // Local state for bills
@@ -95,14 +90,9 @@ const CreatePayment = () => {
     }
   }, [billId]);
 
-  // Fetch suppliers from API
   const fetchSuppliers = async () => {
     if (!storeId) {
-      setSuppliers([
-        { id: '1', name: 'Default Supplier 1' },
-        { id: '2', name: 'Default Supplier 2' },
-        { id: '3', name: 'Default Supplier 3' }
-      ]);
+      setSuppliers([]);
       return;
     }
 
