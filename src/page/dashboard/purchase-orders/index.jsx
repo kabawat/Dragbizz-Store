@@ -18,6 +18,7 @@ import {
 import { Button, Input, ToastContainer } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Import dedicated purchase order components
 import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
@@ -27,6 +28,7 @@ import AdvancePaymentDrawer from '@/components/purchaseOrders/AdvancePaymentDraw
 import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
 
 const PurchaseOrders = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { list: purchaseOrders, isLoading, pagination } = useAppSelector((state) => state.purchaseOrders);
@@ -327,8 +329,8 @@ const getFilteredPOs = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Purchase Orders"
-          description="Manage supplier purchase orders"
+          title={t('purchaseOrders.title')}
+          description={t('purchaseOrders.description')}
         />
 
         {/* Main Content */}
@@ -341,10 +343,10 @@ const getFilteredPOs = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Purchase Orders...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your purchase orders
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -359,7 +361,7 @@ const getFilteredPOs = () => {
                   <div className="w-100 bg-red">
                     <Input
                       type="text"
-                      placeholder="Search purchase orders..."
+                      placeholder={`${t('common.search')} ${t('purchaseOrders.title').toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -379,19 +381,19 @@ const getFilteredPOs = () => {
                           }`}
                       >
                         <List className={`w-4 h-4 ${viewMode === 'table' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className={`w-4 h-4 ${viewMode === 'card' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
                     <Button variant="primary" onClick={() => router.push('/dashboard/purchase-orders/create')} leftIcon={Plus}>
-                      Create PO
+                      {t('purchaseOrders.createPO')}
                     </Button>
                   </div>
                 </div>
@@ -406,10 +408,10 @@ const getFilteredPOs = () => {
                     <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No purchase orders found
+                    {t('purchaseOrders.noPurchaseOrders')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    No purchase orders match your current criteria. Try adjusting your search or add new purchase orders.
+                    {t('common.noData')}
                   </p>
                   <div className="pt-4">
                     <Button
@@ -417,7 +419,7 @@ const getFilteredPOs = () => {
                       onClick={() => router.push('/dashboard/purchase-orders/create')}
                     >
                       <Plus className="w-4 h-4 mr-2 text-white" />
-                      Create PO
+                      {t('purchaseOrders.createPO')}
                     </Button>
                   </div>
                 </div>
@@ -435,7 +437,7 @@ const getFilteredPOs = () => {
                       onDelete={handleDelete}
                       onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
                       loading={isLoading}
-                      emptyMessage="No purchase orders found"
+                      emptyMessage={t('purchaseOrders.noPurchaseOrders')}
                       hasMore={pagination.hasNextPage}
                       onLoadMore={handleLoadMore}
                       isLoadingMore={isLoadingMore}

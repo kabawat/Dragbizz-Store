@@ -13,6 +13,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { renderStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const BillCard = ({
   bill,
@@ -26,6 +27,8 @@ const BillCard = ({
   formatCurrency,
   formatDate
 }) => {
+  const { t } = useTranslation();
+  
   // Determine status for renderStatusBadge
   let status = bill.paymentStatus || 'UNPAID';
   if (new Date(bill.dueDate) < new Date() && bill.dueAmount > 0) {
@@ -58,7 +61,7 @@ const BillCard = ({
             <button
               onClick={() => onMenuToggle(bill._id || bill.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title="More Actions"
+              title={t('common.moreActions')}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -71,22 +74,22 @@ const BillCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  View Details
+                  {t('common.viewDetails')}
                 </button>
                 <button
                   onClick={() => onMenuAction(bill._id || bill.id, 'edit')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <button onClick={() => onMenuAction(bill._id || bill.id, 'payment')} className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10">
                   <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                  Pay Bill
+                  {t('bills.payBill')}
                 </button>
                 <button onClick={() => onMenuAction(bill._id || bill.id, 'delete')} className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10">
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}
@@ -100,7 +103,7 @@ const BillCard = ({
         <div>
           <h3 className="font-bold text-md sm:text-lg xl:text-lg mb-1 text-[rgb(var(--color-text-primary))] line-clamp-1">{bill.billNumber}</h3>
           <p className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-            {bill.supplier?.name || 'N/A'}
+            {bill.supplier?.name || t('common.na')}
           </p>
         </div>
 
@@ -113,18 +116,18 @@ const BillCard = ({
         <div className="space-y-2">
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2" />
-            <span>Date: {formatDate(bill.billDate)}</span>
+            <span>{t('bills.billDate')}: {formatDate(bill.billDate)}</span>
           </div>
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2" />
-            <span>Due: {formatDate(bill.dueDate)}</span>
+            <span>{t('bills.dueDate')}: {formatDate(bill.dueDate)}</span>
           </div>
         </div>
 
         {/* Amount */}
         <div className="flex items-center justify-between">
           <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <span className="font-medium">Amount:</span>
+            <span className="font-medium">{t('bills.amount')}:</span>
           </div>
           <div className="text-lg sm:text-lg xl:text-lg font-bold text-[rgb(var(--color-text-primary))]">
             {formatCurrency(bill.totalAmount)}

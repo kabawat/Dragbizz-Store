@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, Shield, Zap, Users } from 'lucide-react';
 import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const BasicInfoStep = ({
   firstName,
@@ -13,6 +14,7 @@ const BasicInfoStep = ({
   onBack,
   errors
 }) => {
+  const { t } = useTranslation();
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState('idle');
 
@@ -83,10 +85,10 @@ const BasicInfoStep = ({
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  Let's get started! 🚀
+                  {t('auth.letsGetStarted')}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  We just need a few details to create your account
+                  {t('auth.fewDetailsToCreateAccount')}
                 </p>
               </div>
 
@@ -97,8 +99,8 @@ const BasicInfoStep = ({
                     <User className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Setup</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Just your name and contact information</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickSetup')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.justNameAndContact')}</p>
                   </div>
                 </div>
 
@@ -107,8 +109,8 @@ const BasicInfoStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Smart Detection</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">We automatically detect email or phone</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.smartDetection')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.autoDetectEmailOrPhone')}</p>
                   </div>
                 </div>
 
@@ -117,8 +119,8 @@ const BasicInfoStep = ({
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure & Private</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Your information is always protected</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureAndPrivate')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.informationAlwaysProtected')}</p>
                   </div>
                 </div>
               </div>
@@ -126,7 +128,7 @@ const BasicInfoStep = ({
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  © 2025 DragBizz. All rights reserved.
+                  {t('auth.copyright')}
                 </p>
               </div>
             </div>
@@ -144,7 +146,7 @@ const BasicInfoStep = ({
                   <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  DragBizz Store
+                  {t('auth.dragBizzStore')}
                 </h1>
               </div>
 
@@ -154,10 +156,10 @@ const BasicInfoStep = ({
                   <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  Nice to meet you! 👋
+                  {t('auth.niceToMeetYou')}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  Let's start with some basic information
+                  {t('auth.startWithBasicInfo')}
                 </p>
                 
                 {/* Progress Indicator */}
@@ -174,7 +176,7 @@ const BasicInfoStep = ({
                     3
                   </div>
                 </div>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">Step 1 of 3</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">{t('auth.step1Of3')}</p>
               </div>
 
               {/* Form */}
@@ -183,7 +185,7 @@ const BasicInfoStep = ({
                 <div>
                   <Input
                     type="text"
-                    placeholder="First Name"
+                    placeholder={t('auth.firstName')}
                     value={firstName}
                     onChange={(value) => onUpdate('firstName', value)}
                     leftIcon={User}
@@ -202,7 +204,7 @@ const BasicInfoStep = ({
                 <div>
                   <Input
                     type="text"
-                    placeholder="Last Name"
+                    placeholder={t('auth.lastName')}
                     value={lastName}
                     onChange={(value) => onUpdate('lastName', value)}
                     leftIcon={User}
@@ -229,12 +231,12 @@ const BasicInfoStep = ({
                           {contactType === 'email' ? (
                             <>
                               <Mail className="w-3 h-3 mr-1" />
-                              Email
+                              {t('auth.email')}
                             </>
                           ) : (
                             <>
                               <Phone className="w-3 h-3 mr-1" />
-                              Phone
+                              {t('auth.phone')}
                             </>
                           )}
                         </div>
@@ -244,7 +246,7 @@ const BasicInfoStep = ({
 
                   <Input
                     type={contactType === 'email' ? 'email' : 'tel'}
-                    placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
+                    placeholder={contactType === 'email' ? t('auth.emailPlaceholder') : t('auth.phonePlaceholder')}
                     value={contact}
                     onChange={handleContactChange}
                     leftIcon={contactType === 'email' ? Mail : Phone}
@@ -274,18 +276,18 @@ const BasicInfoStep = ({
                     {validationStatus === 'available' && (
                       <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        Great! This {contactType} is available
+                        {t('auth.greatThisAvailable', { type: contactType })}
                       </p>
                     )}
                     {validationStatus === 'taken' && (
                       <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        This {contactType} is already registered
+                        {t('auth.thisAlreadyRegistered', { type: contactType })}
                       </p>
                     )}
                     {validationStatus === 'idle' && (
                       <p className="text-[rgb(var(--color-text-secondary))] text-sm text-left">
-                        Enter your email or phone number - we'll detect the type automatically
+                        {t('auth.enterEmailOrPhoneAutoDetect')}
                       </p>
                     )}
                     {errors.contact && (
@@ -308,7 +310,7 @@ const BasicInfoStep = ({
                     fullWidth
                     className="sm:w-auto"
                   >
-                    Back
+                    {t('auth.back')}
                   </Button>
 
                   <Button
@@ -320,7 +322,7 @@ const BasicInfoStep = ({
                     fullWidth
                     className="sm:w-auto shadow-md hover:shadow-lg"
                   >
-                    Continue
+                    {t('auth.continue')}
                   </Button>
                 </div>
               </form>

@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
@@ -74,12 +76,12 @@ const ResetPassword = () => {
     // Validate password
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid) {
-      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+      newErrors.password = t('auth.passwordMustBeAtLeast8');
     }
     
     // Validate confirm password
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('auth.passwordsDoNotMatch');
     }
     
     if (Object.keys(newErrors).length > 0) {
@@ -108,9 +110,9 @@ const ResetPassword = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-800">Password Reset Successful!</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-800">{t('auth.passwordResetSuccessful')}</CardTitle>
             <CardDescription className="text-gray-600 mt-2">
-              Your password has been successfully updated. You can now sign in with your new password.
+              {t('auth.passwordSuccessfullyUpdated')}
             </CardDescription>
           </CardHeader>
           
@@ -119,15 +121,15 @@ const ResetPassword = () => {
               <div className="flex items-start">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                 <div className="text-sm text-green-800">
-                  <p className="font-medium mb-1">Password updated successfully!</p>
-                  <p>Your account is now secure with your new password.</p>
+                  <p className="font-medium mb-1">{t('auth.passwordUpdatedSuccessfully')}</p>
+                  <p>{t('auth.accountNowSecure')}</p>
                 </div>
               </div>
             </div>
 
             <Link href="/login">
               <Button fullWidth>
-                Continue to Sign In
+                {t('auth.continueToSignIn')}
               </Button>
             </Link>
           </CardBody>
@@ -145,9 +147,9 @@ const ResetPassword = () => {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-blue-500" />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-800">Reset Your Password</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800">{t('auth.resetYourPassword')}</CardTitle>
           <CardDescription className="text-gray-600 mt-2">
-            Enter your new password below. Make sure it's strong and secure.
+            {t('auth.enterNewPasswordBelow')}
           </CardDescription>
         </CardHeader>
         
@@ -157,7 +159,7 @@ const ResetPassword = () => {
               <InputField
                 icon={Lock}
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your new password"
+                placeholder={t('auth.enterNewPassword')}
                 value={formData.password}
                 onChange={(value) => handleInputChange('password', value)}
                 error={errors.password}
@@ -175,27 +177,27 @@ const ResetPassword = () => {
               {/* Password Strength Indicator */}
               {formData.password && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t('auth.passwordRequirements')}</p>
                   <div className="space-y-1">
                     <div className={`flex items-center text-xs ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
                       <CheckCircle className={`w-3 h-3 mr-2 ${passwordValidation.minLength ? 'text-green-500' : 'text-gray-400'}`} />
-                      At least 8 characters
+                      {t('auth.atLeast8Characters')}
                     </div>
                     <div className={`flex items-center text-xs ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
                       <CheckCircle className={`w-3 h-3 mr-2 ${passwordValidation.hasUpperCase ? 'text-green-500' : 'text-gray-400'}`} />
-                      One uppercase letter
+                      {t('auth.oneUppercaseLetter')}
                     </div>
                     <div className={`flex items-center text-xs ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
                       <CheckCircle className={`w-3 h-3 mr-2 ${passwordValidation.hasLowerCase ? 'text-green-500' : 'text-gray-400'}`} />
-                      One lowercase letter
+                      {t('auth.oneLowercaseLetter')}
                     </div>
                     <div className={`flex items-center text-xs ${passwordValidation.hasNumbers ? 'text-green-600' : 'text-gray-500'}`}>
                       <CheckCircle className={`w-3 h-3 mr-2 ${passwordValidation.hasNumbers ? 'text-green-500' : 'text-gray-400'}`} />
-                      One number
+                      {t('auth.oneNumber')}
                     </div>
                     <div className={`flex items-center text-xs ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
                       <CheckCircle className={`w-3 h-3 mr-2 ${passwordValidation.hasSpecialChar ? 'text-green-500' : 'text-gray-400'}`} />
-                      One special character
+                      {t('auth.oneSpecialCharacter')}
                     </div>
                   </div>
                 </div>
@@ -205,7 +207,7 @@ const ResetPassword = () => {
             <InputField
               icon={Lock}
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Confirm your new password"
+              placeholder={t('auth.confirmNewPassword')}
               value={formData.confirmPassword}
               onChange={(value) => handleInputChange('confirmPassword', value)}
               error={errors.confirmPassword}
@@ -226,13 +228,13 @@ const ResetPassword = () => {
               disabled={!formData.password || !formData.confirmPassword || !passwordValidation.isValid}
               fullWidth
             >
-              {isLoading ? 'Updating Password...' : 'Update Password'}
+              {isLoading ? t('auth.updatingPassword') : t('auth.updatePassword')}
             </Button>
 
             <div className="text-center">
               <Link href="/login">
                 <Button variant="ghost" fullWidth leftIcon={ArrowLeft}>
-                  Back to Login
+                  {t('auth.backToLogin')}
                 </Button>
               </Link>
             </div>

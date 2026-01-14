@@ -2,8 +2,10 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isDeleting }) => {
+    const { t } = useTranslation();
     if (!isOpen) return null;
 
     return (
@@ -14,13 +16,12 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isDelet
                         <Trash2 className="w-5 h-5 text-[rgb(var(--color-danger))]" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Delete Invoice</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">This action cannot be undone</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('invoices.deleteInvoice')}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('invoices.deleteActionCannotBeUndone')}</p>
                     </div>
                 </div>
                 <p className="text-[rgb(var(--color-text-primary))] mb-6">
-                    Are you sure you want to delete invoice <strong>{invoiceNumber}</strong>?
-                    This will permanently remove the invoice and all its data.
+                    {t('invoices.deleteConfirmMessage', { invoiceNumber })} {t('invoices.deletePermanentlyRemove')}
                 </p>
                 <div className="flex space-x-3">
                     <Button
@@ -29,14 +30,14 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isDelet
                         className="flex-1"
                         disabled={isDeleting}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={onConfirm}
                         className="flex-1 bg-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/90"
                         disabled={isDeleting}
                     >
-                        {isDeleting ? 'Deleting...' : 'Delete'}
+                        {isDeleting ? t('common.deleting') : t('common.delete')}
                     </Button>
                 </div>
             </div>

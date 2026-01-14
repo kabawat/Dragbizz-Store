@@ -4,6 +4,7 @@ import { authService } from '@/service/auth';
 import { ENV_CONFIG } from '@/config';
 import { AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
 import styles from '../../page/style/Login.module.scss';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const VerificationStep = ({
   contactType,
@@ -15,6 +16,7 @@ const VerificationStep = ({
   registrationData,
   onTokenUpdate
 }) => {
+  const { t } = useTranslation();
   const [otp, setOtp] = useState(['', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
@@ -83,12 +85,12 @@ const VerificationStep = ({
         // OTP verification failed
         setAttempts(prev => prev + 1);
         if (attempts >= 10) {
-          setError('Too many failed attempts. Please request a new code.');
+          setError(t('auth.tooManyFailedAttempts'));
           setOtp(['', '', '', '', '']);
           setCanResend(true);
           setTimeLeft(0);
         } else {
-          setError(result.message || 'Invalid OTP. Please try again.');
+          setError(result.message || t('auth.invalidOtpTryAgain'));
           setOtp(['', '', '', '', '']);
           inputRefs.current[0]?.focus();
         }
@@ -96,12 +98,12 @@ const VerificationStep = ({
     } catch (error) {
       setAttempts(prev => prev + 1);
       if (attempts >= 10) {
-        setError('Too many failed attempts. Please request a new code.');
+        setError(t('auth.tooManyFailedAttempts'));
         setOtp(['', '', '', '', '']);
         setCanResend(true);
         setTimeLeft(0);
       } else {
-        setError('An error occurred. Please try again.');
+        setError(t('auth.errorOccurredTryAgain'));
         setOtp(['', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
@@ -138,10 +140,10 @@ const VerificationStep = ({
         setAttempts(0);
         inputRefs.current[0]?.focus();
       } else {
-        setError(result.message || 'Failed to resend OTP. Please try again.');
+        setError(result.message || t('auth.failedToResendOtpTryAgain'));
       }
     } catch (error) {
-      setError('An error occurred while resending OTP. Please try again.');
+      setError(t('auth.errorResendingOtp'));
     } finally {
       setIsVerifying(false);
     }
@@ -177,10 +179,10 @@ const VerificationStep = ({
                   <MessageSquare className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  Almost there! 🎯
+                  {t('auth.almostThere')}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  Verify your account with the code we just sent
+                  {t('auth.verifyAccountWithCode')}
                 </p>
               </div>
 
@@ -191,8 +193,8 @@ const VerificationStep = ({
                     <Mail className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure Verification</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">5-digit code sent to your {contactType}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureVerification')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.digitCodeSentTo', { type: contactType })}</p>
                   </div>
                 </div>
 
@@ -201,8 +203,8 @@ const VerificationStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Process</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Auto-submits when all digits are entered</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickProcess')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.autoSubmitsWhenFilled')}</p>
                   </div>
                 </div>
 
@@ -211,8 +213,8 @@ const VerificationStep = ({
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Safe & Secure</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Your verification code expires in 10 minutes</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.safeAndSecure')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.verificationCodeExpires')}</p>
                   </div>
                 </div>
               </div>
@@ -220,7 +222,7 @@ const VerificationStep = ({
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  © 2025 DragBizz. All rights reserved.
+                  {t('auth.copyright')}
                 </p>
               </div>
             </div>
@@ -238,7 +240,7 @@ const VerificationStep = ({
                   <MessageSquare className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  DragBizz Store
+                  {t('auth.dragBizzStore')}
                 </h1>
               </div>
 
@@ -254,11 +256,11 @@ const VerificationStep = ({
                   </div>
 
                   <h2 className={styles.otpTitle}>
-                    Almost there, {firstName}! 🎯
+                    {t('auth.almostThereFirstName', { firstName })}
                   </h2>
 
                   <p className={styles.otpDescription}>
-                    We've sent a 5-digit code to
+                    {t('auth.sentCodeTo')}
                   </p>
 
                   <div className={styles.otpContactInfo}>
@@ -268,12 +270,12 @@ const VerificationStep = ({
                           {contactType === 'email' ? (
                             <>
                               <Mail className="w-3 h-3 mr-1" />
-                              Email
+                              {t('auth.email')}
                             </>
                           ) : (
                             <>
                               <Phone className="w-3 h-3 mr-1" />
-                              Phone
+                              {t('auth.phone')}
                             </>
                           )}
                         </div>
@@ -284,7 +286,7 @@ const VerificationStep = ({
                       <button
                         onClick={onChangeContact}
                         className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
-                        title="Change contact"
+                        title={t('auth.changeContact')}
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
@@ -306,13 +308,13 @@ const VerificationStep = ({
                     3
                   </div>
                 </div>
-                <p className="text-xs text-center text-[rgb(var(--color-text-secondary))] mb-6">Step 3 of 3</p>
+                <p className="text-xs text-center text-[rgb(var(--color-text-secondary))] mb-6">{t('auth.step3Of3')}</p>
 
                 <div className={styles.otpInputSection}>
                   {/* OTP Input */}
                   <div>
                     <label className={styles.otpLabel}>
-                      Enter verification code
+                      {t('auth.enterVerificationCode')}
                     </label>
                     <div className={styles.otpInputs}>
                       {otp.map((digit, index) => (
@@ -345,7 +347,7 @@ const VerificationStep = ({
                     {isVerifying && (
                       <div className={styles.otpLoading}>
                         <div className={styles.otpLoadingSpinner}></div>
-                        <span className={styles.otpLoadingText}>Verifying...</span>
+                        <span className={styles.otpLoadingText}>{t('auth.verifying')}</span>
                       </div>
                     )}
 
@@ -361,7 +363,7 @@ const VerificationStep = ({
                         rightIcon={!isVerifying ? ArrowRight : undefined}
                         className="w-[14.5rem]"
                       >
-                        {isVerifying ? 'Verifying...' : 'Verify Code'}
+                        {isVerifying ? t('auth.verifying') : t('auth.verifyCode')}
                       </Button>
                     </div>
                   </div>
@@ -369,7 +371,7 @@ const VerificationStep = ({
                   {/* Resend Section */}
                   <div className={styles.resendSection}>
                     <p className={styles.resendText}>
-                      Didn't receive the code?
+                      {t('auth.didntReceiveCode')}
                     </p>
 
                     {canResend ? (
@@ -379,11 +381,11 @@ const VerificationStep = ({
                         className={styles.resendButton}
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Resend Code
+                        {t('auth.resendCode')}
                       </button>
                     ) : (
                       <p className={styles.resendTimer}>
-                        Resend in {timeLeft}s
+                        {t('auth.resendIn', { time: timeLeft })}
                       </p>
                     )}
                   </div>

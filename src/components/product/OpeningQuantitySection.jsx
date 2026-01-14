@@ -6,6 +6,7 @@ import { supplierService } from '@/service/retailer';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
 import UpgradeModal from '@/components/ui/UpgradeModal';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const OpeningQuantitySection = ({
   formData,
@@ -14,6 +15,7 @@ const OpeningQuantitySection = ({
   storeId = null,
   ...props
 }) => {
+  const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -61,7 +63,7 @@ const OpeningQuantitySection = ({
 
   // Format supplier options for dropdown
   const supplierOptions = [
-    { value: '', label: 'No supplier selected' },
+    { value: '', label: t('products.noSupplierSelected') },
     ...(suppliers || []).map(s => ({
       value: s.id || s._id,
       label: s.name || s.companyName || 'Unknown'
@@ -88,7 +90,7 @@ const OpeningQuantitySection = ({
           <div>
             <Input
               type="number"
-              label="Opening Quantity"
+              label={t('products.openingQuantity')}
               placeholder="0"
               value={formData.openingStock?.quantity || ''}
               onChange={(value) => handleFieldChange('openingStock.quantity', value)}
@@ -98,7 +100,7 @@ const OpeningQuantitySection = ({
               min={0}
               step={1}
               precision={0}
-              helperText="Initial stock quantity for this product"
+              helperText={t('products.openingQuantityHelperText')}
               className="transition-all duration-200 group-hover:shadow-sm"
             />
           </div>
@@ -107,7 +109,7 @@ const OpeningQuantitySection = ({
           <div>
             <Input
               type="number"
-              label="Opening Purchase Price"
+              label={t('products.openingPurchasePrice')}
               placeholder="0.00"
               value={formData.openingStock?.purchasePrice || ''}
               onChange={(value) => handleFieldChange('openingStock.purchasePrice', value)}
@@ -117,7 +119,7 @@ const OpeningQuantitySection = ({
               min={0}
               step={0.01}
               precision={2}
-              helperText="Cost price per unit for opening stock"
+              helperText={t('products.openingPurchasePriceHelperText')}
               className="transition-all duration-200 group-hover:shadow-sm"
             />
           </div>
@@ -126,11 +128,11 @@ const OpeningQuantitySection = ({
         {/* Supplier Selection - Enabled only if supplier_management feature is available */}
         <div className="mb-6 relative">
           <Select
-            label="Supplier"
+            label={t('products.supplier')}
             placeholder={
               suppliersLoading 
-                ? "Loading suppliers..." 
-                : "Select supplier (optional)"
+                ? t('products.loadingSuppliers')
+                : t('products.selectSupplier')
             }
             value={formData.openingStock?.supplier || ''}
             onChange={(value) => handleFieldChange('openingStock.supplier', value)}
@@ -142,8 +144,8 @@ const OpeningQuantitySection = ({
             disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
             helperText={
               !hasSupplierManagement 
-                ? "Enable supplier management feature in your subscription to use this field"
-                : "Select the supplier for this opening stock (optional)"
+                ? t('products.enableSupplierManagement')
+                : t('products.selectSupplierHelperText')
             }
           />
           
@@ -156,10 +158,10 @@ const OpeningQuantitySection = ({
                 setShowUpgradeModal(true);
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-              title="Upgrade to enable supplier management"
+              title={t('products.upgradeToEnableSupplier')}
             >
               <ArrowUp className="w-3.5 h-3.5" />
-              <span>Upgrade</span>
+              <span>{t('common.upgrade')}</span>
             </button>
           )}
         </div>
@@ -167,7 +169,7 @@ const OpeningQuantitySection = ({
         {/* Expiry Date */}
         <div className="mb-6">
           <Input
-            label="Expiry Date"
+            label={t('products.expiryDate')}
             type="date"
             placeholder="Select expiry date (optional)"
             value={formData.openingStock?.expiryDate || ''}
@@ -184,17 +186,17 @@ const OpeningQuantitySection = ({
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                 <Calculator className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-                Opening Stock Summary
+                {t('products.openingStockSummary')}
               </h4>
               <div className="text-xs text-[rgb(var(--color-text-tertiary))] bg-[rgb(var(--color-bg-primary))] px-2 py-1 rounded-full">
-                Live Preview
+                {t('products.livePreview')}
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Opening Quantity */}
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Opening Quantity:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">{t('products.openingQuantity')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   {formData.openingStock?.quantity || 0} {formData.uom || 'PCS'}
                 </span>
@@ -202,7 +204,7 @@ const OpeningQuantitySection = ({
               
               {/* Purchase Price */}
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Purchase Price:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">{t('products.purchasePrice')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   ₹{parseFloat(formData.openingStock?.purchasePrice || 0).toFixed(2)}
                 </span>
@@ -210,7 +212,7 @@ const OpeningQuantitySection = ({
               
               {/* Total Value */}
               <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]">
-                <span className="text-sm font-medium text-white">Total Value:</span>
+                <span className="text-sm font-medium text-white">{t('products.totalValue')}:</span>
                 <span className="text-sm font-bold text-white">
                   ₹{openingValue.toFixed(2)}
                 </span>
@@ -220,8 +222,7 @@ const OpeningQuantitySection = ({
             {/* Additional Information */}
             <div className="mt-4 p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                💡 This represents your initial inventory investment for this product. 
-                The total value will be used for inventory valuation and cost tracking.
+                💡 {t('products.openingStockInfo')}
               </p>
             </div>
           </div>
@@ -232,8 +233,8 @@ const OpeningQuantitySection = ({
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        featureName="Supplier Management"
-        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+        featureName={t('products.supplierManagement')}
+        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || t('products.supplierManagement')}
       />
     </>
   );

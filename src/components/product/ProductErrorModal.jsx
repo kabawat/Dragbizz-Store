@@ -2,14 +2,17 @@
 import React from 'react';
 import { XCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductErrorModal = ({ 
   isOpen, 
   onClose, 
-  title = "Error",
+  title,
   message = "Something went wrong",
   details = null
 }) => {
+  const { t } = useTranslation();
+  const defaultTitle = title || t('common.error');
   if (!isOpen) return null;
 
   return (
@@ -24,10 +27,10 @@ const ProductErrorModal = ({
               </div>
               <div>
                 <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                  {title}
+                  {defaultTitle}
                 </h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Please try again
+                  {t('products.pleaseTryAgain')}
                 </p>
               </div>
             </div>
@@ -62,7 +65,7 @@ const ProductErrorModal = ({
               onClick={onClose}
               className="px-6 h-10 text-sm font-semibold bg-[rgb(var(--color-primary))] text-white"
             >
-              OK
+              {t('common.ok')}
             </Button>
           </div>
         </div>
@@ -70,7 +73,7 @@ const ProductErrorModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            If the problem persists, please contact support
+            {t('products.ifProblemPersists')}
           </p>
         </div>
       </div>

@@ -17,8 +17,10 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Button, Input, Select, Badge, Card } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PendingBills = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { pendingBills, stats, isLoading, error } = useAppSelector((state) => state.bills);
@@ -92,13 +94,13 @@ const PendingBills = () => {
     const days = getDaysUntilDue(dueDate);
     
     if (days < 0) {
-      return { variant: 'danger', text: 'Overdue', icon: AlertTriangle };
+      return { variant: 'danger', text: t('bills.overdue'), icon: AlertTriangle };
     } else if (days <= 3) {
-      return { variant: 'warning', text: 'Due Soon', icon: Clock };
+      return { variant: 'warning', text: t('bills.dueSoon'), icon: Clock };
     } else if (days <= 7) {
-      return { variant: 'info', text: 'Due This Week', icon: Calendar };
+      return { variant: 'info', text: t('bills.dueThisWeek'), icon: Calendar };
     } else {
-      return { variant: 'success', text: 'On Time', icon: Clock };
+      return { variant: 'success', text: t('bills.onTime'), icon: Clock };
     }
   };
 
@@ -110,8 +112,8 @@ const PendingBills = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Pending Bills"
-          description="View and manage pending supplier bills"
+          title={t('bills.pendingBills')}
+          description={t('bills.viewAndManagePendingBills')}
         />
 
         {/* Main Content */}
@@ -121,7 +123,7 @@ const PendingBills = () => {
             <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100 text-sm font-medium">Total Pending</p>
+                  <p className="text-yellow-100 text-sm font-medium">{t('bills.totalPending')}</p>
                   <p className="text-2xl font-bold">{stats.pendingBills}</p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-200" />
@@ -131,7 +133,7 @@ const PendingBills = () => {
             <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-red-100 text-sm font-medium">Overdue Bills</p>
+                  <p className="text-red-100 text-sm font-medium">{t('bills.overdueBills')}</p>
                   <p className="text-2xl font-bold">{stats.overdueBills}</p>
                 </div>
                 <AlertTriangle className="w-8 h-8 text-red-200" />
@@ -141,7 +143,7 @@ const PendingBills = () => {
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Due Amount</p>
+                  <p className="text-blue-100 text-sm font-medium">{t('bills.totalDueAmount')}</p>
                   <p className="text-2xl font-bold">{formatCurrency(stats.dueAmount)}</p>
                 </div>
                 <IndianRupee className="w-8 h-8 text-blue-200" />
@@ -156,7 +158,7 @@ const PendingBills = () => {
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Search pending bills..."
+                    placeholder={t('bills.searchPendingBills')}
                     value={searchTerm}
                     onChange={handleSearch}
                     className="pl-10"
@@ -167,9 +169,9 @@ const PendingBills = () => {
                   value={supplierFilter}
                   onChange={(value) => handleFilterChange('supplier', value)}
                   options={[
-                    { value: 'all', label: 'All Suppliers' },
-                    { value: 'supplier1', label: 'Supplier 1' },
-                    { value: 'supplier2', label: 'Supplier 2' }
+                    { value: 'all', label: t('bills.allSuppliers') },
+                    { value: 'supplier1', label: t('bills.supplier1') },
+                    { value: 'supplier2', label: t('bills.supplier2') }
                   ]}
                 />
 
@@ -177,10 +179,10 @@ const PendingBills = () => {
                   value={dateRange}
                   onChange={(value) => handleFilterChange('date', value)}
                   options={[
-                    { value: 'all', label: 'All Time' },
-                    { value: 'overdue', label: 'Overdue' },
-                    { value: 'week', label: 'Due This Week' },
-                    { value: 'month', label: 'Due This Month' }
+                    { value: 'all', label: t('bills.allTime') },
+                    { value: 'overdue', label: t('bills.overdue') },
+                    { value: 'week', label: t('bills.dueThisWeek') },
+                    { value: 'month', label: t('bills.dueThisMonth') }
                   ]}
                 />
               </div>
@@ -193,14 +195,14 @@ const PendingBills = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left p-4 font-medium text-gray-900">Bill Number</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Supplier</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Bill Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Due Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Amount</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Days Until Due</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Actions</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.billNumber')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.supplier')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.billDate')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.dueDate')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.amount')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.daysUntilDue')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('bills.status')}</th>
+                    <th className="text-left p-4 font-medium text-gray-900">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -217,7 +219,7 @@ const PendingBills = () => {
                         <td className="p-4">
                           <div className="flex items-center">
                             <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-gray-900">{bill.supplier?.name || 'N/A'}</span>
+                            <span className="text-gray-900">{bill.supplier?.name || t('common.na')}</span>
                           </div>
                         </td>
                         <td className="p-4 text-gray-600">{formatDate(bill.billDate)}</td>
@@ -230,9 +232,9 @@ const PendingBills = () => {
                             daysUntilDue <= 7 ? 'text-blue-600' :
                             'text-green-600'
                           }`}>
-                            {daysUntilDue < 0 ? `${Math.abs(daysUntilDue)} days overdue` :
-                             daysUntilDue === 0 ? 'Due today' :
-                             `${daysUntilDue} days`}
+                            {daysUntilDue < 0 ? t('bills.daysOverdue', { days: Math.abs(daysUntilDue) }) :
+                             daysUntilDue === 0 ? t('bills.dueToday') :
+                             t('bills.daysUntilDueCount', { days: daysUntilDue })}
                           </span>
                         </td>
                         <td className="p-4">
@@ -249,7 +251,7 @@ const PendingBills = () => {
                               leftIcon={Eye}
                               onClick={() => router.push(`/dashboard/bills/${bill.id}`)}
                             >
-                              View
+                              {t('common.view')}
                             </Button>
                             <Button
                               variant="ghost"
@@ -257,7 +259,7 @@ const PendingBills = () => {
                               leftIcon={Edit}
                               onClick={() => router.push(`/dashboard/bills/${bill.id}/edit`)}
                             >
-                              Edit
+                              {t('common.edit')}
                             </Button>
                             <Button
                               variant="primary"
@@ -265,7 +267,7 @@ const PendingBills = () => {
                               leftIcon={IndianRupee}
                               onClick={() => router.push(`/dashboard/payments/create?billId=${bill.id}`)}
                             >
-                              Pay Now
+                              {t('bills.payNow')}
                             </Button>
                           </div>
                         </td>
@@ -280,13 +282,13 @@ const PendingBills = () => {
             {pendingBills.length === 0 && !isLoading && (
               <div className="text-center py-12">
                 <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No pending bills</h3>
-                <p className="text-gray-600 mb-4">All bills are up to date!</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('bills.noPendingBills')}</h3>
+                <p className="text-gray-600 mb-4">{t('bills.allBillsUpToDate')}</p>
                 <Button
                   variant="primary"
                   onClick={() => router.push('/dashboard/bills/create')}
                 >
-                  Create New Bill
+                  {t('bills.createNewBill')}
                 </Button>
               </div>
             )}
@@ -295,7 +297,7 @@ const PendingBills = () => {
             {isLoading && (
               <div className="text-center py-12">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading pending bills...</p>
+                <p className="text-gray-600">{t('bills.loadingPendingBills')}</p>
               </div>
             )}
           </Card>

@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { 
   Settings, 
   Palette, 
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react';
 
 const SettingsPanel = () => {
+  const { t } = useTranslation();
   const { 
     currentTheme, 
     currentVariant, 
@@ -94,9 +96,9 @@ const SettingsPanel = () => {
   const currentThemeConfig = themes[currentTheme];
 
   const tabs = [
-    { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'general', label: 'General', icon: Settings }
+    { id: 'appearance', label: t('settings.appearance'), icon: Palette },
+    { id: 'notifications', label: t('settings.notificationsLabel'), icon: Bell },
+    { id: 'general', label: t('settings.general'), icon: Settings }
   ];
 
   return (
@@ -105,7 +107,7 @@ const SettingsPanel = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-[rgb(var(--color-primary))] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group cursor-pointer"
-        title="Settings"
+        title={t('settings.title')}
       >
         <Settings className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -121,8 +123,8 @@ const SettingsPanel = () => {
           <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex-shrink-0 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-[rgb(var(--color-text-primary))]">Settings</h2>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Customize your experience</p>
+                <h2 className="text-base font-bold text-[rgb(var(--color-text-primary))]">{t('settings.title')}</h2>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('settings.customizeExperience')}</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -168,9 +170,9 @@ const SettingsPanel = () => {
                       <Moon className="w-5 h-5 text-blue-500" />
                     )}
                     <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Dark Mode</p>
+                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.darkMode')}</p>
                       <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        {currentVariant === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+                        {currentVariant === 'light' ? t('settings.switchToDark') : t('settings.switchToLight')}
                       </p>
                     </div>
                   </div>
@@ -189,7 +191,7 @@ const SettingsPanel = () => {
                 </div>
                 {/* Theme Selection */}
                 <div>
-                  <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">Theme</h3>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">{t('settings.theme')}</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.entries(themes).map(([themeKey, theme]) => (
                       <button
@@ -236,8 +238,8 @@ const SettingsPanel = () => {
                   <div className="flex items-center gap-3">
                     <Bell className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                     <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Push Notifications</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">Receive updates and alerts</p>
+                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.pushNotifications')}</p>
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('settings.receiveUpdates')}</p>
                     </div>
                   </div>
                   <button
@@ -258,8 +260,8 @@ const SettingsPanel = () => {
                   <div className="flex items-center gap-3">
                     <Volume2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                     <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Sound Effects</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">Play sounds for interactions</p>
+                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.soundEffects')}</p>
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('settings.playSounds')}</p>
                     </div>
                   </div>
                   <button
@@ -286,8 +288,8 @@ const SettingsPanel = () => {
                   <div className="flex items-center gap-3">
                     <RefreshCw className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                     <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Auto Save</p>
-                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">Automatically save changes</p>
+                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.autoSave')}</p>
+                      <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('settings.autoSaveDescription')}</p>
                     </div>
                   </div>
                   <button
@@ -305,22 +307,22 @@ const SettingsPanel = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">Language</h3>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">{t('settings.language')}</h3>
                   <select 
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
                     className="w-full p-3 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                   >
-                    <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
+                    <option value="en">{t('settings.english')}</option>
+                    <option value="hi">{t('settings.hindi')}</option>
+                    <option value="es">{t('settings.spanish')}</option>
+                    <option value="fr">{t('settings.french')}</option>
                   </select>
                 </div>
 
                 <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]">
                   <button className="w-full p-3 rounded-lg bg-[rgb(var(--color-danger))] text-white hover:opacity-90 transition-colors cursor-pointer">
-                    Reset All Settings
+                    {t('settings.resetAll')}
                   </button>
                 </div>
               </div>
@@ -330,8 +332,8 @@ const SettingsPanel = () => {
           {/* Footer */}
           <div className="px-6 py-4 bg-[rgb(var(--color-bg-secondary))] border-t border-[rgb(var(--color-border-primary))] flex-shrink-0">
             <div className="flex items-center justify-between text-xs text-[rgb(var(--color-text-secondary))]">
-              <span>DragBizz Store v1.0.0</span>
-              <span>Settings saved automatically</span>
+              <span>{t('settings.appVersion')}</span>
+              <span>{t('settings.savedAutomatically')}</span>
             </div>
           </div>
         </div>

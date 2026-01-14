@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDown, AlertTriangle, IndianRupee, Calendar, Building2 } from 'lucide-react';
 import Image from 'next/image';
 import { getStatusBadge as getCommonStatusBadge, renderStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InventoryTable = ({
   inventories = [],
@@ -12,17 +13,20 @@ const InventoryTable = ({
   onViewDetails,
   onStockIn,
   loading = false,
-  emptyMessage = 'No inventory found',
+  emptyMessage,
   className = '',
   // Infinite scroll props
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
 }) => {
+  const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  
+  const defaultEmptyMessage = emptyMessage || t('inventory.noInventory');
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -59,32 +63,32 @@ const InventoryTable = ({
   const actionMenuItems = (inventory) => [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(inventory.id)
     },
     {
       value: 'stock-in',
-      label: 'Add Stock',
+      label: t('inventory.addStock'),
       icon: TrendingUp,
       onClick: () => onStockIn?.(inventory.id),
       className: 'text-green-600 hover:text-green-700'
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(inventory.id)
     },
     {
       value: 'duplicate',
-      label: 'Duplicate',
+      label: t('common.duplicate'),
       icon: Copy,
       onClick: () => onDuplicate?.(inventory.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(inventory.id)
     }

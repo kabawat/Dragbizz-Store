@@ -1,5 +1,6 @@
 "use client"
 import { Building2, Edit2, Trash2, Loader2, Plus } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StoreList = ({
   stores = [],
@@ -9,6 +10,7 @@ const StoreList = ({
   onEditStore,
   onDeleteStore,
 }) => {
+  const { t } = useTranslation();
   const currentStoreId =
     selectedStore?._id || selectedStore?.id || selectedStore || null;
 
@@ -32,7 +34,7 @@ const StoreList = ({
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-[rgb(var(--color-primary))]" />
           <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-            Loading stores...
+            {t('settings.loadingStores')}
           </span>
         </div>
       </div>
@@ -45,17 +47,17 @@ const StoreList = ({
       <div className="backdrop-blur-[1px] rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-12 text-center">
         <Building2 className="w-16 h-16 mx-auto mb-4 text-[rgb(var(--color-text-tertiary))]" />
         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-          No stores found
+          {t('settings.noStoresFound')}
         </h3>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-          Get started by adding your first store
+          {t('settings.getStartedByAddingFirstStore')}
         </p>
         <button
           onClick={onAddStore}
           className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer mx-auto"
         >
           <Plus className="w-5 h-5" />
-          Add New Store
+          {t('settings.addNewStore')}
         </button>
       </div>
     );
@@ -123,7 +125,7 @@ const StoreList = ({
               {store.gst && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    GST:
+                    {t('settings.gst')}:
                   </span>{' '}
                   {store.gst}
                 </p>
@@ -131,7 +133,7 @@ const StoreList = ({
               {store.pan && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    PAN:
+                    {t('settings.pan')}:
                   </span>{' '}
                   {store.pan}
                 </p>
@@ -143,7 +145,7 @@ const StoreList = ({
               {store.phone && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    Phone:
+                    {t('settings.phone')}:
                   </span>{' '}
                   {store.phone}
                 </p>
@@ -151,7 +153,7 @@ const StoreList = ({
               {store.email && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    Email:
+                    {t('settings.email')}:
                   </span>{' '}
                   {store.email}
                 </p>
@@ -162,7 +164,7 @@ const StoreList = ({
             {isCurrent && (
               <div className="mt-auto pt-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700">
-                  Current Store
+                  {t('settings.currentStore')}
                 </span>
               </div>
             )}
@@ -179,10 +181,10 @@ const StoreList = ({
           <Plus className="w-6 h-6 text-[rgb(var(--color-primary))]" />
         </div>
         <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-1">
-          Create New Store
+          {t('settings.createNewStore')}
         </h3>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] text-center max-w-[220px]">
-          Add another store to your account.
+          {t('settings.addAnotherStoreToAccount')}
         </p>
       </button>
     </div>

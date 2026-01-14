@@ -5,8 +5,10 @@ import { SideDrawer, Select, Button, Input } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -81,14 +83,14 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
 
   const downloadFile = async (rows) => {
     const isCSV = downloadFormat === 'csv';
-    const headers = ['Name', 'Phone', 'Email', 'GST', 'Agency', 'Status', 'Created At'];
+    const headers = [t('suppliers.name'), t('suppliers.phone'), t('suppliers.email'), t('suppliers.gst'), t('suppliers.agency'), t('suppliers.status'), t('suppliers.createdAt')];
     const mapRow = (row) => [
       row.name || '',
       row.phone || '',
       row.email || '',
       row.gstNumber || '',
       row.agency || '',
-      row.isActive ? 'Active' : 'Inactive',
+      row.isActive ? t('common.active') : t('common.inactive'),
       row.createdAt ? new Date(row.createdAt).toISOString() : ''
     ];
     if (isCSV) {
@@ -121,7 +123,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
   const handleDownload = async ({ startDate, endDate }) => {
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError('Store ID is missing. Please select a store.');
+      showError(t('suppliers.storeIdMissing'));
       return;
     }
 
@@ -138,17 +140,17 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
       if (result.success && result.data) {
         const suppliersData = result.data?.data || result.data || [];
         if (!suppliersData.length) {
-          showError('No suppliers found to download');
+          showError(t('suppliers.noSuppliersFoundToDownload'));
           return;
         }
         await downloadFile(suppliersData);
-        showSuccess('Suppliers downloaded successfully');
+        showSuccess(t('suppliers.downloadedSuccessfully'));
       } else {
-        showError(result.message || 'Failed to download suppliers');
+        showError(result.message || t('suppliers.failedToDownload'));
       }
     } catch (error) {
       console.error('Download suppliers error:', error);
-      showError('An error occurred while downloading suppliers');
+      showError(t('suppliers.errorDownloadingSuppliers'));
     } finally {
       setIsDownloading(false);
       onClose?.();
@@ -157,12 +159,12 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
 
   const handlePredefinedDownload = async () => {
     if (!selectedDownloadPeriod) {
-      showError('Please select a time period');
+      showError(t('suppliers.pleaseSelectTimePeriod'));
       return;
     }
     const range = getDateRangePreview(selectedDownloadPeriod);
     if (!range) {
-      showError('Invalid date range');
+      showError(t('suppliers.invalidDateRange'));
       return;
     }
     await handleDownload(range);
@@ -170,16 +172,16 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
 
   const handleCustomRangeDownload = async () => {
     if (!customStartDate || !customEndDate) {
-      showError('Please select both start and end dates');
+      showError(t('suppliers.pleaseSelectBothDates'));
       return;
     }
     if (new Date(customEndDate) < new Date(customStartDate)) {
-      showError('End date must be after start date');
+      showError(t('suppliers.endDateMustBeAfterStart'));
       return;
     }
     const range = getCustomDateRangePreview();
     if (!range) {
-      showError('Invalid date range');
+      showError(t('suppliers.invalidDateRange'));
       return;
     }
     await handleDownload(range);
@@ -197,25 +199,25 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title="Download Suppliers"
+      title={t('suppliers.downloadSuppliers')}
       icon={Download}
-      description="Select a time period to download suppliers"
+      description={t('suppliers.selectTimePeriodToDownload')}
       width="w-full md:w-[500px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Select Time Period
+              {t('suppliers.selectTimePeriod')}
             </label>
             <Select
-              placeholder="Select a time period"
+              placeholder={t('suppliers.selectATimePeriod')}
               options={[
-                { label: 'Last 1 Month', value: '1month' },
-                { label: 'Last 3 Months', value: '3months' },
-                { label: 'Last 6 Months', value: '6months' },
-                { label: 'Last 12 Months', value: '12months' },
-                { label: 'Custom Range', value: 'custom' }
+                { label: t('suppliers.last1Month'), value: '1month' },
+                { label: t('suppliers.last3Months'), value: '3months' },
+                { label: t('suppliers.last6Months'), value: '6months' },
+                { label: t('suppliers.last12Months'), value: '12months' },
+                { label: t('suppliers.customRange'), value: 'custom' }
               ]}
               value={selectedDownloadPeriod}
               onChange={handleDownloadPeriodChange}
@@ -226,13 +228,13 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Download Format
+                {t('suppliers.downloadFormat')}
               </label>
               <Select
-                placeholder="Select format"
+                placeholder={t('suppliers.selectFormat')}
                 options={[
-                  { label: 'Excel (XLSX)', value: 'xlsx' },
-                  { label: 'CSV', value: 'csv' }
+                  { label: t('suppliers.excelXlsx'), value: 'xlsx' },
+                  { label: t('suppliers.csv'), value: 'csv' }
                 ]}
                 value={downloadFormat}
                 onChange={setDownloadFormat}
@@ -245,7 +247,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Start Date
+                  {t('suppliers.startDate')}
                 </label>
                 <input
                   type="date"
@@ -256,7 +258,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  End Date
+                  {t('suppliers.endDate')}
                 </label>
                 <input
                   type="date"
@@ -282,13 +284,13 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
-                    Date Range
+                    {t('suppliers.dateRange')}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      From
+                      {t('suppliers.from')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.start}
@@ -296,7 +298,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
                   </div>
                   <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      To
+                      {t('suppliers.to')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.end}
@@ -316,7 +318,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={!customStartDate || !customEndDate || isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? 'Downloading...' : 'Download'}
+                  {isDownloading ? t('suppliers.downloading') : t('suppliers.download')}
                 </Button>
               ) : (
                 <Button
@@ -325,7 +327,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? 'Downloading...' : 'Download'}
+                  {isDownloading ? t('suppliers.downloading') : t('suppliers.download')}
                 </Button>
               )}
             </div>

@@ -5,8 +5,10 @@ import { Button, FileUpload } from '@/components/ui';
 import { voiceAIService } from '@/service';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useGlobalToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const { currentVariant } = useTheme();
   const { showSuccess, showError } = useGlobalToast();
   const [selectedImages, setSelectedImages] = useState([]);
@@ -25,14 +27,14 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
     const remainingSlots = MAX_IMAGES - currentCount;
 
     if (remainingSlots <= 0) {
-      showError(`Maximum ${MAX_IMAGES} images allowed. Please remove some images first.`);
+      showError(t('products.maximumImagesAllowed', { max: MAX_IMAGES }));
       return;
     }
 
     const filesToAdd = Array.from(files).slice(0, remainingSlots);
     
     if (files.length > remainingSlots) {
-      showError(`Only ${remainingSlots} more image(s) can be added. Maximum ${MAX_IMAGES} images allowed.`);
+      showError(t('products.onlyMoreImagesCanBeAdded', { remaining: remainingSlots, max: MAX_IMAGES }));
     }
 
     const newImages = filesToAdd.map((file, index) => ({
@@ -62,7 +64,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
   // Extract product data from all images
   const handleExtractAll = async () => {
     if (selectedImages.length === 0) {
-      showError('Please select at least one image');
+      showError(t('products.pleaseSelectAtLeastOneImage'));
       return;
     }
 

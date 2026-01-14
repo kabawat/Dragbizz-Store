@@ -4,6 +4,7 @@ import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Users, Phone, Mail, Calendar } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CustomerCard = ({
   customer,
@@ -14,6 +15,7 @@ const CustomerCard = ({
   className = '',
   ...props
 }) => {
+  const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
   const { currentVariant, themeConfig } = useTheme();
@@ -40,19 +42,19 @@ const CustomerCard = ({
   const actionMenuItems = [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(customer.id)
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(customer.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(customer.id)
     }
@@ -100,7 +102,7 @@ const CustomerCard = ({
             <button
               onClick={() => handleMenuToggle(customer.id)}
               className="p-2 bg-white/90 dark:bg-[rgb(var(--color-bg-primary))]/90 hover:bg-white dark:hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm border border-[rgb(var(--color-border-primary))]/20"
-              title="More Actions"
+              title={t('common.actions')}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -113,14 +115,14 @@ const CustomerCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  View Details
+                  {t('common.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(customer.id, 'edit')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
@@ -128,7 +130,7 @@ const CustomerCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                 >
                   <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}
@@ -148,7 +150,7 @@ const CustomerCard = ({
         {/* Customer Name */}
         <div>
           <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
-            {customer.name || 'N/A'}
+            {customer.name || t('common.notAvailable')}
           </h3>
         </div>
         
@@ -161,10 +163,10 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate" style={{ color: themeConfig.text }}>
-                {customer.phone || 'N/A'}
+                {customer.phone || t('common.notAvailable')}
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Phone Number
+                {t('common.phone')}
               </p>
             </div>
           </div>
@@ -176,10 +178,10 @@ const CustomerCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm font-medium truncate" style={{ color: themeConfig.text }}>
-                {customer.email || 'N/A'}
+                {customer.email || t('common.notAvailable')}
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Email Address
+                {t('common.email')}
               </p>
             </div>
           </div>
@@ -188,13 +190,13 @@ const CustomerCard = ({
         {/* Customer Stats Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Status</span>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('common.status')}</span>
             <span className="text-xs sm:text-sm font-medium text-green-600">
-              Active Customer
+              {t('customers.activeCustomer')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Member Since</span>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('customers.memberSince')}</span>
             <span className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.text }}>
               {new Date(customer.createdAt || Date.now()).toLocaleDateString()}
             </span>

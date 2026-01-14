@@ -23,17 +23,10 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
-
-const settingsTabs = [
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'account', label: 'Account', icon: SettingsIcon },
-  { id: 'store', label: 'Store', icon: Store },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -41,6 +34,15 @@ export default function SettingsPage() {
   const { toggleVariant, currentVariant } = useTheme();
   const [activeTab, setActiveTab] = useState('appearance');
   const [animationKey, setAnimationKey] = useState(0);
+
+  const settingsTabs = [
+    { id: 'appearance', label: t('settings.appearance'), icon: Palette },
+    { id: 'profile', label: t('settings.profile'), icon: User },
+    { id: 'account', label: t('settings.account'), icon: SettingsIcon },
+    { id: 'store', label: t('settings.store'), icon: Store },
+    { id: 'security', label: t('settings.security'), icon: Shield },
+    { id: 'notifications', label: t('settings.notificationsLabel'), icon: Bell },
+  ];
 
   // Sync active tab from query params on mount / URL change
   useEffect(() => {
@@ -78,8 +80,8 @@ export default function SettingsPage() {
         <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
           {/* Header */}
           <Header
-            title="Settings"
-            description="Manage your account, store, and preferences"
+            title={t('settings.title')}
+            description={t('settings.description')}
           />
 
           {/* Main Content */}

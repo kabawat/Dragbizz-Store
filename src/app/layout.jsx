@@ -1,25 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.scss";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import { SettingsPanel } from "@/components/ui";
 import ToastInitializer from "@/components/ToastInitializer";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
 import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata = {
   title: "Create Next App",
@@ -29,21 +19,23 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
+      <body className="antialiased" suppressHydrationWarning={true}>
         <ReduxProvider>
           <ThemeProvider>
-            <ToastProvider>
-              <NetworkErrorProvider>
-                <ToastInitializer />
-                <NetworkErrorInitializer />
-                <LocationProvider>
-                  {children}
-                  <GlobalToastContainer />
-                  <NetworkErrorWrapper />
-                  <SettingsPanel />
-                </LocationProvider>
-              </NetworkErrorProvider>
-            </ToastProvider>
+            <LanguageProvider>
+              <ToastProvider>
+                <NetworkErrorProvider>
+                  <ToastInitializer />
+                  <NetworkErrorInitializer />
+                  <LocationProvider>
+                    {children}
+                    <GlobalToastContainer />
+                    <NetworkErrorWrapper />
+                    <SettingsPanel />
+                  </LocationProvider>
+                </NetworkErrorProvider>
+              </ToastProvider>
+            </LanguageProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>

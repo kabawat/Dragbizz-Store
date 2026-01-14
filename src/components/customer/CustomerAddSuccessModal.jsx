@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ArrowRight, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CustomerAddSuccessModal = ({ 
   isOpen, 
@@ -9,20 +10,21 @@ const CustomerAddSuccessModal = ({
   onContinue, 
   onAddMore,
   customerName = "Customer",
-  title = "🎉 Customer Added Successfully!",
-  continueText = "Continue to Customers",
-  addMoreText = "Add More Customers",
-  description = "Your customer is now added and ready for orders",
+  title,
+  continueText,
+  addMoreText,
+  description,
   isEditMode = false
 }) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   // Dynamic content based on edit mode
-  const modalTitle = isEditMode ? "🎉 Customer Updated Successfully!" : title;
-  const modalDescription = isEditMode ? "Your customer information has been updated and saved" : description;
-  const modalContinueText = isEditMode ? "Back to Customers" : continueText;
-  const modalAddMoreText = isEditMode ? "Edit More" : addMoreText;
+  const modalTitle = isEditMode ? t('customers.updateSuccess') : (title || t('customers.createSuccess'));
+  const modalDescription = isEditMode ? t('customers.updateSuccessDescription') : (description || t('customers.customerAddedDescription'));
+  const modalContinueText = isEditMode ? t('customers.backToCustomers') : (continueText || t('customers.continueToCustomers'));
+  const modalAddMoreText = isEditMode ? t('customers.editMore') : (addMoreText || t('customers.addMoreCustomers'));
 
   useEffect(() => {
     if (isOpen) {
@@ -77,7 +79,7 @@ const CustomerAddSuccessModal = ({
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{customerName}" has been {isEditMode ? 'updated in' : 'added to'} your customer list
+              "{customerName}" {isEditMode ? t('customers.hasBeenUpdatedIn') : t('customers.hasBeenAddedTo')} {t('customers.yourCustomerList')}
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
               {modalDescription}
@@ -109,7 +111,7 @@ const CustomerAddSuccessModal = ({
           <div className="mt-6 text-center">
             <p className="text-xs text-[rgb(var(--color-text-tertiary))] flex items-center justify-center gap-1">
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
-              You can manage all your customers from the dashboard
+              {t('customers.manageFromDashboard')}
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
             </p>
           </div>

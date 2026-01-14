@@ -19,8 +19,10 @@ import { Button, Input } from '@/components/ui';
 import { BillTable, BillGrid, BillDeleteConfirmModal, BillPaymentDrawer } from '@/components/bills';
 import { billService } from '@/service/retailer';
 import { getStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const Bills = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { bills, isLoading, error, currentFilter, pagination } = useAppSelector((state) => state.bills);
@@ -318,7 +320,7 @@ const Bills = () => {
       return {
         variant: 'danger',
         icon: AlertTriangle,
-        text: 'Overdue',
+        text: t('bills.overdue'),
         color: 'bg-red-500/10 text-red-600 border-red-500/20'
       };
     }
@@ -375,8 +377,8 @@ const Bills = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Bills"
-          description="Manage supplier bills and track payment status"
+          title={t('bills.title')}
+          description={t('bills.description')}
         />
 
         {/* Main Content */}
@@ -389,10 +391,10 @@ const Bills = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Bills...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your bills
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -407,7 +409,7 @@ const Bills = () => {
                   <div className="w-100 bg-red">
                     <Input
                       type="text"
-                      placeholder="Search bills..."
+                      placeholder={`${t('common.search')} ${t('bills.title').toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -427,19 +429,19 @@ const Bills = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
                     <Button variant="primary" onClick={() => router.push('/dashboard/bills/create')} leftIcon={Plus}>
-                      Create Bill
+                      {t('bills.createBill')}
                     </Button>
                   </div>
                 </div>
@@ -454,10 +456,10 @@ const Bills = () => {
                     <Receipt className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No bills found
+                    {t('bills.noBills')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    No bills match your current criteria. Try adjusting your search or add new bills.
+                    {t('common.noData')}
                   </p>
                   <div className="pt-4">
                     <Button
@@ -465,7 +467,7 @@ const Bills = () => {
                       onClick={() => router.push('/dashboard/bills/create')}
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Bill
+                      {t('bills.createBill')}
                     </Button>
                   </div>
                 </div>
@@ -483,7 +485,7 @@ const Bills = () => {
                       onDelete={handleDeleteBill}
                       onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
                       loading={isLoading}
-                      emptyMessage="No bills found"
+                      emptyMessage={t('bills.noBills')}
                       hasMore={pagination.hasNextPage}
                       onLoadMore={handleLoadMore}
                       isLoadingMore={isLoadingMore}
@@ -526,7 +528,7 @@ const Bills = () => {
                         <>
                           Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bills.length}</span> bills
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • No more bills
+                            • {t('bills.noMore')}
                           </span>
                         </>
                       )}

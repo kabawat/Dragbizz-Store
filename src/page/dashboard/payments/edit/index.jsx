@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supplierService, paymentService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -22,6 +23,7 @@ import { Input, Select, Textarea, Card, Modal } from '@/components/ui';
 import Link from 'next/link';
 
 const EditPayment = ({ paymentId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -364,7 +366,7 @@ const EditPayment = ({ paymentId }) => {
 
     // Required fields
     if (!formData.supplierId) {
-      newErrors.supplierId = 'Supplier is required';
+      newErrors.supplierId = t('errors.selectSupplier') + ' ' + t('common.required');
     }
 
     // Validate payment methods
@@ -476,12 +478,12 @@ const EditPayment = ({ paymentId }) => {
         setUpdatedPaymentNumber(result.data?.paymentNumber || 'Payment');
         setShowSuccessModal(true);
       } else {
-        setUpdateError(result.message || 'Failed to update payment');
-        setErrors({ general: result.message || 'Failed to update payment' });
+        setUpdateError(result.message || t('errors.failedToUpdate', { item: t('payments.payment') }));
+        setErrors({ general: result.message || t('errors.failedToUpdate', { item: t('payments.payment') }) });
       }
     } catch (error) {
-      setUpdateError('Failed to update payment. Please try again.');
-      setErrors({ general: 'Failed to update payment. Please try again.' });
+      setUpdateError(t('errors.failedToUpdateTryAgain', { item: t('payments.payment') }));
+      setErrors({ general: t('errors.failedToUpdateTryAgain', { item: t('payments.payment') }) });
     } finally {
       setIsUpdating(false);
     }
@@ -504,11 +506,11 @@ const EditPayment = ({ paymentId }) => {
       <div className="flex h-screen w-full relative overflow-hidden">
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
-          <Header title="Edit Payment" description="Update payment information and details" />
+          <Header title={t('payments.editPayment')} description={t('payments.updatePaymentInformationAndDetails')} />
           <div className="flex-1 p-6 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-[rgb(var(--color-text-secondary))]">Loading payment data...</p>
+              <p className="text-[rgb(var(--color-text-secondary))]">{t('modals.loadingData', { item: t('payments.payment') })}</p>
             </div>
           </div>
         </div>
@@ -522,13 +524,13 @@ const EditPayment = ({ paymentId }) => {
       <div className="flex h-screen w-full relative overflow-hidden">
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
-          <Header title="Edit Payment" description="Update payment information and details" />
+          <Header title={t('payments.editPayment')} description={t('payments.updatePaymentInformationAndDetails')} />
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto">
               <div className="mb-4">
                 <Link href="/dashboard/payments" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">Back to Payments</span>
+                  <span className="text-sm font-medium">{t('payments.backToPayments')}</span>
                 </Link>
               </div>
               <Card className="p-6">
@@ -536,10 +538,10 @@ const EditPayment = ({ paymentId }) => {
                   <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-8 h-8 text-red-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">Error Loading Payment</h3>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">{t('common.errorLoading', { item: t('payments.payment') })}</h3>
                   <p className="text-[rgb(var(--color-text-secondary))] mb-4">{fetchError}</p>
                   <Button variant="primary" onClick={() => router.push('/dashboard/payments')}>
-                    Back to Payments
+                    {t('payments.backToPayments')}
                   </Button>
                 </div>
               </Card>
@@ -623,7 +625,7 @@ const EditPayment = ({ paymentId }) => {
                               value={formData.supplierId}
                               onChange={(value) => handleInputChange('supplierId', value)}
                               options={[
-                                { value: '', label: suppliersLoading ? 'Loading suppliers...' : 'Select Supplier' },
+                                { value: '', label: suppliersLoading ? t('payments.loadingSuppliers') : t('payments.selectSupplier') },
                                 ...suppliers.map(supplier => ({
                                   value: supplier.id || supplier._id,
                                   label: supplier.name || supplier.supplierName
@@ -632,14 +634,14 @@ const EditPayment = ({ paymentId }) => {
                               error={errors.supplierId}
                               disabled={suppliersLoading}
                               searchable={true}
-                              placeholder="Search and select supplier..."
+                              placeholder={t('payments.searchAndSelectSupplier')}
                             />
                           </div>
 
                           {formData.paymentType === 'BILL_PAYMENT' && (
                             <div>
                               <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                Select Bill *
+                                {t('payments.selectBill')} *
                               </label>
                               <Select
                                 size="sm"
@@ -647,12 +649,12 @@ const EditPayment = ({ paymentId }) => {
                                 onChange={(value) => handleInputChange('billId', value)}
                                 options={[
                                   {
-                                    value: '', label: billsLoading ? 'Loading bills...' :
-                                      (bills.length === 0 && formData.supplierId && !billsLoading) ? 'No pending bills found' : 'Select Bill'
+                                    value: '', label: billsLoading ? t('payments.loadingBills') :
+                                      (bills.length === 0 && formData.supplierId && !billsLoading) ? t('payments.noPendingBills') : t('payments.selectBill')
                                   },
                                   ...bills.map(bill => ({
                                     value: bill._id,
-                                    label: `₹${bill.dueAmount} - ${bill.supplier?.name || 'Supplier'}`
+                                    label: `₹${bill.dueAmount} - ${bill.supplier?.name || t('common.supplier')}`
                                   }))
                                 ]}
                                 error={errors.billId}
@@ -682,23 +684,23 @@ const EditPayment = ({ paymentId }) => {
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                             <CreditCard className="w-5 h-5 mr-2" />
-                            Payment Methods
+                            {t('payments.paymentMethods')}
                           </h3>
                           <button
                             type="button"
                             onClick={addPaymentMethod}
                             className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-500/10 dark:hover:bg-green-500/20 rounded-lg transition-colors duration-200"
-                            title="Add new payment method"
+                            title={t('payments.addPaymentMethod')}
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Payment Method</span>
+                            <span className="text-sm font-medium">{t('payments.addPaymentMethod')}</span>
                           </button>
                         </div>
 
                         {/* Total Amount Display */}
                         <div className="mb-4 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Total Amount:</span>
+                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('payments.totalAmount')}:</span>
                             <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">₹ {getTotalAmount().toLocaleString()}</span>
                           </div>
                         </div>
@@ -709,14 +711,14 @@ const EditPayment = ({ paymentId }) => {
                             <Card key={index} className="rounded-lg p-4 bg-[rgb(var(--color-bg-secondary))]">
                               <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-md font-medium text-[rgb(var(--color-text-primary))]">
-                                  Payment Method {index + 1}
+                                  {t('payments.paymentMethodNumber', { number: index + 1 })}
                                 </h4>
                                 {formData.paymentMethods.length > 1 && (
                                   <button
                                     type="button"
                                     onClick={() => removePaymentMethod(index)}
                                     className="p-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors duration-200"
-                                    title="Remove payment method"
+                                    title={t('payments.removePaymentMethod')}
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
@@ -1060,7 +1062,7 @@ const EditPayment = ({ paymentId }) => {
       <Modal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Payment Updated Successfully"
+        title={t('success.updatedSuccessfully', { item: t('payments.payment') })}
         size="md"
       >
         <div className="space-y-4">
@@ -1068,9 +1070,9 @@ const EditPayment = ({ paymentId }) => {
             <div className="w-16 h-16 bg-green-100 dark:bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">Payment Updated Successfully!</h3>
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">{t('success.updatedSuccessfully', { item: t('payments.payment') })}!</h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-              Your payment "{updatedPaymentNumber}" has been updated successfully.
+              {t('success.updatedSuccessfully', { item: t('payments.payment') })} "{updatedPaymentNumber}".
             </p>
           </div>
           <div className="flex justify-end gap-3">

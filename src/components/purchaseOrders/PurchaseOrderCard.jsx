@@ -8,6 +8,7 @@ import {
   Mail
 } from 'lucide-react';
 import { SendMenu, ActionMenu } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PurchaseOrderCard = ({
   purchaseOrder,
@@ -24,6 +25,7 @@ const PurchaseOrderCard = ({
   enableSendMenu = true,
   getShareUrl
 }) => {
+  const { t } = useTranslation();
   const statusBadge = getStatusBadge(purchaseOrder);
   const StatusIcon = statusBadge.icon;
   const poStatus = (purchaseOrder.status || '').toUpperCase();
@@ -136,11 +138,11 @@ const PurchaseOrderCard = ({
         <div className="space-y-2">
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
-            <span>PO Date: {formatDate(purchaseOrder.billDate)}</span>
+            <span>{t('purchaseOrders.poDate')}: {formatDate(purchaseOrder.billDate)}</span>
           </div>
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
-            <span>Expected Delivery: {formatDate(purchaseOrder.dueDate)}</span>
+            <span>{t('purchaseOrders.expectedDelivery')}: {formatDate(purchaseOrder.dueDate)}</span>
           </div>
         </div>
 
@@ -148,7 +150,7 @@ const PurchaseOrderCard = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-              <span className="font-medium">Advance Paid:</span>
+              <span className="font-medium">{t('purchaseOrders.advancePaid')}:</span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
               {formatCurrency(advanceAmount)}
@@ -156,7 +158,7 @@ const PurchaseOrderCard = ({
           </div>
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-              <span className="font-medium">Items Received:</span>
+              <span className="font-medium">{t('purchaseOrders.itemsReceived')}:</span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
               {receivedQuantity}/{totalQuantity}

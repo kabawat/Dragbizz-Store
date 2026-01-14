@@ -10,8 +10,10 @@ import { SupplierForm, SupplierAddSuccessModal } from '@/components/supplier';
 import { supplierService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const EditSupplierPage = ({ supplierId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -57,10 +59,10 @@ const EditSupplierPage = ({ supplierId }) => {
             email: supplierData.email || ''
           });
         } else {
-          setError(result.message || 'Failed to fetch supplier data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('common.supplier') }));
         }
       } catch (error) {
-        setError('Failed to fetch supplier data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.supplier') }));
       } finally {
         setFetching(false);
       }
@@ -119,7 +121,7 @@ const EditSupplierPage = ({ supplierId }) => {
 
       if (result.success) {
         // Show success modal instead of direct redirect
-        setUpdatedSupplierName(formData.name || 'Supplier');
+        setUpdatedSupplierName(formData.name || t('common.supplier'));
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
@@ -169,10 +171,10 @@ const EditSupplierPage = ({ supplierId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Supplier...
+                      {t('modals.loadingData', { item: t('common.supplier') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch supplier data
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.supplier') })}
                     </p>
                   </div>
                 </div>
@@ -199,17 +201,17 @@ const EditSupplierPage = ({ supplierId }) => {
                       <Building className="w-8 h-8 text-red-600" />
                     </div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Error Loading Supplier
+                      {t('common.errorLoading', { item: t('common.supplier') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-6">
                       {error}
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button variant="outline" onClick={() => window.location.reload()}>
-                        Retry
+                        {t('common.retry')}
                       </Button>
                       <Button variant="primary" onClick={handleCancel}>
-                        Back to Suppliers
+                        {t('common.backTo', { item: t('common.suppliers') })}
                       </Button>
                     </div>
                   </div>

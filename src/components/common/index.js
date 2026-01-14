@@ -6,4 +6,5 @@ export { default as ScrollIndicator } from './ScrollIndicator';
 export { default as SectionHeader } from './SectionHeader';
 export { default as QuotaExceededModal } from './QuotaExceededModal';
 export { default as FormDrawer } from './FormDrawer';
+export { default as LanguageSwitcher } from './LanguageSwitcher';
 

@@ -4,6 +4,7 @@ import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Building, Phone, Mail, Calendar } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const SupplierCard = ({
   supplier,
@@ -16,6 +17,7 @@ const SupplierCard = ({
   className = '',
   ...props
 }) => {
+  const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
   const { currentVariant, themeConfig } = useTheme();
@@ -42,19 +44,19 @@ const SupplierCard = ({
   const actionMenuItems = [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(supplier.id)
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(supplier.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(supplier.id)
     }
@@ -122,7 +124,7 @@ const SupplierCard = ({
             <button
               onClick={() => handleMenuToggle(supplier.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title="More Actions"
+              title={t('common.actions')}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -135,14 +137,14 @@ const SupplierCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  View Details
+                  {t('common.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(supplier.id, 'edit')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
@@ -150,7 +152,7 @@ const SupplierCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}
@@ -170,10 +172,10 @@ const SupplierCard = ({
         {/* Supplier Name */}
         <div>
           <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
-            {supplier.name || 'N/A'}
+            {supplier.name || t('common.notAvailable')}
           </h3>
           <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
-            GST Number: {supplier.gstNumber || 'N/A'}
+            {t('suppliers.gstin')}: {supplier.gstNumber || t('common.notAvailable')}
           </p>
         </div>
 
@@ -186,10 +188,10 @@ const SupplierCard = ({
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.phone || 'N/A'}
+                {supplier.phone || t('common.notAvailable')}
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Phone Number
+                {t('common.phone')}
               </p>
             </div>
           </div>
@@ -201,10 +203,10 @@ const SupplierCard = ({
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.email || 'N/A'}
+                {supplier.email || t('common.notAvailable')}
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Email Address
+                {t('common.email')}
               </p>
             </div>
           </div>
@@ -216,10 +218,10 @@ const SupplierCard = ({
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.agency || 'N/A'}
+                {supplier.agency || t('common.notAvailable')}
               </p>
               <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                Agency Name
+                {t('suppliers.agencyName')}
               </p>
             </div>
           </div>
@@ -228,13 +230,13 @@ const SupplierCard = ({
         {/* Supplier Stats Section */}
         <div className="rounded-lg p-4 space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>Status</span>
+            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>{t('common.status')}</span>
             <span className="text-sm font-medium text-green-600">
-              Active Supplier
+              {t('suppliers.activeSupplier')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>Member Since</span>
+            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>{t('suppliers.memberSince')}</span>
             <span className="text-sm font-medium" style={{ color: themeConfig.text }}>
               {new Date(supplier.createdAt || Date.now()).toLocaleDateString()}
             </span>
@@ -246,13 +248,13 @@ const SupplierCard = ({
               <div className="border-t border-[rgb(var(--color-border-primary))] pt-2 mt-2"></div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>Total Paid</span>
+                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>{t('suppliers.totalPaid')}</span>
                   <span className="text-sm font-semibold text-green-600">
                     ₹{(supplier.account?.totalPaid || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>Total Due</span>
+                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>{t('suppliers.totalDue')}</span>
                   <span className="text-sm font-semibold text-red-600">
                     ₹{(supplier.account?.totalDue || supplier.account?.dueAmount || 0).toLocaleString()}
                   </span>
@@ -270,7 +272,7 @@ const SupplierCard = ({
             borderColor: themeConfig.border
           }}
         >
-          Last updated: {new Date(supplier.updatedAt || Date.now()).toLocaleDateString()}
+          {t('common.lastUpdated')}: {new Date(supplier.updatedAt || Date.now()).toLocaleDateString()}
         </div>
       </div>
     </div>

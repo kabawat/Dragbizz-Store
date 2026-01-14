@@ -9,8 +9,11 @@ import Header from '@/components/dashboard/Header';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import InventoryForm from '@/components/inventory/InventoryForm';
+import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddInventoryPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
@@ -91,15 +94,15 @@ const AddInventoryPage = () => {
     const errors = {};
     
     if (!formData.productId) {
-      errors.productId = 'Product selection is required';
+      errors.productId = t('inventory.productSelectionRequired');
     }
     
     if (!formData.batchData?.quantity || formData.batchData?.quantity <= 0) {
-      errors['batchData.quantity'] = 'Valid quantity is required';
+      errors['batchData.quantity'] = t('inventory.validQuantityRequired');
     }
     
     if (!formData.batchData?.purchasePrice || formData.batchData?.purchasePrice <= 0) {
-      errors['batchData.purchasePrice'] = 'Valid purchase price is required';
+      errors['batchData.purchasePrice'] = t('inventory.validPurchasePriceRequired');
     }
     
     // Supplier is optional - no validation needed
@@ -135,7 +138,7 @@ const AddInventoryPage = () => {
           discount: Number(formData.batchData.discount || 0),
         }
       };
-      setAddedInventoryName('Inventory Item');
+      setAddedInventoryName(t('inventory.inventoryItem'));
       setShowSuccessModal(true);
 
     } catch (error) {
@@ -179,8 +182,8 @@ const AddInventoryPage = () => {
         <div className="flex-1 min-h-screen flex flex-col">
           {/* Header */}
           <Header
-            title="Add New Inventory"
-            description="Add new inventory items to your store with detailed tracking information"
+            title={t('inventory.addNewInventory')}
+            description={t('inventory.addNewInventoryDescription')}
           />
 
           {/* Main Content */}
@@ -190,7 +193,7 @@ const AddInventoryPage = () => {
               <div className="mb-4">
                 <Link href="/dashboard/inventory" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">Back to Inventory</span>
+                  <span className="text-sm font-medium">{t('inventory.backToInventory')}</span>
                 </Link>
               </div>
 
@@ -209,7 +212,7 @@ const AddInventoryPage = () => {
                   {/* Action Buttons - Fixed Bottom */}
                   <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
                     <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                      Cancel
+                      {t('inventory.cancel')}
                     </Button>
                     <Button
                       variant="success"
@@ -218,7 +221,7 @@ const AddInventoryPage = () => {
                       loading={loading}
                       leftIcon={Save}
                     >
-                      Save & Publish
+                      {t('inventory.saveAndPublish')}
                     </Button>
                   </div>
                 </div>
@@ -232,8 +235,8 @@ const AddInventoryPage = () => {
                           <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Add Inventory Details?</h3>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Complete information helps in better stock management</p>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.whyAddInventoryDetails')}</h3>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('inventory.completeInformationHelps')}</p>
                         </div>
                       </div>
 
@@ -243,8 +246,8 @@ const AddInventoryPage = () => {
                             <TrendingUp className="w-4 h-4 text-green-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Accurate Stock Levels</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Maintain precise counts to avoid stockouts</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.accurateStockLevels')}</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.maintainPreciseCounts')}</p>
                           </div>
                         </div>
 
@@ -253,8 +256,8 @@ const AddInventoryPage = () => {
                             <Users className="w-4 h-4 text-blue-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Efficient Fulfillment</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Streamline order processing</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.efficientFulfillment')}</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.streamlineOrderProcessing')}</p>
                           </div>
                         </div>
 
@@ -263,8 +266,8 @@ const AddInventoryPage = () => {
                             <BarChart3 className="w-4 h-4 text-purple-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Financial Tracking</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track costs and profits accurately</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.financialTracking')}</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.trackCostsAndProfits')}</p>
                           </div>
                         </div>
 
@@ -273,20 +276,20 @@ const AddInventoryPage = () => {
                             <Star className="w-4 h-4 text-yellow-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Optimized Purchasing</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">Make informed reorder decisions</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.optimizedPurchasing')}</h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.makeInformedReorderDecisions')}</p>
                           </div>
                         </div>
                       </div>
 
                       <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">{t('inventory.proTips')}</h4>
                         <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-                          <li>• Keep batch numbers updated for traceability</li>
-                          <li>• Set realistic minimum stock levels</li>
-                          <li>• Regularly reconcile physical stock</li>
-                          <li>• Monitor expiry dates for perishables</li>
-                          <li>• Implement quality control checks</li>
+                          <li>{t('inventory.keepBatchNumbersUpdated')}</li>
+                          <li>{t('inventory.setRealisticMinimumStock')}</li>
+                          <li>{t('inventory.regularlyReconcilePhysicalStock')}</li>
+                          <li>{t('inventory.monitorExpiryDates')}</li>
+                          <li>{t('inventory.implementQualityControl')}</li>
                         </ul>
                       </div>
                     </div>
@@ -308,17 +311,17 @@ const AddInventoryPage = () => {
                 <Package className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Inventory Added Successfully!
+                {t('inventory.inventoryAddedSuccessfully')}
               </h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-                "{addedInventoryName}" has been added to your inventory.
+                "{addedInventoryName}" {t('inventory.hasBeenAddedToInventory')}
               </p>
               <div className="flex space-x-3">
                 <Button variant="outline" onClick={handleAddMore} className="flex-1">
-                  Add More
+                  {t('inventory.addMore')}
                 </Button>
                 <Button variant="primary" onClick={handleContinue} className="flex-1">
-                  Continue
+                  {t('inventory.continue')}
                 </Button>
               </div>
             </div>

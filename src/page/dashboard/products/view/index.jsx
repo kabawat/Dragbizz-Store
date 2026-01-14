@@ -11,8 +11,10 @@ import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ViewProductPage = ({ productId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -45,10 +47,10 @@ const ViewProductPage = ({ productId }) => {
         if (result.success && result.data) {
           setProductData(result.data);
         } else {
-          setError(result.message || 'Failed to fetch product data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('common.product') }));
         }
       } catch (error) {
-        setError('Failed to fetch product data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.product') }));
       } finally {
         setFetching(false);
       }
@@ -80,11 +82,11 @@ const ViewProductPage = ({ productId }) => {
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || 'Failed to delete product');
+        setError(result.message || t('errors.failedToDelete', { item: t('common.product') }));
         setShowDeleteModal(false);
       }
     } catch (error) {
-      setError('Failed to delete product. Please try again.');
+      setError(t('errors.failedToDeleteTryAgain', { item: t('common.product') }));
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -150,8 +152,8 @@ const ViewProductPage = ({ productId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="View Product"
-            description="Product information and details"
+            title={t('products.viewProduct')}
+            description={t('products.viewProductDescription')}
           />
 
           <div className="flex-1 p-6">
@@ -161,10 +163,10 @@ const ViewProductPage = ({ productId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Product Data...
+                      {t('modals.loadingData', { item: t('common.product') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the product information
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.product') })}
                     </p>
                   </div>
                 </div>
@@ -185,8 +187,8 @@ const ViewProductPage = ({ productId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title="View Product"
-          description="Product information and details"
+          title={t('products.viewProduct')}
+          description={t('products.viewProductDescription')}
         />
 
         {/* Main Content */}
@@ -196,7 +198,7 @@ const ViewProductPage = ({ productId }) => {
             <div className="mb-6">
               <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Products</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.products') })}</span>
               </Link>
             </div>
 
@@ -210,10 +212,10 @@ const ViewProductPage = ({ productId }) => {
                         <Package className="w-10 h-10 text-red-600" />
                       </div>
                       <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        Product Not Found
+                        {t('modals.notFound', { item: t('common.product') })}
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        The product you're looking for doesn't exist or has been removed. Please check the product ID and try again.
+                        {t('common.doesntExistOrRemoved', { item: t('common.product') })}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
@@ -221,7 +223,7 @@ const ViewProductPage = ({ productId }) => {
                           onClick={() => router.push('/dashboard/products')}
                           className="px-6 py-3"
                         >
-                          Back to Products
+                          {t('common.backTo', { item: t('common.products') })}
                         </Button>
                         <Button
                           variant="primary"
@@ -265,7 +267,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Product Name</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.name || 'N/A'}
+                              {productData.name || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -276,7 +278,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Brand</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.brand || 'N/A'}
+                              {productData.brand || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -287,7 +289,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Category</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.category?.name || productData.category || 'N/A'}
+                              {productData.category?.name || productData.category || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -298,7 +300,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">SKU</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                              {productData.sku || 'N/A'}
+                              {productData.sku || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -310,7 +312,7 @@ const ViewProductPage = ({ productId }) => {
                             <div className="relative z-10">
                               <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Barcode</p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                {productData.barcode || 'N/A'}
+                                {productData.barcode || t('common.na')}
                               </p>
                             </div>
                           </div>
@@ -323,7 +325,7 @@ const ViewProductPage = ({ productId }) => {
                             <div className="relative z-10">
                               <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Unit of Measure</p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {productData.uom || 'N/A'}
+                                {productData.uom || t('common.na')}
                               </p>
                             </div>
                           </div>
@@ -350,7 +352,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Base Price</p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                              {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -361,7 +363,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">MRP</p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {productData.mrp ? `${productData.currency || '₹'}${productData.mrp?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                              {productData.mrp ? `${productData.currency || '₹'}${productData.mrp?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -372,7 +374,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Selling Price</p>
                             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                              {productData.sellingPrice ? `${productData.currency || '₹'}${productData.sellingPrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
+                              {productData.sellingPrice ? `${productData.currency || '₹'}${productData.sellingPrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -412,7 +414,7 @@ const ViewProductPage = ({ productId }) => {
                             <div className="relative z-10">
                               <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Applicable</p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {productData.gstInfo.isGstApplicable ? 'Yes' : 'No'}
+                                {productData.gstInfo.isGstApplicable ? t('common.yes') : t('common.no')}
                               </p>
                             </div>
                           </div>
@@ -437,7 +439,7 @@ const ViewProductPage = ({ productId }) => {
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Type</p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {productData.gstInfo.gstType || 'N/A'}
+                                  {productData.gstInfo.gstType || t('common.na')}
                                 </p>
                               </div>
                             </div>
@@ -450,7 +452,7 @@ const ViewProductPage = ({ productId }) => {
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">HSN Code</p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                  {productData.gstInfo.hsnCode || 'N/A'}
+                                  {productData.gstInfo.hsnCode || t('common.na')}
                                 </p>
                               </div>
                             </div>
@@ -478,7 +480,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Featured</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.featured ? 'Yes' : 'No'}
+                              {productData.featured ? t('common.yes') : t('common.no')}
                             </p>
                           </div>
                         </div>
@@ -489,7 +491,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Best Seller</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.bestSeller ? 'Yes' : 'No'}
+                              {productData.bestSeller ? t('common.yes') : t('common.no')}
                             </p>
                           </div>
                         </div>
@@ -500,7 +502,7 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">New Arrival</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.newArrival ? 'Yes' : 'No'}
+                              {productData.newArrival ? t('common.yes') : t('common.no')}
                             </p>
                           </div>
                         </div>
@@ -678,7 +680,7 @@ const ViewProductPage = ({ productId }) => {
               Delete Product
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{productData?.name || 'Product'}"? This action cannot be undone.
+              {t('modals.deleteConfirmWithName', { name: productData?.name || t('common.product') })}
             </p>
             <div className="flex gap-3 justify-end">
               <Button variant="outline" onClick={handleCancelDelete} disabled={isDeleting}>
@@ -701,10 +703,10 @@ const ViewProductPage = ({ productId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Product Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.product') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedProductName}" has been removed from your product list.
+                {t('common.hasBeenRemovedFromList', { name: deletedProductName, item: t('common.products') })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Products

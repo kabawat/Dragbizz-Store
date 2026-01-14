@@ -1,6 +1,7 @@
 "use client"
 import { Edit2, User, Mail, Phone } from 'lucide-react';
 import PersonalInfoCard from './PersonalInfoCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PersonalInfoSection = ({ 
   form, 
@@ -8,16 +9,17 @@ const PersonalInfoSection = ({
   user, 
   onEditClick 
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Personal Information</h3>
+        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('settings.personalInformation')}</h3>
         <button
           onClick={onEditClick}
           className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg"
         >
           <Edit2 className="w-4 h-4" />
-          Edit Profile
+          {t('settings.editProfile')}
         </button>
       </div>
 
@@ -25,7 +27,7 @@ const PersonalInfoSection = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <PersonalInfoCard
           icon={User}
-          label="Full Name"
+          label={t('settings.fullName')}
           value={form.firstName || form.lastName
             ? `${form.firstName || ''} ${form.lastName || ''}`.trim()
             : '-'}
@@ -33,13 +35,13 @@ const PersonalInfoSection = ({
 
         <PersonalInfoCard
           icon={Mail}
-          label="Email"
+          label={t('settings.email')}
           value={apiUser?.email || user?.email || '-'}
         />
 
         <PersonalInfoCard
           icon={Phone}
-          label="Phone"
+          label={t('settings.phone')}
           value={[
             apiUser?.countryCode || user?.countryCode,
             apiUser?.phone || user?.phone,
@@ -49,12 +51,12 @@ const PersonalInfoSection = ({
         />
 
         <PersonalInfoCard
-          label="Date of Birth"
+          label={t('settings.dateOfBirth')}
           value={form.dob || '-'}
         />
 
         <PersonalInfoCard
-          label="Gender"
+          label={t('settings.gender')}
           value={form.gender || '-'}
         />
       </div>

@@ -26,6 +26,7 @@ import { Button, Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModa
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const formInit = {
   supplier: '',
@@ -45,6 +46,7 @@ const formInit = {
   ]
 }
 const CreateBill = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -334,7 +336,7 @@ const CreateBill = () => {
     }
 
     if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = 'Notes cannot exceed 500 characters';
+      newErrors.notes = t('errors.notesCannotExceed500Chars');
     }
 
     // ITEMS VALIDATION (Required)
@@ -406,7 +408,7 @@ const CreateBill = () => {
       const result = await billService.createBill(billData);
 
       if (result.success) {
-        showSuccess('Bill created successfully!');
+        showSuccess(t('success.createdSuccessfully', { item: t('common.bill') }));
         setTimeout(() => {
           const billId = result.data?.id || result.data?._id;
           if (billId) {
@@ -422,7 +424,7 @@ const CreateBill = () => {
           setErrors(fieldErrors);
         } else {
           // Show error modal for general errors
-          setErrorMessage(result.message || 'Failed to create bill. Please try again.');
+          setErrorMessage(result.message || t('errors.failedToCreateTryAgain', { item: t('common.bill') }));
           setShowErrorModal(true);
         }
       }
@@ -463,10 +465,10 @@ const CreateBill = () => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title="Create Bill"
+          title={t('bills.createBill')}
           description={searchParams.get('poNumber') ?
-            `Bill for Purchase Order #${searchParams.get('poNumber')}` :
-            "Add new purchase bill to track inventory purchases"
+            t('bills.billForPO', { poNumber: searchParams.get('poNumber') }) :
+            t('bills.createBillDescription')
           }
         />
 
@@ -478,7 +480,7 @@ const CreateBill = () => {
             <div className="mb-4">
               <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Bills</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.bills') })}</span>
               </Link>
             </div>
 
@@ -505,12 +507,12 @@ const CreateBill = () => {
                               value={formData.supplier}
                               onChange={(value) => handleInputChange('supplier', value)}
                               options={[
-                                { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
+                                { value: '', label: suppliersLoading ? t('errors.loading') : t('errors.selectSupplier') },
                                 ...suppliers.filter(supplier => supplier.name || supplier.supplierName).map(supplier => ({
                                   value: supplier.id || supplier._id,
                                   label: supplier.name || supplier.supplierName
                                 })),
-                                { value: 'add-new-supplier', label: '+ Add New Supplier', isAddOption: true }
+                                { value: 'add-new-supplier', label: t('errors.addNewSupplier'), isAddOption: true }
                               ]}
                               error={errors.supplier}
                               disabled={suppliersLoading}
@@ -530,12 +532,12 @@ const CreateBill = () => {
                               value={formData.purchaseOrder}
                               onChange={(value) => handleInputChange('purchaseOrder', value)}
                               options={[
-                                { value: '', label: purchaseOrdersLoading ? 'Loading...' : 'Select Purchase Order' },
+                                { value: '', label: purchaseOrdersLoading ? t('errors.loading') : t('errors.selectPurchaseOrder') },
                                 ...purchaseOrders.filter(po => po.poNumber || po.purchaseOrderNumber).map(po => ({
                                   value: po.id || po._id,
                                   label: po.poNumber || po.purchaseOrderNumber || `PO-${po.id || po._id}`
                                 })),
-                                { value: 'add-new-purchase-order', label: '+ Add New Purchase Order', isAddOption: true }
+                                { value: 'add-new-purchase-order', label: t('errors.addNewPurchaseOrder'), isAddOption: true }
                               ]}
                               error={errors.purchaseOrder}
                               disabled={purchaseOrdersLoading}
@@ -610,7 +612,7 @@ const CreateBill = () => {
                               onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
                             />
                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                              {formData.goodsReceived ? 'Yes' : 'No'}
+                              {formData.goodsReceived ? t('common.yes') : t('common.no')}
                             </span>
                           </label>
                         </div>
@@ -664,7 +666,7 @@ const CreateBill = () => {
                                     value={item.product}
                                     onChange={(value) => handleItemChange(index, 'product', value)}
                                     options={[
-                                      { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
+                                      { value: '', label: productsLoading ? t('errors.loading') : t('errors.selectProduct') },
                                       ...products.filter(product => product.name || product.productName).map(product => ({
                                         value: product.id || product._id,
                                         label: product.name || product.productName
@@ -780,8 +782,8 @@ const CreateBill = () => {
                         <Receipt className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">Bill Management Tips</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">Best practices for efficient bill processing</p>
+                        <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">{t('bills.billManagementTips')}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">{t('bills.bestPracticesForEfficientBillProcessing')}</p>
                       </div>
                     </div>
 
@@ -791,8 +793,8 @@ const CreateBill = () => {
                           <Building2 className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Required Fields</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Supplier and Items are mandatory. Bill date defaults to today.</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.requiredFields')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.supplierAndItemsMandatory')}</p>
                         </div>
                       </div>
 
@@ -801,8 +803,8 @@ const CreateBill = () => {
                           <Package className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Item Management</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Use + Add Item to add products, trash icon to remove items</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.itemManagement')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.useAddItemToAddProducts')}</p>
                         </div>
                       </div>
 
@@ -811,8 +813,8 @@ const CreateBill = () => {
                           <AlertCircle className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Item Validation</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Quantity must be integer &gt; 0, Price must be &gt;= 0</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.itemValidation')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.quantityMustBeIntegerGreaterThanZero')}</p>
                         </div>
                       </div>
 
@@ -821,8 +823,8 @@ const CreateBill = () => {
                           <Calendar className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Expiry Dates</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Optional but cannot be before bill date</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.expiryDates')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.optionalButCannotBeBeforeBillDate')}</p>
                         </div>
                       </div>
 
@@ -831,8 +833,8 @@ const CreateBill = () => {
                           <FileText className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Notes Limit</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">Maximum 500 characters allowed with live counter</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.notesLimit')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.maximum500CharactersAllowedWithLiveCounter')}</p>
                         </div>
                       </div>
 
@@ -841,8 +843,8 @@ const CreateBill = () => {
                           <IndianRupee className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">Currency</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">All prices displayed in Indian Rupee (₹)</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.currency')}</p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.allPricesDisplayedInIndianRupee')}</p>
                         </div>
                       </div>
                     </div>

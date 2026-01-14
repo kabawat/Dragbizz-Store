@@ -17,8 +17,10 @@ import { useGlobalToast } from '@/contexts/ToastContext';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
 import { useRef } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddProductPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
@@ -134,8 +136,8 @@ const AddProductPage = () => {
       const quotaData = quota || {};
       setQuotaError({
         message: quota.remaining === 0 
-          ? `Daily limit reached. You have used all ${quota.limit} products for today. Please try again tomorrow or upgrade your plan.`
-          : 'Quota exceeded. Please upgrade your plan to continue.',
+          ? t('products.dailyLimitReached', { limit: quota.limit })
+          : t('quota.quotaExceeded'),
         quota: quotaData,
         resetTime: quota.usageType === 'DAILY_FIXED' 
           ? 'tomorrow' 
@@ -154,7 +156,24 @@ const AddProductPage = () => {
       setQuotaError(null);
       setShowQuotaModal(false);
       
-      const result = await productService.createProduct(formData);
+      // Calculate discount percentage based on MRP and sellingPrice
+      const payload = { ...formData };
+      const mrp = parseFloat(payload.mrp) || 0;
+      const sellingPrice = parseFloat(payload.sellingPrice) || 0;
+      
+      if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
+        // Calculate discount percentage: ((MRP - SellingPrice) / MRP) * 100
+        const discountPercentage = Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100; // Round to 2 decimal places
+        payload.discount = String(discountPercentage);
+      } else if (payload.discount) {
+        // If discount is already provided, keep it (might be percentage already)
+        payload.discount = String(payload.discount);
+      } else {
+        // No discount if MRP <= SellingPrice
+        payload.discount = '0';
+      }
+      
+      const result = await productService.createProduct(payload);
 
       if (result.success) {
         // Refresh quota after successful product creation
@@ -162,7 +181,7 @@ const AddProductPage = () => {
           quotaRefreshRef.current();
         }
         // Show success toast
-        showSuccess('Product created successfully!');
+        showSuccess(t('products.createSuccess'));
         // Reset form and redirect after a short delay
         setTimeout(() => {
           setFormData(getInitialFormData());
@@ -183,7 +202,7 @@ const AddProductPage = () => {
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.message || errorData.message || 'Quota exceeded',
+            message: result.message || errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -194,10 +213,10 @@ const AddProductPage = () => {
           const fieldErrors = extractFieldErrors(result?.error || result);
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
-            showError('Please fix the validation errors in the form.');
+            showError(t('validation.fixErrors'));
           } else {
             // Show error toast for general errors
-            showError(result.message || 'Failed to create product. Please try again.');
+            showError(result.message || t('products.createError'));
           }
         }
       }
@@ -211,7 +230,7 @@ const AddProductPage = () => {
         if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
           const quotaData = errorData.data || {};
           setQuotaError({
-            message: errorData.message || 'Quota exceeded',
+            message: errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -222,15 +241,15 @@ const AddProductPage = () => {
           const fieldErrors = extractFieldErrors(errorData);
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
-            showError('Please fix the validation errors in the form.');
+            showError(t('validation.fixErrors'));
           } else {
             // Show error toast for general errors
-            showError(errorData.message || 'An error occurred while creating the product. Please try again.');
+            showError(errorData.message || t('products.createError'));
           }
         }
       } else {
         // Handle other types of errors
-        showError('An unexpected error occurred. Please try again.');
+        showError(t('common.error'));
       }
     } finally {
       setLoading(false);
@@ -321,13 +340,13 @@ const AddProductPage = () => {
       // Update form data
       setFormData(updatedFormData);
       setShowAIModal(false);
-      showSuccess('Product information extracted and pre-filled successfully!');
+      showSuccess(t('products.aiExtractSuccess'));
     } catch (error) {
       // Log error for debugging (remove console.error in production or use proper logging service)
       if (process.env.NODE_ENV === 'development') {
         console.error('Error pre-filling form:', error);
       }
-      showError('Failed to pre-fill form. Please try again.');
+      showError(t('products.aiExtractError'));
     }
   };
 
@@ -340,7 +359,7 @@ const AddProductPage = () => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Add New Product" description="Create a new product for your store inventory" />
+        <Header title={t('products.addNewProduct')} description={t('products.addNewProductDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -349,14 +368,14 @@ const AddProductPage = () => {
             <div className="mb-6 flex items-center justify-between">
               <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Products</span>
+                <span className="text-sm font-medium">{t('products.backToProducts')}</span>
               </Link>
               <div className="flex items-center space-x-3">
                 <AIButton
                   onClick={() => setShowAIModal(true)}
                   size="sm"
                 >
-                  AI Extract
+                  {t('products.aiExtract')}
                 </AIButton>
                 <QuotaProgressBar 
                   featureKey="product_management"
@@ -384,20 +403,20 @@ const AddProductPage = () => {
                   {/* Quota exceeded warning message */}
                   {quotaExceeded && !quotaLoading && (
                     <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
-                      <span>⚠️ Quota exceeded. Please upgrade your plan to create more products.</span>
+                      <span>⚠️ {t('products.quotaExceededMessage')}</span>
                     </div>
                   )}
                   <div className="flex items-center space-x-3 ml-auto">
-                    <Button variant="outline" onClick={handleCancel} disabled={loading} > Cancel </Button>
+                    <Button variant="outline" onClick={handleCancel} disabled={loading} >{t('common.cancel')}</Button>
                     <Button
                       variant="success"
                       onClick={handleSaveAndPublish}
                       disabled={loading || quotaExceeded || quotaLoading}
                       loading={loading}
                       leftIcon={Save}
-                      title={quotaExceeded ? 'Quota exceeded. Please upgrade your plan.' : ''}
+                      title={quotaExceeded ? t('quota.quotaExceeded') : ''}
                     >
-                      Save & Publish
+                      {t('products.saveAndPublish')}
                     </Button>
                   </div>
                 </div>
@@ -415,7 +434,7 @@ const AddProductPage = () => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message || 'Quota exceeded. Please upgrade your plan to continue.'}
+        message={quotaError?.message || t('quota.quotaExceeded')}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}

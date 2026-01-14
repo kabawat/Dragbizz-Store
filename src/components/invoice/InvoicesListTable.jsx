@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Trash2, Eye, Printer, CheckCircle, Calendar, User, CreditCard, MessageCircle, Copy, Send, Mail, MessageSquare } from 'lucide-react';
 import { renderStatusBadge } from '@/utils/statusBadge';
 import { AddActionButton } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InvoicesListTable = ({
     invoices = [],
@@ -13,16 +14,19 @@ const InvoicesListTable = ({
     onRelease,
     onUpdatePaymentStatus,
     loading = false,
-    emptyMessage = 'No invoices found',
+    emptyMessage,
     hasMore = false,
     onLoadMore,
     isLoadingMore = false,
     ...props
 }) => {
+    const { t } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
     const [openSendMenuId, setOpenSendMenuId] = useState(null);
     const menuRefs = useRef({});
     const sendMenuRefs = useRef({});
+    
+    const defaultEmptyMessage = emptyMessage || t('invoice.noInvoices');
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -102,7 +106,7 @@ const InvoicesListTable = ({
             <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(var(--color-primary))] mx-auto mb-4"></div>
-                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">Loading invoices...</p>
+                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('invoice.loadingInvoices')}</p>
                 </div>
             </div>
         );
@@ -112,7 +116,7 @@ const InvoicesListTable = ({
         return (
             <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">{emptyMessage}</p>
+                    <p className="text-sm text-[rgb(var(--color-text-secondary))]">{defaultEmptyMessage}</p>
                 </div>
             </div>
         );
@@ -124,25 +128,25 @@ const InvoicesListTable = ({
                 <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
                     <tr>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Invoice Number
+                            {t('invoice.invoiceNumber')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Customer
+                            {t('invoice.customer')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Date
+                            {t('common.date')}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Amount
+                            {t('common.amount')}
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Status
+                            {t('common.status')}
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Payment
+                            {t('invoice.payment')}
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                            Actions
+                            {t('common.actions')}
                         </th>
                     </tr>
                 </thead>
@@ -162,7 +166,7 @@ const InvoicesListTable = ({
                                     <div className="flex items-center gap-2">
                                         <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                                         <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                                            {invoice.customer?.name || 'Walk-in Customer'}
+                                            {invoice.customer?.name || t('invoice.walkInCustomer')}
                                         </span>
                                     </div>
                                 </td>
@@ -192,9 +196,9 @@ const InvoicesListTable = ({
                                             <AddActionButton
                                                 onClick={() => setOpenSendMenuId(openSendMenuId === invoiceId ? null : invoiceId)}
                                                 Icon={Send}
-                                                label="Send"
+                                                label={t('common.send')}
                                                 size="sm"
-                                                title="Send"
+                                                title={t('common.send')}
                                                 className="h-9 px-3 rounded-lg"
                                             />
                                             {openSendMenuId === invoiceId && (
@@ -203,20 +207,20 @@ const InvoicesListTable = ({
                                                         className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                         onClick={() => handleWhatsAppShare(invoice)}
                                                     >
-                                                        <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> WhatsApp
+                                                        <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> {t('common.whatsapp')}
                                                     </button>
                                                     <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
-                                                        <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> Email
+                                                        <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> {t('common.email')}
                                                     </button>
                                                     <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
-                                                        <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> Message
+                                                        <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> {t('common.message')}
                                                     </button>
                                                     <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                                                     <button
                                                         className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                         onClick={() => handleCopyLink(invoice)}
                                                     >
-                                                        <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> Copy link
+                                                        <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> {t('common.copyLink')}
                                                     </button>
                                                 </div>
                                             )}
@@ -241,7 +245,7 @@ const InvoicesListTable = ({
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                         >
                                                             <Eye className="w-4 h-4" />
-                                                            View Details
+                                                            {t('common.viewDetails')}
                                                         </button>
                                                         {invoice.invoiceStatus === 'DRAFT' && (
                                                             <>
@@ -253,7 +257,7 @@ const InvoicesListTable = ({
                                                                     className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                                 >
                                                                     <Edit className="w-4 h-4" />
-                                                                    Edit
+                                                                    {t('common.edit')}
                                                                 </button>
                                                                 <button
                                                                     onClick={() => {
@@ -263,7 +267,7 @@ const InvoicesListTable = ({
                                                                     className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                                 >
                                                                     <CheckCircle className="w-4 h-4" />
-                                                                    Release
+                                                                    {t('invoice.release')}
                                                                 </button>
                                                             </>
                                                         )}
@@ -276,7 +280,7 @@ const InvoicesListTable = ({
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                             >
                                                                 <CreditCard className="w-4 h-4" />
-                                                                Payment Status
+                                                                {t('invoice.paymentStatus')}
                                                             </button>
                                                         )}
                                                         <button
@@ -287,7 +291,7 @@ const InvoicesListTable = ({
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                         >
                                                             <Printer className="w-4 h-4" />
-                                                            Print
+                                                            {t('common.print')}
                                                         </button>
                                                         {invoice.invoiceStatus === 'DRAFT' && (
                                                             <>
@@ -300,7 +304,7 @@ const InvoicesListTable = ({
                                                                     className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
                                                                 >
                                                                     <Trash2 className="w-4 h-4" />
-                                                                    Delete
+                                                                    {t('common.delete')}
                                                                 </button>
                                                             </>
                                                         )}
@@ -319,7 +323,7 @@ const InvoicesListTable = ({
                 <div className="flex items-center justify-center py-8 border-t border-[rgb(var(--color-border-primary))]">
                     <div className="flex items-center gap-3">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                        <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+                        <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('invoice.loadingMore')}</span>
                     </div>
                 </div>
             )}

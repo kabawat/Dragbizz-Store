@@ -2,8 +2,10 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CancelInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isCancelling }) => {
+    const { t } = useTranslation();
     if (!isOpen) return null;
 
     return (
@@ -14,13 +16,12 @@ const CancelInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isCance
                         <AlertCircle className="w-5 h-5 text-[rgb(var(--color-warning))]" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Cancel Invoice</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">This will mark the invoice as cancelled</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('invoices.cancelInvoice')}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('invoices.cancelInvoiceDescription')}</p>
                     </div>
                 </div>
                 <p className="text-[rgb(var(--color-text-primary))] mb-6">
-                    Are you sure you want to cancel invoice <strong>{invoiceNumber}</strong>?
-                    This action can be reversed later.
+                    {t('invoices.cancelConfirmMessage', { invoiceNumber })} {t('invoices.cancelActionCanBeReversed')}
                 </p>
                 <div className="flex space-x-3">
                     <Button
@@ -29,14 +30,14 @@ const CancelInvoiceModal = ({ isOpen, onClose, onConfirm, invoiceNumber, isCance
                         className="flex-1"
                         disabled={isCancelling}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={onConfirm}
                         className="flex-1 bg-[rgb(var(--color-warning))] hover:bg-[rgb(var(--color-warning))]/90"
                         disabled={isCancelling}
                     >
-                        {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
+                        {isCancelling ? t('invoices.cancelling') : t('invoices.yesCancel')}
                     </Button>
                 </div>
             </div>

@@ -2,12 +2,14 @@
 import React from 'react';
 import { CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductDeleteSuccessModal = ({ 
   isOpen, 
   onClose, 
   productName = "Product"
 }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -22,10 +24,10 @@ const ProductDeleteSuccessModal = ({
               </div>
               <div>
                 <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                  Product Deleted
+                  {t('products.productDeleted')}
                 </h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Successfully removed
+                  {t('products.successfullyRemoved')}
                 </p>
               </div>
             </div>
@@ -42,11 +44,11 @@ const ProductDeleteSuccessModal = ({
         <div className="px-6 py-4">
           <div className="mb-6">
             <p className="text-[rgb(var(--color-text-primary))] mb-3">
-              "{productName}" has been successfully deleted from your store.
+              {t('products.productDeletedFromStore', { productName: `"${productName}"` })}
             </p>
             <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 border border-[rgb(var(--color-border-primary))]">
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                The product and all its data have been permanently removed.
+                {t('products.productDataPermanentlyRemoved')}
               </p>
             </div>
           </div>
@@ -58,7 +60,7 @@ const ProductDeleteSuccessModal = ({
               onClick={onClose}
               className="px-6 h-10 text-sm font-semibold bg-[rgb(var(--color-primary))] text-white"
             >
-              OK
+              {t('common.ok')}
             </Button>
           </div>
         </div>
@@ -66,7 +68,7 @@ const ProductDeleteSuccessModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            You can add new products anytime from the dashboard
+            {t('products.addNewProductsAnytime')}
           </p>
         </div>
       </div>

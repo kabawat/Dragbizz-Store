@@ -5,8 +5,10 @@ import { Button, Input } from '@/components/ui';
 import { voiceAIService } from '@/service';
 import { supplierService } from '@/service';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const { currentVariant } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -389,7 +391,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
       {/* Quick Examples */}
       {messages.length === 1 && !isLoading && (
         <div className="px-4 py-3 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
-          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-2">Quick Examples:</p>
+          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-2">{t('common.quickExamples')}:</p>
           <div className="flex flex-wrap gap-2">
             {quickExamples.map((example, idx) => (
               <button

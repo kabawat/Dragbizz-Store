@@ -5,10 +5,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { setSelectedStore } from '@/store/slices/profileSlice';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { useTranslation } from '@/hooks/useTranslation';
 import UpgradeModal from '@/components/ui/UpgradeModal';
 import { LayoutDashboard, Users, Building2, Package, Warehouse, Receipt, FileText, IndianRupee, Settings, ChevronDown, ShoppingCart, Check, ChevronLeft, ChevronRight, AlertTriangle, Crown } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -23,63 +25,56 @@ const Sidebar = ({ onStoreChange }) => {
   // Refs
   const storeDropdownRef = useRef(null);
 
-  // Sales & Transactions Category
   const salesSubMenuItems = [
-    { name: 'Customers', icon: Users, href: '/dashboard/customers' },
-    { name: 'Invoices', icon: FileText, href: '/dashboard/invoices' },
-    { name: 'Expenses', icon: IndianRupee, href: '/dashboard/expenses' },
+    { name: t('sidebar.customers'), icon: Users, href: '/dashboard/customers' },
+    { name: t('sidebar.invoices'), icon: FileText, href: '/dashboard/invoices' },
+    { name: t('sidebar.expenses'), icon: IndianRupee, href: '/dashboard/expenses' },
   ];
 
-  // Inventory Category
   const inventorySubMenuItems = [
-    { name: 'Products', icon: Package, href: '/dashboard/products' },
-    { name: 'Stocks', icon: Warehouse, href: '/dashboard/stock' },
-    // { name: 'Low Stock Alerts', icon: AlertTriangle, href: '/dashboard/stock/alerts' },
+    { name: t('sidebar.products'), icon: Package, href: '/dashboard/products' },
+    { name: t('sidebar.stocks'), icon: Warehouse, href: '/dashboard/stock' },
   ];
 
-  // Purchase Category
   const purchaseSubMenuItems = [
-    { name: 'Suppliers', icon: Building2, href: '/dashboard/suppliers' },
-    { name: 'Purchase Orders', icon: ShoppingCart, href: '/dashboard/purchase-orders' },
-    { name: 'Bills', icon: Receipt, href: '/dashboard/bills' },
-    { name: 'Payments', icon: IndianRupee, href: '/dashboard/payments' },
+    { name: t('sidebar.suppliers'), icon: Building2, href: '/dashboard/suppliers' },
+    { name: t('sidebar.purchaseOrders'), icon: ShoppingCart, href: '/dashboard/purchase-orders' },
+    { name: t('sidebar.bills'), icon: Receipt, href: '/dashboard/bills' },
+    { name: t('sidebar.payments'), icon: IndianRupee, href: '/dashboard/payments' },
   ];
 
   const navigationItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Sales & Transactions', icon: Receipt, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: salesSubMenuItems, key: 'sales' },
-    { name: 'Inventory', icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: inventorySubMenuItems, key: 'inventory' },
-    { name: 'Purchase', icon: ShoppingCart, href: '/dashboard/purchase-orders', hasSubMenu: true, subMenuItems: purchaseSubMenuItems, key: 'purchase' },
+    { name: t('sidebar.dashboard'), icon: LayoutDashboard, href: '/dashboard' },
+    { name: t('sidebar.salesTransactions'), icon: Receipt, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: salesSubMenuItems, key: 'sales' },
+    { name: t('sidebar.inventory'), icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: inventorySubMenuItems, key: 'inventory' },
+    { name: t('sidebar.purchase'), icon: ShoppingCart, href: '/dashboard/purchase-orders', hasSubMenu: true, subMenuItems: purchaseSubMenuItems, key: 'purchase' },
   ];
 
   const bottomItems = [
-    { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
+    { name: t('sidebar.settings'), icon: Settings, href: '/dashboard/settings' },
   ];
 
-  // Menu to feature mapping
   const menuToFeatureMap = {
-    'Sales & Transactions': ['Customer Management', 'Invoice Management', 'Expense Management', 'customer_management', 'invoice_management', 'expense_management'],
-    'Inventory': ['Product Management', 'Stock Management', 'product_management', 'stock_management'],
-    'Purchase': ['Purchase Management', 'purchase_management'],
+    [t('sidebar.salesTransactions')]: ['Customer Management', 'Invoice Management', 'Expense Management', 'customer_management', 'invoice_management', 'expense_management'],
+    [t('sidebar.inventory')]: ['Product Management', 'Stock Management', 'product_management', 'stock_management'],
+    [t('sidebar.purchase')]: ['Purchase Management', 'purchase_management'],
   };
 
-  // Sub-menu item to feature mapping
   const subMenuToFeatureMap = {
-    'Customers': ['Customer Management', 'customer_management'],
-    'Invoices': ['Invoice Management', 'invoice_management'],
-    'Expenses': ['Expense Management', 'expense_management'],
-    'Products': ['Product Management', 'product_management'],
-    'Stocks': ['Stock Management', 'stock_management'],
-    'Low Stock Alerts': ['Stock Management', 'stock_management'],
-    'Suppliers': ['Purchase Management', 'purchase_management', 'Supplier Management', 'supplier_management'],
-    'Purchase Orders': ['Purchase Management', 'purchase_management'],
-    'Bills': ['Bill Management', 'bill_management'],
-    'Payments': ['Payment Management', 'payment_management'],
+    [t('sidebar.customers')]: ['Customer Management', 'customer_management'],
+    [t('sidebar.invoices')]: ['Invoice Management', 'invoice_management'],
+    [t('sidebar.expenses')]: ['Expense Management', 'expense_management'],
+    [t('sidebar.products')]: ['Product Management', 'product_management'],
+    [t('sidebar.stocks')]: ['Stock Management', 'stock_management'],
+    [t('sidebar.lowStockAlerts')]: ['Stock Management', 'stock_management'],
+    [t('sidebar.suppliers')]: ['Purchase Management', 'purchase_management', 'Supplier Management', 'supplier_management'],
+    [t('sidebar.purchaseOrders')]: ['Purchase Management', 'purchase_management'],
+    [t('sidebar.bills')]: ['Bill Management', 'bill_management'],
+    [t('sidebar.payments')]: ['Payment Management', 'payment_management'],
   };
 
-  // Helper function to check if user has access to a menu item
   const hasMenuItemAccess = (itemName) => {
-    if (itemName === 'Dashboard') return true;
+    if (itemName === t('sidebar.dashboard')) return true;
     if (featuresLoading) return true;
     if (!features || features.length === 0) return false;
 
@@ -134,15 +129,15 @@ const Sidebar = ({ onStoreChange }) => {
       e?.stopPropagation();
 
       const featureMap = {
-        'Sales & Transactions': 'Sales & Transactions',
-        'Inventory': 'Inventory Management',
-        'Purchase': 'Purchase Management',
+        [t('sidebar.salesTransactions')]: t('sidebar.salesTransactions'),
+        [t('sidebar.inventory')]: t('sidebar.inventory'),
+        [t('sidebar.purchase')]: t('sidebar.purchase'),
       };
 
       setUpgradeModal({
         isOpen: true,
         featureName: item.name,
-        requiredFeature: featureMap[item.name] || 'Premium Feature'
+        requiredFeature: featureMap[item.name] || t('sidebar.premiumFeature')
       });
       return false;
     }
@@ -156,22 +151,22 @@ const Sidebar = ({ onStoreChange }) => {
       e?.stopPropagation();
 
       const featureMap = {
-        'Customers': 'Customer Management',
-        'Invoices': 'Invoice Management',
-        'Expenses': 'Expense Management',
-        'Products': 'Product Management',
-        'Stocks': 'Stock Management',
-        'Low Stock Alerts': 'Stock Management',
-        'Suppliers': 'Supplier Management',
-        'Purchase Orders': 'Purchase Management',
-        'Bills': 'Bill Management',
-        'Payments': 'Payment Management',
+        [t('sidebar.customers')]: t('sidebar.customers'),
+        [t('sidebar.invoices')]: t('sidebar.invoices'),
+        [t('sidebar.expenses')]: t('sidebar.expenses'),
+        [t('sidebar.products')]: t('sidebar.products'),
+        [t('sidebar.stocks')]: t('sidebar.stocks'),
+        [t('sidebar.lowStockAlerts')]: t('sidebar.lowStockAlerts'),
+        [t('sidebar.suppliers')]: t('sidebar.suppliers'),
+        [t('sidebar.purchaseOrders')]: t('sidebar.purchaseOrders'),
+        [t('sidebar.bills')]: t('sidebar.bills'),
+        [t('sidebar.payments')]: t('sidebar.payments'),
       };
 
       setUpgradeModal({
         isOpen: true,
         featureName: subItem.name,
-        requiredFeature: featureMap[subItem.name] || 'Premium Feature'
+        requiredFeature: featureMap[subItem.name] || t('sidebar.premiumFeature')
       });
       return false;
     }
@@ -235,7 +230,7 @@ const Sidebar = ({ onStoreChange }) => {
               </div>
               {!isCollapsed && (
                 <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                  {agency?.agencyName || 'RetailManager'}
+                  {agency?.agencyName || t('common.retailManager')}
                 </span>
               )}
             </div>
@@ -247,7 +242,7 @@ const Sidebar = ({ onStoreChange }) => {
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="absolute cursor-pointer w-7 h-7 rounded-full border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors flex items-center justify-center shadow-sm translate-x-3 -translate-y-3"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
@@ -268,10 +263,10 @@ const Sidebar = ({ onStoreChange }) => {
               >
                 <div>
                   <div className="font-semibold text-sm text-gray-900">
-                    {selectedStore?.name || selectedStore?.storeName || 'Select Store'}
+                    {selectedStore?.name || selectedStore?.storeName || t('sidebar.selectStore')}
                   </div>
                   <div className="text-xs text-gray-600">
-                    GST: {selectedStore?.gst || 'N/A'}
+                    GST: {selectedStore?.gst || t('common.notAvailable')}
                   </div>
                 </div>
                 <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />

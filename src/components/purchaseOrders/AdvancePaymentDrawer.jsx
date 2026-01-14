@@ -14,17 +14,20 @@ import {
 import { Button, Input, Select, Textarea, Card, AddActionButton } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui';
-
-const PAYMENT_METHODS = [
-    { value: 'CASH', label: 'Cash' },
-    { value: 'UPI', label: 'UPI' },
-    { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-    { value: 'CHEQUE', label: 'Cheque' }
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
+    const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const { toasts, showSuccess, showError, removeToast } = useToast();
+
+    // Payment methods options with translations
+    const PAYMENT_METHODS = [
+        { value: 'CASH', label: t('purchaseOrders.cash') },
+        { value: 'UPI', label: t('purchaseOrders.upi') },
+        { value: 'BANK_TRANSFER', label: t('purchaseOrders.bankTransfer') },
+        { value: 'CHEQUE', label: t('purchaseOrders.cheque') }
+    ];
 
     const [formData, setFormData] = useState({
         supplierId: '',
@@ -58,7 +61,7 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             setFormData(prev => ({
                 ...prev,
                 supplierId: purchaseOrder.supplier?._id || purchaseOrder.supplier?.id || purchaseOrder.supplier || '',
-                notes: `Advance payment for PO: ${purchaseOrder.poNumber || purchaseOrder.billNumber || ''}`,
+                notes: t('purchaseOrders.addAdvancePaymentForPO', { poNumber: purchaseOrder.poNumber || purchaseOrder.billNumber || '' }),
                 paymentMethods: [{
                     amount: 0,
                     method: 'CASH',
@@ -104,7 +107,6 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             )
         }));
 
-        // Clear errors for this payment method
         if (errors[`paymentMethods[${index}].${field}`]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -114,7 +116,6 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
         }
     };
 
-    // Add payment method
     const addPaymentMethod = () => {
         setFormData(prev => ({
             ...prev,
@@ -139,7 +140,6 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
         }));
     };
 
-    // Remove payment method
     const removePaymentMethod = (index) => {
         if (formData.paymentMethods.length > 1) {
             setFormData(prev => ({
@@ -154,47 +154,46 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
         const newErrors = {};
 
         if (!formData.supplierId) {
-            newErrors.supplierId = 'Supplier is required';
+            newErrors.supplierId = t('errors.supplierRequired');
         }
 
         if (!formData.paymentMethods || formData.paymentMethods.length === 0) {
-            newErrors.paymentMethods = 'At least one payment method is required';
+            newErrors.paymentMethods = t('errors.atLeastOnePaymentMethodRequired');
         }
 
         formData.paymentMethods.forEach((method, index) => {
             if (!method.amount || parseFloat(method.amount) <= 0) {
-                newErrors[`paymentMethods[${index}].amount`] = 'Amount must be greater than 0';
+                newErrors[`paymentMethods[${index}].amount`] = t('errors.amountMustBeGreaterThanZero');
             }
 
             if (!method.method) {
-                newErrors[`paymentMethods[${index}].method`] = 'Payment method is required';
+                newErrors[`paymentMethods[${index}].method`] = t('errors.paymentMethodRequired');
             }
 
-            // Validate method-specific fields
             if (method.method === 'BANK_TRANSFER') {
                 if (!method.bankName) {
-                    newErrors[`paymentMethods[${index}].bankName`] = 'Bank name is required';
+                    newErrors[`paymentMethods[${index}].bankName`] = t('errors.bankNameRequired');
                 }
                 if (!method.ifscCode) {
-                    newErrors[`paymentMethods[${index}].ifscCode`] = 'IFSC code is required';
+                    newErrors[`paymentMethods[${index}].ifscCode`] = t('errors.ifscCodeRequired');
                 }
                 if (!method.accountNumber) {
-                    newErrors[`paymentMethods[${index}].accountNumber`] = 'Account number is required';
+                    newErrors[`paymentMethods[${index}].accountNumber`] = t('errors.accountNumberRequired');
                 }
             }
 
             if (method.method === 'UPI') {
                 if (!method.upiId) {
-                    newErrors[`paymentMethods[${index}].upiId`] = 'UPI ID is required';
+                    newErrors[`paymentMethods[${index}].upiId`] = t('payments.upiIdRequired');
                 }
             }
 
             if (method.method === 'CHEQUE') {
                 if (!method.chequeNumber) {
-                    newErrors[`paymentMethods[${index}].chequeNumber`] = 'Cheque number is required';
+                    newErrors[`paymentMethods[${index}].chequeNumber`] = t('payments.chequeNumberRequired');
                 }
                 if (!method.chequeDate) {
-                    newErrors[`paymentMethods[${index}].chequeDate`] = 'Cheque date is required';
+                    newErrors[`paymentMethods[${index}].chequeDate`] = t('payments.chequeDateRequired');
                 }
             }
         });
@@ -213,16 +212,14 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             setLoading(true);
             setErrors({});
 
-            // Transform payment methods to match service format (service expects lowercase method names and flat properties)
             const transformedPaymentMethods = formData.paymentMethods.map(method => {
                 const methodLower = method.method.toLowerCase();
                 const transformed = {
                     amount: parseFloat(method.amount) || 0,
-                    method: methodLower === 'bank_transfer' ? 'bank_transfer' : methodLower, // Service expects lowercase
+                    method: methodLower === 'bank_transfer' ? 'bank_transfer' : methodLower,
                     reference: method.reference || ''
                 };
 
-                // Add method-specific details as flat properties (service will transform to nested objects)
                 if (method.method === 'BANK_TRANSFER' || methodLower === 'bank_transfer') {
                     transformed.bankName = method.bankName || '';
                     transformed.ifscCode = method.ifscCode || '';
@@ -241,12 +238,11 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                 return transformed;
             });
 
-            // Pass data in format expected by payment service (it expects paymentMethods array with flat properties)
             const paymentData = {
                 supplierId: formData.supplierId,
                 paymentType: 'ADVANCE_PAYMENT',
                 purchaseOrder: purchaseOrder._id || purchaseOrder.id || purchaseOrder, // Optional
-                paymentMethods: transformedPaymentMethods, // Service expects paymentMethods array
+                paymentMethods: transformedPaymentMethods,
                 notes: formData.notes || '',
                 store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id
             };
@@ -254,15 +250,15 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             const result = await paymentService.createPayment(paymentData);
 
             if (result.success) {
-                showSuccess('Advance payment created successfully!');
+                showSuccess(t('payments.paymentCreatedSuccess'));
                 onSuccess && onSuccess();
                 onClose();
             } else {
-                setErrors({ general: result.message || 'Failed to create advance payment' });
-                showError(result.message || 'Failed to create advance payment');
+                setErrors({ general: result.message || t('payments.failedToCreateAdvancePayment') });
+                showError(result.message || t('payments.failedToCreateAdvancePayment'));
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Failed to create advance payment. Please try again.';
+            const errorMessage = error.response?.data?.message || t('payments.failedToCreateAdvancePayment');
             setErrors({ general: errorMessage });
             showError(errorMessage);
         } finally {
@@ -291,9 +287,9 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
             <SideDrawer
                 isOpen={isOpen}
                 onClose={onClose}
-                title="Advance Payment"
+                title={t('payments.advancePayment')}
                 icon={IndianRupee}
-                description={`Add advance payment for PO: ${purchaseOrder.poNumber || purchaseOrder.billNumber || ''}`}
+                description={t('purchaseOrders.addAdvancePaymentForPO', { poNumber: purchaseOrder.poNumber || purchaseOrder.billNumber || '' })}
                 width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5"
             >
                 <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -311,25 +307,25 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                             <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                 <div className="flex items-center mb-3">
                                     <FileText className="w-4 h-4 mr-2 text-[rgb(var(--color-text-secondary))]" />
-                                    <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Purchase Order Details</h3>
+                                    <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.purchaseOrderDetails')}</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">PO Number:</span>
-                                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">{purchaseOrder?.poNumber || purchaseOrder?.billNumber || 'N/A'}</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.poNumber')}:</span>
+                                        <span className="font-semibold text-[rgb(var(--color-text-primary))]">{purchaseOrder?.poNumber || purchaseOrder?.billNumber || t('common.na')}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Items Ordered:</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.itemsOrdered')}:</span>
                                         <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                             {(purchaseOrder?.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Supplier:</span>
-                                        <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate ml-2">{purchaseOrder?.supplier?.name || 'N/A'}</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.supplier')}:</span>
+                                        <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate ml-2">{purchaseOrder?.supplier?.name || t('common.na')}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Advance Paid:</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.advancePaid')}:</span>
                                         <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                             {formatCurrency(purchaseOrder?.advanceAmount || purchaseOrder?.paidAmount || 0)}
                                         </span>
@@ -342,11 +338,11 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                                         <IndianRupee className="w-5 h-5 mr-2 text-[rgb(var(--color-success))]" />
-                                        Payment Methods
+                                        {t('payments.paymentMethods')}
                                     </h3>
                                     <AddActionButton
                                         onClick={addPaymentMethod}
-                                        label="Add Method"
+                                        label={t('payments.addPaymentMethod')}
                                         Icon={Plus}
                                         size="sm"
                                         variant="success"
@@ -356,12 +352,12 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                 {formData.paymentMethods.map((method, index) => (
                                     <div key={index} className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 sm:p-4 mb-4 group">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Method {index + 1}</h4>
+                                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('payments.paymentMethodNumber', { number: index + 1 })}</h4>
                                             {formData.paymentMethods.length > 1 && (
                                                 <button
                                                     onClick={() => removePaymentMethod(index)}
                                                     className="opacity-0 group-hover:opacity-100 p-2 hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all cursor-pointer"
-                                                    title="Remove Payment Method"
+                                                    title={t('payments.removePaymentMethod')}
                                                 >
                                                     <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-danger))] transition-colors" />
                                                 </button>
@@ -371,21 +367,21 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                    Amount *
+                                                    {t('payments.amountLabel')}
                                                 </label>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={method.amount}
                                                     onChange={(value) => handlePaymentMethodChange(index, 'amount', value || '')}
-                                                    placeholder="Enter amount"
+                                                    placeholder={t('purchaseOrders.enterAmount')}
                                                     error={errors[`paymentMethods[${index}].amount`]}
                                                 />
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                    Payment Method *
+                                                    {t('payments.paymentMethodLabel')}
                                                 </label>
                                                 <Select
                                                     size="sm"
@@ -397,13 +393,13 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
 
                                             <div>
                                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                    Reference
+                                                    {t('payments.referenceLabel')}
                                                 </label>
                                                 <Input
                                                     size="sm"
                                                     value={method.reference}
                                                     onChange={(value) => handlePaymentMethodChange(index, 'reference', value)}
-                                                    placeholder="Transaction reference"
+                                                    placeholder={t('payments.paymentReference')}
                                                 />
                                             </div>
 
@@ -412,49 +408,49 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                                 <>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Bank Name *
+                                                            {t('payments.bankName')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.bankName}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
-                                                            placeholder="Bank name"
+                                                            placeholder={t('payments.enterBankName')}
                                                             error={errors[`paymentMethods[${index}].bankName`]}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            IFSC Code *
+                                                            {t('payments.ifscCode')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.ifscCode}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
-                                                            placeholder="IFSC code"
+                                                            placeholder={t('payments.enterIfscCode')}
                                                             error={errors[`paymentMethods[${index}].ifscCode`]}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Account Number *
+                                                            {t('payments.accountNumber')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.accountNumber}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
-                                                            placeholder="Account number"
+                                                            placeholder={t('payments.enterAccountNumber')}
                                                             error={errors[`paymentMethods[${index}].accountNumber`]}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Account Holder Name
+                                                            {t('payments.accountHolderName')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.holderName}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
-                                                            placeholder="Holder name"
+                                                            placeholder={t('payments.enterAccountHolderName')}
                                                         />
                                                     </div>
                                                 </>
@@ -465,25 +461,25 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                                 <>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            UPI ID *
+                                                            {t('payments.upiId')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.upiId}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
-                                                            placeholder="supplier@paytm"
+                                                            placeholder={t('purchaseOrders.supplierPaytm')}
                                                             error={errors[`paymentMethods[${index}].upiId`]}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Transaction ID
+                                                            {t('payments.transactionId')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.transactionId}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
-                                                            placeholder="Transaction ID"
+                                                            placeholder={t('payments.enterTransactionId')}
                                                         />
                                                     </div>
                                                 </>
@@ -494,19 +490,19 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                                 <>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Cheque Number *
+                                                            {t('payments.chequeNumber')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.chequeNumber}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
-                                                            placeholder="Cheque number"
+                                                            placeholder={t('payments.enterChequeNumber')}
                                                             error={errors[`paymentMethods[${index}].chequeNumber`]}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Cheque Date *
+                                                            {t('payments.chequeDate')}
                                                         </label>
                                                         <Input
                                                             size="sm"
@@ -518,24 +514,24 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Bank Name
+                                                            {t('payments.chequeBankName')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.chequeBankName}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
-                                                            placeholder="Bank name"
+                                                            placeholder={t('payments.enterBankName')}
                                                         />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                                            Branch Name
+                                                            {t('payments.chequeBranchName')}
                                                         </label>
                                                         <Input
                                                             size="sm"
                                                             value={method.chequeBranchName}
                                                             onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
-                                                            placeholder="Branch name"
+                                                            placeholder={t('payments.enterBranchName')}
                                                         />
                                                     </div>
                                                 </>
@@ -548,7 +544,7 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                             {/* Total Amount */}
                             <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Total Amount:</span>
+                                    <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('payments.totalAmount')}:</span>
                                     <span className="text-xl font-bold text-[rgb(var(--color-primary))]">
                                         {formatCurrency(calculateTotal())}
                                     </span>
@@ -558,12 +554,12 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                             {/* Notes */}
                             <div>
                                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                                    Notes
+                                    {t('payments.notes')}
                                 </label>
                                 <Textarea
                                     value={formData.notes}
                                     onChange={(value) => handleInputChange('notes', value)}
-                                    placeholder="Add any additional notes..."
+                                    placeholder={t('payments.additionalNotes')}
                                     rows={3}
                                 />
                             </div>
@@ -580,7 +576,7 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                 className="w-full sm:w-auto"
                                 size="sm"
                             >
-                                Create Payment
+                                {t('payments.createPaymentButton')}
                             </Button>
                             <Button
                                 variant="outline"
@@ -589,7 +585,7 @@ const AdvancePaymentDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => 
                                 className="w-full sm:w-auto"
                                 size="sm"
                             >
-                                Cancel
+                                {t('payments.cancel')}
                             </Button>
                         </div>
                     </div>

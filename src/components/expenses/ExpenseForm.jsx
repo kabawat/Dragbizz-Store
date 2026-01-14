@@ -12,6 +12,7 @@ import {
   PAYMENT_METHODS,
   EXPENSE_STATUS
 } from '@/data/constants/expenses';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ExpenseForm = ({
   onSubmit = null,
@@ -22,6 +23,7 @@ const ExpenseForm = ({
   formRef = null,
   mode = 'page' // 'page' or 'drawer'
 }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: '',
     billNumber: '',
@@ -72,23 +74,23 @@ const ExpenseForm = ({
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = t('expenses.titleRequired');
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = 'Amount must be greater than 0';
+      newErrors.amount = t('expenses.amountRequired');
     }
 
     if (!formData.date) {
-      newErrors.date = 'Date is required';
+      newErrors.date = t('expenses.dateRequired');
     }
 
     if (!formData.category) {
-      newErrors.category = 'Category is required';
+      newErrors.category = t('expenses.categoryRequired');
     }
 
     if (!formData.paymentMethod) {
-      newErrors.paymentMethod = 'Payment method is required';
+      newErrors.paymentMethod = t('expenses.paymentMethodRequired');
     }
 
     setErrors(newErrors);
@@ -132,26 +134,26 @@ const ExpenseForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Title *
+              {t('expenses.expenseTitle')} *
             </label>
             <Input
               size="sm"
               value={formData.title}
               onChange={(value) => handleInputChange('title', value)}
-              placeholder="Enter expense title"
+              placeholder={t('expenses.enterExpenseTitle')}
               error={errors.title}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Bill Number
+              {t('expenses.billNumber')}
             </label>
             <Input
               size="sm"
               value={formData.billNumber}
               onChange={(value) => handleInputChange('billNumber', value)}
-              placeholder="Enter bill number"
+              placeholder={t('expenses.enterBillNumber')}
             />
           </div>
         </div>
@@ -160,7 +162,7 @@ const ExpenseForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Date *
+              {t('expenses.date')} *
             </label>
             <Input
               size="sm"
@@ -173,7 +175,7 @@ const ExpenseForm = ({
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Category *
+              {t('expenses.category')} *
             </label>
             <Select
               size="sm"
@@ -191,7 +193,7 @@ const ExpenseForm = ({
         {/* Amount */}
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            Amount *
+            {t('expenses.amount')} *
           </label>
           <Input
             size="sm"
@@ -200,7 +202,7 @@ const ExpenseForm = ({
             min="0"
             value={formData.amount}
             onChange={(value) => handleInputChange('amount', value)}
-            placeholder="0.00"
+            placeholder={t('expenses.enterAmount')}
             error={errors.amount}
           />
         </div>
@@ -209,7 +211,7 @@ const ExpenseForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Payment Method *
+              {t('expenses.paymentMethod')} *
             </label>
             <Select
               size="sm"
@@ -225,19 +227,19 @@ const ExpenseForm = ({
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Vendor
+              {t('expenses.vendor')}
             </label>
             <Input
               size="sm"
               value={formData.vendor}
               onChange={(value) => handleInputChange('vendor', value)}
-              placeholder="Enter vendor name"
+              placeholder={t('expenses.enterVendorName')}
             />
           </div>
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Status
+              {t('expenses.status')}
             </label>
             <Select
               size="sm"
@@ -255,12 +257,12 @@ const ExpenseForm = ({
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            Description
+            {t('expenses.description')}
           </label>
           <Textarea
             value={formData.description}
             onChange={(value) => handleInputChange('description', value)}
-            placeholder="Enter expense description"
+            placeholder={t('expenses.enterExpenseDescription')}
             rows={3}
           />
         </div>

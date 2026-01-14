@@ -14,9 +14,11 @@ import { useUsageQuota } from '@/hooks/useUsageQuota';
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import { CreateCustomer } from '@/components/customer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CreateInvoicePage = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const quotaRefreshRef = useRef(null);
 
@@ -117,12 +119,12 @@ const CreateInvoicePage = () => {
       const result = await customerService.getCustomers(params);
       if (result.success) {
         const serializedOptions = [
-          { value: '', label: 'Walk-in Customer' },
+          { value: '', label: t('invoice.walkInCustomer') },
           ...((result.data || []).map((customer) => ({
             value: customer._id,
-            label: `${customer.name || 'Unknown'} - ${customer.phone || 'No phone'}${customer.email ? ` - ${customer.email}` : ''}`
+            label: `${customer.name || t('errors.unknown')} - ${customer.phone || t('errors.noPhone')}${customer.email ? ` - ${customer.email}` : ''}`
           }))),
-          { value: 'add-new-customer', label: 'Add New Customer', isAddOption: true }
+          { value: 'add-new-customer', label: t('invoice.addNewCustomer'), isAddOption: true }
         ];
         setCustomers(serializedOptions);
       }
@@ -180,13 +182,13 @@ const CreateInvoicePage = () => {
 
   const handleAddItem = () => {
     if (!selectedProduct) {
-      showError('Please select a product');
+      showError(t('invoice.pleaseSelectProduct'));
       return;
     }
 
     const product = products.find(p => p._id === selectedProduct);
     if (!product) {
-      showError('Product not found');
+      showError(t('invoice.productNotFound'));
       return;
     }
 
@@ -275,7 +277,7 @@ const CreateInvoicePage = () => {
     const validItems = formData.items.filter(item => item.product && item.quantity > 0);
 
     if (validItems.length === 0) {
-      showError('Please add at least one item to the invoice');
+      showError(t('invoice.addAtLeastOneItem'));
       return;
     }
 
@@ -285,8 +287,8 @@ const CreateInvoicePage = () => {
       const quotaData = quota || {};
       setQuotaError({
         message: quota.remaining === 0
-          ? `Daily limit reached. You have used all ${quota.limit} invoices for today. Please try again tomorrow or upgrade your plan.`
-          : 'Quota exceeded. Please upgrade your plan to continue.',
+          ? t('invoice.dailyLimitReached', { limit: quota.limit })
+          : t('invoice.quotaExceededMessage'),
         quota: quotaData,
         resetTime: quota.usageType === 'DAILY_FIXED'
           ? 'tomorrow'
@@ -321,7 +323,7 @@ const CreateInvoicePage = () => {
           quotaRefreshRef.current();
         }
         // Show success toast
-        showSuccess('Invoice created successfully!');
+        showSuccess(t('invoice.invoiceCreatedSuccess'));
         // Redirect to the created invoice view page
         setTimeout(() => {
           const invoiceId = result.data?.id || result.data?._id;
@@ -360,7 +362,7 @@ const CreateInvoicePage = () => {
             setFieldErrors(fieldErrors);
           } else {
             // Show error modal for general errors
-            setErrorMessage(result.message || 'Failed to create invoice. Please try again.');
+            setErrorMessage(result.message || t('invoice.failedToCreateInvoice'));
             setShowErrorModal(true);
           }
         }
@@ -387,13 +389,13 @@ const CreateInvoicePage = () => {
             setFieldErrors(fieldErrors);
           } else {
             // Show error modal for general errors
-            setErrorMessage(errorData.message || 'An error occurred while creating the invoice. Please try again.');
+            setErrorMessage(errorData.message || t('invoice.anErrorOccurred'));
             setShowErrorModal(true);
           }
         }
       } else {
         // Handle other types of errors
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('invoice.unexpectedError'));
         setShowErrorModal(true);
       }
     } finally {
@@ -410,10 +412,10 @@ const CreateInvoicePage = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              Loading Store Data...
+              {t('invoice.loadingStoreData')}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              Please wait while we fetch your store information
+              {t('invoice.pleaseWaitStoreInfo')}
             </p>
           </div>
         </div>
@@ -426,7 +428,7 @@ const CreateInvoicePage = () => {
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">
-        <Header title="Create Invoice" description="Create a new customer invoice" />
+        <Header title={t('invoice.createInvoice')} description={t('invoice.createInvoiceDescription')} />
 
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
@@ -434,7 +436,7 @@ const CreateInvoicePage = () => {
             <div className="mb-4 flex items-center justify-between">
               <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Invoices</span>
+                <span className="text-sm font-medium">{t('invoice.backToInvoices')}</span>
               </Link>
               <QuotaProgressBar
                 featureKey="invoice_management"
@@ -459,7 +461,7 @@ const CreateInvoicePage = () => {
                           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                             <div className="md:col-span-6">
                               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                Select Product *
+                                {t('invoice.selectProduct')} *
                               </label>
                               <Select
                                 size="sm"
@@ -467,7 +469,7 @@ const CreateInvoicePage = () => {
                                 value={selectedProduct}
                                 onChange={(value) => setSelectedProduct(value)}
                                 options={[
-                                  { value: '', label: 'Select Product' },
+                                  { value: '', label: t('invoice.selectProductPlaceholder') },
                                   ...products.filter(product => product._id).map(product => ({
                                     value: product._id,
                                     label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`
@@ -480,7 +482,7 @@ const CreateInvoicePage = () => {
 
                             <div className="md:col-span-3">
                               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                Quantity *
+                                {t('invoice.quantity')} *
                               </label>
                               <Input
                                 type="number"
@@ -502,7 +504,7 @@ const CreateInvoicePage = () => {
                                 // className="w-full"
                                 disabled={!selectedProduct}
                               >
-                                Add Item
+                                {t('invoice.addItem')}
                               </Button>
                             </div>
                           </div>
@@ -514,7 +516,7 @@ const CreateInvoicePage = () => {
                             {/* Items List - Scrollable */}
                             <div className="flex-1 flex flex-col min-h-0">
                               <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex-shrink-0">
-                                Added Items ({formData.items.length})
+                                {t('invoice.addedItems')} ({formData.items.length})
                               </h4>
                               <div className="overflow-y-auto overflow-x-hidden space-y-3 pr-2" style={{ maxHeight: 'calc(100vh - 450px)' }}>
                                 {formData.items.map((item, index) => {
@@ -525,7 +527,7 @@ const CreateInvoicePage = () => {
                                         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              Product
+                                              {t('invoice.product')}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                               {item.productName || product?.name || 'N/A'}
@@ -534,7 +536,7 @@ const CreateInvoicePage = () => {
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              Quantity
+                                              {t('invoice.quantity')}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                               {item.quantity}
@@ -543,7 +545,7 @@ const CreateInvoicePage = () => {
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              Price
+                                              {t('invoice.price')}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                               ₹{item.price?.toFixed(2) || '0.00'}
@@ -552,7 +554,7 @@ const CreateInvoicePage = () => {
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              Total
+                                              {t('invoice.total')}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                               ₹{item.total?.toFixed(2) || '0.00'}
@@ -564,7 +566,7 @@ const CreateInvoicePage = () => {
                                           type="button"
                                           onClick={() => handleRemoveItem(index)}
                                           className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
-                                          title="Remove item"
+                                          title={t('invoice.removeItem')}
                                         >
                                           <Trash2 className="w-4 h-4" />
                                         </button>
@@ -579,8 +581,8 @@ const CreateInvoicePage = () => {
                             <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
                               <div className="w-full md:w-80">
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
-                                  Total Discount (₹)
-                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                                  {t('invoice.totalDiscount')} (₹)
+                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')})</span>
                                 </label>
                                 <Input
                                   type="number"
@@ -599,7 +601,7 @@ const CreateInvoicePage = () => {
                           <div className="flex-1 flex items-center justify-center">
                             <div className="text-center text-[rgb(var(--color-text-secondary))]">
                               <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                              <p className="text-sm">No items added yet. Select a product and quantity above to add items.</p>
+                              <p className="text-sm">{t('invoice.noItemsAdded')}</p>
                             </div>
                           </div>
                         )}
@@ -617,44 +619,44 @@ const CreateInvoicePage = () => {
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                       <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                         <User className="w-4 h-4 mr-2" />
-                        Customer Information
+                        {t('invoice.customerInformation')}
                       </h4>
                       <div>
                         <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                          Customer
-                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to walk-in)</span>
+                          {t('invoice.customer')}
+                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - defaults to walk-in)</span>
                         </label>
                         <Select
                           value={formData.customer}
                           onChange={handleCustomerChange}
-                          options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
+                          options={customersLoading ? [{ value: '', label: t('invoice.loadingCustomers') }] : customers}
                           disabled={customersLoading}
                           leftIcon={User}
                           size="sm"
                           searchable={true}
-                          placeholder="Search customers or select walk-in..."
+                          placeholder={t('invoice.searchCustomers')}
                         />
                       </div>
                     </div>
 
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Invoice Summary</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('invoice.invoiceSummary')}</h4>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">{t('invoice.subtotal')}:</span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{calculateSubtotal().toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Discount:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">{t('invoice.discount')}:</span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{formData.totalDiscount || "0"}
                           </span>
                         </div>
                         <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
                           <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">Total:</span>
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">{t('invoice.total')}:</span>
                             <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
                               ₹{calculateTotal().toFixed(2)}
                             </span>
@@ -664,13 +666,13 @@ const CreateInvoicePage = () => {
                     </div>
 
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Item Count</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('invoice.itemCount')}</h4>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
                           {formData.items.length}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                          {formData.items.length === 1 ? 'Item' : 'Items'}
+                          {formData.items.length === 1 ? t('invoice.item') : t('invoice.items')}
                         </div>
                       </div>
                     </div>
@@ -679,7 +681,7 @@ const CreateInvoicePage = () => {
                     {quotaExceeded && !quotaLoading && (
                       <div className="mb-3">
                         <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
-                          ⚠️ Quota exceeded. Please upgrade your plan to create more invoices.
+                          ⚠️ {t('invoice.quotaExceeded')}
                         </p>
                       </div>
                     )}
@@ -692,9 +694,9 @@ const CreateInvoicePage = () => {
                         loading={invoiceLoading}
                         leftIcon={Plus}
                         disabled={formData.items.length === 0 || quotaExceeded || quotaLoading}
-                        title={quotaExceeded ? 'Quota exceeded. Please upgrade your plan.' : ''}
+                        title={quotaExceeded ? t('invoice.quotaExceededMessage') : ''}
                       >
-                        Create Invoice
+                        {t('invoice.createInvoiceButton')}
                       </Button>
 
                       <Button
@@ -703,7 +705,7 @@ const CreateInvoicePage = () => {
                         onClick={() => router.push('/dashboard/invoices')}
                         disabled={invoiceLoading}
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                     </div>
                   </div>
@@ -721,7 +723,7 @@ const CreateInvoicePage = () => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title="Error"
+        title={t('common.error')}
         message={errorMessage}
       />
 
@@ -731,7 +733,7 @@ const CreateInvoicePage = () => {
         onClose={() => {
           setShowCustomerDrawer(false);
         }}
-        title="Add New Customer"
+        title={t('invoice.addNewCustomer')}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-6 h-full">
@@ -753,7 +755,7 @@ const CreateInvoicePage = () => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message || 'Quota exceeded. Please upgrade your plan to continue.'}
+        message={quotaError?.message || t('invoice.quotaExceededMessage')}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}

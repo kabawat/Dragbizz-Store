@@ -2,8 +2,10 @@
 import React, { useState, useRef } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
+  const { t } = useTranslation();
   const { currentTheme, currentVariant, themes, changeTheme } = useTheme();
   const [showScrollHint, setShowScrollHint] = useState(true);
   const scrollContainerRef = useRef(null);
@@ -17,9 +19,9 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
   return (
     <div className="space-y-6 h-full flex flex-col">
       <div>
-        <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">Appearance Settings</h2>
+        <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">{t('settings.appearanceSettings')}</h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          Customize your theme and appearance
+          {t('settings.customizeThemeAndAppearance')}
         </p>
       </div>
 
@@ -27,7 +29,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 overflow-hidden">
         {/* Theme Selection */}
         <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 flex flex-col min-h-0 h-full">
-          <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex-shrink-0">Choose Theme</h3>
+          <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex-shrink-0">{t('settings.chooseTheme')}</h3>
           <div className="relative flex-1 min-h-0 overflow-hidden pb-4">
             <div ref={scrollContainerRef} onScroll={handleThemeScroll} className="grid grid-cols-2 gap-3 overflow-y-auto pr-2 h-full" >
               {Object.entries(themes).map(([themeKey, theme]) => (
@@ -139,7 +141,7 @@ const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-sm bg-white/10 border border-white/20">
               <span className="text-lg">{currentVariant === 'light' ? '☀️' : '🌙'}</span>
               <p className="text-sm font-semibold text-white">
-                {currentVariant === 'light' ? 'Light' : 'Dark'} Mode
+                {currentVariant === 'light' ? t('settings.lightMode') : t('settings.darkMode')}
               </p>
             </div>
           </div>

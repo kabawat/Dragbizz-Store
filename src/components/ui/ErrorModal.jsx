@@ -2,14 +2,16 @@
 import React from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import Button from './Button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ErrorModal = ({
   isOpen,
   onClose,
-  title = 'Error',
-  message = 'Something went wrong. Please try again.',
+  title,
+  message,
   className = ''
 }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -30,7 +32,7 @@ const ErrorModal = ({
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                {title}
+                {title || t('common.error')}
               </h3>
             </div>
             <button
@@ -45,17 +47,16 @@ const ErrorModal = ({
         {/* Content */}
         <div className="px-6 py-4">
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {message}
+            {message || t('common.error')}
           </p>
 
-          {/* Action Button */}
           <div className="flex justify-end">
             <Button
               variant="primary"
               onClick={onClose}
               className="px-6 h-10 text-sm font-semibold"
             >
-              OK
+              {t('common.confirm')}
             </Button>
           </div>
         </div>

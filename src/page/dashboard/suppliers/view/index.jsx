@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ArrowLeft, Building, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle, Hash, IndianRupee, CreditCard, TrendingUp, AlertTriangle, Shield, FileText, DollarSign, Wallet, Receipt, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 
@@ -12,6 +13,7 @@ import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
 const ViewSupplierPage = ({ supplierId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -39,10 +41,10 @@ const ViewSupplierPage = ({ supplierId }) => {
         if (result.success && result.data) {
           setSupplierData(result.data);
         } else {
-          setError(result.message || 'Failed to fetch supplier data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('common.supplier') }));
         }
       } catch (error) {
-        setError('Failed to fetch supplier data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.supplier') }));
       } finally {
         setFetching(false);
       }
@@ -70,15 +72,15 @@ const ViewSupplierPage = ({ supplierId }) => {
       const result = await supplierService.deleteSupplier(supplierId, storeId);
 
       if (result.success) {
-        setDeletedSupplierName(supplierData?.name || 'Supplier');
+        setDeletedSupplierName(supplierData?.name || t('common.supplier'));
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || 'Failed to delete supplier');
+        setError(result.message || t('errors.failedToDelete', { item: t('common.supplier') }));
         setShowDeleteModal(false);
       }
     } catch (error) {
-      setError('Failed to delete supplier. Please try again.');
+      setError(t('errors.failedToDeleteTryAgain', { item: t('common.supplier') }));
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -103,7 +105,7 @@ const ViewSupplierPage = ({ supplierId }) => {
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
-          <Header title="View Supplier" description="Supplier information and details" />
+          <Header title={t('suppliers.viewSupplier')} description={t('suppliers.supplierInformationAndDetails')} />
 
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto w-full">
@@ -112,10 +114,10 @@ const ViewSupplierPage = ({ supplierId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Supplier Data...
+                      {t('modals.loadingData', { item: t('common.supplier') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the supplier information
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.supplier') })}
                     </p>
                   </div>
                 </div>
@@ -147,7 +149,7 @@ const ViewSupplierPage = ({ supplierId }) => {
             <div className="mb-6">
               <Link href="/dashboard/suppliers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Suppliers</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.suppliers') })}</span>
               </Link>
             </div>
 
@@ -161,10 +163,10 @@ const ViewSupplierPage = ({ supplierId }) => {
                         <Building className="w-10 h-10 text-red-600" />
                       </div>
                       <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        Supplier Not Found
+                        {t('modals.notFound', { item: t('common.supplier') })}
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        The supplier you're looking for doesn't exist or has been removed. Please check the supplier ID and try again.
+                        {t('common.doesntExistOrRemoved', { item: t('common.supplier') })}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
@@ -172,14 +174,14 @@ const ViewSupplierPage = ({ supplierId }) => {
                           onClick={() => router.push('/dashboard/suppliers')}
                           className="px-6 py-3"
                         >
-                          Back to Suppliers
+                          {t('common.backTo', { item: t('common.suppliers') })}
                         </Button>
                         <Button
                           variant="primary"
                           onClick={() => window.location.reload()}
                           className="px-6 py-3"
                         >
-                          Try Again
+                          {t('common.tryAgain')}
                         </Button>
                       </div>
                     </div>
@@ -215,7 +217,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                         <div className="relative z-10">
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Supplier Name</p>
                           <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                            {supplierData.name || 'N/A'}
+                            {supplierData.name || t('common.na')}
                           </p>
                         </div>
                       </div>
@@ -226,7 +228,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                         <div className="relative z-10">
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Phone Number</p>
                           <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                            {supplierData.phone || 'N/A'}
+                            {supplierData.phone || t('common.na')}
                           </p>
                         </div>
                       </div>
@@ -237,7 +239,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                         <div className="relative z-10">
                           <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Email Address</p>
                           <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
-                            {supplierData.email || 'N/A'}
+                            {supplierData.email || t('common.na')}
                           </p>
                         </div>
                       </div>
@@ -249,7 +251,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Agency</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {supplierData.agency || 'N/A'}
+                              {supplierData.agency || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -262,7 +264,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Number</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                              {supplierData.gstNumber || 'N/A'}
+                              {supplierData.gstNumber || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -468,7 +470,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                               <div>
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Payment Terms</p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {supplierData.account.paymentTerms?.replace('_', ' ') || 'N/A'}
+                                  {supplierData.account.paymentTerms?.replace('_', ' ') || t('common.na')}
                                 </p>
                               </div>
                             )}
@@ -688,10 +690,10 @@ const ViewSupplierPage = ({ supplierId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Supplier Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.supplier') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedSupplierName}" has been removed from your supplier list.
+                {t('common.hasBeenRemovedFromList', { name: deletedSupplierName, item: t('common.suppliers') })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Suppliers

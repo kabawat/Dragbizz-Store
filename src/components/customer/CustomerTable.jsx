@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Users } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CustomerTable = ({
   customers = [],
@@ -9,16 +10,19 @@ const CustomerTable = ({
   onDuplicate,
   onViewDetails,
   loading = false,
-  emptyMessage = 'No customers found',
+  emptyMessage,
   className = '',
   // Infinite scroll props
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
 }) => {
+  const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  
+  const defaultEmptyMessage = emptyMessage || t('customers.noCustomers');
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -37,19 +41,19 @@ const CustomerTable = ({
   const actionMenuItems = (customer) => [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.view'),
       icon: Eye,
       onClick: () => onViewDetails?.(customer.id)
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(customer.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(customer.id)
     }
@@ -111,17 +115,17 @@ const CustomerTable = ({
             <tr>
               <th className="w-1/3 px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  Customer
+                  {t('customers.customer')}
                 </span>
               </th>
               <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Phone
+                {t('customers.phone')}
               </th>
               <th className="w-1/4 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Email
+                {t('customers.email')}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Status
+                {t('common.status')}
               </th>
               <th className="w-24 px-6 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
@@ -159,7 +163,7 @@ const CustomerTable = ({
                         {customer.name || 'N/A'}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">Added: {new Date(customer.createdAt || Date.now()).toLocaleDateString()}</span>
+                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">{t('common.added')}: {new Date(customer.createdAt || Date.now()).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
@@ -186,7 +190,7 @@ const CustomerTable = ({
                 {/* Status Column */}
                 <td className="w-1/6 px-6 py-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 text-green-600 border-green-500/20">
-                    Active
+                    {t('common.active')}
                   </span>
                 </td>
                 
@@ -196,7 +200,7 @@ const CustomerTable = ({
                     <button
                       onClick={() => handleMenuToggle(customer.id)}
                       className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                      title="More Actions"
+                      title={t('common.actions')}
                     >
                       <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                     </button>
@@ -209,14 +213,14 @@ const CustomerTable = ({
                           className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                         >
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          View Details
+                          {t('common.viewDetails')}
                         </button>
                         <button
                           onClick={() => handleMenuAction(customer.id, 'edit')}
                           className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                         >
                           <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          Edit
+                          {t('common.edit')}
                         </button>
                         <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                         <button
@@ -224,7 +228,7 @@ const CustomerTable = ({
                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
-                          Delete
+                          {t('common.delete')}
                         </button>
                       </div>
                     )}
@@ -243,7 +247,7 @@ const CustomerTable = ({
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more customers...</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('customers.loadingMore')}</span>
             </div>
           </div>
         </div>

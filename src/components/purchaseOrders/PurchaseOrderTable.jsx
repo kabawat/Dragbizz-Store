@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { AddActionButton } from '@/components/ui';
 import { renderStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PurchaseOrderTable = ({
     bills,
@@ -27,7 +28,7 @@ const PurchaseOrderTable = ({
     onDelete,
     onViewDetails,
     loading,
-    emptyMessage = "No purchase orders found",
+    emptyMessage,
     hasMore,
     onLoadMore,
     isLoadingMore,
@@ -40,6 +41,9 @@ const PurchaseOrderTable = ({
     enableSendMenu = true,
     getShareUrl
 }) => {
+  const { t } = useTranslation();
+  const defaultEmptyMessage = emptyMessage || t('purchaseOrders.noPurchaseOrders');
+  
   const getPurchaseOrderStatusBadge = (row) => {
     const dueDateObj = row.dueDate ? new Date(row.dueDate) : null;
     const hasPending = (row.pendingQuantity ?? Math.max((row.totalQuantity || 0) - (row.receivedQuantity || 0), 0)) > 0;
@@ -95,7 +99,7 @@ const PurchaseOrderTable = ({
 
     const handleWhatsAppShare = (row) => {
         const shareUrl = buildShareUrl(row);
-        const message = `Hello *${row.supplier?.name || 'Supplier'}*, Thanks for your business! *Purchase Order: ${row.billNumber || row.poNumber || 'N/A'}* *Link:* ${shareUrl} Thanks *${row.store?.name || 'DragBizz Store'}* *${row.store?.phone || 'N/A'}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
+        const message = `Hello *${row.supplier?.name || t('common.supplier')}*, Thanks for your business! *Purchase Order: ${row.billNumber || row.poNumber || t('common.na')}* *Link:* ${shareUrl} Thanks *${row.store?.name || t('common.retailManager')}* *${row.store?.phone || t('common.na')}* Sent using *DragBizz: Simple Store Management* (dragbizz.com)`;
 
         // Get supplier's phone number and format it for WhatsApp
         const supplierPhone = row.supplier?.phone;
@@ -127,29 +131,29 @@ const PurchaseOrderTable = ({
                         <tr>
                             <th className="w-1/6 px-6 py-4 text-left">
                                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                    PO
+                                    {t('purchaseOrders.poNumber')}
                                 </span>
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Supplier
+                                {t('purchaseOrders.supplier')}
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                PO Date
+                                {t('purchaseOrders.orderDate')}
                             </th>
                             <th className="w-1/5 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Expected Delivery
+                                {t('purchaseOrders.expectedDate')}
                             </th>
                             <th className="w-28 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Items
+                                {t('invoice.items')}
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Advance Paid
+                                {t('purchaseOrders.advancePaid')}
                             </th>
                             <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                                Approval Status
+                                {t('purchaseOrders.approvalStatus')}
                             </th>
                             <th className="w-50 py-4 text-center">
-                                Actions
+                                {t('common.actions')}
                             </th>
                         </tr>
                     </thead>
@@ -186,7 +190,7 @@ const PurchaseOrderTable = ({
                                         <div className="flex items-start">
                                             <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2 mt-0.5" />
                                             <div className="text-[rgb(var(--color-text-primary))] font-medium">
-                                                {row.supplier?.name || 'N/A'}
+                                                {row.supplier?.name || t('common.notAvailable')}
                                             </div>
                                         </div>
   
@@ -234,9 +238,9 @@ const PurchaseOrderTable = ({
                                                     <AddActionButton
                                                         onClick={() => setOpenSendMenuId(openSendMenuId === (row._id || row.id) ? null : (row._id || row.id))}
                                                         Icon={Send}
-                                                        label="Send"
+                                                        label={t('common.send')}
                                                         size="sm"
-                                                        title="Send"
+                                                        title={t('common.send')}
                                                         className="h-9 px-3 rounded-lg"
                                                     />
                                                     {openSendMenuId === (row._id || row.id) && (
@@ -245,20 +249,20 @@ const PurchaseOrderTable = ({
                                                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 onClick={() => handleWhatsAppShare(row)}
                                                             >
-                                                                <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> WhatsApp
+                                                                <MessageCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> {t('common.whatsapp')}
                                                             </button>
                                                             <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
-                                                                <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> Email
+                                                                <Mail className="w-4 h-4 text-blue-500 dark:text-blue-400" /> {t('common.email')}
                                                             </button>
                                                             <button className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200">
-                                                                <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> Message
+                                                                <MessageSquare className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" /> {t('common.message')}
                                                             </button>
                                                             <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                                                             <button
                                                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                                                 onClick={() => handleCopyLink(row)}
                                                             >
-                                                                <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> Copy link
+                                                                <Copy className="w-4 h-4 text-purple-500 dark:text-purple-400" /> {t('common.copyLink')}
                                                             </button>
                                                         </div>
                                                     )}
@@ -269,7 +273,7 @@ const PurchaseOrderTable = ({
                                                 <button
                                                     onClick={() => onMenuToggle(row._id || row.id)}
                                                     className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                                                    title="More Actions"
+                                                    title={t('common.actions')}
                                                 >
                                                     <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                                                 </button>
@@ -282,7 +286,7 @@ const PurchaseOrderTable = ({
                                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                         >
                                                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                            View Details
+                                                            {t('common.viewDetails')}
                                                         </button>
                                                         {!hasAdvancePayment && !isDeleted && (
                                                             <button
@@ -290,7 +294,7 @@ const PurchaseOrderTable = ({
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                             >
                                                                 <IndianRupee className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                                Advance Payment
+                                                                {t('purchaseOrders.advancePayment')}
                                                             </button>
                                                         )}
                                                         {!isDeleted && (
@@ -299,7 +303,7 @@ const PurchaseOrderTable = ({
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                             >
                                                                 <Receipt className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                                Create Bill
+                                                                {t('purchaseOrders.createBill')}
                                                             </button>
                                                         )}
                                                         {!isDeleted && (
@@ -308,7 +312,7 @@ const PurchaseOrderTable = ({
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                             >
                                                                 <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                                                                Edit
+                                                                {t('common.edit')}
                                                             </button>
                                                         )}
                                                         <button
@@ -316,7 +320,7 @@ const PurchaseOrderTable = ({
                                                             className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
                                                         >
                                                             <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                                                            Delete
+                                                            {t('common.delete')}
                                                         </button>
                                                     </div>
                                                 )}
@@ -333,7 +337,7 @@ const PurchaseOrderTable = ({
                 {isLoadingMore && (
                     <div className="text-center py-4">
                         <div className="w-6 h-6 border-2 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more purchase orders...</p>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.loadingMore')}</p>
                     </div>
                 )}
             </div>

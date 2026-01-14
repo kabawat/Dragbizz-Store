@@ -4,6 +4,8 @@ import { Calendar, Building2, FileText, IndianRupee, Phone, Mail, Barcode } from
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
 
 const PurchaseOrderDetails = ({ purchaseOrder }) => {
+  const { t } = useTranslation();
+  
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -61,7 +63,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                {purchaseOrder.store?.name || 'DragBizz Store'}
+                {purchaseOrder.store?.name || t('common.retailManager')}
               </h3>
               <div className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
                 <span>Purchase Order Date {formatDate(purchaseOrder.poDate || purchaseOrder.billDate)}</span>

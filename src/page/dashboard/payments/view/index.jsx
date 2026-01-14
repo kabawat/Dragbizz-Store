@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ArrowLeft, CreditCard, Building2, FileText, Edit, IndianRupee, Calendar, CheckCircle, Wallet, Hash, Banknote, Smartphone } from 'lucide-react';
 import moment from 'moment';
 
@@ -12,6 +13,7 @@ import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
 const ViewPaymentPage = ({ paymentId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -40,10 +42,10 @@ const ViewPaymentPage = ({ paymentId }) => {
         if (result.success && result.data) {
           setPaymentData(result.data);
         } else {
-          setError(result.message || 'Failed to fetch payment data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('payments.payment') }));
         }
       } catch (error) {
-        setError('Failed to fetch payment data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('payments.payment') }));
       } finally {
         setFetching(false);
       }
@@ -66,7 +68,7 @@ const ViewPaymentPage = ({ paymentId }) => {
       'CHEQUE': 'Cheque',
       'CREDIT': 'Credit'
     };
-    return methodMap[method] || method || 'N/A';
+    return methodMap[method] || method || t('common.na');
   };
 
   // Get payment type label
@@ -76,7 +78,7 @@ const ViewPaymentPage = ({ paymentId }) => {
       'ADVANCE': 'Advance Payment',
       'OTHER': 'Other'
     };
-    return typeMap[type] || type || 'N/A';
+    return typeMap[type] || type || t('common.na');
   };
 
   // Loading state
@@ -86,7 +88,7 @@ const ViewPaymentPage = ({ paymentId }) => {
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
-          <Header title="View Payment" description="Payment information and details" />
+          <Header title={t('payments.viewPayment')} description={t('payments.paymentInformationAndDetails')} />
 
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto w-full">
@@ -95,9 +97,10 @@ const ViewPaymentPage = ({ paymentId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Payment Data...
+                      {t('modals.loadingData', { item: t('payments.payment') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('payments.payment') })}
                       Please wait while we fetch the payment information
                     </p>
                   </div>

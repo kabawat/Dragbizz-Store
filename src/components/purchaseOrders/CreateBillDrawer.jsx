@@ -4,8 +4,10 @@ import { Receipt, Building2, Package, IndianRupee, Calendar, Save, Plus, Minus }
 import { Button, Input, Select, Textarea, Card, AddActionButton, SideDrawer } from '@/components/ui';
 import { productService, billService } from '@/service/retailer';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
+    const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
     const [formData, setFormData] = useState({
@@ -134,7 +136,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
         e.preventDefault();
 
         if (formData.items.length === 0) {
-            setErrors({ items: 'At least one item is required' });
+            setErrors({ items: t('bills.atLeastOneItemRequired') });
             return;
         }
 
@@ -161,10 +163,10 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                 onSuccess?.(result.data);
                 onClose();
             } else {
-                setErrors({ submit: result.message || 'Failed to create bill' });
+                setErrors({ submit: result.message || t('bills.failedToCreateBill') });
             }
         } catch (error) {
-            setErrors({ submit: error.message || 'Failed to create bill' });
+            setErrors({ submit: error.message || t('bills.failedToCreateBill') });
         } finally {
             setIsCreating(false);
         }
@@ -187,9 +189,9 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
         <SideDrawer
             isOpen={isOpen}
             onClose={onClose}
-            title="Create Bill"
+            title={t('bills.createBill')}
             icon={Receipt}
-            description={`From Purchase Order #${purchaseOrder.poNumber}`}
+            description={t('bills.fromPurchaseOrder', { poNumber: purchaseOrder.poNumber })}
             width="w-full md:w-2/3 lg:w-1/2"
         >
             <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -203,19 +205,19 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                 <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                                         <Receipt className="w-5 h-5 mr-2" />
-                                        Purchase Order Details
+                                        {t('purchaseOrders.purchaseOrderDetails')}
                                     </h3>
                                     <div className="space-y-3 text-sm">
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">PO Number:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('purchaseOrders.poNumber')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={String(purchaseOrder.poNumber)}>{purchaseOrder.poNumber}</p>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">PO Date:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('bills.poDate')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={formatDate(purchaseOrder.poDate)}>{formatDate(purchaseOrder.poDate)}</p>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">Expected Delivery:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('bills.expectedDelivery')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={formatDate(purchaseOrder.expectedDeliveryDate)}>{formatDate(purchaseOrder.expectedDeliveryDate)}</p>
                                         </div>
                                     </div>
@@ -225,19 +227,19 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                 <Card className="p-4 shadow-none border-0 bg-[rgb(var(--color-bg-secondary))]">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                                         <Building2 className="w-5 h-5 mr-2" />
-                                        Supplier Information
+                                        {t('bills.supplierInformation')}
                                     </h3>
                                     <div className="space-y-3 text-sm">
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">Name:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('bills.name')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={purchaseOrder.supplier?.name || ''}>{purchaseOrder.supplier?.name}</p>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">Email:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('bills.email')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={purchaseOrder.supplier?.email || ''}>{purchaseOrder.supplier?.email}</p>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">Phone:</span>
+                                            <span className="text-[rgb(var(--color-text-secondary))] w-40 whitespace-nowrap">{t('bills.phone')}:</span>
                                             <p className="font-medium text-[rgb(var(--color-text-primary))] text-right flex-1 truncate" title={purchaseOrder.supplier?.phone || ''}>{purchaseOrder.supplier?.phone}</p>
                                         </div>
                                     </div>
@@ -247,10 +249,10 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             {/* Bill Details */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <Input label="Bill Date" size="sm" type="date" value={formData.billDate} onChange={(value) => handleInputChange('billDate', value)} leftIcon={Calendar} />
+                                    <Input label={t('bills.billDate')} size="sm" type="date" value={formData.billDate} onChange={(value) => handleInputChange('billDate', value)} leftIcon={Calendar} />
                                 </div>
                                 <div>
-                                    <Input label="Due Date" size="sm" type="date" value={formData.dueDate} onChange={(value) => handleInputChange('dueDate', value)} leftIcon={Calendar} />
+                                    <Input label={t('bills.dueDate')} size="sm" type="date" value={formData.dueDate} onChange={(value) => handleInputChange('dueDate', value)} leftIcon={Calendar} />
                                 </div>
                             </div>
 
@@ -258,11 +260,11 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                                     <Package className="w-5 h-5 mr-2" />
-                                    Items ({formData.items.length})
+                                    {t('bills.items')} ({formData.items.length})
                                 </h3>
                                 <AddActionButton
                                     onClick={addItem}
-                                    label="Add Item"
+                                    label={t('bills.addItem')}
                                     Icon={Plus}
                                     size="sm"
                                     variant="success"
@@ -274,14 +276,14 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                     <div key={index} className="group p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                                Item {index + 1}
+                                                {t('bills.item')} {index + 1}
                                             </h4>
                                             {formData.items.length > 1 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => removeItem(index)}
                                                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 cursor-pointer"
-                                                    title="Remove item"
+                                                    title={t('bills.removeItem')}
                                                 >
                                                     <Minus className="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
                                                 </button>
@@ -291,7 +293,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                         <div className="grid grid-cols-12 gap-3">
                                             <div className="col-span-4">
                                                 <Select
-                                                    label="Product"
+                                                    label={t('bills.product')}
                                                     size="sm"
                                                     value={item.product}
                                                     onChange={(value) => {
@@ -300,14 +302,14 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                                         handleItemChange(index, 'productName', selected?.name || '');
                                                     }}
                                                     options={products.map(p => ({ value: (p.id || p._id), label: p.name }))}
-                                                    placeholder="Select product"
+                                                    placeholder={t('bills.selectProduct')}
                                                     searchable
                                                     disabled={productsLoading}
                                                 />
                                             </div>
                                             <div className="col-span-2">
                                                 <Input
-                                                    label="Quantity"
+                                                    label={t('bills.quantity')}
                                                     size="sm"
                                                     type="number"
                                                     value={item.quantity}
@@ -318,7 +320,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                             </div>
                                             <div className="col-span-3">
                                                 <Input
-                                                    label="Purchase Price/(unit)"
+                                                    label={t('bills.purchasePricePerUnit')}
                                                     size="sm"
                                                     type="number"
                                                     value={item.purchasePrice}
@@ -330,7 +332,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                             </div>
                                             <div className="col-span-3">
                                                 <Input
-                                                    label="Expiry Date"
+                                                    label={t('bills.expiryDate')}
                                                     size="sm"
                                                     type="date"
                                                     value={item.expiryDate}
@@ -349,19 +351,19 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             {/* Notes */}
                             <div>
                                 <Textarea
-                                    label="Notes"
+                                    label={t('bills.notes')}
                                     value={formData.notes}
                                     onChange={(value) => handleInputChange('notes', value)}
-                                    placeholder="Add any additional notes..."
+                                    placeholder={t('bills.addAdditionalNotes')}
                                     rows={3}
                                 />
                             </div>
 
                             <div className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
                                 <div>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
+                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{t('bills.goodsAlreadyReceived')}</p>
                                     <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                                        Enable this to immediately add these items into stock when the bill is created.
+                                        {t('bills.goodsReceivedDescription')}
                                     </p>
                                 </div>
                                 <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -372,7 +374,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                                         onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
                                     />
                                     <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                        {formData.goodsReceived ? 'Yes' : 'No'}
+                                        {formData.goodsReceived ? t('bills.yes') : t('bills.no')}
                                     </span>
                                 </label>
                             </div>
@@ -381,7 +383,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             <Card className="p-4 border-0 shadow-none">
                                 <div className="flex items-center justify-end gap-3">
                                     <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                        Total Amount:
+                                        {t('bills.totalAmount')}:
                                     </span>
                                     <span className="text-xl font-bold text-[rgb(var(--color-primary))]">
                                         {formatCurrency(calculateTotal())}
@@ -412,7 +414,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             className="w-full sm:w-auto"
                             size="sm"
                         >
-                            Create Bill
+                            {t('bills.createBill')}
                         </Button>
                         <Button
                             variant="outline"
@@ -421,7 +423,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             className="w-full sm:w-auto"
                             size="sm"
                         >
-                            Cancel
+                            {t('payments.cancel')}
                         </Button>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Building } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const SupplierTable = ({
   suppliers = [],
@@ -9,16 +10,19 @@ const SupplierTable = ({
   onDuplicate,
   onViewDetails,
   loading = false,
-  emptyMessage = 'No suppliers found',
+  emptyMessage,
   className = '',
   // Infinite scroll props
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
 }) => {
+  const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  
+  const defaultEmptyMessage = emptyMessage || t('suppliers.noSuppliers');
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -37,19 +41,19 @@ const SupplierTable = ({
   const actionMenuItems = (supplier) => [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(supplier.id)
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(supplier.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(supplier.id)
     }
@@ -217,7 +221,7 @@ const SupplierTable = ({
                         ? 'bg-green-500/10 text-green-600 border-green-500/20' 
                         : 'bg-red-500/10 text-red-600 border-red-500/20'
                     }`}>
-                      {supplier.isActive ? 'Active' : 'Inactive'}
+                      {supplier.isActive ? t('common.active') : t('common.inactive')}
                     </span>
                     <div className="text-xs text-[rgb(var(--color-text-secondary))]">
                       {supplier.account?.onTimePaymentRate || '0'}% on-time
@@ -231,7 +235,7 @@ const SupplierTable = ({
                     <button
                       onClick={() => handleMenuToggle(supplier.id)}
                       className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                      title="More Actions"
+                      title={t('common.moreActions')}
                     >
                       <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                     </button>

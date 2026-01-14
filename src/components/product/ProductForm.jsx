@@ -17,9 +17,10 @@ import OpeningQuantitySection from './OpeningQuantitySection';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, TagInput, FileUpload } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
 import { categoryService } from '@/service/retailer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Sortable Section Component
-const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClick }) => {
+const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClick, t }) => {
   const { themeConfig, currentVariant } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const {
@@ -94,7 +95,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
                 <button
                   onClick={() => onInfoClick(id)}
                   className="p-1 hover:bg-[rgb(var(--color-bg-secondary))] rounded-full transition-colors duration-200 group/info cursor-pointer"
-                  title="Section Information"
+                  title={t('products.sectionInformation')}
                 >
                   <Info className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] group-hover/info:text-[rgb(var(--color-primary))]" />
                 </button>
@@ -118,6 +119,7 @@ const ProductForm = ({
   storeId = null,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const { themeConfig, currentVariant } = useTheme();
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [currentInfoSection, setCurrentInfoSection] = useState(null);
@@ -182,17 +184,17 @@ const ProductForm = ({
   const hasFetchedCategories = useRef(false);
 
   const [sections, setSections] = useState([
-    { id: 'basic', title: 'Basic Information', subtitle: 'Product name, brand, and basic details', icon: Package, component: BasicInfoSection },
-    { id: 'pricing-gst', title: 'Pricing Information', subtitle: 'Set product prices, currency, and tax settings', icon: IndianRupee, component: PricingGSTSection },
-    { id: 'opening-quantity', title: 'Opening Stock', subtitle: 'Initial inventory quantity and purchase price', icon: Package, component: OpeningQuantitySection },
-    { id: 'content', title: 'Content & SEO', subtitle: 'Descriptions, features, and SEO content', icon: Eye, component: AdditionalDetailsSection },
+    { id: 'basic', title: t('products.basicInformation'), subtitle: t('products.basicInformationSubtitle'), icon: Package, component: BasicInfoSection },
+    { id: 'pricing-gst', title: t('products.pricingInformation'), subtitle: t('products.pricingInformationSubtitle'), icon: IndianRupee, component: PricingGSTSection },
+    { id: 'opening-quantity', title: t('products.openingStock'), subtitle: t('products.openingStockSubtitle'), icon: Package, component: OpeningQuantitySection },
+    { id: 'content', title: t('products.contentSeo'), subtitle: t('products.contentSeoSubtitle'), icon: Eye, component: AdditionalDetailsSection },
   ]);
 
   // Section information data
   const sectionInfo = {
     'basic': {
-      title: 'Basic Information',
-      description: 'Essential product details required for listing',
+      title: t('products.basicInformation'),
+      description: t('products.basicInformationDescription'),
       details: [
         'Product Name: The main title of your product',
         'Brand: Manufacturer or brand name',
@@ -202,8 +204,8 @@ const ProductForm = ({
       tips: 'These fields are mandatory and help customers identify your product easily.'
     },
     'pricing-gst': {
-      title: 'Pricing Information',
-      description: 'Product pricing and tax configuration',
+      title: t('products.pricingInformation'),
+      description: t('products.pricingInformationDescription'),
       details: [
         'MRP: Maximum Retail Price as per regulations',
         'Selling Price: Actual price customers will pay',
@@ -238,15 +240,15 @@ const ProductForm = ({
       tips: 'Configure these settings to control how your product appears to customers.'
     },
     'opening-quantity': {
-      title: 'Opening Stock',
-      description: 'Initial inventory quantity and purchase price',
+      title: t('products.openingStock'),
+      description: t('products.openingStockDescription'),
       details: [
-        'Opening Quantity: Initial stock quantity for this product',
-        'Opening Purchase Price: Cost price per unit for opening stock',
-        'Total Value: Automatically calculated (Quantity × Purchase Price)',
-        'Unit of Measure: Uses the UOM from pricing section'
+        t('products.openingStockDetail1'),
+        t('products.openingStockDetail2'),
+        t('products.openingStockDetail3'),
+        t('products.openingStockDetail4')
       ],
-      tips: 'This represents your initial inventory investment and helps in cost tracking.'
+      tips: t('products.openingStockTips')
     }
   };
 
@@ -421,6 +423,7 @@ const ProductForm = ({
                   subtitle={section.subtitle}
                   icon={section.icon}
                   onInfoClick={handleInfoClick}
+                  t={t}
                 >
                   {section.id === 'basic' ? (
                     <SectionComponent
@@ -474,7 +477,7 @@ const ProductForm = ({
 
                 <div>
                   <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                    Fields in this section:
+                    {t('products.fieldsInThisSection')}
                   </h4>
                   <ul className="space-y-1">
                     {currentInfoSection.details.map((detail, index) => (
@@ -512,7 +515,7 @@ const ProductForm = ({
               {/* Header */}
               <div className={`flex items-center justify-between p-4 ${drawerStyles.header}`}>
                 <h2 className={`text-base font-semibold ${drawerStyles.text.primary}`}>
-                  Add New Category
+                  {t('products.addNewCategory')}
                 </h2>
                 <button
                   onClick={handleCloseCategoryDrawer}
@@ -527,19 +530,19 @@ const ProductForm = ({
                 <div className="space-y-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>Basic Information</h3>
+                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>{t('products.basicInformation')}</h3>
 
                     <Input
-                      label="Category Name"
-                      placeholder="Enter category name (e.g., Electronics)"
+                      label={t('products.categoryName')}
+                      placeholder={t('products.enterCategoryName')}
                       value={newCategoryData.name}
                       onChange={(value) => setNewCategoryData(prev => ({ ...prev, name: value }))}
                       required
                     />
 
                     <Textarea
-                      label="Description"
-                      placeholder="Enter category description (e.g., Electronic devices and accessories)"
+                      label={t('common.description')}
+                      placeholder={t('products.enterCategoryDescription')}
                       value={newCategoryData.description}
                       onChange={(value) => setNewCategoryData(prev => ({ ...prev, description: value }))}
                       rows={3}
@@ -548,12 +551,12 @@ const ProductForm = ({
 
                   {/* Metadata */}
                   <div className="space-y-4">
-                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>Category Settings</h3>
+                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>{t('products.categorySettings')}</h3>
 
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <FileUpload
-                          label="Category Icon"
+                          label={t('products.categoryIcon')}
                           accept="image/*"
                           multiple={false}
                           value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
@@ -570,15 +573,15 @@ const ProductForm = ({
                               }));
                             }
                           }}
-                          helperText="Upload an icon image for this category. Drag and drop or click to select."
+                          helperText={t('products.categoryIconHelperText')}
                           maxSize={2 * 1024 * 1024} // 2MB limit for icons
                         />
                       </div>
                     </div>
 
                     <TagInput
-                      label="Tags"
-                      placeholder="Add tags (e.g., tech, gadgets)"
+                      label={t('products.tags')}
+                      placeholder={t('products.addTagsExample')}
                       value={newCategoryData.metadata.tags}
                       onChange={(value) => setNewCategoryData(prev => ({
                         ...prev,
@@ -589,21 +592,19 @@ const ProductForm = ({
 
                   <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                     <h3 className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}>
-                      About Categories
+                      {t('products.aboutCategories')}
                     </h3>
                     <p className={`text-sm ${drawerStyles.text.secondary}`}>
-                      Categories help organize your products and make them easier to find.
-                      This category will be available for all your future products.
+                      {t('products.aboutCategoriesDescription')}
                     </p>
                   </div>
 
                   <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
                     <h3 className={`text-sm font-medium ${currentVariant === 'dark' ? 'text-blue-300' : 'text-blue-700'} mb-2`}>
-                      💡 Tip
+                      💡 {t('products.tip')}
                     </h3>
                     <p className={`text-sm ${currentVariant === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
-                      Use descriptive names like "Electronics", "Clothing", or "Home & Garden"
-                      to make your products easy to categorize.
+                      {t('products.categoryTip')}
                     </p>
                   </div>
                 </div>
@@ -613,7 +614,7 @@ const ProductForm = ({
               <div className={`p-4 ${drawerStyles.footer}`}>
                 <div className="flex gap-3">
                   <Button type="button" onClick={handleAddCategory} disabled={!newCategoryData.name.trim()} >
-                    Add Category
+                    {t('products.addCategory')}
                   </Button>
                   <Button
                     type="button"
@@ -621,7 +622,7 @@ const ProductForm = ({
                     className={drawerStyles.button.outline}
                     onClick={handleCloseCategoryDrawer}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 </div>
               </div>

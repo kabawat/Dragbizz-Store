@@ -8,8 +8,10 @@ import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
 import { Button, Input } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ExpensesPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -157,7 +159,7 @@ const ExpensesPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Expenses" description="Track and manage your business expenses" />
+        <Header title={t('expenses.title')} description={t('expenses.description')} />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
@@ -168,8 +170,8 @@ const ExpensesPage = () => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2"> Loading Expenses... </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]"> Please wait while we fetch your expenses </p>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">{t('common.loadingData')}</h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</p>
                   </div>
                 </div>
               </div>
@@ -183,7 +185,7 @@ const ExpensesPage = () => {
                   <div className="w-100 bg-red">
                     <Input
                       type="text"
-                      placeholder="Search expenses..."
+                      placeholder={`${t('common.search')} ${t('expenses.title').toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       leftIcon={Search}
@@ -203,7 +205,7 @@ const ExpensesPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
@@ -213,11 +215,11 @@ const ExpensesPage = () => {
                           }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
-                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}> Add Expense </Button>
+                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}>{t('expenses.addExpense')}</Button>
                   </div>
                 </div>
               </div>
@@ -231,20 +233,20 @@ const ExpensesPage = () => {
                     <IndianRupee className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No expenses found
+                    {t('expenses.noExpenses')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    No expenses match your current criteria. Try adjusting your search or add new expenses.
+                    {t('common.noData')}
                   </p>
                   {error && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
                       <p className="text-red-600 text-sm">
-                        <strong>Error:</strong> {error}
+                        <strong>{t('common.error')}:</strong> {error}
                       </p>
                     </div>
                   )}
                   <div className="pt-4">
-                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}> Add Expense </Button>
+                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}>{t('expenses.addExpense')}</Button>
                   </div>
                 </div>
               </div>
@@ -328,14 +330,14 @@ const ExpensesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
           <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-[rgb(var(--color-success))] mb-4">
-              Success
+              {t('common.success')}
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              "{deletedExpenseName}" has been deleted successfully.
+              {t('errors.expenseRemovedFromList', { expenseName: deletedExpenseName })}
             </p>
             <div className="flex gap-3 justify-end">
               <Button onClick={() => setShowDeleteSuccessModal(false)}>
-                OK
+                {t('common.ok')}
               </Button>
             </div>
           </div>
