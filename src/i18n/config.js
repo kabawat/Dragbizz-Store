@@ -1,8 +1,10 @@
-export const locales = ['en', 'hi'];
+export const locales = ['en', 'hi', 'gu', 'hi-en'];
 export const defaultLocale = 'en';
 
 export const localeNames = {
   en: 'English',
-  hi: 'हिंदी'
+  hi: 'हिंदी',
+  gu: 'ગુજરાતી',
+  'hi-en': 'Hinglish'
 };
 

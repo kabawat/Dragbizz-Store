@@ -1581,8 +1581,8 @@
     "savedAutomatically": "सेटिंग्स स्वचालित रूप से सहेजी गईं",
     "english": "English",
     "hindi": "हिंदी",
-    "spanish": "Spanish",
-    "french": "French",
+    "gujarati": "ગુજરાતી",
+    "hinglish": "Hinglish",
     "appVersion": "DragBizz Store v1.0.0",
     "accountPreferences": "खाता प्राथमिकताएं",
     "editPreferences": "प्राथमिकताएं संपादित करें",
@@ -1681,8 +1681,8 @@
     "languages": {
       "english": "English",
       "hindi": "हिंदी",
-      "spanish": "Spanish",
-      "french": "French"
+      "gujarati": "ગુજરાતી",
+      "hinglish": "Hinglish"
     }
   }
 }

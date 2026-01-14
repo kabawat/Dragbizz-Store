@@ -5,7 +5,6 @@ import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
 import { useAppSelector } from '@/store/hooks';
 import { useTranslation } from '@/hooks/useTranslation';
-import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 
 const Header = ({
   title,
@@ -84,9 +83,6 @@ const Header = ({
 
           {/* Right side - User Actions */}
           <div className="flex items-center space-x-3">
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-            
             {/* Notification Bell */}
             <div className="relative" ref={notificationDropdownRef}>
               <button
