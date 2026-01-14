@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
 import { Package } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductGrid = ({
   products = [],
@@ -13,7 +14,7 @@ const ProductGrid = ({
   onDuplicate,
   onViewDetails,
   loading = false,
-  emptyMessage = 'No products found',
+  emptyMessage,
   className = '',
   // Infinite scroll props
   hasMore = false,
@@ -21,6 +22,8 @@ const ProductGrid = ({
   isLoadingMore = false,
   ...props
 }) => {
+  const { t } = useTranslation();
+  const defaultEmptyMessage = emptyMessage || t('products.noProducts');
   const [selectAll, setSelectAll] = useState(false);
 
   // Handle individual product selection
@@ -68,10 +71,10 @@ const ProductGrid = ({
             <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            {emptyMessage}
+            {defaultEmptyMessage}
           </h3>
           <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-            No products match your current criteria. Try adjusting your search or filter settings.
+            {t('products.noProductsMatchCriteria')}
           </p>
         </div>
       </div>
@@ -94,11 +97,11 @@ const ProductGrid = ({
               className="w-4 h-4 text-[rgb(var(--color-primary))] border-[rgb(var(--color-border-primary))] rounded focus:ring-[rgb(var(--color-primary))] focus:ring-2"
             />
             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-              Select all {products.length} products
+              {t('products.selectAllProducts', { count: products.length })}
             </span>
             {selectedProducts.length > 0 && (
               <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {selectedProducts.length} selected
+                {selectedProducts.length} {t('products.selected')}
               </span>
             )}
           </div>
@@ -129,7 +132,7 @@ const ProductGrid = ({
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more products...</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('products.loadingMoreProducts')}</span>
             </div>
           </div>
         </div>

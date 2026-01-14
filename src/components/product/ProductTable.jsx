@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Package, ArrowDownToLine } from 'lucide-react';
 import Image from 'next/image';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductTable = ({
   products = [],
@@ -11,17 +12,20 @@ const ProductTable = ({
   onViewDetails,
   onStockIn,
   loading = false,
-  emptyMessage = 'No products found',
+  emptyMessage,
   className = '',
   // Infinite scroll props
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
 }) => {
+  const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  
+  const defaultEmptyMessage = emptyMessage || t('products.noProducts');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -64,13 +68,13 @@ const ProductTable = ({
   const actionMenuItems = (product) => [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(product.id)
     },
     {
       value: 'stock-in',
-      label: 'Stock In',
+      label: t('products.stockIn'),
       icon: ArrowDownToLine,
       onClick: () => onStockIn?.(product.id),
       className: 'text-green-600 hover:text-green-700'
@@ -158,20 +162,20 @@ const ProductTable = ({
             <tr>
               <th className="px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  Product
+                  {t('products.product')}
                 </span>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Visibility
+                {t('products.visibility')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Categories
+                {t('products.categories')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Price
+                {t('products.price')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                GST
+                {t('products.gst')}
               </th>
               <th className="px-6 py-4 w-24 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
@@ -321,7 +325,7 @@ const ProductTable = ({
                       <button
                         onClick={() => handleMenuToggle(product.id)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title="More Actions"
+                        title={t('common.actions')}
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>

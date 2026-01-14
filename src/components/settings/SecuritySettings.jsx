@@ -1,8 +1,10 @@
 "use client"
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Save } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const SecuritySettings = () => {
+  const { t } = useTranslation();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -26,9 +28,9 @@ const SecuritySettings = () => {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">Security Settings</h2>
+        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">{t('settings.securitySettings')}</h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          Manage your account security
+          {t('settings.manageAccountSecurity')}
         </p>
       </div>
 
@@ -43,8 +45,8 @@ const SecuritySettings = () => {
                 <Lock className="w-6 h-6 text-[rgb(var(--color-primary))]" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Change Password</p>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">Update your password</p>
+                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.changePassword')}</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('settings.updatePassword')}</p>
               </div>
             </div>
           </button>
@@ -52,7 +54,7 @@ const SecuritySettings = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Current Password
+                {t('settings.currentPassword')}
               </label>
               <div className="relative">
                 <input
@@ -60,7 +62,7 @@ const SecuritySettings = () => {
                   name="oldPassword"
                   value={passwordData.oldPassword}
                   onChange={handleChange}
-                  placeholder="Enter current password"
+                  placeholder={t('settings.enterCurrentPassword')}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -75,7 +77,7 @@ const SecuritySettings = () => {
 
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                New Password
+                {t('settings.newPassword')}
               </label>
               <div className="relative">
                 <input
@@ -83,7 +85,7 @@ const SecuritySettings = () => {
                   name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handleChange}
-                  placeholder="Enter new password"
+                  placeholder={t('settings.enterNewPassword')}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -98,7 +100,7 @@ const SecuritySettings = () => {
 
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Confirm New Password
+                {t('settings.confirmNewPassword')}
               </label>
               <div className="relative">
                 <input
@@ -106,7 +108,7 @@ const SecuritySettings = () => {
                   name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="Confirm new password"
+                  placeholder={t('settings.confirmNewPasswordPlaceholder')}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -127,14 +129,14 @@ const SecuritySettings = () => {
                 }}
                 className="flex-1 px-4 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors cursor-pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleSave}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer"
               >
                 <Save className="w-4 h-4" />
-                Update Password
+                {t('settings.updatePassword')}
               </button>
             </div>
           </div>

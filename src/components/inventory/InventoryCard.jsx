@@ -5,6 +5,7 @@ import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDow
 import Image from 'next/image';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InventoryCard = ({
   inventory,
@@ -18,6 +19,7 @@ const InventoryCard = ({
   className = '',
   ...props
 }) => {
+  const { t } = useTranslation();
   const [imageError, setImageError] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
@@ -59,10 +61,10 @@ const InventoryCard = ({
   const getStockStatus = () => {
     const availableStock = inventory.stockSummary?.availableQuantity || 0;
     
-    if (availableStock === 0) return { status: 'out', color: 'danger', text: 'Out of Stock' };
-    if (availableStock <= 10) return { status: 'low', color: 'warning', text: 'Low Stock' };
-    if (availableStock <= 50) return { status: 'medium', color: 'secondary', text: 'Medium Stock' };
-    return { status: 'good', color: 'success', text: 'Good Stock' };
+    if (availableStock === 0) return { status: 'out', color: 'danger', text: t('products.outOfStock') };
+    if (availableStock <= 10) return { status: 'low', color: 'warning', text: t('products.lowStock') };
+    if (availableStock <= 50) return { status: 'medium', color: 'secondary', text: t('inventory.mediumStock') };
+    return { status: 'good', color: 'success', text: t('inventory.goodStock') };
   };
   
   const stockStatus = getStockStatus();
@@ -72,32 +74,32 @@ const InventoryCard = ({
   const actionMenuItems = [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(inventory.id)
     },
     {
       value: 'stock-in',
-      label: 'Add Stock',
+      label: t('inventory.addStock'),
       icon: TrendingUp,
       onClick: () => onStockIn?.(inventory.id),
       className: 'text-green-600 hover:text-green-700'
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(inventory.id)
     },
     {
       value: 'duplicate',
-      label: 'Duplicate',
+      label: t('common.duplicate'),
       icon: Copy,
       onClick: () => onDuplicate?.(inventory.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(inventory.id)
     }
@@ -178,7 +180,7 @@ const InventoryCard = ({
             <button 
               onClick={() => handleMenuToggle(inventory.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title="More Actions"
+              title={t('common.actions')}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -191,28 +193,28 @@ const InventoryCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  View Details
+                  {t('common.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(inventory.id, 'stock-in')}
                   className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                 >
                   <TrendingUp className="w-4 h-4 text-green-500" />
-                  Add Stock
+                  {t('inventory.addStock')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(inventory.id, 'edit')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(inventory.id, 'duplicate')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Duplicate
+                  {t('common.duplicate')}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
@@ -220,7 +222,7 @@ const InventoryCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}
@@ -238,10 +240,10 @@ const InventoryCard = ({
         {/* Product Name */}
         <div>
           <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
-            {inventory.product?.name || 'Unknown Product'}
+            {inventory.product?.name || t('products.unknownProduct')}
           </h3>
           <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
-            {inventory.product?.brand || 'Unknown Brand'}
+            {inventory.product?.brand || t('products.unknownBrand')}
           </p>
         </div>
         
@@ -254,47 +256,47 @@ const InventoryCard = ({
               color: 'white'
             }}
           >
-            {inventory.product?.category || 'No Category'}
+            {inventory.product?.category || t('products.noCategory')}
           </span>
         </div>
         
         {/* Stock Info */}
         <div className="grid grid-cols-2 gap-4">
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">Available:</span> {inventory.stockSummary?.availableQuantity || 0}
+            <span className="font-medium">{t('inventory.availableStock')}:</span> {inventory.stockSummary?.availableQuantity || 0}
           </div>
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">Total:</span> {inventory.stockSummary?.totalQuantity || 0}
+            <span className="font-medium">{t('common.total')}:</span> {inventory.stockSummary?.totalQuantity || 0}
           </div>
         </div>
         
         {/* Batches Info */}
         <div className="grid grid-cols-2 gap-4">
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">Batches:</span> {inventory.batchSummary?.totalBatches || 0}
+            <span className="font-medium">{t('inventory.batches')}:</span> {inventory.batchSummary?.totalBatches || 0}
           </div>
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">Active:</span> {inventory.batchSummary?.activeBatches || 0}
+            <span className="font-medium">{t('common.active')}:</span> {inventory.batchSummary?.activeBatches || 0}
           </div>
         </div>
         
         {/* Pricing Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Selling Price</span>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.sellingPrice')}</span>
             <span className="text-sm sm:text-base md:text-lg font-bold" style={{ color: themeConfig.text }}>
               ₹{inventory.pricingSummary?.averageSellingPrice?.toLocaleString() || '0'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Cost Price</span>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.costPrice')}</span>
             <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
               ₹{inventory.pricingSummary?.averagePurchasePrice?.toLocaleString() || '0'}
             </span>
           </div>
           {profitMargin > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-green-500 font-medium">Profit Margin</span>
+              <span className="text-xs sm:text-sm text-green-500 font-medium">{t('inventory.profitMargin')}</span>
               <span className="text-xs sm:text-sm text-green-500 font-medium">
                 {profitMargin.toFixed(1)}%
               </span>
@@ -304,13 +306,13 @@ const InventoryCard = ({
         
         {/* Payment Status */}
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Payment Status:</span>
+          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('invoice.paymentStatus')}:</span>
           {getPaymentStatusBadge(inventory.paymentSummary?.paymentStatus)}
         </div>
         
         {/* Total Value */}
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Total Value:</span>
+          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('inventory.totalValue')}:</span>
           <span className="text-sm font-bold text-green-600">
             ₹{totalValue.toLocaleString()}
           </span>
@@ -324,7 +326,7 @@ const InventoryCard = ({
             borderColor: themeConfig.border
           }}
         >
-          Last updated: {inventory.lastUpdated ? new Date(inventory.lastUpdated).toLocaleDateString() : 'N/A'}
+          {t('common.lastUpdated')}: {inventory.lastUpdated ? new Date(inventory.lastUpdated).toLocaleDateString() : t('common.notAvailable')}
         </div>
       </div>
     </div>

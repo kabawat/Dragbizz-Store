@@ -9,8 +9,10 @@ import Header from '@/components/dashboard/Header';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useGlobalToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const EditInvoicePage = ({ invoiceId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
@@ -87,10 +89,10 @@ const EditInvoicePage = ({ invoiceId }) => {
       const result = await customerService.getCustomers(params);
       if (result.success) {
         const serializedOptions = [
-          { value: '', label: 'Walk-in Customer' },
+          { value: '', label: t('dashboard.walkInCustomer') },
           ...((result.data || []).map((customer) => ({
             value: customer.id || customer._id,
-            label: `${customer.name || 'Unknown'} - ${customer.phone || 'No phone'}${customer.email ? ` - ${customer.email}` : ''}`
+            label: `${customer.name || t('errors.unknown')} - ${customer.phone || t('errors.noPhone')}${customer.email ? ` - ${customer.email}` : ''}`
           })))
         ];
         setCustomers(serializedOptions);
@@ -136,10 +138,10 @@ const EditInvoicePage = ({ invoiceId }) => {
           items: transformedItems
           });
         } else {
-          setError(result.message || 'Failed to fetch invoice data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('common.invoice') }));
         }
       } catch (err) {
-        setError('Failed to fetch invoice data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.invoice') }));
       } finally {
         setFetching(false);
       }
@@ -227,10 +229,10 @@ const EditInvoicePage = ({ invoiceId }) => {
         // Redirect to the updated invoice view page
         router.push(`/dashboard/invoices/view/${invoiceId}`);
       } else {
-        showError('Failed to update invoice. Please try again.');
+        showError(t('invoice.updateError'));
       }
     } catch (error) {
-      showError('An error occurred while updating the invoice. Please try again.');
+      showError(t('invoice.updateError'));
     } finally {
       setInvoiceLoading(false);
     }
@@ -245,10 +247,10 @@ const EditInvoicePage = ({ invoiceId }) => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              Loading Store Data...
+              {t('common.loadingStoreData')}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              Please wait while we fetch your store information
+              {t('common.pleaseWaitWhileWeFetch', { item: t('common.store') })}
             </p>
           </div>
         </div>
@@ -264,10 +266,10 @@ const EditInvoicePage = ({ invoiceId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Invoice...
+                      {t('common.loadingInvoice')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch invoice data
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.invoice') })}
                     </p>
           </div>
         </div>
@@ -285,17 +287,17 @@ const EditInvoicePage = ({ invoiceId }) => {
                       <FileText className="w-8 h-8 text-red-600" />
                     </div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Error Loading Invoice
+                      {t('common.errorLoading', { item: t('common.invoice') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-6">
                       {error}
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button variant="outline" onClick={() => window.location.reload()}>
-                        Retry
+                        {t('common.retry')}
                       </Button>
               <Button variant="primary" onClick={() => router.push('/dashboard/invoices')}>
-                        Back to Invoices
+                        {t('common.backTo', { item: t('common.invoices') })}
                       </Button>
             </div>
           </div>
@@ -309,7 +311,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">
-        <Header title="Edit Invoice" description="Update invoice details and items" />
+        <Header title={t('invoice.editInvoice')} description={t('invoice.editInvoiceDescription')} />
 
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
@@ -317,7 +319,7 @@ const EditInvoicePage = ({ invoiceId }) => {
             <div className="mb-4">
               <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Invoices</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.invoices') })}</span>
               </Link>
             </div>
 
@@ -344,12 +346,12 @@ const EditInvoicePage = ({ invoiceId }) => {
                             <Select
                               value={formData.customer}
                               onChange={(value) => setFormData({ ...formData, customer: value })}
-                              options={customersLoading ? [{ value: '', label: 'Loading customers...' }] : customers}
+                              options={customersLoading ? [{ value: '', label: t('errors.loadingCustomers') }] : customers}
                               disabled={customersLoading}
                               leftIcon={User}
                               size="md"
                               searchable={true}
-                              placeholder="Search customers or select walk-in..."
+                              placeholder={t('invoice.searchCustomers')}
                             />
                           </div>
                           <div>
@@ -384,10 +386,10 @@ const EditInvoicePage = ({ invoiceId }) => {
                             type="button"
                             onClick={handleAddItem}
                             className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                            title="Add new item"
+                            title={t('invoice.addItem')}
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Item</span>
+                            <span className="text-sm font-medium">{t('invoice.addItem')}</span>
                           </button>
                         </div>
 
@@ -405,7 +407,7 @@ const EditInvoicePage = ({ invoiceId }) => {
                                       type="button"
                                       onClick={() => handleRemoveItem(index)}
                                       className="flex items-center gap-1 px-2 py-1 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
-                                      title="Remove item"
+                                      title={t('invoice.removeItem')}
                                     >
                                       <Trash2 className="w-3 h-3" />
                                       <span className="text-xs">Remove</span>
@@ -428,7 +430,7 @@ const EditInvoicePage = ({ invoiceId }) => {
                                         handleItemChange(index, 'price', productPrice);
                                       }}
                                       options={[
-                                        { value: '', label: 'Select Product' },
+                                        { value: '', label: t('errors.selectProduct') },
                                         ...products.filter(product => product.id || product._id).map(product => ({
                                           value: product.id || product._id,
                                           label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`

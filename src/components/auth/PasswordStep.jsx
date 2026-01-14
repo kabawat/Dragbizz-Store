@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Shield, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, BarChart3, Zap } from 'lucide-react';
 import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PasswordStep = ({
   password,
@@ -12,6 +13,7 @@ const PasswordStep = ({
   isLoading = false,
   errors = {}
 }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(false);
 
@@ -38,10 +40,10 @@ const PasswordStep = ({
   const isValid = password.length >= 8 && passwordStrength.strength !== 'weak';
 
   const strengthChecks = [
-    { label: 'At least 8 characters', valid: password.length >= 8 },
-    { label: 'Contains a number', valid: /\d/.test(password) },
-    { label: 'Contains a symbol', valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-    { label: 'Mix of upper & lowercase', valid: /[a-z]/.test(password) && /[A-Z]/.test(password) }
+    { label: t('auth.atLeast8Characters'), valid: password.length >= 8 },
+    { label: t('auth.containsNumber'), valid: /\d/.test(password) },
+    { label: t('auth.containsSymbol'), valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+    { label: t('auth.mixUpperLowercase'), valid: /[a-z]/.test(password) && /[A-Z]/.test(password) }
   ];
 
   return (
@@ -63,10 +65,10 @@ const PasswordStep = ({
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  Secure your account! 🔒
+                  {t('auth.secureYourAccount')}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  Choose a strong password to protect your store data
+                  {t('auth.chooseStrongPassword')}
                 </p>
               </div>
 
@@ -77,8 +79,8 @@ const PasswordStep = ({
                     <Lock className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Strong Security</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Enterprise-grade encryption for your data</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.strongSecurity')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseEncryption')}</p>
                   </div>
                 </div>
 
@@ -87,8 +89,8 @@ const PasswordStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Password Strength</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Real-time feedback on your password quality</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.passwordStrength')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.realtimeFeedback')}</p>
                   </div>
                 </div>
 
@@ -97,8 +99,8 @@ const PasswordStep = ({
                     <BarChart3 className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Best Practices</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Follow our security tips for maximum protection</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.bestPractices')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.followSecurityTips')}</p>
                   </div>
                 </div>
               </div>
@@ -106,7 +108,7 @@ const PasswordStep = ({
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  © 2025 DragBizz. All rights reserved.
+                  {t('auth.copyright')}
                 </p>
               </div>
             </div>
@@ -124,7 +126,7 @@ const PasswordStep = ({
                   <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  DragBizz Store
+                  {t('auth.dragBizzStore')}
                 </h1>
               </div>
 
@@ -134,10 +136,10 @@ const PasswordStep = ({
                   <Lock className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  Secure your account, {firstName}! 🔒
+                  {t('auth.secureAccountFirstName', { firstName })}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  Choose a strong password to keep your data safe
+                  {t('auth.chooseStrongPasswordSafe')}
                 </p>
                 
                 {/* Progress Indicator */}
@@ -154,7 +156,7 @@ const PasswordStep = ({
                     3
                   </div>
                 </div>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">Step 2 of 3</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">{t('auth.step2Of3')}</p>
               </div>
 
               {/* Error Display */}
@@ -173,7 +175,7 @@ const PasswordStep = ({
                 <div>
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a strong password"
+                    placeholder={t('auth.createStrongPassword')}
                     value={password}
                     onChange={(value) => onUpdate('password', value)}
                     leftIcon={Lock}
@@ -197,14 +199,14 @@ const PasswordStep = ({
                   {password && (
                     <div className="mt-2 sm:mt-3">
                       <div className="flex items-center justify-between mb-1 sm:mb-2">
-                        <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">Password strength</span>
+                        <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">{t('auth.passwordStrengthLabel')}</span>
                         <span className={`text-xs sm:text-sm font-semibold capitalize ${
                           passwordStrength.color === 'red' ? 'text-red-500' :
                           passwordStrength.color === 'yellow' ? 'text-yellow-500' :
                           passwordStrength.color === 'blue' ? 'text-blue-500' :
                           'text-green-500'
                         }`}>
-                          {passwordStrength.strength}
+                          {t(`auth.${passwordStrength.strength}`)}
                         </span>
                       </div>
                       <div className="w-full bg-[rgb(var(--color-bg-tertiary))] rounded-full h-1.5 sm:h-2">
@@ -227,7 +229,7 @@ const PasswordStep = ({
                   <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-3 sm:p-4">
                     <div className="flex items-center mb-2 sm:mb-3">
                       <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[rgb(var(--color-primary))] mr-2" />
-                      <span className="font-semibold text-xs sm:text-sm text-[rgb(var(--color-text-primary))]">Security Tips:</span>
+                      <span className="font-semibold text-xs sm:text-sm text-[rgb(var(--color-text-primary))]">{t('auth.securityTips')}</span>
                     </div>
                     <div className="space-y-1.5 sm:space-y-2">
                       {strengthChecks.map((check, index) => (
@@ -257,7 +259,7 @@ const PasswordStep = ({
                     fullWidth
                     className="sm:w-auto"
                   >
-                    Back
+                    {t('auth.back')}
                   </Button>
                   
                   <Button
@@ -270,7 +272,7 @@ const PasswordStep = ({
                     fullWidth
                     className="sm:w-auto shadow-md hover:shadow-lg"
                   >
-                    {isLoading ? 'Creating Account...' : 'Continue'}
+                    {isLoading ? t('auth.creatingAccount') : t('auth.continue')}
                   </Button>
                 </div>
               </form>

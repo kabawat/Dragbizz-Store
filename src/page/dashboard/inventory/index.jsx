@@ -7,6 +7,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Import inventory components
 import { InventoryTable, InventoryCard } from '@/components/inventory';
@@ -17,6 +18,7 @@ import inventoryService from '@/service/retailer/inventory.service';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
 const InventoryPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showSuccess, showError } = useGlobalToast();
@@ -258,7 +260,7 @@ const InventoryPage = () => {
       setShowDeleteModal(false);
       setInventoryToDelete(null);
     } catch (error) {
-      showError('Failed to delete stock. Please try again.');
+      showError(t('common.failedToLoad'));
     } finally {
       setIsDeleting(false);
     }
@@ -279,7 +281,7 @@ const InventoryPage = () => {
       {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Stock" description="Manage your store stock levels and inventory" />
+        <Header title={t('inventory.title')} description={t('inventory.description')} />
 
         {/* Main content */}
         <div className="flex-1 p-5">
@@ -291,10 +293,10 @@ const InventoryPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Stock...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your stock
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -309,7 +311,7 @@ const InventoryPage = () => {
                   <div className="w-100">
                     <Input
                       type="text"
-                      placeholder="Search stock..."
+                      placeholder={`${t('common.search')} ${t('inventory.title').toLowerCase()}...`}
                       value={searchValue}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -329,19 +331,19 @@ const InventoryPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
                     <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
-                      Add Stock
+                      {t('inventory.addStock')}
                     </Button>
                   </div>
                 </div>
@@ -356,14 +358,14 @@ const InventoryPage = () => {
                     <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No stock found
+                    {t('common.noData')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    Get started by adding your first stock item to track inventory levels and manage your products.
+                    {t('inventory.description')}
                   </p>
                   <div className="pt-4">
                     <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
-                      Add Stock
+                      {t('inventory.addStock')}
                     </Button>
                   </div>
                 </div>
@@ -387,7 +389,7 @@ const InventoryPage = () => {
                         hasMore={hasMore}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
-                        emptyMessage="No stock found. Add your first stock item to get started."
+                        emptyMessage={t('common.noData')}
                       />
                     </div>
                   ) : (

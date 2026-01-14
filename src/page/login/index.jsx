@@ -10,8 +10,10 @@ import { handleApiError } from '@/utils/errorHandler';
 import LoginSuccessScreen from '@/components/auth/LoginSuccessScreen';
 import Link from 'next/link';
 import styles from '../style/Login.module.scss';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Login() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams?.get('redirect') || '/dashboard';
   const { userLocation } = useLocation();
@@ -121,36 +123,36 @@ export default function Login() {
     const newErrors = {};
 
     if (!formData.contact.trim()) {
-      newErrors.contact = 'Email or phone number is required';
+      newErrors.contact = t('auth.emailOrPhoneRequired');
     } else if (contactType === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.contact)) {
-        newErrors.contact = 'Please enter a valid email address';
+        newErrors.contact = t('auth.validEmailRequired');
       }
     } else if (contactType === 'phone') {
       const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
       const cleanPhone = formData.contact.replace(/\D/g, '');
 
       if (!phoneRegex.test(formData.contact)) {
-        newErrors.contact = 'Please enter a valid phone number';
+        newErrors.contact = t('auth.validPhoneRequired');
       } else if (cleanPhone.length < 10) {
-        newErrors.contact = 'Phone number must be at least 10 digits';
+        newErrors.contact = t('auth.phoneMinDigits');
       } else if (cleanPhone.length > 15) {
-        newErrors.contact = 'Phone number is too long';
+        newErrors.contact = t('auth.phoneTooLong');
       }
     }
 
     if (loginMethod === 'password') {
       if (!formData.password.trim()) {
-        newErrors.password = 'Password is required';
+        newErrors.password = t('auth.passwordRequired');
       } else if (formData.password.length < 6) {
-        newErrors.password = 'Password must be at least 6 characters';
+        newErrors.password = t('auth.passwordMinLength');
       }
     } else if (loginMethod === 'otp') {
       if (!formData.otp.trim()) {
-        newErrors.otp = 'OTP is required';
+        newErrors.otp = t('auth.otpRequired');
       } else if (formData.otp.length !== 5) {
-        newErrors.otp = 'OTP must be 5 digits';
+        newErrors.otp = t('auth.otpMustBe5Digits');
       }
     }
 
@@ -188,7 +190,7 @@ export default function Login() {
           setShowSuccessScreen(true);
         }
       } else {
-        setErrors({ general: result.message || 'Login failed. Please try again.' });
+        setErrors({ general: result.message || t('auth.loginFailed') });
       }
     } catch (error) {
       setErrors({ general: handleApiError(error, 'login') });
@@ -199,7 +201,7 @@ export default function Login() {
 
   const handleSendOTP = async () => {
     if (!formData.contact.trim()) {
-      setErrors({ contact: 'Email or phone number is required' });
+      setErrors({ contact: t('auth.emailOrPhoneRequired') });
       return;
     }
 
@@ -241,7 +243,7 @@ export default function Login() {
         }, 100);
       } else {
         setOtpSent(false);
-        const errorMessage = result.message || result.error?.message || 'Failed to send OTP. Please try again.';
+        const errorMessage = result.message || result.error?.message || t('auth.failedToSendOtp');
         setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
       }
     } catch (error) {
@@ -289,7 +291,7 @@ export default function Login() {
     }
 
     if (!loginToken) {
-      setErrors(prev => ({ ...prev, otp: 'OTP session expired. Please request a new OTP.' }));
+      setErrors(prev => ({ ...prev, otp: t('auth.otpSessionExpired') }));
       setOtpSent(false);
       setOtpDigits(['', '', '', '', '']);
       return;
@@ -319,12 +321,12 @@ export default function Login() {
           });
           setShowSuccessScreen(true);
         } else {
-          setErrors(prev => ({ ...prev, otp: 'Login successful but token not received. Please try again.' }));
+          setErrors(prev => ({ ...prev, otp: t('auth.loginSuccessfulButTokenNotReceived') }));
           setOtpDigits(['', '', '', '', '']);
           inputRefs.current[0]?.focus();
         }
       } else {
-        setErrors(prev => ({ ...prev, otp: result.message || 'Invalid OTP. Please try again.' }));
+        setErrors(prev => ({ ...prev, otp: result.message || t('auth.invalidOtp') }));
         setOtpDigits(['', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
@@ -369,7 +371,7 @@ export default function Login() {
       if (result.success) {
         const token = result.data?.token;
         if (!token) {
-          setErrors(prev => ({ ...prev, otp: 'Failed to receive verification token. Please try again.' }));
+          setErrors(prev => ({ ...prev, otp: t('auth.failedToReceiveVerificationToken') }));
           return;
         }
         setLoginToken(token);
@@ -379,7 +381,7 @@ export default function Login() {
         setErrors(prev => ({ ...prev, otp: '' }));
         inputRefs.current[0]?.focus();
       } else {
-        setErrors(prev => ({ ...prev, otp: result.message || 'Failed to resend OTP. Please try again.' }));
+        setErrors(prev => ({ ...prev, otp: result.message || t('auth.failedToResendOtp') }));
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-resend') }));
@@ -436,10 +438,10 @@ export default function Login() {
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  Welcome to DragBizz Store
+                  {t('auth.welcomeToDragBizz')}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  Manage your store with powerful tools and insights
+                  {t('auth.manageStoreWithPowerfulTools')}
                 </p>
               </div>
 
@@ -449,8 +451,8 @@ export default function Login() {
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Powerful Management</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Complete control over inventory, orders, and customers</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.powerfulManagement')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.completeControl')}</p>
                   </div>
                 </div>
 
@@ -459,8 +461,8 @@ export default function Login() {
                     <BarChart3 className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Analytics & Insights</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Track performance with real-time analytics</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.analyticsInsights')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.trackPerformance')}</p>
                   </div>
                 </div>
 
@@ -469,15 +471,15 @@ export default function Login() {
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Secure Access</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Enterprise-grade security for your store operations</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureAccess')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseSecurity')}</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  © 2025 DragBizz. All rights reserved.
+                  {t('auth.copyright')}
                 </p>
               </div>
             </div>
@@ -492,7 +494,7 @@ export default function Login() {
                   <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  DragBizz Store
+                  {t('auth.dragBizzStore')}
                 </h1>
               </div>
 
@@ -501,10 +503,10 @@ export default function Login() {
                   <Lock className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  Welcome back! 👋
+                  {t('auth.welcomeBack')}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  Sign in to your account to continue
+                  {t('auth.signInToContinue')}
                 </p>
               </div>
 
@@ -520,12 +522,12 @@ export default function Login() {
                         {contactType === 'email' ? (
                           <>
                             <Mail className="w-3 h-3 mr-1" />
-                            Email
+                            {t('auth.email')}
                           </>
                         ) : (
                           <>
                             <Phone className="w-3 h-3 mr-1" />
-                            Phone
+                            {t('auth.phone')}
                           </>
                         )}
                       </div>
@@ -537,9 +539,9 @@ export default function Login() {
                 {!otpSent && (
                   <div>
                     <Input
-                      label="Enter your email or phone number"
+                      label={t('auth.enterEmailOrPhone')}
                       type={contactType === 'email' ? 'email' : 'tel'}
-                      placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
+                      placeholder={contactType === 'email' ? t('auth.emailPlaceholder') : t('auth.phonePlaceholder')}
                       value={formData.contact}
                       onChange={(value) => handleInputChange('contact', value)}
                       leftIcon={contactType === 'email' ? Mail : Phone}
@@ -569,7 +571,7 @@ export default function Login() {
                       <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                         <p className="text-blue-700 dark:text-blue-300 text-xs flex items-center">
                           <MessageSquare className="w-3 h-3 mr-1" />
-                          Phone detected! Switch to OTP for easier login.
+                          {t('auth.phoneDetected')}
                         </p>
                       </div>
                     )}
@@ -579,13 +581,13 @@ export default function Login() {
                       {validationStatus === 'valid' && (
                         <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
                           <CheckCircle className="w-4 h-4 mr-1" />
-                          Account found
+                          {t('auth.accountFound')}
                         </p>
                       )}
                       {validationStatus === 'invalid' && (
                         <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
                           <AlertCircle className="w-4 h-4 mr-1" />
-                          No account found with this {contactType}
+                          {t('auth.noAccountFound', { type: contactType })}
                         </p>
                       )}
                       {errors.contact && (
@@ -616,7 +618,7 @@ export default function Login() {
                       >
                         <div className="flex items-center justify-center gap-2">
                           <Lock className="w-4 h-4" />
-                          <span>Password</span>
+                          <span>{t('auth.password')}</span>
                         </div>
                       </button>
                       <button
@@ -633,7 +635,7 @@ export default function Login() {
                       >
                         <div className="flex items-center justify-center gap-2">
                           <MessageSquare className="w-4 h-4" />
-                          <span>OTP</span>
+                          <span>{t('auth.otp')}</span>
                         </div>
                       </button>
                     </div>
@@ -645,7 +647,7 @@ export default function Login() {
                   <div>
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                      placeholder={t('auth.enterPassword')}
                       value={formData.password}
                       onChange={(value) => handleInputChange('password', value)}
                       leftIcon={Lock}
@@ -681,12 +683,12 @@ export default function Login() {
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        <span className="text-sm sm:text-base">Sending OTP...</span>
+                        <span className="text-sm sm:text-base">{t('auth.sendingOtp')}</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center">
                         <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        <span className="text-sm sm:text-base">Send OTP to {contactType}</span>
+                        <span className="text-sm sm:text-base">{t('auth.sendOtpTo', { type: contactType })}</span>
                       </div>
                     )}
                   </button>
@@ -705,11 +707,11 @@ export default function Login() {
                       </div>
 
                       <h2 className={styles.otpTitle}>
-                        Almost there! 🎯
+                        {t('auth.almostThere')}
                       </h2>
 
                       <p className={styles.otpDescription}>
-                        We've sent a 5-digit code to
+                        {t('auth.sentCodeTo')}
                       </p>
 
                       <div className={styles.otpContactInfo}>
@@ -719,12 +721,12 @@ export default function Login() {
                               {contactType === 'email' ? (
                                 <>
                                   <Mail className="w-3 h-3 mr-1" />
-                                  Email
+                                  {t('auth.email')}
                                 </>
                               ) : (
                                 <>
                                   <Phone className="w-3 h-3 mr-1" />
-                                  Phone
+                                  {t('auth.phone')}
                                 </>
                               )}
                             </div>
@@ -735,7 +737,7 @@ export default function Login() {
                           <button
                             onClick={handleChangeContact}
                             className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
-                            title="Change contact"
+                            title={t('auth.changeContact')}
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
@@ -747,7 +749,7 @@ export default function Login() {
                       {/* OTP Input */}
                       <div>
                         <label className={styles.otpLabel}>
-                          Enter verification code
+                          {t('auth.enterVerificationCode')}
                         </label>
                         <div className={styles.otpInputs}>
                           {otpDigits.map((digit, index) => (
@@ -780,7 +782,7 @@ export default function Login() {
                         {isLoading && (
                           <div className={styles.otpLoading}>
                             <div className={styles.otpLoadingSpinner}></div>
-                            <span className={styles.otpLoadingText}>Verifying...</span>
+                            <span className={styles.otpLoadingText}>{t('auth.verifying')}</span>
                           </div>
                         )}
                       </div>
@@ -788,7 +790,7 @@ export default function Login() {
                       {/* Resend Section */}
                       <div className={styles.resendSection}>
                         <p className={styles.resendText}>
-                          Didn't receive the code?
+                          {t('auth.didntReceiveCode')}
                         </p>
 
                         {canResend ? (
@@ -798,11 +800,11 @@ export default function Login() {
                             className={styles.resendButton}
                           >
                             <RefreshCw className="w-4 h-4 mr-2" />
-                            Resend Code
+                            {t('auth.resendCode')}
                           </button>
                         ) : (
                           <p className={styles.resendTimer}>
-                            Resend in {timeLeft}s
+                            {t('auth.resendIn', { time: timeLeft })}
                           </p>
                         )}
                       </div>
@@ -830,10 +832,10 @@ export default function Login() {
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        <span className="text-sm sm:text-base">Signing in...</span>
+                        <span className="text-sm sm:text-base">{t('auth.signingIn')}</span>
                       </div>
                     ) : (
-                      <span className="text-sm sm:text-base">Sign In</span>
+                      <span className="text-sm sm:text-base">{t('auth.signIn')}</span>
                     )}
                   </button>
                 )}
@@ -841,12 +843,12 @@ export default function Login() {
 
               <div className="text-center mt-4 sm:mt-6">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-                  Don't have an account?{' '}
+                  {t('auth.dontHaveAccount')}{' '}
                   <Link
                     href="/register"
                     className="text-[rgb(var(--color-primary))] hover:underline font-medium"
                   >
-                    Sign up here
+                    {t('auth.signUpHere')}
                   </Link>
                 </p>
               </div>
@@ -857,7 +859,7 @@ export default function Login() {
                     href="/forgot-password"
                     className="text-xs sm:text-sm text-[rgb(var(--color-primary))] hover:underline"
                   >
-                    Forgot your password?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
               )}

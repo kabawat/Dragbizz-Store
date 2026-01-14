@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supplierService, productService, billService } from '@/service/retailer';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -26,6 +27,7 @@ import { Button, Input, Select, Textarea, Card, Modal } from '@/components/ui';
 import Link from 'next/link';
 
 const EditBill = ({ billId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -150,10 +152,10 @@ const EditBill = ({ billId }) => {
             items: mappedItems
           });
         } else {
-          setFetchError(result.message || 'Failed to fetch bill data');
+          setFetchError(result.message || t('errors.failedToFetchData', { item: t('common.bill') }));
         }
       } catch (error) {
-        setFetchError('Failed to fetch bill data. Please try again.');
+        setFetchError(t('errors.failedToFetchDataTryAgain', { item: t('common.bill') }));
       } finally {
         setFetching(false);
       }
@@ -286,17 +288,17 @@ const EditBill = ({ billId }) => {
     const newErrors = {};
 
     if (!formData.supplier) {
-      newErrors.supplier = 'Please select a supplier';
+      newErrors.supplier = t('errors.selectSupplier');
     }
 
     if (!formData.billDate) {
-      newErrors.billDate = 'Please select a bill date';
+      newErrors.billDate = t('bills.selectBillDate');
     }
 
     // Validate items
     formData.items.forEach((item, index) => {
       if (!item.product) {
-        newErrors[`item_${index}_product`] = 'Please select a product';
+        newErrors[`item_${index}_product`] = t('errors.selectProduct');
       }
       if (!item.quantity || item.quantity <= 0) {
         newErrors[`item_${index}_quantity`] = 'Please enter a valid quantity';
@@ -343,10 +345,10 @@ const EditBill = ({ billId }) => {
         setUpdatedBillNumber(result.data?.billNumber || `Bill-${Date.now()}`);
         setShowSuccessModal(true);
       } else {
-        setUpdateError(result.message || 'Failed to update bill');
+        setUpdateError(result.message || t('errors.failedToUpdate', { item: t('common.bill') }));
       }
     } catch (error) {
-      setUpdateError('An unexpected error occurred while updating the bill');
+      setUpdateError(t('errors.failedToUpdateTryAgain', { item: t('common.bill') }));
     } finally {
       setIsUpdating(false);
     }
@@ -371,8 +373,8 @@ const EditBill = ({ billId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="Edit Bill"
-            description="Update bill information and details"
+            title={t('bills.editBill')}
+            description={t('bills.updateBillInformationAndDetails')}
           />
 
           <div className="flex-1 p-6">
@@ -382,10 +384,10 @@ const EditBill = ({ billId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Bill Data...
+                      {t('modals.loadingData', { item: t('common.bill') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the bill information
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.bill') })}
                     </p>
                   </div>
                 </div>
@@ -405,8 +407,8 @@ const EditBill = ({ billId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="Edit Bill"
-            description="Update bill information and details"
+            title={t('bills.editBill')}
+            description={t('bills.updateBillInformationAndDetails')}
           />
 
           <div className="flex-1 p-6">
@@ -418,10 +420,10 @@ const EditBill = ({ billId }) => {
                       <Receipt className="w-10 h-10 text-red-600" />
                     </div>
                     <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                      Bill Not Found
+                      {t('modals.notFound', { item: t('common.bill') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                      The bill you're trying to edit doesn't exist or has been removed. Please check the bill ID and try again.
+                      {t('common.doesntExistOrRemoved', { item: t('common.bill') })}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <Button
@@ -429,14 +431,14 @@ const EditBill = ({ billId }) => {
                         onClick={() => router.push('/dashboard/bills')}
                         className="px-6 py-3"
                       >
-                        Back to Bills
+                        {t('common.backTo', { item: t('common.bills') })}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => window.location.reload()}
                         className="px-6 py-3"
                       >
-                        Try Again
+                        {t('common.tryAgain')}
                       </Button>
                     </div>
                   </div>
@@ -496,7 +498,7 @@ const EditBill = ({ billId }) => {
                               value={formData.supplier}
                               onChange={(value) => handleInputChange('supplier', value)}
                               options={[
-                                { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
+                                { value: '', label: suppliersLoading ? t('common.loading') : t('errors.selectSupplier') },
                                 ...suppliers.filter(supplier => supplier.name || supplier.supplierName).map(supplier => ({
                                   value: supplier.id || supplier._id,
                                   label: supplier.name || supplier.supplierName
@@ -511,8 +513,8 @@ const EditBill = ({ billId }) => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Bill Date
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to today)</span>
+                              {t('bills.billDate')}
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.defaultsToToday')})</span>
                             </label>
                             <Input
                               type="date"
@@ -525,8 +527,8 @@ const EditBill = ({ billId }) => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              Due Date
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to +30 days)</span>
+                              {t('bills.dueDate')}
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.defaultsTo30Days')})</span>
                             </label>
                             <Input
                               type="date"
@@ -540,8 +542,8 @@ const EditBill = ({ billId }) => {
 
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            Notes
-                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - max 500 characters)</span>
+                            {t('bills.notes')}
+                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.max500Characters')})</span>
                           </label>
                           <Textarea
                             value={formData.notes}
@@ -598,7 +600,7 @@ const EditBill = ({ billId }) => {
                             title="Add new item"
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Item</span>
+                            <span className="text-sm font-medium">{t('bills.addItem')}</span>
                           </button>
                         </div>
 
@@ -607,7 +609,7 @@ const EditBill = ({ billId }) => {
                             <div key={index} className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30">
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  Item {index + 1}
+                                  {t('bills.itemNumber', { number: index + 1 })}
                                 </h4>
                                 {formData.items.length > 1 && (
                                   <button
@@ -617,7 +619,7 @@ const EditBill = ({ billId }) => {
                                     title="Remove item"
                                   >
                                     <Trash2 className="w-3 h-3" />
-                                    <span className="text-xs">Remove</span>
+                                    <span className="text-xs">{t('common.remove')}</span>
                                   </button>
                                 )}
                               </div>
@@ -625,7 +627,7 @@ const EditBill = ({ billId }) => {
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Product *
+                                    {t('common.product')} *
                                   </label>
                                   <Select
                                     value={item.product}
@@ -635,7 +637,7 @@ const EditBill = ({ billId }) => {
                                       handleItemChange(index, 'productName', selectedProduct?.name || '');
                                     }}
                                     options={[
-                                      { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
+                                      { value: '', label: productsLoading ? t('common.loading') : t('errors.selectProduct') },
                                       ...products.map(product => ({
                                         value: product.id || product._id,
                                         label: product.name
@@ -814,17 +816,17 @@ const EditBill = ({ billId }) => {
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              Bill Updated Successfully!
+              {t('success.updatedSuccessfully', { item: t('common.bill') })}!
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              "{updatedBillNumber}" has been updated successfully.
+              "{updatedBillNumber}" {t('success.hasBeenUpdatedSuccessfully')}.
             </p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={handleContinue}>
-                Back to Bills
+                {t('common.backTo', { item: t('common.bills') })}
               </Button>
               <Button variant="primary" onClick={handleViewBill}>
-                View Bill
+                {t('common.view')} {t('common.bill')}
               </Button>
             </div>
           </div>

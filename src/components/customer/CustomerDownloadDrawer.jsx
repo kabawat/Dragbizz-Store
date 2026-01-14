@@ -5,8 +5,10 @@ import { SideDrawer, Select, Button } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -95,19 +97,19 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   // Handle download for predefined periods
   const handlePredefinedDownload = async () => {
     if (!selectedDownloadPeriod) {
-      showError('Please select a time period');
+      showError(t('customers.pleaseSelectTimePeriod'));
       return;
     }
     
     const dateRange = getDateRangePreview(selectedDownloadPeriod);
     if (!dateRange) {
-      showError('Invalid date range');
+      showError(t('customers.invalidDateRange'));
       return;
     }
     
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError('Store ID is missing. Please select a store.');
+      showError(t('suppliers.storeIdMissing'));
       return;
     }
     
@@ -130,20 +132,20 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         const customersData = result.data?.data || result.data || [];
         
         if (customersData.length === 0) {
-          showError('No customers found to download');
+          showError(t('customers.noCustomersFoundToDownload'));
           setIsDownloading(false);
           return;
         }
         
         // Download file
         await downloadCustomersFile(customersData);
-        showSuccess('Customers downloaded successfully');
+        showSuccess(t('customers.customersDownloadedSuccessfully'));
       } else {
-        showError(result.message || 'Failed to download customers');
+        showError(result.message || t('customers.failedToDownloadCustomers'));
       }
     } catch (error) {
       console.error('Download customers error:', error);
-      showError('An error occurred while downloading customers');
+      showError(t('customers.errorDownloadingCustomers'));
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -153,24 +155,24 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   // Handle custom range download
   const handleCustomRangeDownload = async () => {
     if (!customStartDate || !customEndDate) {
-      showError('Please select both start and end dates');
+      showError(t('customers.pleaseSelectBothDates'));
       return;
     }
     
     if (new Date(customEndDate) < new Date(customStartDate)) {
-      showError('End date must be after start date');
+      showError(t('customers.endDateMustBeAfterStart'));
       return;
     }
     
     const dateRange = getCustomDateRangePreview();
     if (!dateRange) {
-      showError('Invalid date range');
+      showError(t('customers.invalidDateRange'));
       return;
     }
     
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError('Store ID is missing. Please select a store.');
+      showError(t('suppliers.storeIdMissing'));
       return;
     }
     
@@ -193,20 +195,20 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         const customersData = result.data?.data || result.data || [];
         
         if (customersData.length === 0) {
-          showError('No customers found to download');
+          showError(t('customers.noCustomersFoundToDownload'));
           setIsDownloading(false);
           return;
         }
         
         // Download file
         await downloadCustomersFile(customersData);
-        showSuccess('Customers downloaded successfully');
+        showSuccess(t('customers.customersDownloadedSuccessfully'));
       } else {
-        showError(result.message || 'Failed to download customers');
+        showError(result.message || t('customers.failedToDownloadCustomers'));
       }
     } catch (error) {
       console.error('Download customers error:', error);
-      showError('An error occurred while downloading customers');
+      showError(t('customers.errorDownloadingCustomers'));
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -222,12 +224,12 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     return customers.map((customer) => {
       return {
         'Store Name': storeName,
-        'Customer Name': customer.name || 'N/A',
-        'Phone': customer.phone || 'N/A',
-        'Email': customer.email || 'N/A',
-        'Address': customer.address || 'N/A',
-        'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : 'N/A',
-        'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : 'N/A'
+        'Customer Name': customer.name || t('common.na'),
+        'Phone': customer.phone || t('common.na'),
+        'Email': customer.email || t('common.na'),
+        'Address': customer.address || t('common.na'),
+        'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : t('common.na'),
+        'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : t('common.na')
       };
     });
   };
@@ -235,7 +237,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   // Export to CSV
   const exportToCSV = (data, filename) => {
     if (!data || data.length === 0) {
-      showError('No data to export');
+      showError(t('customers.noDataToExport'));
       return;
     }
 
@@ -272,13 +274,13 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       const XLSX = await import('xlsx');
       
       if (!data || data.length === 0) {
-        showError('No data to export');
+        showError(t('customers.noDataToExport'));
         return;
       }
 
       const worksheet = XLSX.utils.json_to_sheet(data);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
+      XLSX.utils.book_append_sheet(workbook, worksheet, t('customers.customers'));
       
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
@@ -287,7 +289,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       XLSX.writeFile(workbook, finalFilename);
     } catch (error) {
       console.error('XLSX export error:', error);
-      showError('Failed to export as XLSX. Please install xlsx library: npm install xlsx');
+      showError(t('customers.failedToExportAsXlsx'));
       // Fallback to CSV
       exportToCSV(data, filename.replace('.xlsx', '.csv'));
     }
@@ -296,7 +298,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   // Handle file download
   const downloadCustomersFile = async (customers) => {
     if (!customers || customers.length === 0) {
-      showError('No customers to download');
+      showError(t('customers.noCustomersToDownload'));
       return;
     }
 
@@ -322,25 +324,25 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title="Download Customers"
+      title={t('customers.downloadCustomers')}
       icon={Download}
-      description="Select a time period to download customers"
+      description={t('customers.selectTimePeriodToDownloadCustomers')}
       width="w-full md:w-[500px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Select Time Period
+              {t('customers.selectTimePeriod')}
             </label>
             <Select
-              placeholder="Select a time period"
+              placeholder={t('customers.selectATimePeriod')}
               options={[
-                { label: 'Last 1 Month', value: '1month' },
-                { label: 'Last 3 Months', value: '3months' },
-                { label: 'Last 6 Months', value: '6months' },
-                { label: 'Last 12 Months', value: '12months' },
-                { label: 'Custom Range', value: 'custom' }
+                { label: t('customers.last1Month'), value: '1month' },
+                { label: t('customers.last3Months'), value: '3months' },
+                { label: t('customers.last6Months'), value: '6months' },
+                { label: t('customers.last12Months'), value: '12months' },
+                { label: t('customers.customRange'), value: 'custom' }
               ]}
               value={selectedDownloadPeriod}
               onChange={handleDownloadPeriodChange}
@@ -352,13 +354,13 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                Download Format
+                {t('customers.downloadFormat')}
               </label>
               <Select
-                placeholder="Select format"
+                placeholder={t('customers.selectFormat')}
                 options={[
-                  { label: 'Excel (XLSX)', value: 'xlsx' },
-                  { label: 'CSV', value: 'csv' }
+                  { label: t('customers.excelXlsx'), value: 'xlsx' },
+                  { label: t('customers.csv'), value: 'csv' }
                 ]}
                 value={downloadFormat}
                 onChange={setDownloadFormat}
@@ -373,7 +375,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
               {/* Start Date */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Start Date
+                  {t('customers.startDate')}
                 </label>
                 <input
                   type="date"
@@ -386,7 +388,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
               {/* End Date */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  End Date
+                  {t('customers.endDate')}
                 </label>
                 <input
                   type="date"
@@ -413,14 +415,14 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
-                    Date Range
+                    {t('customers.dateRange')}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {/* From Column */}
                   <div className="space-y-1">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      From
+                      {t('customers.from')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.start}
@@ -429,7 +431,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                   {/* To Column */}
                   <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      To
+                      {t('customers.to')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.end}
@@ -450,7 +452,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={!customStartDate || !customEndDate || isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? 'Downloading...' : 'Download'}
+                  {isDownloading ? t('customers.downloading') : t('customers.downloadButton')}
                 </Button>
               ) : (
                 <Button 
@@ -459,7 +461,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? 'Downloading...' : 'Download'}
+                  {isDownloading ? t('customers.downloading') : t('customers.downloadButton')}
                 </Button>
               )}
             </div>

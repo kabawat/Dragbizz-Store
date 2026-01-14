@@ -12,6 +12,7 @@ import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
 const EditCustomerPage = ({ customerId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -75,10 +76,10 @@ const EditCustomerPage = ({ customerId }) => {
             addresses: addresses
           });
         } else {
-          setError(result.message || 'Failed to fetch customer data');
+          setError(result.message || t('customers.errorLoading'));
         }
       } catch (error) {
-        setError('Failed to fetch customer data. Please try again.');
+        setError(t('customers.errorLoading'));
       } finally {
         setFetching(false);
       }
@@ -162,7 +163,7 @@ const EditCustomerPage = ({ customerId }) => {
         if (result?.error && result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         } else {
-          setError(result.message || 'Failed to update customer');
+          setError(result.message || t('errors.failedToUpdate', { item: t('common.customer') }));
         }
       }
 
@@ -172,10 +173,10 @@ const EditCustomerPage = ({ customerId }) => {
         if (errorData.data && errorData.data.fields) {
           setFieldErrors(errorData.data.fields);
         } else {
-          setError(errorData.message || 'Failed to update customer');
+          setError(errorData.message || t('errors.failedToUpdate', { item: t('common.customer') }));
         }
       } else {
-        setError('Failed to update customer. Please try again.');
+        setError(t('errors.failedToUpdateTryAgain', { item: t('common.customer') }));
       }
     } finally {
       setLoading(false);
@@ -205,8 +206,8 @@ const EditCustomerPage = ({ customerId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="Edit Customer"
-            description="Update customer information"
+            title={t('customers.editCustomer')}
+            description={t('customers.editCustomerDescription')}
           />
 
           <div className="flex-1 p-6">
@@ -216,10 +217,10 @@ const EditCustomerPage = ({ customerId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Customer Data...
+                      {t('modals.loadingData', { item: t('common.customer') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the customer information
+                      {t('common.loadingData')}
                     </p>
                   </div>
                 </div>
@@ -239,7 +240,7 @@ const EditCustomerPage = ({ customerId }) => {
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header title="Edit Customer" description="Update customer information and details" />
+        <Header title={t('customers.editCustomer')} description={t('customers.editCustomerDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -248,7 +249,7 @@ const EditCustomerPage = ({ customerId }) => {
             <div className="mb-6">
               <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Customers</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.customers') })}</span>
               </Link>
             </div>
 
@@ -367,10 +368,10 @@ const EditCustomerPage = ({ customerId }) => {
           onContinue={handleContinue}
           onAddMore={handleEditMore}
           customerName={updatedCustomerName}
-          title="🎉 Supplier Updated Successfully!"
-          continueText="Back to Customers"
-          addMoreText="Add More Customers"
-          description="Your customer information has been updated and saved"
+          title={t('customers.updateSuccess')}
+          continueText={t('customers.backToCustomers')}
+          addMoreText={t('customers.addMoreCustomers')}
+          description={t('customers.updateSuccessDescription')}
           isEditMode={true}
         />
       )}

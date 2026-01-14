@@ -2,6 +2,7 @@
 import { Edit2, Globe, Clock, Calendar, DollarSign } from 'lucide-react';
 import { Select, Toggle } from '@/components/ui';
 import AccountPreferencesCard from './AccountPreferencesCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AccountPreferencesSection = ({ 
   settings, 
@@ -9,11 +10,12 @@ const AccountPreferencesSection = ({
   onEditClick,
   onChange 
 }) => {
+  const { t } = useTranslation();
   const languageOptions = [
-    { value: 'en', label: 'English' },
-    { value: 'hi', label: 'Hindi' },
-    { value: 'es', label: 'Spanish' },
-    { value: 'fr', label: 'French' }
+    { value: 'en', label: t('settings.languages.english') },
+    { value: 'hi', label: t('settings.languages.hindi') },
+    { value: 'es', label: t('settings.languages.spanish') },
+    { value: 'fr', label: t('settings.languages.french') }
   ];
 
   const timezoneOptions = [
@@ -50,43 +52,43 @@ const AccountPreferencesSection = ({
     return (
       <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Account Preferences</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('settings.accountPreferences')}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Select
-            label="Language"
+            label={t('settings.language')}
             value={settings.language}
             onChange={(value) => onChange('language', value)}
             options={languageOptions}
-            placeholder="Select language"
+            placeholder={t('settings.selectLanguage')}
             size="md"
           />
 
           <Select
-            label="Timezone"
+            label={t('settings.timezone')}
             value={settings.timezone}
             onChange={(value) => onChange('timezone', value)}
             options={timezoneOptions}
-            placeholder="Select timezone"
+            placeholder={t('settings.selectTimezone')}
             size="md"
           />
 
           <Select
-            label="Date Format"
+            label={t('settings.dateFormat')}
             value={settings.dateFormat}
             onChange={(value) => onChange('dateFormat', value)}
             options={dateFormatOptions}
-            placeholder="Select date format"
+            placeholder={t('settings.selectDateFormat')}
             size="md"
           />
 
           <Select
-            label="Currency"
+            label={t('settings.currency')}
             value={settings.currency}
             onChange={(value) => onChange('currency', value)}
             options={currencyOptions}
-            placeholder="Select currency"
+            placeholder={t('settings.selectCurrency')}
             size="md"
           />
         </div>
@@ -94,9 +96,9 @@ const AccountPreferencesSection = ({
         <div className="mt-6 pt-6 border-t border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Auto Save</p>
+              <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.autoSave')}</p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                Automatically save your changes
+                {t('settings.autoSaveDescription')}
               </p>
             </div>
             <Toggle
@@ -112,13 +114,13 @@ const AccountPreferencesSection = ({
   return (
     <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Account Preferences</h3>
+        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('settings.accountPreferences')}</h3>
         <button
           onClick={onEditClick}
           className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg"
         >
           <Edit2 className="w-4 h-4" />
-          Edit Preferences
+          {t('settings.editPreferences')}
         </button>
       </div>
 
@@ -126,25 +128,25 @@ const AccountPreferencesSection = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <AccountPreferencesCard
           icon="language"
-          label="Language"
+          label={t('settings.language')}
           value={getDisplayValue('language')}
         />
 
         <AccountPreferencesCard
           icon="timezone"
-          label="Timezone"
+          label={t('settings.timezone')}
           value={getDisplayValue('timezone')}
         />
 
         <AccountPreferencesCard
           icon="dateFormat"
-          label="Date Format"
+          label={t('settings.dateFormat')}
           value={getDisplayValue('dateFormat')}
         />
 
         <AccountPreferencesCard
           icon="currency"
-          label="Currency"
+          label={t('settings.currency')}
           value={getDisplayValue('currency')}
         />
       </div>
@@ -153,14 +155,14 @@ const AccountPreferencesSection = ({
       <div className="mt-6 pt-6 border-t border-[rgb(var(--color-border-primary))]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Auto Save</p>
+            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.autoSave')}</p>
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              Automatically save your changes
+              {t('settings.autoSaveDescription')}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <span className={`text-sm ${settings.autoSave ? 'text-[rgb(var(--color-primary))]' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
-              {settings.autoSave ? 'Enabled' : 'Disabled'}
+              {settings.autoSave ? t('common.enabled') : t('common.disabled')}
             </span>
           </div>
         </div>

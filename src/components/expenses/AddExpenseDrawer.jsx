@@ -9,8 +9,10 @@ import { SideDrawer, ToastContainer, ErrorModal, Button } from '@/components/ui'
 import { QuotaExceededModal } from '@/components/common';
 import { ExpenseForm } from '@/components/expenses';
 import { Save, Receipt } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { isCreating, error: expenseError } = useAppSelector((state) => state.expenses);
@@ -37,8 +39,8 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
       const quotaData = quota || {};
       setQuotaError({
         message: quota.remaining === 0 
-          ? `Daily limit reached. You have used all ${quota.limit} expenses for today. Please try again tomorrow or upgrade your plan.`
-          : 'Quota exceeded. Please upgrade your plan to continue.',
+          ? t('expenses.dailyLimitReached', { limit: quota.limit })
+          : t('quota.quotaExceeded'),
         quota: quotaData,
         resetTime: quota.usageType === 'DAILY_FIXED' 
           ? 'tomorrow' 
@@ -65,7 +67,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
       
       if (result.payload?.success) {
         // Show success toast
-        showSuccess('Expense created successfully!');
+        showSuccess(t('expenses.createSuccess'));
         // Close drawer
         onClose();
         // Call onSuccess callback if provided
@@ -86,7 +88,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.payload?.message || errorData.message || 'Quota exceeded',
+            message: result.payload?.message || errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -98,8 +100,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
           if (Object.keys(fieldErrors).length > 0) {
             // Field errors will be handled by the form component
           } else {
-            // Show error modal for general errors
-            setErrorMessage(result.payload?.message || 'Failed to create expense. Please try again.');
+            setErrorMessage(result.payload?.message || t('expenses.createError'));
             setShowErrorModal(true);
           }
         }
@@ -113,7 +114,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
         if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
           const quotaData = errorData.data || {};
           setQuotaError({
-            message: errorData.message || 'Quota exceeded',
+            message: errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -125,13 +126,13 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
           if (Object.keys(fieldErrors).length > 0) {
             // Field errors will be handled by the form component
           } else {
-            setErrorMessage(errorData.message || 'An error occurred while creating the expense. Please try again.');
+            setErrorMessage(errorData.message || t('expenses.createError'));
             setShowErrorModal(true);
           }
         }
       } else {
         // Handle other types of errors
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('common.error'));
         setShowErrorModal(true);
       }
     } finally {
@@ -149,9 +150,9 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
       <SideDrawer
         isOpen={isOpen}
         onClose={handleClose}
-        title="Add New Expense"
+        title={t('expenses.addNewExpense')}
         icon={Receipt}
-        description="Record a new expense transaction"
+        description={t('expenses.recordNewExpense')}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -181,7 +182,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                Save Expense
+                {t('expenses.saveExpense')}
               </Button>
               <Button 
                 variant="outline" 
@@ -190,7 +191,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </div>
@@ -204,7 +205,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title="Error"
+        title={t('common.error')}
         message={errorMessage}
       />
 
@@ -215,7 +216,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message || 'Quota exceeded. Please upgrade your plan to continue.'}
+        message={quotaError?.message || t('quota.quotaExceeded')}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}

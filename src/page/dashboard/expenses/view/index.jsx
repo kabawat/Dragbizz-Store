@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ArrowLeft, Calendar, IndianRupee, Building, FileText, Edit, Trash2, CheckCircle, Hash, Phone, Mail, CreditCard } from 'lucide-react';
 import moment from 'moment';
 
@@ -20,6 +21,7 @@ import {
 } from '@/data/constants/expenses';
 
 const ViewExpensePage = ({ expenseId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -449,10 +451,10 @@ const ViewExpensePage = ({ expenseId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Expense Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.expense') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedExpenseName}" has been removed from your expense list.
+                {t('common.hasBeenRemovedFromList', { name: deletedExpenseName, item: t('common.expenses') })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Expenses

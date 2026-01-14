@@ -13,8 +13,10 @@ import {
     Trash2
 } from 'lucide-react';
 import { Button, Input, Select, Textarea, Card, AddActionButton } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
+    const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
 
     const [formData, setFormData] = useState({
@@ -54,7 +56,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                 ...prev,
                 supplierId: bill.supplier?._id || bill.supplier?.id || '',
                 billId: bill._id || bill.id || '',
-                notes: `Payment for ${bill.billNumber || bill.bill_id}`,
+                notes: `${t('payments.paymentReference')}: ${bill.billNumber || bill.bill_id}`,
                 paymentMethods: [{
                     amount: bill.dueAmount || Math.max((bill.totalAmount || 0) - (bill.paidAmount || 0), 0),
                     method: 'cash',
@@ -138,28 +140,28 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
         // Validate payment methods
         if (!formData.paymentMethods || formData.paymentMethods.length === 0) {
-            newErrors.paymentMethods = 'At least one payment method is required';
+            newErrors.paymentMethods = t('errors.atLeastOnePaymentMethodRequired');
         } else {
             formData.paymentMethods.forEach((method, index) => {
                 // Validate amount
                 if (!method.amount || method.amount <= 0) {
-                    newErrors[`paymentMethods[${index}].amount`] = 'Amount must be greater than 0';
+                    newErrors[`paymentMethods[${index}].amount`] = t('errors.amountMustBeGreaterThanZero');
                 }
 
                 // Validate method-specific fields
                 switch (method.method) {
                     case 'BANK_TRANSFER':
                         if (!method.bankName) {
-                            newErrors[`paymentMethods[${index}].bankName`] = 'Bank name is required';
+                            newErrors[`paymentMethods[${index}].bankName`] = t('errors.bankNameRequired');
                         }
                         if (!method.accountNumber) {
-                            newErrors[`paymentMethods[${index}].accountNumber`] = 'Account number is required';
+                            newErrors[`paymentMethods[${index}].accountNumber`] = t('errors.accountNumberRequired');
                         }
                         if (!method.ifscCode) {
-                            newErrors[`paymentMethods[${index}].ifscCode`] = 'IFSC code is required';
+                            newErrors[`paymentMethods[${index}].ifscCode`] = t('errors.ifscCodeRequired');
                         }
                         if (!method.holderName) {
-                            newErrors[`paymentMethods[${index}].holderName`] = 'Holder name is required';
+                            newErrors[`paymentMethods[${index}].holderName`] = t('errors.holderNameRequired');
                         }
                         break;
 
@@ -218,13 +220,13 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
             const result = await paymentService.createPayment(paymentData);
 
             if (result.success) {
-                setCreatedPaymentNumber(result.data?.paymentNumber || 'Payment');
+                setCreatedPaymentNumber(result.data?.paymentNumber || t('payments.payment'));
                 setShowSuccessModal(true);
             } else {
-                setErrors({ general: result.message || 'Failed to create payment' });
+                setErrors({ general: result.message || t('payments.failedToCreatePayment') });
             }
         } catch (error) {
-            setErrors({ general: 'Failed to create payment. Please try again.' });
+            setErrors({ general: t('payments.failedToCreatePayment') });
         } finally {
             setLoading(false);
         }
@@ -276,9 +278,9 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
             <SideDrawer 
                 isOpen={isOpen && !showSuccessModal} 
                 onClose={handleCancel} 
-                title="Pay Bill" 
+                title={t('bills.payBill')} 
                 icon={CreditCard}
-                description="Record payment for the selected bill"
+                description={t('payments.createNewPaymentDescription')}
                 width="w-full sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5" 
             >
                 <div className="flex flex-col h-full">
@@ -295,26 +297,26 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                     <div className="px-0 sm:px-2 py-3 sm:py-4 border-b border-[rgb(var(--color-border-primary))]">
                             <div className="flex items-center mb-3">
                                 <Building2 className="w-4 h-4 mr-2 text-[rgb(var(--color-text-secondary))]" />
-                                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Bill Details</h3>
+                                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t('bills.billDetails')}</h3>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-[rgb(var(--color-text-secondary))]">Bill Number:</span>
-                                    <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bill?.billNumber || bill?.bill_id || 'N/A'}</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">{t('bills.billNumber')}:</span>
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))]">{bill?.billNumber || bill?.bill_id || t('common.na')}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[rgb(var(--color-text-secondary))]">Total Amount:</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">{t('payments.totalAmount')}:</span>
                                     <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill?.totalAmount || 0)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[rgb(var(--color-text-secondary))]">Supplier:</span>
-                                    <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate ml-2">{bill?.supplier?.name || 'N/A'}</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">{t('bills.supplier')}:</span>
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate ml-2">{bill?.supplier?.name || t('common.na')}</span>
                                 </div>
 
                                 <div className="flex justify-between">
-                                    <span className="text-[rgb(var(--color-text-secondary))]">Due Amount:</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">{t('bills.due')}:</span>
                                     <span className="font-bold text-[rgb(var(--color-danger))] text-base">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill?.dueAmount || Math.max((bill?.totalAmount || 0) - (bill?.paidAmount || 0), 0))}
                                     </span>
@@ -326,11 +328,11 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                                     <CreditCard className="w-5 h-5 mr-2 text-[rgb(var(--color-success))]" />
-                                    Payment Methods
+                                    {t('payments.paymentMethods')}
                                 </h3>
                                 <AddActionButton
                                     onClick={addPaymentMethod}
-                                    label="Add Method"
+                                    label={t('payments.addPaymentMethod')}
                                     Icon={Plus}
                                     size="sm"
                                     variant="success"
@@ -340,12 +342,12 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         {formData.paymentMethods.map((method, index) => (
                             <div key={index} className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 sm:p-4 mb-4 group">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-rimary))]">Payment Method {index + 1}</h4>
+                                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-rimary))]">{t('payments.paymentMethodNumber', { number: index + 1 })}</h4>
                                         {formData.paymentMethods.length > 1 && (
                                             <button
                                                 onClick={() => removePaymentMethod(index)}
                                                 className="opacity-0 group-hover:opacity-100 p-2 hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all cursor-pointer"
-                                                title="Remove Payment Method"
+                                                title={t('payments.removePaymentMethod')}
                                             >
                                                 <Trash2 className="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-danger))] transition-colors" />
                                             </button>
@@ -362,7 +364,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                 type="number"
                                                 value={method.amount}
                                                 onChange={(value) => handlePaymentMethodChange(index, 'amount', value || '')}
-                                                placeholder="Enter amount"
+                                                placeholder={t('purchaseOrders.enterAmount')}
                                                 error={errors[`paymentMethods[${index}].amount`]}
                                             />
                                         </div>
@@ -396,7 +398,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.bankName}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
-                                                        placeholder="Enter bank name"
+                                                        placeholder={t('payments.enterBankName')}
                                                         error={errors[`paymentMethods[${index}].bankName`]}
                                                     />
                                                 </div>
@@ -408,7 +410,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.accountNumber}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
-                                                        placeholder="Enter account number"
+                                                        placeholder={t('payments.enterAccountNumber')}
                                                         error={errors[`paymentMethods[${index}].accountNumber`]}
                                                     />
                                                 </div>
@@ -420,7 +422,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.ifscCode}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
-                                                        placeholder="Enter IFSC code"
+                                                        placeholder={t('payments.enterIfscCode')}
                                                         error={errors[`paymentMethods[${index}].ifscCode`]}
                                                     />
                                                 </div>
@@ -432,7 +434,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.holderName}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
-                                                        placeholder="Enter holder name"
+                                                        placeholder={t('payments.enterAccountHolderName')}
                                                         error={errors[`paymentMethods[${index}].holderName`]}
                                                     />
                                                 </div>
@@ -450,7 +452,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.upiId}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
-                                                        placeholder="Enter UPI ID"
+                                                        placeholder={t('payments.enterUpiId')}
                                                         error={errors[`paymentMethods[${index}].upiId`]}
                                                     />
                                                 </div>
@@ -462,7 +464,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.transactionId}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
-                                                        placeholder="Enter transaction ID"
+                                                        placeholder={t('payments.enterTransactionId')}
                                                         error={errors[`paymentMethods[${index}].transactionId`]}
                                                     />
                                                 </div>
@@ -480,7 +482,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.chequeNumber}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
-                                                        placeholder="Enter cheque number"
+                                                        placeholder={t('payments.enterChequeNumber')}
                                                         error={errors[`paymentMethods[${index}].chequeNumber`]}
                                                     />
                                                 </div>
@@ -493,7 +495,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.chequeDate}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'chequeDate', value)}
-                                                        placeholder="Enter cheque date"
+                                                        placeholder={t('payments.chequeDate')}
                                                         error={errors[`paymentMethods[${index}].chequeDate`]}
                                                     />
                                                 </div>
@@ -505,7 +507,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.chequeBankName}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
-                                                        placeholder="Enter bank name"
+                                                        placeholder={t('payments.enterBankName')}
                                                         error={errors[`paymentMethods[${index}].chequeBankName`]}
                                                     />
                                                 </div>
@@ -517,7 +519,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                         size="sm"
                                                         value={method.chequeBranchName}
                                                         onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
-                                                        placeholder="Enter branch name"
+                                                        placeholder={t('payments.enterBranchName')}
                                                     />
                                                 </div>
                                             </>
@@ -533,7 +535,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                                                     size="sm"
                                                     value={method.reference}
                                                     onChange={(value) => handlePaymentMethodChange(index, 'reference', value)}
-                                                    placeholder="Enter reference (optional)"
+                                                    placeholder={t('payments.paymentReference')}
                                                 />
                                             </div>
                                         )}
@@ -545,12 +547,12 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                     <div className="px-0 sm:px-2">
                         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                                 <FileText className="w-5 h-5 mr-2" />
-                                Additional Notes
+                                {t('payments.additionalNotes')}
                             </h3>
                             <Textarea
                                 value={formData.notes}
                                 onChange={(value) => handleInputChange('notes', value)}
-                                placeholder="Add any additional notes..."
+                                placeholder={t('payments.additionalNotes')}
                                 rows={4}
                                 maxLength={500}
                                 error={errors.notes}

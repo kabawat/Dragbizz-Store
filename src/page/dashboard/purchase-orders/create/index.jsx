@@ -22,12 +22,13 @@ import { Button, Input, Select, Textarea, Card, Modal, Toggle, AddActionButton, 
 import { AddSupplierDrawer } from '@/components/supplier';
 import { useToast } from '@/hooks/useToast';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const PAYMENT_METHODS = [
-  { value: 'CASH', label: 'Cash' },
-  { value: 'UPI', label: 'UPI' },
-  { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-  { value: 'CHEQUE', label: 'Cheque' }
+const PAYMENT_METHODS = (t) => [
+  { value: 'CASH', label: t('purchaseOrders.cash') },
+  { value: 'UPI', label: t('purchaseOrders.upi') },
+  { value: 'BANK_TRANSFER', label: t('purchaseOrders.bankTransfer') },
+  { value: 'CHEQUE', label: t('purchaseOrders.cheque') }
 ];
 
 const ADDRESS_INIT = {
@@ -54,6 +55,7 @@ const formInit = {
 }
 
 const CreatePurchaseOrder = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -292,11 +294,11 @@ const CreatePurchaseOrder = () => {
 
   const addItem = () => {
     if (!tempProduct) {
-      setErrors(prev => ({ ...prev, add_product: 'Select a product' }));
+      setErrors(prev => ({ ...prev, add_product: t('purchaseOrders.selectAProduct') }));
       return;
     }
     if (!tempQuantity || Number(tempQuantity) <= 0 || !Number.isInteger(Number(tempQuantity))) {
-      setErrors(prev => ({ ...prev, add_quantity: 'Enter a valid integer > 0' }));
+      setErrors(prev => ({ ...prev, add_quantity: t('purchaseOrders.enterValidInteger') }));
       return;
     }
     const selected = products.find(p => (p.id || p._id) === tempProduct);
@@ -366,13 +368,13 @@ const CreatePurchaseOrder = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.supplier) newErrors.supplier = 'Supplier is required';
-    if (formData.note && formData.note.length > 500) newErrors.note = 'Notes cannot exceed 500 characters';
+    if (!formData.supplier) newErrors.supplier = t('purchaseOrders.supplierRequired');
+    if (formData.note && formData.note.length > 500) newErrors.note = t('purchaseOrders.notesCannotExceed500');
 
-    if (!formData.products || formData.products.length === 0) newErrors.items = 'At least one product is required';
+    if (!formData.products || formData.products.length === 0) newErrors.items = t('purchaseOrders.atLeastOneProductRequired');
     formData.products.forEach((item, index) => {
-      if (!item.product) newErrors[`item_${index}_product`] = 'Product is required';
-      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) newErrors[`item_${index}_quantity`] = 'Valid quantity (integer > 0) is required';
+      if (!item.product) newErrors[`item_${index}_product`] = t('purchaseOrders.productRequired');
+      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) newErrors[`item_${index}_quantity`] = t('purchaseOrders.validQuantityRequired');
     });
 
     setErrors(newErrors);
@@ -442,10 +444,10 @@ const CreatePurchaseOrder = () => {
           }
         }, 1500);
       } else {
-        setCreateError(result.message || 'Failed to create purchase order');
+        setCreateError(result.message || t('purchaseOrders.failedToCreatePO'));
       }
     } catch (error) {
-      setCreateError('An unexpected error occurred while creating the purchase order');
+      setCreateError(t('purchaseOrders.unexpectedErrorCreatingPO'));
     } finally {
       setIsCreating(false);
     }
@@ -467,8 +469,8 @@ const CreatePurchaseOrder = () => {
 
       <div className="min-h-screen w-full flex flex-col">
         <Header
-          title="Create Purchase Order"
-          description="Add a new purchase order for suppliers"
+          title={t('purchaseOrders.createPO')}
+          description={t('purchaseOrders.createPODescription')}
         />
 
         <div className="flex-1 p-6">
@@ -477,7 +479,7 @@ const CreatePurchaseOrder = () => {
             <div className="mb-4 w-full mx-auto">
               <Link href="/dashboard/purchase-orders" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 border border-transparent hover:border-[rgb(var(--color-border-primary))]">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Purchase Orders</span>
+                <span className="text-sm font-medium">{t('purchaseOrders.backToPurchaseOrders')}</span>
               </Link>
             </div>
 
@@ -499,52 +501,52 @@ const CreatePurchaseOrder = () => {
                                 <FileText className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
                               </div>
                               <div>
-                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Basic Information</h3>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Essential details for the purchase order</p>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.basicInformation')}</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.essentialDetailsForPO')}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Supplier *</label>
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.supplier')} *</label>
                                 <Select
                                   value={formData.supplier}
                                   onChange={(value) => handleInputChange('supplier', value)}
                                   options={[
-                                    { value: '', label: suppliersLoading ? 'Loading...' : 'Select Supplier' },
+                                    { value: '', label: suppliersLoading ? t('common.loading') : t('purchaseOrders.selectSupplier') },
                                     ...suppliers.filter(s => s.name || s.supplierName).map(s => ({ value: s.id || s._id, label: s.name || s.supplierName })),
-                                    { value: '__add_new_supplier__', label: '+ Add New Supplier', isAddOption: true }
+                                    { value: '__add_new_supplier__', label: `+ ${t('purchaseOrders.addNewSupplier')}`, isAddOption: true }
                                   ]}
                                   error={errors.supplier}
                                   disabled={suppliersLoading}
                                   leftIcon={Building2}
                                   size="sm"
                                   searchable={true}
-                                  placeholder="Choose a supplier"
+                                  placeholder={t('purchaseOrders.chooseSupplier')}
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Payment Due In</label>
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.paymentDueIn')}</label>
                                 <Select
                                   size="sm"
                                   value={formData.paymentBy}
                                   onChange={(value) => handleInputChange('paymentBy', value)}
                                   options={[
-                                    { value: 'COD', label: 'Cash on Delivery' },
-                                    { value: '7_DAYS', label: '7 Days' },
-                                    { value: '15_DAYS', label: '15 Days' },
-                                    { value: '30_DAYS', label: '30 Days' },
-                                    { value: '45_DAYS', label: '45 Days' },
-                                    { value: '60_DAYS', label: '60 Days' },
-                                    { value: '90_DAYS', label: '90 Days' }
+                                    { value: 'COD', label: t('purchaseOrders.cashOnDelivery') },
+                                    { value: '7_DAYS', label: `7 ${t('common.days')}` },
+                                    { value: '15_DAYS', label: `15 ${t('common.days')}` },
+                                    { value: '30_DAYS', label: `30 ${t('common.days')}` },
+                                    { value: '45_DAYS', label: `45 ${t('common.days')}` },
+                                    { value: '60_DAYS', label: `60 ${t('common.days')}` },
+                                    { value: '90_DAYS', label: `90 ${t('common.days')}` }
                                   ]}
                                   leftIcon={Calendar}
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Expected Delivery Date</label>
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.expectedDeliveryDate')}</label>
                                 <Input
                                   type="date"
                                   size="sm"
@@ -552,36 +554,36 @@ const CreatePurchaseOrder = () => {
                                   onChange={(value) => handleInputChange('expectedDeliveryDate', value)}
                                   error={errors.expectedDeliveryDate}
                                   leftIcon={Calendar}
-                                  placeholder="Select delivery date"
+                                  placeholder={t('purchaseOrders.selectDeliveryDate')}
                                   min={new Date().toISOString().split('T')[0]}
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Reference Number</label>
+                                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.referenceNumber')}</label>
                                 <Input
                                   type="text"
                                   size="sm"
                                   value={formData.reference}
                                   onChange={(value) => handleInputChange('reference', value)}
                                   leftIcon={FileText}
-                                  placeholder="Enter reference number"
+                                  placeholder={t('purchaseOrders.enterReferenceNumber')}
                                 />
                               </div>
                             </div>
 
                             <div className="mt-6">
-                              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">Additional Notes</label>
+                              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">{t('purchaseOrders.additionalNotes')}</label>
                               <Textarea
                                 value={formData.note}
                                 onChange={(value) => handleInputChange('note', value)}
-                                placeholder="Add any special instructions or notes for this purchase order..."
+                                placeholder={t('purchaseOrders.addSpecialInstructions')}
                                 rows={3}
                                 leftIcon={FileText}
                                 maxLength={500}
                               />
                               {formData.note && (
-                                <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">{formData.note.length}/500 characters</div>
+                                <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-2 text-right">{formData.note.length}/500 {t('purchaseOrders.characters')}</div>
                               )}
                             </div>
                           </div>
@@ -595,8 +597,8 @@ const CreatePurchaseOrder = () => {
                                 <MapPin className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
                               </div>
                               <div>
-                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Billing & Shipping Addresses</h3>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add billing and shipping information for this order</p>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.billingShippingAddresses')}</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.addBillingShippingInfo')}</p>
                               </div>
                             </div>
 
@@ -609,7 +611,7 @@ const CreatePurchaseOrder = () => {
                                     onClick={() => addAddress('billing')}
                                     leftIcon={Plus}
                                   >
-                                    Add Billing Address
+                                    {t('purchaseOrders.addBillingAddress')}
                                   </Button>
                                 )}
                                 {!showShippingAddress && (
@@ -619,7 +621,7 @@ const CreatePurchaseOrder = () => {
                                     onClick={() => addAddress('shipping')}
                                     leftIcon={Plus}
                                   >
-                                    Add Shipping Address
+                                    {t('purchaseOrders.addShippingAddress')}
                                   </Button>
                                 )}
                               </div>
@@ -628,11 +630,11 @@ const CreatePurchaseOrder = () => {
                                 <div className="border border-[rgb(var(--color-border-primary))]/40 rounded-lg p-4 space-y-4">
                                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                     <div className="flex items-center">
-                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">Billing Address</h3>
+                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.billingAddress')}</h3>
                                     </div>
                                     <div className="flex items-center gap-4">
                                       <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
-                                        <span>Same as store address</span>
+                                        <span>{t('purchaseOrders.sameAsStoreAddress')}</span>
                                         <Toggle
                                           size="sm"
                                           checked={!!formData.billingAddress?.sameAsStore}
@@ -654,8 +656,8 @@ const CreatePurchaseOrder = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
                                       type="text"
-                                      label="Address Line 1"
-                                      placeholder="Enter address line 1"
+                                      label={t('purchaseOrders.addressLine1')}
+                                      placeholder={t('purchaseOrders.enterAddressLine1')}
                                       value={formData.billingAddress?.addressLine1 || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'addressLine1', value)}
                                       className="md:col-span-2"
@@ -663,8 +665,8 @@ const CreatePurchaseOrder = () => {
                                     />
                                     <Input
                                       type="text"
-                                      label="Address Line 2"
-                                      placeholder="Apartment, suite, etc."
+                                      label={t('purchaseOrders.addressLine2')}
+                                      placeholder={t('purchaseOrders.apartmentSuiteEtc')}
                                       value={formData.billingAddress?.addressLine2 || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'addressLine2', value)}
                                       className="md:col-span-2"
@@ -672,40 +674,40 @@ const CreatePurchaseOrder = () => {
                                     />
                                     <Input
                                       type="text"
-                                      label="City"
-                                      placeholder="Enter city"
+                                      label={t('purchaseOrders.city')}
+                                      placeholder={t('purchaseOrders.enterCity')}
                                       value={formData.billingAddress?.city || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'city', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="State"
-                                      placeholder="Enter state"
+                                      label={t('purchaseOrders.state')}
+                                      placeholder={t('purchaseOrders.enterState')}
                                       value={formData.billingAddress?.state || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'state', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Pincode"
-                                      placeholder="Enter pincode"
+                                      label={t('purchaseOrders.pincode')}
+                                      placeholder={t('purchaseOrders.enterPincode')}
                                       value={formData.billingAddress?.pincode || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'pincode', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Country"
-                                      placeholder="Enter country"
+                                      label={t('purchaseOrders.country')}
+                                      placeholder={t('purchaseOrders.enterCountry')}
                                       value={formData.billingAddress?.country || 'India'}
                                       onChange={(value) => handleAddressFieldChange('billing', 'country', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Phone Number"
-                                      placeholder="Contact number"
+                                      label={t('purchaseOrders.phoneNumber')}
+                                      placeholder={t('purchaseOrders.contactNumber')}
                                       value={formData.billingAddress?.phone || ''}
                                       onChange={(value) => handleAddressFieldChange('billing', 'phone', value)}
                                       size="sm"
@@ -718,11 +720,11 @@ const CreatePurchaseOrder = () => {
                                 <div className="border border-[rgb(var(--color-border-primary))]/40 rounded-lg p-4 space-y-4">
                                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                     <div className="flex items-center">
-                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">Shipping Address</h3>
+                                      <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.shippingAddress')}</h3>
                                     </div>
                                     <div className="flex items-center gap-4">
                                       <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
-                                        <span>Same as store address</span>
+                                        <span>{t('purchaseOrders.sameAsStoreAddress')}</span>
                                         <Toggle
                                           size="sm"
                                           checked={!!formData.shippingAddress?.sameAsStore}
@@ -744,8 +746,8 @@ const CreatePurchaseOrder = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
                                       type="text"
-                                      label="Address Line 1"
-                                      placeholder="Enter address line 1"
+                                      label={t('purchaseOrders.addressLine1')}
+                                      placeholder={t('purchaseOrders.enterAddressLine1')}
                                       value={formData.shippingAddress?.addressLine1 || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'addressLine1', value)}
                                       className="md:col-span-2"
@@ -753,8 +755,8 @@ const CreatePurchaseOrder = () => {
                                     />
                                     <Input
                                       type="text"
-                                      label="Address Line 2"
-                                      placeholder="Apartment, suite, etc."
+                                      label={t('purchaseOrders.addressLine2')}
+                                      placeholder={t('purchaseOrders.apartmentSuiteEtc')}
                                       value={formData.shippingAddress?.addressLine2 || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'addressLine2', value)}
                                       className="md:col-span-2"
@@ -762,40 +764,40 @@ const CreatePurchaseOrder = () => {
                                     />
                                     <Input
                                       type="text"
-                                      label="City"
-                                      placeholder="Enter city"
+                                      label={t('purchaseOrders.city')}
+                                      placeholder={t('purchaseOrders.enterCity')}
                                       value={formData.shippingAddress?.city || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'city', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="State"
-                                      placeholder="Enter state"
+                                      label={t('purchaseOrders.state')}
+                                      placeholder={t('purchaseOrders.enterState')}
                                       value={formData.shippingAddress?.state || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'state', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Pincode"
-                                      placeholder="Enter pincode"
+                                      label={t('purchaseOrders.pincode')}
+                                      placeholder={t('purchaseOrders.enterPincode')}
                                       value={formData.shippingAddress?.pincode || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'pincode', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Country"
-                                      placeholder="Enter country"
+                                      label={t('purchaseOrders.country')}
+                                      placeholder={t('purchaseOrders.enterCountry')}
                                       value={formData.shippingAddress?.country || 'India'}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'country', value)}
                                       size="sm"
                                     />
                                     <Input
                                       type="text"
-                                      label="Phone Number"
-                                      placeholder="Contact number"
+                                      label={t('purchaseOrders.phoneNumber')}
+                                      placeholder={t('purchaseOrders.contactNumber')}
                                       value={formData.shippingAddress?.phone || ''}
                                       onChange={(value) => handleAddressFieldChange('shipping', 'phone', value)}
                                       size="sm"
@@ -816,8 +818,8 @@ const CreatePurchaseOrder = () => {
                                   <IndianRupee className="w-5 h-5" style={{ color: 'rgb(var(--color-primary))' }} />
                                 </div>
                                 <div>
-                                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Advance Payment</h3>
-                                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">Optional advance payments</p>
+                                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.advancePayment')}</h3>
+                                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.optionalAdvancePayments')}</p>
                                 </div>
                               </div>
 
@@ -836,22 +838,22 @@ const CreatePurchaseOrder = () => {
                                 <div className="space-y-3">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Payment Method</label>
+                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.paymentMethod')}</label>
                                       <Select
                                         value={paymentMethod}
                                         onChange={handlePaymentMethodChange}
-                                        options={PAYMENT_METHODS}
+                                        options={PAYMENT_METHODS(t)}
                                         size="sm"
                                       />
                                     </div>
 
                                     <div>
-                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Amount (₹)</label>
+                                      <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.amount')} (₹)</label>
                                       <Input
                                         type="number"
                                         value={paymentAmount}
                                         onChange={setPaymentAmount}
-                                        placeholder="0.00"
+                                        placeholder={t('products.enterAmount')}
                                         leftIcon={IndianRupee}
                                         size="sm"
                                       />
@@ -859,12 +861,12 @@ const CreatePurchaseOrder = () => {
                                   </div>
 
                                   <div>
-                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Reference</label>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.reference')}</label>
                                     <Input
                                       type="text"
                                       value={paymentReference}
                                       onChange={setPaymentReference}
-                                      placeholder="Transaction reference"
+                                      placeholder={t('purchaseOrders.transactionReference')}
                                       size="sm"
                                     />
                                   </div>
@@ -872,25 +874,25 @@ const CreatePurchaseOrder = () => {
                                   {/* Payment Method Specific Details */}
                                   {paymentMethod === 'UPI' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
-                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>UPI Details</h5>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>{t('purchaseOrders.upiDetails')}</h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">UPI ID</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.upiId')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.upiId || ''}
                                             onChange={(value) => updatePaymentDetails('upiId', value)}
-                                            placeholder="supplier@paytm"
+                                            placeholder={t('purchaseOrders.supplierPaytm')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Transaction ID</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.transactionId')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.transactionId || ''}
                                             onChange={(value) => updatePaymentDetails('transactionId', value)}
-                                            placeholder="UPI123456789"
+                                            placeholder={t('purchaseOrders.upiTransactionIdPlaceholder')}
                                             size="sm"
                                           />
                                         </div>
@@ -900,45 +902,45 @@ const CreatePurchaseOrder = () => {
 
                                   {paymentMethod === 'BANK_TRANSFER' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
-                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Bank Transfer Details</h5>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>{t('purchaseOrders.bankTransferDetails')}</h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.bankName')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.bankName || ''}
                                             onChange={(value) => updatePaymentDetails('bankName', value)}
-                                            placeholder="State Bank of India"
+                                            placeholder={t('purchaseOrders.stateBankOfIndia')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">IFSC Code</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.ifscCode')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.ifscCode || ''}
                                             onChange={(value) => updatePaymentDetails('ifscCode', value)}
-                                            placeholder="SBIN0001234"
+                                            placeholder={t('purchaseOrders.ifscCodePlaceholder')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Number</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.accountNumber')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.accountNumber || ''}
                                             onChange={(value) => updatePaymentDetails('accountNumber', value)}
-                                            placeholder="1234567890"
+                                            placeholder={t('purchaseOrders.accountNumberPlaceholder')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Account Holder Name</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.accountHolderName')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.holderName || ''}
                                             onChange={(value) => updatePaymentDetails('holderName', value)}
-                                            placeholder="ABC Suppliers"
+                                            placeholder={t('purchaseOrders.abcSuppliers')}
                                             size="sm"
                                           />
                                         </div>
@@ -948,20 +950,20 @@ const CreatePurchaseOrder = () => {
 
                                   {paymentMethod === 'CHEQUE' && (
                                     <div className="space-y-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(var(--color-primary), 0.08)', border: '1px solid rgb(var(--color-border-primary))' }}>
-                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>Cheque Details</h5>
+                                      <h5 className="text-xs font-medium" style={{ color: 'rgb(var(--color-primary))' }}>{t('purchaseOrders.chequeDetails')}</h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Number</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.chequeNumber')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.chequeNumber || ''}
                                             onChange={(value) => updatePaymentDetails('chequeNumber', value)}
-                                            placeholder="123456"
+                                            placeholder={t('purchaseOrders.chequeNumberPlaceholder')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Cheque Date</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.chequeDate')}</label>
                                           <Input
                                             type="date"
                                             value={paymentDetails.chequeDate || ''}
@@ -970,22 +972,22 @@ const CreatePurchaseOrder = () => {
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Bank Name</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.bankName')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.bankName || ''}
                                             onChange={(value) => updatePaymentDetails('bankName', value)}
-                                            placeholder="HDFC Bank"
+                                            placeholder={t('purchaseOrders.hdfcBank')}
                                             size="sm"
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Branch Name</label>
+                                          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.branchName')}</label>
                                           <Input
                                             type="text"
                                             value={paymentDetails.branchName || ''}
                                             onChange={(value) => updatePaymentDetails('branchName', value)}
-                                            placeholder="Main Branch"
+                                            placeholder={t('purchaseOrders.mainBranch')}
                                             size="sm"
                                           />
                                         </div>
@@ -1002,7 +1004,7 @@ const CreatePurchaseOrder = () => {
                                       disabled={!paymentAmount || !paymentReference}
                                       leftIcon={Plus}
                                     >
-                                      Add Payment
+                                      {t('purchaseOrders.addPayment')}
                                     </Button>
                                   </div>
                                 </div>
@@ -1012,7 +1014,7 @@ const CreatePurchaseOrder = () => {
                                   <div className="border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-secondary))]/30">
                                     <div className="px-3 py-2 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-tertiary))]/50">
                                       <h4 className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">
-                                        Added Payments ({formData.payment.length})
+                                        {t('purchaseOrders.addedPayments')} ({formData.payment.length})
                                       </h4>
                                     </div>
                                     <div className="max-h-48 overflow-y-auto">
@@ -1033,7 +1035,7 @@ const CreatePurchaseOrder = () => {
                                                 type="button"
                                                 onClick={() => removePayment(index)}
                                                 className="flex-shrink-0 p-1.5 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-md transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                                                title="Remove payment"
+                                                title={t('purchaseOrders.removePayment')}
                                               >
                                                 <Trash2 className="w-3 h-3" />
                                               </button>
@@ -1071,17 +1073,17 @@ const CreatePurchaseOrder = () => {
                                 <Package className="w-5 h-5" style={{ color: 'rgb(var(--color-success))' }} />
                               </div>
                               <div>
-                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Products & Items</h3>
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">Add products to your purchase order</p>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('purchaseOrders.productsItems')}</h3>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('purchaseOrders.addProductsToPO')}</p>
                               </div>
                             </div>
 
                             {/* Add Item Form */}
                             <div className="bg-[rgb(var(--color-bg-tertiary))]/50 rounded-lg p-4 mb-6">
-                              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">Add New Item</h4>
+                              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">{t('purchaseOrders.addNewItem')}</h4>
                               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                                 <div className="md:col-span-7">
-                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Product *</label>
+                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.product')} *</label>
                                   <Select value={tempProduct}
                                     onChange={(value) => {
                                       // Check if "Add New Product" option was selected
@@ -1092,21 +1094,21 @@ const CreatePurchaseOrder = () => {
                                       setTempProduct(value);
                                     }}
                                     options={[
-                                      { value: '', label: productsLoading ? 'Loading...' : 'Select Product' },
+                                      { value: '', label: productsLoading ? t('common.loading') : t('purchaseOrders.selectProduct') },
                                       ...products.filter(p => p.name || p.productName).map(p => ({ value: p.id || p._id, label: p.name || p.productName })),
-                                      { value: '__add_new_product__', label: '+ Add New Product', isAddOption: true }
+                                      { value: '__add_new_product__', label: `+ ${t('purchaseOrders.addNewProduct')}`, isAddOption: true }
                                     ]}
                                     error={errors.add_product}
                                     disabled={productsLoading}
                                     leftIcon={Package}
                                     size="sm"
                                     searchable={true}
-                                    placeholder="Search and select product..."
+                                    placeholder={t('purchaseOrders.searchSelectProduct')}
                                   />
                                 </div>
 
                                 <div className="md:col-span-3">
-                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">Quantity *</label>
+                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('purchaseOrders.quantity')} *</label>
                                   <Input
                                     type="number"
                                     value={tempQuantity}
@@ -1121,7 +1123,7 @@ const CreatePurchaseOrder = () => {
                                 </div>
 
                                 <div className="md:col-span-2">
-                                  <AddActionButton onClick={addItem} fullWidth label="Add" title="Add new item" />
+                                  <AddActionButton onClick={addItem} fullWidth label={t('purchaseOrders.add')} title={t('purchaseOrders.addNewItem')} />
                                 </div>
                               </div>
                             </div>
@@ -1132,10 +1134,10 @@ const CreatePurchaseOrder = () => {
                                 <div className="px-4 py-3 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/50">
                                   <div className="flex items-center justify-between">
                                     <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      Added Items ({formData.products.length})
+                                      {t('purchaseOrders.addedItems')} ({formData.products.length})
                                     </h4>
                                     <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                      Total: {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)} items
+                                      {t('purchaseOrders.totalItems')}: {formData.products.reduce((sum, item) => sum + (item.quantity || 0), 0)} {t('purchaseOrders.items')}
                                     </div>
                                   </div>
                                 </div>
@@ -1150,12 +1152,12 @@ const CreatePurchaseOrder = () => {
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
-                                              {item.productName || 'Selected Product'}
+                                              {item.productName || t('purchaseOrders.selectedProduct')}
                                             </span>
                                           </div>
                                           <div className="flex-shrink-0">
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)', color: 'rgb(var(--color-primary))' }}>
-                                              Qty: {item.quantity}
+                                              {t('purchaseOrders.qty')}: {item.quantity}
                                             </span>
                                           </div>
                                         </div>
@@ -1163,7 +1165,7 @@ const CreatePurchaseOrder = () => {
                                           type="button"
                                           onClick={() => removeItem(index)}
                                           className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                                          title="Remove item"
+                                          title={t('purchaseOrders.removeItem')}
                                         >
                                           <Trash2 className="w-4 h-4" />
                                         </button>
@@ -1175,8 +1177,8 @@ const CreatePurchaseOrder = () => {
                             ) : (
                               <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
                                 <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                <p className="text-sm">No items added yet</p>
-                                <p className="text-xs">Add products to create your purchase order</p>
+                                <p className="text-sm">{t('purchaseOrders.noItemsAddedYet')}</p>
+                                <p className="text-xs">{t('purchaseOrders.addProductsToCreatePO')}</p>
                               </div>
                             )}
                           </div>
@@ -1194,15 +1196,15 @@ const CreatePurchaseOrder = () => {
               <div className="flex items-center justify-between w-full mx-auto">
                 <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                   {formData.products.length > 0 && (
-                    <span>{formData.products.length} item{formData.products.length !== 1 ? 's' : ''} added</span>
+                    <span>{formData.products.length} {formData.products.length !== 1 ? t('purchaseOrders.items') : t('purchaseOrders.item')} {t('purchaseOrders.added')}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
                   <Button onClick={handleSaveDraft} type="button" variant="outline" leftIcon={Save} size="sm" >
-                    Save Draft
+                    {t('purchaseOrders.saveDraft')}
                   </Button>
                   <Button onClick={handleSubmit} disabled={isCreating} loading={isCreating} leftIcon={FileText} size="sm">
-                    Create Purchase Order
+                    {t('purchaseOrders.createPurchaseOrder')}
                   </Button>
                 </div>
               </div>
@@ -1221,11 +1223,11 @@ const CreatePurchaseOrder = () => {
       {/* Save Draft Modal */}
       <Modal isOpen={showSaveDraftModal} onClose={() => setShowSaveDraftModal(false)}>
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">Save as Draft</h3>
-          <p className="text-[rgb(var(--color-text-secondary))] mb-6">This purchase order will be saved as a draft and can be completed later.</p>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">{t('purchaseOrders.saveAsDraft')}</h3>
+          <p className="text-[rgb(var(--color-text-secondary))] mb-6">{t('purchaseOrders.saveAsDraftDescription')}</p>
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => setShowSaveDraftModal(false)}>Cancel</Button>
-            <Button onClick={handleConfirmSaveDraft} leftIcon={Save}>Save Draft</Button>
+            <Button variant="outline" onClick={() => setShowSaveDraftModal(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleConfirmSaveDraft} leftIcon={Save}>{t('purchaseOrders.saveDraft')}</Button>
           </div>
         </div>
       </Modal>

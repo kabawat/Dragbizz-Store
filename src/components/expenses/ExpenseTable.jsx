@@ -19,6 +19,7 @@ import {
   getStatusLabel,
   getStatusColor
 } from '@/data/constants/expenses';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ExpenseTable = ({
   expenses = [],
@@ -31,12 +32,15 @@ const ExpenseTable = ({
   onSort,
   onDuplicate,
   loading = false,
-  emptyMessage = 'No expenses found',
+  emptyMessage,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
+  
+  const defaultEmptyMessage = emptyMessage || t('expenses.noExpenses');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -133,10 +137,10 @@ const ExpenseTable = ({
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-[rgb(var(--color-text-tertiary))] mx-auto mb-4" />
             <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {emptyMessage}
+              {defaultEmptyMessage}
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              Start by adding your first expense to track your business costs.
+              {t('expenses.startAddingExpense')}
             </p>
           </div>
         </div>
@@ -153,26 +157,26 @@ const ExpenseTable = ({
             <tr>
               <th className="px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  Title
+                  {t('expenses.expenseTitle')}
                 </span>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Date
+                {t('common.date')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Category
+                {t('expenses.category')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Amount
+                {t('common.amount')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Payment Method
+                {t('expenses.paymentMethod')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Vendor
+                {t('expenses.vendor')}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                Status
+                {t('common.status')}
               </th>
               <th className="w-24 px-6 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
@@ -199,7 +203,7 @@ const ExpenseTable = ({
                           {expense.title}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                          {expense.billNumber || 'No bill number'}
+                          {expense.billNumber || t('expenses.noBillNumber')}
                         </div>
                       </div>
                     </div>
@@ -250,7 +254,7 @@ const ExpenseTable = ({
                       <button
                         onClick={() => setOpenMenuId(openMenuId === expense.id ? null : expense.id)}
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title="More Actions"
+                        title={t('common.actions')}
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
@@ -263,14 +267,14 @@ const ExpenseTable = ({
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            View Details
+                            {t('common.viewDetails')}
                           </button>
                           <button
                             onClick={() => handleMenuAction(expense.id, 'edit')}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
+                            {t('common.edit')}
                           </button>
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
@@ -278,7 +282,7 @@ const ExpenseTable = ({
                             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
-                            Delete
+                            {t('common.delete')}
                           </button>
                         </div>
                       )}

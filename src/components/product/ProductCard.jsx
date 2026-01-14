@@ -4,6 +4,7 @@ import { Card, Badge, Button, Dropdown } from '../ui';
 import { MoreVertical, Edit, Copy, Trash2, Eye, Package, Tag, Calendar, ArrowDownToLine } from 'lucide-react';
 import Image from 'next/image';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductCard = ({
   product,
@@ -35,13 +36,14 @@ const ProductCard = ({
   }, []);
   
   
+  const { t } = useTranslation();
   const getStockBadge = (stock) => {
     if (stock === 0) {
-      return <Badge variant="danger">Out of Stock</Badge>;
+      return <Badge variant="danger">{t('products.outOfStock')}</Badge>;
     } else if (stock < 10) {
-      return <Badge variant="warning">Low Stock</Badge>;
+      return <Badge variant="warning">{t('products.lowStock')}</Badge>;
     } else {
-      return <Badge variant="success">{stock} in stock</Badge>;
+      return <Badge variant="success">{stock} {t('products.inStock')}</Badge>;
     }
   };
   
@@ -70,32 +72,32 @@ const ProductCard = ({
   const actionMenuItems = [
     {
       value: 'view',
-      label: 'View Details',
+      label: t('common.viewDetails'),
       icon: Eye,
       onClick: () => onViewDetails?.(product.id)
     },
     {
       value: 'stock-in',
-      label: 'Stock In',
+      label: t('products.stockIn'),
       icon: ArrowDownToLine,
       onClick: () => onStockIn?.(product.id),
       className: 'text-green-600 hover:text-green-700'
     },
     {
       value: 'edit',
-      label: 'Edit',
+      label: t('common.edit'),
       icon: Edit,
       onClick: () => onEdit?.(product.id)
     },
     {
       value: 'duplicate',
-      label: 'Duplicate',
+      label: t('common.duplicate'),
       icon: Copy,
       onClick: () => onDuplicate?.(product.id)
     },
     {
       value: 'delete',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => onDelete?.(product.id)
     }
@@ -160,7 +162,7 @@ const ProductCard = ({
             <button 
               onClick={() => handleMenuToggle(product.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title="More Actions"
+              title={t('common.actions')}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -173,28 +175,28 @@ const ProductCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  View Details
+                  {t('common.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(product.id, 'stock-in')}
                   className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                 >
                   <ArrowDownToLine className="w-4 h-4 text-green-500" />
-                  Stock In
+                  {t('products.stockIn')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(product.id, 'edit')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <button
                   onClick={() => handleMenuAction(product.id, 'duplicate')}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Duplicate
+                  {t('common.duplicate')}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
@@ -202,7 +204,7 @@ const ProductCard = ({
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}
@@ -243,7 +245,7 @@ const ProductCard = ({
                   className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
                   style={getCategoryBadgeStyle('#6b7280')}
                 >
-                  Uncategorized
+                  {t('products.uncategorized')}
                 </span>
               );
             }
@@ -272,24 +274,24 @@ const ProductCard = ({
         {/* Stock Info */}
         <div className="flex items-center justify-between">
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">Stock:</span> {product.stock} units
+            <span className="font-medium">{t('products.stock')}:</span> {product.stock} {t('products.units')}
           </div>
           <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">SKU:</span> {product.sku}
+            <span className="font-medium">{t('products.sku')}:</span> {product.sku}
           </div>
         </div>
         
         {/* Pricing Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>Selling Price</span>
+            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.sellingPrice')}</span>
             <span className="text-sm sm:text-base md:text-lg font-bold" style={{ color: themeConfig.text }}>
               ₹{product.sellingPrice.toLocaleString()}
             </span>
           </div>
           {product.mrp > product.sellingPrice && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>MRP</span>
+              <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.mrp')}</span>
               <span className="text-xs sm:text-sm line-through" style={{ color: themeConfig.textSecondary }}>
                 ₹{product.mrp.toLocaleString()}
               </span>
@@ -297,7 +299,7 @@ const ProductCard = ({
           )}
           {discount > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-green-500 font-medium">Discount</span>
+              <span className="text-xs sm:text-sm text-green-500 font-medium">{t('products.discount')}</span>
               <span className="text-xs sm:text-sm text-green-500 font-medium">
                 {discount}% off
               </span>
@@ -313,7 +315,7 @@ const ProductCard = ({
             borderColor: themeConfig.border
           }}
         >
-          Last updated: {product.lastUpdated}
+          {t('common.lastUpdated')}: {product.lastUpdated}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Input, Textarea, TagInput, Select } from '../ui';
 import { Package, Tag, Barcode } from 'lucide-react';
 import { PRODUCT_CATEGORY_OPTIONS } from '@/data';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const BasicInfoSection = ({
   formData,
@@ -12,7 +13,8 @@ const BasicInfoSection = ({
   apiCategories = [],
   categoriesLoading = false,
   ...props
-}) => {  
+}) => {
+  const { t } = useTranslation();
   const [customCategories, setCustomCategories] = useState([]);
 
   const handleFieldChange = (field, value) => {
@@ -31,7 +33,7 @@ const BasicInfoSection = ({
   const allCategories = [
     ...apiCategories,
     ...customCategories,
-    { value: 'add-new-category', label: '+ Add New Category', isAddOption: true }
+    { value: 'add-new-category', label: `+ ${t('products.addNewCategory')}`, isAddOption: true }
   ];
 
   return (
@@ -41,8 +43,8 @@ const BasicInfoSection = ({
         {/* Product Name */}
         <div>
           <Input
-            label="Product Name"
-            placeholder="Enter product name"
+            label={t('products.productName')}
+            placeholder={t('products.enterProductName')}
             value={formData.name || ''}
             onChange={(value) => handleFieldChange('name', value)}
             error={errors.name}
@@ -55,8 +57,8 @@ const BasicInfoSection = ({
         {/* Brand */}
         <div>
           <Input
-            label="Brand"
-            placeholder="Enter brand name"
+            label={t('products.brand')}
+            placeholder={t('products.enterBrandName')}
             value={formData.brand || ''}
             onChange={(value) => handleFieldChange('brand', value)}
             error={errors.brand}
@@ -71,8 +73,8 @@ const BasicInfoSection = ({
         {/* Category Selection */}
         <div>
           <Select
-            label="Category"
-            placeholder={categoriesLoading ? "Loading categories..." : "Select a category"}
+            label={t('products.category')}
+            placeholder={categoriesLoading ? t('products.loadingCategories') : t('products.selectCategory')}
             value={formData.category || ''}
             onChange={handleCategoryChange}
             error={errors.category}
@@ -87,8 +89,8 @@ const BasicInfoSection = ({
         {/* Barcode */}
         <div>
           <Input
-            label="Barcode"
-            placeholder="Enter barcode (optional)"
+            label={t('products.barcode')}
+            placeholder={t('products.enterBarcode')}
             value={formData.barcode || ''}
             onChange={(value) => handleFieldChange('barcode', value)}
             error={errors.barcode}

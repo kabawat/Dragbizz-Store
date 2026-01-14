@@ -11,8 +11,10 @@ import { expenseService } from '@/service';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { updateExpense } from '@/store/slices/expensesSlice';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const EditExpensePage = ({ expenseId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   
@@ -41,10 +43,10 @@ const EditExpensePage = ({ expenseId }) => {
         if (result.success && result.data) {
           setExpense(result.data);
         } else {
-          setFetchingError(result.message || 'Failed to fetch expense data');
+          setFetchingError(result.message || t('errors.failedToFetchData', { item: t('common.expense') }));
         }
       } catch (error) {
-        setFetchingError('Failed to fetch expense data. Please try again.');
+        setFetchingError(t('errors.failedToFetchDataTryAgain', { item: t('common.expense') }));
       } finally {
         setIsLoading(false);
       }
@@ -75,10 +77,10 @@ const EditExpensePage = ({ expenseId }) => {
       if (result.payload?.success) {
         router.push('/dashboard/expenses');
       } else {
-        setSubmitError(result.payload?.message || 'Failed to update expense');
+        setSubmitError(result.payload?.message || t('errors.failedToUpdate', { item: t('common.expense') }));
       }
     } catch (error) {
-      setSubmitError('An unexpected error occurred. Please try again.');
+      setSubmitError(t('errors.failedToUpdateTryAgain', { item: t('common.expense') }));
     }
   };
 
@@ -103,17 +105,17 @@ const EditExpensePage = ({ expenseId }) => {
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
           <Header 
-            title="Expense Not Found" 
-            description="The requested expense could not be found"
+            title={t('modals.notFound', { item: t('common.expense') })}
+            description={t('common.doesntExistOrRemoved', { item: t('common.expense') })}
           />
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto">
               <Alert variant="error" className="mb-4">
-                {fetchingError || 'Expense not found. It may have been deleted or you may not have permission to view it.'}
+                {fetchingError || t('errors.expenseNotFound')}
               </Alert>
               <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Expenses</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.expenses') })}</span>
               </Link>
             </div>
           </div>
@@ -130,8 +132,8 @@ const EditExpensePage = ({ expenseId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header 
-          title="Edit Expense" 
-          description={`Update expense details: ${expense?.title || 'Loading...'}`} 
+          title={t('expenses.editExpense')}
+          description={t('expenses.updateExpenseDetails', { title: expense?.title || t('common.loading') })} 
         />
 
         {/* Main Content */}
@@ -141,7 +143,7 @@ const EditExpensePage = ({ expenseId }) => {
             <div className="mb-4">
               <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Expenses</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.expenses') })}</span>
               </Link>
             </div>
 
@@ -170,7 +172,7 @@ const EditExpensePage = ({ expenseId }) => {
                 {/* Action Buttons - Fixed Bottom */}
                 <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
                   <Button variant="outline" onClick={handleCancel} disabled={isUpdating}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     variant="primary"
@@ -183,7 +185,7 @@ const EditExpensePage = ({ expenseId }) => {
                     loading={isUpdating}
                     leftIcon={Save}
                   >
-                    Update Expense
+                    {t('expenses.updateExpense')}
                   </Button>
                 </div>
               </div>
@@ -253,8 +255,8 @@ const EditExpensePage = ({ expenseId }) => {
                           <span className="text-indigo-600 text-sm">🧾</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">GST Input Credit</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Claim GST input credit on eligible business expenses</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.gstInputCredit')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.gstInputCreditDescription')}</p>
                         </div>
                       </div>
                     </div>

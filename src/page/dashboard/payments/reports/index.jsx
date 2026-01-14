@@ -19,8 +19,10 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Button, Select, Card } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PaymentReports = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { stats, isLoading, error } = useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -123,8 +125,8 @@ const PaymentReports = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Payment Reports"
-          description="View detailed payment reports and analytics"
+          title={t('payments.reports.title')}
+          description={t('payments.reports.description')}
         />
 
         {/* Main Content */}
@@ -138,12 +140,12 @@ const PaymentReports = () => {
                     value={reportType}
                     onChange={handleReportTypeChange}
                     options={[
-                      { value: 'summary', label: 'Summary Report' },
-                      { value: 'detailed', label: 'Detailed Report' },
-                      { value: 'supplier', label: 'Supplier Analysis' },
-                      { value: 'method', label: 'Payment Method Analysis' },
-                      { value: 'trends', label: 'Trend Analysis' },
-                      { value: 'approval', label: 'Approval Report' }
+                      { value: 'summary', label: t('payments.reports.summaryReport') },
+                      { value: 'detailed', label: t('payments.reports.detailedReport') },
+                      { value: 'supplier', label: t('payments.reports.supplierAnalysis') },
+                      { value: 'method', label: t('payments.reports.paymentMethodAnalysis') },
+                      { value: 'trends', label: t('payments.reports.trendAnalysis') },
+                      { value: 'approval', label: t('payments.reports.approvalReport') }
                     ]}
                   />
 
@@ -151,11 +153,11 @@ const PaymentReports = () => {
                     value={dateRange}
                     onChange={handleDateRangeChange}
                     options={[
-                      { value: 'week', label: 'Last Week' },
-                      { value: 'month', label: 'Last Month' },
-                      { value: 'quarter', label: 'Last Quarter' },
-                      { value: 'year', label: 'Last Year' },
-                      { value: 'custom', label: 'Custom Range' }
+                      { value: 'week', label: t('common.lastWeek') },
+                      { value: 'month', label: t('common.lastMonth') },
+                      { value: 'quarter', label: t('common.lastQuarter') },
+                      { value: 'year', label: t('common.lastYear') },
+                      { value: 'custom', label: t('common.customRange') }
                     ]}
                   />
 
@@ -163,9 +165,9 @@ const PaymentReports = () => {
                     value={supplierFilter}
                     onChange={handleSupplierFilterChange}
                     options={[
-                      { value: 'all', label: 'All Suppliers' },
-                      { value: 'supplier1', label: 'Supplier 1' },
-                      { value: 'supplier2', label: 'Supplier 2' }
+                      { value: 'all', label: t('common.allSuppliers') },
+                      { value: 'supplier1', label: t('payments.reports.supplier1') },
+                      { value: 'supplier2', label: t('payments.reports.supplier2') }
                     ]}
                   />
 
@@ -173,12 +175,12 @@ const PaymentReports = () => {
                     value={methodFilter}
                     onChange={handleMethodFilterChange}
                     options={[
-                      { value: 'all', label: 'All Methods' },
-                      { value: 'cash', label: 'Cash' },
-                      { value: 'bank_transfer', label: 'Bank Transfer' },
-                      { value: 'cheque', label: 'Cheque' },
-                      { value: 'upi', label: 'UPI' },
-                      { value: 'card', label: 'Card' }
+                      { value: 'all', label: t('payments.reports.allMethods') },
+                      { value: 'cash', label: t('payments.cash') },
+                      { value: 'bank_transfer', label: t('payments.bankTransfer') },
+                      { value: 'cheque', label: t('payments.cheque') },
+                      { value: 'upi', label: t('payments.upi') },
+                      { value: 'card', label: t('payments.card') }
                     ]}
                   />
                 </div>
@@ -188,7 +190,7 @@ const PaymentReports = () => {
                   leftIcon={Download}
                   onClick={handleExport}
                 >
-                  Export Report
+                  {t('payments.reports.exportReport')}
                 </Button>
               </div>
             </div>
@@ -199,11 +201,11 @@ const PaymentReports = () => {
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Payments</p>
+                  <p className="text-blue-100 text-sm font-medium">{t('payments.reports.totalPayments')}</p>
                   <p className="text-2xl font-bold">{stats.totalPayments}</p>
                   <p className="text-blue-200 text-xs flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +15% from last month
+                    {t('payments.reports.percentFromLastMonth', { percent: '+15%' })}
                   </p>
                 </div>
                 <CreditCard className="w-8 h-8 text-blue-200" />
@@ -213,11 +215,11 @@ const PaymentReports = () => {
             <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Total Amount</p>
+                  <p className="text-green-100 text-sm font-medium">{t('payments.reports.totalAmount')}</p>
                   <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
                   <p className="text-green-200 text-xs flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +12% from last month
+                    {t('payments.reports.percentFromLastMonth', { percent: '+12%' })}
                   </p>
                 </div>
                 <IndianRupee className="w-8 h-8 text-green-200" />
@@ -227,11 +229,11 @@ const PaymentReports = () => {
             <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100 text-sm font-medium">Pending Payments</p>
+                  <p className="text-yellow-100 text-sm font-medium">{t('payments.reports.pendingPayments')}</p>
                   <p className="text-2xl font-bold">{stats.pendingPayments}</p>
                   <p className="text-yellow-200 text-xs flex items-center mt-1">
                     <TrendingDown className="w-3 h-3 mr-1" />
-                    -8% from last month
+                    {t('payments.reports.percentFromLastMonth', { percent: '-8%' })}
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-200" />
@@ -241,11 +243,11 @@ const PaymentReports = () => {
             <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Approved Payments</p>
+                  <p className="text-purple-100 text-sm font-medium">{t('payments.reports.approvedPayments')}</p>
                   <p className="text-2xl font-bold">{stats.approvedPayments}</p>
                   <p className="text-purple-200 text-xs flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +18% from last month
+                    {t('payments.reports.percentFromLastMonth', { percent: '+18%' })}
                   </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-purple-200" />
@@ -260,13 +262,13 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <BarChart3 className="w-5 h-5 mr-2" />
-                  Payment Status Distribution
+                  {t('payments.reports.paymentStatusDistribution')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-green-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Approved</span>
+                      <span className="text-gray-700">{t('payments.reports.approved')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">75%</span>
@@ -276,7 +278,7 @@ const PaymentReports = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-yellow-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Pending</span>
+                      <span className="text-gray-700">{t('common.pending')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">20%</span>
@@ -286,7 +288,7 @@ const PaymentReports = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-red-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Rejected</span>
+                      <span className="text-gray-700">{t('payments.reports.rejected')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">5%</span>
@@ -302,13 +304,13 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <CreditCard className="w-5 h-5 mr-2" />
-                  Payment Methods Distribution
+                  {t('payments.reports.paymentMethodsDistribution')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-blue-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Bank Transfer</span>
+                      <span className="text-gray-700">{t('payments.bankTransfer')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">45%</span>
@@ -318,7 +320,7 @@ const PaymentReports = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-green-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Cash</span>
+                      <span className="text-gray-700">{t('payments.cash')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">25%</span>
@@ -328,7 +330,7 @@ const PaymentReports = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-yellow-500 rounded mr-3"></div>
-                      <span className="text-gray-700">Cheque</span>
+                      <span className="text-gray-700">{t('payments.cheque')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">20%</span>
@@ -338,7 +340,7 @@ const PaymentReports = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-purple-500 rounded mr-3"></div>
-                      <span className="text-gray-700">UPI</span>
+                      <span className="text-gray-700">{t('payments.upi')}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-900">10%</span>
@@ -354,7 +356,7 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Building2 className="w-5 h-5 mr-2" />
-                  Top Suppliers by Payment Amount
+                  {t('payments.reports.topSuppliersByPaymentAmount')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -362,10 +364,10 @@ const PaymentReports = () => {
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
                         <span className="text-blue-600 font-medium text-sm">1</span>
                       </div>
-                      <span className="text-gray-700">Supplier A</span>
+                      <span className="text-gray-700">{t('payments.reports.supplierA')}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-medium text-gray-900">25 payments</span>
+                      <span className="font-medium text-gray-900">{t('payments.reports.paymentsCount', { count: 25 })}</span>
                       <span className="text-gray-600 ml-2">({formatCurrency(350000)})</span>
                     </div>
                   </div>
@@ -374,10 +376,10 @@ const PaymentReports = () => {
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
                         <span className="text-green-600 font-medium text-sm">2</span>
                       </div>
-                      <span className="text-gray-700">Supplier B</span>
+                      <span className="text-gray-700">{t('payments.reports.supplierB')}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-medium text-gray-900">18 payments</span>
+                      <span className="font-medium text-gray-900">{t('payments.reports.paymentsCount', { count: 18 })}</span>
                       <span className="text-gray-600 ml-2">({formatCurrency(280000)})</span>
                     </div>
                   </div>
@@ -386,10 +388,10 @@ const PaymentReports = () => {
                       <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
                         <span className="text-yellow-600 font-medium text-sm">3</span>
                       </div>
-                      <span className="text-gray-700">Supplier C</span>
+                      <span className="text-gray-700">{t('payments.reports.supplierC')}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-medium text-gray-900">15 payments</span>
+                      <span className="font-medium text-gray-900">{t('payments.reports.paymentsCount', { count: 15 })}</span>
                       <span className="text-gray-600 ml-2">({formatCurrency(220000)})</span>
                     </div>
                   </div>
@@ -402,27 +404,27 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2" />
-                  Monthly Payment Trends
+                  {t('payments.reports.monthlyPaymentTrends')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">This Month</span>
+                    <span className="text-gray-700">{t('common.thisMonth')}</span>
                     <div className="flex items-center">
-                      <span className="font-medium text-gray-900 mr-2">45 payments</span>
+                      <span className="font-medium text-gray-900 mr-2">{t('payments.reports.paymentsCount', { count: 45 })}</span>
                       <span className="text-green-600 text-sm">+15%</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Last Month</span>
+                    <span className="text-gray-700">{t('common.lastMonth')}</span>
                     <div className="flex items-center">
-                      <span className="font-medium text-gray-900 mr-2">39 payments</span>
+                      <span className="font-medium text-gray-900 mr-2">{t('payments.reports.paymentsCount', { count: 39 })}</span>
                       <span className="text-red-600 text-sm">-5%</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">2 Months Ago</span>
+                    <span className="text-gray-700">{t('common.twoMonthsAgo')}</span>
                     <div className="flex items-center">
-                      <span className="font-medium text-gray-900 mr-2">41 payments</span>
+                      <span className="font-medium text-gray-900 mr-2">{t('payments.reports.paymentsCount', { count: 41 })}</span>
                       <span className="text-green-600 text-sm">+8%</span>
                     </div>
                   </div>
@@ -435,23 +437,23 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Approval Performance
+                  {t('payments.reports.approvalPerformance')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Average Approval Time</span>
-                    <span className="font-medium text-gray-900">2.5 days</span>
+                    <span className="text-gray-700">{t('payments.reports.averageApprovalTime')}</span>
+                    <span className="font-medium text-gray-900">{t('payments.reports.days', { days: '2.5' })}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Approval Rate</span>
+                    <span className="text-gray-700">{t('payments.reports.approvalRate')}</span>
                     <span className="font-medium text-green-600">85%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Rejection Rate</span>
+                    <span className="text-gray-700">{t('payments.reports.rejectionRate')}</span>
                     <span className="font-medium text-red-600">15%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Pending Review</span>
+                    <span className="text-gray-700">{t('payments.reports.pendingReview')}</span>
                     <span className="font-medium text-yellow-600">20%</span>
                   </div>
                 </div>
@@ -463,23 +465,23 @@ const PaymentReports = () => {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
-                  Payment Efficiency Metrics
+                  {t('payments.reports.paymentEfficiencyMetrics')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">On-Time Payment Rate</span>
+                    <span className="text-gray-700">{t('payments.reports.onTimePaymentRate')}</span>
                     <span className="font-medium text-green-600">92%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Late Payment Rate</span>
+                    <span className="text-gray-700">{t('payments.reports.latePaymentRate')}</span>
                     <span className="font-medium text-red-600">8%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Average Processing Time</span>
-                    <span className="font-medium text-blue-600">1.8 days</span>
+                    <span className="text-gray-700">{t('payments.reports.averageProcessingTime')}</span>
+                    <span className="font-medium text-blue-600">{t('payments.reports.days', { days: '1.8' })}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Payment Success Rate</span>
+                    <span className="text-gray-700">{t('payments.reports.paymentSuccessRate')}</span>
                     <span className="font-medium text-green-600">98%</span>
                   </div>
                 </div>

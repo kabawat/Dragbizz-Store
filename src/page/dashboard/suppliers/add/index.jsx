@@ -12,8 +12,10 @@ import { useAppSelector } from '@/store/hooks';
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddSupplierPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
@@ -77,8 +79,8 @@ const AddSupplierPage = () => {
       // Client-side validation: At least one contact method required
       if (!formData.phone && !formData.email) {
         setFieldErrors({
-          phone: 'Phone or email is required',
-          email: 'Phone or email is required'
+          phone: t('suppliers.phoneOrEmailRequired'),
+          email: t('suppliers.phoneOrEmailRequired')
         });
         setLoading(false);
         return;
@@ -89,7 +91,7 @@ const AddSupplierPage = () => {
 
       if (result.success) {
         // Show success toast
-        showSuccess('Supplier created successfully!');
+        showSuccess(t('suppliers.createSuccess'));
         // Reset form and redirect after a short delay
         setTimeout(() => {
           setFormData(getInitialFormData());
@@ -103,7 +105,7 @@ const AddSupplierPage = () => {
           setFieldErrors(fieldErrors);
         } else {
           // Show error modal for general errors
-          setErrorMessage(result.message || 'Failed to create supplier. Please try again.');
+          setErrorMessage(result.message || t('suppliers.createError'));
           setShowErrorModal(true);
         }
       }
@@ -115,11 +117,11 @@ const AddSupplierPage = () => {
         if (Object.keys(fieldErrors).length > 0) {
           setFieldErrors(fieldErrors);
         } else {
-          setErrorMessage(error.response.data.message || 'An error occurred while creating the supplier. Please try again.');
+          setErrorMessage(error.response.data.message || t('suppliers.createError'));
           setShowErrorModal(true);
         }
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('common.error'));
         setShowErrorModal(true);
       }
     } finally {
@@ -141,7 +143,7 @@ const AddSupplierPage = () => {
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header title="Add New Supplier" description="Create a new supplier profile for your business" />
+        <Header title={t('suppliers.addNewSupplier')} description={t('suppliers.addNewSupplierDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -150,7 +152,7 @@ const AddSupplierPage = () => {
             <div className="mb-4">
               <Link href="/dashboard/suppliers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Suppliers</span>
+                <span className="text-sm font-medium">{t('suppliers.backToSuppliers')}</span>
               </Link>
             </div>
             {/* Form Container - Scrollable */}
@@ -167,10 +169,10 @@ const AddSupplierPage = () => {
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
                 <div className="flex items-center justify-end space-x-3">
                   <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
-                    Save Supplier
+                    {t('suppliers.saveSupplier')}
                   </Button>
                 </div>
               </div>
@@ -186,7 +188,7 @@ const AddSupplierPage = () => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title="Error"
+        title={t('common.error')}
         message={errorMessage}
       />
     </div>

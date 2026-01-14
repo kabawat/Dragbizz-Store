@@ -1,8 +1,10 @@
 "use client"
 import { Store, Phone, Mail, MapPin, Building2 } from 'lucide-react';
 import { Input, Select } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StoreEditForm = ({ form, onChange, errors = {} }) => {
+  const { t } = useTranslation();
   // Handle Input component onChange (receives value directly)
   const handleInputChange = (name, value) => {
     const event = {
@@ -23,28 +25,28 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
   };
 
   const storeCategories = [
-    { value: 'electronics', label: 'Electronics' },
-    { value: 'clothing', label: 'Clothing & Fashion' },
-    { value: 'food', label: 'Food & Beverages' },
-    { value: 'pharmacy', label: 'Pharmacy' },
-    { value: 'books', label: 'Books & Stationery' },
-    { value: 'home', label: 'Home & Garden' },
-    { value: 'automotive', label: 'Automotive' },
-    { value: 'beauty', label: 'Beauty & Personal Care' },
-    { value: 'sports', label: 'Sports & Fitness' },
-    { value: 'other', label: 'Other' }
+    { value: 'electronics', label: t('settings.storeCategories.electronics') },
+    { value: 'clothing', label: t('settings.storeCategories.clothing') },
+    { value: 'food', label: t('settings.storeCategories.food') },
+    { value: 'pharmacy', label: t('settings.storeCategories.pharmacy') },
+    { value: 'books', label: t('settings.storeCategories.books') },
+    { value: 'home', label: t('settings.storeCategories.home') },
+    { value: 'automotive', label: t('settings.storeCategories.automotive') },
+    { value: 'beauty', label: t('settings.storeCategories.beauty') },
+    { value: 'sports', label: t('settings.storeCategories.sports') },
+    { value: 'other', label: t('settings.storeCategories.other') }
   ];
 
   return (
     <div className="space-y-6">
       {/* Store Name */}
       <Input
-        label="Store Name"
+        label={t('settings.storeName')}
         name="name"
         type="text"
         value={form.name || ''}
         onChange={(value) => handleInputChange('name', value)}
-        placeholder="Enter store name"
+        placeholder={t('settings.enterStoreName')}
         leftIcon={Store}
         error={errors.name}
       />
@@ -52,23 +54,23 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
       {/* Contact Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label="Phone Number"
+          label={t('settings.phoneNumber')}
           name="phone"
           type="tel"
           value={form.phone || ''}
           onChange={(value) => handleInputChange('phone', value)}
-          placeholder="Enter phone number"
+          placeholder={t('settings.enterPhoneNumber')}
           leftIcon={Phone}
           error={errors.phone}
         />
 
         <Input
-          label="Email (Optional)"
+          label={t('settings.emailOptional')}
           name="email"
           type="email"
           value={form.email || ''}
           onChange={(value) => handleInputChange('email', value)}
-          placeholder="Enter email address"
+          placeholder={t('settings.enterEmailAddress')}
           leftIcon={Mail}
           error={errors.email}
         />
@@ -78,17 +80,17 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
           <MapPin className="w-4 h-4 mr-2" />
-          Address Information
+          {t('settings.addressInformation')}
         </h3>
 
         {/* Street Address */}
         <Input
-          label="Street Address (Optional)"
+          label={t('settings.streetAddressOptional')}
           name="address.street"
           type="text"
           value={form.address?.street || form.address?.line1 || ''}
           onChange={(value) => handleAddressChange('street', value)}
-          placeholder="Enter street address"
+          placeholder={t('settings.enterStreetAddress')}
           leftIcon={MapPin}
           error={errors['address.street'] || errors['address.line1']}
         />
@@ -96,34 +98,34 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
         {/* City, State, Pincode */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Input
-            label="City"
+            label={t('settings.city')}
             name="address.city"
             type="text"
             value={form.address?.city || ''}
             onChange={(value) => handleAddressChange('city', value)}
-            placeholder="Enter city"
+            placeholder={t('settings.enterCity')}
             leftIcon={MapPin}
             error={errors['address.city']}
           />
 
           <Input
-            label="State (Optional)"
+            label={t('settings.stateOptional')}
             name="address.state"
             type="text"
             value={form.address?.state || ''}
             onChange={(value) => handleAddressChange('state', value)}
-            placeholder="Enter state"
+            placeholder={t('settings.enterState')}
             leftIcon={MapPin}
             error={errors['address.state']}
           />
 
           <Input
-            label="Pincode (Optional)"
+            label={t('settings.pincodeOptional')}
             name="address.pincode"
             type="text"
             value={form.address?.pincode || ''}
             onChange={(value) => handleAddressChange('pincode', value)}
-            placeholder="Enter pincode"
+            placeholder={t('settings.enterPincode')}
             leftIcon={MapPin}
             error={errors['address.pincode']}
           />
@@ -131,12 +133,12 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
 
         {/* Landmark */}
         <Input
-          label="Landmark (Optional)"
+          label={t('settings.landmarkOptional')}
           name="address.landmark"
           type="text"
           value={form.address?.landmark || ''}
           onChange={(value) => handleAddressChange('landmark', value)}
-          placeholder="Enter landmark"
+          placeholder={t('settings.enterLandmark')}
           leftIcon={MapPin}
           error={errors['address.landmark']}
         />
@@ -145,40 +147,40 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
       {/* Business Information */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-          Business Information
+          {t('settings.businessInformation')}
         </h3>
 
         {/* Store Category */}
         <Select
-          label="Store Category (Optional)"
+          label={t('settings.storeCategoryOptional')}
           name="category"
           value={form.category || ''}
           onChange={(value) => handleInputChange('category', value)}
           options={storeCategories}
-          placeholder="Select store category"
+          placeholder={t('settings.selectStoreCategory')}
           searchable={true}
         />
 
         {/* GST & PAN */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
-            label="GST Number (Optional)"
+            label={t('settings.gstNumberOptional')}
             name="gst"
             type="text"
             value={form.gst || ''}
             onChange={(value) => handleInputChange('gst', value)}
-            placeholder="Enter GST number"
+            placeholder={t('settings.enterGstNumber')}
             leftIcon={Building2}
             error={errors.gst}
           />
 
           <Input
-            label="PAN Number (Optional)"
+            label={t('settings.panNumberOptional')}
             name="pan"
             type="text"
             value={form.pan || ''}
             onChange={(value) => handleInputChange('pan', value)}
-            placeholder="Enter PAN number"
+            placeholder={t('settings.enterPanNumber')}
             leftIcon={Building2}
             error={errors.pan}
           />

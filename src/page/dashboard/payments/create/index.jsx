@@ -18,12 +18,14 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
-import { Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModal } from '@/components/ui';
+import { Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModal, Button } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CreatePayment = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -301,72 +303,72 @@ const CreatePayment = () => {
 
     // Required fields
     if (!formData.supplierId) {
-      newErrors.supplierId = 'Supplier is required';
+      newErrors.supplierId = t('payments.supplierRequired');
     }
 
     // Validate payment methods
     if (!Array.isArray(formData.paymentMethods) || formData.paymentMethods.length === 0) {
-      newErrors.paymentMethods = 'At least one payment method is required';
+      newErrors.paymentMethods = t('payments.atLeastOnePaymentMethodRequired');
     }
 
     const totalAmount = getTotalAmount();
     if (totalAmount <= 0) {
-      newErrors.totalAmount = 'Total payment amount must be greater than 0';
+      newErrors.totalAmount = t('payments.totalAmountMustBeGreaterThanZero');
     }
 
     // Validate payment type specific requirements
     if (formData.paymentType === 'BILL_PAYMENT' && !formData.billId) {
-      newErrors.billId = 'Please select a bill for bill payment';
+      newErrors.billId = t('payments.selectBillForPayment');
     }
 
     // Validate each payment method
     (Array.isArray(formData.paymentMethods) ? formData.paymentMethods : []).forEach((method, index) => {
       if (!method.amount || method.amount <= 0) {
-        newErrors[`paymentMethod_${index}_amount`] = 'Valid amount is required (minimum 0.01)';
+        newErrors[`paymentMethod_${index}_amount`] = t('payments.validAmountRequired');
       }
 
       if (!method.method) {
-        newErrors[`paymentMethod_${index}_method`] = 'Payment method is required';
+        newErrors[`paymentMethod_${index}_method`] = t('payments.paymentMethodRequired');
       }
 
       // Validate payment method specific details
       switch (method.method) {
         case 'bank_transfer':
           if (!method.bankName) {
-            newErrors[`paymentMethod_${index}_bankName`] = 'Bank name is required';
+            newErrors[`paymentMethod_${index}_bankName`] = t('payments.bankNameRequired');
           }
           if (!method.ifscCode) {
-            newErrors[`paymentMethod_${index}_ifscCode`] = 'IFSC code is required';
+            newErrors[`paymentMethod_${index}_ifscCode`] = t('payments.ifscCodeRequired');
           }
           if (!method.accountNumber) {
-            newErrors[`paymentMethod_${index}_accountNumber`] = 'Account number is required';
+            newErrors[`paymentMethod_${index}_accountNumber`] = t('payments.accountNumberRequired');
           }
           if (!method.holderName) {
-            newErrors[`paymentMethod_${index}_holderName`] = 'Account holder name is required';
+            newErrors[`paymentMethod_${index}_holderName`] = t('payments.holderNameRequired');
           }
           break;
 
         case 'upi':
           if (!method.upiId) {
-            newErrors[`paymentMethod_${index}_upiId`] = 'UPI ID is required';
+            newErrors[`paymentMethod_${index}_upiId`] = t('payments.upiIdRequired');
           }
           if (!method.transactionId) {
-            newErrors[`paymentMethod_${index}_transactionId`] = 'Transaction ID is required';
+            newErrors[`paymentMethod_${index}_transactionId`] = t('payments.transactionIdRequired');
           }
           break;
 
         case 'cheque':
           if (!method.chequeNumber) {
-            newErrors[`paymentMethod_${index}_chequeNumber`] = 'Cheque number is required';
+            newErrors[`paymentMethod_${index}_chequeNumber`] = t('payments.chequeNumberRequired');
           }
           if (!method.chequeDate) {
-            newErrors[`paymentMethod_${index}_chequeDate`] = 'Cheque date is required';
+            newErrors[`paymentMethod_${index}_chequeDate`] = t('payments.chequeDateRequired');
           }
           if (!method.chequeBankName) {
-            newErrors[`paymentMethod_${index}_chequeBankName`] = 'Bank name is required';
+            newErrors[`paymentMethod_${index}_chequeBankName`] = t('payments.chequeBankNameRequired');
           }
           if (!method.chequeBranchName) {
-            newErrors[`paymentMethod_${index}_chequeBranchName`] = 'Branch name is required';
+            newErrors[`paymentMethod_${index}_chequeBranchName`] = t('payments.chequeBranchNameRequired');
           }
           break;
 
@@ -379,7 +381,7 @@ const CreatePayment = () => {
 
     // Validate notes length (max 500 characters)
     if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = 'Notes cannot exceed 500 characters';
+      newErrors.notes = t('payments.notesCannotExceed500');
     }
 
     setErrors(newErrors);
@@ -407,7 +409,7 @@ const CreatePayment = () => {
 
       if (result.success) {
         // Show success toast
-        showSuccess('Payment created successfully!');
+        showSuccess(t('payments.paymentCreatedSuccess'));
         // Redirect after a short delay
         setTimeout(() => {
           if (billId) {
@@ -423,7 +425,7 @@ const CreatePayment = () => {
           setErrors(fieldErrors);
         } else {
           // Show error modal for general errors
-          setErrorMessage(result.message || 'Failed to create payment. Please try again.');
+          setErrorMessage(result.message || t('payments.failedToCreatePayment'));
           setShowErrorModal(true);
         }
       }
@@ -434,11 +436,11 @@ const CreatePayment = () => {
         if (Object.keys(fieldErrors).length > 0) {
           setErrors(fieldErrors);
         } else {
-          setErrorMessage(error.response.data.message || 'An error occurred while creating the payment. Please try again.');
+          setErrorMessage(error.response.data.message || t('payments.errorCreatingPayment'));
           setShowErrorModal(true);
         }
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('payments.unexpectedErrorCreatingPayment'));
         setShowErrorModal(true);
       }
     } finally {
@@ -459,7 +461,7 @@ const CreatePayment = () => {
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header title="Create New Payment" description="Create a new supplier payment" />
+        <Header title={t('payments.createNewPayment')} description={t('payments.createNewPaymentDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -468,7 +470,7 @@ const CreatePayment = () => {
             <div className="mb-6">
               <Link href="/dashboard/payments" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Payments</span>
+                <span className="text-sm font-medium">{t('payments.backToPayments')}</span>
               </Link>
             </div>
 
@@ -483,23 +485,23 @@ const CreatePayment = () => {
                       <div className="p-6">
                         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                           <Building2 className="w-5 h-5 mr-2" />
-                          Basic Details
+                          {t('payments.basicDetails')}
                         </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                              Payment Type *
+                              {t('payments.paymentType')} *
                             </label>
                             <Select
                               size="sm"
                               value={formData.paymentType}
                               onChange={(value) => handleInputChange('paymentType', value)}
                               options={[
-                                { value: 'BILL_PAYMENT', label: 'Bill Payment' },
-                                { value: 'ADVANCE_PAYMENT', label: 'Advance Payment' },
-                                { value: 'ADJUSTMENT', label: 'Adjustment' },
-                                { value: 'REFUND', label: 'Refund' }
+                                { value: 'BILL_PAYMENT', label: t('payments.billPayment') },
+                                { value: 'ADVANCE_PAYMENT', label: t('payments.advancePayment') },
+                                { value: 'ADJUSTMENT', label: t('payments.adjustment') },
+                                { value: 'REFUND', label: t('payments.refund') }
                               ]}
                               error={errors.paymentType}
                             />
@@ -507,14 +509,14 @@ const CreatePayment = () => {
 
                           <div>
                             <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                              Supplier *
+                              {t('payments.supplier')} *
                             </label>
                             <Select
                               size="sm"
                               value={formData.supplierId}
                               onChange={(value) => handleInputChange('supplierId', value)}
                               options={[
-                                { value: '', label: suppliersLoading ? 'Loading suppliers...' : 'Select Supplier' },
+                                { value: '', label: suppliersLoading ? t('payments.loadingSuppliers') : t('payments.selectSupplier') },
                                 ...suppliers.map(supplier => ({
                                   value: supplier.id || supplier._id,
                                   label: supplier.name || supplier.supplierName
@@ -523,14 +525,14 @@ const CreatePayment = () => {
                               error={errors.supplierId}
                               disabled={suppliersLoading}
                               searchable={true}
-                              placeholder="Search and select supplier..."
+                              placeholder={t('payments.searchAndSelectSupplier')}
                             />
                           </div>
 
                           {formData.paymentType === 'BILL_PAYMENT' && (
                             <div>
                               <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                Select Bill *
+                                {t('payments.selectBill')} *
                               </label>
                               <Select
                                 size="sm"
@@ -538,12 +540,12 @@ const CreatePayment = () => {
                                 onChange={(value) => handleInputChange('billId', value)}
                                 options={[
                                   {
-                                    value: '', label: billsLoading ? 'Loading bills...' :
-                                      (bills.length === 0 && formData.supplierId && !billsLoading) ? 'No pending bills found' : 'Select Bill'
+                                    value: '', label: billsLoading ? t('payments.loadingBills') :
+                                      (bills.length === 0 && formData.supplierId && !billsLoading) ? t('payments.noPendingBills') : t('payments.selectBill')
                                   },
                                   ...bills.map(bill => ({
                                     value: bill._id,
-                                    label: `₹${bill.dueAmount} - ${bill.supplier?.name || 'Supplier'}`
+                                    label: `₹${bill.dueAmount} - ${bill.supplier?.name || t('payments.supplier')}`
                                   }))
                                 ]}
                                 error={errors.billId}
@@ -551,7 +553,7 @@ const CreatePayment = () => {
                               />
                               {billId && (
                                 <div className="mt-1 text-xs text-green-600">
-                                  Bill auto-selected from URL
+                                  {t('payments.billAutoSelected')}
                                 </div>
                               )}
                             </div>
@@ -560,12 +562,12 @@ const CreatePayment = () => {
 
                         <div className="mt-4">
                           <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                            Notes
+                            {t('payments.notes')}
                           </label>
                           <Textarea
                             value={formData.notes}
                             onChange={(value) => handleInputChange('notes', value)}
-                            placeholder="Additional notes..."
+                            placeholder={t('payments.additionalNotes')}
                             rows={3}
                           />
                         </div>
@@ -578,23 +580,23 @@ const CreatePayment = () => {
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                             <CreditCard className="w-5 h-5 mr-2" />
-                            Payment Methods
+                            {t('payments.paymentMethods')}
                           </h3>
                           <button
                             type="button"
                             onClick={addPaymentMethod}
                             className="flex items-center gap-2 px-3 py-2 cursor-pointer text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-500/10 dark:hover:bg-green-500/20 rounded-lg transition-colors duration-200"
-                            title="Add new payment method"
+                            title={t('payments.addPaymentMethod')}
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Payment Method</span>
+                            <span className="text-sm font-medium">{t('payments.addPaymentMethod')}</span>
                           </button>
                         </div>
 
                         {/* Total Amount Display */}
                         <div className="mb-4 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Total Amount:</span>
+                            <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('payments.totalAmount')}:</span>
                             <span className="text-lg font-bold text-[rgb(var(--color-text-primary))]">₹ {getTotalAmount().toLocaleString()}</span>
                           </div>
                         </div>
@@ -605,14 +607,14 @@ const CreatePayment = () => {
                             <Card key={index} className="rounded-lg p-4 bg-[rgb(var(--color-bg-secondary))]">
                               <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-md font-medium text-[rgb(var(--color-text-primary))]">
-                                  Payment Method {index + 1}
+                                  {t('payments.paymentMethod', { number: index + 1 })}
                                 </h4>
                                 {formData.paymentMethods.length > 1 && (
                                   <button
                                     type="button"
                                     onClick={() => removePaymentMethod(index)}
                                     className="p-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors duration-200"
-                                    title="Remove payment method"
+                                    title={t('payments.removePayment')}
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
@@ -622,7 +624,7 @@ const CreatePayment = () => {
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                 <div>
                                   <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                    Amount *
+                                    {t('payments.amountLabel')}
                                   </label>
                                   <Input
                                     size="sm"
@@ -638,18 +640,18 @@ const CreatePayment = () => {
 
                                 <div className="relative z-30">
                                   <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                    Payment Method *
+                                    {t('payments.paymentMethodLabel')}
                                   </label>
                                   <Select
                                     size="sm"
                                     value={method.method}
                                     onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
                                     options={[
-                                      { value: 'cash', label: 'Cash' },
-                                      { value: 'upi', label: 'UPI' },
-                                      { value: 'bank_transfer', label: 'Bank Transfer' },
-                                      { value: 'cheque', label: 'Cheque' },
-                                      { value: 'credit', label: 'Credit' }
+                                      { value: 'cash', label: t('payments.cash') },
+                                      { value: 'upi', label: t('payments.upi') },
+                                      { value: 'bank_transfer', label: t('payments.bankTransfer') },
+                                      { value: 'cheque', label: t('payments.cheque') },
+                                      { value: 'credit', label: t('payments.credit') }
                                     ]}
                                     error={errors[`paymentMethod_${index}_method`]}
                                   />
@@ -657,13 +659,13 @@ const CreatePayment = () => {
 
                                 <div>
                                   <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                    Reference
+                                    {t('payments.referenceLabel')}
                                   </label>
                                   <Input
                                     size="sm"
                                     value={method.reference}
                                     onChange={(value) => handlePaymentMethodChange(index, 'reference', value)}
-                                    placeholder="Payment reference"
+                                    placeholder={t('payments.paymentReference')}
                                   />
                                 </div>
                               </div>
@@ -674,58 +676,58 @@ const CreatePayment = () => {
                                   <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
                                     <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                                       <Building2 className="w-5 h-5 mr-2" />
-                                      Bank Transfer Details
+                                      {t('payments.bankTransferDetails')}
                                     </h3>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Bank Name *
+                                          {t('payments.bankName')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.bankName}
                                           onChange={(value) => handlePaymentMethodChange(index, 'bankName', value)}
-                                          placeholder="Enter bank name"
+                                          placeholder={t('payments.enterBankName')}
                                           error={errors[`paymentMethod_${index}_bankName`]}
                                         />
                                       </div>
 
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          IFSC Code *
+                                          {t('payments.ifscCode')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.ifscCode}
                                           onChange={(value) => handlePaymentMethodChange(index, 'ifscCode', value)}
-                                          placeholder="Enter IFSC code"
+                                          placeholder={t('payments.enterIfscCode')}
                                           error={errors[`paymentMethod_${index}_ifscCode`]}
                                         />
                                       </div>
 
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Account Number *
+                                          {t('payments.accountNumber')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.accountNumber}
                                           onChange={(value) => handlePaymentMethodChange(index, 'accountNumber', value)}
-                                          placeholder="Enter account number"
+                                          placeholder={t('payments.enterAccountNumber')}
                                           error={errors[`paymentMethod_${index}_accountNumber`]}
                                         />
                                       </div>
 
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Account Holder Name *
+                                          {t('payments.accountHolderName')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.holderName}
                                           onChange={(value) => handlePaymentMethodChange(index, 'holderName', value)}
-                                          placeholder="Enter account holder name"
+                                          placeholder={t('payments.enterAccountHolderName')}
                                           error={errors[`paymentMethod_${index}_holderName`]}
                                         />
                                       </div>
@@ -738,30 +740,30 @@ const CreatePayment = () => {
                                   <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
                                     <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                                       <Smartphone className="w-5 h-5 mr-2" />
-                                      UPI Details
+                                      {t('payments.upiDetails')}
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          UPI ID *
+                                          {t('payments.upiId')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.upiId}
                                           onChange={(value) => handlePaymentMethodChange(index, 'upiId', value)}
-                                          placeholder="Enter UPI ID (e.g., user@paytm)"
+                                          placeholder={t('payments.enterUpiId')}
                                           error={errors[`paymentMethod_${index}_upiId`]}
                                         />
                                       </div>
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Transaction ID *
+                                          {t('payments.transactionId')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.transactionId}
                                           onChange={(value) => handlePaymentMethodChange(index, 'transactionId', value)}
-                                          placeholder="Enter transaction ID"
+                                          placeholder={t('payments.enterTransactionId')}
                                           error={errors[`paymentMethod_${index}_transactionId`]}
                                         />
                                       </div>
@@ -774,24 +776,24 @@ const CreatePayment = () => {
                                   <div className="mt-4 pt-4 border-t border-[rgb(var(--color-border-primary))]">
                                     <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
                                       <FileText className="w-5 h-5 mr-2" />
-                                      Cheque Details
+                                      {t('payments.chequeDetails')}
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Cheque Number *
+                                          {t('payments.chequeNumber')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.chequeNumber}
                                           onChange={(value) => handlePaymentMethodChange(index, 'chequeNumber', value)}
-                                          placeholder="Enter cheque number"
+                                          placeholder={t('payments.enterChequeNumber')}
                                           error={errors[`paymentMethod_${index}_chequeNumber`]}
                                         />
                                       </div>
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Cheque Date *
+                                          {t('payments.chequeDate')}
                                         </label>
                                         <Input
                                           size="sm"
@@ -803,25 +805,25 @@ const CreatePayment = () => {
                                       </div>
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Bank Name *
+                                          {t('payments.chequeBankName')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.chequeBankName}
                                           onChange={(value) => handlePaymentMethodChange(index, 'chequeBankName', value)}
-                                          placeholder="Enter bank name"
+                                          placeholder={t('payments.enterBankName')}
                                           error={errors[`paymentMethod_${index}_chequeBankName`]}
                                         />
                                       </div>
                                       <div>
                                         <label className="block text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-2">
-                                          Branch Name *
+                                          {t('payments.chequeBranchName')}
                                         </label>
                                         <Input
                                           size="sm"
                                           value={method.chequeBranchName}
                                           onChange={(value) => handlePaymentMethodChange(index, 'chequeBranchName', value)}
-                                          placeholder="Enter branch name"
+                                          placeholder={t('payments.enterBranchName')}
                                           error={errors[`paymentMethod_${index}_chequeBranchName`]}
                                         />
                                       </div>
@@ -840,7 +842,7 @@ const CreatePayment = () => {
                 {/* Action Buttons - Fixed Bottom */}
                 <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
                   <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                    Cancel
+                    {t('payments.cancel')}
                   </Button>
                   <Button
                     variant="success"
@@ -849,7 +851,7 @@ const CreatePayment = () => {
                     loading={loading}
                     leftIcon={Save}
                   >
-                    Create Payment
+                    {t('payments.createPaymentButton')}
                   </Button>
                 </div>
               </div>

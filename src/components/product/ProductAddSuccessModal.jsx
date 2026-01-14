@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ArrowRight, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ProductAddSuccessModal = ({ 
   isOpen, 
@@ -9,11 +10,16 @@ const ProductAddSuccessModal = ({
   onContinue, 
   onAddMore,
   productName = "Product",
-  title = "🎉 Product Added Successfully!",
-  continueText = "Continue to Products",
-  addMoreText = "Add More Products",
-  description = "Your product is now live and ready for customers"
+  title,
+  continueText,
+  addMoreText,
+  description
 }) => {
+  const { t } = useTranslation();
+  const defaultTitle = title || t('products.productAddedSuccessfully');
+  const defaultContinueText = continueText || t('products.continueToProducts');
+  const defaultAddMoreText = addMoreText || t('products.addMoreProducts');
+  const defaultDescription = description || t('products.productNowLive');
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
@@ -67,13 +73,16 @@ const ProductAddSuccessModal = ({
           {/* Success Message */}
           <div className="text-center mb-8">
             <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3 animate-fade-in">
-              {title}
+              {defaultTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{productName}" has been {title.includes('Added') ? 'added to' : 'updated in'} your store
+              {t('products.productAddedToStore', { 
+                productName: `"${productName}"`, 
+                action: defaultTitle.includes('Added') ? t('products.addedTo') : t('products.updatedIn')
+              })}
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-              {description}
+              {defaultDescription}
             </p>
           </div>
 
@@ -85,7 +94,7 @@ const ProductAddSuccessModal = ({
               className="flex-1 h-12 text-md font-semibold bg-[rgb(var(--color-primary))] text-white"
               leftIcon={ArrowRight}
             >
-              {continueText}
+              {defaultContinueText}
             </Button>
             
             <Button
@@ -94,7 +103,7 @@ const ProductAddSuccessModal = ({
               className="flex-1 h-12 text-md font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               leftIcon={Plus}
             >
-              {addMoreText}
+              {defaultAddMoreText}
             </Button>
           </div>
 
@@ -102,7 +111,7 @@ const ProductAddSuccessModal = ({
           <div className="mt-6 text-center">
             <p className="text-xs text-[rgb(var(--color-text-tertiary))] flex items-center justify-center gap-1">
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
-              You can manage all your products from the dashboard
+              {t('products.manageProductsFromDashboard')}
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
             </p>
           </div>

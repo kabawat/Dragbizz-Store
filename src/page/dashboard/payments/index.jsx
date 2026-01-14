@@ -27,8 +27,10 @@ import {
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const Payments = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { payments, stats, isLoading, error, currentFilter, pagination } = useAppSelector((state) => state.payments);
@@ -256,18 +258,18 @@ const Payments = () => {
   const getPaymentMethodBadge = (method) => {
     switch (method?.toUpperCase()) {
       case 'CASH':
-        return { variant: 'success', text: 'Cash' };
+        return { variant: 'success', text: t('payments.cash') };
       case 'BANK_TRANSFER':
       case 'BANK':
-        return { variant: 'info', text: 'Bank Transfer' };
+        return { variant: 'info', text: t('payments.bankTransfer') };
       case 'CHEQUE':
-        return { variant: 'warning', text: 'Cheque' };
+        return { variant: 'warning', text: t('payments.cheque') };
       case 'UPI':
-        return { variant: 'primary', text: 'UPI' };
+        return { variant: 'primary', text: t('payments.upi') };
       case 'CARD':
-        return { variant: 'secondary', text: 'Card' };
+        return { variant: 'secondary', text: t('payments.card') };
       default:
-        return { variant: 'secondary', text: method || 'Unknown' };
+        return { variant: 'secondary', text: method || t('payments.unknown') };
     }
   };
 
@@ -275,11 +277,11 @@ const Payments = () => {
   const getPaymentTypeBadge = (type) => {
     switch (type?.toUpperCase()) {
       case 'ADVANCE_PAYMENT':
-        return { variant: 'primary', text: 'Advance' };
+        return { variant: 'primary', text: t('payments.advancePayment') };
       case 'BILL_PAYMENT':
-        return { variant: 'info', text: 'Bill Payment' };
+        return { variant: 'info', text: t('payments.billPayment') };
       case 'ADJUSTMENT':
-        return { variant: 'warning', text: 'Adjustment' };
+        return { variant: 'warning', text: t('payments.adjustment') };
       case 'REFUND':
         return { variant: 'danger', text: 'Refund' };
       default:
@@ -312,8 +314,8 @@ const Payments = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Payments"
-          description="Manage supplier payments and track payment status"
+          title={t('payments.title')}
+          description={t('payments.description')}
         />
 
         {/* Main Content */}
@@ -326,10 +328,10 @@ const Payments = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Payments...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your payments
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -344,7 +346,7 @@ const Payments = () => {
                   <div className="w-100">
                     <Input
                       type="text"
-                      placeholder="Search payments..."
+                      placeholder={`${t('common.search')} ${t('payments.title').toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -364,19 +366,19 @@ const Payments = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
                     <Button variant="primary" onClick={() => router.push('/dashboard/payments/create')} leftIcon={Plus}>
-                      Create Payment
+                      {t('payments.createPayment')}
                     </Button>
                   </div>
                 </div>
@@ -391,10 +393,10 @@ const Payments = () => {
                     <CreditCard className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No payments found
+                    {t('payments.noPayments')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    No payments match your current criteria. Try adjusting your search or add new payments.
+                    {t('common.noData')}
                   </p>
                   <div className="pt-4">
                     <Button
@@ -402,7 +404,7 @@ const Payments = () => {
                       onClick={() => router.push('/dashboard/payments/create')}
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Payment
+                      {t('payments.createPayment')}
                     </Button>
                   </div>
                 </div>
@@ -540,7 +542,7 @@ const Payments = () => {
                           <div className="flex items-center justify-center py-4">
                             <div className="flex items-center gap-3">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more payments...</span>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('payments.loadingMore')}</span>
                             </div>
                           </div>
                         )}
@@ -705,9 +707,9 @@ const Payments = () => {
                         </>
                       ) : (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{payments.length}</span> payments
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">{t('payments.showingPayments', { count: payments.length })}</span>
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • No more payments
+                            • {t('payments.noMore')}
                           </span>
                         </>
                       )}

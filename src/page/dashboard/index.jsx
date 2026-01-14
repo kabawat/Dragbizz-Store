@@ -7,17 +7,18 @@ import { CSS } from '@dnd-kit/utilities';
 import { IndianRupee, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, FileText, UserPlus, PackagePlus, Building, GripVertical, Loader2, CreditCard, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { dashboardService } from '@/service/retailer';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks'; 
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Lazy load components
 const Sidebar = lazy(() => import('@/components/dashboard/Sidebar'));
 const Header = lazy(() => import('@/components/dashboard/Header'));
 
-const quickActions = [
-  { title: 'Add Customer', icon: UserPlus, path: '/dashboard/customers/add' },
-  { title: 'Add Product', icon: PackagePlus, path: '/dashboard/products/add' },
-  { title: 'New Invoice', icon: FileText, path: '' },
-  { title: 'Add Supplier', icon: Building, path: '/dashboard/suppliers/add' }
+const getQuickActions = (t) => [
+  { title: t('dashboard.addCustomer'), icon: UserPlus, path: '/dashboard/customers/add' },
+  { title: t('dashboard.addProduct'), icon: PackagePlus, path: '/dashboard/products/add' },
+  { title: t('dashboard.newInvoice'), icon: FileText, path: '' },
+  { title: t('dashboard.addSupplier'), icon: Building, path: '/dashboard/suppliers/add' }
 ];
 
 const SortableSection = ({ id, children, isVisible, onToggleVisibility }) => {
@@ -161,8 +162,8 @@ const formatDate = (value) => {
   return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const formatStatusLabel = (value, fallback = 'Pending') => {
-  if (!value) return fallback;
+const formatStatusLabel = (value, fallback, t) => {
+  if (!value) return fallback || t('common.pending');
   return value
     .toString()
     .toLowerCase()
@@ -181,55 +182,55 @@ const normalizeApiList = (result, fallbackKey) => {
   return [];
 };
 
-const mapPaymentItems = (response) => {
+const mapPaymentItems = (response, t) => {
   const list = normalizeApiList(response, 'payments');
   return list.map((payment) => {
     const statusValue = payment.paymentStatus || payment.status || 'pending';
     return {
       id: payment._id || payment.id,
-      title: payment.paymentNumber || 'Supplier Payment',
-      subtitle: payment.supplier?.name || payment.supplierName || 'Supplier',
+      title: payment.paymentNumber || t('dashboard.supplierPayment'),
+      subtitle: payment.supplier?.name || payment.supplierName || t('dashboard.supplier'),
       meta: payment.paymentMethod || payment.paymentType || '',
       amount: payment.totalAmount ?? payment.amount ?? 0,
       date: payment.paymentDate || payment.createdAt,
       status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, 'Pending'),
+      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
       icon: CreditCard
     };
   });
 };
 
-const mapExpenseItems = (response) => {
+const mapExpenseItems = (response, t) => {
   const list = normalizeApiList(response, 'expenses');
   return list.map((expense) => {
     const statusValue = expense.status || 'pending';
     return {
       id: expense._id || expense.id,
-      title: expense.title || expense.category?.name || 'Expense',
-      subtitle: expense.vendor?.name || expense.vendor || expense.category?.name || 'Vendor',
+      title: expense.title || expense.category?.name || t('dashboard.expense'),
+      subtitle: expense.vendor?.name || expense.vendor || expense.category?.name || t('dashboard.vendor'),
       meta: expense.category?.name || expense.category || '',
       amount: expense.amount ?? expense.netAmount ?? 0,
       date: expense.date || expense.createdAt,
       status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, 'Pending'),
+      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
       icon: Receipt
     };
   });
 };
 
-const mapInvoiceItems = (response) => {
+const mapInvoiceItems = (response, t) => {
   const list = normalizeApiList(response, 'invoices');
   return list.map((invoice) => {
     const statusValue = invoice.paymentStatus || invoice.invoiceStatus || 'pending';
     return {
       id: invoice._id || invoice.id,
-      title: invoice.invoiceNumber || 'Invoice',
-      subtitle: invoice.customer?.name || 'Walk-in Customer',
+      title: invoice.invoiceNumber || t('dashboard.invoice'),
+      subtitle: invoice.customer?.name || t('dashboard.walkInCustomer'),
       meta: invoice.customer?.phone || invoice.invoiceStatus || '',
       amount: invoice.totalAmount ?? 0,
       date: invoice.createdAt || invoice.releasedAt || invoice.updatedAt,
       status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, 'Pending'),
+      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
       icon: FileText
     };
   });
@@ -268,7 +269,7 @@ const RecentListItem = ({ icon: Icon = ShoppingCart, title, subtitle, meta, amou
   );
 };
 
-const RecentSectionCard = ({ title, items, loading, emptyMessage, error, onViewMore }) => (
+const RecentSectionCard = ({ title, items, loading, emptyMessage, error, onViewMore, t }) => (
   <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{title}</h2>
@@ -278,7 +279,7 @@ const RecentSectionCard = ({ title, items, loading, emptyMessage, error, onViewM
           onClick={onViewMore}
           className="text-sm font-medium text-[rgb(var(--color-primary))] hover:underline"
         >
-          View more
+          {t('dashboard.viewAll')}
         </button>
       )}
     </div>
@@ -320,28 +321,29 @@ const buildRecentState = (loading = false) => ({
   invoices: { items: [], loading, error: null }
 });
 
-const SECTION_META = {
+const getSectionMeta = (t) => ({
   recentPayments: {
     stateKey: 'payments',
-    title: 'Recent Payments',
-    emptyMessage: 'No recent payments',
+    title: t('dashboard.recentPayments'),
+    emptyMessage: t('dashboard.noData'),
     path: '/dashboard/payments'
   },
   recentExpenses: {
     stateKey: 'expenses',
-    title: 'Recent Expenses',
-    emptyMessage: 'No recent expenses',
+    title: t('dashboard.recentExpenses'),
+    emptyMessage: t('dashboard.noData'),
     path: '/dashboard/expenses'
   },
   recentInvoices: {
     stateKey: 'invoices',
-    title: 'Recent Invoices',
-    emptyMessage: 'No recent invoices',
+    title: t('dashboard.recentInvoices'),
+    emptyMessage: t('dashboard.noData'),
     path: '/dashboard/invoices'
   }
-};
+});
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [selectedStore, setSelectedStore] = useState(null);
   const router = useRouter();
   const { selectedStore: storeFromRedux } = useAppSelector((state) => state.profile);
@@ -349,7 +351,7 @@ export default function Dashboard() {
   const [metrics, setMetrics] = useState([
     {
       id: 'revenue',
-      title: 'Total Revenue',
+      title: t('dashboard.totalRevenue'),
       value: '₹0',
       change: '0%',
       changeType: 'up',
@@ -358,7 +360,7 @@ export default function Dashboard() {
     },
     {
       id: 'customers',
-      title: 'Total Customers',
+      title: t('dashboard.totalCustomers'),
       value: '0',
       change: '0%',
       changeType: 'up',
@@ -367,7 +369,7 @@ export default function Dashboard() {
     },
     {
       id: 'products',
-      title: 'Products in Stock',
+      title: t('dashboard.productsInStock'),
       value: '0',
       change: '0%',
       changeType: 'up',
@@ -376,7 +378,7 @@ export default function Dashboard() {
     },
     {
       id: 'suppliers',
-      title: 'Suppliers',
+      title: t('dashboard.suppliers'),
       value: '0',
       change: '0%',
       changeType: 'up',
@@ -411,7 +413,7 @@ export default function Dashboard() {
       const updatedMetrics = [
         {
           id: 'revenue',
-          title: 'Total Revenue',
+          title: t('dashboard.totalRevenue'),
           value: `₹${dashboardData.metrics.revenue.value.toLocaleString('en-IN')}`,
           change: formatPercentChange(dashboardData.metrics.revenue.change),
           changeType: dashboardData.metrics.revenue.changeType,
@@ -420,7 +422,7 @@ export default function Dashboard() {
         },
         {
           id: 'customers',
-          title: 'Total Customers',
+          title: t('dashboard.totalCustomers'),
           value: dashboardData.metrics.customers.value.toLocaleString('en-IN'),
           change: formatPercentChange(dashboardData.metrics.customers.change),
           changeType: dashboardData.metrics.customers.changeType,
@@ -429,7 +431,7 @@ export default function Dashboard() {
         },
         {
           id: 'products',
-          title: 'Products in Stock',
+          title: t('dashboard.productsInStock'),
           value: dashboardData.metrics.products.value.toLocaleString('en-IN'),
           change: formatPercentChange(dashboardData.metrics.products.change),
           changeType: dashboardData.metrics.products.changeType,
@@ -438,7 +440,7 @@ export default function Dashboard() {
         },
         {
           id: 'suppliers',
-          title: 'Suppliers',
+          title: t('dashboard.suppliers'),
           value: dashboardData.metrics.suppliers.value.toLocaleString('en-IN'),
           change: formatPercentChange(dashboardData.metrics.suppliers.change),
           changeType: dashboardData.metrics.suppliers.changeType,
@@ -505,9 +507,9 @@ export default function Dashboard() {
       try {
         const result = await fetcher();
         if (!result.success) {
-          throw new Error(result.message || `Failed to fetch ${label}`);
+          throw new Error(result.message || t('dashboard.failedToFetch', { label }));
         }
-        const items = mapper(result);
+        const items = mapper(result, t);
         setRecentData((prev) => ({
           ...prev,
           [key]: {
@@ -522,7 +524,7 @@ export default function Dashboard() {
           [key]: {
             ...(prev[key] || { items: [], loading: false, error: null }),
             loading: false,
-            error: error.message || `Unable to load ${label}`
+            error: error.message || t('dashboard.unableToLoad', { label })
           }
         }));
       }
@@ -646,9 +648,9 @@ export default function Dashboard() {
     if (section.id === 'quickActions') {
       return (
         <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">Quick Actions</h2>
+          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">{t('dashboard.quickActions')}</h2>
           <div className="grid grid-cols-2 gap-4">
-            {quickActions.map((action, index) => (
+            {getQuickActions(t).map((action, index) => (
               <QuickActionButton key={index} {...action} onClick={() => handleRedirect(action.path)} />
             ))}
           </div>
@@ -656,7 +658,7 @@ export default function Dashboard() {
       );
     }
 
-    const meta = SECTION_META[section.id];
+    const meta = getSectionMeta(t)[section.id];
     if (!meta) {
       return null;
     }
@@ -671,6 +673,7 @@ export default function Dashboard() {
         emptyMessage={meta.emptyMessage}
         error={sectionState.error}
         onViewMore={() => handleViewMore(meta.path)}
+        t={t}
       />
     );
   };
@@ -690,8 +693,8 @@ export default function Dashboard() {
           </div>
         }>
           <Header
-            title="Dashboard"
-            description="Overview of your store performance and analytics"
+            title={t('dashboard.title')}
+            description={t('dashboard.description')}
           />
         </Suspense>
 

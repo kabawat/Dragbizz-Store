@@ -7,11 +7,13 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getInvoices } from '@/store/slices/invoicesSlice';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ReleaseInvoiceModal = ({ 
     onClose, 
     invoice
 }) => {
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -118,8 +120,8 @@ const ReleaseInvoiceModal = ({
                         <CheckCircle className="w-5 h-5 text-[rgb(var(--color-success))]" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Release Invoice</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">This will finalize the invoice</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('invoice.releaseInvoice')}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('invoice.releaseInvoiceDescription')}</p>
                     </div>
                 </div>
                 <p className="text-[rgb(var(--color-text-primary))] mb-4">
@@ -134,25 +136,25 @@ const ReleaseInvoiceModal = ({
                         value={paymentStatus}
                         onChange={handlePaymentStatusChange}
                         options={[
-                            { value: 'PAID', label: 'Paid' },
-                            { value: 'UNPAID', label: 'Unpaid' },
-                            { value: 'PAY_LATTER', label: 'Pay Later' },
-                            { value: 'CANCELLED', label: 'Cancelled' }
+                            { value: 'PAID', label: t('invoices.paid') },
+                            { value: 'UNPAID', label: t('invoices.unpaid') },
+                            { value: 'PAY_LATTER', label: t('invoices.payLater') },
+                            { value: 'CANCELLED', label: t('invoices.cancelled') }
                         ]}
-                        placeholder="Select payment status"
+                        placeholder={t('invoices.selectPaymentStatus')}
                     />
                 </div>
 
                 {(paymentStatus === 'PAY_LATTER' || paymentStatus === 'PAID') && (
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                            Paid Amount {paymentStatus === 'PAY_LATTER' ? '(Optional)' : '(Optional)'}
+                            {t('invoices.paidAmount')} {t('common.optional')}
                         </label>
                         <Input
                             type="number"
                             value={paidAmount}
                             onChange={(value) => handlePaidAmountChange(value)}
-                            placeholder={`Enter paid amount (max ₹${totalAmount?.toLocaleString() || 0})`}
+                            placeholder={t('invoices.enterPaidAmount', { max: totalAmount?.toLocaleString() || 0 })}
                             min="0"
                             step="0.01"
                             className={errors.paidAmount ? 'border-red-500' : ''}
@@ -161,9 +163,9 @@ const ReleaseInvoiceModal = ({
                             <p className="text-red-500 text-xs mt-1">{errors.paidAmount}</p>
                         )}
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                            Total Invoice Amount: ₹{totalAmount?.toLocaleString() || 0}
-                            {paymentStatus === 'PAY_LATTER' && ' • Leave empty for ₹0'}
-                            {paymentStatus === 'PAID' && ' • Leave empty for full payment'}
+                            {t('invoices.totalInvoiceAmount')}: ₹{totalAmount?.toLocaleString() || 0}
+                            {paymentStatus === 'PAY_LATTER' && ` • ${t('invoices.leaveEmptyForZero')}`}
+                            {paymentStatus === 'PAID' && ` • ${t('invoices.leaveEmptyForFullPayment')}`}
                         </p>
                     </div>
                 )}
@@ -175,7 +177,7 @@ const ReleaseInvoiceModal = ({
                         className="flex-1"
                         disabled={isReleasing}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={handleConfirm}
@@ -183,7 +185,7 @@ const ReleaseInvoiceModal = ({
                         disabled={isReleasing}
                         loading={isReleasing}
                     >
-                        {isReleasing ? 'Releasing...' : 'Release Invoice'}
+                        {isReleasing ? t('invoices.releasing') : t('invoices.releaseInvoice')}
                     </Button>
                 </div>
             </div>

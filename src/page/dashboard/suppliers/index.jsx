@@ -15,8 +15,10 @@ import { Button } from '@/components/ui';
 import { SupplierTable, SupplierCard, AddSupplierDrawer, VoiceAISupplier } from '@/components/supplier';
 import { SideDrawer } from '@/components/ui';
 import SupplierDownloadDrawer from '@/components/supplier/SupplierDownloadDrawer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const SuppliersPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -35,9 +37,9 @@ const SuppliersPage = () => {
   useEffect(() => {
     if (error) {
       setErrorDetails({
-        title: 'Error loading suppliers',
+        title: t('suppliers.errorLoading'),
         message: error,
-        details: 'Please check your connection and try again'
+        details: t('common.tryAgain')
       });
       setShowErrorModal(true);
     }
@@ -277,8 +279,8 @@ const SuppliersPage = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Suppliers"
-          description="Manage your supplier database and business partners"
+          title={t('suppliers.title')}
+          description={t('suppliers.description')}
         />
 
         {/* Main Content */}
@@ -292,7 +294,7 @@ const SuppliersPage = () => {
                 <div className="w-100">
                   <Input
                     type="text"
-                    placeholder="Search suppliers..."
+                    placeholder={`${t('common.search')} ${t('suppliers.title').toLowerCase()}...`}
                     value={searchValue}
                     onChange={(value) => handleSearch(value)}
                     leftIcon={Search}
@@ -354,7 +356,7 @@ const SuppliersPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
@@ -364,7 +366,7 @@ const SuppliersPage = () => {
                           }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
                   )}
@@ -373,17 +375,17 @@ const SuppliersPage = () => {
                     onClick={() => setShowDownloadDrawer(true)}
                     leftIcon={Download}
                   >
-                    Download
+                    {t('common.download')}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowVoiceAIDrawer(true)}
                     leftIcon={Mic}
                   >
-                    Voice AI
+                    {t('customers.voiceAI')}
                   </Button>
                   <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
-                    Add Supplier
+                    {t('suppliers.addSupplier')}
                   </Button>
                 </div>
               </div>
@@ -395,10 +397,10 @@ const SuppliersPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Suppliers...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your suppliers
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -413,21 +415,21 @@ const SuppliersPage = () => {
                     <Building className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No suppliers found
+                    {t('suppliers.noSuppliers')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    No suppliers match your current criteria. Try adjusting your search or add new suppliers.
+                    {t('common.noData')}
                   </p>
                   {error && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
                       <p className="text-red-600 text-sm">
-                        <strong>Error:</strong> {error}
+                        <strong>{t('common.error')}:</strong> {error}
                       </p>
                     </div>
                   )}
                   <div className="pt-4">
                     <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
-                      Add Supplier
+                      {t('suppliers.addSupplier')}
                     </Button>
                    
                   </div>
@@ -447,7 +449,7 @@ const SuppliersPage = () => {
                         onDelete={handleDeleteSupplier}
                         onViewDetails={handleViewSupplier}
                         loading={isLoading}
-                        emptyMessage="No suppliers found"
+                        emptyMessage={t('suppliers.noSuppliers')}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
@@ -471,7 +473,7 @@ const SuppliersPage = () => {
                           <div className="col-span-full flex items-center justify-center py-8">
                             <div className="flex items-center gap-3">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more suppliers...</span>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</span>
                             </div>
                           </div>
                         )}
@@ -540,10 +542,10 @@ const SuppliersPage = () => {
                 <Building className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Supplier Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.supplier') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedSupplierName}" has been removed from your supplier list.
+                {t('common.hasBeenRemovedFromList', { name: deletedSupplierName, item: t('common.suppliers') })}
               </p>
               <Button variant="primary" onClick={() => setShowDeleteSuccessModal(false)}>
                 Continue

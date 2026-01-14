@@ -6,8 +6,10 @@ import { productService, supplierService } from '@/service/retailer';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
 import UpgradeModal from '@/components/ui/UpgradeModal';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,12 +72,12 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
 
   const productOptions = (products || []).map(p => ({
     value: p.id || p._id,
-    label: p.name || p.title || (p.code ? `${p.code}` : 'Unknown')
+    label: p.name || p.title || (p.code ? `${p.code}` : t('common.unknown'))
   }));
 
   const supplierOptions = (suppliers || []).map(s => ({
     value: s.id || s._id,
-    label: s.name || s.companyName || 'Unknown'
+    label: s.name || s.companyName || t('common.unknown')
   }));
 
   // Calculations
@@ -103,10 +105,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const getStockStatus = () => {
     const currentStock = parseFloat(formData.batchData?.quantity || 0);
 
-    if (currentStock === 0) return { status: 'out', color: 'danger', text: 'Out of Stock' };
-    if (currentStock <= 10) return { status: 'low', color: 'warning', text: 'Low Stock' };
-    if (currentStock <= 50) return { status: 'medium', color: 'secondary', text: 'Medium Stock' };
-    return { status: 'good', color: 'success', text: 'Good Stock' };
+    if (currentStock === 0) return { status: 'out', color: 'danger', text: t('inventory.outOfStock') };
+    if (currentStock <= 10) return { status: 'low', color: 'warning', text: t('inventory.lowStock') };
+    if (currentStock <= 50) return { status: 'medium', color: 'secondary', text: t('inventory.mediumStock') };
+    return { status: 'good', color: 'success', text: t('inventory.goodStock') };
   };
 
   const stockStatus = getStockStatus();
@@ -122,22 +124,22 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           <div className="w-8 h-8 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
             <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Product Selection</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.productSelection')}</h3>
         </div>
 
         <div>
           <Select
-            label={"Select Product"}
+            label={t('inventory.selectProduct')}
             required
             searchable
             clearable
             value={formData.productId || ''}
             onChange={handleProductChange}
             options={productOptions}
-            placeholder={"Search and select product"}
+            placeholder={t('inventory.searchAndSelectProduct')}
             error={!!errors['productId']}
             errorMessage={errors['productId']}
-            helperText={!errors['productId'] ? 'Type to search products' : undefined}
+            helperText={!errors['productId'] ? t('inventory.typeToSearchProducts') : undefined}
           />
         </div>
       </div>
@@ -148,44 +150,44 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
             <Warehouse className="w-4 h-4 text-green-600" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Stock Information</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.stockInformation')}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quantity */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Quantity <span className="text-red-500">*</span>
+              {t('inventory.quantity')} <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
               value={formData.batchData?.quantity || ''}
               onChange={(value) => onChange('batchData.quantity', value)}
-              placeholder="Enter quantity"
+              placeholder={t('inventory.enterQuantity')}
               error={errors['batchData.quantity']}
-              helperText="Enter the quantity to add"
+              helperText={t('inventory.enterQuantityToAdd')}
             />
           </div>
 
           {/* Purchase Price */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Purchase Price (per unit) <span className="text-red-500">*</span>
+              {t('inventory.purchasePricePerUnit')} <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
               value={formData.batchData?.purchasePrice || ''}
               onChange={(value) => onChange('batchData.purchasePrice', value)}
-              placeholder="Enter purchase price per unit"
+              placeholder={t('inventory.enterPurchasePricePerUnit')}
               error={errors['batchData.purchasePrice']}
-              helperText="Price paid to supplier per unit"
+              helperText={t('inventory.pricePaidToSupplierPerUnit')}
             />
           </div>
 
           {/* Supplier */}
           <div className="md:col-span-2 relative">
             <Select
-              label={"Supplier (Optional)"}
+              label={t('inventory.supplierOptional')}
               searchable
               clearable
               value={formData.batchData?.supplier || ''}
@@ -193,16 +195,16 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
               options={hasSupplierManagement ? supplierOptions : []}
               placeholder={
                 !hasSupplierManagement 
-                  ? "Enable supplier management to select supplier"
-                  : "Search and select supplier (optional)"
+                  ? t('inventory.enableSupplierManagementToSelect')
+                  : t('inventory.searchAndSelectSupplierOptional')
               }
               error={!!errors['batchData.supplier']}
               errorMessage={errors['batchData.supplier']}
               helperText={
                 !hasSupplierManagement 
-                  ? "Enable supplier management feature in your subscription to use this field"
+                  ? t('inventory.enableSupplierManagementFeature')
                   : !errors['batchData.supplier'] 
-                    ? 'Optional: Type to search suppliers' 
+                    ? t('inventory.optionalTypeToSearchSuppliers')
                     : undefined
               }
               disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
@@ -217,10 +219,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                   setShowUpgradeModal(true);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                title="Upgrade to enable supplier management"
+                title={t('inventory.upgradeToEnableSupplierManagement')}
               >
                 <ArrowUp className="w-3.5 h-3.5" />
-                <span>Upgrade</span>
+                <span>{t('common.upgrade')}</span>
               </button>
             )}
           </div>
@@ -234,7 +236,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
               <Calculator className="w-4 h-4 text-indigo-600" />
             </div>
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Summary</h3>
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.summary')}</h3>
           </div>
 
           <Card className="border-2 border-[rgb(var(--color-border-primary))]">
@@ -246,15 +248,15 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                      Stock Addition Summary
+                      {t('inventory.stockAdditionSummary')}
                     </h3>
                     <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {formData.batchData?.quantity} units × ₹{formData.batchData?.purchasePrice} per unit
+                      {formData.batchData?.quantity} {t('inventory.units')} × ₹{formData.batchData?.purchasePrice} {t('inventory.perUnit')}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">Total Value</p>
+                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('inventory.totalValue')}</p>
                   <p className="text-2xl font-bold text-green-600">
                     ₹{calculateTotalValue().toLocaleString()}
                   </p>

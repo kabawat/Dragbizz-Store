@@ -4,11 +4,14 @@ import { Bell, ChevronDown } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 import LogoutModal from '@/components/ui/LogoutModal';
 import { useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 
 const Header = ({
-  title = "Dashboard",
+  title,
   description
 }) => {
+  const { t } = useTranslation();
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
 
   // Get user data from Redux
@@ -19,7 +22,7 @@ const Header = ({
     ? `${user.firstName} ${user.lastName}` 
     : user?.name || authProfile?.firstName && authProfile?.lastName
     ? `${authProfile.firstName} ${authProfile.lastName}`
-    : authProfile?.name || user?.email || 'User';
+    : authProfile?.name || user?.email || t('header.user');
   
   const userRole = user?.role || authProfile?.role || null;
   
@@ -32,7 +35,7 @@ const Header = ({
       .join(' ');
   };
   
-  const displayRole = formatRole(userRole) || 'User';
+  const displayRole = formatRole(userRole) || t('header.user');
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -56,9 +59,9 @@ const Header = ({
   }, []);
 
   const notifications = [
-    { id: 1, message: 'New order received', time: '2 min ago', unread: true },
-    { id: 2, message: 'Inventory low alert', time: '15 min ago', unread: true },
-    { id: 3, message: 'Payment received', time: '1 hour ago', unread: false },
+    { id: 1, message: t('notifications.newOrderReceived'), time: t('notifications.twoMinAgo'), unread: true },
+    { id: 2, message: t('notifications.inventoryLowAlert'), time: t('notifications.fifteenMinAgo'), unread: true },
+    { id: 3, message: t('notifications.paymentReceived'), time: t('notifications.oneHourAgo'), unread: false },
   ];
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -73,14 +76,17 @@ const Header = ({
         <div className="flex items-center justify-between">
           {/* Left side - Page Title and Description */}
           <div>
-            <h1 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-0.5">{title}</h1>
+            <h1 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-0.5">{title || t('dashboard.title')}</h1>
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              {description || `Welcome back! Here's what's happening with ${selectedStore?.name || selectedStore?.storeName || 'your store'} today.`}
+              {description || t('dashboard.description')}
             </p>
           </div>
 
           {/* Right side - User Actions */}
           <div className="flex items-center space-x-3">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             {/* Notification Bell */}
             <div className="relative" ref={notificationDropdownRef}>
               <button
@@ -99,7 +105,7 @@ const Header = ({
               {isNotificationDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-72 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="p-3 border-b border-[rgb(var(--color-border-primary))]">
-                    <h3 className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">Notifications</h3>
+                    <h3 className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">{t('notifications.title')}</h3>
                   </div>
                   <div className="max-h-48 overflow-y-auto">
                     {notifications.map((notification) => (
@@ -117,7 +123,7 @@ const Header = ({
                   </div>
                   <div className="p-2 border-t border-[rgb(var(--color-border-primary))]">
                     <button className="text-xs text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))]/80 font-medium cursor-pointer">
-                      View all notifications
+                      {t('notifications.viewAll')}
                     </button>
                   </div>
                 </div>
@@ -158,20 +164,20 @@ const Header = ({
                 <div className="absolute right-0 top-full mt-2 w-40 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="py-1">
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      Profile Settings
+                      {t('header.profileSettings')}
                     </button>
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      Account Settings
+                      {t('header.accountSettings')}
                     </button>
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      Preferences
+                      {t('header.preferences')}
                     </button>
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                     <button
                       onClick={handleLogout}
                       className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 cursor-pointer"
                     >
-                      Sign Out
+                      {t('header.signOut')}
                     </button>
                   </div>
                 </div>

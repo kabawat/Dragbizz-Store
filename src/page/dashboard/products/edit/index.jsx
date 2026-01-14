@@ -10,8 +10,10 @@ import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/compone
 import { productService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const UpdateProductPage = ({ productId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
@@ -191,13 +193,22 @@ const UpdateProductPage = ({ productId }) => {
       setLoading(true);
       setFieldErrors({});
 
+      // Calculate discount percentage based on MRP and sellingPrice
+      const mrp = parseFloat(formData.mrp) || 0;
+      const sellingPrice = parseFloat(formData.sellingPrice) || 0;
+      let discountPercentage = '0';
+      
+      if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
+        discountPercentage = String(Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100); // Round to 2 decimal places
+      }
+
       const updateData = {
         ...formData,
         pricing: {
           basePrice: formData.basePrice,
           mrp: formData.mrp,
           sellingPrice: formData.sellingPrice,
-          discount: formData.discount,
+          discount: discountPercentage,
           currency: formData.currency,
           uom: formData.uom
         }
@@ -261,7 +272,7 @@ const UpdateProductPage = ({ productId }) => {
                       Loading Product...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the product details
+                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.product') })}
                     </p>
                   </div>
                 </div>
@@ -288,13 +299,13 @@ const UpdateProductPage = ({ productId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Product Not Found
+                      {t('modals.notFound', { item: t('common.product') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-                      The product you're looking for doesn't exist or you don't have permission to edit it.
+                      {t('modals.notFound', { item: t('common.product') })}
                     </p>
                     <Button variant="outline" onClick={handleCancel} leftIcon={ArrowLeft}>
-                      Back to Products
+                      {t('common.backTo', { item: t('common.products') })}
                     </Button>
                   </div>
                 </div>
@@ -314,7 +325,7 @@ const UpdateProductPage = ({ productId }) => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Edit Product" description="Update product information and settings" />
+        <Header title={t('products.editProduct')} description={t('products.editProductDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -377,8 +388,8 @@ const UpdateProductPage = ({ productId }) => {
         onClose={() => setShowSuccessModal(false)}
         onContinue={handleContinue}
         productName={updatedProductName}
-        title="Product Updated Successfully!"
-        continueText="Back to Products"
+        title={t('products.updateSuccess')}
+        continueText={t('products.backToProducts')}
       />
 
       {/* Info Modal */}

@@ -8,6 +8,7 @@ import { customerService } from '@/service';
 import { useUsageQuota } from '@/hooks/useUsageQuota';
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CreateCustomer = ({
   storeId,
@@ -17,6 +18,7 @@ const CreateCustomer = ({
   autoRedirect = false,
   mode = 'page' // 'page' or 'drawer'
 }) => {
+  const { t } = useTranslation();
   const quotaRefreshRef = useRef(null);
 
   // Get quota information for frontend validation
@@ -182,7 +184,7 @@ const CreateCustomer = ({
         }
         
         // Show success toast
-        showSuccess('Customer created successfully!');
+        showSuccess(t('customers.createSuccess'));
         
         // Call onSuccess callback with customer data
         if (onSuccess) {
@@ -206,7 +208,7 @@ const CreateCustomer = ({
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.message || errorData.message || 'Quota exceeded',
+            message: result.message || errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -218,7 +220,7 @@ const CreateCustomer = ({
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
           } else {
-            setErrorMessage(result.message || 'Failed to create customer. Please try again.');
+            setErrorMessage(result.message || t('customers.createError'));
             setShowErrorModal(true);
           }
         }
@@ -238,7 +240,7 @@ const CreateCustomer = ({
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: errorData.message || 'Quota exceeded',
+            message: errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -250,12 +252,12 @@ const CreateCustomer = ({
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
           } else {
-            setErrorMessage(errorData.message || 'An error occurred while creating the customer. Please try again.');
+            setErrorMessage(errorData.message || t('customers.createError'));
             setShowErrorModal(true);
           }
         }
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('common.error'));
         setShowErrorModal(true);
       }
     } finally {
@@ -288,7 +290,7 @@ const CreateCustomer = ({
               className="w-full sm:w-auto"
               size="sm"
             >
-              Save Customer
+              {t('customers.saveCustomer')}
             </Button>
             {showCancelButton && onCancel && (
               <Button 
@@ -298,7 +300,7 @@ const CreateCustomer = ({
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             )}
           </div>
@@ -312,7 +314,7 @@ const CreateCustomer = ({
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title="Error"
+        title={t('common.error')}
         message={errorMessage}
       />
 
@@ -320,7 +322,7 @@ const CreateCustomer = ({
       <QuotaExceededModal
         isOpen={showQuotaModal}
         onClose={() => setShowQuotaModal(false)}
-        message={quotaError?.message || 'Quota exceeded'}
+        message={quotaError?.message || t('quota.quotaExceeded')}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}

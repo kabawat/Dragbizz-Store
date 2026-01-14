@@ -11,8 +11,10 @@ import { Button } from '@/components/ui';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ViewCustomerPage = ({ customerId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -40,10 +42,10 @@ const ViewCustomerPage = ({ customerId }) => {
         if (result.success && result.data) {
           setCustomerData(result.data);
         } else {
-          setError(result.message || 'Failed to fetch customer data');
+          setError(result.message || t('errors.failedToFetchData', { item: t('common.customer') }));
         }
       } catch (error) {
-        setError('Failed to fetch customer data. Please try again.');
+        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.customer') }));
       } finally {
         setFetching(false);
       }
@@ -76,11 +78,11 @@ const ViewCustomerPage = ({ customerId }) => {
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || 'Failed to delete customer');
+        setError(result.message || t('errors.failedToDelete', { item: t('common.customer') }));
         setShowDeleteModal(false);
       }
     } catch (error) {
-      setError('Failed to delete customer. Please try again.');
+      setError(t('errors.failedToDeleteTryAgain', { item: t('common.customer') }));
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -106,8 +108,8 @@ const ViewCustomerPage = ({ customerId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="View Customer"
-            description="Customer information and details"
+            title={t('customers.viewCustomer')}
+            description={t('customers.viewCustomerDescription')}
           />
 
           <div className="flex-1 p-6">
@@ -117,7 +119,7 @@ const ViewCustomerPage = ({ customerId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Customer Data...
+                      {t('modals.loadingData', { item: t('common.customer') })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
                       Please wait while we fetch the customer information
@@ -141,8 +143,8 @@ const ViewCustomerPage = ({ customerId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title="View Customer"
-          description="Customer information and details"
+          title={t('customers.viewCustomer')}
+          description={t('customers.viewCustomerDescription')}
         />
 
         {/* Main Content */}
@@ -152,7 +154,7 @@ const ViewCustomerPage = ({ customerId }) => {
             <div className="mb-6">
               <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Customers</span>
+                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.customers') })}</span>
               </Link>
             </div>
 
@@ -166,10 +168,10 @@ const ViewCustomerPage = ({ customerId }) => {
                         <User className="w-10 h-10 text-red-600" />
                       </div>
                       <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        Customer Not Found
+                        {t('modals.notFound', { item: t('common.customer') })}
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        The customer you're looking for doesn't exist or has been removed. Please check the customer ID and try again.
+                        {t('common.doesntExistOrRemoved', { item: t('common.customer') })}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
@@ -177,7 +179,7 @@ const ViewCustomerPage = ({ customerId }) => {
                           onClick={() => router.push('/dashboard/customers')}
                           className="px-6 py-3"
                         >
-                          Back to Customers
+                          {t('common.backTo', { item: t('common.customers') })}
                         </Button>
                         <Button
                           variant="primary"
@@ -220,7 +222,7 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Customer Name</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {customerData.name || 'N/A'}
+                              {customerData.name || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -231,7 +233,7 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Phone Number</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {customerData.phone || 'N/A'}
+                              {customerData.phone || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -242,7 +244,7 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative z-10">
                             <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Email Address</p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
-                              {customerData.email || 'N/A'}
+                              {customerData.email || t('common.na')}
                             </p>
                           </div>
                         </div>
@@ -453,31 +455,31 @@ const ViewCustomerPage = ({ customerId }) => {
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.addressLine1 || 'N/A'}
+                                      {customerData.addresses.billing.addressLine1 || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.city || 'N/A'}
+                                      {customerData.addresses.billing.city || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.state || 'N/A'}
+                                      {customerData.addresses.billing.state || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.pincode || 'N/A'}
+                                      {customerData.addresses.billing.pincode || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.country || 'N/A'}
+                                      {customerData.addresses.billing.country || t('common.na')}
                                     </p>
                                   </div>
                                 </div>
@@ -494,31 +496,31 @@ const ViewCustomerPage = ({ customerId }) => {
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.addressLine1 || 'N/A'}
+                                      {customerData.addresses.shipping.addressLine1 || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.city || 'N/A'}
+                                      {customerData.addresses.shipping.city || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.state || 'N/A'}
+                                      {customerData.addresses.shipping.state || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.pincode || 'N/A'}
+                                      {customerData.addresses.shipping.pincode || t('common.na')}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
                                     <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.country || 'N/A'}
+                                      {customerData.addresses.shipping.country || t('common.na')}
                                     </p>
                                   </div>
                                 </div>
@@ -624,7 +626,7 @@ const ViewCustomerPage = ({ customerId }) => {
               Delete Customer
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{customerData?.name || 'Customer'}"? This action cannot be undone.
+              {t('modals.deleteConfirmWithName', { name: customerData?.name || t('common.customer') })}
             </p>
             <div className="flex gap-3 justify-end">
               <Button variant="outline" onClick={handleCancelDelete} disabled={isDeleting}>
@@ -647,10 +649,10 @@ const ViewCustomerPage = ({ customerId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Customer Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.customer') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedCustomerName}" has been removed from your customer list.
+                {t('common.hasBeenRemovedFromList', { name: deletedCustomerName, item: t('common.customers') })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Customers

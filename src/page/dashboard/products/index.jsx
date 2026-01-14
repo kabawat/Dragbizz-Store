@@ -14,21 +14,21 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Input, SettingsPanel, Select } from '@/components/ui';
 import { categoryService } from '@/service/retailer';
+import { useTranslation } from '@/hooks/useTranslation';
 
-// Static options - moved outside component to avoid recreation
-const VISIBILITY_OPTIONS = [
-  { value: '', label: 'All Visibility' },
-  { value: 'PUBLIC', label: 'PUBLIC' },
-  { value: 'PRIVATE', label: 'PRIVATE' },
-  { value: 'CATALOG', label: 'CATALOG' }
+const getVisibilityOptions = (t) => [
+  { value: '', label: t('products.allVisibility') },
+  { value: 'PUBLIC', label: t('products.public') },
+  { value: 'PRIVATE', label: t('products.private') },
+  { value: 'CATALOG', label: t('products.catalog') }
 ];
 
-const SORT_OPTIONS = [
-  { value: '', label: 'Default (Newest)' },
-  { value: 'low-high', label: 'Price: Low to High' },
-  { value: 'high-low', label: 'Price: High to Low' },
-  { value: 'price_asc', label: 'Price: Ascending' },
-  { value: 'price_desc', label: 'Price: Descending' }
+const getSortOptions = (t) => [
+  { value: '', label: t('products.defaultSort') },
+  { value: 'low-high', label: t('products.priceLowHigh') },
+  { value: 'high-low', label: t('products.priceHighLow') },
+  { value: 'price_asc', label: t('products.priceAsc') },
+  { value: 'price_desc', label: t('products.priceDesc') }
 ];
 
 // Import UI components
@@ -40,6 +40,7 @@ import { StockInDrawer } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
 
 const ProductsPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -63,11 +64,10 @@ const ProductsPage = () => {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  // Memoize category options to avoid recreation
   const categoryOptions = useMemo(() => [
-    { value: '', label: 'All Categories' },
+    { value: '', label: t('products.allCategories') },
     ...categories
-  ], [categories]);
+  ], [categories, t]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -94,9 +94,9 @@ const ProductsPage = () => {
   useEffect(() => {
     if (error) {
       setErrorDetails({
-        title: 'Error loading products',
+        title: t('products.errorLoading'),
         message: error,
-        details: 'Please check your connection and try again'
+        details: t('common.tryAgain')
       });
       setShowErrorModal(true);
     }
@@ -389,7 +389,7 @@ const ProductsPage = () => {
 
   const handleDeleteProduct = useCallback((productId) => {
     const product = transformedProducts.find(p => p.id === productId);
-    setProductToDelete({ id: productId, name: product?.name || 'Product' });
+    setProductToDelete({ id: productId, name: product?.name || t('products.product') });
     setShowDeleteModal(true);
   }, [transformedProducts]);
 
@@ -436,8 +436,8 @@ const ProductsPage = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title="Products"
-          description="Manage your store inventory and product catalog"
+          title={t('products.title')}
+          description={t('products.description')}
         />
 
         {/* Main content */}
@@ -450,10 +450,10 @@ const ProductsPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Products...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your products
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -467,7 +467,7 @@ const ProductsPage = () => {
                   <div className="flex">
                     <Input
                       type="text"
-                      placeholder="Search products..."
+                      placeholder={`${t('common.search')} ${t('products.title').toLowerCase()}...`}
                       value={searchValue}
                       onChange={(value) => handleSearch(value)}
                       leftIcon={Search}
@@ -480,18 +480,17 @@ const ProductsPage = () => {
                     {/* Visibility Filter */}
                     <div className="min-w-[150px]">
                       <Select
-                        placeholder="Visibility"
+                        placeholder={t('products.visibility')}
                         value={visibility}
                         onChange={handleVisibilityChange}
-                        options={VISIBILITY_OPTIONS}
+                        options={getVisibilityOptions(t)}
                         searchable={false}
                       />
                     </div>
 
-                    {/* Category Filter */}
                     <div className="min-w-[180px]">
                       <Select
-                        placeholder="Category"
+                        placeholder={t('products.category')}
                         value={category}
                         onChange={handleCategoryChange}
                         options={categoryOptions}
@@ -501,19 +500,12 @@ const ProductsPage = () => {
                       />
                     </div>
 
-                    {/* Sort By */}
                     <div className="min-w-[180px]">
                       <Select
-                        placeholder="Sort by price"
+                        placeholder={t('common.sortBy')}
                         value={sortBy}
                         onChange={handleSortByChange}
-                        options={[
-                          { value: '', label: 'Default (Newest)' },
-                          { value: 'low-high', label: 'Price: Low to High' },
-                          { value: 'high-low', label: 'Price: High to Low' },
-                          { value: 'price_asc', label: 'Price: Ascending' },
-                          { value: 'price_desc', label: 'Price: Descending' }
-                        ]}
+                        options={getSortOptions(t)}
                         clearable={true}
                       />
                     </div>
@@ -528,14 +520,14 @@ const ProductsPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button
                         onClick={() => handleViewModeChange('card')}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
 
@@ -555,17 +547,17 @@ const ProductsPage = () => {
                     <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No products found
+                    {t('products.noProducts')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {searchValue
-                      ? `No products found matching "${searchValue}". Try adjusting your search or add new products.`
-                      : "Get started by adding your first product to build your inventory catalog."
+                      ? t('common.noResults')
+                      : t('products.description')
                     }
                   </p>
                   <div className="pt-4">
                     <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus}>
-                      Add Product
+                      {t('products.addProduct')}
                     </Button>
                   </div>
                 </div>
@@ -585,7 +577,7 @@ const ProductsPage = () => {
                         onViewDetails={handleViewProduct}
                         onStockIn={handleStockIn}
                         loading={isLoading}
-                        emptyMessage="No products found"
+                        emptyMessage={t('products.noProducts')}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
@@ -610,7 +602,7 @@ const ProductsPage = () => {
                           <div className="col-span-full flex items-center justify-center py-8">
                             <div className="flex items-center gap-3">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more products...</span>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('products.loadingMore')}</span>
                             </div>
                           </div>
                         )}
@@ -632,9 +624,9 @@ const ProductsPage = () => {
                         </>
                       ) : (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> products
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">{t('products.showingProducts', { count: transformedProducts.length })}</span>
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • No more products
+                            • {t('products.noMore')}
                           </span>
                         </>
                       )}

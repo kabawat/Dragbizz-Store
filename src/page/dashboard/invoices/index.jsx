@@ -10,8 +10,10 @@ import { useRouter } from 'next/navigation';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InvoicesPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { showError } = useGlobalToast();
@@ -39,7 +41,7 @@ const InvoicesPage = () => {
   // Error display
   useEffect(() => {
     if (error) {
-      showError(error || 'Failed to load invoices. Please check your connection and try again.');
+      showError(error || t('common.failedToLoad'));
     }
   }, [error, showError]);
 
@@ -254,7 +256,7 @@ const InvoicesPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Invoices" description="Manage your customer invoices and billing" />
+        <Header title={t('sidebar.invoices')} description={t('invoice.createInvoiceDescription')} />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
@@ -265,10 +267,10 @@ const InvoicesPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Invoices...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your invoices
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -280,7 +282,7 @@ const InvoicesPage = () => {
                 <div className="w-100">
                   <Input
                     type="text"
-                    placeholder="Search invoices..."
+                    placeholder={`${t('common.search')} ${t('sidebar.invoices').toLowerCase()}...`}
                     value={searchValue}
                     onChange={(value) => handleSearch(value)}
                     leftIcon={Search}
@@ -299,11 +301,11 @@ const InvoicesPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
                   )}
@@ -316,11 +318,11 @@ const InvoicesPage = () => {
                     className="flex items-center gap-2 h-9"
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {t('common.download')}
                   </Button>
 
                   <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                    Add Invoice
+                    {t('invoice.createInvoice')}
                   </Button>
                 </div>
               </div>
@@ -333,23 +335,23 @@ const InvoicesPage = () => {
                     <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No invoices found
+                    {t('common.noResults')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {error
-                      ? `Error: ${error}`
+                      ? `${t('common.error')}: ${error}`
                       : searchValue
-                        ? `No invoices match "${searchValue}". Try a different search or clear the filter.`
-                        : 'No invoices match your current criteria. Try adjusting your search or add new invoices.'}
+                        ? t('common.noResults')
+                        : t('common.noData')}
                   </p>
                   <div className="pt-4 flex gap-3">
                     {searchValue && (
                       <Button variant="outline" onClick={() => setSearchValue('')}>
-                        Clear search
+                        {t('common.clear')}
                       </Button>
                     )}
                     <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                      Add Invoice
+                      {t('invoice.createInvoice')}
                     </Button>
                   </div>
                 </div>
@@ -371,7 +373,7 @@ const InvoicesPage = () => {
                           onRelease={handleReleaseInvoice}
                           onUpdatePaymentStatus={handleUpdatePaymentStatus}
                           loading={isLoading}
-                          emptyMessage="No invoices found"
+                          emptyMessage={t('common.noResults')}
                           hasMore={pagination?.hasNextPage}
                           onLoadMore={handleLoadMore}
                           isLoadingMore={isLoadingMore}
@@ -397,7 +399,7 @@ const InvoicesPage = () => {
                             <div className="col-span-full flex items-center justify-center py-8">
                               <div className="flex items-center gap-3">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">Loading more invoices...</span>
+                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</span>
                               </div>
                             </div>
                           )}

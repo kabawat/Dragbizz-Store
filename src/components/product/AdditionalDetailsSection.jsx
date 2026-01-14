@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input, Textarea, TagInput, Button, Toggle } from '../ui';
 import { Plus, Eye } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AdditionalDetailsSection = ({
   formData,
@@ -9,6 +10,7 @@ const AdditionalDetailsSection = ({
   errors = {},
   ...props
 }) => {
+  const { t } = useTranslation();
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
@@ -53,7 +55,7 @@ const AdditionalDetailsSection = ({
       {/* Content & SEO Toggle */}
       <div className="mb-6">
         <Toggle
-          label="Add Content & SEO Details"
+          label={t('products.addContentSeo')}
           checked={formData.content?.isEnabled || false}
           onChange={(checked) => {
             const updatedContent = {
@@ -62,7 +64,7 @@ const AdditionalDetailsSection = ({
             };
             handleFieldChange('content', updatedContent);
           }}
-          helperText="Enable to add detailed descriptions, features, and SEO content"
+          helperText={t('products.addContentSeoHelperText')}
         />
       </div>
 
@@ -72,8 +74,8 @@ const AdditionalDetailsSection = ({
           {/* Short Description */}
       <div className="mb-6">
         <Textarea
-          label="Short Description"
-          placeholder="Brief description of your product..."
+          label={t('products.shortDescription')}
+          placeholder={t('products.enterShortDescription')}
           value={formData.content?.shortDescription || ''}
           onChange={(value) => handleFieldChange('content.shortDescription', value)}
           error={errors.shortDescription}
@@ -81,7 +83,7 @@ const AdditionalDetailsSection = ({
           rows={3}
           showCharCount
           maxLength={200}
-          helperText="Short description for product listings (max 200 characters)"
+          helperText={t('products.shortDescriptionHelperText')}
         />
       </div>
 
@@ -89,52 +91,52 @@ const AdditionalDetailsSection = ({
       {/* Product Features */}
       <div className="mb-6">
         <TagInput
-          label="Product Features"
-          placeholder="Add key features..."
+          label={t('products.productFeatures')}
+          placeholder={t('products.addKeyFeatures')}
           value={formData.content?.features || []}
           onChange={(value) => handleFieldChange('content.features', value)}
           error={errors.features}
           errorMessage={errors.features}
           maxTags={10}
           maxTagLength={50}
-          helperText="Add key features that make your product special"
+          helperText={t('products.productFeaturesHelperText')}
         />
       </div>
 
       {/* Product Tags */}
       <div className="mb-6">
         <TagInput
-          label="Product Tags"
-          placeholder="Add tags..."
+          label={t('products.productTags')}
+          placeholder={t('products.addTags')}
           value={formData.content?.tags || []}
           onChange={(value) => handleFieldChange('content.tags', value)}
           error={errors.tags}
           errorMessage={errors.tags}
           maxTags={15}
           maxTagLength={30}
-          helperText="Add relevant tags to help customers find your product"
+          helperText={t('products.productTagsHelperText')}
         />
       </div>
 
       {/* Product Specifications */}
       <div className="mb-6">
-        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Product Specifications</h4>
+        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('products.productSpecifications')}</h4>
         <div className="space-y-3">
           {(formData.content?.specifications || []).map((spec, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
               <Input
-                placeholder="Specification name"
+                placeholder={t('products.specificationName')}
                 value={spec.name || ''}
                 onChange={(value) => handleSpecificationChange(index, 'name', value)}
               />
               <Input
-                placeholder="Value"
+                placeholder={t('products.specificationValue')}
                 value={spec.value || ''}
                 onChange={(value) => handleSpecificationChange(index, 'value', value)}
               />
               <div className="flex gap-2">
                 <Input
-                  placeholder="Unit"
+                  placeholder={t('products.specificationUnit')}
                   value={spec.unit || ''}
                   onChange={(value) => handleSpecificationChange(index, 'unit', value)}
                 />
@@ -153,7 +155,7 @@ const AdditionalDetailsSection = ({
             onClick={addSpecification}
             leftIcon={Plus}
           >
-            Add Specification
+            {t('products.addSpecification')}
           </Button>
         </div>
       </div>

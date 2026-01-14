@@ -7,8 +7,10 @@ import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import { SideDrawer, ToastContainer, ErrorModal, Button } from '@/components/ui';
 import { SupplierForm } from '@/components/supplier';
 import { Save, Building2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
 
@@ -77,9 +79,10 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
       // Client-side validation: At least one contact method required
       if (!formData.phone && !formData.email) {
+        const errorMsg = t('suppliers.phoneOrEmailRequired');
         setFieldErrors({
-          phone: 'Phone or email is required',
-          email: 'Phone or email is required'
+          phone: errorMsg,
+          email: errorMsg
         });
         setLoading(false);
         return;
@@ -90,7 +93,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
       if (result.success) {
         // Show success toast
-        showSuccess('Supplier created successfully!');
+        showSuccess(t('suppliers.addSuccess'));
         // Reset form
         setFormData(getInitialFormData());
         setFieldErrors({});
@@ -181,9 +184,9 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       <SideDrawer
         isOpen={isOpen}
         onClose={handleClose}
-        title="Add New Supplier"
+        title={t('suppliers.addSupplier')}
         icon={Building2}
-        description="Add a new supplier to your vendor list"
+        description={t('suppliers.addSupplierDescription')}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -209,7 +212,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                Save Supplier
+                {t('suppliers.saveSupplier')}
               </Button>
               <Button 
                 variant="outline" 
@@ -218,7 +221,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </div>
@@ -232,7 +235,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title="Error"
+        title={t('common.error')}
         message={errorMessage}
       />
     </>

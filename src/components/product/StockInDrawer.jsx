@@ -9,6 +9,7 @@ import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
 import UpgradeModal from '@/components/ui/UpgradeModal';
 import { useGlobalToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StockInDrawer = ({
   isOpen,
@@ -16,6 +17,7 @@ const StockInDrawer = ({
   product,
   onSuccess
 }) => {
+  const { t } = useTranslation();
   const { themeConfig } = useTheme();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
@@ -217,13 +219,13 @@ const StockInDrawer = ({
               {/* Quantity */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Quantity *
+                  {t('inventory.quantity')} *
                 </label>
                 <Input
                   type="number"
                   value={formData.quantity}
                   onChange={(value) => handleInputChange('quantity', value)}
-                  placeholder="Enter quantity"
+                  placeholder={t('inventory.enterQuantity')}
                   error={errors.quantity}
                 />
                 {errors.quantity && (
@@ -234,14 +236,14 @@ const StockInDrawer = ({
               {/* Purchase Price */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Purchase Price (per unit) *
+                  {t('inventory.purchasePricePerUnit')} *
                 </label>
                 <Input
                   type="number"
                   step="0.01"
                   value={formData.purchasePrice}
                   onChange={(value) => handleInputChange('purchasePrice', value)}
-                  placeholder="Enter purchase price"
+                  placeholder={t('inventory.enterPurchasePricePerUnit')}
                   error={errors.purchasePrice}
                 />
                 {errors.purchasePrice && (
@@ -253,11 +255,11 @@ const StockInDrawer = ({
             {/* Supplier */}
             <div className="relative">
               <Select
-                label="Supplier"
+                label={t('inventory.supplierOptional')}
                 placeholder={
                   !hasSupplierManagement
-                    ? "Enable supplier management to select supplier"
-                    : "Select supplier (optional)"
+                    ? t('inventory.enableSupplierManagementToSelect')
+                    : t('inventory.searchAndSelectSupplierOptional')
                 }
                 value={formData.supplier || ''}
                 onChange={handleSupplierChange}
@@ -269,8 +271,8 @@ const StockInDrawer = ({
                 disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
                 helperText={
                   !hasSupplierManagement
-                    ? "Enable supplier management feature in your subscription to use this field"
-                    : "Optional: Select supplier for this stock"
+                    ? t('inventory.enableSupplierManagementFeature')
+                    : t('inventory.optionalTypeToSearchSuppliers')
                 }
               />
 
@@ -283,10 +285,10 @@ const StockInDrawer = ({
                     setShowUpgradeModal(true);
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                  title="Upgrade to enable supplier management"
+                  title={t('inventory.upgradeToEnableSupplierManagement')}
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
-                  <span>Upgrade</span>
+                  <span>{t('common.upgrade')}</span>
                 </button>
               )}
             </div>
@@ -294,7 +296,7 @@ const StockInDrawer = ({
             {/* Summary */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
               <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                Stock In Summary
+                {t('inventory.stockAdditionSummary')}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -304,19 +306,19 @@ const StockInDrawer = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Purchase Price:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.purchasePrice')}:</span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     ₹{formData.purchasePrice || '0.00'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Total Value:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.totalValue')}:</span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     ₹{((parseFloat(formData.quantity) || 0) * (parseFloat(formData.purchasePrice) || 0)).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">New Stock:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.newStock')}:</span>
                   <span className="text-green-500 font-medium">
                     {(product?.stock || 0) + (parseInt(formData.quantity) || 0)} units
                   </span>

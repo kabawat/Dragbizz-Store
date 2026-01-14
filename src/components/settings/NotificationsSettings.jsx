@@ -1,7 +1,9 @@
 "use client"
 import React, { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const NotificationsSettings = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -19,21 +21,25 @@ const NotificationsSettings = () => {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">Notification Settings</h2>
+        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">{t('settings.notificationSettings')}</h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          Manage how you receive notifications
+          {t('settings.manageNotifications')}
         </p>
       </div>
 
       <div className="backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/40 p-6 space-y-3">
-        {Object.entries(notifications).map(([key, value]) => (
+        {Object.entries(notifications).map(([key, value]) => {
+          const translationKey = `settings.notifications.${key}`;
+          const translatedLabel = t(translationKey);
+          
+          return (
           <div
             key={key}
             className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-primary))]/50 rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
           >
             <div>
               <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                {translatedLabel}
               </p>
             </div>
             <button
@@ -49,7 +55,8 @@ const NotificationsSettings = () => {
               />
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

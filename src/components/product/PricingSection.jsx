@@ -4,6 +4,7 @@ import { Input, Select } from '../ui';
 import { IndianRupee, Percent, Package } from 'lucide-react';
 import { FieldGroup } from '../layout';
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from '@/data';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PricingSection = ({
   formData,
@@ -11,6 +12,7 @@ const PricingSection = ({
   errors = {},
   ...props
 }) => {
+  const { t } = useTranslation();
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
@@ -27,8 +29,8 @@ const PricingSection = ({
         <div>
           <Input
             type="number"
-            label="MRP (Maximum Retail Price)"
-            placeholder="0.00"
+            label={t('products.mrpMaximumRetailPrice')}
+            placeholder={t('products.enterAmount')}
             value={formData.mrp || ''}
             onChange={(value) => handleFieldChange('mrp', value)}
             error={errors.mrp}
@@ -38,7 +40,7 @@ const PricingSection = ({
             min={0}
             step={0.01}
             precision={2}
-            helperText="Maximum retail price as per regulations"
+            helperText={t('products.mrpHelperText')}
             className="transition-all duration-200 group-hover:shadow-sm"
           />
         </div>
@@ -47,8 +49,8 @@ const PricingSection = ({
         <div>
           <Input
             type="number"
-            label="Selling Price"
-            placeholder="0.00"
+            label={t('products.sellingPrice')}
+            placeholder={t('products.enterAmount')}
             value={formData.sellingPrice || ''}
             onChange={(value) => handleFieldChange('sellingPrice', value)}
             error={errors.sellingPrice}
@@ -58,7 +60,7 @@ const PricingSection = ({
             min={0}
             step={0.01}
             precision={2}
-            helperText="Actual selling price to customers"
+            helperText={t('products.sellingPriceHelperText')}
             className="transition-all duration-200 group-hover:shadow-sm"
           />
         </div>
@@ -67,7 +69,7 @@ const PricingSection = ({
       {/* Currency and UOM */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
           <Select
-            label="Currency"
+            label={t('products.currency')}
             options={currencyOptions}
             value={formData.currency || 'INR'}
             onChange={(value) => handleFieldChange('currency', value)}
@@ -75,10 +77,10 @@ const PricingSection = ({
             errorMessage={errors.currency}
             required
           searchable
-          placeholder="Select currency"
+          placeholder={t('products.selectCurrency')}
           />
           <Select
-            label="Unit of Measure"
+            label={t('products.unitOfMeasure')}
             options={uomOptions}
           value={formData.uom || 'PCS'}
             onChange={(value) => handleFieldChange('uom', value)}
@@ -87,7 +89,7 @@ const PricingSection = ({
             required
             leftIcon={Package}
           searchable
-          placeholder="Select unit of measure"
+          placeholder={t('products.selectUnitOfMeasure')}
           />
       </div>
 
@@ -96,10 +98,10 @@ const PricingSection = ({
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
             <span className="text-[rgb(var(--color-primary))] font-bold text-xl mr-2">₹</span>
-            Price Summary
+            {t('products.priceSummary')}
           </h4>
           <div className="text-xs text-[rgb(var(--color-text-tertiary))] bg-[rgb(var(--color-bg-primary))] px-2 py-1 rounded-full">
-            Live Preview
+            {t('products.livePreview')}
           </div>
         </div>
         
@@ -108,28 +110,28 @@ const PricingSection = ({
           <div className="space-y-3">
             {formData.mrp ? (
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">MRP:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">{t('products.mrp')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   ₹{parseFloat(formData.mrp).toFixed(2)}
                 </span>
               </div>
             ) : (
               <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">MRP:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">{t('products.mrp')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
             
             {formData.sellingPrice ? (
               <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]">
-                <span className="text-sm font-medium text-white">Selling Price:</span>
+                <span className="text-sm font-medium text-white">{t('products.sellingPrice')}:</span>
                 <span className="text-sm font-bold text-white">
                   ₹{parseFloat(formData.sellingPrice).toFixed(2)}
                 </span>
               </div>
             ) : (
               <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Selling Price:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">{t('products.sellingPrice')}:</span>
                 <span className="text-sm font-bold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
@@ -139,28 +141,28 @@ const PricingSection = ({
           <div className="space-y-3">
             {formData.mrp && formData.sellingPrice && parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
               <div className="flex justify-between items-center p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">You Save:</span>
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{t('products.youSave')}:</span>
                 <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                   ₹{(parseFloat(formData.mrp) - parseFloat(formData.sellingPrice)).toFixed(2)}
                 </span>
               </div>
             ) : (
               <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">You Save:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">{t('products.youSave')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">₹0.00</span>
               </div>
             )}
             
             {formData.mrp && formData.sellingPrice && parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
               <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">Discount:</span>
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">{t('products.discount')}:</span>
                 <span className="text-sm font-bold text-green-600 dark:text-green-400">
                   {Math.round(((parseFloat(formData.mrp) - parseFloat(formData.sellingPrice)) / parseFloat(formData.mrp)) * 100)}%
                 </span>
               </div>
             ) : (
               <div className="flex justify-between items-center p-3 bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] opacity-50">
-                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">Discount:</span>
+                <span className="text-sm font-medium text-[rgb(var(--color-text-tertiary))]">{t('products.discount')}:</span>
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-tertiary))]">0%</span>
               </div>
             )}

@@ -9,6 +9,7 @@ import { invoiceService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import { useGlobalToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import DeleteInvoiceModal from './components/DeleteInvoiceModal';
 import CancelInvoiceModal from './components/CancelInvoiceModal';
 import { ReleaseInvoiceModal, UpdatePaymentStatusModal } from '@/components/invoice';
@@ -20,6 +21,7 @@ import { useInvoicePrint } from './hooks/useInvoicePrint';
 
 
 const ViewInvoicePage = ({ invoiceId }) => {
+    const { t } = useTranslation();
     const router = useRouter();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
@@ -56,10 +58,10 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 if (result.success && result.data) {
                     setInvoiceData(result.data);
                 } else {
-                    showError(result.message || 'Failed to fetch invoice data');
+                    showError(result.message || t('errors.failedToFetchData', { item: t('common.invoice') }));
                 }
             } catch (error) {
-                showError('Failed to fetch invoice data. Please try again.');
+                showError(t('errors.failedToFetchDataTryAgain', { item: t('common.invoice') }));
             } finally {
                 setFetching(false);
             }
@@ -96,15 +98,15 @@ const ViewInvoicePage = ({ invoiceId }) => {
             const result = await invoiceService.deleteInvoice(invoiceId);
 
             if (result.success) {
-                showSuccess('Invoice deleted successfully');
+                showSuccess(t('success.deletedSuccessfully', { item: t('common.invoice') }));
                 setTimeout(() => {
                     router.push('/dashboard/invoices');
                 }, 1000);
             } else {
-                showError(result.message || 'Failed to delete invoice');
+                showError(result.message || t('errors.failedToDelete', { item: t('common.invoice') }));
             }
         } catch (error) {
-            showError('Failed to delete invoice. Please try again.');
+            showError(t('errors.failedToDeleteTryAgain', { item: t('common.invoice') }));
         } finally {
             setIsDeleting(false);
         }
@@ -124,16 +126,16 @@ const ViewInvoicePage = ({ invoiceId }) => {
             const result = await invoiceService.cancelInvoice(invoiceId, 'Cancelled by user');
 
             if (result.success) {
-                showSuccess('Invoice cancelled successfully');
+                showSuccess(t('success.cancelledSuccessfully', { item: t('common.invoice') }));
                 const refreshResult = await invoiceService.getInvoiceById(invoiceId, storeId);
                 if (refreshResult.success && refreshResult.data) {
                     setInvoiceData(refreshResult.data);
                 }
             } else {
-                showError(result.message || 'Failed to cancel invoice');
+                showError(result.message || t('errors.failedToCancel', { item: t('common.invoice') }));
             }
         } catch (error) {
-            showError('Failed to cancel invoice. Please try again.');
+            showError(t('errors.failedToCancelTryAgain', { item: t('common.invoice') }));
         } finally {
             setIsCancelling(false);
         }
@@ -158,17 +160,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
             );
 
             if (result.success) {
-                showSuccess('Invoice released successfully');
+                showSuccess(t('success.releasedSuccessfully', { item: t('common.invoice') }));
                 setShowReleaseModal(false);
                 const refreshResult = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
                 if (refreshResult.success && refreshResult.data) {
                     setInvoiceData(refreshResult.data);
                 }
             } else {
-                showError(result.message || 'Failed to release invoice');
+                showError(result.message || t('errors.failedToRelease', { item: t('common.invoice') }));
             }
         } catch (error) {
-            showError('Failed to release invoice. Please try again.');
+            showError(t('errors.failedToReleaseTryAgain', { item: t('common.invoice') }));
         } finally {
             setIsReleasing(false);
         }
@@ -194,17 +196,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
             );
 
             if (result.success) {
-                showSuccess('Payment status updated successfully');
+                showSuccess(t('success.updatedSuccessfully', { item: t('common.paymentStatus') }));
                 setShowPaymentStatusModal(false);
                 const refreshResult = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
                 if (refreshResult.success && refreshResult.data) {
                     setInvoiceData(refreshResult.data);
                 }
             } else {
-                showError(result.message || 'Failed to update payment status');
+                showError(result.message || t('errors.failedToUpdatePaymentStatus'));
             }
         } catch (error) {
-            showError('Failed to update payment status. Please try again.');
+            showError(t('errors.failedToUpdatePaymentStatusTryAgain'));
         } finally {
             setIsUpdatingPayment(false);
         }
@@ -218,8 +220,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 <Sidebar />
                 <div className="min-h-screen w-full flex flex-col">
                     <Header
-                        title="View Invoice"
-                        description="Invoice information and details"
+                        title={t('invoice.viewInvoice')}
+                        description={t('invoice.viewInvoiceDescription')}
                     />
                     <div className="flex-1 p-6 flex items-center justify-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -281,7 +283,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
                 <div className="min-h-screen w-full flex flex-col main-content">
                     {/* Header */}
                     <div className="no-print">
-                        <Header title="View Invoice" description="Invoice information and details" />
+                        <Header title={t('invoice.viewInvoice')} description={t('invoice.viewInvoiceDescription')} />
                     </div>
 
                     {/* Main Content */}

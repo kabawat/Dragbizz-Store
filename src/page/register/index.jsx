@@ -8,8 +8,10 @@ import SuccessScreen from '@/components/auth/SuccessScreen';
 import { AnimatedBackground } from '@/components/ui';
 import { authService } from '@/service/auth';
 import { useLocation } from '@/app/LocationProvider';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Register() {
+  const { t } = useTranslation();
   // Get location from context
   const { userLocation } = useLocation();
 
@@ -37,19 +39,19 @@ export default function Register() {
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = t('auth.firstNameRequired');
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = t('auth.lastNameRequired');
     }
 
     if (!formData.contact.trim()) {
-      newErrors.contact = 'Email or phone number is required';
+      newErrors.contact = t('auth.emailOrPhoneRequired');
     } else if (formData.contactType === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.contact)) {
-        newErrors.contact = 'Please enter a valid email address';
+        newErrors.contact = t('auth.validEmailAddress');
       }
     } else if (formData.contactType === 'phone') {
       // More flexible phone validation - accepts various formats
@@ -57,11 +59,11 @@ export default function Register() {
       const cleanPhone = formData.contact.replace(/\D/g, '');
 
       if (!phoneRegex.test(formData.contact)) {
-        newErrors.contact = 'Please enter a valid phone number';
+        newErrors.contact = t('auth.validPhoneNumber');
       } else if (cleanPhone.length < 10) {
-        newErrors.contact = 'Phone number must be at least 10 digits';
+        newErrors.contact = t('auth.phoneMustBe10Digits');
       } else if (cleanPhone.length > 15) {
-        newErrors.contact = 'Phone number is too long';
+        newErrors.contact = t('auth.phoneTooLong');
       }
     }
     setErrors(newErrors);
@@ -99,12 +101,12 @@ export default function Register() {
         setCurrentState('verification');
       } else {
         setErrors({
-          general: result.message || 'Registration failed. Please try again.'
+          general: result.message || t('auth.registrationFailed')
         });
       }
     } catch (error) {
       setErrors({
-        general: 'An unexpected error occurred. Please try again.'
+        general: t('auth.unexpectedErrorOccurred')
       });
     } finally {
       setIsLoading(false);

@@ -14,8 +14,10 @@ import { Input, SettingsPanel, SideDrawer } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { CustomerTable, CustomerCard, CreateCustomer, VoiceAICustomer } from '@/components/customer';
 import CustomerDownloadDrawer from '@/components/customer/CustomerDownloadDrawer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CustomersPage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -59,9 +61,9 @@ const CustomersPage = () => {
   useEffect(() => {
     if (error) {
       setErrorDetails({
-        title: 'Error loading customers',
+        title: t('customers.errorLoading'),
         message: error,
-        details: 'Please check your connection and try again'
+        details: t('common.tryAgain')
       });
       setShowErrorModal(true);
     }
@@ -308,7 +310,7 @@ const CustomersPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Customers" description="Manage your customer database and customer information" />
+        <Header title={t('customers.title')} description={t('customers.description')} />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
@@ -320,10 +322,10 @@ const CustomersPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Customers...
+                      {t('common.loadingData')}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch your customers 
+                      {t('common.loading')}
                     </p>
                   </div>
                 </div>
@@ -336,7 +338,7 @@ const CustomersPage = () => {
                 <div className="w-100">
                   <Input
                     type="text"
-                    placeholder="Search customers..."
+                    placeholder={`${t('common.search')} ${t('customers.title').toLowerCase()}...`}
                     value={searchValue}
                     onChange={(value) => handleSearch(value)}
                     leftIcon={Search}
@@ -356,11 +358,11 @@ const CustomersPage = () => {
                           }`}
                       >
                         <List className="w-4 h-4" />
-                        Table
+                        {t('common.tableView')}
                       </button>
                       <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
                         <Grid3X3 className="w-4 h-4" />
-                        Cards
+                        {t('common.cardView')}
                       </button>
                     </div>
                   )}
@@ -374,21 +376,20 @@ const CustomersPage = () => {
                     className="flex items-center gap-2 h-9"
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {t('customers.download')}
                   </Button>
 
-                  {/* Voice AI Button */}
                   <Button
                     variant="secondary"
                     onClick={handleVoiceAICustomer}
                     className="flex items-center gap-2 h-9"
                   >
                     <Mic className="w-4 h-4" />
-                    Voice AI
+                    {t('customers.voiceAI')}
                   </Button>
 
                   <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
-                    Add Customer
+                    {t('customers.addCustomer')}
                   </Button>
                 </div>
               </div>
@@ -402,23 +403,23 @@ const CustomersPage = () => {
                     <Users className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    No customers found
+                    {t('customers.noCustomers')}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {error
-                      ? `Error: ${error}`
+                      ? `${t('common.error')}: ${error}`
                       : searchValue
-                        ? `No customers match "${searchValue}". Try a different search or clear the filter.`
-                        : 'No customers match your current criteria. Try adjusting your search or add new customers.'}
+                        ? t('common.noResults')
+                        : t('customers.description')}
                   </p>
                   <div className="pt-4 flex gap-3">
                     {searchValue && (
                       <Button variant="outline" onClick={() => setSearchValue('')}>
-                        Clear search
+                        {t('common.clear')}
                       </Button>
                     )}
                     <Button variant="primary" onClick={handleAddCustomer} leftIcon={Plus}>
-                      Add Customer
+                      {t('customers.addCustomer')}
                     </Button>
                   </div>
                 </div>
@@ -437,7 +438,7 @@ const CustomersPage = () => {
                         onDelete={handleDeleteCustomer}
                         onViewDetails={handleViewCustomer}
                         loading={isLoading}
-                        emptyMessage="No customers found"
+                        emptyMessage={t('customers.noCustomers')}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
@@ -531,10 +532,10 @@ const CustomersPage = () => {
                 <Users className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Customer Deleted Successfully!
+                {t('modals.deletedSuccessfully', { item: t('common.customer') })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                "{deletedCustomerName}" has been removed from your customer list.
+                {t('common.hasBeenRemovedFromList', { name: deletedCustomerName, item: t('common.customers') })}
               </p>
               <Button variant="primary" onClick={() => setShowDeleteSuccessModal(false)}>
                 Continue
@@ -555,7 +556,7 @@ const CustomersPage = () => {
               {errorDetails?.message}
             </p>
             <Button variant="primary" onClick={() => setShowErrorModal(false)}>
-              Close
+              {t('common.close')}
             </Button>
           </div>
         </div>
@@ -567,9 +568,9 @@ const CustomersPage = () => {
         onClose={() => {
           setShowCustomerDrawer(false);
         }}
-        title="Add New Customer"
+        title={t('customers.addNewCustomer')}
         icon={Users}
-        description="Add a new customer to your database"
+        description={t('customers.addNewCustomerDescription')}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -590,9 +591,9 @@ const CustomersPage = () => {
         onClose={() => {
           setShowVoiceAIDrawer(false);
         }}
-        title="Create Customer with Voice AI"
+        title={t('customers.createWithVoiceAI')}
         icon={Mic}
-        description="Chat with AI to create a customer naturally"
+        description={t('customers.voiceAIDescription')}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="h-full">

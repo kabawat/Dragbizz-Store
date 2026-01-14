@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Edit, CheckCircle, Printer, Download, BookOpen, Receipt, ChevronDown, Settings, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const InvoiceActionButtons = ({ 
     invoiceData, 
@@ -12,6 +13,7 @@ const InvoiceActionButtons = ({
     onDownloadPDF, 
     onPrint 
 }) => {
+    const { t } = useTranslation();
     const router = useRouter();
     const [showPrintMenu, setShowPrintMenu] = useState(false);
 
@@ -25,7 +27,7 @@ const InvoiceActionButtons = ({
                         className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
                     >
                         <Download className="w-4 h-4" />
-                        <span>Download PDF</span>
+                        <span>{t('invoices.downloadPDF')}</span>
                     </Button>
 
                     <div className="relative print-menu-container flex-1">
@@ -35,7 +37,7 @@ const InvoiceActionButtons = ({
                             className="w-full flex items-center justify-center gap-2 h-10 text-sm font-medium"
                         >
                             <Printer className="w-4 h-4" />
-                            <span>Print</span>
+                            <span>{t('invoices.print')}</span>
                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showPrintMenu ? 'rotate-180' : ''}`} />
                         </Button>
 
@@ -49,7 +51,7 @@ const InvoiceActionButtons = ({
                                     className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
                                 >
                                     <BookOpen className="w-4 h-4" />
-                                    <span className="text-sm">Standard (A4 / Letter)</span>
+                                    <span className="text-sm">{t('invoices.standardPrint')}</span>
                                 </button>
                                 <button
                                     onClick={() => {
@@ -59,7 +61,7 @@ const InvoiceActionButtons = ({
                                     className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-[rgb(var(--color-bg-secondary))] transition-colors border-t border-[rgb(var(--color-border-primary))]"
                                 >
                                     <Receipt className="w-4 h-4" />
-                                    <span className="text-sm">Mini / Thermal Printer</span>
+                                    <span className="text-sm">{t('invoices.miniThermalPrint')}</span>
                                 </button>
                             </div>
                         )}
@@ -72,7 +74,7 @@ const InvoiceActionButtons = ({
                     className="w-full flex items-center justify-center gap-2 h-10 text-sm font-medium"
                 >
                     <Settings className="w-4 h-4" />
-                    <span>Template Settings</span>
+                    <span>{t('invoices.templateSettings')}</span>
                 </Button>
             </div>
 
@@ -84,7 +86,7 @@ const InvoiceActionButtons = ({
                         className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
                     >
                         <Edit className="w-4 h-4" />
-                        <span>Edit Invoice</span>
+                        <span>{t('invoices.editInvoice')}</span>
                     </Button>
                     <Button
                         onClick={onRelease}
@@ -92,7 +94,7 @@ const InvoiceActionButtons = ({
                         className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
                     >
                         <CheckCircle className="w-4 h-4" />
-                        <span>Release Invoice</span>
+                        <span>{t('invoices.releaseInvoice')}</span>
                     </Button>
                 </div>
             ) : (
@@ -104,7 +106,7 @@ const InvoiceActionButtons = ({
                             className="w-full flex items-center justify-center gap-2 h-10 text-sm font-medium mb-3"
                         >
                             <CreditCard className="w-4 h-4" />
-                            <span>Update Payment Status</span>
+                            <span>{t('invoices.updatePaymentStatus')}</span>
                         </Button>
                     )}
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4">
@@ -113,7 +115,7 @@ const InvoiceActionButtons = ({
                             ₹{invoiceData.totalAmount?.toLocaleString()}
                         </div>
                         <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                            Total Amount
+                            {t('invoices.totalAmount')}
                         </div>
                     </div>
                 </div>

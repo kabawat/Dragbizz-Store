@@ -6,8 +6,10 @@ import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui';
 import { useAccountData } from './useAccountData';
 import AccountPreferencesSection from './AccountPreferencesSection';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AccountSettings = () => {
+  const { t } = useTranslation();
   const {
     settings,
     setSettings,
@@ -33,10 +35,10 @@ const AccountSettings = () => {
       
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      showSuccess('Account preferences updated successfully!');
+      showSuccess(t('settings.accountPreferencesUpdatedSuccess'));
       setIsEditing(false);
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'An unexpected error occurred. Please try again.';
+      const errorMessage = error?.response?.data?.message || error?.message || t('errors.unexpectedError');
       showError(errorMessage);
     } finally {
       setIsSaving(false);
@@ -47,9 +49,9 @@ const AccountSettings = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">Account Settings</h2>
+        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">{t('settings.accountSettings')}</h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          Configure your account preferences
+          {t('settings.configureAccountPreferences')}
         </p>
       </div>
 
@@ -65,14 +67,14 @@ const AccountSettings = () => {
       <FormDrawer
         isOpen={isEditing}
         onClose={handleCancel}
-        title="Edit Account Preferences"
+        title={t('settings.editAccountPreferences')}
         icon={Settings}
-        description="Update your account settings"
+        description={t('settings.updateAccountSettings')}
         width="w-full md:w-2/3 lg:w-1/2"
         onSave={handleSave}
         onCancel={handleCancel}
-        saveLabel={isSaving ? 'Saving...' : 'Save Changes'}
-        cancelLabel="Cancel"
+        saveLabel={isSaving ? t('common.saving') : t('common.saveChanges')}
+        cancelLabel={t('common.cancel')}
         isSaving={isSaving}
         saveIcon={Save}
         saveVariant="primary"

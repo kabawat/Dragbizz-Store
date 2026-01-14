@@ -2,8 +2,10 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function LogoutModal({ onClose, onConfirm }) {
+  const { t } = useTranslation();
   const modalContent = (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
@@ -46,10 +48,10 @@ export default function LogoutModal({ onClose, onConfirm }) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                Sign Out
+                {t('header.signOut')}
               </h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Confirm your action
+                {t('modals.deleteConfirm')}
               </p>
             </div>
           </div>
@@ -65,10 +67,10 @@ export default function LogoutModal({ onClose, onConfirm }) {
         <div className="p-6">
           <div className="mb-6">
             <p className="text-[rgb(var(--color-text-primary))] mb-2">
-              Are you sure you want to sign out?
+              {t('modals.deleteConfirm')}
             </p>
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              You'll need to sign in again to access your account and continue managing your store.
+              {t('modals.deleteConfirmMessage')}
             </p>
           </div>
 
@@ -78,13 +80,13 @@ export default function LogoutModal({ onClose, onConfirm }) {
               onClick={onClose}
               className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={onConfirm}
               className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/90 text-white rounded-lg font-medium transition-colors"
             >
-              Sign Out
+              {t('header.signOut')}
             </button>
           </div>
         </div>

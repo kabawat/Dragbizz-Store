@@ -3,8 +3,10 @@ import React from 'react';
 import { Rocket, Users, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { AnimatedBackground, AnimatedGridPattern } from '../ui';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const WelcomeScreen = ({ onGetStarted }) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
       {/* Animated Background */}
@@ -24,10 +26,10 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  Welcome to DragBizz Store
+                  {t('auth.welcomeToDragBizzStore')}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  Create your account and start managing your store with powerful tools
+                  {t('auth.createAccountStartManaging')}
                 </p>
               </div>
 
@@ -38,8 +40,8 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Join 10M+ Users</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Be part of a growing community of store owners</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.join10MUsers')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.partOfGrowingCommunity')}</p>
                   </div>
                 </div>
 
@@ -48,8 +50,8 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">100% Secure</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Enterprise-grade security for your data</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.hundredPercentSecure')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseGradeSecurity')}</p>
                   </div>
                 </div>
 
@@ -58,8 +60,8 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Setup</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Get started in less than a minute</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickSetupLessThanMinute')}</h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.getStartedLessThanMinute')}</p>
                   </div>
                 </div>
               </div>
@@ -67,7 +69,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  © 2025 DragBizz. All rights reserved.
+                  {t('auth.copyright')}
                 </p>
               </div>
             </div>
@@ -85,7 +87,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  DragBizz Store
+                  {t('auth.dragBizzStore')}
                 </h1>
               </div>
 
@@ -95,10 +97,10 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  Welcome! 👋
+                  {t('auth.welcome')}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  Create your account in less than a minute 🚀
+                  {t('auth.createAccountLessThanMinute')}
                 </p>
               </div>
 
@@ -107,22 +109,22 @@ const WelcomeScreen = ({ onGetStarted }) => {
                 onClick={onGetStarted}
                 className="w-full bg-[rgb(var(--color-primary))] text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base hover:brightness-[1.01] transition-all duration-200 shadow-md hover:shadow-lg mb-3 sm:mb-4"
               >
-                Get Started
+                {t('auth.getStarted')}
               </button>
 
               <p className="text-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] mb-4 sm:mb-6">
-                No spam, ever. We respect your privacy.
+                {t('auth.noSpamEver')}
               </p>
 
               {/* Login Link */}
               <div className="text-center">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-                  Already have an account?{' '}
+                  {t('auth.alreadyHaveAccount')}{' '}
                   <Link
                     href="/login"
                     className="text-[rgb(var(--color-primary))] hover:underline font-medium"
                   >
-                    Sign in here
+                    {t('auth.signInHere')}
                   </Link>
                 </p>
               </div>

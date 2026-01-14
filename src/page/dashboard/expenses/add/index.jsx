@@ -15,8 +15,10 @@ import { useUsageQuota } from '@/hooks/useUsageQuota';
 import { useToast } from '@/hooks/useToast';
 import { extractFieldErrors } from '@/utils/validationErrorHandler';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AddExpensePage = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   
@@ -48,8 +50,8 @@ const AddExpensePage = () => {
       const quotaData = quota || {};
       setQuotaError({
         message: quota.remaining === 0 
-          ? `Daily limit reached. You have used all ${quota.limit} expenses for today. Please try again tomorrow or upgrade your plan.`
-          : 'Quota exceeded. Please upgrade your plan to continue.',
+          ? t('expenses.dailyLimitReached', { limit: quota.limit })
+          : t('quota.quotaExceeded'),
         quota: quotaData,
         resetTime: quota.usageType === 'DAILY_FIXED' 
           ? 'tomorrow' 
@@ -80,7 +82,7 @@ const AddExpensePage = () => {
           quotaRefreshRef.current();
         }
         // Show success toast
-        showSuccess('Expense created successfully!');
+        showSuccess(t('expenses.createSuccess'));
         // Redirect after a short delay
         setTimeout(() => {
           router.push('/dashboard/expenses');
@@ -99,7 +101,7 @@ const AddExpensePage = () => {
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.payload?.message || errorData.message || 'Quota exceeded',
+            message: result.payload?.message || errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -112,7 +114,7 @@ const AddExpensePage = () => {
             // Field errors will be handled by the form component
           } else {
             // Show error modal for general errors
-            setErrorMessage(result.payload?.message || 'Failed to create expense. Please try again.');
+            setErrorMessage(result.payload?.message || t('expenses.createError'));
             setShowErrorModal(true);
           }
         }
@@ -126,7 +128,7 @@ const AddExpensePage = () => {
         if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
           const quotaData = errorData.data || {};
           setQuotaError({
-            message: errorData.message || 'Quota exceeded',
+            message: errorData.message || t('quota.quotaExceeded'),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
             canUpgrade: quotaData.canUpgrade !== false
@@ -138,13 +140,13 @@ const AddExpensePage = () => {
           if (Object.keys(fieldErrors).length > 0) {
             // Field errors will be handled by the form component
           } else {
-            setErrorMessage(errorData.message || 'An error occurred while creating the expense. Please try again.');
+            setErrorMessage(errorData.message || t('expenses.createError'));
             setShowErrorModal(true);
           }
         }
       } else {
         // Handle other types of errors
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage(t('common.error'));
         setShowErrorModal(true);
       }
     } finally {
@@ -164,8 +166,8 @@ const AddExpensePage = () => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header 
-          title="Add New Expense" 
-          description="Create a new expense entry for your business" 
+          title={t('expenses.addNewExpense')} 
+          description={t('expenses.addNewExpenseDescription')} 
         />
 
         {/* Main Content */}
@@ -175,7 +177,7 @@ const AddExpensePage = () => {
             <div className="mb-4 flex items-center justify-between">
               <Link href="/dashboard/expenses" className="inline-flex items-center space-x-2 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Expenses</span>
+                <span className="text-sm font-medium">{t('expenses.backToExpenses')}</span>
               </Link>
               <QuotaProgressBar 
                 featureKey="expense_management"
@@ -203,12 +205,12 @@ const AddExpensePage = () => {
                   {/* Quota exceeded warning message */}
                   {quotaExceeded && !quotaLoading && (
                     <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
-                      <span>⚠️ Quota exceeded. Please upgrade your plan to create more expenses.</span>
+                      <span>⚠️ {t('expenses.quotaExceededMessage')}</span>
                     </div>
                   )}
                   <div className="flex items-center space-x-3 ml-auto">
                     <Button variant="outline" onClick={handleCancel} disabled={loading || isCreating}>
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                     <Button
                       variant="success"
@@ -219,9 +221,9 @@ const AddExpensePage = () => {
                       disabled={loading || isCreating || quotaExceeded || quotaLoading}
                       loading={loading || isCreating}
                       leftIcon={Save}
-                      title={quotaExceeded ? 'Quota exceeded. Please upgrade your plan.' : ''}
+                      title={quotaExceeded ? t('quota.quotaExceeded') : ''}
                     >
-                      Save Expense
+                      {t('expenses.saveExpense')}
                     </Button>
                   </div>
                 </div>
@@ -236,8 +238,8 @@ const AddExpensePage = () => {
                         <IndianRupee className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Track Expenses?</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Stay organized with detailed expense tracking</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('expenses.whyTrackExpenses')}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('expenses.stayOrganized')}</p>
                       </div>
                     </div>
 
@@ -248,8 +250,8 @@ const AddExpensePage = () => {
                           <span className="text-green-600 text-sm">💰</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Tax Deductions</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Claim legitimate business expenses to reduce your tax burden</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.taxDeductions')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.taxDeductionsDescription')}</p>
                         </div>
                       </div>
 
@@ -259,8 +261,8 @@ const AddExpensePage = () => {
                           <span className="text-blue-600 text-sm">📊</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Budget Management</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Track spending patterns and maintain healthy cash flow</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.budgetManagement')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.budgetManagementDescription')}</p>
                         </div>
                       </div>
 
@@ -270,8 +272,8 @@ const AddExpensePage = () => {
                           <span className="text-purple-600 text-sm">📈</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Financial Analysis</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Analyze expenses to make informed business decisions</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.financialAnalysis')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.financialAnalysisDescription')}</p>
                         </div>
                       </div>
 
@@ -281,8 +283,8 @@ const AddExpensePage = () => {
                           <span className="text-orange-600 text-sm">📋</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Compliance & Records</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Maintain proper records for audits and compliance</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.compliance')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.complianceDescription')}</p>
                         </div>
                       </div>
 
@@ -292,8 +294,8 @@ const AddExpensePage = () => {
                           <span className="text-indigo-600 text-sm">🧾</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">GST Input Credit</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Claim GST input credit on eligible business expenses</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('expenses.gstInputCredit')}</h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('expenses.gstInputCreditDescription')}</p>
                         </div>
                       </div>
                     </div>

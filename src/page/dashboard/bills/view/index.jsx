@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   ArrowLeft,
   Receipt,
@@ -34,6 +35,7 @@ import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 
 const ViewBillPage = ({ billId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
@@ -639,10 +641,10 @@ const ViewBillPage = ({ billId }) => {
                   <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                  Bill Deleted Successfully!
+                  {t('modals.deletedSuccessfully', { item: t('common.bill') })}
                 </h3>
                 <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                  "{deletedBillNumber}" has been removed from your bill list.
+                  {t('common.hasBeenRemovedFromList', { name: deletedBillNumber, item: t('common.bills') })}
                 </p>
                 <Button variant="primary" onClick={handleDeleteSuccess}>
                   Back to Bills

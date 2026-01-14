@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle, Phone } from 'lucide-react';
 import { Input, Button, Card, CardHeader, CardTitle, CardDescription, CardBody, AnimatedBackground } from '@/components/ui';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ForgotPassword = () => {
+  const { t } = useTranslation();
   const [contact, setContact] = useState('');
   const [contactType, setContactType] = useState('email');
   const [isLoading, setIsLoading] = useState(false);
@@ -77,18 +79,18 @@ const ForgotPassword = () => {
     e.preventDefault();
     
     if (!contact.trim()) {
-      setContactError('Contact information is required');
+      setContactError(t('auth.contactInformationRequired'));
       return;
     }
     
     if (contactType === 'email') {
       if (!validateEmail(contact)) {
-        setContactError('Please enter a valid email address');
+        setContactError(t('auth.validEmailAddress'));
         return;
       }
     } else {
       if (!validatePhone(contact)) {
-        setContactError('Please enter a valid phone number');
+        setContactError(t('auth.validPhoneNumber'));
         return;
       }
     }
@@ -121,10 +123,10 @@ const ForgotPassword = () => {
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-800">
-              Check Your {contactType === 'email' ? 'Email' : 'Phone'}
+              {contactType === 'email' ? t('auth.checkYourEmail') : t('auth.checkYourPhone')}
             </CardTitle>
             <CardDescription className="text-gray-600 mt-2">
-              We've sent a password reset {contactType === 'email' ? 'link' : 'code'} to
+              {contactType === 'email' ? t('auth.sentPasswordResetLink') : t('auth.sentPasswordResetCode')}
             </CardDescription>
             <p className="font-semibold text-gray-800 mt-1">{contact}</p>
           </CardHeader>
@@ -134,11 +136,11 @@ const ForgotPassword = () => {
               <div className="flex items-start">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                 <div className="text-sm text-green-800">
-                  <p className="font-medium mb-1">Password reset {contactType === 'email' ? 'email' : 'SMS'} sent!</p>
+                  <p className="font-medium mb-1">{contactType === 'email' ? t('auth.passwordResetEmailSent') : t('auth.passwordResetSmsSent')}</p>
                   <p>
                     {contactType === 'email' 
-                      ? 'Click the link in the email to reset your password. The link will expire in 15 minutes.'
-                      : 'Enter the verification code sent to your phone to reset your password. The code will expire in 10 minutes.'
+                      ? t('auth.clickLinkInEmail')
+                      : t('auth.enterVerificationCodePhone')
                     }
                   </p>
                 </div>
@@ -153,26 +155,25 @@ const ForgotPassword = () => {
                 fullWidth
                 leftIcon={contactType === 'email' ? Mail : Phone}
               >
-                {isLoading ? 'Sending...' : `Resend ${contactType === 'email' ? 'Email' : 'SMS'}`}
+                {isLoading ? t('auth.sending') : (contactType === 'email' ? t('auth.resendEmail') : t('auth.resendSms'))}
               </Button>
               
               <Link href="/login">
                 <Button variant="ghost" fullWidth leftIcon={ArrowLeft}>
-                  Back to Login
+                  {t('auth.backToLogin')}
                 </Button>
               </Link>
             </div>
 
             <div className="text-center text-sm text-gray-500">
               <p>
-                Didn't receive the {contactType === 'email' ? 'email' : 'SMS'}? 
-                {contactType === 'email' ? ' Check your spam folder or' : ' Check your messages or'}
+                {contactType === 'email' ? t('auth.didntReceiveEmail') : t('auth.didntReceiveSms')}
               </p>
               <button
                 onClick={() => setIsContactSent(false)}
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
-                try a different {contactType === 'email' ? 'email' : 'phone number'}
+                {contactType === 'email' ? t('auth.tryDifferentEmail') : t('auth.tryDifferentPhone')}
               </button>
             </div>
           </CardBody>
@@ -194,9 +195,9 @@ const ForgotPassword = () => {
               <Phone className="w-8 h-8 text-blue-500" />
             )}
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-800">Forgot Password?</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800">{t('auth.forgotPassword')}</CardTitle>
           <CardDescription className="text-gray-600 mt-2">
-            No worries! Enter your email or phone number and we'll send you a reset link.
+            {t('auth.noWorriesEnterContact')}
           </CardDescription>
         </CardHeader>
         
@@ -213,12 +214,12 @@ const ForgotPassword = () => {
                     {contactType === 'email' ? (
                       <>
                         <Mail className="w-3 h-3 mr-1" />
-                        Email
+                        {t('auth.email')}
                       </>
                     ) : (
                       <>
                         <Phone className="w-3 h-3 mr-1" />
-                        Phone
+                        {t('auth.phone')}
                       </>
                     )}
                   </div>
@@ -230,7 +231,7 @@ const ForgotPassword = () => {
             <div>
               <Input
                 type={contactType === 'email' ? 'email' : 'tel'}
-                placeholder={contactType === 'email' ? 'your@email.com' : '+91 98765 43210'}
+                placeholder={contactType === 'email' ? t('auth.emailPlaceholder') : t('auth.phonePlaceholder')}
                 value={contact}
                 onChange={handleContactChange}
                 leftIcon={contactType === 'email' ? Mail : Phone}
@@ -277,15 +278,15 @@ const ForgotPassword = () => {
               fullWidth
             >
               {isLoading 
-                ? `Sending Reset ${contactType === 'email' ? 'Link' : 'Code'}...` 
-                : `Send Reset ${contactType === 'email' ? 'Link' : 'Code'}`
+                ? (contactType === 'email' ? t('auth.sendingResetLink') : t('auth.sendingResetCode'))
+                : (contactType === 'email' ? t('auth.sendResetLink') : t('auth.sendResetCode'))
               }
             </Button>
 
             <div className="text-center">
               <Link href="/login">
                 <Button variant="ghost" fullWidth leftIcon={ArrowLeft}>
-                  Back to Login
+                  {t('auth.backToLogin')}
                 </Button>
               </Link>
             </div>
@@ -293,9 +294,9 @@ const ForgotPassword = () => {
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="text-center text-sm text-gray-500">
-              <p className="mb-2">Remember your password?</p>
+              <p className="mb-2">{t('auth.rememberPassword')}</p>
               <Link href="/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                Sign in instead
+                {t('auth.signInInstead')}
               </Link>
             </div>
           </div>
