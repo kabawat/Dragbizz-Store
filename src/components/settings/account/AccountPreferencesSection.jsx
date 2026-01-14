@@ -14,8 +14,8 @@ const AccountPreferencesSection = ({
   const languageOptions = [
     { value: 'en', label: t('settings.languages.english') },
     { value: 'hi', label: t('settings.languages.hindi') },
-    { value: 'es', label: t('settings.languages.spanish') },
-    { value: 'fr', label: t('settings.languages.french') }
+    { value: 'gu', label: t('settings.languages.gujarati') },
+    { value: 'hi-en', label: t('settings.languages.hinglish') }
   ];
 
   const timezoneOptions = [

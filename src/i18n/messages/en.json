@@ -1589,8 +1589,8 @@
     "savedAutomatically": "Settings saved automatically",
     "english": "English",
     "hindi": "Hindi",
-    "spanish": "Spanish",
-    "french": "French",
+    "gujarati": "Gujarati",
+    "hinglish": "Hinglish",
     "appVersion": "DragBizz Store v1.0.0",
     "accountPreferences": "Account Preferences",
     "editPreferences": "Edit Preferences",
@@ -1688,9 +1688,9 @@
     },
     "languages": {
       "english": "English",
-      "hindi": "Hindi",
-      "spanish": "Spanish",
-      "french": "French"
+      "hindi": "હિંદી",
+      "gujarati": "ગુજરાતી",
+      "hinglish": "Hinglish"
     }
   }
 }

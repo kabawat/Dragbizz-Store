@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 const SettingsPanel = () => {
-  const { t } = useTranslation();
+  const { t, locale, changeLanguage } = useTranslation();
   const { 
     currentTheme, 
     currentVariant, 
@@ -39,7 +39,6 @@ const SettingsPanel = () => {
   const [notifications, setNotifications] = useState(true);
   const [sound, setSound] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
-  const [language, setLanguage] = useState('en');
 
   // Close drawer with Escape key
   useEffect(() => {
@@ -309,14 +308,19 @@ const SettingsPanel = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">{t('settings.language')}</h3>
                   <select 
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
+                    value={locale || 'en'}
+                    onChange={(e) => {
+                      const newLocale = e.target.value;
+                      if (newLocale !== locale) {
+                        changeLanguage(newLocale);
+                      }
+                    }}
                     className="w-full p-3 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                   >
                     <option value="en">{t('settings.english')}</option>
                     <option value="hi">{t('settings.hindi')}</option>
-                    <option value="es">{t('settings.spanish')}</option>
-                    <option value="fr">{t('settings.french')}</option>
+                    <option value="gu">{t('settings.gujarati')}</option>
+                    <option value="hi-en">{t('settings.hinglish')}</option>
                   </select>
                 </div>
 
