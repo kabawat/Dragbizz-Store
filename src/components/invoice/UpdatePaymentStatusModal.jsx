@@ -144,18 +144,18 @@ const UpdatePaymentStatusModal = ({
                         value={paymentStatus}
                         onChange={handlePaymentStatusChange}
                         options={[
-                            { value: 'PAID', label: t('invoices.paid') },
-                            { value: 'UNPAID', label: t('invoices.unpaid') },
-                            { value: 'PAY_LATTER', label: t('invoices.payLater') }
+                            { value: 'PAID', label: t('invoice.paid') },
+                            { value: 'UNPAID', label: t('invoice.unpaid') },
+                            { value: 'PAY_LATTER', label: t('invoice.payLater') }
                         ]}
-                        placeholder={t('invoices.selectPaymentStatus')}
+                        placeholder={t('invoice.selectPaymentStatus')}
                     />
                 </div>
 
                 {(paymentStatus === 'PAY_LATTER' || paymentStatus === 'PAID') && (
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                            {t('invoices.paidAmount')} {t('common.optional')}
+                            {t('invoice.paidAmount')} {t('common.optional')}
                         </label>
                         <Input
                             type="number"
@@ -163,8 +163,8 @@ const UpdatePaymentStatusModal = ({
                             onChange={(value) => handlePaidAmountChange(value)}
                             placeholder={
                                 paymentStatus === 'PAY_LATTER'
-                                    ? t('invoices.enterPaidAmount', { max: totalAmount?.toLocaleString() || 0 })
-                                    : t('invoices.enterPaidAmountDefault', { amount: totalAmount?.toLocaleString() || 0 })
+                                    ? t('invoice.enterPaidAmount', { max: totalAmount?.toLocaleString() || 0 })
+                                    : t('invoice.enterPaidAmountDefault', { amount: totalAmount?.toLocaleString() || 0 })
                             }
                             min="0"
                             max={paymentStatus === 'PAY_LATTER' ? totalAmount : undefined}
@@ -175,9 +175,9 @@ const UpdatePaymentStatusModal = ({
                             <p className="text-red-500 text-xs mt-1">{errors.paidAmount}</p>
                         )}
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                            {t('invoices.totalInvoiceAmount')}: ₹{totalAmount?.toLocaleString() || 0}
-                            {paymentStatus === 'PAY_LATTER' && ` • ${t('invoices.leaveEmptyForZero')}`}
-                            {paymentStatus === 'PAID' && ` • ${t('invoices.leaveEmptyForFullPayment')}`}
+                            {t('invoice.totalInvoiceAmount')}: ₹{totalAmount?.toLocaleString() || 0}
+                            {paymentStatus === 'PAY_LATTER' && ` • ${t('invoice.leaveEmptyForZero')}`}
+                            {paymentStatus === 'PAID' && ` • ${t('invoice.leaveEmptyForFullPayment')}`}
                         </p>
                     </div>
                 )}
@@ -197,7 +197,7 @@ const UpdatePaymentStatusModal = ({
                         disabled={isUpdating}
                         loading={isUpdating}
                     >
-                        {isUpdating ? t('common.updating') : t('invoices.updatePaymentStatus')}
+                        {isUpdating ? t('common.updating') : t('invoice.updatePaymentStatus')}
                     </Button>
                 </div>
             </div>

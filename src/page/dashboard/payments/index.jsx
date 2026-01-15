@@ -46,6 +46,7 @@ const Payments = () => {
   const [viewMode, setViewMode] = useState('card');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [selectedPayments, setSelectedPayments] = useState([]);
   const menuRefs = useRef({});
   const scrollRef = useRef(null);
   const lastFetchedStoreId = useRef(null);
@@ -193,6 +194,17 @@ const Payments = () => {
       default:
         break;
     }
+  };
+
+  // Handle payment selection
+  const handlePaymentSelect = (paymentId) => {
+    setSelectedPayments(prev => {
+      if (prev.includes(paymentId)) {
+        return prev.filter(id => id !== paymentId);
+      } else {
+        return [...prev, paymentId];
+      }
+    });
   };
 
   // Handle delete payment

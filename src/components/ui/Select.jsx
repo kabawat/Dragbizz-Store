@@ -323,9 +323,9 @@ const Select = ({
                         onMouseLeave={() => setHighlightedIndex(-1)}
                       >
                         <span
-                          className={(isHighlighted || isSelected) ? 'text-blue-500' : 'text-gray-900 dark:text-white'}
+                          className={(isHighlighted || isSelected) ? 'text-blue-500' : ''}
                           style={{ 
-                            color: (isHighlighted || isSelected) ? '#3b82f6' : 'inherit',
+                            color: (isHighlighted || isSelected) ? '#3b82f6' : 'rgb(var(--color-text-primary))',
                             fontSize: 'inherit',
                             fontWeight: 'inherit'
                           }}
