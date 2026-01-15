@@ -14,12 +14,15 @@ const Card = ({
 }) => {
   // Variant classes - Theme aware
   const variantClasses = {
-    default: 'bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]',
+    default: 'bg-[rgb(var(--color-bg-primary))] border',
     elevated: 'bg-[rgb(var(--color-bg-primary))] border-0',
-    outlined: 'bg-[rgb(var(--color-bg-primary))] border-2 border-[rgb(var(--color-border-primary))]',
-    filled: 'bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]',
+    outlined: 'bg-[rgb(var(--color-bg-primary))] border-2',
+    filled: 'bg-[rgb(var(--color-bg-secondary))] border',
     glass: 'bg-[rgb(var(--color-bg-primary))] bg-opacity-80 backdrop-blur-sm border border-[rgb(var(--color-border-primary))] border-opacity-20'
   };
+  
+  // Border color class - uses CSS variable that adapts to theme
+  const borderColorClass = variant === 'glass' ? '' : 'border-[var(--color-border-primary-light)]';
   
   // Padding classes - Reduced padding
   const paddingClasses = {
@@ -52,12 +55,12 @@ const Card = ({
   };
   
   // Hover classes
-  const hoverClasses = hover ? 'hover:shadow-lg hover:-translate-y-1 transition-all duration-200' : '';
+  const hoverClasses = hover ? 'hover:-translate-y-1 transition-all duration-200' : '';
   
   // Clickable classes
   const clickableClasses = onClick ? 'cursor-pointer' : '';
   
-  const cardClasses = `${variantClasses[variant]} ${paddingClasses[padding]} ${shadowClasses[shadow]} ${roundedClasses[rounded]} ${hoverClasses} ${clickableClasses} ${className}`;
+  const cardClasses = `${variantClasses[variant]} ${borderColorClass} ${paddingClasses[padding]} ${shadowClasses[shadow]} ${roundedClasses[rounded]} ${hoverClasses} ${clickableClasses} ${className}`;
   
   return (
     <div
@@ -72,21 +75,21 @@ const Card = ({
 
 // Card Header Component
 const CardHeader = ({ children, className = '', ...props }) => (
-  <div className={`border-b border-gray-200 pb-4 mb-4 ${className}`} {...props}>
+  <div className={`border-b border-[var(--color-border-primary-light)] pb-4 mb-4 ${className}`} {...props}>
     {children}
   </div>
 );
 
 // Card Title Component
 const CardTitle = ({ children, className = '', ...props }) => (
-  <h3 className={`text-lg font-semibold text-gray-900 ${className}`} {...props}>
+  <h3 className={`text-lg font-semibold text-[rgb(var(--color-text-primary))] ${className}`} {...props}>
     {children}
   </h3>
 );
 
 // Card Description Component
 const CardDescription = ({ children, className = '', ...props }) => (
-  <p className={`text-sm text-gray-600 mt-1 ${className}`} {...props}>
+  <p className={`text-sm text-[rgb(var(--color-text-secondary))] mt-1 ${className}`} {...props}>
     {children}
   </p>
 );
@@ -100,7 +103,7 @@ const CardBody = ({ children, className = '', ...props }) => (
 
 // Card Footer Component
 const CardFooter = ({ children, className = '', ...props }) => (
-  <div className={`border-t border-gray-200 pt-4 mt-4 ${className}`} {...props}>
+  <div className={`border-t border-[var(--color-border-primary-light)] pt-4 mt-4 ${className}`} {...props}>
     {children}
   </div>
 );

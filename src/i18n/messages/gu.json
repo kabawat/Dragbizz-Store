@@ -1249,6 +1249,7 @@
     "purchaseOrders": "પર્ચેઝ ઓર્ડર્સ",
     "bills": "બિલ્સ",
     "payments": "ચુકવણીઓ",
+    "analytics": "વિશ્લેષણ",
     "settings": "સેટિંગ્સ",
     "expandSidebar": "સાઇડબાર વિસ્તૃત કરો",
     "collapseSidebar": "સાઇડબાર સંકુચિત કરો",
@@ -1467,7 +1468,14 @@
     "invoice": "ઇન્વૉઇસ",
     "walkInCustomer": "વૉક-ઇન ગ્રાહક",
     "failedToFetch": "{label} પ્રાપ્ત કરવામાં નિષ્ફળ",
-    "unableToLoad": "{label} લોડ કરવામાં અસમર્થ"
+    "unableToLoad": "{label} લોડ કરવામાં અસમર્થ",
+    "revenueAnalytics": "આવક વિશ્લેષણ",
+    "salesAnalytics": "વેચાણ વિશ્લેષણ",
+    "productAnalytics": "ઉત્પાદન વિશ્લેષણ",
+    "customerAnalytics": "ગ્રાહક વિશ્લેષણ",
+    "stockAnalytics": "સ્ટોક વિશ્લેષણ",
+    "supplierAnalytics": "સપ્લાયર વિશ્લેષણ",
+    "billAnalytics": "બિલ વિશ્લેષણ"
   },
   "modals": {
     "deleteConfirm": "શું તમે ખાતરી કરો છો?",

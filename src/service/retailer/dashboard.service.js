@@ -28,7 +28,7 @@ class DashboardService {
   // Get Invoice Analytics
   async getInvoiceAnalytics(params = {}) {
     try {
-      const url = attachQueryParams(`${API_CONFIG.RETAILER.INVOICE}/analytics`, params);
+      const url = attachQueryParams(`${API_CONFIG.RETAILER.ANALYTICS}/invoices`, params);
       const response = await authAxios.get(url);
       return handleApiSuccess(response.data, 'Invoice analytics fetched successfully');
     } catch (error) {

@@ -94,13 +94,17 @@ class ExpenseService {
   }
 
   // Get expense analytics
-  async getExpenseAnalytics(storeId = null) {
+  async getExpenseAnalytics(storeId = null, period = '30') {
     try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/analytics`;
+      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/expenses`;
+      const params = {};
       if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
+        params.store = storeId;
       }
+      if (period) {
+        params.period = period;
+      }
+      url = attachQueryParams(url, params);
       const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, 'Expense analytics fetched successfully');
     } catch (error) {

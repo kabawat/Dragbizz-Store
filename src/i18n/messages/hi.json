@@ -1255,6 +1255,7 @@
     "purchaseOrders": "खरीद आदेश",
     "bills": "बिल",
     "payments": "भुगतान",
+    "analytics": "विश्लेषण",
     "settings": "सेटिंग्स",
     "expandSidebar": "साइडबार विस्तृत करें",
     "collapseSidebar": "साइडबार संकुचित करें",
@@ -1473,7 +1474,14 @@
     "invoice": "चालान",
     "walkInCustomer": "वॉक-इन ग्राहक",
     "failedToFetch": "{label} प्राप्त करने में विफल",
-    "unableToLoad": "{label} लोड करने में असमर्थ"
+    "unableToLoad": "{label} लोड करने में असमर्थ",
+    "revenueAnalytics": "राजस्व विश्लेषण",
+    "salesAnalytics": "बिक्री विश्लेषण",
+    "productAnalytics": "उत्पाद विश्लेषण",
+    "customerAnalytics": "ग्राहक विश्लेषण",
+    "stockAnalytics": "स्टॉक विश्लेषण",
+    "supplierAnalytics": "आपूर्तिकर्ता विश्लेषण",
+    "billAnalytics": "बिल विश्लेषण"
   },
   "modals": {
     "deleteConfirm": "क्या आप सुनिश्चित हैं?",
