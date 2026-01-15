@@ -54,23 +54,23 @@ export const SortableMetricCard = ({ id, title, value, change, icon: Icon, iconC
         </div>
       </div>
       <Card 
-        className={`backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative`}
+        className={`backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative overflow-hidden`}
         style={{ background: getGradientStyle(iconColor) }}
       >
-        <div className="flex items-center justify-between p-6">
-          <div>
-            <p className="text-[rgb(var(--color-text-secondary))] text-sm font-medium">{title}</p>
-            <p className="text-[rgb(var(--color-text-primary))] text-2xl font-bold">{value}</p>
-            <p className="text-[rgb(var(--color-text-secondary))] text-xs flex items-center mt-1">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              {change}
+        {/* Background Icon */}
+        <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end pr-3 opacity-10">
+          <Icon className="w-13 h-13 text-[rgb(var(--color-text-primary))]" />
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 p-4">
+          <div className="flex-1 min-w-0">
+            <p className="text-[rgb(var(--color-text-secondary))] text-xs font-medium truncate">{title}</p>
+            <p className="text-[rgb(var(--color-text-primary))] text-xl font-bold mt-1">{value}</p>
+            <p className="text-[rgb(var(--color-text-secondary))] text-xs flex items-center mt-1 truncate">
+              <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">{change}</span>
             </p>
-          </div>
-          <div 
-            className="w-12 h-12 rounded-lg flex items-center justify-center"
-            style={{ background: getGradientStyle(iconColor) }}
-          >
-            <Icon className="w-6 h-6 text-[rgb(var(--color-text-primary))]" />
           </div>
         </div>
       </Card>

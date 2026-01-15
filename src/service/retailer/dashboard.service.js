@@ -24,17 +24,6 @@ class DashboardService {
       return handleApiErrorResponse(error, 'dashboard-fetch');
     }
   }
-
-  // Get Invoice Analytics
-  async getInvoiceAnalytics(params = {}) {
-    try {
-      const url = attachQueryParams(`${API_CONFIG.RETAILER.ANALYTICS}/invoices`, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(response.data, 'Invoice analytics fetched successfully');
-    } catch (error) {
-      return handleApiErrorResponse(error, 'invoice-analytics-fetch');
-    }
-  }
 }
 
 // Create and export a singleton instance

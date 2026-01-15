@@ -1,11 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { PieChart, TrendingUp, Package, AlertTriangle } from 'lucide-react';
+import { Package, CheckCircle, XCircle } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -14,11 +14,54 @@ const ProductAnalytics = () => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   
+  // Mock data structure matching API: { totals: { totalProducts, activeProducts, inactiveProducts } }
+  const analytics = useMemo(() => ({
+    totals: {
+      totalProducts: 0,
+      activeProducts: 0,
+      inactiveProducts: 0
+    }
+  }), []);
+
+  const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  
   const [metrics, setMetrics] = useState([
-    { id: 'totalProducts', title: 'Total Products', value: '0', change: '+0.0% from last period', icon: Package, iconColor: 'from-purple-100 to-purple-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'lowStock', title: 'Low Stock', value: '0', change: 'Needs attention', icon: AlertTriangle, iconColor: 'from-yellow-100 to-yellow-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'outOfStock', title: 'Out of Stock', value: '0', change: 'Urgent action needed', icon: AlertTriangle, iconColor: 'from-red-100 to-red-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'activeProducts', title: 'Active Products', value: '0', change: 'In stock', icon: Package, iconColor: 'from-green-100 to-green-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
+    { 
+      id: 'totalProducts', 
+      title: 'Total Products', 
+      value: formatNumber(analytics.totals.totalProducts), 
+      change: `${formatNumber(analytics.totals.activeProducts)} active, ${formatNumber(analytics.totals.inactiveProducts)} inactive`, 
+      icon: Package, 
+      iconColor: 'from-purple-100 to-purple-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'activeProducts', 
+      title: 'Active Products', 
+      value: formatNumber(analytics.totals.activeProducts), 
+      change: 'Currently active', 
+      icon: CheckCircle, 
+      iconColor: 'from-green-100 to-green-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'inactiveProducts', 
+      title: 'Inactive Products', 
+      value: formatNumber(analytics.totals.inactiveProducts), 
+      change: 'Not active', 
+      icon: XCircle, 
+      iconColor: 'from-gray-100 to-gray-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'totalCount', 
+      title: 'Total Count', 
+      value: formatNumber(analytics.totals.totalProducts), 
+      change: 'All products', 
+      icon: Package, 
+      iconColor: 'from-blue-100 to-blue-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
   ]);
 
   const [cards, setCards] = useState([
@@ -73,7 +116,7 @@ const ProductAnalytics = () => {
             onDragEnd={handleMetricsDragEnd}
           >
             <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {metrics.map((metric) => (
                   <SortableMetricCard key={metric.id} {...metric} />
                 ))}
@@ -110,16 +153,16 @@ const ProductAnalytics = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">New Products</p>
-                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Products</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(analytics.totals.totalProducts)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Updated Products</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Active Products</p>
+                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(analytics.totals.activeProducts)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Inactive Products</p>
-                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">0</p>
+                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">{formatNumber(analytics.totals.inactiveProducts)}</p>
                               </div>
                             </div>
                           </div>

@@ -1,11 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Activity, TrendingUp, Users, UserPlus } from 'lucide-react';
+import { Users, UserPlus, Calendar } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -14,11 +14,60 @@ const CustomerAnalytics = () => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   
+  // Mock data structure matching API: { totalCustomers, todayCustomers, newCustomers: { last1Day, last7Days, etc } }
+  const analytics = useMemo(() => ({
+    totalCustomers: 0,
+    todayCustomers: 0,
+    newCustomers: {
+      last1Day: 0,
+      last7Days: 0,
+      last15Days: 0,
+      last30Days: 0,
+      last3Months: 0,
+      last6Months: 0,
+      last12Months: 0
+    }
+  }), []);
+
+  const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  
   const [metrics, setMetrics] = useState([
-    { id: 'totalCustomers', title: 'Total Customers', value: '0', change: '+0.0% from last period', icon: Users, iconColor: 'from-orange-100 to-orange-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'newCustomers', title: 'New Customers', value: '0', change: 'This period', icon: UserPlus, iconColor: 'from-blue-100 to-blue-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'activeCustomers', title: 'Active Customers', value: '0', change: 'Recent activity', icon: Activity, iconColor: 'from-green-100 to-green-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'avgOrderValue', title: 'Avg Order Value', value: '₹0', change: 'Per customer', icon: TrendingUp, iconColor: 'from-purple-100 to-purple-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
+    { 
+      id: 'totalCustomers', 
+      title: 'Total Customers', 
+      value: formatNumber(analytics.totalCustomers), 
+      change: `${formatNumber(analytics.todayCustomers)} today`, 
+      icon: Users, 
+      iconColor: 'from-orange-100 to-orange-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'todayCustomers', 
+      title: 'Today\'s Customers', 
+      value: formatNumber(analytics.todayCustomers), 
+      change: 'New today', 
+      icon: Calendar, 
+      iconColor: 'from-blue-100 to-blue-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'last7Days', 
+      title: 'Last 7 Days', 
+      value: formatNumber(analytics.newCustomers.last7Days), 
+      change: 'New customers', 
+      icon: UserPlus, 
+      iconColor: 'from-green-100 to-green-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'last30Days', 
+      title: 'Last 30 Days', 
+      value: formatNumber(analytics.newCustomers.last30Days), 
+      change: 'New customers', 
+      icon: UserPlus, 
+      iconColor: 'from-purple-100 to-purple-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
   ]);
 
   const [cards, setCards] = useState([
@@ -73,7 +122,7 @@ const CustomerAnalytics = () => {
             onDragEnd={handleMetricsDragEnd}
           >
             <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {metrics.map((metric) => (
                   <SortableMetricCard key={metric.id} {...metric} />
                 ))}
@@ -110,16 +159,16 @@ const CustomerAnalytics = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Regular Customers</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 7 Days</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(analytics.newCustomers.last7Days)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">VIP Customers</p>
-                                <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 30 Days</p>
+                                <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">{formatNumber(analytics.newCustomers.last30Days)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Inactive Customers</p>
-                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 3 Months</p>
+                                <p className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{formatNumber(analytics.newCustomers.last3Months)}</p>
                               </div>
                             </div>
                           </div>

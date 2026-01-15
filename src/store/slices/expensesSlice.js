@@ -137,7 +137,9 @@ export const getExpenseAnalytics = createAsyncThunk(
   'expenses/getExpenseAnalytics',
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await expenseService.getExpenseAnalytics(storeId);
+      // Use analyticsService instead of expenseService for analytics
+      const { analyticsService } = await import('@/service/retailer');
+      const result = await analyticsService.getExpenseAnalytics({ store: storeId });
       
       if (!result.success) {
         return rejectWithValue({
@@ -147,7 +149,7 @@ export const getExpenseAnalytics = createAsyncThunk(
 
       return {
         success: true,
-        data: result.data,
+        data: result.data?.data || result.data,
         message: 'Expense analytics fetched successfully'
       };
     } catch (error) {

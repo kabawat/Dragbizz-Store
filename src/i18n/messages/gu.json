@@ -1475,7 +1475,8 @@
     "customerAnalytics": "ગ્રાહક વિશ્લેષણ",
     "stockAnalytics": "સ્ટોક વિશ્લેષણ",
     "supplierAnalytics": "સપ્લાયર વિશ્લેષણ",
-    "billAnalytics": "બિલ વિશ્લેષણ"
+    "billAnalytics": "બિલ વિશ્લેષણ",
+    "expenseAnalytics": "ખર્ચ વિશ્લેષણ"
   },
   "modals": {
     "deleteConfirm": "શું તમે ખાતરી કરો છો?",
@@ -1683,7 +1684,7 @@
     },
     "languages": {
       "english": "English",
-      "hindi": "હિંદી",
+      "hindi": "हिंदी",
       "gujarati": "ગુજરાતી",
       "hinglish": "Hinglish"
     }
