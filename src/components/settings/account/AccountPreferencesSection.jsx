@@ -3,6 +3,7 @@ import { Edit2, Globe, Clock, Calendar, DollarSign } from 'lucide-react';
 import { Select, Toggle } from '@/components/ui';
 import AccountPreferencesCard from './AccountPreferencesCard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { localeNames } from '@/i18n/config';
 
 const AccountPreferencesSection = ({ 
   settings, 
@@ -12,10 +13,10 @@ const AccountPreferencesSection = ({
 }) => {
   const { t } = useTranslation();
   const languageOptions = [
-    { value: 'en', label: t('settings.languages.english') },
-    { value: 'hi', label: t('settings.languages.hindi') },
-    { value: 'gu', label: t('settings.languages.gujarati') },
-    { value: 'hi-en', label: t('settings.languages.hinglish') }
+    { value: 'en', label: localeNames.en },
+    { value: 'hi', label: localeNames.hi },
+    { value: 'gu', label: localeNames.gu },
+    { value: 'hi-en', label: localeNames['hi-en'] }
   ];
 
   const timezoneOptions = [
