@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { localeNames } from '@/i18n/config';
 import { 
   Settings, 
   Palette, 
@@ -317,10 +318,10 @@ const SettingsPanel = () => {
                     }}
                     className="w-full p-3 bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg text-[rgb(var(--color-text-primary))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                   >
-                    <option value="en">{t('settings.english')}</option>
-                    <option value="hi">{t('settings.hindi')}</option>
-                    <option value="gu">{t('settings.gujarati')}</option>
-                    <option value="hi-en">{t('settings.hinglish')}</option>
+                    <option value="en">{localeNames.en}</option>
+                    <option value="hi">{localeNames.hi}</option>
+                    <option value="gu">{localeNames.gu}</option>
+                    <option value="hi-en">{localeNames['hi-en']}</option>
                   </select>
                 </div>
 
