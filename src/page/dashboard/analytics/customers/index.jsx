@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { getCustomerAnalytics } from '@/store/slices/customersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Users, UserPlus, Calendar } from 'lucide-react';
@@ -12,22 +13,41 @@ import { SortableMetricCard, SortableCard } from '@/components/analytics/Sortabl
 
 const CustomerAnalytics = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { analytics, isLoading } = useAppSelector((state) => state.customers);
+  const hasFetchedRef = useRef({ storeId: null, fetched: false });
   
-  // Mock data structure matching API: { totalCustomers, todayCustomers, newCustomers: { last1Day, last7Days, etc } }
-  const analytics = useMemo(() => ({
-    totalCustomers: 0,
-    todayCustomers: 0,
-    newCustomers: {
-      last1Day: 0,
-      last7Days: 0,
-      last15Days: 0,
-      last30Days: 0,
-      last3Months: 0,
-      last6Months: 0,
-      last12Months: 0
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (!storeId) return;
+    
+    const lastFetched = hasFetchedRef.current;
+    if (lastFetched.fetched && lastFetched.storeId === storeId) {
+      return;
     }
-  }), []);
+    
+    hasFetchedRef.current = { storeId, fetched: true };
+    dispatch(getCustomerAnalytics(storeId));
+  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+  
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (storeId && hasFetchedRef.current.storeId !== storeId) {
+      hasFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+  
+  // Memoize derived values
+  const newCustomers = useMemo(() => analytics?.newCustomers || {
+    last1Day: 0,
+    last7Days: 0,
+    last15Days: 0,
+    last30Days: 0,
+    last3Months: 0,
+    last6Months: 0,
+    last12Months: 0
+  }, [analytics?.newCustomers]);
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   
@@ -35,8 +55,8 @@ const CustomerAnalytics = () => {
     { 
       id: 'totalCustomers', 
       title: 'Total Customers', 
-      value: formatNumber(analytics.totalCustomers), 
-      change: `${formatNumber(analytics.todayCustomers)} today`, 
+      value: '0', 
+      change: '0 today', 
       icon: Users, 
       iconColor: 'from-orange-100 to-orange-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
@@ -44,7 +64,7 @@ const CustomerAnalytics = () => {
     { 
       id: 'todayCustomers', 
       title: 'Today\'s Customers', 
-      value: formatNumber(analytics.todayCustomers), 
+      value: '0', 
       change: 'New today', 
       icon: Calendar, 
       iconColor: 'from-blue-100 to-blue-200', 
@@ -53,7 +73,7 @@ const CustomerAnalytics = () => {
     { 
       id: 'last7Days', 
       title: 'Last 7 Days', 
-      value: formatNumber(analytics.newCustomers.last7Days), 
+      value: '0', 
       change: 'New customers', 
       icon: UserPlus, 
       iconColor: 'from-green-100 to-green-200', 
@@ -62,13 +82,53 @@ const CustomerAnalytics = () => {
     { 
       id: 'last30Days', 
       title: 'Last 30 Days', 
-      value: formatNumber(analytics.newCustomers.last30Days), 
+      value: '0', 
       change: 'New customers', 
       icon: UserPlus, 
       iconColor: 'from-purple-100 to-purple-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
     },
   ]);
+
+  // Update metrics when analytics data changes
+  useEffect(() => {
+    if (analytics) {
+      setMetrics((prevMetrics) => {
+        const metricsMap = new Map(prevMetrics.map(m => [m.id, m]));
+        
+        if (metricsMap.has('totalCustomers')) {
+          metricsMap.set('totalCustomers', {
+            ...metricsMap.get('totalCustomers'),
+            value: formatNumber(analytics.totalCustomers || 0),
+            change: `${formatNumber(analytics.todayCustomers || 0)} today`
+          });
+        }
+        if (metricsMap.has('todayCustomers')) {
+          metricsMap.set('todayCustomers', {
+            ...metricsMap.get('todayCustomers'),
+            value: formatNumber(analytics.todayCustomers || 0),
+            change: 'New today'
+          });
+        }
+        if (metricsMap.has('last7Days')) {
+          metricsMap.set('last7Days', {
+            ...metricsMap.get('last7Days'),
+            value: formatNumber(newCustomers.last7Days),
+            change: 'New customers'
+          });
+        }
+        if (metricsMap.has('last30Days')) {
+          metricsMap.set('last30Days', {
+            ...metricsMap.get('last30Days'),
+            value: formatNumber(newCustomers.last30Days),
+            change: 'New customers'
+          });
+        }
+        
+        return Array.from(metricsMap.values());
+      });
+    }
+  }, [analytics, newCustomers]);
 
   const [cards, setCards] = useState([
     { id: 'chart1', type: 'chart', title: 'Customer Growth Trend' },
@@ -116,6 +176,12 @@ const CustomerAnalytics = () => {
         />
 
         <div className="flex-1 p-6 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
+            </div>
+          ) : (
+            <>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -160,15 +226,15 @@ const CustomerAnalytics = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 7 Days</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(analytics.newCustomers.last7Days)}</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(newCustomers.last7Days)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 30 Days</p>
-                                <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">{formatNumber(analytics.newCustomers.last30Days)}</p>
+                                <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">{formatNumber(newCustomers.last30Days)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Last 3 Months</p>
-                                <p className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{formatNumber(analytics.newCustomers.last3Months)}</p>
+                                <p className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{formatNumber(newCustomers.last3Months)}</p>
                               </div>
                             </div>
                           </div>
@@ -179,6 +245,8 @@ const CustomerAnalytics = () => {
               </div>
             </SortableContext>
           </DndContext>
+            </>
+          )}
         </div>
       </div>
     </div>

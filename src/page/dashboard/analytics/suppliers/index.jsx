@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { getSupplierAnalytics } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Building2, CheckCircle, XCircle } from 'lucide-react';
@@ -12,16 +13,36 @@ import { SortableMetricCard, SortableCard } from '@/components/analytics/Sortabl
 
 const SupplierAnalytics = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { analytics, isLoading } = useAppSelector((state) => state.suppliers);
+  const hasFetchedRef = useRef({ storeId: null, fetched: false });
   
-  // Mock data structure matching API: { totals: { totalSuppliers, activeSuppliers, inactiveSuppliers } }
-  const analytics = useMemo(() => ({
-    totals: {
-      totalSuppliers: 0,
-      activeSuppliers: 0,
-      inactiveSuppliers: 0
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (!storeId) return;
+    
+    const lastFetched = hasFetchedRef.current;
+    if (lastFetched.fetched && lastFetched.storeId === storeId) {
+      return;
     }
-  }), []);
+    
+    hasFetchedRef.current = { storeId, fetched: true };
+    dispatch(getSupplierAnalytics(storeId));
+  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+  
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (storeId && hasFetchedRef.current.storeId !== storeId) {
+      hasFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+
+  const totals = useMemo(() => analytics?.totals || {
+    totalSuppliers: 0,
+    activeSuppliers: 0,
+    inactiveSuppliers: 0
+  }, [analytics?.totals]);
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   
@@ -29,8 +50,8 @@ const SupplierAnalytics = () => {
     { 
       id: 'totalSuppliers', 
       title: 'Total Suppliers', 
-      value: formatNumber(analytics.totals.totalSuppliers), 
-      change: `${formatNumber(analytics.totals.activeSuppliers)} active, ${formatNumber(analytics.totals.inactiveSuppliers)} inactive`, 
+      value: '0', 
+      change: '0 active, 0 inactive', 
       icon: Building2, 
       iconColor: 'from-teal-100 to-teal-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
@@ -38,7 +59,7 @@ const SupplierAnalytics = () => {
     { 
       id: 'activeSuppliers', 
       title: 'Active Suppliers', 
-      value: formatNumber(analytics.totals.activeSuppliers), 
+      value: '0', 
       change: 'Currently active', 
       icon: CheckCircle, 
       iconColor: 'from-green-100 to-green-200', 
@@ -47,7 +68,7 @@ const SupplierAnalytics = () => {
     { 
       id: 'inactiveSuppliers', 
       title: 'Inactive Suppliers', 
-      value: formatNumber(analytics.totals.inactiveSuppliers), 
+      value: '0', 
       change: 'Not active', 
       icon: XCircle, 
       iconColor: 'from-gray-100 to-gray-200', 
@@ -56,13 +77,52 @@ const SupplierAnalytics = () => {
     { 
       id: 'supplierCount', 
       title: 'Total Count', 
-      value: formatNumber(analytics.totals.totalSuppliers), 
+      value: '0', 
       change: 'All suppliers', 
       icon: Building2, 
       iconColor: 'from-blue-100 to-blue-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
     },
   ]);
+
+  useEffect(() => {
+    if (analytics && totals) {
+      setMetrics((prevMetrics) => {
+        const metricsMap = new Map(prevMetrics.map(m => [m.id, m]));
+        
+        if (metricsMap.has('totalSuppliers')) {
+          metricsMap.set('totalSuppliers', {
+            ...metricsMap.get('totalSuppliers'),
+            value: formatNumber(totals.totalSuppliers),
+            change: `${formatNumber(totals.activeSuppliers)} active, ${formatNumber(totals.inactiveSuppliers)} inactive`
+          });
+        }
+        if (metricsMap.has('activeSuppliers')) {
+          metricsMap.set('activeSuppliers', {
+            ...metricsMap.get('activeSuppliers'),
+            value: formatNumber(totals.activeSuppliers),
+            change: 'Currently active'
+          });
+        }
+        if (metricsMap.has('inactiveSuppliers')) {
+          metricsMap.set('inactiveSuppliers', {
+            ...metricsMap.get('inactiveSuppliers'),
+            value: formatNumber(totals.inactiveSuppliers),
+            change: 'Not active'
+          });
+        }
+        if (metricsMap.has('supplierCount')) {
+          metricsMap.set('supplierCount', {
+            ...metricsMap.get('supplierCount'),
+            value: formatNumber(totals.totalSuppliers),
+            change: 'All suppliers'
+          });
+        }
+        
+        return Array.from(metricsMap.values());
+      });
+    }
+  }, [analytics, totals]);
 
   const [cards, setCards] = useState([
     { id: 'chart1', type: 'chart', title: 'Supplier Growth Trend' },
@@ -110,6 +170,12 @@ const SupplierAnalytics = () => {
         />
 
         <div className="flex-1 p-6 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
+            </div>
+          ) : (
+            <>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -154,15 +220,15 @@ const SupplierAnalytics = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Suppliers</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(analytics.totals.totalSuppliers)}</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(totals.totalSuppliers)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Active Suppliers</p>
-                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(analytics.totals.activeSuppliers)}</p>
+                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(totals.activeSuppliers)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Inactive Suppliers</p>
-                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">{formatNumber(analytics.totals.inactiveSuppliers)}</p>
+                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">{formatNumber(totals.inactiveSuppliers)}</p>
                               </div>
                             </div>
                           </div>
@@ -173,6 +239,8 @@ const SupplierAnalytics = () => {
               </div>
             </SortableContext>
           </DndContext>
+            </>
+          )}
         </div>
       </div>
     </div>

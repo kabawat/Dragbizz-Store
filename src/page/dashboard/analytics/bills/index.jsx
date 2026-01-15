@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { getBillAnalytics } from '@/store/slices/billsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Receipt, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
@@ -12,32 +13,54 @@ import { SortableMetricCard, SortableCard } from '@/components/analytics/Sortabl
 
 const BillAnalytics = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { analytics, isLoading } = useAppSelector((state) => state.bills);
+  const hasFetchedRef = useRef({ storeId: null, fetched: false });
   
-  // Mock data structure matching API: { counts: {...}, amounts: {...} }
-  const analytics = useMemo(() => ({
-    counts: {
-      totalBills: 0,
-      paidBills: 0,
-      pendingBills: 0,
-      overdueBills: 0
-    },
-    amounts: {
-      totalPayable: 0,
-      totalPaid: 0,
-      totalDue: 0
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (!storeId) return;
+    
+    const lastFetched = hasFetchedRef.current;
+    if (lastFetched.fetched && lastFetched.storeId === storeId) {
+      return;
     }
-  }), []);
+    
+    hasFetchedRef.current = { storeId, fetched: true };
+    dispatch(getBillAnalytics(storeId));
+  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+  
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (storeId && hasFetchedRef.current.storeId !== storeId) {
+      hasFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   const formatCurrency = (amount) => `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  // Memoize derived values
+  const counts = useMemo(() => analytics?.counts || {
+    totalBills: 0,
+    paidBills: 0,
+    pendingBills: 0,
+    overdueBills: 0
+  }, [analytics?.counts]);
+  
+  const amounts = useMemo(() => analytics?.amounts || {
+    totalPayable: 0,
+    totalPaid: 0,
+    totalDue: 0
+  }, [analytics?.amounts]);
   
   const [metrics, setMetrics] = useState([
     { 
       id: 'totalBills', 
       title: 'Total Bills', 
-      value: formatNumber(analytics.counts.totalBills), 
-      change: `${formatNumber(analytics.counts.paidBills)} paid, ${formatNumber(analytics.counts.pendingBills)} pending`, 
+      value: '0', 
+      change: '0 paid, 0 pending', 
       icon: Receipt, 
       iconColor: 'from-red-100 to-red-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
@@ -45,8 +68,8 @@ const BillAnalytics = () => {
     { 
       id: 'paidBills', 
       title: 'Paid Bills', 
-      value: formatNumber(analytics.counts.paidBills), 
-      change: formatCurrency(analytics.amounts.totalPaid), 
+      value: '0', 
+      change: '₹0.00', 
       icon: CheckCircle, 
       iconColor: 'from-green-100 to-green-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
@@ -54,8 +77,8 @@ const BillAnalytics = () => {
     { 
       id: 'pendingBills', 
       title: 'Pending Bills', 
-      value: formatNumber(analytics.counts.pendingBills), 
-      change: formatCurrency(analytics.amounts.totalDue), 
+      value: '0', 
+      change: '₹0.00', 
       icon: AlertTriangle, 
       iconColor: 'from-yellow-100 to-yellow-200', 
       textColor: 'text-[rgb(var(--color-text-primary))]' 
@@ -63,7 +86,7 @@ const BillAnalytics = () => {
     { 
       id: 'overdueBills', 
       title: 'Overdue Bills', 
-      value: formatNumber(analytics.counts.overdueBills), 
+      value: '0', 
       change: 'Urgent action needed', 
       icon: XCircle, 
       iconColor: 'from-orange-100 to-orange-200', 
@@ -72,10 +95,75 @@ const BillAnalytics = () => {
   ]);
 
   const [amountCards, setAmountCards] = useState([
-    { id: 'amount1', type: 'amount', title: 'Total Payable', value: formatCurrency(analytics.amounts.totalPayable), label: 'Total amount payable', color: 'text-red-600 dark:text-red-400' },
-    { id: 'amount2', type: 'amount', title: 'Total Paid', value: formatCurrency(analytics.amounts.totalPaid), label: 'Total amount paid', color: 'text-green-600 dark:text-green-400' },
-    { id: 'amount3', type: 'amount', title: 'Total Due', value: formatCurrency(analytics.amounts.totalDue), label: 'Outstanding amount', color: 'text-orange-600 dark:text-orange-400' },
+    { id: 'amount1', type: 'amount', title: 'Total Payable', value: '₹0.00', label: 'Total amount payable', color: 'text-red-600 dark:text-red-400' },
+    { id: 'amount2', type: 'amount', title: 'Total Paid', value: '₹0.00', label: 'Total amount paid', color: 'text-green-600 dark:text-green-400' },
+    { id: 'amount3', type: 'amount', title: 'Total Due', value: '₹0.00', label: 'Outstanding amount', color: 'text-orange-600 dark:text-orange-400' },
   ]);
+
+  // Update metrics when analytics data changes
+  useEffect(() => {
+    if (analytics && counts && amounts) {
+      setMetrics((prevMetrics) => {
+        const metricsMap = new Map(prevMetrics.map(m => [m.id, m]));
+        
+        if (metricsMap.has('totalBills')) {
+          metricsMap.set('totalBills', {
+            ...metricsMap.get('totalBills'),
+            value: formatNumber(counts.totalBills),
+            change: `${formatNumber(counts.paidBills)} paid, ${formatNumber(counts.pendingBills)} pending`
+          });
+        }
+        if (metricsMap.has('paidBills')) {
+          metricsMap.set('paidBills', {
+            ...metricsMap.get('paidBills'),
+            value: formatNumber(counts.paidBills),
+            change: formatCurrency(amounts.totalPaid)
+          });
+        }
+        if (metricsMap.has('pendingBills')) {
+          metricsMap.set('pendingBills', {
+            ...metricsMap.get('pendingBills'),
+            value: formatNumber(counts.pendingBills),
+            change: formatCurrency(amounts.totalDue)
+          });
+        }
+        if (metricsMap.has('overdueBills')) {
+          metricsMap.set('overdueBills', {
+            ...metricsMap.get('overdueBills'),
+            value: formatNumber(counts.overdueBills),
+            change: 'Urgent action needed'
+          });
+        }
+        
+        return Array.from(metricsMap.values());
+      });
+
+      setAmountCards((prevCards) => {
+        const cardsMap = new Map(prevCards.map(c => [c.id, c]));
+        
+        if (cardsMap.has('amount1')) {
+          cardsMap.set('amount1', {
+            ...cardsMap.get('amount1'),
+            value: formatCurrency(amounts.totalPayable)
+          });
+        }
+        if (cardsMap.has('amount2')) {
+          cardsMap.set('amount2', {
+            ...cardsMap.get('amount2'),
+            value: formatCurrency(amounts.totalPaid)
+          });
+        }
+        if (cardsMap.has('amount3')) {
+          cardsMap.set('amount3', {
+            ...cardsMap.get('amount3'),
+            value: formatCurrency(amounts.totalDue)
+          });
+        }
+        
+        return Array.from(cardsMap.values());
+      });
+    }
+  }, [analytics, counts, amounts]);
 
   const [cards, setCards] = useState([
     { id: 'chart1', type: 'chart', title: 'Bill Status Trend' },
@@ -134,6 +222,12 @@ const BillAnalytics = () => {
         />
 
         <div className="flex-1 p-6 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
+            </div>
+          ) : (
+            <>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -206,17 +300,17 @@ const BillAnalytics = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Paid Bills</p>
-                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(analytics.counts.paidBills)}</p>
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{formatCurrency(analytics.amounts.totalPaid)}</p>
+                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(counts.paidBills)}</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{formatCurrency(amounts.totalPaid)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Pending Bills</p>
-                                <p className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">{formatNumber(analytics.counts.pendingBills)}</p>
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{formatCurrency(analytics.amounts.totalDue)}</p>
+                                <p className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">{formatNumber(counts.pendingBills)}</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">{formatCurrency(amounts.totalDue)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Overdue Bills</p>
-                                <p className="text-lg font-semibold text-red-600 dark:text-red-400">{formatNumber(analytics.counts.overdueBills)}</p>
+                                <p className="text-lg font-semibold text-red-600 dark:text-red-400">{formatNumber(counts.overdueBills)}</p>
                               </div>
                             </div>
                           </div>
@@ -227,6 +321,8 @@ const BillAnalytics = () => {
               </div>
             </SortableContext>
           </DndContext>
+            </>
+          )}
         </div>
       </div>
     </div>
