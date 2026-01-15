@@ -1486,7 +1486,8 @@
     "customerAnalytics": "Customer Analytics",
     "stockAnalytics": "Stock Analytics",
     "supplierAnalytics": "Supplier Analytics",
-    "billAnalytics": "Bill Analytics"
+    "billAnalytics": "Bill Analytics",
+    "expenseAnalytics": "Expense Analytics"
   },
   "modals": {
     "deleteConfirm": "Are you sure?",
@@ -1696,7 +1697,7 @@
     },
     "languages": {
       "english": "English",
-      "hindi": "હિંદી",
+      "hindi": "हिंदी",
       "gujarati": "ગુજરાતી",
       "hinglish": "Hinglish"
     }

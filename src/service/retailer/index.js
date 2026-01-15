@@ -12,3 +12,4 @@ export { default as invoiceService } from './invoice.service';
 export { default as purchaseOrderService } from './purchaseOrder.service';
 export { default as expenseService } from './expense.service';
 export { default as dashboardService } from './dashboard.service';
+export { default as analyticsService } from './analytics.service';

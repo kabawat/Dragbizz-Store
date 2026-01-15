@@ -1,11 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Building2, TrendingUp, Users, CheckCircle } from 'lucide-react';
+import { Building2, CheckCircle, XCircle } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -14,11 +14,54 @@ const SupplierAnalytics = () => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   
+  // Mock data structure matching API: { totals: { totalSuppliers, activeSuppliers, inactiveSuppliers } }
+  const analytics = useMemo(() => ({
+    totals: {
+      totalSuppliers: 0,
+      activeSuppliers: 0,
+      inactiveSuppliers: 0
+    }
+  }), []);
+
+  const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  
   const [metrics, setMetrics] = useState([
-    { id: 'totalSuppliers', title: 'Total Suppliers', value: '0', change: '+0.0% from last period', icon: Building2, iconColor: 'from-teal-100 to-teal-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'activeSuppliers', title: 'Active Suppliers', value: '0', change: 'Currently active', icon: CheckCircle, iconColor: 'from-green-100 to-green-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'inactiveSuppliers', title: 'Inactive Suppliers', value: '0', change: 'Not active', icon: Building2, iconColor: 'from-gray-100 to-gray-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'newSuppliers', title: 'New Suppliers', value: '0', change: 'This period', icon: Users, iconColor: 'from-blue-100 to-blue-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
+    { 
+      id: 'totalSuppliers', 
+      title: 'Total Suppliers', 
+      value: formatNumber(analytics.totals.totalSuppliers), 
+      change: `${formatNumber(analytics.totals.activeSuppliers)} active, ${formatNumber(analytics.totals.inactiveSuppliers)} inactive`, 
+      icon: Building2, 
+      iconColor: 'from-teal-100 to-teal-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'activeSuppliers', 
+      title: 'Active Suppliers', 
+      value: formatNumber(analytics.totals.activeSuppliers), 
+      change: 'Currently active', 
+      icon: CheckCircle, 
+      iconColor: 'from-green-100 to-green-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'inactiveSuppliers', 
+      title: 'Inactive Suppliers', 
+      value: formatNumber(analytics.totals.inactiveSuppliers), 
+      change: 'Not active', 
+      icon: XCircle, 
+      iconColor: 'from-gray-100 to-gray-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'supplierCount', 
+      title: 'Total Count', 
+      value: formatNumber(analytics.totals.totalSuppliers), 
+      change: 'All suppliers', 
+      icon: Building2, 
+      iconColor: 'from-blue-100 to-blue-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
   ]);
 
   const [cards, setCards] = useState([
@@ -73,7 +116,7 @@ const SupplierAnalytics = () => {
             onDragEnd={handleMetricsDragEnd}
           >
             <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {metrics.map((metric) => (
                   <SortableMetricCard key={metric.id} {...metric} />
                 ))}
@@ -110,16 +153,16 @@ const SupplierAnalytics = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Orders</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Suppliers</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatNumber(analytics.totals.totalSuppliers)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Purchase Value</p>
-                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">₹0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Active Suppliers</p>
+                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatNumber(analytics.totals.activeSuppliers)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Avg Order Value</p>
-                                <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">₹0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Inactive Suppliers</p>
+                                <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">{formatNumber(analytics.totals.inactiveSuppliers)}</p>
                               </div>
                             </div>
                           </div>

@@ -73,7 +73,7 @@ class BillService {
   // Get bill analytics
   async getBillAnalytics(storeId = null) {
     try {
-      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/supplier-bills`;
+      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/supplier-accounts/bills`;
 
       if (storeId) {
         const params = { store: storeId };

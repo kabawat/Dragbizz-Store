@@ -1481,7 +1481,8 @@
     "customerAnalytics": "ग्राहक विश्लेषण",
     "stockAnalytics": "स्टॉक विश्लेषण",
     "supplierAnalytics": "आपूर्तिकर्ता विश्लेषण",
-    "billAnalytics": "बिल विश्लेषण"
+    "billAnalytics": "बिल विश्लेषण",
+    "expenseAnalytics": "व्यय विश्लेषण"
   },
   "modals": {
     "deleteConfirm": "क्या आप सुनिश्चित हैं?",

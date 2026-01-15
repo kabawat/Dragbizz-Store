@@ -1,11 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Warehouse, TrendingUp, Package, AlertTriangle } from 'lucide-react';
+import { Warehouse, Package, AlertTriangle, XCircle, IndianRupee } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -14,17 +14,69 @@ const StockAnalytics = () => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   
+  // Mock data structure matching API: { totals: {...}, valueSummary: { averageCost, totalStockValue } }
+  const analytics = useMemo(() => ({
+    totals: {
+      totalSkus: 0,
+      totalQuantity: 0,
+      availableQuantity: 0,
+      reservedQuantity: 0,
+      soldQuantity: 0,
+      lowStockItems: 0,
+      outOfStockItems: 0
+    },
+    valueSummary: {
+      averageCost: 0,
+      totalStockValue: 0
+    }
+  }), []);
+
+  const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  const formatCurrency = (amount) => `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
   const [metrics, setMetrics] = useState([
-    { id: 'totalSKUs', title: 'Total SKUs', value: '0', change: '+0.0% from last period', icon: Package, iconColor: 'from-indigo-100 to-indigo-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'totalQuantity', title: 'Total Quantity', value: '0', change: '+0.0% from last period', icon: Warehouse, iconColor: 'from-green-100 to-green-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'lowStock', title: 'Low Stock Items', value: '0', change: 'Needs attention', icon: AlertTriangle, iconColor: 'from-yellow-100 to-yellow-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
-    { id: 'outOfStock', title: 'Out of Stock', value: '0', change: 'Urgent action needed', icon: AlertTriangle, iconColor: 'from-red-100 to-red-200', textColor: 'text-[rgb(var(--color-text-primary))]' },
+    { 
+      id: 'totalSKUs', 
+      title: 'Total SKUs', 
+      value: formatNumber(analytics.totals.totalSkus), 
+      change: `${formatNumber(analytics.totals.availableQuantity)} available`, 
+      icon: Package, 
+      iconColor: 'from-indigo-100 to-indigo-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'totalQuantity', 
+      title: 'Total Quantity', 
+      value: formatNumber(analytics.totals.totalQuantity), 
+      change: `${formatNumber(analytics.totals.availableQuantity)} available`, 
+      icon: Warehouse, 
+      iconColor: 'from-green-100 to-green-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'lowStock', 
+      title: 'Low Stock Items', 
+      value: formatNumber(analytics.totals.lowStockItems), 
+      change: 'Needs attention', 
+      icon: AlertTriangle, 
+      iconColor: 'from-yellow-100 to-yellow-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
+    { 
+      id: 'outOfStock', 
+      title: 'Out of Stock', 
+      value: formatNumber(analytics.totals.outOfStockItems), 
+      change: 'Urgent action needed', 
+      icon: XCircle, 
+      iconColor: 'from-red-100 to-red-200', 
+      textColor: 'text-[rgb(var(--color-text-primary))]' 
+    },
   ]);
 
   const [cards, setCards] = useState([
-    { id: 'status1', type: 'status', title: 'Available Stock', value: '0', label: 'Items in stock', color: 'text-green-600 dark:text-green-400' },
-    { id: 'status2', type: 'status', title: 'Reserved Stock', value: '0', label: 'Items reserved', color: 'text-yellow-600 dark:text-yellow-400' },
-    { id: 'status3', type: 'status', title: 'Sold Stock', value: '0', label: 'Items sold', color: 'text-blue-600 dark:text-blue-400' },
+    { id: 'status1', type: 'status', title: 'Available Stock', value: formatNumber(analytics.totals.availableQuantity), label: 'Items in stock', color: 'text-green-600 dark:text-green-400' },
+    { id: 'status2', type: 'status', title: 'Reserved Stock', value: formatNumber(analytics.totals.reservedQuantity), label: 'Items reserved', color: 'text-yellow-600 dark:text-yellow-400' },
+    { id: 'status3', type: 'status', title: 'Sold Stock', value: formatNumber(analytics.totals.soldQuantity), label: 'Items sold', color: 'text-blue-600 dark:text-blue-400' },
     { id: 'chart1', type: 'chart', title: 'Stock Trend' },
     { id: 'chart2', type: 'chart', title: 'Stock by Category' },
     { id: 'breakdown', type: 'breakdown', title: 'Stock Value Breakdown' },
@@ -76,7 +128,7 @@ const StockAnalytics = () => {
             onDragEnd={handleMetricsDragEnd}
           >
             <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {metrics.map((metric) => (
                   <SortableMetricCard key={metric.id} {...metric} />
                 ))}
@@ -127,11 +179,11 @@ const StockAnalytics = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
                                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Total Stock Value</p>
-                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">₹0</p>
+                                <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatCurrency(analytics.valueSummary.totalStockValue)}</p>
                               </div>
                               <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Average Stock Value</p>
-                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">₹0</p>
+                                <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">Average Cost</p>
+                                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{formatCurrency(analytics.valueSummary.averageCost)}</p>
                               </div>
                             </div>
                           </div>

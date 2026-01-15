@@ -7,7 +7,7 @@ import { setSelectedStore } from '@/store/slices/profileSlice';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useTranslation } from '@/hooks/useTranslation';
 import UpgradeModal from '@/components/ui/UpgradeModal';
-import { LayoutDashboard, Users, Building2, Package, Warehouse, Receipt, FileText, IndianRupee, Settings, ChevronDown, ShoppingCart, Check, ChevronLeft, ChevronRight, AlertTriangle, Crown, BarChart3, LineChart, PieChart, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Package, Warehouse, Receipt, FileText, IndianRupee, Settings, ChevronDown, ShoppingCart, Check, ChevronLeft, ChevronRight, AlertTriangle, Crown, BarChart3, LineChart, PieChart, Activity, DollarSign } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
@@ -51,6 +51,7 @@ const Sidebar = ({ onStoreChange }) => {
     { name: t('dashboard.customerAnalytics') || 'Customer Analytics', icon: Activity, href: '/dashboard/analytics/customers' },
     { name: t('dashboard.supplierAnalytics') || 'Supplier Analytics', icon: Building2, href: '/dashboard/analytics/suppliers' },
     { name: t('dashboard.billAnalytics') || 'Bill Analytics', icon: Receipt, href: '/dashboard/analytics/bills' },
+    { name: t('dashboard.expenseAnalytics') || 'Expense Analytics', icon: DollarSign, href: '/dashboard/analytics/expenses' },
   ];
 
   const navigationItems = [
