@@ -40,6 +40,7 @@ const API_CONFIG = {
     INVOICE: '/retailer/invoices',
     EXPENSE: '/retailer/expense',
     DASHBOARD: '/retailer/dashboard',
+    ANALYTICS: '/retailer/analytics',
   },
   
   // Voice AI Service Endpoints

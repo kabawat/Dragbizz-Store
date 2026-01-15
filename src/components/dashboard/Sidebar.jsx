@@ -7,7 +7,7 @@ import { setSelectedStore } from '@/store/slices/profileSlice';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useTranslation } from '@/hooks/useTranslation';
 import UpgradeModal from '@/components/ui/UpgradeModal';
-import { LayoutDashboard, Users, Building2, Package, Warehouse, Receipt, FileText, IndianRupee, Settings, ChevronDown, ShoppingCart, Check, ChevronLeft, ChevronRight, AlertTriangle, Crown } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Package, Warehouse, Receipt, FileText, IndianRupee, Settings, ChevronDown, ShoppingCart, Check, ChevronLeft, ChevronRight, AlertTriangle, Crown, BarChart3, LineChart, PieChart, Activity } from 'lucide-react';
 
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
@@ -43,11 +43,22 @@ const Sidebar = ({ onStoreChange }) => {
     { name: t('sidebar.payments'), icon: IndianRupee, href: '/dashboard/payments' },
   ];
 
+  const analyticsSubMenuItems = [
+    { name: t('dashboard.revenueAnalytics') || 'Revenue Analytics', icon: LineChart, href: '/dashboard/analytics/revenue' },
+    { name: t('dashboard.salesAnalytics') || 'Sales Analytics', icon: BarChart3, href: '/dashboard/analytics/sales' },
+    { name: t('dashboard.stockAnalytics') || 'Stock Analytics', icon: Warehouse, href: '/dashboard/analytics/stock' },
+    { name: t('dashboard.productAnalytics') || 'Product Analytics', icon: PieChart, href: '/dashboard/analytics/products' },
+    { name: t('dashboard.customerAnalytics') || 'Customer Analytics', icon: Activity, href: '/dashboard/analytics/customers' },
+    { name: t('dashboard.supplierAnalytics') || 'Supplier Analytics', icon: Building2, href: '/dashboard/analytics/suppliers' },
+    { name: t('dashboard.billAnalytics') || 'Bill Analytics', icon: Receipt, href: '/dashboard/analytics/bills' },
+  ];
+
   const navigationItems = [
     { name: t('sidebar.dashboard'), icon: LayoutDashboard, href: '/dashboard' },
     { name: t('sidebar.salesTransactions'), icon: Receipt, href: '/dashboard/customers', hasSubMenu: true, subMenuItems: salesSubMenuItems, key: 'sales' },
     { name: t('sidebar.inventory'), icon: Package, href: '/dashboard/products', hasSubMenu: true, subMenuItems: inventorySubMenuItems, key: 'inventory' },
     { name: t('sidebar.purchase'), icon: ShoppingCart, href: '/dashboard/purchase-orders', hasSubMenu: true, subMenuItems: purchaseSubMenuItems, key: 'purchase' },
+    { name: t('sidebar.analytics') || 'Analytics', icon: BarChart3, href: '/dashboard/analytics/revenue', hasSubMenu: true, subMenuItems: analyticsSubMenuItems, key: 'analytics' },
   ];
 
   const bottomItems = [

@@ -4,8 +4,9 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IndianRupee, Users, Package, Building2, TrendingUp, TrendingDown, ShoppingCart, FileText, UserPlus, PackagePlus, Building, GripVertical, Loader2, CreditCard, Receipt } from 'lucide-react';
+import { IndianRupee, Users, Package, Building2, TrendingUp, TrendingDown, FileText, UserPlus, PackagePlus, Building, GripVertical, Loader2, BarChart3, PieChart, LineChart, Activity, Warehouse, Receipt, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { dashboardService } from '@/service/retailer';
 import { useAppSelector } from '@/store/hooks'; 
 import { useTranslation } from '@/hooks/useTranslation';
@@ -138,103 +139,7 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, iconColor })
   );
 };
 
-const statusStyles = {
-  paid: 'bg-green-500/10 text-green-500 border border-green-500/20',
-  released: 'bg-green-500/10 text-green-500 border border-green-500/20',
-  completed: 'bg-green-500/10 text-green-500 border border-green-500/20',
-  pending: 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20',
-  partial: 'bg-blue-500/10 text-blue-500 border border-blue-500/20',
-  unpaid: 'bg-orange-500/10 text-orange-500 border border-orange-500/20',
-  cancelled: 'bg-red-500/10 text-red-500 border border-red-500/20',
-  draft: 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
-  default: 'bg-[rgb(var(--color-border-secondary))]/30 text-[rgb(var(--color-text-secondary))] border border-[rgb(var(--color-border-secondary))]/20'
-};
 
-const formatCurrency = (value = 0) => {
-  const amount = Number(value) || 0;
-  return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
-};
-
-const formatDate = (value) => {
-  if (!value) return '--';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '--';
-  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-};
-
-const formatStatusLabel = (value, fallback, t) => {
-  if (!value) return fallback || t('common.pending');
-  return value
-    .toString()
-    .toLowerCase()
-    .split(/[_\s-]+/)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-};
-
-const normalizeApiList = (result, fallbackKey) => {
-  if (!result) return [];
-  const payload = result.data ?? result;
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (fallbackKey && Array.isArray(payload?.[fallbackKey])) return payload[fallbackKey];
-  if (fallbackKey && Array.isArray(result?.[fallbackKey])) return result[fallbackKey];
-  return [];
-};
-
-const mapPaymentItems = (response, t) => {
-  const list = normalizeApiList(response, 'payments');
-  return list.map((payment) => {
-    const statusValue = payment.paymentStatus || payment.status || 'pending';
-    return {
-      id: payment._id || payment.id,
-      title: payment.paymentNumber || t('dashboard.supplierPayment'),
-      subtitle: payment.supplier?.name || payment.supplierName || t('dashboard.supplier'),
-      meta: payment.paymentMethod || payment.paymentType || '',
-      amount: payment.totalAmount ?? payment.amount ?? 0,
-      date: payment.paymentDate || payment.createdAt,
-      status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
-      icon: CreditCard
-    };
-  });
-};
-
-const mapExpenseItems = (response, t) => {
-  const list = normalizeApiList(response, 'expenses');
-  return list.map((expense) => {
-    const statusValue = expense.status || 'pending';
-    return {
-      id: expense._id || expense.id,
-      title: expense.title || expense.category?.name || t('dashboard.expense'),
-      subtitle: expense.vendor?.name || expense.vendor || expense.category?.name || t('dashboard.vendor'),
-      meta: expense.category?.name || expense.category || '',
-      amount: expense.amount ?? expense.netAmount ?? 0,
-      date: expense.date || expense.createdAt,
-      status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
-      icon: Receipt
-    };
-  });
-};
-
-const mapInvoiceItems = (response, t) => {
-  const list = normalizeApiList(response, 'invoices');
-  return list.map((invoice) => {
-    const statusValue = invoice.paymentStatus || invoice.invoiceStatus || 'pending';
-    return {
-      id: invoice._id || invoice.id,
-      title: invoice.invoiceNumber || t('dashboard.invoice'),
-      subtitle: invoice.customer?.name || t('dashboard.walkInCustomer'),
-      meta: invoice.customer?.phone || invoice.invoiceStatus || '',
-      amount: invoice.totalAmount ?? 0,
-      date: invoice.createdAt || invoice.releasedAt || invoice.updatedAt,
-      status: statusValue,
-      statusLabel: formatStatusLabel(statusValue, t('common.pending'), t),
-      icon: FileText
-    };
-  });
-};
 
 const formatPercentChange = (value) => {
   const numericValue = Number(value);
@@ -242,69 +147,6 @@ const formatPercentChange = (value) => {
   return `${safeValue >= 0 ? '+' : ''}${safeValue.toFixed(1)}%`;
 };
 
-const RecentListItem = ({ icon: Icon = ShoppingCart, title, subtitle, meta, amount, date, status, statusLabel }) => {
-  const statusKey = status?.toString().toLowerCase();
-  const badgeClass = statusStyles[statusKey] || statusStyles.default;
-
-  return (
-    <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm rounded-lg border border-[rgb(var(--color-border-primary))]/40 hover:shadow-md transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30">
-      <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
-          <Icon className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-        </div>
-        <div>
-          <p className="font-medium text-[rgb(var(--color-text-primary))]">{title}</p>
-          {subtitle && <p className="text-sm text-[rgb(var(--color-text-secondary))]">{subtitle}</p>}
-          {meta && <p className="text-xs text-[rgb(var(--color-text-tertiary))]">{meta}</p>}
-        </div>
-      </div>
-      <div className="text-right">
-        <p className="font-semibold text-[rgb(var(--color-text-primary))]">{formatCurrency(amount)}</p>
-        <p className="text-xs text-[rgb(var(--color-text-secondary))]">{formatDate(date)}</p>
-        <span className={`inline-flex px-2 py-1 mt-2 text-xs font-medium rounded-full ${badgeClass}`}>
-          {statusLabel || formatStatusLabel(status)}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const RecentSectionCard = ({ title, items, loading, emptyMessage, error, onViewMore, t }) => (
-  <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{title}</h2>
-      {onViewMore && (
-        <button
-          type="button"
-          onClick={onViewMore}
-          className="text-sm font-medium text-[rgb(var(--color-primary))] hover:underline"
-        >
-          {t('dashboard.viewAll')}
-        </button>
-      )}
-    </div>
-    {error && (
-      <p className="text-xs text-red-500 mb-3">
-        {error}
-      </p>
-    )}
-    {loading ? (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-[rgb(var(--color-primary))]" />
-      </div>
-    ) : items.length > 0 ? (
-      <div className="space-y-3">
-        {items.map((item) => (
-          <RecentListItem key={item.id || `${item.title}-${item.date}`} {...item} />
-        ))}
-      </div>
-    ) : (
-      <div className="text-center py-8 text-[rgb(var(--color-text-secondary))]">
-        {emptyMessage}
-      </div>
-    )}
-  </div>
-);
 
 const QuickActionButton = ({ title, icon: Icon, onClick }) => (
   <button onClick={onClick} className="cursor-pointer flex flex-col items-center justify-center p-6 bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-sm border-2 border-dashed border-[rgb(var(--color-border-secondary))]/60 rounded-lg hover:border-[rgb(var(--color-primary))]/80 hover:bg-[rgb(var(--color-primary))]/10 transition-all duration-300 group">
@@ -315,32 +157,169 @@ const QuickActionButton = ({ title, icon: Icon, onClick }) => (
   </button>
 );
 
-const buildRecentState = (loading = false) => ({
-  payments: { items: [], loading, error: null },
-  expenses: { items: [], loading, error: null },
-  invoices: { items: [], loading, error: null }
-});
+const AnalyticsCard = ({ title, icon: Icon, iconColor, children, linkTo }) => (
+  <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 shadow-xs">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-3">
+        <div className={`w-10 h-10 ${iconColor} rounded-lg flex items-center justify-center`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{title}</h2>
+      </div>
+      {linkTo && (
+        <Link 
+          href={linkTo}
+          className="flex items-center text-sm text-[rgb(var(--color-primary))] hover:underline"
+        >
+          View Details
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Link>
+      )}
+    </div>
+    {children}
+  </div>
+);
 
-const getSectionMeta = (t) => ({
-  recentPayments: {
-    stateKey: 'payments',
-    title: t('dashboard.recentPayments'),
-    emptyMessage: t('dashboard.noData'),
-    path: '/dashboard/payments'
-  },
-  recentExpenses: {
-    stateKey: 'expenses',
-    title: t('dashboard.recentExpenses'),
-    emptyMessage: t('dashboard.noData'),
-    path: '/dashboard/expenses'
-  },
-  recentInvoices: {
-    stateKey: 'invoices',
-    title: t('dashboard.recentInvoices'),
-    emptyMessage: t('dashboard.noData'),
-    path: '/dashboard/invoices'
-  }
-});
+const SortableAnalyticsCard = ({ id, title, icon: Icon, iconColor, children, isVisible }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const getLinkTo = () => {
+    const linkMap = {
+      'revenueAnalytics': '/dashboard/analytics/revenue',
+      'salesAnalytics': '/dashboard/analytics/sales',
+      'stockAnalytics': '/dashboard/analytics/stock',
+      'productAnalytics': '/dashboard/analytics/products',
+      'customerAnalytics': '/dashboard/analytics/customers',
+      'supplierAnalytics': '/dashboard/analytics/suppliers',
+      'billAnalytics': '/dashboard/analytics/bills'
+    };
+    return linkMap[id] || null;
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group mb-6 break-inside-avoid break-inside-avoid-column"
+    >
+      {/* Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute -left-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+      >
+        <div className="w-6 h-6 bg-[rgb(var(--color-bg-primary))] rounded border border-[rgb(var(--color-border-primary))] flex items-center justify-center shadow-sm">
+          <GripVertical className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" />
+        </div>
+      </div>
+
+      {/* Card Content */}
+      <div className={`transition-all duration-300 ${!isVisible ? 'opacity-50 pointer-events-none' : ''}`}>
+        <AnalyticsCard title={title} icon={Icon} iconColor={iconColor} linkTo={getLinkTo()}>
+          {children}
+        </AnalyticsCard>
+      </div>
+    </div>
+  );
+};
+
+// Individual Analytics Components - Simplified for Dashboard (only totals and charts)
+const RevenueAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Revenue</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">₹0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const SalesAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Sales</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const StockAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Stock Value</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">₹0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const ProductAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Products</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const CustomerAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Customers</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const SupplierAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Suppliers</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
+
+const BillAnalytics = ({ t }) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-[rgb(var(--color-text-secondary))]">Total Bills</span>
+      <span className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">₹0</span>
+    </div>
+    <div className="h-48 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border border-[rgb(var(--color-border-primary))]/30">
+      <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Chart will be displayed here</p>
+    </div>
+  </div>
+);
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -387,12 +366,15 @@ export default function Dashboard() {
     }
   ]);
 
-  const [recentData, setRecentData] = useState(buildRecentState(true));
   const [sections, setSections] = useState([
     { id: 'quickActions', visible: true },
-    { id: 'recentExpenses', visible: true },
-    { id: 'recentInvoices', visible: true },
-    { id: 'recentPayments', visible: true }
+    { id: 'revenueAnalytics', visible: true },
+    { id: 'salesAnalytics', visible: true },
+    { id: 'stockAnalytics', visible: true },
+    { id: 'productAnalytics', visible: true },
+    { id: 'customerAnalytics', visible: true },
+    { id: 'supplierAnalytics', visible: true },
+    { id: 'billAnalytics', visible: true }
   ]);
 
   const sensors = useSensors(
@@ -452,84 +434,6 @@ export default function Dashboard() {
     }
   };
 
-  const loadRecentSections = async (storeId) => {
-    // Dynamically import services only when needed
-    const { paymentService } = await import('@/service/retailer');
-    const { expenseService } = await import('@/service/retailer');
-    const { invoiceService } = await import('@/service/retailer');
-
-    const recentFetchers = [
-      {
-        key: 'payments',
-        label: 'payments',
-        fetcher: () => paymentService.getPayments({
-          store: storeId,
-          limit: 5,
-          page: 1,
-          lightweight: true,
-          sortBy: 'paymentDate'
-        }),
-        mapper: mapPaymentItems
-      },
-      {
-        key: 'expenses',
-        label: 'expenses',
-        fetcher: () => expenseService.getExpenses({
-          store: storeId,
-          limit: 5,
-          page: 1
-        }),
-        mapper: mapExpenseItems
-      },
-      {
-        key: 'invoices',
-        label: 'invoices',
-        fetcher: () => invoiceService.getInvoices({
-          store: storeId,
-          limit: 5,
-          page: 1,
-          invoiceStatus: 'RELEASED'
-        }),
-        mapper: mapInvoiceItems
-      }
-    ];
-
-    await Promise.all(recentFetchers.map(async ({ key, label, fetcher, mapper }) => {
-      setRecentData((prev) => ({
-        ...prev,
-        [key]: {
-          ...(prev[key] || { items: [], loading: true, error: null }),
-          loading: true,
-          error: null
-        }
-      }));
-
-      try {
-        const result = await fetcher();
-        if (!result.success) {
-          throw new Error(result.message || t('dashboard.failedToFetch', { label }));
-        }
-        const items = mapper(result, t);
-        setRecentData((prev) => ({
-          ...prev,
-          [key]: {
-            items,
-            loading: false,
-            error: null
-          }
-        }));
-      } catch (error) {
-        setRecentData((prev) => ({
-          ...prev,
-          [key]: {
-            ...(prev[key] || { items: [], loading: false, error: null }),
-            loading: false,
-            error: error.message || t('dashboard.unableToLoad', { label })
-          }
-        }));
-      }
-    }));
-  };
 
   // Fetch dashboard data
   useEffect(() => {
@@ -537,19 +441,13 @@ export default function Dashboard() {
     
     if (!storeId) {
       setLoading(false);
-      setRecentData(buildRecentState(false));
       return;
     }
-
-    setRecentData(buildRecentState(true));
 
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          loadDashboardMetrics(storeId),
-          loadRecentSections(storeId)
-        ]);
+        await loadDashboardMetrics(storeId);
       } catch (error) {
       } finally {
         setLoading(false);
@@ -585,6 +483,13 @@ export default function Dashboard() {
           const reorderedSections = savedOrder.map(id =>
             prevSections.find(section => section.id === id)
           ).filter(Boolean);
+          // Ensure all default sections are present
+          const defaultIds = ['quickActions', 'revenueAnalytics', 'salesAnalytics', 'stockAnalytics', 'productAnalytics', 'customerAnalytics', 'supplierAnalytics', 'billAnalytics'];
+          const missingIds = defaultIds.filter(id => !reorderedSections.find(s => s.id === id));
+          missingIds.forEach(id => {
+            const defaultSection = prevSections.find(s => s.id === id);
+            if (defaultSection) reorderedSections.push(defaultSection);
+          });
           return reorderedSections.length === prevSections.length ? reorderedSections : prevSections;
         });
       } catch (error) {
@@ -631,11 +536,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleViewMore = (path) => {
-    if (!path) return;
-    router.push(path);
-  };
-
   const handleStoreChange = (storeObject) => {
     setSelectedStore(storeObject);
   };
@@ -658,24 +558,105 @@ export default function Dashboard() {
       );
     }
 
-    const meta = getSectionMeta(t)[section.id];
-    if (!meta) {
-      return null;
+    if (section.id === 'revenueAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.revenueAnalytics') || 'Revenue Analytics'}
+          icon={LineChart}
+          iconColor="bg-green-500"
+          isVisible={section.visible}
+        >
+          <RevenueAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
     }
 
-    const sectionState = recentData[meta.stateKey] || { items: [], loading: false, error: null };
+    if (section.id === 'salesAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.salesAnalytics') || 'Sales Analytics'}
+          icon={BarChart3}
+          iconColor="bg-blue-500"
+          isVisible={section.visible}
+        >
+          <SalesAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
 
-    return (
-      <RecentSectionCard
-        title={meta.title}
-        items={sectionState.items}
-        loading={sectionState.loading}
-        emptyMessage={meta.emptyMessage}
-        error={sectionState.error}
-        onViewMore={() => handleViewMore(meta.path)}
-        t={t}
-      />
-    );
+    if (section.id === 'stockAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.stockAnalytics') || 'Stock Analytics'}
+          icon={Warehouse}
+          iconColor="bg-indigo-500"
+          isVisible={section.visible}
+        >
+          <StockAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
+
+    if (section.id === 'productAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.productAnalytics') || 'Product Analytics'}
+          icon={PieChart}
+          iconColor="bg-purple-500"
+          isVisible={section.visible}
+        >
+          <ProductAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
+
+    if (section.id === 'customerAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.customerAnalytics') || 'Customer Analytics'}
+          icon={Activity}
+          iconColor="bg-orange-500"
+          isVisible={section.visible}
+        >
+          <CustomerAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
+
+    if (section.id === 'supplierAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.supplierAnalytics') || 'Supplier Analytics'}
+          icon={Building2}
+          iconColor="bg-teal-500"
+          isVisible={section.visible}
+        >
+          <SupplierAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
+
+    if (section.id === 'billAnalytics') {
+      return (
+        <SortableAnalyticsCard
+          id={section.id}
+          title={t('dashboard.billAnalytics') || 'Bill Analytics'}
+          icon={Receipt}
+          iconColor="bg-red-500"
+          isVisible={section.visible}
+        >
+          <BillAnalytics t={t} />
+        </SortableAnalyticsCard>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -739,18 +720,29 @@ export default function Dashboard() {
             >
                <SortableContext items={sections.map(s => s.id)} strategy={rectSortingStrategy}>
                  <div className="columns-1 md:columns-2 xl:columns-3 gap-6 space-y-6">
-                  {sections.map((section) => (
-                    <SortableSection
-                      key={section.id}
-                      id={section.id}
-                      isVisible={section.visible}
-                      onToggleVisibility={() => { }}
-                    >
+                  {sections.map((section) => {
+                    // For individual analytics cards, render them directly without SortableSection wrapper
+                    if (['revenueAnalytics', 'salesAnalytics', 'stockAnalytics', 'productAnalytics', 'customerAnalytics', 'supplierAnalytics', 'billAnalytics'].includes(section.id)) {
+                      return (
+                        <div key={section.id} className="inline-block w-full">
+                          {renderSectionContent(section)}
+                        </div>
+                      );
+                    }
+                    // For other sections, use SortableSection wrapper
+                    return (
+                      <SortableSection
+                        key={section.id}
+                        id={section.id}
+                        isVisible={section.visible}
+                        onToggleVisibility={() => { }}
+                      >
                        <div className="inline-block w-full">
                          {renderSectionContent(section)}
                        </div>
-                    </SortableSection>
-                  ))}
+                      </SortableSection>
+                    );
+                  })}
                 </div>
               </SortableContext>
             </DndContext>

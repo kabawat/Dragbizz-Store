@@ -1255,6 +1255,7 @@
     "purchaseOrders": "Purchase Orders",
     "bills": "Bills",
     "payments": "Payments",
+    "analytics": "Analytics",
     "settings": "Settings",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
@@ -1478,7 +1479,14 @@
     "invoice": "Invoice",
     "walkInCustomer": "Walk-in Customer",
     "failedToFetch": "Failed to fetch {label}",
-    "unableToLoad": "Unable to load {label}"
+    "unableToLoad": "Unable to load {label}",
+    "revenueAnalytics": "Revenue Analytics",
+    "salesAnalytics": "Sales Analytics",
+    "productAnalytics": "Product Analytics",
+    "customerAnalytics": "Customer Analytics",
+    "stockAnalytics": "Stock Analytics",
+    "supplierAnalytics": "Supplier Analytics",
+    "billAnalytics": "Bill Analytics"
   },
   "modals": {
     "deleteConfirm": "Are you sure?",
