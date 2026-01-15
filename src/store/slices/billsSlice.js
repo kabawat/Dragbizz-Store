@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { billService } from '@/service/retailer';
+import { billService, analyticsService } from '@/service/retailer';
 
 // Async thunk for getting bills
 export const getBills = createAsyncThunk(
@@ -43,6 +43,36 @@ export const getBillStats = createAsyncThunk(
       return {
         success: true,
         data: result.data,
+        message: 'Bill analytics fetched successfully'
+      };
+    } catch (error) {
+      return rejectWithValue({
+        message: 'Failed to fetch bill analytics. Please try again.'
+      });
+    }
+  }
+);
+
+// Async thunk for getting bill analytics (using analyticsService)
+export const getBillAnalytics = createAsyncThunk(
+  'bills/getBillAnalytics',
+  async (storeId, { rejectWithValue }) => {
+    try {
+      // Use analyticsService for analytics
+      const result = await analyticsService.getBillAnalytics({ store: storeId });
+      
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to fetch bill analytics'
+        });
+      }
+
+      // Handle null data from backend
+      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
+      
+      return {
+        success: true,
+        data: analyticsData || initialState.analytics,
         message: 'Bill analytics fetched successfully'
       };
     } catch (error) {
@@ -99,6 +129,12 @@ const initialState = {
     totalAmount: 0,
     paidAmount: 0,
     dueAmount: 0
+  },
+
+  // Analytics
+  analytics: {
+    counts: {},
+    amounts: {}
   },
 
   // Loading states
@@ -173,6 +209,21 @@ const billsSlice = createSlice({
       .addCase(getBillReports.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload.message;
+      })
+
+      // Get bill analytics
+      .addCase(getBillAnalytics.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getBillAnalytics.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.analytics = action.payload.data || initialState.analytics;
+      })
+      .addCase(getBillAnalytics.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to fetch bill analytics';
       });
   }
 });
@@ -187,7 +238,8 @@ export const {
 export {
   getBills,
   getBillStats,
-  getBillReports
+  getBillReports,
+  getBillAnalytics
 };
 
 // Export reducer

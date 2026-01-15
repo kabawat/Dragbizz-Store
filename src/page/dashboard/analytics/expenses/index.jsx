@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -16,23 +16,35 @@ const ExpenseAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.expenses);
+  const hasFetchedRef = useRef({ storeId: null, fetched: false });
   
-  // Format currency
   const formatCurrency = (amount) => {
     return `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Format number
   const formatNumber = (num) => {
     return (num || 0).toLocaleString('en-IN');
   };
 
-  // Fetch analytics data
   useEffect(() => {
-    if (selectedStore?.id) {
-      dispatch(getExpenseAnalytics(selectedStore.id));
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (!storeId) return;
+    
+    const lastFetched = hasFetchedRef.current;
+    if (lastFetched.fetched && lastFetched.storeId === storeId) {
+      return;
     }
-  }, [dispatch, selectedStore]);
+    
+    hasFetchedRef.current = { storeId, fetched: true };
+    dispatch(getExpenseAnalytics(storeId));
+  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+  
+  useEffect(() => {
+    const storeId = selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    if (storeId && hasFetchedRef.current.storeId !== storeId) {
+      hasFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
 
   // Memoize derived values to prevent infinite loops
   const counts = useMemo(() => analytics?.counts || {}, [analytics?.counts]);

@@ -1,10 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { supplierService } from '@/service';
+import { analyticsService } from '@/service/retailer';
 
-// Initial state
 const initialState = {
   suppliers: [],
   selectedSuppliers: [],
+  analytics: {
+    totals: {
+      totalSuppliers: 0,
+      activeSuppliers: 0,
+      inactiveSuppliers: 0
+    }
+  },
   isLoading: false,
   error: null,
   pagination: {
@@ -12,7 +19,7 @@ const initialState = {
     nextCursor: null,
     total: 0
   },
-  viewMode: 'table' // 'table' or 'card'
+  viewMode: 'table'
 };
 
 // Async thunks
@@ -60,6 +67,33 @@ export const deleteSupplier = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to delete supplier');
+    }
+  }
+);
+
+export const getSupplierAnalytics = createAsyncThunk(
+  'suppliers/getSupplierAnalytics',
+  async (storeId, { rejectWithValue }) => {
+    try {
+      const result = await analyticsService.getSupplierAnalytics({ store: storeId });
+      
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to fetch supplier analytics'
+        });
+      }
+
+      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
+      
+      return {
+        success: true,
+        data: analyticsData || initialState.analytics,
+        message: 'Supplier analytics fetched successfully'
+      };
+    } catch (error) {
+      return rejectWithValue({
+        message: 'Failed to fetch supplier analytics. Please try again.'
+      });
     }
   }
 );
@@ -161,6 +195,21 @@ const suppliersSlice = createSlice({
       .addCase(deleteSupplier.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      
+      // Get supplier analytics
+      .addCase(getSupplierAnalytics.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getSupplierAnalytics.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.analytics = action.payload.data || initialState.analytics;
+      })
+      .addCase(getSupplierAnalytics.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to fetch supplier analytics';
       });
   }
 });

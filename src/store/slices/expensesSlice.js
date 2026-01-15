@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { expenseService } from '@/service/retailer';
+import { expenseService, analyticsService } from '@/service/retailer';
 
 // Async thunk for getting expenses
 export const getExpenses = createAsyncThunk(
@@ -138,7 +138,6 @@ export const getExpenseAnalytics = createAsyncThunk(
   async (storeId, { rejectWithValue }) => {
     try {
       // Use analyticsService instead of expenseService for analytics
-      const { analyticsService } = await import('@/service/retailer');
       const result = await analyticsService.getExpenseAnalytics({ store: storeId });
       
       if (!result.success) {
@@ -147,9 +146,12 @@ export const getExpenseAnalytics = createAsyncThunk(
         });
       }
 
+      // Handle null data from backend
+      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
+      
       return {
         success: true,
-        data: result.data?.data || result.data,
+        data: analyticsData || initialState.analytics,
         message: 'Expense analytics fetched successfully'
       };
     } catch (error) {

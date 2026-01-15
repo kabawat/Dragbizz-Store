@@ -1,10 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { customerService } from '@/service';
+import { analyticsService } from '@/service/retailer';
 
 // Initial state
 const initialState = {
   customers: [],
   selectedCustomers: [],
+  analytics: {
+    totalCustomers: 0,
+    todayCustomers: 0,
+    newCustomers: {}
+  },
   isLoading: false,
   error: null,
   pagination: {
@@ -60,6 +66,36 @@ export const deleteCustomer = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to delete customer');
+    }
+  }
+);
+
+// Async thunk for getting customer analytics
+export const getCustomerAnalytics = createAsyncThunk(
+  'customers/getCustomerAnalytics',
+  async (storeId, { rejectWithValue }) => {
+    try {
+      // Use analyticsService for analytics
+      const result = await analyticsService.getCustomerAnalytics({ store: storeId });
+      
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || 'Failed to fetch customer analytics'
+        });
+      }
+
+      // Handle null data from backend
+      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
+      
+      return {
+        success: true,
+        data: analyticsData || initialState.analytics,
+        message: 'Customer analytics fetched successfully'
+      };
+    } catch (error) {
+      return rejectWithValue({
+        message: 'Failed to fetch customer analytics. Please try again.'
+      });
     }
   }
 );
@@ -189,6 +225,20 @@ const customersSlice = createSlice({
       .addCase(deleteCustomer.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      // Get customer analytics
+      .addCase(getCustomerAnalytics.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getCustomerAnalytics.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.analytics = action.payload.data || initialState.analytics;
+      })
+      .addCase(getCustomerAnalytics.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to fetch customer analytics';
       });
   }
 });
@@ -201,6 +251,9 @@ export const {
   deselectAllCustomers,
   setViewMode
 } = customersSlice.actions;
+
+// Export async thunks
+export { getCustomers, updateCustomer, deleteCustomer, getCustomerAnalytics };
 
 // Export reducer
 export default customersSlice.reducer;
