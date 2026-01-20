@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getExpenses, deleteExpense, setViewMode, setSortOptions } from '@/store/slices/expensesSlice';
-import { ExpenseCard, ExpenseTable, AddExpenseDrawer } from '@/components/expenses';
-import { Plus, Search, Grid3X3, List, IndianRupee } from 'lucide-react';
+import { ExpenseCard, ExpenseTable, AddExpenseDrawer, ExpenseDownloadDrawer } from '@/components/expenses';
+import { Plus, Search, Grid3X3, List, IndianRupee, Download } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
 import { Button, Input } from '@/components/ui';
@@ -36,6 +36,7 @@ const ExpensesPage = () => {
   
   // Drawer state
   const [showAddExpenseDrawer, setShowAddExpenseDrawer] = useState(false);
+  const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
 
   // Load view mode from localStorage
   useEffect(() => {
@@ -219,6 +220,9 @@ const ExpensesPage = () => {
                       </button>
                     </div>
 
+                    <Button variant="outline" onClick={() => setShowDownloadDrawer(true)} leftIcon={Download}>
+                      {t('expenses.download')}
+                    </Button>
                     <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}>{t('expenses.addExpense')}</Button>
                   </div>
                 </div>
@@ -350,6 +354,14 @@ const ExpensesPage = () => {
         onClose={() => setShowAddExpenseDrawer(false)}
         onSuccess={handleExpenseSuccess}
       />
+
+      {/* Download Drawer */}
+      {showDownloadDrawer && (
+        <ExpenseDownloadDrawer
+          isOpen={showDownloadDrawer}
+          onClose={() => setShowDownloadDrawer(false)}
+        />
+      )}
     </div>
   );
 };
