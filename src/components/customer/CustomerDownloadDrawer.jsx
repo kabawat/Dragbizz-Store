@@ -6,6 +6,7 @@ import { useGlobalToast } from '@/contexts/ToastContext';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import { useTranslation } from '@/hooks/useTranslation';
+import { exportData } from '@/utils/exportUtils';
 
 const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -16,7 +17,8 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState('');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
-  const [downloadFormat, setDownloadFormat] = useState('xlsx'); // 'xlsx' or 'csv'
+  const [downloadFormat, setDownloadFormat] = useState('xlsx'); // 'xlsx', 'csv', or 'pdf'
+  const [sortOrder, setSortOrder] = useState('nameAsc'); // Sort order option
 
   // Handle download period selection
   const handleDownloadPeriodChange = (value) => {
@@ -215,13 +217,52 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
   };
 
+  // Sort customers based on selected sort order
+  const sortCustomers = (customers) => {
+    if (!customers || !Array.isArray(customers)) return customers;
+    
+    const sortedCustomers = [...customers];
+    
+    switch (sortOrder) {
+      case 'nameAsc':
+        return sortedCustomers.sort((a, b) => {
+          const nameA = (a.name || '').toLowerCase();
+          const nameB = (b.name || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      case 'nameDesc':
+        return sortedCustomers.sort((a, b) => {
+          const nameA = (a.name || '').toLowerCase();
+          const nameB = (b.name || '').toLowerCase();
+          return nameB.localeCompare(nameA);
+        });
+      case 'dateAsc':
+        return sortedCustomers.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateA - dateB;
+        });
+      case 'dateDesc':
+        return sortedCustomers.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+      default:
+        return sortedCustomers;
+    }
+  };
+
   // Transform customer data for export
   const transformCustomerData = (customers) => {
     if (!customers || !Array.isArray(customers)) return [];
     
+    // Sort customers before transforming
+    const sortedCustomers = sortCustomers(customers);
+    
     const storeName = selectedStore?.storeName || selectedStore?.name || 'N/A';
     
-    return customers.map((customer) => {
+    return sortedCustomers.map((customer) => {
       return {
         'Store Name': storeName,
         'Customer Name': customer.name || t('common.na'),
@@ -234,66 +275,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     });
   };
 
-  // Export to CSV
-  const exportToCSV = (data, filename) => {
-    if (!data || data.length === 0) {
-      showError(t('customers.noDataToExport'));
-      return;
-    }
-
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => 
-        headers.map(header => {
-          const value = row[header] || '';
-          // Escape commas and quotes in CSV
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(',')
-      )
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Export to XLSX
-  const exportToXLSX = async (data, filename) => {
-    try {
-      // Dynamically import xlsx library
-      const XLSX = await import('xlsx');
-      
-      if (!data || data.length === 0) {
-        showError(t('customers.noDataToExport'));
-        return;
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, t('customers.customers'));
-      
-      // Generate filename with timestamp
-      const timestamp = new Date().toISOString().split('T')[0];
-      const finalFilename = `${filename}_${timestamp}.xlsx`;
-      
-      XLSX.writeFile(workbook, finalFilename);
-    } catch (error) {
-      console.error('XLSX export error:', error);
-      showError(t('customers.failedToExportAsXlsx'));
-      // Fallback to CSV
-      exportToCSV(data, filename.replace('.xlsx', '.csv'));
-    }
-  };
 
   // Handle file download
   const downloadCustomersFile = async (customers) => {
@@ -304,12 +285,46 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
     const transformedData = transformCustomerData(customers);
     const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `customers_${timestamp}`;
     
-    if (downloadFormat === 'xlsx') {
-      await exportToXLSX(transformedData, `customers_${timestamp}`);
+    // Prepare PDF metadata
+    const storeName = selectedStore?.storeName || selectedStore?.name;
+    let dateRange = null;
+    if (selectedDownloadPeriod === 'custom') {
+      dateRange = getCustomDateRangePreview();
     } else {
-      exportToCSV(transformedData, `customers_${timestamp}.csv`);
+      dateRange = getDateRangePreview(selectedDownloadPeriod);
     }
+    
+    const metadata = [];
+    if (storeName) {
+      metadata.push({ label: t('common.store'), value: storeName });
+    }
+    if (dateRange) {
+      metadata.push({ 
+        label: t('customers.dateRange'), 
+        value: `${dateRange.start} - ${dateRange.end}` 
+      });
+    }
+    
+    // Use reusable export utility
+    await exportData(transformedData, downloadFormat, filename, {
+      sheetName: t('customers.customers'),
+      title: t('customers.customers'),
+      metadata: metadata,
+      onError: (errorMsg) => {
+        if (errorMsg === 'No data to export') {
+          showError(t('customers.noDataToExport'));
+        } else if (errorMsg.includes('XLSX')) {
+          showError(t('customers.failedToExportAsXlsx'));
+        } else if (errorMsg.includes('PDF')) {
+          showError(t('customers.failedToExportAsPdf'));
+        } else {
+          showError(errorMsg || t('customers.errorDownloadingCustomers'));
+        }
+      },
+      onFallback: true // Enable CSV fallback for XLSX errors
+    });
   };
 
   // Handle close
@@ -317,6 +332,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     setSelectedDownloadPeriod('');
     setCustomStartDate('');
     setCustomEndDate('');
+    setSortOrder('nameAsc');
     onClose();
   };
 
@@ -359,11 +375,33 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
               <Select
                 placeholder={t('customers.selectFormat')}
                 options={[
+                  { label: t('customers.csv'), value: 'csv' },
                   { label: t('customers.excelXlsx'), value: 'xlsx' },
-                  { label: t('customers.csv'), value: 'csv' }
+                  { label: t('customers.pdf'), value: 'pdf' }
                 ]}
                 value={downloadFormat}
                 onChange={setDownloadFormat}
+                clearable={false}
+              />
+            </div>
+          )}
+
+          {/* Sort Order Selection */}
+          {selectedDownloadPeriod && (
+            <div>
+              <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                {t('customers.sortOrder')}
+              </label>
+              <Select
+                placeholder={t('customers.selectSortOrder')}
+                options={[
+                  { label: t('customers.nameAscending'), value: 'nameAsc' },
+                  { label: t('customers.nameDescending'), value: 'nameDesc' },
+                  { label: t('customers.dateAscending'), value: 'dateAsc' },
+                  { label: t('customers.dateDescending'), value: 'dateDesc' }
+                ]}
+                value={sortOrder}
+                onChange={setSortOrder}
                 clearable={false}
               />
             </div>
