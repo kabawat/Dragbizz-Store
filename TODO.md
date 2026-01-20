@@ -34,16 +34,8 @@
 
 ### Performance Optimization
 - [ ] Implement code splitting
-  - [ ] Use dynamic imports for large components
-  - [ ] Lazy load routes
   - [ ] Split vendor bundles
   - [ ] Analyze bundle size with webpack-bundle-analyzer
-
-- [ ] Optimize Redux state management
-  - [ ] Install and configure `reselect` for memoized selectors
-  - [ ] Review Redux slices for unnecessary re-renders
-  - [ ] Implement proper state normalization
-  - [ ] Add Redux DevTools configuration
 
 - [ ] API call optimization
   - [ ] Implement request deduplication
@@ -160,9 +152,6 @@
 - [ ] Add security headers
 
 ### `src/store/slices/`
-- [ ] Review all 11 slices for optimization
-- [ ] Add memoized selectors with reselect
-- [ ] Normalize state structure
 - [ ] Add unit tests for each slice
 
 ### `src/components/ui/`

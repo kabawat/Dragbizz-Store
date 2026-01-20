@@ -218,6 +218,15 @@
     "showingInvoices": "{count} invoices dikha rahe hain"
   },
   "invoices": {
+    "customer": "Customer",
+    "subtotal": "Subtotal",
+    "gst": "GST",
+    "items": "Items",
+    "downloadPDF": "PDF download karo",
+    "print": "Print karo",
+    "templateSettings": "Template settings",
+    "editInvoice": "Invoice edit karo",
+    "releaseInvoice": "Invoice release karo",
     "downloadInvoices": "Invoices download karo",
     "selectTimePeriodToDownload": "Invoices download karne ke liye ek time period select karo",
     "selectTimePeriod": "Time Period select karo",

@@ -281,6 +281,15 @@
     "fieldReleasedAt": "Released At"
   },
   "invoices": {
+    "customer": "Customer",
+    "subtotal": "Subtotal",
+    "gst": "GST",
+    "items": "Items",
+    "downloadPDF": "Download PDF",
+    "print": "Print",
+    "templateSettings": "Template Settings",
+    "editInvoice": "Edit Invoice",
+    "releaseInvoice": "Release Invoice",
     "downloadInvoices": "Download Invoices",
     "selectTimePeriodToDownload": "Select a time period to download invoices",
     "selectTimePeriod": "Select Time Period",

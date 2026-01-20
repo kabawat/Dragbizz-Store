@@ -286,7 +286,7 @@ const ProductTable = ({
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
                       {(() => {
-                        // Safely handle category - could be string, array, null, or undefined
+                        // Safely handle category - could be string, array, object, null, or undefined
                         let categoryParts = [];
                         const rawCategory = product.category;
 
@@ -299,6 +299,9 @@ const ProductTable = ({
                           categoryParts = rawCategory
                             .split(" > ")
                             .filter(Boolean);
+                        } else if (rawCategory && typeof rawCategory === "object" && rawCategory.name) {
+                          // Handle object with name property (from API)
+                          categoryParts = [rawCategory.name];
                         } else if (rawCategory) {
                           // Fallback: convert to string and split
                           categoryParts = [String(rawCategory)];

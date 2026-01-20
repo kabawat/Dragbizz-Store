@@ -20,6 +20,7 @@ import { voiceAIService } from "@/service";
 import { customerService } from "@/service";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getErrorMessage } from "@/utils/errorHandling";
 
 const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -246,24 +247,17 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
         ]);
       }
     } catch (error) {
-      // Handle network/API errors
-      let errorMessage = "An error occurred. Please try again.";
+      logger.error("Voice AI error:", error);
+      
+      let errorMessage = getErrorMessage(error);
 
-      if (error.response?.data) {
-        const errorData = error.response.data;
-
-        // Parse subscription errors (AI is boolean-based, not quota-based)
-        if (error.response.status === 403 || error.response.status === 429) {
-          const quota = errorData.fields?.quota || errorData.data?.quota || {};
-          // For AI, only check hasAccess (enabled/disabled), not quota
-          if (quota.hasAccess === false) {
-            errorMessage =
-              "Voice AI feature is not available in your current subscription plan. Please upgrade your plan.";
-          } else if (errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
+      if (error.response?.status === 403 || error.response?.status === 429) {
+        const errorData = error.response?.data || {};
+        const quota = errorData.fields?.quota || errorData.data?.quota || errorData.details?.additionalInfo?.quota || {};
+        
+        if (quota.hasAccess === false) {
+          errorMessage =
+            "Voice AI feature is not available in your current subscription plan. Please upgrade your plan.";
         }
       }
 

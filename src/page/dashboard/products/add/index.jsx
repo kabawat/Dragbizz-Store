@@ -85,7 +85,6 @@ const AddProductPage = () => {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [fieldErrors, setFieldErrors] = useState({});
 
   // Update store ID when selectedStore changes
   useEffect(() => {

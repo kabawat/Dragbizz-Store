@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { Save, Plus } from "lucide-react";
-import { Button, ToastContainer, ErrorModal } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { CustomerForm } from "@/components/customer";
 import { customerService } from "@/service";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
@@ -146,7 +146,7 @@ const CreateCustomer = ({
     // Frontend validation: Check quota before making API call
     if (!isQuotaAvailable()) {
       const quotaData = quota || {};
-      setQuotaError({
+      setQuotaErrorManually({
         message:
           quota.remaining === 0
             ? `Daily limit reached. You have used all ${quota.limit} customers for today. Please try again tomorrow or upgrade your plan.`
@@ -160,7 +160,6 @@ const CreateCustomer = ({
               : null,
         canUpgrade: true,
       });
-      setShowQuotaModal(true);
       return;
     }
 
@@ -256,26 +255,8 @@ const CreateCustomer = ({
         )}
       </div>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={t("common.error")}
-        message={errorMessage}
-      />
-
-      {/* Quota Exceeded Modal */}
-      <QuotaExceededModal
-        isOpen={showQuotaModal}
-        onClose={() => setShowQuotaModal(false)}
-        message={quotaError?.message || t("quota.quotaExceeded")}
-        quota={quotaError?.quota || null}
-        resetTime={quotaError?.resetTime || null}
-        canUpgrade={quotaError?.canUpgrade !== false}
-      />
+      {/* Quota Modal from useErrorHandling hook */}
+      {QuotaModal}
     </>
   );
 };

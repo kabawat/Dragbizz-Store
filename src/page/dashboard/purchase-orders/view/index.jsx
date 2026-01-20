@@ -19,6 +19,8 @@ import {
 import moment from "moment";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { Loading, Card, Button } from "@/components/ui";
+import logger from "@/utils/logger";
 
 export default function ViewPurchaseOrderPage() {
   const router = useRouter();
@@ -68,6 +70,7 @@ export default function ViewPurchaseOrderPage() {
       if (!poId) return;
       try {
         setLoading(true);
+        setError(null);
         const storeId =
           selectedStore?.storeId ||
           selectedStore?._id ||
@@ -79,12 +82,20 @@ export default function ViewPurchaseOrderPage() {
         });
         if (result.success) {
           const data = result.data?.data || result.data;
-          setPo(data);
+          if (data) {
+            setPo(data);
+            setError(null);
+          } else {
+            setError("Purchase order not found");
+          }
         } else {
           setError(result.message || "Failed to load purchase order");
+          setPo(null);
         }
       } catch (e) {
+        logger.error("Error fetching purchase order:", e);
         setError("Unexpected error while loading purchase order");
+        setPo(null);
       } finally {
         setLoading(false);
       }
