@@ -68,19 +68,11 @@ const InvoicesListTable = ({
     };
   }, [openMenuId]);
 
-  const formatCurrency = (amount) => {
-    if (!amount && amount !== 0) return "₹0";
-    return `₹${Number(amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  import { formatCurrencySimple } from '@/utils/currencyFormatter';
+  import { formatDateLong } from '@/utils/dateFormatter';
+  
+  const formatCurrency = formatCurrencySimple;
+  const formatDate = formatDateLong;
 
   const buildShareUrl = (row) => {
     if (typeof window === "undefined") return "";

@@ -17,7 +17,8 @@ import BillNotes from './components/BillNotes';
 import BillActions from './components/BillActions';
 import DeleteModal from './components/DeleteModal';
 import DeleteSuccessModal from './components/DeleteSuccessModal';
-import { formatCurrency, formatDate, formatDateTime } from './utils';
+import { formatDate, formatDateTime } from '@/utils/dateFormatter';
+import { formatCurrency } from '@/utils/currencyFormatter';
 
 const ViewBillPage = ({ billId }) => {
   const router = useRouter();

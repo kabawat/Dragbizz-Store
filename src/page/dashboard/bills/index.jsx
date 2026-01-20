@@ -29,6 +29,8 @@ import {
 import { billService } from "@/service/retailer";
 import { getStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { formatCurrency } from "@/utils/currencyFormatter";
+import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 
 const Bills = () => {
   const { t } = useTranslation();
@@ -390,23 +392,6 @@ const Bills = () => {
       text: config.text,
       color: getColorClass(config.variant),
     };
-  };
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
-  };
-
-  // Format date
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   return (

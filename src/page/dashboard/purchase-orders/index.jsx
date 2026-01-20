@@ -23,6 +23,8 @@ import { Button, Input, ToastContainer } from "@/components/ui";
 import { useToast } from "@/hooks/useToast";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { formatCurrency } from "@/utils/currencyFormatter";
+import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 
 // Import dedicated purchase order components
 import PurchaseOrderTable from "@/components/purchaseOrders/PurchaseOrderTable";
@@ -323,21 +325,6 @@ const PurchaseOrders = () => {
     }
   };
 
-  const formatCurrency = (amount = 0) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
-  const formatDate = (date) => {
-    if (!date) return "--";
-    const parsed = new Date(date);
-    if (Number.isNaN(parsed.getTime())) return "--";
-    return parsed.toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
 
   const getStatusBadge = (po) => {
     const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
