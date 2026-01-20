@@ -31,10 +31,9 @@ import {
   Modal,
   Toggle,
   AddActionButton,
-  ToastContainer,
 } from "@/components/ui";
 import { AddSupplierDrawer } from "@/components/supplier";
-import { useToast } from "@/hooks/useToast";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -94,7 +93,7 @@ const CreatePurchaseOrder = () => {
   const [tempProduct, setTempProduct] = useState("");
   const [tempQuantity, setTempQuantity] = useState(1);
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
-  const { toasts, showSuccess, removeToast } = useToast();
+  const { showSuccess } = useErrorHandling();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -1888,9 +1887,6 @@ const CreatePurchaseOrder = () => {
           </div>
         </div>
       </Modal>
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

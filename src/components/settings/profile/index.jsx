@@ -1,8 +1,7 @@
 "use client";
 import { Save, User } from "lucide-react";
 import { FormDrawer } from "@/components/common";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import authService from "@/service/auth/auth.service";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
@@ -27,7 +26,7 @@ const ProfileSettings = ({ user }) => {
     handleCancel,
   } = useProfileData(user);
 
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const { showSuccess, showError } = useErrorHandling();
 
   const handleSave = async () => {
     try {
@@ -134,7 +133,6 @@ const ProfileSettings = ({ user }) => {
       </FormDrawer>
 
       {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };
