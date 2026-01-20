@@ -8,8 +8,6 @@ import {
   Input,
   Select,
   Badge,
-  ToastContainer,
-  ErrorModal,
   SideDrawer,
 } from "@/components/ui";
 import {
@@ -28,10 +26,8 @@ import Header from "@/components/dashboard/Header";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import { QuotaExceededModal } from "@/components/common";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { CreateCustomer } from "@/components/customer";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -47,12 +43,16 @@ const CreateInvoicePage = () => {
 
   // Local loading state for invoice creation
   const [invoiceLoading, setInvoiceLoading] = useState(false);
-  const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [quotaError, setQuotaError] = useState(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors,
+    setFieldErrors,
+    QuotaModal,
+    showSuccess,
+    showError,
+    setQuotaErrorManually,
+  } = useErrorHandling();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -317,11 +317,9 @@ const CreateInvoicePage = () => {
       return;
     }
 
-    // Frontend validation: Check quota before making API call
     if (!isQuotaAvailable()) {
-      // Show quota exceeded modal
       const quotaData = quota || {};
-      setQuotaError({
+      setQuotaErrorManually({
         message:
           quota.remaining === 0
             ? t("invoice.dailyLimitReached", { limit: quota.limit })
@@ -335,8 +333,7 @@ const CreateInvoicePage = () => {
               : null,
         canUpgrade: true,
       });
-      setShowQuotaModal(true);
-      return; // Prevent API call
+      return;
     }
 
     const invoiceData = {
@@ -351,97 +348,28 @@ const CreateInvoicePage = () => {
 
     try {
       setInvoiceLoading(true);
-      setQuotaError(null);
-      setShowQuotaModal(false);
-
       const result = await invoiceService.createDraftInvoice(invoiceData);
-      if (result.success) {
-        // Refresh quota after successful invoice creation
+      const handled = handleApiResult(
+        result,
+        t("invoice.invoiceCreatedSuccess"),
+        "invoice-creation"
+      );
+
+      if (handled.type === "success") {
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
-        // Show success toast
-        showSuccess(t("invoice.invoiceCreatedSuccess"));
-        // Redirect to the created invoice view page
         setTimeout(() => {
           const invoiceId = result.data?.id || result.data?._id;
           if (invoiceId) {
             router.push(`/dashboard/invoices/view/${invoiceId}`);
           } else {
-            // Fallback to invoices list if ID not available
             router.push("/dashboard/invoices");
           }
         }, 1500);
-      } else {
-        // Check if it's a quota exceeded error (403)
-        const errorData = result?.error || {};
-        const isQuotaError =
-          result?.statusCode === 403 ||
-          errorData.error === "Quota Exceeded" ||
-          errorData.error === "Forbidden" ||
-          result.message?.includes("Quota exceeded") ||
-          result.message?.includes("limit reached") ||
-          result.message?.includes("Quota Exceeded");
-
-        if (isQuotaError) {
-          // Extract quota data from backend response structure
-          const quotaData = errorData.data || errorData || {};
-          setQuotaError({
-            message: result.message || errorData.message || "Quota exceeded",
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(result?.error || result);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-          } else {
-            // Show error modal for general errors
-            setErrorMessage(
-              result.message || t("invoice.failedToCreateInvoice"),
-            );
-            setShowErrorModal(true);
-          }
-        }
       }
     } catch (error) {
-      // Handle API error response
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-
-        // Check for quota exceeded error (403)
-        if (
-          error.response.status === 403 &&
-          (errorData.error === "Quota Exceeded" ||
-            errorData.error === "Forbidden")
-        ) {
-          const quotaData = errorData.data || {};
-          setQuotaError({
-            message: errorData.message || "Quota exceeded",
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(errorData);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-          } else {
-            // Show error modal for general errors
-            setErrorMessage(errorData.message || t("invoice.anErrorOccurred"));
-            setShowErrorModal(true);
-          }
-        }
-      } else {
-        // Handle other types of errors
-        setErrorMessage(t("invoice.unexpectedError"));
-        setShowErrorModal(true);
-      }
+      handleApiError(error, "invoice-creation");
     } finally {
       setInvoiceLoading(false);
     }
@@ -829,18 +757,8 @@ const CreateInvoicePage = () => {
         </div>
       </div>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      {QuotaModal}
 
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={t("common.error")}
-        message={errorMessage}
-      />
-
-      {/* Customer Drawer */}
       <SideDrawer
         isOpen={showCustomerDrawer}
         onClose={() => {
@@ -865,19 +783,6 @@ const CreateInvoicePage = () => {
           />
         </div>
       </SideDrawer>
-
-      {/* Quota Exceeded Modal */}
-      <QuotaExceededModal
-        isOpen={showQuotaModal}
-        onClose={() => {
-          setShowQuotaModal(false);
-          setQuotaError(null);
-        }}
-        message={quotaError?.message || t("invoice.quotaExceededMessage")}
-        quota={quotaError?.quota || null}
-        resetTime={quotaError?.resetTime || null}
-        canUpgrade={quotaError?.canUpgrade !== false}
-      />
     </div>
   );
 };

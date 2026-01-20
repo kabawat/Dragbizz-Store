@@ -9,8 +9,7 @@ import Header from "@/components/dashboard/Header";
 import { SupplierForm } from "@/components/supplier";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -22,9 +21,15 @@ const AddSupplierPage = () => {
     selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
   const [loading, setLoading] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const { toasts, showSuccess, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors,
+    setFieldErrors,
+    QuotaModal,
+    showSuccess,
+    clearFieldErrors,
+  } = useErrorHandling();
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -37,7 +42,6 @@ const AddSupplierPage = () => {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [fieldErrors, setFieldErrors] = useState({});
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -71,13 +75,11 @@ const AddSupplierPage = () => {
     }));
   };
 
-  // Handle save and publish
   const handleSaveAndPublish = async () => {
     try {
       setLoading(true);
-      setFieldErrors({});
+      clearFieldErrors();
 
-      // Client-side validation: At least one contact method required
       if (!formData.phone && !formData.email) {
         setFieldErrors({
           phone: t("suppliers.phoneOrEmailRequired"),
@@ -87,45 +89,22 @@ const AddSupplierPage = () => {
         return;
       }
 
-      // Call supplier service to create supplier
       const result = await supplierService.createSupplier(formData);
+      const handled = handleApiResult(
+        result,
+        t("suppliers.createSuccess"),
+        "supplier-creation"
+      );
 
-      if (result.success) {
-        // Show success toast
-        showSuccess(t("suppliers.createSuccess"));
-        // Reset form and redirect after a short delay
+      if (handled.type === "success") {
         setTimeout(() => {
           setFormData(getInitialFormData());
-          setFieldErrors({});
+          clearFieldErrors();
           router.push("/dashboard/suppliers");
         }, 1500);
-      } else {
-        // Handle validation errors
-        const fieldErrors = extractFieldErrors(result?.error || result);
-        if (Object.keys(fieldErrors).length > 0) {
-          setFieldErrors(fieldErrors);
-        } else {
-          // Show error modal for general errors
-          setErrorMessage(result.message || t("suppliers.createError"));
-          setShowErrorModal(true);
-        }
       }
     } catch (error) {
-      // Handle validation errors
-      if (error.response && error.response.data) {
-        const fieldErrors = extractFieldErrors(error.response.data);
-        if (Object.keys(fieldErrors).length > 0) {
-          setFieldErrors(fieldErrors);
-        } else {
-          setErrorMessage(
-            error.response.data.message || t("suppliers.createError"),
-          );
-          setShowErrorModal(true);
-        }
-      } else {
-        setErrorMessage(t("common.error"));
-        setShowErrorModal(true);
-      }
+      handleApiError(error, "supplier-creation");
     } finally {
       setLoading(false);
     }
@@ -200,16 +179,7 @@ const AddSupplierPage = () => {
         </div>
       </div>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={t("common.error")}
-        message={errorMessage}
-      />
+      {QuotaModal}
     </div>
   );
 };

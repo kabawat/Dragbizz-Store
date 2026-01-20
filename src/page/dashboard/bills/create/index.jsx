@@ -34,11 +34,8 @@ import {
   Textarea,
   Card,
   Modal,
-  ToastContainer,
-  ErrorModal,
 } from "@/components/ui";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -85,9 +82,14 @@ const CreateBill = () => {
 
   const [errors, setErrors] = useState({});
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const { toasts, showSuccess, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors: errorHandlingFieldErrors,
+    setFieldErrors: setErrorHandlingFieldErrors,
+    QuotaModal,
+    showSuccess,
+  } = useErrorHandling();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -448,11 +450,13 @@ const CreateBill = () => {
       };
 
       const result = await billService.createBill(billData);
+      const handled = handleApiResult(
+        result,
+        t("success.createdSuccessfully", { item: t("common.bill") }),
+        "bill-creation"
+      );
 
-      if (result.success) {
-        showSuccess(
-          t("success.createdSuccessfully", { item: t("common.bill") }),
-        );
+      if (handled.type === "success") {
         setTimeout(() => {
           const billId = result.data?.id || result.data?._id;
           if (billId) {
@@ -461,36 +465,13 @@ const CreateBill = () => {
             router.push("/dashboard/bills");
           }
         }, 1500);
-      } else {
-        // Handle validation errors
-        const fieldErrors = extractFieldErrors(result?.error || result);
-        if (Object.keys(fieldErrors).length > 0) {
-          setErrors(fieldErrors);
-        } else {
-          // Show error modal for general errors
-          setErrorMessage(
-            result.message ||
-              t("errors.failedToCreateTryAgain", { item: t("common.bill") }),
-          );
-          setShowErrorModal(true);
-        }
+      } else if (handled.type === "field") {
+        setErrors(handled.fieldErrors);
       }
     } catch (error) {
-      // Handle validation errors
-      if (error.response && error.response.data) {
-        const fieldErrors = extractFieldErrors(error.response.data);
-        if (Object.keys(fieldErrors).length > 0) {
-          setErrors(fieldErrors);
-        } else {
-          setErrorMessage(
-            error.response.data.message ||
-              "An error occurred while creating the bill. Please try again.",
-          );
-          setShowErrorModal(true);
-        }
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
-        setShowErrorModal(true);
+      const handled = handleApiError(error, "bill-creation");
+      if (handled.type === "field") {
+        setErrors(handled.fieldErrors);
       }
     } finally {
       setIsCreating(false);
@@ -1071,16 +1052,7 @@ const CreateBill = () => {
         </div>
       </Modal>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title="Error"
-        message={errorMessage}
-      />
+      {QuotaModal}
     </div>
   );
 };
