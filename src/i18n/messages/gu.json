@@ -218,7 +218,16 @@
     "showingInvoices": "{count} ઇન્વૉઇસ બતાવી રહ્યા છીએ"
   },
   "invoices": {
-    "downloadInvoices": "ઇન્વૉઇસ ડાઉનલોડ કરો",
+    "customer": "ગ્રાહક",
+    "subtotal": "સબટોટલ",
+    "gst": "GST",
+    "items": "આઇટમ્સ",
+    "downloadPDF": "PDF ડાઉનલોડ કરો",
+    "print": "પ્રિન્ટ કરો",
+    "templateSettings": "ટેમ્પલેટ સેટિંગ્સ",
+    "editInvoice": "ઇન્વૉઇસ સંપાદિત કરો",
+    "releaseInvoice": "ઇન્વૉઇસ જારી કરો",
+    "downloadInvoices": "ઇન્વૉઇસ ડાઉनલોડ કરો",
     "selectTimePeriodToDownload": "ઇન્વૉઇસ ડાઉનલોડ કરવા માટે સમયગાળો પસંદ કરો",
     "selectTimePeriod": "સમયગાળો પસંદ કરો",
     "selectATimePeriod": "સમયગાળો પસંદ કરો",

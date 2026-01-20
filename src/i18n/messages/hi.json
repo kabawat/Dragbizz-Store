@@ -216,6 +216,15 @@
     "enterDiscountAmount": "छूट राशि दर्ज करें"
   },
   "invoices": {
+    "customer": "ग्राहक",
+    "subtotal": "उप-योग",
+    "gst": "जीएसटी",
+    "items": "आइटम",
+    "downloadPDF": "PDF डाउनलोड करें",
+    "print": "प्रिंट करें",
+    "templateSettings": "टेम्पलेट सेटिंग्स",
+    "editInvoice": "चालान संपादित करें",
+    "releaseInvoice": "चालान जारी करें",
     "downloadInvoices": "चालान डाउनलोड करें",
     "selectTimePeriodToDownload": "चालान डाउनलोड करने के लिए समय अवधि चुनें",
     "selectTimePeriod": "समय अवधि चुनें",

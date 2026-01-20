@@ -19,8 +19,7 @@ import {
   Card,
   AddActionButton,
 } from "@/components/ui";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const AdvancePaymentDrawer = ({
@@ -31,7 +30,7 @@ const AdvancePaymentDrawer = ({
 }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const { handleApiError, handleApiResult, showSuccess } = useErrorHandling();
 
   // Payment methods options with translations
   const PAYMENT_METHODS = [
@@ -300,14 +299,14 @@ const AdvancePaymentDrawer = ({
         setErrors({
           general: result.message || t("payments.failedToCreateAdvancePayment"),
         });
-        showError(result.message || t("payments.failedToCreateAdvancePayment"));
+        handleApiError(result, "payment-creation");
       }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
         t("payments.failedToCreateAdvancePayment");
       setErrors({ general: errorMessage });
-      showError(errorMessage);
+      handleApiError(error, "payment-creation");
     } finally {
       setLoading(false);
     }
@@ -749,8 +748,6 @@ const AdvancePaymentDrawer = ({
         </div>
       </SideDrawer>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </>
   );
 };

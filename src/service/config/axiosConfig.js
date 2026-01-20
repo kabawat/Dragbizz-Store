@@ -3,6 +3,22 @@ import axios from "axios";
 import { cookieManager } from "@/utils/cookieManager";
 import ENV_CONFIG from "@/config/env.config";
 import API_CONFIG from "@/config/api.config";
+import {
+  generateCacheKey,
+  getCachedResponse,
+  setCachedResponse,
+  clearCache,
+} from "@/utils/requestCache";
+import {
+  getRequestKey as getDedupKey,
+  getPendingRequest,
+  setPendingRequest,
+} from "@/utils/requestDeduplication";
+import {
+  createCancelToken,
+  removeCancelToken,
+  getRequestKey as getCancelKey,
+} from "@/utils/requestCancellation";
 
 let globalToastShowError = null;
 let networkErrorHandler = null;
@@ -69,6 +85,27 @@ authAxios.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    const method = config.method?.toUpperCase() || 'GET';
+    const url = config.url || '';
+    const params = config.params || {};
+
+    const cacheKey = generateCacheKey(url, method, params);
+    const dedupKey = getDedupKey(url, method, params);
+    const cancelKey = getCancelKey(url, method, params);
+
+    config.metadata = {
+      cacheKey,
+      dedupKey,
+      cancelKey,
+      useCache: config.useCache !== false && method === 'GET',
+      useDeduplication: config.useDeduplication !== false,
+      useCancellation: config.useCancellation !== false,
+    };
+
+    if (config.metadata.useCancellation) {
+      config.cancelToken = createCancelToken(config.metadata.cancelKey);
+    }
+
     return config;
   },
   (error) => {
@@ -78,10 +115,51 @@ authAxios.interceptors.request.use(
 
 authAxios.interceptors.response.use(
   (response) => {
+    const { metadata } = response.config || {};
+    
+    if (metadata?.useCache && response.config.method?.toUpperCase() === 'GET') {
+      setCachedResponse(metadata.cacheKey, response.data);
+    }
+
+    if (metadata?.useDeduplication) {
+      const pending = getPendingRequest(metadata.dedupKey);
+      if (pending) {
+        setPendingRequest(metadata.dedupKey, Promise.resolve(response));
+      }
+    }
+
+    if (metadata?.cancelKey) {
+      removeCancelToken(metadata.cancelKey);
+    }
+
     return response;
   },
   async (error) => {
+    if (error.__cached) {
+      return Promise.resolve({
+        ...error.config,
+        data: error.data,
+        fromCache: true,
+      });
+    }
+
+    if (error.__deduplicated) {
+      return error.promise.then((response) => ({
+        ...error.config,
+        ...response,
+        fromDeduplication: true,
+      }));
+    }
+
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
+
+    if (originalRequest?.metadata?.cancelKey) {
+      removeCancelToken(originalRequest.metadata.cancelKey);
+    }
 
     // Check for network errors
     const isNetworkError =

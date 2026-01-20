@@ -260,6 +260,9 @@ const ProductCard = ({
               categoryParts = rawCategory.filter(Boolean);
             } else if (typeof rawCategory === "string" && rawCategory.trim()) {
               categoryParts = rawCategory.split(" > ").filter(Boolean);
+            } else if (rawCategory && typeof rawCategory === "object" && rawCategory.name) {
+              // Handle object with name property (from API)
+              categoryParts = [rawCategory.name];
             } else if (rawCategory) {
               categoryParts = [String(rawCategory)];
             }

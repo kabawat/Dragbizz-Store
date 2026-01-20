@@ -25,11 +25,13 @@ import moment from "moment";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import { Button } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import Link from "next/link";
 
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";
+import logger from "@/utils/logger";
 
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
@@ -48,18 +50,28 @@ const ViewInventoryPage = ({ inventoryId }) => {
 
       try {
         setLoading(true);
+        setError(null);
         const response = await inventoryService.getInventoryById(
           inventoryId,
           storeId,
         );
 
         if (response.success) {
-          setInventory(response.data?.inventory);
+          const data = response.data?.data?.inventory || response.data?.inventory || response.data;
+          if (data) {
+            setInventory(data);
+            setError(null);
+          } else {
+            setError("Stock not found");
+          }
         } else {
-          setError("Failed to fetch inventory details");
+          setError(response.message || "Failed to fetch inventory details");
+          setInventory(null);
         }
       } catch (error) {
+        logger.error("Error fetching inventory:", error);
         setError("Error loading inventory details");
+        setInventory(null);
       } finally {
         setLoading(false);
       }

@@ -64,10 +64,18 @@ const ViewExpensePage = ({ expenseId }) => {
           id: expenseId,
           store: storeId,
         });
-        if (result.success && result.data) {
-          setExpenseData(result.data);
+        
+        if (result.success) {
+          const data = result.data?.data || result.data;
+          if (data) {
+            setExpenseData(data);
+            setError(null);
+          } else {
+            setError("Expense not found");
+          }
         } else {
           setError(result.message || "Failed to fetch expense data");
+          setExpenseData(null);
         }
       } catch (error) {
         setError("Failed to fetch expense data. Please try again.");
