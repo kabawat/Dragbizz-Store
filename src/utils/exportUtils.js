@@ -213,16 +213,41 @@ export const exportToPDF = async (data, filename, options = {}) => {
       colWidths.push(availableWidth / headers.length);
     });
     
-    // Draw table header
+    // Draw table header with auto height
     doc.setFontSize(10);
     doc.setFont(undefined, 'bold');
+    
+    // Calculate header row height based on content
+    let maxHeaderHeight = 8; // Minimum header height
+    const headerCellHeights = [];
+    
+    headers.forEach((header, colIndex) => {
+      const maxWidth = colWidths[colIndex] - 4;
+      const headerLines = doc.splitTextToSize(header, maxWidth);
+      const headerHeight = Math.max(8, headerLines.length * 4 + 2); // 4mm per line + padding
+      headerCellHeights.push({ lines: headerLines, height: headerHeight });
+      
+      if (headerHeight > maxHeaderHeight) {
+        maxHeaderHeight = headerHeight;
+      }
+    });
+    
+    // Draw header cells with auto height
     let xPos = startX;
     headers.forEach((header, index) => {
-      doc.rect(xPos, startY - 5, colWidths[index], 8);
-      doc.text(header, xPos + 2, startY, { maxWidth: colWidths[index] - 4 });
+      const { lines, height } = headerCellHeights[index];
+      doc.rect(xPos, startY - 5, colWidths[index], maxHeaderHeight);
+      
+      // Draw header text with wrapping
+      let lineY = startY;
+      lines.forEach((line) => {
+        doc.text(line, xPos + 2, lineY, { maxWidth: colWidths[index] - 4 });
+        lineY += 4; // 4mm line spacing
+      });
+      
       xPos += colWidths[index];
     });
-    startY += 8;
+    startY += maxHeaderHeight;
     
     // Draw table rows
     doc.setFont(undefined, 'normal');
@@ -252,16 +277,24 @@ export const exportToPDF = async (data, filename, options = {}) => {
         doc.addPage();
         startY = margin;
         
-        // Redraw header on new page
+        // Redraw header on new page with auto height
         doc.setFont(undefined, 'bold');
         doc.setFontSize(10);
         xPos = startX;
         headers.forEach((header, index) => {
-          doc.rect(xPos, startY - 5, colWidths[index], 8);
-          doc.text(header, xPos + 2, startY, { maxWidth: colWidths[index] - 4 });
+          const { lines, height } = headerCellHeights[index];
+          doc.rect(xPos, startY - 5, colWidths[index], maxHeaderHeight);
+          
+          // Draw header text with wrapping
+          let lineY = startY;
+          lines.forEach((line) => {
+            doc.text(line, xPos + 2, lineY, { maxWidth: colWidths[index] - 4 });
+            lineY += 4; // 4mm line spacing
+          });
+          
           xPos += colWidths[index];
         });
-        startY += 8;
+        startY += maxHeaderHeight;
         doc.setFont(undefined, 'normal');
         doc.setFontSize(9);
       }
