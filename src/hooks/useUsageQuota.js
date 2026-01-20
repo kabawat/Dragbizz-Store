@@ -2,16 +2,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { subscriptionService } from "@/service/subscription";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import logger from "@/utils/logger";
 
 const quotaCache = new Map();
 const quotaCacheTTL = 60 * 1000;
 const pendingRequests = new Map();
 
-/**
- * Hook to get and manage usage quotas
- * @param {string} featureKey - Optional feature key to get quota for specific feature
- * @returns {Object} - { quota, summary, isLoading, refresh }
- */
 export function useUsageQuota(featureKey = null) {
   const [quota, setQuota] = useState(null);
   const [summary, setSummary] = useState([]);
@@ -119,7 +115,7 @@ export function useUsageQuota(featureKey = null) {
             isFetchingRef.current = false;
             return;
           } catch (err) {
-            console.error(
+            logger.error(
               "[useUsageQuota] Error handling pending request:",
               err,
             );
@@ -226,7 +222,7 @@ export function useUsageQuota(featureKey = null) {
             hasFetchedRef.current = true;
           })
           .catch((err) => {
-            console.error("[useUsageQuota] Error in pending request:", err);
+            logger.error("[useUsageQuota] Error in pending request:", err);
           });
         return;
       }
@@ -304,12 +300,7 @@ export function useUsageQuota(featureKey = null) {
   };
 }
 
-/**
- * Hook to check if user can use a feature
- * @param {string} featureKey - Feature key
- * @param {number} quantity - Quantity to check
- * @returns {Object} - { canUse, quota, checkUsage }
- */
+// Hook to check if user can use a feature
 export function useFeatureUsage(featureKey, quantity = 1) {
   const [canUse, setCanUse] = useState(false);
   const [quota, setQuota] = useState(null);

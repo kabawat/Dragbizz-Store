@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import logger from "@/utils/logger";
 import { Send, MessageCircle, Mail, MessageSquare, Copy } from "lucide-react";
 import AddActionButton from "./AddActionButton";
 
@@ -39,9 +40,10 @@ const SendMenu = ({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        // You can add a toast notification here
       }
-    } catch (error) {}
+    } catch (error) {
+      logger.error("Failed to copy to clipboard:", error);
+    }
   };
 
   const handleWhatsAppShare = () => {

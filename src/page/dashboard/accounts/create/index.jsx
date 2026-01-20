@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import logger from "@/utils/logger";
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { createAccount } from "@/store/slices/accountsSlice";
@@ -139,7 +140,9 @@ const CreateAccount = () => {
       if (result.type === "accounts/createAccount/fulfilled") {
         router.push("/dashboard/accounts");
       }
-    } catch (error) {}
+    } catch (error) {
+      logger.error("Failed to create account:", error);
+    }
   };
 
   // Handle save draft

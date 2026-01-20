@@ -178,7 +178,7 @@ const ProductsPage = () => {
         setCategories(formattedCategories);
       }
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
+      logger.error("Failed to fetch categories:", error);
       // Reset on error so it can retry
       hasFetchedCategories.current = false;
     } finally {

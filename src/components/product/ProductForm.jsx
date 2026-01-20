@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import logger from "@/utils/logger";
 import { Package, Eye, IndianRupee, GripVertical, Info, X } from "lucide-react";
 
 // Import drag and drop
@@ -411,8 +412,12 @@ const ProductForm = ({
           resetCategoryData();
           setShowAddCategoryDrawer(false);
         } else {
+          logger.error("Failed to create category:", response.message || "Unknown error");
         }
-      } catch (error) {}
+      } catch (error) {
+        logger.error("Error creating category:", error);
+        hasFetchedCategories.current = false;
+      }
     }
   };
 

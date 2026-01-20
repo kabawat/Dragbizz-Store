@@ -15,7 +15,7 @@ export const useErrorHandler = () => {
       setFieldErrorsFn,
       defaultMessage = "An error occurred. Please try again.",
     ) => {
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         const errorData = error.response.data;
 
         if (

@@ -221,8 +221,6 @@ export default function Login() {
 
       const result = await authService.sendOTP(loginData);
 
-      console.log('OTP Send Result:', result);
-
       if (result.success) {
         const token = result.data?.token || result.token || result.data?.data?.token || result.data?.otpToken;
         
@@ -247,7 +245,6 @@ export default function Login() {
         setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
       }
     } catch (error) {
-      console.error('OTP Send Error:', error);
       setOtpSent(false);
       const errorMessage = handleApiError(error, 'otp-send');
       setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));

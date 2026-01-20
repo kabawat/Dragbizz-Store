@@ -1,15 +1,4 @@
-/**
- * Utility to handle validation errors from API responses
- * Converts API field errors to a format that can be used with form fields
- */
-
-/**
- * Converts API field errors to a format compatible with form field names
- * Handles nested fields like addresses[0].pincode -> addresses.0.pincode
- *
- * @param {Object} errorResponse - The error response from API
- * @returns {Object} - Object with field names as keys and error messages as values
- */
+// Converts API field errors to form field format
 export const extractFieldErrors = (errorResponse) => {
   const fieldErrors = {};
 
@@ -84,25 +73,13 @@ export const extractFieldErrors = (errorResponse) => {
   return fieldErrors;
 };
 
-/**
- * Gets error message for a specific field
- *
- * @param {Object} fieldErrors - Object containing field errors
- * @param {string} fieldName - Name of the field (supports dot notation like 'addresses.0.pincode')
- * @returns {string|null} - Error message or null if no error
- */
+// Gets error message for a specific field
 export const getFieldError = (fieldErrors, fieldName) => {
   if (!fieldErrors || !fieldName) return null;
   return fieldErrors[fieldName] || null;
 };
 
-/**
- * Clears error for a specific field
- *
- * @param {Object} fieldErrors - Current field errors object
- * @param {string} fieldName - Name of the field to clear
- * @returns {Object} - New field errors object without the specified field
- */
+// Clears error for a specific field
 export const clearFieldError = (fieldErrors, fieldName) => {
   if (!fieldErrors || !fieldName) return fieldErrors;
 
@@ -119,14 +96,7 @@ export const clearFieldError = (fieldErrors, fieldName) => {
   return newErrors;
 };
 
-/**
- * Clears all errors for fields that start with a prefix
- * Useful for clearing nested field errors
- *
- * @param {Object} fieldErrors - Current field errors object
- * @param {string} prefix - Prefix to match (e.g., 'addresses', 'companyDetails')
- * @returns {Object} - New field errors object without matching fields
- */
+// Clears all errors for fields that start with a prefix
 export const clearFieldErrorsByPrefix = (fieldErrors, prefix) => {
   if (!fieldErrors || !prefix) return fieldErrors;
 

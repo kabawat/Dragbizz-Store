@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import logger from "@/utils/logger";
 import {
   MoreVertical,
   Edit,
@@ -94,7 +95,9 @@ const InvoicesListTable = ({
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
       }
-    } catch (error) {}
+    } catch (error) {
+      logger.error("Failed to copy to clipboard:", error);
+    }
   };
 
   const handleCopyLink = (row) => {

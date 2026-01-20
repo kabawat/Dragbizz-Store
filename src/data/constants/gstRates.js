@@ -24,9 +24,7 @@ export const GST_RATE_OPTIONS = [
   },
 ];
 
-/**
- * Default GST rate
- */
+// Default GST rate
 export const DEFAULT_GST_RATE = 18;
 
 export const getGSTRateLabel = (rate) => {

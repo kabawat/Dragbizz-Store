@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
+import logger from "@/utils/logger";
 import {
   FileText,
   Building2,
@@ -15,16 +16,7 @@ import {
 import { invoiceService } from "@/service/retailer";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
-/**
- * ViewInvoiceStructured
- * - Fetches public invoice by invoiceId
- * - Renders structured modern template (matches second template styles)
- * - Keeps status badges (payment & invoice)
- * - Web + Print friendly
- *
- * Usage: <ViewInvoiceStructured invoiceId={publicId} />
- */
-
+// Component to fetch and display public invoice
 const accentColor = "#2980b9";
 
 const getStatusBadgeCommon = (status, type = "invoice") => {
@@ -119,7 +111,7 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
           setError(res?.message || "Invoice not found");
         }
       } catch (e) {
-        console.error("Error fetching invoice:", e);
+        logger.error("Error fetching invoice:", e);
         setError("Failed to load invoice");
       } finally {
         if (mounted) setLoading(false);
