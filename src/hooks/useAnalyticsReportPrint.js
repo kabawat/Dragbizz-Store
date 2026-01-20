@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import logger from "@/utils/logger";
 
 export const useAnalyticsReportPrint = (
   fetching,
@@ -144,7 +145,7 @@ export const useAnalyticsReportPrint = (
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`${reportName}-${new Date().toISOString().split("T")[0]}.pdf`);
     } catch (error) {
-      console.error("PDF generation error:", error);
+      logger.error("PDF generation error:", error);
       showError("Failed to download PDF. Please try again.");
     } finally {
       if (tempStyleEl && tempStyleEl.parentNode) {
@@ -416,7 +417,7 @@ export const useAnalyticsReportPrint = (
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("XLSX export error:", error);
+      logger.error("XLSX export error:", error);
       showError("Failed to download XLSX. Please try again.");
     }
   };

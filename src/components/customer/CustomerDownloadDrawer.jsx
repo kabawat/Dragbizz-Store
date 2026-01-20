@@ -176,10 +176,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       
       const result = await customerService.getCustomers(params);
       
-      // Console log the response data
-      console.log('Download customers API response:', result);
-      console.log('Customers data:', result.data);
-      
       if (result.success && result.data) {
         const customersData = result.data?.data || result.data || [];
         
@@ -196,7 +192,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t('customers.failedToDownloadCustomers'));
       }
     } catch (error) {
-      console.error('Download customers error:', error);
       showError(t('customers.errorDownloadingCustomers'));
     } finally {
       setIsDownloading(false);
@@ -233,10 +228,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       
       const result = await customerService.getCustomers(params);
       
-      // Console log the response data
-      console.log('Download customers API response:', result);
-      console.log('Customers data:', result.data);
-      
       if (result.success && result.data) {
         const customersData = result.data?.data || result.data || [];
         
@@ -253,7 +244,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t('customers.failedToDownloadCustomers'));
       }
     } catch (error) {
-      console.error('Download customers error:', error);
       showError(t('customers.errorDownloadingCustomers'));
     } finally {
       setIsDownloading(false);

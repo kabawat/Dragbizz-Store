@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, Suspense, lazy } from "react";
+import logger from "@/utils/logger";
 import {
   DndContext,
   closestCenter,
@@ -586,6 +587,7 @@ export default function Dashboard() {
         setLoading(true);
         await loadDashboardMetrics(storeId);
       } catch (error) {
+        logger.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -610,7 +612,9 @@ export default function Dashboard() {
             ? reorderedMetrics
             : prevMetrics;
         });
-      } catch (error) {}
+      } catch (error) {
+        logger.error("Failed to load saved metrics order:", error);
+      }
     }
 
     if (savedSections) {
@@ -642,7 +646,9 @@ export default function Dashboard() {
             ? reorderedSections
             : prevSections;
         });
-      } catch (error) {}
+      } catch (error) {
+        logger.error("Failed to load saved sections order:", error);
+      }
     }
   }, [loading]);
 

@@ -65,7 +65,7 @@ export const handleApiError = (error, context = "general") => {
     error.code === "NETWORK_ERROR" ||
     error.message === "Network Error" ||
     (!error.response && error.request) ||
-    (error.message && error.message.includes("Network Error")) ||
+    (error.message?.includes("Network Error")) ||
     !navigator.onLine;
 
   if (isNetworkError) {
@@ -91,6 +91,8 @@ export const handleApiError = (error, context = "general") => {
       return "An error occurred while creating agency. Please try again.";
     case "store-creation":
       return "An error occurred while creating store. Please try again.";
+    default:
+      return "An error occurred. Please try again.";
   }
 };
 
@@ -140,7 +142,7 @@ export const handleApiErrorResponse = (error, context = "general") => {
       try {
         // Dynamic import to avoid circular dependency
         import("@/contexts/ToastContext")
-          .then(({ useGlobalToast }) => {
+          .then(() => {
             // This will be handled by axios interceptor, but we can also handle here
             // The toast will be shown by axios interceptor
           })

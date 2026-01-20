@@ -8,10 +8,7 @@ import {
   FEATURE_NAMES,
 } from "@/constants/featureMapping";
 
-/**
- * Hook to check feature access based on user's active subscription
- * @returns {Object} - { hasAccess, features, isLoading, checkFeatureAccess, checkRouteAccess }
- */
+// Hook to check feature access based on user's active subscription
 export function useFeatureAccess() {
   // Get subscription from context (avoids duplicate API call)
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
@@ -64,11 +61,7 @@ export function useFeatureAccess() {
     setFeatures(Array.from(collected));
   }, [subscription, subscriptionLoading]);
 
-  /**
-   * Check if user has access to a specific feature
-   * @param {string} featureName - Name of the feature to check
-   * @returns {boolean}
-   */
+  // Check if user has access to a specific feature
   const checkFeatureAccess = (featureName) => {
     if (!features || features.length === 0) return false;
 
@@ -80,11 +73,7 @@ export function useFeatureAccess() {
     );
   };
 
-  /**
-   * Check if user has access to a route
-   * @param {string} route - Route path to check
-   * @returns {boolean}
-   */
+  // Check if user has access to a route
   const checkRouteAccess = (route) => {
     const requiredFeature = getRequiredFeatureForRoute(route);
     if (!requiredFeature) return true; // No feature required for this route
@@ -100,11 +89,7 @@ export function useFeatureAccess() {
     );
   };
 
-  /**
-   * Check if user has access to a menu item
-   * @param {string} menuItemName - Name of the menu item
-   * @returns {boolean}
-   */
+  // Check if user has access to a menu item
   const checkMenuItemAccess = (menuItemName) => {
     const requiredFeature = getRequiredFeatureForMenuItem(menuItemName);
     if (!requiredFeature) return true; // No feature required for this menu item
@@ -120,10 +105,7 @@ export function useFeatureAccess() {
     );
   };
 
-  /**
-   * Get all accessible routes based on features
-   * @returns {string[]}
-   */
+  // Get all accessible routes based on features
   const getAccessibleRoutes = () => {
     const accessibleRoutes = [];
 

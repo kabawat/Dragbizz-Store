@@ -125,10 +125,7 @@ export const PRODUCT_UOM = [
   "PALLET",
 ];
 
-/**
- * UOM Options for Select Component
- * Formatted for dropdown usage with labels and descriptions
- */
+// UOM options formatted for dropdown usage
 export const UOM_OPTIONS = PRODUCT_UOM.map((uom) => {
   const descriptions = {
     // General / Retail

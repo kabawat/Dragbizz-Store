@@ -15,6 +15,7 @@ import {
   MicOff,
 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
+import logger from "@/utils/logger";
 import { voiceAIService } from "@/service";
 import { customerService } from "@/service";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -63,7 +64,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
       };
 
       recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
+        logger.error("Speech recognition error:", event.error);
         setIsRecording(false);
 
         let errorMsg = "Voice recognition error. Please try again.";
@@ -335,7 +336,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
           recognitionRef.current.start();
         }
       } catch (error) {
-        console.error("Error starting speech recognition:", error);
+        logger.error("Error starting speech recognition:", error);
         setMessages((prev) => [
           ...prev,
           {

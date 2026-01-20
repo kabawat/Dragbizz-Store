@@ -7,6 +7,7 @@ import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
+import logger from "@/utils/logger";
 
 const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -250,7 +251,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("invoices.failedToDownloadInvoices"));
       }
     } catch (error) {
-      console.error("Download invoices error:", error);
+      logger.error("Download invoices error:", error);
       showError(t("invoices.errorDownloadingInvoices"));
     } finally {
       setIsDownloading(false);
@@ -307,7 +308,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("invoices.failedToDownloadInvoices"));
       }
     } catch (error) {
-      console.error("Download invoices error:", error);
+      logger.error("Download invoices error:", error);
       showError(t("invoices.errorDownloadingInvoices"));
     } finally {
       setIsDownloading(false);

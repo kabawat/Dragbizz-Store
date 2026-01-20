@@ -9,10 +9,7 @@ const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in millisecon
 const LAST_ACTIVITY_KEY = "dragbizz_last_activity";
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check every hour
 
-/**
- * Hook to handle auto logout after 7 days of inactivity
- * Tracks user activity and logs out if inactive for 7 days
- */
+// Hook to handle auto logout after 7 days of inactivity
 export function useInactivityLogout() {
   const dispatch = useAppDispatch();
   const checkIntervalRef = useRef(null);

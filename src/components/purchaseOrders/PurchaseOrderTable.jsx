@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import logger from "@/utils/logger";
 import {
   MoreVertical,
   Eye,
@@ -99,9 +100,10 @@ const PurchaseOrderTable = ({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        // You can add a toast notification here
       }
-    } catch (error) {}
+    } catch (error) {
+      logger.error("Failed to copy to clipboard:", error);
+    }
   };
 
   const handleWhatsAppShare = (row) => {

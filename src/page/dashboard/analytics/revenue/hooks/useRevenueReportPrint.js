@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import logger from "@/utils/logger";
 
 export const useRevenueReportPrint = (fetching, analyticsData) => {
   const { showError } = useGlobalToast();
@@ -523,7 +524,7 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("XLSX export error:", error);
+      logger.error("XLSX export error:", error);
       showError("Failed to download XLSX. Please try again.");
     }
   };

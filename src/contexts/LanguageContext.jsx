@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { defaultLocale, locales } from "@/i18n/config";
+import logger from "@/utils/logger";
 
 const LanguageContext = createContext();
 
@@ -35,7 +36,7 @@ export const LanguageProvider = ({ children }) => {
       const messagesModule = await import(`@/i18n/messages/${lang}.json`);
       setMessages(messagesModule.default);
     } catch (error) {
-      console.error(`Failed to load messages for locale: ${lang}`, error);
+      logger.error(`Failed to load messages for locale: ${lang}`, error);
       const fallbackMessages = await import(
         `@/i18n/messages/${defaultLocale}.json`
       );
@@ -45,7 +46,7 @@ export const LanguageProvider = ({ children }) => {
 
   const changeLanguage = async (newLocale) => {
     if (!locales.includes(newLocale)) {
-      console.warn(`Locale ${newLocale} is not supported`);
+      logger.warn(`Locale ${newLocale} is not supported`);
       return;
     }
 

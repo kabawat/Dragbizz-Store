@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import logger from "@/utils/logger";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
@@ -52,7 +53,9 @@ const ProductHeader = () => {
         if (!user) {
           try {
             await dispatch(getRetailerDetails()).unwrap();
-          } catch (error) {}
+          } catch (error) {
+            logger.error("Failed to fetch retailer details:", error);
+          }
         }
       } else {
         setIsLoggedIn(false);

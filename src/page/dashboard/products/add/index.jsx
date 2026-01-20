@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import logger from "@/utils/logger";
 import { Save, ArrowLeft } from "lucide-react";
 
 // Import components
@@ -391,10 +392,7 @@ const AddProductPage = () => {
       setShowAIModal(false);
       showSuccess(t("products.aiExtractSuccess"));
     } catch (error) {
-      // Log error for debugging (remove console.error in production or use proper logging service)
-      if (process.env.NODE_ENV === "development") {
-        console.error("Error pre-filling form:", error);
-      }
+      logger.error("Error pre-filling form:", error);
       showError(t("products.aiExtractError"));
     }
   };

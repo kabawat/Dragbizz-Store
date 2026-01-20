@@ -8,9 +8,7 @@ export const CURRENCY_OPTIONS = [
   { value: "AUD", label: "Australian Dollar ($)", symbol: "$" },
 ];
 
-/**
- * Default currency
- */
+// Default currency
 export const DEFAULT_CURRENCY = "INR";
 
 export const getCurrencySymbol = (currencyCode) => {

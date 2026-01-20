@@ -115,6 +115,7 @@ const InventoryPage = () => {
         setHasMore(response.data?.pagination?.hasNext || false);
       }
     } catch (error) {
+      showError(error?.message || t('common.failedToLoad'));
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -267,7 +268,6 @@ const InventoryPage = () => {
   };
 
   const handleDuplicate = (inventoryId) => {
-    console.warn('Duplicate functionality is not yet implemented');
   };
 
   const handleViewModeChange = (mode) => {

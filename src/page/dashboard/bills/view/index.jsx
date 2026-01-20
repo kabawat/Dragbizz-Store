@@ -30,6 +30,7 @@ import moment from 'moment';
 // Import components
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { Badge, Button } from '@/components/ui';
 import { billService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
@@ -87,12 +88,10 @@ const ViewBillPage = ({ billId }) => {
 
   // Handle make payment
   const handleMakePayment = () => {
-    console.warn('Payment functionality is not yet implemented');
   };
 
   // Handle payment completed
   const handlePaymentCompleted = () => {
-    console.warn('Payment completed functionality is not yet implemented');
   };
 
   // Handle delete bill

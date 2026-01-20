@@ -5,19 +5,7 @@ import { Button } from "@/components/ui";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
-/**
- * Common QuotaExceededModal Component
- *
- * A standardized modal component for displaying quota exceeded messages
- * across all features (products, customers, invoices, etc.)
- *
- * @param {boolean} isOpen - Controls modal visibility
- * @param {function} onClose - Callback when modal is closed
- * @param {string} message - Custom message to display
- * @param {object} quota - Quota information object with used, limit, remaining, usageType
- * @param {string} resetTime - When the quota will reset (e.g., "in 2 hours")
- * @param {boolean} canUpgrade - Whether user can upgrade their plan
- */
+// Modal component for displaying quota exceeded messages
 const QuotaExceededModal = ({
   isOpen,
   onClose,

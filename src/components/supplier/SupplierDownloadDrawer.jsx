@@ -7,6 +7,7 @@ import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
+import logger from "@/utils/logger";
 
 const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -224,7 +225,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("suppliers.failedToDownload"));
       }
     } catch (error) {
-      console.error("Download suppliers error:", error);
+      logger.error("Download suppliers error:", error);
       showError(t("suppliers.errorDownloadingSuppliers"));
     } finally {
       setIsDownloading(false);
@@ -281,7 +282,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("suppliers.failedToDownload"));
       }
     } catch (error) {
-      console.error("Download suppliers error:", error);
+      logger.error("Download suppliers error:", error);
       showError(t("suppliers.errorDownloadingSuppliers"));
     } finally {
       setIsDownloading(false);

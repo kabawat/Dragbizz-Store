@@ -1,8 +1,4 @@
-/**
- * Hardcoded Feature Constants for Frontend
- * These must match the feature keys in subscription service
- */
-
+// Feature constants - must match subscription service feature keys
 export const FEATURES = {
   // Store Management
   STORE_MANAGEMENT: "store_management",

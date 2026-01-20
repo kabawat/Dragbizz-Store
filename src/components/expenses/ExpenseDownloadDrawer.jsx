@@ -7,6 +7,7 @@ import { expenseService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
+import logger from "@/utils/logger";
 
 const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -220,7 +221,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("expenses.failedToDownloadExpenses"));
       }
     } catch (error) {
-      console.error("Download expenses error:", error);
+      logger.error("Download expenses error:", error);
       showError(t("expenses.errorDownloadingExpenses"));
     } finally {
       setIsDownloading(false);
@@ -277,7 +278,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
         showError(result.message || t("expenses.failedToDownloadExpenses"));
       }
     } catch (error) {
-      console.error("Download expenses error:", error);
+      logger.error("Download expenses error:", error);
       showError(t("expenses.errorDownloadingExpenses"));
     } finally {
       setIsDownloading(false);

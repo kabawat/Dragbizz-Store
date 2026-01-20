@@ -1,16 +1,5 @@
-/**
- * Reusable Export Utilities
- *
- * This utility provides functions to export data to CSV, XLSX, and PDF formats.
- * Can be used for customers, bills, purchase orders, and other data exports.
- */
+  import logger from "./logger";
 
-/**
- * Export data to CSV format
- * @param {Array} data - Array of objects to export
- * @param {string} filename - Filename for the CSV file (without extension)
- * @param {Function} onError - Optional error callback function
- */
 export const exportToCSV = (data, filename, onError = null) => {
   try {
     if (!data || data.length === 0) {
@@ -56,20 +45,11 @@ export const exportToCSV = (data, filename, onError = null) => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("CSV export error:", error);
+    logger.error("CSV export error:", error);
     if (onError) onError("Failed to export as CSV");
   }
 };
 
-/**
- * Export data to XLSX format with auto row heights and column widths
- * @param {Array} data - Array of objects to export
- * @param {string} filename - Filename for the XLSX file (without extension)
- * @param {Object} options - Export options
- * @param {string} options.sheetName - Name of the worksheet (default: 'Sheet1')
- * @param {Function} options.onError - Optional error callback function
- * @param {Function} options.onFallback - Optional fallback callback (e.g., fallback to CSV)
- */
 export const exportToXLSX = async (data, filename, options = {}) => {
   try {
     const { sheetName = "Sheet1", onError = null, onFallback = null } = options;
@@ -149,7 +129,7 @@ export const exportToXLSX = async (data, filename, options = {}) => {
 
     XLSX.writeFile(workbook, finalFilename);
   } catch (error) {
-    console.error("XLSX export error:", error);
+    logger.error("XLSX export error:", error);
     if (options.onError) options.onError("Failed to export as XLSX");
     // Fallback to CSV if fallback function provided
     if (options.onFallback) {
@@ -158,15 +138,7 @@ export const exportToXLSX = async (data, filename, options = {}) => {
   }
 };
 
-/**
- * Export data to PDF format with auto row heights
- * @param {Array} data - Array of objects to export
- * @param {string} filename - Filename for the PDF file (without extension)
- * @param {Object} options - Export options
- * @param {string} options.title - Title for the PDF document (default: 'Export')
- * @param {Array} options.metadata - Array of metadata objects {label, value} to display (e.g., [{label: 'Store', value: 'Store Name'}])
- * @param {Function} options.onError - Optional error callback function
- */
+//  Export data to PDF format with auto row heights
 export const exportToPDF = async (data, filename, options = {}) => {
   try {
     const { title = "Export", metadata = [], onError = null } = options;
@@ -341,23 +313,12 @@ export const exportToPDF = async (data, filename, options = {}) => {
 
     doc.save(finalFilename);
   } catch (error) {
-    console.error("PDF export error:", error);
+    logger.error("PDF export error:", error);
     if (onError) onError("Failed to export as PDF");
   }
 };
 
-/**
- * Main export function that handles all formats
- * @param {Array} data - Array of objects to export
- * @param {string} format - Export format: 'csv', 'xlsx', or 'pdf'
- * @param {string} filename - Filename for the file (without extension)
- * @param {Object} options - Export options
- * @param {string} options.sheetName - Worksheet name for XLSX (default: 'Sheet1')
- * @param {string} options.title - Title for PDF (default: 'Export')
- * @param {Array} options.metadata - Metadata array for PDF [{label, value}]
- * @param {Function} options.onError - Optional error callback function
- * @param {Function} options.onFallback - Optional fallback callback for XLSX
- */
+// Main export function that handles all formats
 export const exportData = async (data, format, filename, options = {}) => {
   const { onError = null } = options;
 
@@ -378,6 +339,6 @@ export const exportData = async (data, format, filename, options = {}) => {
       break;
     default:
       if (onError) onError(`Unsupported format: ${format}`);
-      console.error(`Unsupported export format: ${format}`);
+      logger.error(`Unsupported export format: ${format}`);
   }
 };
