@@ -1,9 +1,12 @@
-import API_CONFIG from "@/config/api.config";
+import { API_CONFIG } from "@/config";
 import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class BillService {
+  constructor() {
+    this.baseURL = API_CONFIG.BASE.URL;
+  }
   // Create a new bill
   async createBill(billData) {
     try {

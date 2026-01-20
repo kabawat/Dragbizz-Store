@@ -1,9 +1,12 @@
-import API_CONFIG from "@/config/api.config";
+import { API_CONFIG } from "@/config";
 import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class PurchaseOrderService {
+  constructor() {
+    this.baseURL = API_CONFIG.BASE.URL;
+  }
   async createPurchaseOrder(poData) {
     try {
       let payload = poData;
