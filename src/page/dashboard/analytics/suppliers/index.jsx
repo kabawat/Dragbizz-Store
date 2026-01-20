@@ -6,10 +6,12 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getSupplierAnalytics } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Building2, CheckCircle, XCircle } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Building2, CheckCircle, XCircle, Download } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
+import SuppliersReportTemplate from '@/components/analytics/suppliers/SuppliersReportTemplate';
+import { useAnalyticsReportPrint } from '@/hooks/useAnalyticsReportPrint';
 
 const SupplierAnalytics = () => {
   const { t } = useTranslation();
@@ -45,6 +47,8 @@ const SupplierAnalytics = () => {
   }, [analytics?.totals]);
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  
+  const { handleDownloadPDF } = useAnalyticsReportPrint(isLoading, analytics, 'suppliers-report-area', 'suppliers-analytics-report');
   
   const [metrics, setMetrics] = useState([
     { 
@@ -160,16 +164,52 @@ const SupplierAnalytics = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <Sidebar />
+    <>
+      <style jsx global>{`
+        @media print {
+          .no-print,
+          nav,
+          header,
+          .sidebar,
+          .header,
+          button,
+          .btn,
+          .action-buttons {
+            display: none !important;
+          }
+          
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          @page {
+            margin: 1cm;
+            size: A4;
+          }
+        }
+      `}</style>
 
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        <Header
-          title={t('dashboard.supplierAnalytics') || 'Supplier Analytics'}
-          description="View detailed supplier analytics and insights"
-        />
+      <div id="suppliers-report-area" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '850px' }}>
+        {analytics && (
+          <SuppliersReportTemplate 
+            analyticsData={analytics} 
+            selectedStore={selectedStore} 
+          />
+        )}
+      </div>
 
-        <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+        <Sidebar />
+
+        <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+          <Header
+            title={t('dashboard.supplierAnalytics') || 'Supplier Analytics'}
+            description="View detailed supplier analytics and insights"
+          />
+
+          <div className="flex-1 p-6 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
@@ -243,7 +283,19 @@ const SupplierAnalytics = () => {
           )}
         </div>
       </div>
+
+      <div className="no-print fixed bottom-6 right-6 z-50">
+        <Button
+          variant="primary"
+          leftIcon={Download}
+          onClick={() => handleDownloadPDF(analytics)}
+          disabled={isLoading || !analytics}
+        >
+          Download Report
+        </Button>
+      </div>
     </div>
+    </>
   );
 };
 

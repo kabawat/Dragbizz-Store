@@ -6,10 +6,12 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getRevenueAnalytics } from '@/store/slices/analyticsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { LineChart, TrendingUp, IndianRupee, Calendar, DollarSign } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { LineChart, TrendingUp, IndianRupee, Calendar, DollarSign, Download } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
+import RevenueReportTemplate from '@/components/analytics/revenue/RevenueReportTemplate';
+import { useRevenueReportPrint } from './hooks/useRevenueReportPrint';
 
 const RevenueAnalytics = () => {
   const { t } = useTranslation();
@@ -38,7 +40,6 @@ const RevenueAnalytics = () => {
     }
   }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
   
-  // Memoize derived values
   const summary = useMemo(() => analytics?.summary || {
     totalRevenue: 0,
     totalProfit: 0,
@@ -67,6 +68,8 @@ const RevenueAnalytics = () => {
   const formatCurrency = (amount) => `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+  
+  const { handlePrint, handleDownloadPDF } = useRevenueReportPrint(isLoading, analytics);
   
   const [metrics, setMetrics] = useState([
     { 
@@ -107,7 +110,6 @@ const RevenueAnalytics = () => {
     },
   ]);
 
-  // Update metrics when analytics data changes
   useEffect(() => {
     if (analytics && summary && change && today) {
       setMetrics((prevMetrics) => {
@@ -183,23 +185,58 @@ const RevenueAnalytics = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <Sidebar />
+    <>
+      <style jsx global>{`
+        @media print {
+          .no-print,
+          nav,
+          header,
+          .sidebar,
+          .header,
+          button,
+          .btn,
+          .action-buttons {
+            display: none !important;
+          }
+          
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          @page {
+            margin: 1cm;
+            size: A4;
+          }
+        }
+      `}</style>
 
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        <Header
-          title={t('dashboard.revenueAnalytics') || 'Revenue Analytics'}
-          description="View detailed revenue analytics and insights"
-        />
+      <div id="revenue-report-area" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '850px' }}>
+        {analytics && (
+          <RevenueReportTemplate 
+            analyticsData={analytics} 
+            selectedStore={selectedStore} 
+          />
+        )}
+      </div>
 
-        <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+        <Sidebar />
+
+        <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+          <Header
+            title={t('dashboard.revenueAnalytics') || 'Revenue Analytics'}
+            description="View detailed revenue analytics and insights"
+          />
+
+          <div className="flex-1 p-6 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
             </div>
           ) : (
             <>
-          {/* Key Metrics - Draggable */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -214,7 +251,6 @@ const RevenueAnalytics = () => {
             </SortableContext>
           </DndContext>
 
-          {/* All Cards - Draggable */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -285,7 +321,19 @@ const RevenueAnalytics = () => {
           )}
         </div>
       </div>
+
+      <div className="no-print fixed bottom-6 right-6 z-50">
+        <Button
+          variant="primary"
+          leftIcon={Download}
+          onClick={() => handleDownloadPDF(analytics)}
+          disabled={isLoading || !analytics}
+        >
+          Download Report
+        </Button>
+      </div>
     </div>
+    </>
   );
 };
 
