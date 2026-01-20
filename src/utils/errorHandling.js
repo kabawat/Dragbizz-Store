@@ -4,12 +4,22 @@ import logger from "./logger";
 export const getErrorMessage = (error, context = "general") => {
   if (!error) return "An error occurred. Please try again.";
 
-  if (error.response?.data?.message) {
-    return error.response.data.message;
+  const errorData = error.response?.data || error.error || error;
+
+  if (errorData.details?.title) {
+    return errorData.details.title;
   }
 
-  if (error.response?.data?.error) {
-    return error.response.data.error;
+  if (errorData.details?.detail) {
+    return errorData.details.detail;
+  }
+
+  if (errorData.message) {
+    return errorData.message;
+  }
+
+  if (errorData.error) {
+    return errorData.error;
   }
 
   if (error.message) {
@@ -43,12 +53,24 @@ export const getQuotaData = (error) => {
 
 export const hasFieldErrors = (error) => {
   const errorData = error.response?.data || error.error || error;
+  if (errorData.details?.additionalInfo) {
+    const additionalInfo = errorData.details.additionalInfo;
+    if (typeof additionalInfo === 'object' && Object.keys(additionalInfo).length > 0) {
+      return true;
+    }
+  }
   const fieldErrors = extractFieldErrors(errorData);
   return Object.keys(fieldErrors).length > 0;
 };
 
 export const getFieldErrors = (error) => {
   const errorData = error.response?.data || error.error || error;
+  if (errorData.details?.additionalInfo) {
+    const additionalInfo = errorData.details.additionalInfo;
+    if (typeof additionalInfo === 'object' && Object.keys(additionalInfo).length > 0) {
+      return extractFieldErrors(additionalInfo);
+    }
+  }
   return extractFieldErrors(errorData);
 };
 
