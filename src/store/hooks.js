@@ -1,6 +1,10 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { store } from "./index";
 
-// Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch();
-export const useAppSelector = useSelector;
+
+export const useAppSelector = (selector, equalityFn = shallowEqual) => {
+  return useSelector(selector, equalityFn);
+};
+
+export { store };

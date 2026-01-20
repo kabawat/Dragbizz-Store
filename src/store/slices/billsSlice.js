@@ -161,7 +161,29 @@ const billsSlice = createSlice({
 
     // Add more bills (for pagination)
     addMoreBills: (state, action) => {
-      state.bills = [...state.bills, ...action.payload];
+      const newBills = action.payload;
+      const existingIds = new Set(state.bills.map((bill) => bill.id || bill._id));
+      const uniqueNewBills = newBills.filter(
+        (bill) => !existingIds.has(bill.id || bill._id)
+      );
+      state.bills = [...state.bills, ...uniqueNewBills];
+    },
+    
+    // Clear bills
+    clearBills: (state) => {
+      state.bills = [];
+      state.pagination = initialState.pagination;
+    },
+    
+    // Update single bill
+    updateBill: (state, action) => {
+      const { id, updates } = action.payload;
+      const index = state.bills.findIndex(
+        (bill) => (bill.id || bill._id) === id
+      );
+      if (index !== -1) {
+        state.bills[index] = { ...state.bills[index], ...updates };
+      }
     },
   },
   extraReducers: (builder) => {
@@ -235,7 +257,7 @@ const billsSlice = createSlice({
 });
 
 // Export actions
-export const { setCurrentFilter, addMoreBills } = billsSlice.actions;
+export const { setCurrentFilter, addMoreBills, clearBills, updateBill } = billsSlice.actions;
 
 // Export async thunks
 export { getBills, getBillStats, getBillReports, getBillAnalytics };
