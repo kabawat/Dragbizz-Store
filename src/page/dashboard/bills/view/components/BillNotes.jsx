@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import { FileText } from 'lucide-react';
+import { FileText } from "lucide-react";
 
 const BillNotes = ({ notes }) => {
   if (!notes) return null;
@@ -12,8 +11,12 @@ const BillNotes = ({ notes }) => {
           <FileText className="w-6 h-6 text-gray-500" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Notes</h2>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Additional information</p>
+          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+            Notes
+          </h2>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            Additional information
+          </p>
         </div>
       </div>
 
@@ -27,4 +30,3 @@ const BillNotes = ({ notes }) => {
 };
 
 export default BillNotes;
-

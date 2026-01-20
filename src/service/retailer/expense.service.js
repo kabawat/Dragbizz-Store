@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class ExpenseService {
@@ -13,7 +13,7 @@ class ExpenseService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.EXPENSE,
-        expenseData,
+        expenseData
       );
       return handleApiSuccess(response?.data, "Expense created successfully");
     } catch (error) {
@@ -48,7 +48,7 @@ class ExpenseService {
         response?.data,
         params.id
           ? "Expense fetched successfully"
-          : "Expenses fetched successfully",
+          : "Expenses fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "expenses-list");
@@ -97,7 +97,7 @@ class ExpenseService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Expense statistics fetched successfully",
+        "Expense statistics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "expense-stats");
@@ -119,7 +119,7 @@ class ExpenseService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Expense analytics fetched successfully",
+        "Expense analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "expense-analytics");

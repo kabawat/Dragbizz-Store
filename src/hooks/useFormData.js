@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export const useFormData = (initialData = {}) => {
   const [formData, setFormData] = useState(initialData);
@@ -45,7 +45,7 @@ export const useFormData = (initialData = {}) => {
         });
       }
     },
-    [errors, fieldErrors],
+    [errors, fieldErrors]
   );
 
   const resetForm = useCallback(() => {

@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { Card } from "@/components/ui";
 
 const FeatureCard = ({ icon: Icon, title, description, color, gradient }) => {

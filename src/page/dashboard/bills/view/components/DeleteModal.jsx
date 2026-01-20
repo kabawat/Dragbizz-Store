@@ -1,13 +1,12 @@
 "use client";
-import React from 'react';
-import { Button } from '@/components/ui';
+import { Button } from "@/components/ui";
 
-const DeleteModal = ({ 
-  isOpen, 
-  billNumber, 
-  onCancel, 
-  onConfirm, 
-  isDeleting 
+const DeleteModal = ({
+  isOpen,
+  billNumber,
+  onCancel,
+  onConfirm,
+  isDeleting,
 }) => {
   if (!isOpen) return null;
 
@@ -18,7 +17,8 @@ const DeleteModal = ({
           Delete Bill
         </h3>
         <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-          Are you sure you want to delete "{billNumber || 'Bill'}"? This action cannot be undone.
+          Are you sure you want to delete "{billNumber || "Bill"}"? This action
+          cannot be undone.
         </p>
         <div className="flex gap-3 justify-end">
           <Button variant="outline" onClick={onCancel} disabled={isDeleting}>
@@ -34,4 +34,3 @@ const DeleteModal = ({
 };
 
 export default DeleteModal;
-

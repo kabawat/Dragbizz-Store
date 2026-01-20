@@ -1,8 +1,7 @@
 "use client";
-import React from 'react';
-import { Mail, Phone, Edit3, AlertCircle, RefreshCw } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
-import styles from '../style/Login.module.scss';
+import { AlertCircle, Edit3, Mail, Phone, RefreshCw } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+import styles from "../style/Login.module.scss";
 
 const OTPInputSection = ({
   otpDigits,
@@ -25,34 +24,32 @@ const OTPInputSection = ({
     <div className={styles.otpSection}>
       <div className={styles.otpHeader}>
         <div className={styles.otpHeaderIcon}>
-          {contactType === 'email' ? (
+          {contactType === "email" ? (
             <Mail className="w-8 h-8 text-blue-500" />
           ) : (
             <Phone className="w-8 h-8 text-blue-500" />
           )}
         </div>
 
-        <h2 className={styles.otpTitle}>
-          {t('auth.almostThere')}
-        </h2>
+        <h2 className={styles.otpTitle}>{t("auth.almostThere")}</h2>
 
-        <p className={styles.otpDescription}>
-          {t('auth.sentCodeTo')}
-        </p>
+        <p className={styles.otpDescription}>{t("auth.sentCodeTo")}</p>
 
         <div className={styles.otpContactInfo}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
-                {contactType === 'email' ? (
+              <div
+                className={`${styles.otpContactBadge} ${contactType === "email" ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}
+              >
+                {contactType === "email" ? (
                   <>
                     <Mail className="w-3 h-3 mr-1" />
-                    {t('auth.email')}
+                    {t("auth.email")}
                   </>
                 ) : (
                   <>
                     <Phone className="w-3 h-3 mr-1" />
-                    {t('auth.phone')}
+                    {t("auth.phone")}
                   </>
                 )}
               </div>
@@ -63,7 +60,7 @@ const OTPInputSection = ({
             <button
               onClick={onChangeContact}
               className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
-              title={t('auth.changeContact')}
+              title={t("auth.changeContact")}
             >
               <Edit3 className="w-4 h-4" />
             </button>
@@ -74,7 +71,7 @@ const OTPInputSection = ({
       <div className={styles.otpInputSection}>
         <div>
           <label className={styles.otpLabel}>
-            {t('auth.enterVerificationCode')}
+            {t("auth.enterVerificationCode")}
           </label>
           <div className={styles.otpInputs}>
             {otpDigits.map((digit, index) => (
@@ -89,8 +86,7 @@ const OTPInputSection = ({
                 value={digit}
                 onChange={(e) => onOtpChange(index, e.target.value)}
                 onKeyDown={(e) => onOtpKeyDown(index, e)}
-                className={`${styles.otpInput} ${errors.otp ? styles.otpInputError : ''}`}
-                autoFocus={index === 0}
+                className={`${styles.otpInput} ${errors.otp ? styles.otpInputError : ""}`}
               />
             ))}
           </div>
@@ -107,15 +103,15 @@ const OTPInputSection = ({
           {isLoading && (
             <div className={styles.otpLoading}>
               <div className={styles.otpLoadingSpinner}></div>
-              <span className={styles.otpLoadingText}>{t('auth.verifying')}</span>
+              <span className={styles.otpLoadingText}>
+                {t("auth.verifying")}
+              </span>
             </div>
           )}
         </div>
 
         <div className={styles.resendSection}>
-          <p className={styles.resendText}>
-            {t('auth.didntReceiveCode')}
-          </p>
+          <p className={styles.resendText}>{t("auth.didntReceiveCode")}</p>
 
           {canResend ? (
             <button
@@ -124,11 +120,11 @@ const OTPInputSection = ({
               className={styles.resendButton}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              {t('auth.resendCode')}
+              {t("auth.resendCode")}
             </button>
           ) : (
             <p className={styles.resendTimer}>
-              {t('auth.resendIn', { time: timeLeft })}
+              {t("auth.resendIn", { time: timeLeft })}
             </p>
           )}
         </div>
@@ -138,4 +134,3 @@ const OTPInputSection = ({
 };
 
 export default OTPInputSection;
-

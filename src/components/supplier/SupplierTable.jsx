@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { MoreVertical, Edit, Copy, Trash2, Eye, Building } from "lucide-react";
+import { Building, Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const SupplierTable = ({
@@ -22,7 +22,7 @@ const SupplierTable = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
 
-  const defaultEmptyMessage = emptyMessage || t("suppliers.noSuppliers");
+  const _defaultEmptyMessage = emptyMessage || t("suppliers.noSuppliers");
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -42,7 +42,7 @@ const SupplierTable = ({
     };
   }, [openMenuId]);
 
-  const actionMenuItems = (supplier) => [
+  const _actionMenuItems = (supplier) => [
     {
       value: "view",
       label: t("common.viewDetails"),
@@ -179,7 +179,7 @@ const SupplierTable = ({
                           <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
                             Added:{" "}
                             {new Date(
-                              supplier.createdAt || Date.now(),
+                              supplier.createdAt || Date.now()
                             ).toLocaleDateString()}
                           </span>
                         </div>

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { invoiceService } from "@/service";
 import { analyticsService } from "@/service/retailer";
 
@@ -24,12 +24,12 @@ export const getInvoices = createAsyncThunk(
       }
 
       return payload;
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch invoices. Please try again.",
       });
     }
-  },
+  }
 );
 
 export const deleteInvoice = createAsyncThunk(
@@ -48,12 +48,12 @@ export const deleteInvoice = createAsyncThunk(
         invoiceId: invoiceId,
         message: "Invoice deleted successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to delete invoice. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting invoice analytics (for sales)
@@ -81,12 +81,12 @@ export const getInvoiceAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Invoice analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch invoice analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -127,7 +127,7 @@ const invoicesSlice = createSlice({
     },
     selectAllInvoices: (state) => {
       state.selectedInvoices = state.invoices.map(
-        (invoice) => invoice.id || invoice._id,
+        (invoice) => invoice.id || invoice._id
       );
     },
     deselectAllInvoices: (state) => {
@@ -216,10 +216,10 @@ const invoicesSlice = createSlice({
         if (action.payload.success) {
           const { invoiceId } = action.payload;
           state.invoices = state.invoices.filter(
-            (inv) => (inv.id || inv._id) !== invoiceId,
+            (inv) => (inv.id || inv._id) !== invoiceId
           );
           state.selectedInvoices = state.selectedInvoices.filter(
-            (id) => id !== invoiceId,
+            (id) => id !== invoiceId
           );
         }
       })

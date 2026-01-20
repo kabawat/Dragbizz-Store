@@ -1,41 +1,41 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
 import {
-  supplierService,
-  productService,
-  purchaseOrderService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  FileText,
-  Plus,
-  Save,
-  Building2,
-  Package,
-  IndianRupee,
-  Calendar,
   AlertCircle,
   ArrowLeft,
-  Trash2,
+  Building2,
+  Calendar,
+  FileText,
+  IndianRupee,
   MapPin,
+  Package,
+  Plus,
+  Save,
+  Trash2,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { AddSupplierDrawer } from "@/components/supplier";
 import {
+  AddActionButton,
   Button,
+  Card,
   Input,
+  Modal,
   Select,
   Textarea,
-  Card,
-  Modal,
   Toggle,
-  AddActionButton,
 } from "@/components/ui";
-import { AddSupplierDrawer } from "@/components/supplier";
 import useErrorHandling from "@/hooks/useErrorHandling";
-import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
+import {
+  productService,
+  purchaseOrderService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const PAYMENT_METHODS = (t) => [
   { value: "CASH", label: t("purchaseOrders.cash") },
@@ -189,7 +189,7 @@ const CreatePurchaseOrder = () => {
 
     fetchSuppliers();
     fetchProducts();
-  }, [storeId]);
+  }, [storeId, fetchProducts, fetchSuppliers]);
 
   useEffect(() => {
     setShowBillingAddress(!!formData.billingAddress);
@@ -246,7 +246,7 @@ const CreatePurchaseOrder = () => {
         selectedStore.address.addressLine1 ||
         selectedStore.address.city ||
         selectedStore.address.state ||
-        selectedStore.address.pincode),
+        selectedStore.address.pincode)
   );
 
   const addAddress = (type) => {
@@ -344,13 +344,13 @@ const CreatePurchaseOrder = () => {
 
     setFormData((prev) => {
       const existingIndex = prev.products.findIndex(
-        (item) => item.product === tempProduct,
+        (item) => item.product === tempProduct
       );
       if (existingIndex !== -1) {
         const updated = [...prev.products];
         const existing = updated[existingIndex];
         const newQty =
-          (parseInt(existing.quantity) || 0) + parseInt(tempQuantity);
+          (parseInt(existing.quantity, 10) || 0) + parseInt(tempQuantity, 10);
         updated[existingIndex] = {
           ...existing,
           productName: existing.productName || productName,
@@ -365,7 +365,7 @@ const CreatePurchaseOrder = () => {
           {
             product: tempProduct,
             productName,
-            quantity: parseInt(tempQuantity),
+            quantity: parseInt(tempQuantity, 10),
           },
         ],
       };
@@ -427,7 +427,7 @@ const CreatePurchaseOrder = () => {
     formData.products.forEach((item, index) => {
       if (!item.product)
         newErrors[`item_${index}_product`] = t(
-          "purchaseOrders.productRequired",
+          "purchaseOrders.productRequired"
         );
       if (
         !item.quantity ||
@@ -435,7 +435,7 @@ const CreatePurchaseOrder = () => {
         !Number.isInteger(Number(item.quantity))
       )
         newErrors[`item_${index}_quantity`] = t(
-          "purchaseOrders.validQuantityRequired",
+          "purchaseOrders.validQuantityRequired"
         );
     });
 
@@ -480,7 +480,7 @@ const CreatePurchaseOrder = () => {
         supplier: formData.supplier,
         products: formData.products.map((item) => ({
           product: item.product,
-          quantity: parseInt(item.quantity),
+          quantity: parseInt(item.quantity, 10),
         })),
         payment: formData.payment,
         paymentBy: formData.paymentBy,
@@ -519,7 +519,7 @@ const CreatePurchaseOrder = () => {
       } else {
         setCreateError(result.message || t("purchaseOrders.failedToCreatePO"));
       }
-    } catch (error) {
+    } catch (_error) {
       setCreateError(t("purchaseOrders.unexpectedErrorCreatingPO"));
     } finally {
       setIsCreating(false);
@@ -637,7 +637,7 @@ const CreatePurchaseOrder = () => {
                                   size="sm"
                                   searchable={true}
                                   placeholder={t(
-                                    "purchaseOrders.chooseSupplier",
+                                    "purchaseOrders.chooseSupplier"
                                   )}
                                 />
                               </div>
@@ -697,13 +697,13 @@ const CreatePurchaseOrder = () => {
                                   onChange={(value) =>
                                     handleInputChange(
                                       "expectedDeliveryDate",
-                                      value,
+                                      value
                                     )
                                   }
                                   error={errors.expectedDeliveryDate}
                                   leftIcon={Calendar}
                                   placeholder={t(
-                                    "purchaseOrders.selectDeliveryDate",
+                                    "purchaseOrders.selectDeliveryDate"
                                   )}
                                   min={new Date().toISOString().split("T")[0]}
                                 />
@@ -722,7 +722,7 @@ const CreatePurchaseOrder = () => {
                                   }
                                   leftIcon={FileText}
                                   placeholder={t(
-                                    "purchaseOrders.enterReferenceNumber",
+                                    "purchaseOrders.enterReferenceNumber"
                                   )}
                                 />
                               </div>
@@ -738,7 +738,7 @@ const CreatePurchaseOrder = () => {
                                   handleInputChange("note", value)
                                 }
                                 placeholder={t(
-                                  "purchaseOrders.addSpecialInstructions",
+                                  "purchaseOrders.addSpecialInstructions"
                                 )}
                                 rows={3}
                                 leftIcon={FileText}
@@ -816,7 +816,7 @@ const CreatePurchaseOrder = () => {
                                       <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
                                         <span>
                                           {t(
-                                            "purchaseOrders.sameAsStoreAddress",
+                                            "purchaseOrders.sameAsStoreAddress"
                                           )}
                                         </span>
                                         <Toggle
@@ -828,7 +828,7 @@ const CreatePurchaseOrder = () => {
                                           onChange={(value) =>
                                             handleSameAsStoreToggle(
                                               "billing",
-                                              value,
+                                              value
                                             )
                                           }
                                           disabled={!hasStoreAddress}
@@ -850,7 +850,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.addressLine1")}
                                       placeholder={t(
-                                        "purchaseOrders.enterAddressLine1",
+                                        "purchaseOrders.enterAddressLine1"
                                       )}
                                       value={
                                         formData.billingAddress?.addressLine1 ||
@@ -860,7 +860,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "addressLine1",
-                                          value,
+                                          value
                                         )
                                       }
                                       className="md:col-span-2"
@@ -870,7 +870,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.addressLine2")}
                                       placeholder={t(
-                                        "purchaseOrders.apartmentSuiteEtc",
+                                        "purchaseOrders.apartmentSuiteEtc"
                                       )}
                                       value={
                                         formData.billingAddress?.addressLine2 ||
@@ -880,7 +880,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "addressLine2",
-                                          value,
+                                          value
                                         )
                                       }
                                       className="md:col-span-2"
@@ -890,7 +890,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.city")}
                                       placeholder={t(
-                                        "purchaseOrders.enterCity",
+                                        "purchaseOrders.enterCity"
                                       )}
                                       value={
                                         formData.billingAddress?.city || ""
@@ -899,7 +899,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "city",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -908,7 +908,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.state")}
                                       placeholder={t(
-                                        "purchaseOrders.enterState",
+                                        "purchaseOrders.enterState"
                                       )}
                                       value={
                                         formData.billingAddress?.state || ""
@@ -917,7 +917,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "state",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -926,7 +926,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.pincode")}
                                       placeholder={t(
-                                        "purchaseOrders.enterPincode",
+                                        "purchaseOrders.enterPincode"
                                       )}
                                       value={
                                         formData.billingAddress?.pincode || ""
@@ -935,7 +935,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "pincode",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -944,7 +944,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.country")}
                                       placeholder={t(
-                                        "purchaseOrders.enterCountry",
+                                        "purchaseOrders.enterCountry"
                                       )}
                                       value={
                                         formData.billingAddress?.country ||
@@ -954,7 +954,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "country",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -963,7 +963,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.phoneNumber")}
                                       placeholder={t(
-                                        "purchaseOrders.contactNumber",
+                                        "purchaseOrders.contactNumber"
                                       )}
                                       value={
                                         formData.billingAddress?.phone || ""
@@ -972,7 +972,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "billing",
                                           "phone",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -993,7 +993,7 @@ const CreatePurchaseOrder = () => {
                                       <div className="flex items-center gap-2 text-xs text-[rgb(var(--color-text-secondary))]">
                                         <span>
                                           {t(
-                                            "purchaseOrders.sameAsStoreAddress",
+                                            "purchaseOrders.sameAsStoreAddress"
                                           )}
                                         </span>
                                         <Toggle
@@ -1005,7 +1005,7 @@ const CreatePurchaseOrder = () => {
                                           onChange={(value) =>
                                             handleSameAsStoreToggle(
                                               "shipping",
-                                              value,
+                                              value
                                             )
                                           }
                                           disabled={!hasStoreAddress}
@@ -1029,7 +1029,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.addressLine1")}
                                       placeholder={t(
-                                        "purchaseOrders.enterAddressLine1",
+                                        "purchaseOrders.enterAddressLine1"
                                       )}
                                       value={
                                         formData.shippingAddress
@@ -1039,7 +1039,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "addressLine1",
-                                          value,
+                                          value
                                         )
                                       }
                                       className="md:col-span-2"
@@ -1049,7 +1049,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.addressLine2")}
                                       placeholder={t(
-                                        "purchaseOrders.apartmentSuiteEtc",
+                                        "purchaseOrders.apartmentSuiteEtc"
                                       )}
                                       value={
                                         formData.shippingAddress
@@ -1059,7 +1059,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "addressLine2",
-                                          value,
+                                          value
                                         )
                                       }
                                       className="md:col-span-2"
@@ -1069,7 +1069,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.city")}
                                       placeholder={t(
-                                        "purchaseOrders.enterCity",
+                                        "purchaseOrders.enterCity"
                                       )}
                                       value={
                                         formData.shippingAddress?.city || ""
@@ -1078,7 +1078,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "city",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -1087,7 +1087,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.state")}
                                       placeholder={t(
-                                        "purchaseOrders.enterState",
+                                        "purchaseOrders.enterState"
                                       )}
                                       value={
                                         formData.shippingAddress?.state || ""
@@ -1096,7 +1096,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "state",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -1105,7 +1105,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.pincode")}
                                       placeholder={t(
-                                        "purchaseOrders.enterPincode",
+                                        "purchaseOrders.enterPincode"
                                       )}
                                       value={
                                         formData.shippingAddress?.pincode || ""
@@ -1114,7 +1114,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "pincode",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -1123,7 +1123,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.country")}
                                       placeholder={t(
-                                        "purchaseOrders.enterCountry",
+                                        "purchaseOrders.enterCountry"
                                       )}
                                       value={
                                         formData.shippingAddress?.country ||
@@ -1133,7 +1133,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "country",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -1142,7 +1142,7 @@ const CreatePurchaseOrder = () => {
                                       type="text"
                                       label={t("purchaseOrders.phoneNumber")}
                                       placeholder={t(
-                                        "purchaseOrders.contactNumber",
+                                        "purchaseOrders.contactNumber"
                                       )}
                                       value={
                                         formData.shippingAddress?.phone || ""
@@ -1151,7 +1151,7 @@ const CreatePurchaseOrder = () => {
                                         handleAddressFieldChange(
                                           "shipping",
                                           "phone",
-                                          value,
+                                          value
                                         )
                                       }
                                       size="sm"
@@ -1188,7 +1188,7 @@ const CreatePurchaseOrder = () => {
                                   </h3>
                                   <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                                     {t(
-                                      "purchaseOrders.optionalAdvancePayments",
+                                      "purchaseOrders.optionalAdvancePayments"
                                     )}
                                   </p>
                                 </div>
@@ -1244,7 +1244,7 @@ const CreatePurchaseOrder = () => {
                                       value={paymentReference}
                                       onChange={setPaymentReference}
                                       placeholder={t(
-                                        "purchaseOrders.transactionReference",
+                                        "purchaseOrders.transactionReference"
                                       )}
                                       size="sm"
                                     />
@@ -1280,11 +1280,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "upiId",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.supplierPaytm",
+                                              "purchaseOrders.supplierPaytm"
                                             )}
                                             size="sm"
                                           />
@@ -1301,11 +1301,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "transactionId",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.upiTransactionIdPlaceholder",
+                                              "purchaseOrders.upiTransactionIdPlaceholder"
                                             )}
                                             size="sm"
                                           />
@@ -1331,7 +1331,7 @@ const CreatePurchaseOrder = () => {
                                         }}
                                       >
                                         {t(
-                                          "purchaseOrders.bankTransferDetails",
+                                          "purchaseOrders.bankTransferDetails"
                                         )}
                                       </h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1347,11 +1347,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "bankName",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.stateBankOfIndia",
+                                              "purchaseOrders.stateBankOfIndia"
                                             )}
                                             size="sm"
                                           />
@@ -1368,11 +1368,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "ifscCode",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.ifscCodePlaceholder",
+                                              "purchaseOrders.ifscCodePlaceholder"
                                             )}
                                             size="sm"
                                           />
@@ -1389,11 +1389,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "accountNumber",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.accountNumberPlaceholder",
+                                              "purchaseOrders.accountNumberPlaceholder"
                                             )}
                                             size="sm"
                                           />
@@ -1401,7 +1401,7 @@ const CreatePurchaseOrder = () => {
                                         <div>
                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                             {t(
-                                              "purchaseOrders.accountHolderName",
+                                              "purchaseOrders.accountHolderName"
                                             )}
                                           </label>
                                           <Input
@@ -1412,11 +1412,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "holderName",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.abcSuppliers",
+                                              "purchaseOrders.abcSuppliers"
                                             )}
                                             size="sm"
                                           />
@@ -1456,11 +1456,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "chequeNumber",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.chequeNumberPlaceholder",
+                                              "purchaseOrders.chequeNumberPlaceholder"
                                             )}
                                             size="sm"
                                           />
@@ -1477,7 +1477,7 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "chequeDate",
-                                                value,
+                                                value
                                               )
                                             }
                                             size="sm"
@@ -1495,11 +1495,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "bankName",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.hdfcBank",
+                                              "purchaseOrders.hdfcBank"
                                             )}
                                             size="sm"
                                           />
@@ -1516,11 +1516,11 @@ const CreatePurchaseOrder = () => {
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "branchName",
-                                                value,
+                                                value
                                               )
                                             }
                                             placeholder={t(
-                                              "purchaseOrders.mainBranch",
+                                              "purchaseOrders.mainBranch"
                                             )}
                                             size="sm"
                                           />
@@ -1583,14 +1583,14 @@ const CreatePurchaseOrder = () => {
                                                   }
                                                   className="flex-shrink-0 p-1.5 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-md transition-colors duration-200 opacity-0 group-hover:opacity-100"
                                                   title={t(
-                                                    "purchaseOrders.removePayment",
+                                                    "purchaseOrders.removePayment"
                                                   )}
                                                 >
                                                   <Trash2 className="w-3 h-3" />
                                                 </button>
                                               </div>
                                             </div>
-                                          ),
+                                          )
                                         )}
                                       </div>
                                     </div>
@@ -1682,7 +1682,7 @@ const CreatePurchaseOrder = () => {
                                     size="sm"
                                     searchable={true}
                                     placeholder={t(
-                                      "purchaseOrders.searchSelectProduct",
+                                      "purchaseOrders.searchSelectProduct"
                                     )}
                                   />
                                 </div>
@@ -1729,7 +1729,7 @@ const CreatePurchaseOrder = () => {
                                       {formData.products.reduce(
                                         (sum, item) =>
                                           sum + (item.quantity || 0),
-                                        0,
+                                        0
                                       )}{" "}
                                       {t("purchaseOrders.items")}
                                     </div>
@@ -1763,7 +1763,7 @@ const CreatePurchaseOrder = () => {
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
                                               {item.productName ||
                                                 t(
-                                                  "purchaseOrders.selectedProduct",
+                                                  "purchaseOrders.selectedProduct"
                                                 )}
                                             </span>
                                           </div>

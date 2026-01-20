@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { Badge } from '@/components/ui';
-import { AlertTriangle, CheckCircle2, Clock, Clock3 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, Clock3 } from "lucide-react";
+import { Badge } from "@/components/ui";
 
 export const getPaymentStatusBadge = (status, isOverdue = false) => {
   if (isOverdue) {
@@ -14,12 +13,16 @@ export const getPaymentStatusBadge = (status, isOverdue = false) => {
   }
 
   const statusConfig = {
-    PAID: { variant: 'success', text: 'Paid', icon: CheckCircle2 },
-    PARTIAL: { variant: 'warning', text: 'Partial', icon: Clock },
-    UNPAID: { variant: 'secondary', text: 'Pending', icon: Clock3 }
+    PAID: { variant: "success", text: "Paid", icon: CheckCircle2 },
+    PARTIAL: { variant: "warning", text: "Partial", icon: Clock },
+    UNPAID: { variant: "secondary", text: "Pending", icon: Clock3 },
   };
 
-  const config = statusConfig[status] || { variant: 'secondary', text: status, icon: Clock };
+  const config = statusConfig[status] || {
+    variant: "secondary",
+    text: status,
+    icon: Clock,
+  };
   const IconComponent = config.icon;
 
   return (
@@ -36,11 +39,16 @@ const BillHeader = ({ billData, formatDate }) => {
       <div className="px-6 py-6 border-b border-[rgb(var(--color-border-primary))]/40 bg-[rgb(var(--color-bg-secondary))]/30">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.5em] text-[rgb(var(--color-text-tertiary))]">Invoice</p>
+            <p className="text-[11px] uppercase tracking-[0.5em] text-[rgb(var(--color-text-tertiary))]">
+              Invoice
+            </p>
             <div className="gap-3 text-[rgb(var(--color-text-primary))]">
-              <div className="text-xl font-semibold">#{billData.billNumber || 'N/A'}</div>
+              <div className="text-xl font-semibold">
+                #{billData.billNumber || "N/A"}
+              </div>
               <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Issued {formatDate(billData.billDate)} · Due {formatDate(billData.dueDate)}
+                Issued {formatDate(billData.billDate)} · Due{" "}
+                {formatDate(billData.dueDate)}
               </div>
             </div>
           </div>
@@ -54,4 +62,3 @@ const BillHeader = ({ billData, formatDate }) => {
 };
 
 export default BillHeader;
-

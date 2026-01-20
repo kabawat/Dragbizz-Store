@@ -1,5 +1,5 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\+]?[\d\s\-\(\)]{10,}$/;
+const PHONE_REGEX = /^[+]?[\d\s\-()]{10,}$/;
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
@@ -76,7 +76,7 @@ export const validateName = (
   name,
   required = false,
   minLength = 2,
-  maxLength = 100,
+  maxLength = 100
 ) => {
   if (!name || !name.trim()) {
     return {
@@ -192,7 +192,7 @@ export const detectContactType = (contact) => {
     return "email";
   }
 
-  if (/^[\+]?[\d\s\-\(\)]+$/.test(contact) && cleanValue.length >= 10) {
+  if (/^[+]?[\d\s\-()]+$/.test(contact) && cleanValue.length >= 10) {
     return "phone";
   }
 

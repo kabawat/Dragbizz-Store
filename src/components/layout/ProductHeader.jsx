@@ -1,24 +1,24 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import logger from "@/utils/logger";
+import {
+  ArrowRight,
+  ChevronDown,
+  LogOut,
+  Menu,
+  Settings,
+  ShoppingBag,
+  User,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
-import {
-  Menu,
-  X,
-  ShoppingBag,
-  ChevronDown,
-  ArrowRight,
-  User,
-  LogOut,
-  Settings,
-} from "lucide-react";
-import { cookieManager } from "@/utils/cookieManager";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getRetailerDetails } from "@/store/slices/profileSlice";
-import { useLogout } from "@/hooks/useLogout";
 import LogoutModal from "@/components/ui/LogoutModal";
+import { useLogout } from "@/hooks/useLogout";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
+import { cookieManager } from "@/utils/cookieManager";
+import logger from "@/utils/logger";
 
 const ProductHeader = () => {
   const router = useRouter();

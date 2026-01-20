@@ -1,12 +1,12 @@
 const cache = new Map();
 const DEFAULT_TTL = 5 * 60 * 1000;
 
-export const generateCacheKey = (url, method = 'GET', params = {}) => {
+export const generateCacheKey = (url, method = "GET", params = {}) => {
   const sortedParams = Object.keys(params)
     .sort()
     .map((key) => `${key}=${JSON.stringify(params[key])}`)
-    .join('&');
-  return `${method}:${url}${sortedParams ? `?${sortedParams}` : ''}`;
+    .join("&");
+  return `${method}:${url}${sortedParams ? `?${sortedParams}` : ""}`;
 };
 
 export const getCachedResponse = (key) => {
@@ -56,4 +56,3 @@ export const clearExpiredCache = () => {
 };
 
 setInterval(clearExpiredCache, 60000);
-

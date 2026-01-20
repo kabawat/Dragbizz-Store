@@ -20,12 +20,12 @@ export function middleware(request) {
 
   // Check if the current path is a protected route
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route),
+    pathname.startsWith(route)
   );
 
   // Check if the current path is an onboarding route
   const isOnboardingRoute = onboardingRoutes.some((route) =>
-    pathname.startsWith(route),
+    pathname.startsWith(route)
   );
 
   // Check if the current path is an auth route
@@ -33,8 +33,8 @@ export function middleware(request) {
 
   // Get both tokens from cookies
   const authToken = request.cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY)?.value;
-  const retailerToken = request.cookies.get(
-    ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY,
+  const _retailerToken = request.cookies.get(
+    ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY
   )?.value;
 
   // For protected routes, we need at least the auth token

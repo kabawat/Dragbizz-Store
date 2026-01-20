@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { AlertCircle, CheckCircle, Info, AlertTriangle } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from "lucide-react";
 
 const Alert = ({
   variant = "info",

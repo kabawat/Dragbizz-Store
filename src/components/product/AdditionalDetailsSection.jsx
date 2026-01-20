@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
-import { Input, Textarea, TagInput, Button, Toggle } from "../ui";
-import { Plus, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Button, Input, TagInput, Textarea, Toggle } from "../ui";
 
 const AdditionalDetailsSection = ({
   formData,
@@ -44,7 +43,7 @@ const AdditionalDetailsSection = ({
 
   const removeSpecification = (index) => {
     const newSpecs = (formData.content?.specifications || []).filter(
-      (_, i) => i !== index,
+      (_, i) => i !== index
     );
 
     const updatedContent = {

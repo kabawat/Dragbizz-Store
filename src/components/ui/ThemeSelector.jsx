@@ -1,29 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
+import {
+  Bell,
+  Moon,
+  Palette,
+  RefreshCw,
+  Settings,
+  Sun,
+  Volume2,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { localeNames } from "@/i18n/config";
-import {
-  Settings,
-  Palette,
-  Sun,
-  Moon,
-  ChevronDown,
-  Monitor,
-  Smartphone,
-  Tablet,
-  X,
-  RefreshCw,
-  Eye,
-  EyeOff,
-  Volume2,
-  VolumeX,
-  Bell,
-  BellOff,
-  Shield,
-  Globe,
-  Clock,
-} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const SettingsPanel = () => {
   const { t, locale, changeLanguage } = useTranslation();
@@ -88,7 +77,7 @@ const SettingsPanel = () => {
     toggleVariant();
   };
 
-  const currentThemeConfig = themes[currentTheme];
+  const _currentThemeConfig = themes[currentTheme];
 
   const tabs = [
     { id: "appearance", label: t("settings.appearance"), icon: Palette },

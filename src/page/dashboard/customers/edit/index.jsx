@@ -1,15 +1,14 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Save, User } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, User } from "lucide-react";
-
+import { useEffect, useRef, useState } from "react";
+import { CustomerAddSuccessModal, CustomerForm } from "@/components/customer";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { CustomerForm, CustomerAddSuccessModal } from "@/components/customer";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
 
 const EditCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
@@ -39,7 +38,7 @@ const EditCustomerPage = ({ customerId }) => {
 
   const [formData, setFormData] = useState(getInitialFormData());
   const [fieldErrors, setFieldErrors] = useState({});
-  const [error, setError] = useState(null);
+  const [_error, setError] = useState(null);
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -82,7 +81,7 @@ const EditCustomerPage = ({ customerId }) => {
         } else {
           setError(result.message || t("customers.errorLoading"));
         }
-      } catch (error) {
+      } catch (_error) {
         setError(t("customers.errorLoading"));
       } finally {
         setFetching(false);
@@ -90,7 +89,7 @@ const EditCustomerPage = ({ customerId }) => {
     };
 
     fetchCustomerData();
-  }, [customerId, storeId]);
+  }, [customerId, storeId, t]);
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
@@ -161,36 +160,36 @@ const EditCustomerPage = ({ customerId }) => {
       const result = await customerService.updateCustomer(
         customerId,
         formData,
-        storeId,
+        storeId
       );
 
       if (result.success) {
         setUpdatedCustomerName(formData.name || "Customer");
         setShowSuccessModal(true);
       } else {
-        if (result?.error && result?.error?.data) {
+        if (result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         } else {
           setError(
             result.message ||
-              t("errors.failedToUpdate", { item: t("common.customer") }),
+              t("errors.failedToUpdate", { item: t("common.customer") })
           );
         }
       }
     } catch (error) {
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
+        if (errorData.data?.fields) {
           setFieldErrors(errorData.data.fields);
         } else {
           setError(
             errorData.message ||
-              t("errors.failedToUpdate", { item: t("common.customer") }),
+              t("errors.failedToUpdate", { item: t("common.customer") })
           );
         }
       } else {
         setError(
-          t("errors.failedToUpdateTryAgain", { item: t("common.customer") }),
+          t("errors.failedToUpdateTryAgain", { item: t("common.customer") })
         );
       }
     } finally {

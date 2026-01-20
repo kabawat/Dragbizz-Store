@@ -1,8 +1,7 @@
 "use client";
-import React from 'react';
-import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { Input } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
+import { Input } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const PasswordInput = ({
   password,
@@ -16,8 +15,8 @@ const PasswordInput = ({
   return (
     <div>
       <Input
-        type={showPassword ? 'text' : 'password'}
-        placeholder={t('auth.enterPassword')}
+        type={showPassword ? "text" : "password"}
+        placeholder={t("auth.enterPassword")}
         value={password}
         onChange={onChange}
         leftIcon={Lock}
@@ -27,7 +26,11 @@ const PasswordInput = ({
             onClick={onToggleVisibility}
             className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors cursor-pointer"
           >
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showPassword ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
           </button>
         }
         error={error}
@@ -43,4 +46,3 @@ const PasswordInput = ({
 };
 
 export default PasswordInput;
-

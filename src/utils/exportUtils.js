@@ -1,4 +1,4 @@
-  import logger from "./logger";
+import logger from "./logger";
 
 export const exportToCSV = (data, filename, onError = null) => {
   try {
@@ -25,7 +25,7 @@ export const exportToCSV = (data, filename, onError = null) => {
             }
             return value;
           })
-          .join(","),
+          .join(",")
       ),
     ].join("\n");
 
@@ -94,10 +94,10 @@ export const exportToXLSX = async (data, filename, options = {}) => {
     // Data rows - calculate height based on content
     for (let R = 1; R <= range.e.r; R++) {
       let maxLines = 1;
-      headers.forEach((header, C) => {
+      headers.forEach((_header, C) => {
         const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
         const cell = worksheet[cellAddress];
-        if (cell && cell.v) {
+        if (cell?.v) {
           const value = String(cell.v);
           // Estimate lines based on content length and column width
           const colWidth = worksheet["!cols"][C]?.wch || 10;
@@ -209,7 +209,7 @@ export const exportToPDF = async (data, filename, options = {}) => {
 
     // Draw header cells with auto height
     let xPos = startX;
-    headers.forEach((header, index) => {
+    headers.forEach((_header, index) => {
       const { lines, height } = headerCellHeights[index];
       doc.rect(xPos, startY - 5, colWidths[index], maxHeaderHeight);
 
@@ -228,7 +228,7 @@ export const exportToPDF = async (data, filename, options = {}) => {
     doc.setFont(undefined, "normal");
     doc.setFontSize(9);
 
-    data.forEach((row, rowIndex) => {
+    data.forEach((row, _rowIndex) => {
       // Calculate row height based on content
       let maxRowHeight = 8; // Minimum row height
       const cellHeights = [];
@@ -256,7 +256,7 @@ export const exportToPDF = async (data, filename, options = {}) => {
         doc.setFont(undefined, "bold");
         doc.setFontSize(10);
         xPos = startX;
-        headers.forEach((header, index) => {
+        headers.forEach((_header, index) => {
           const { lines, height } = headerCellHeights[index];
           doc.rect(xPos, startY - 5, colWidths[index], maxHeaderHeight);
 
@@ -279,7 +279,7 @@ export const exportToPDF = async (data, filename, options = {}) => {
       headers.forEach((header, colIndex) => {
         const value = String(row[header] || "");
         const maxWidth = colWidths[colIndex] - 4;
-        const cellInfo = cellHeights[colIndex];
+        const _cellInfo = cellHeights[colIndex];
 
         // Draw cell border
         doc.rect(xPos, startY - 5, colWidths[colIndex], maxRowHeight);
@@ -287,7 +287,7 @@ export const exportToPDF = async (data, filename, options = {}) => {
         // Draw text with wrapping
         const lines = doc.splitTextToSize(value, maxWidth);
         let lineY = startY;
-        lines.forEach((line, lineIndex) => {
+        lines.forEach((line, _lineIndex) => {
           doc.text(line, xPos + 2, lineY, { maxWidth });
           lineY += 4; // 4mm line spacing
         });

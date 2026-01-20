@@ -5,41 +5,41 @@
   body.print-mode-mini .vintage-invoice,
   body.print-mode-mini .invoice-wrapper,
   body.print-mode-mini .preview-container {
-    width: 72mm !important;
-    max-width: 72mm !important;
-    min-width: 72mm !important;
+    width: 72mm;
+    max-width: 72mm;
+    min-width: 72mm;
 
-    padding: 0 !important;
-    margin: 0 auto !important;
+    padding: 0;
+    margin: 0 auto;
 
-    background: white !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: white;
+    border: none;
+    box-shadow: none;
 
-    overflow: hidden !important;
+    overflow: hidden;
   }
 
   /* Remove all internal spacing that causes overflow */
   body.print-mode-mini * {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   /* Make tables compact on thermal */
   body.print-mode-mini table {
-    width: 100% !important;
-    table-layout: fixed !important;
+    width: 100%;
+    table-layout: fixed;
   }
 
   body.print-mode-mini td,
   body.print-mode-mini th {
-    padding: 3px 0 !important;
-    word-break: break-word !important;
+    padding: 3px 0;
+    word-break: break-word;
   }
 
   /* Reduce fonts slightly to prevent line break overflow */
   body.print-mode-mini {
-    font-size: 11px !important;
-    line-height: 1.3 !important;
+    font-size: 11px;
+    line-height: 1.3;
   }
 }

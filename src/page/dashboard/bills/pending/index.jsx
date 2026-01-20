@@ -1,30 +1,29 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getBills, getBillStats } from "@/store/slices/billsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Clock,
-  Search,
-  Filter,
-  Eye,
-  Edit,
-  IndianRupee,
-  Calendar,
-  Building2,
   AlertTriangle,
+  Building2,
+  Calendar,
+  Clock,
+  Edit,
+  Eye,
+  IndianRupee,
+  Search,
 } from "lucide-react";
-import { Button, Input, Select, Badge, Card } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Badge, Button, Card, Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getBillStats, getBills } from "@/store/slices/billsSlice";
 
 const PendingBills = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { pendingBills, stats, isLoading, error } = useAppSelector(
-    (state) => state.bills,
+    (state) => state.bills
   );
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -41,7 +40,7 @@ const PendingBills = () => {
           status: "pending",
           limit: 20,
           page: 1,
-        }),
+        })
       );
       dispatch(getBillStats(selectedStore.id));
     }
@@ -330,7 +329,7 @@ const PendingBills = () => {
                               leftIcon={IndianRupee}
                               onClick={() =>
                                 router.push(
-                                  `/dashboard/payments/create?billId=${bill.id}`,
+                                  `/dashboard/payments/create?billId=${bill.id}`
                                 )
                               }
                             >

@@ -1,9 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
+import { useEffect } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { SettingsPanel } from "@/components/ui";
+import { useAppSelector } from "@/store/hooks";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();

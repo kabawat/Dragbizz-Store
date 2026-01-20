@@ -1,12 +1,9 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import logger from "@/utils/logger";
-import { Package, Eye, IndianRupee, GripVertical, Info, X } from "lucide-react";
 
 // Import drag and drop
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -16,33 +13,33 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
+  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
-// Import sections
-import BasicInfoSection from "./BasicInfoSection";
-import AdditionalDetailsSection from "./AdditionalDetailsSection";
-import PricingGSTSection from "./PricingGSTSection";
-import OpeningQuantitySection from "./OpeningQuantitySection";
-
+import { Eye, GripVertical, IndianRupee, Info, Package, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Button,
   Card,
+  CardBody,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardBody,
-  Input,
-  Button,
-  Textarea,
-  Select,
-  TagInput,
   FileUpload,
+  Input,
+  TagInput,
+  Textarea,
 } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
-import { categoryService } from "@/service/retailer";
 import { useTranslation } from "@/hooks/useTranslation";
+import { categoryService } from "@/service/retailer";
+import logger from "@/utils/logger";
+import AdditionalDetailsSection from "./AdditionalDetailsSection";
+// Import sections
+import BasicInfoSection from "./BasicInfoSection";
+import OpeningQuantitySection from "./OpeningQuantitySection";
+import PricingGSTSection from "./PricingGSTSection";
 
 // Sortable Section Component
 const SortableSection = ({
@@ -339,7 +336,7 @@ const ProductForm = ({
         }));
         setApiCategories(formattedCategories);
       }
-    } catch (error) {
+    } catch (_error) {
       hasFetchedCategories.current = false; // Reset on error
     } finally {
       setCategoriesLoading(false);
@@ -389,7 +386,7 @@ const ProductForm = ({
         // Call the category service
         const response = await categoryService.createCategory(
           apiPayload,
-          storeId,
+          storeId
         );
 
         if (response.success) {
@@ -412,7 +409,10 @@ const ProductForm = ({
           resetCategoryData();
           setShowAddCategoryDrawer(false);
         } else {
-          logger.error("Failed to create category:", response.message || "Unknown error");
+          logger.error(
+            "Failed to create category:",
+            response.message || "Unknown error"
+          );
         }
       } catch (error) {
         logger.error("Error creating category:", error);
@@ -441,14 +441,14 @@ const ProductForm = ({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [showAddCategoryDrawer]);
+  }, [showAddCategoryDrawer, handleCloseCategoryDrawer]);
 
   // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   // Handle form data changes

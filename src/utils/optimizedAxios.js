@@ -1,25 +1,25 @@
-import { authAxios } from '@/service/config/axiosConfig';
+import { authAxios } from "@/service/config/axiosConfig";
 import {
   generateCacheKey,
   getCachedResponse,
   setCachedResponse,
-} from './requestCache';
-import {
-  getPendingRequest,
-  setPendingRequest,
-  getRequestKey as getDedupKey,
-} from './requestDeduplication';
+} from "./requestCache";
 import {
   createCancelToken,
-  removeCancelToken,
   getRequestKey as getCancelKey,
-} from './requestCancellation';
-import { defaultQueue } from './requestQueue';
+  removeCancelToken,
+} from "./requestCancellation";
+import {
+  getRequestKey as getDedupKey,
+  getPendingRequest,
+  setPendingRequest,
+} from "./requestDeduplication";
+import { defaultQueue } from "./requestQueue";
 
 const createOptimizedRequest = (method) => {
   return async (url, dataOrConfig = {}, config = {}) => {
-    const isGet = method === 'GET';
-    const params = isGet ? (dataOrConfig.params || {}) : {};
+    const isGet = method === "GET";
+    const params = isGet ? dataOrConfig.params || {} : {};
     const requestData = isGet ? undefined : dataOrConfig;
     const requestConfig = isGet ? dataOrConfig : config;
 
@@ -78,11 +78,11 @@ const createOptimizedRequest = (method) => {
         let response;
         if (isGet) {
           response = await authAxios.get(url, axiosConfig);
-        } else if (method === 'POST') {
+        } else if (method === "POST") {
           response = await authAxios.post(url, requestData, axiosConfig);
-        } else if (method === 'PUT') {
+        } else if (method === "PUT") {
           response = await authAxios.put(url, requestData, axiosConfig);
-        } else if (method === 'DELETE') {
+        } else if (method === "DELETE") {
           response = await authAxios.delete(url, axiosConfig);
         } else {
           response = await authAxios.request({
@@ -124,10 +124,10 @@ const createOptimizedRequest = (method) => {
   };
 };
 
-export const optimizedGet = createOptimizedRequest('GET');
-export const optimizedPost = createOptimizedRequest('POST');
-export const optimizedPut = createOptimizedRequest('PUT');
-export const optimizedDelete = createOptimizedRequest('DELETE');
+export const optimizedGet = createOptimizedRequest("GET");
+export const optimizedPost = createOptimizedRequest("POST");
+export const optimizedPut = createOptimizedRequest("PUT");
+export const optimizedDelete = createOptimizedRequest("DELETE");
 
 export default {
   get: optimizedGet,
@@ -135,4 +135,3 @@ export default {
   put: optimizedPut,
   delete: optimizedDelete,
 };
-

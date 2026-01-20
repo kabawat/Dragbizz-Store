@@ -1,5 +1,5 @@
 // src/store/slices/profileSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
 import { cookieManager } from "@/utils/cookieManager";
@@ -23,12 +23,12 @@ export const createAgency = createAsyncThunk(
         redirectTo: "/onboarding/store",
         message: "Agency created successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to create agency. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting retailer details
@@ -126,13 +126,13 @@ export const getRetailerDetails = createAsyncThunk(
         data: combinedData,
         message: "Retailer details fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to get retailer details. Please login again.",
         redirectTo: "/login",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting auth-service user profile
@@ -155,12 +155,12 @@ export const getAuthProfile = createAsyncThunk(
         data,
         message: "Auth profile fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch auth profile",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -262,7 +262,7 @@ const profileSlice = createSlice({
             if (prevSelectedId) {
               const matchingStore =
                 data.stores.find(
-                  (s) => (s._id || s.id || s.storeId) === prevSelectedId,
+                  (s) => (s._id || s.id || s.storeId) === prevSelectedId
                 ) || null;
 
               state.selectedStore = matchingStore || data.stores[0];

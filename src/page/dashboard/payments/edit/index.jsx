@@ -1,30 +1,28 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
 import {
-  supplierService,
-  paymentService,
-  billService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  CreditCard,
-  Save,
   ArrowLeft,
   Building2,
-  FileText,
   CheckCircle,
-  Banknote,
-  Smartphone,
-  CreditCard as CardIcon,
+  CreditCard,
+  FileText,
   Plus,
+  Save,
+  Smartphone,
   Trash2,
 } from "lucide-react";
-import { Input, Select, Textarea, Card, Modal } from "@/components/ui";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Card, Input, Modal, Select, Textarea } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  billService,
+  paymentService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const EditPayment = ({ paymentId }) => {
   const { t } = useTranslation();
@@ -149,7 +147,7 @@ const EditPayment = ({ paymentId }) => {
                 }
 
                 return method;
-              },
+              }
             );
 
             // Get supplier ID from supplier object
@@ -206,7 +204,7 @@ const EditPayment = ({ paymentId }) => {
         } else {
           setFetchError(result.message || "Failed to fetch payment data");
         }
-      } catch (error) {
+      } catch (_error) {
         setFetchError("Failed to fetch payment data. Please try again.");
       } finally {
         setFetching(false);
@@ -214,7 +212,7 @@ const EditPayment = ({ paymentId }) => {
     };
 
     fetchPaymentData();
-  }, [paymentId, selectedStore]);
+  }, [paymentId, selectedStore, fetchBills]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -232,7 +230,7 @@ const EditPayment = ({ paymentId }) => {
         setSuppliers(suppliersData);
       } else {
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -259,7 +257,7 @@ const EditPayment = ({ paymentId }) => {
       } else {
         setBills([]);
       }
-    } catch (error) {
+    } catch (_error) {
       setBills([]);
     } finally {
       setBillsLoading(false);
@@ -271,7 +269,7 @@ const EditPayment = ({ paymentId }) => {
     if (selectedStore?.storeId) {
       fetchSuppliers();
     }
-  }, [selectedStore?.storeId]);
+  }, [selectedStore?.storeId, fetchSuppliers]);
 
   // Fetch available bills when supplier is selected
   useEffect(() => {
@@ -280,7 +278,7 @@ const EditPayment = ({ paymentId }) => {
     } else {
       setBills([]);
     }
-  }, [formData.supplierId, selectedStore]);
+  }, [formData.supplierId, selectedStore, fetchBills]);
 
   // Handle store change
   const handleStoreChange = () => {
@@ -299,7 +297,7 @@ const EditPayment = ({ paymentId }) => {
     // Auto-fill amount when bill is selected
     if (field === "billId" && value) {
       const selectedBill = bills.find((bill) => bill._id === value);
-      if (selectedBill && selectedBill.dueAmount) {
+      if (selectedBill?.dueAmount) {
         setFormData((prev) => ({
           ...prev,
           [field]: value,
@@ -307,9 +305,7 @@ const EditPayment = ({ paymentId }) => {
             ? prev.paymentMethods
             : []
           ).map((method, index) =>
-            index === 0
-              ? { ...method, amount: selectedBill.dueAmount }
-              : method,
+            index === 0 ? { ...method, amount: selectedBill.dueAmount } : method
           ),
         }));
       }
@@ -332,7 +328,7 @@ const EditPayment = ({ paymentId }) => {
         ? prev.paymentMethods
         : []
       ).map((method, i) =>
-        i === index ? { ...method, [field]: value } : method,
+        i === index ? { ...method, [field]: value } : method
       ),
     }));
 
@@ -393,7 +389,7 @@ const EditPayment = ({ paymentId }) => {
       : [];
     return methods.reduce(
       (total, method) => total + (parseFloat(method?.amount) || 0),
-      0,
+      0
     );
   };
 
@@ -403,8 +399,7 @@ const EditPayment = ({ paymentId }) => {
 
     // Required fields
     if (!formData.supplierId) {
-      newErrors.supplierId =
-        t("errors.selectSupplier") + " " + t("common.required");
+      newErrors.supplierId = `${t("errors.selectSupplier")} ${t("common.required")}`;
     }
 
     // Validate payment methods
@@ -530,7 +525,7 @@ const EditPayment = ({ paymentId }) => {
       const result = await paymentService.updatePayment(
         paymentId,
         transformedData,
-        selectedStore?.storeId,
+        selectedStore?.storeId
       );
 
       if (result.success) {
@@ -539,7 +534,7 @@ const EditPayment = ({ paymentId }) => {
       } else {
         setUpdateError(
           result.message ||
-            t("errors.failedToUpdate", { item: t("payments.payment") }),
+            t("errors.failedToUpdate", { item: t("payments.payment") })
         );
         setErrors({
           general:
@@ -547,9 +542,9 @@ const EditPayment = ({ paymentId }) => {
             t("errors.failedToUpdate", { item: t("payments.payment") }),
         });
       }
-    } catch (error) {
+    } catch (_error) {
       setUpdateError(
-        t("errors.failedToUpdateTryAgain", { item: t("payments.payment") }),
+        t("errors.failedToUpdateTryAgain", { item: t("payments.payment") })
       );
       setErrors({
         general: t("errors.failedToUpdateTryAgain", {
@@ -753,7 +748,7 @@ const EditPayment = ({ paymentId }) => {
                               disabled={suppliersLoading}
                               searchable={true}
                               placeholder={t(
-                                "payments.searchAndSelectSupplier",
+                                "payments.searchAndSelectSupplier"
                               )}
                             />
                           </div>
@@ -879,7 +874,7 @@ const EditPayment = ({ paymentId }) => {
                                       handlePaymentMethodChange(
                                         index,
                                         "amount",
-                                        value || "",
+                                        value || ""
                                       )
                                     }
                                     placeholder="0.00"
@@ -902,7 +897,7 @@ const EditPayment = ({ paymentId }) => {
                                       handlePaymentMethodChange(
                                         index,
                                         "method",
-                                        value,
+                                        value
                                       )
                                     }
                                     options={[
@@ -932,7 +927,7 @@ const EditPayment = ({ paymentId }) => {
                                       handlePaymentMethodChange(
                                         index,
                                         "reference",
-                                        value,
+                                        value
                                       )
                                     }
                                     placeholder="Payment reference"
@@ -961,7 +956,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "bankName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter bank name"
@@ -984,7 +979,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "ifscCode",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter IFSC code"
@@ -1007,7 +1002,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "accountNumber",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter account number"
@@ -1030,7 +1025,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "holderName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter account holder name"
@@ -1065,7 +1060,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "upiId",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter UPI ID (e.g., user@paytm)"
@@ -1087,7 +1082,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "transactionId",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter transaction ID"
@@ -1121,7 +1116,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeNumber",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter cheque number"
@@ -1144,7 +1139,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeDate",
-                                              value,
+                                              value
                                             )
                                           }
                                           error={
@@ -1165,7 +1160,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeBankName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter bank name"
@@ -1187,7 +1182,7 @@ const EditPayment = ({ paymentId }) => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeBranchName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder="Enter branch name"

@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
 import { Globe } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { locales, localeNames } from "@/i18n/config";
+import { localeNames, locales } from "@/i18n/config";
 
 const LanguageSwitcher = ({ className = "" }) => {
   const { locale, changeLanguage } = useTranslation();

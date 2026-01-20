@@ -1,43 +1,43 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import {
-  getBills,
-  setCurrentFilter,
-  addMoreBills,
-} from "@/store/slices/billsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  Receipt,
-  Plus,
-  Search,
-  List,
-  Grid3X3,
   AlertTriangle,
   CheckCircle,
   Clock,
+  Grid3X3,
+  List,
+  Plus,
+  Receipt,
+  Search,
 } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
-  BillTable,
-  BillGrid,
   BillDeleteConfirmModal,
+  BillGrid,
   BillPaymentDrawer,
+  BillTable,
 } from "@/components/bills";
-import { billService } from "@/service/retailer";
-import { getStatusBadge } from "@/utils/statusBadge";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { billService } from "@/service/retailer";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  addMoreBills,
+  getBills,
+  setCurrentFilter,
+} from "@/store/slices/billsSlice";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
+import { getStatusBadge } from "@/utils/statusBadge";
 
 const Bills = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { bills, isLoading, error, currentFilter, pagination } = useAppSelector(
-    (state) => state.bills,
+    (state) => state.bills
   );
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -124,7 +124,7 @@ const Bills = () => {
     }
     setOpenMenuId(null);
   };
-  const handleManualApiCall = () => {
+  const _handleManualApiCall = () => {
     const storeId =
       selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     dispatch(
@@ -132,7 +132,7 @@ const Bills = () => {
         store: storeId || "test-store",
         limit: 20,
         page: 1,
-      }),
+      })
     );
   };
 
@@ -187,7 +187,7 @@ const Bills = () => {
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, [isLoadingMore, pagination.hasNextPage]);
+  }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
 
   // Handle load more
   const handleLoadMore = async () => {
@@ -209,7 +209,7 @@ const Bills = () => {
       if (result.payload?.success) {
         dispatch(addMoreBills(result.payload.data.data));
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }
@@ -244,7 +244,7 @@ const Bills = () => {
       filteredBills = filteredBills.filter((bill) =>
         bill.supplier?.name
           ?.toLowerCase()
-          .includes(supplierFilter.toLowerCase()),
+          .includes(supplierFilter.toLowerCase())
       );
     }
 
@@ -257,15 +257,18 @@ const Bills = () => {
         switch (dateRange) {
           case "today":
             return billDate.toDateString() === now.toDateString();
-          case "week":
+          case "week": {
             const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             return billDate >= weekAgo;
-          case "month":
+          }
+          case "month": {
             const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             return billDate >= monthAgo;
-          case "year":
+          }
+          case "year": {
             const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
             return billDate >= yearAgo;
+          }
           default:
             return true;
         }
@@ -280,7 +283,7 @@ const Bills = () => {
           bill.supplier?.name
             ?.toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          bill.totalAmount?.toString().includes(searchTerm),
+          bill.totalAmount?.toString().includes(searchTerm)
       );
     }
 
@@ -291,9 +294,9 @@ const Bills = () => {
   const filteredBills = getFilteredBills();
 
   // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
+  const _handleFilterChange = (filterType, value) => {
     switch (filterType) {
-      case "status":
+      case "status": {
         setStatusFilter(value);
         dispatch(setCurrentFilter(value));
 
@@ -304,6 +307,7 @@ const Bills = () => {
           dispatch(getBills({ store: storeId }));
         }
         break;
+      }
       case "supplier":
         setSupplierFilter(value);
         break;
@@ -341,7 +345,7 @@ const Bills = () => {
       } else {
         // You can add a toast notification here
       }
-    } catch (error) {
+    } catch (_error) {
       // You can add a toast notification here
     } finally {
       setIsDeleting(false);
@@ -349,7 +353,7 @@ const Bills = () => {
   };
 
   // Get status badge variant - wrapper to handle overdue logic and compatibility
-  const getBillStatusBadge = (bill) => {
+  const _getBillStatusBadge = (bill) => {
     // Check if bill is overdue
     const isOverdue = new Date(bill.dueDate) < new Date() && bill.dueAmount > 0;
 

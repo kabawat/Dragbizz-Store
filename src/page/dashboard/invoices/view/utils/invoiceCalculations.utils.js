@@ -40,7 +40,7 @@ export const getItemsWithGst = (invoice) => {
 export const calculateSubtotal = (
   invoice,
   calculatedGstAmount,
-  itemsWithGst,
+  itemsWithGst
 ) => {
   if (!invoice) return 0;
 

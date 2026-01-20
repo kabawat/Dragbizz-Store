@@ -1,32 +1,32 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Card, Input, Loading, Select } from "@/components/ui";
-import { packageService, checkoutService } from "@/service";
-import { cookieManager } from "@/utils/cookieManager";
-import { getCurrencySymbol } from "@/data/constants/currencies";
-import { useAppSelector } from "@/store/hooks";
 import {
+  ArrowLeft,
+  Calendar,
   CheckCircle,
   CreditCard,
   Lock,
-  ArrowLeft,
-  Calendar,
-  Tag,
+  Package,
   Shield,
   Sparkles,
   Star,
-  Package,
+  Tag,
   Users,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
+import { Button, Card, Input, Loading, Select } from "@/components/ui";
+import { getCurrencySymbol } from "@/data/constants/currencies";
+import { checkoutService, packageService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import { cookieManager } from "@/utils/cookieManager";
 
 const CheckoutContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const packageId = searchParams.get("packageId");
   const { authProfile, selectedStore, user } = useAppSelector(
-    (state) => state.profile,
+    (state) => state.profile
   );
 
   const [packageData, setPackageData] = useState(null);
@@ -37,8 +37,8 @@ const CheckoutContent = () => {
     months: 1,
     couponCode: "",
   });
-  const [orderData, setOrderData] = useState(null);
-  const [showRazorpay, setShowRazorpay] = useState(false);
+  const [_orderData, setOrderData] = useState(null);
+  const [_showRazorpay, setShowRazorpay] = useState(false);
 
   // Get email and phone from authProfile first, then from store/user
   const getUserContactInfo = () => {
@@ -93,7 +93,7 @@ const CheckoutContent = () => {
         let label = `${months} ${months === 1 ? "Month" : "Months"}`;
 
         if (discount > 0) {
-          const originalPrice = dp.price;
+          const _originalPrice = dp.price;
           label += ` - ${currencySymbol}${price.toFixed(2)} (${discount}% off)`;
         } else {
           label += ` - ${currencySymbol}${price.toFixed(2)}`;
@@ -113,7 +113,7 @@ const CheckoutContent = () => {
       setError("Package ID is required");
       setLoading(false);
     }
-  }, [packageId]);
+  }, [packageId, fetchPackage]);
 
   const fetchPackage = async () => {
     try {
@@ -124,12 +124,12 @@ const CheckoutContent = () => {
         const durationPricing = response.data.pricing?.durationPricing || [];
         if (durationPricing.length > 0) {
           const sortedDurations = [...durationPricing].sort(
-            (a, b) => a.months - b.months,
+            (a, b) => a.months - b.months
           );
           const firstDuration = sortedDurations[0];
           const currentMonths = formData.months;
           const isValidDuration = durationPricing.some(
-            (dp) => dp.months === currentMonths,
+            (dp) => dp.months === currentMonths
           );
 
           if (!isValidDuration) {
@@ -139,7 +139,7 @@ const CheckoutContent = () => {
       } else {
         setError("Package not found");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to load package");
     } finally {
       setLoading(false);
@@ -152,7 +152,7 @@ const CheckoutContent = () => {
 
     const months = formData.months || 1;
     const durationPricing = packageData.pricing?.durationPricing?.find(
-      (dp) => dp.months === months,
+      (dp) => dp.months === months
     );
 
     if (!durationPricing) {
@@ -211,7 +211,7 @@ const CheckoutContent = () => {
       } else {
         setError(response.message || "Failed to create order");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to create payment order. Please try again.");
     } finally {
       setProcessing(false);
@@ -282,7 +282,7 @@ const CheckoutContent = () => {
       } else {
         setError(response.message || "Payment verification failed");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Payment verification failed. Please contact support.");
     } finally {
       setProcessing(false);
@@ -400,7 +400,7 @@ const CheckoutContent = () => {
                           {packageData.featureUsageLimits
                             .filter(
                               (feature) =>
-                                feature.enabled !== false && feature.highlight,
+                                feature.enabled !== false && feature.highlight
                             )
                             .map((feature, index) => (
                               <div
@@ -415,7 +415,7 @@ const CheckoutContent = () => {
                             ))}
                           {packageData.featureUsageLimits.filter(
                             (feature) =>
-                              feature.enabled !== false && feature.highlight,
+                              feature.enabled !== false && feature.highlight
                           ).length === 0 && (
                             <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
                               No highlights available
@@ -506,7 +506,7 @@ const CheckoutContent = () => {
                     options={durationOptions}
                     value={formData.months}
                     onChange={(value) =>
-                      setFormData({ ...formData, months: parseInt(value) })
+                      setFormData({ ...formData, months: parseInt(value, 10) })
                     }
                     placeholder="Select duration"
                     required

@@ -1,8 +1,7 @@
 "use client";
-import React from 'react';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { useTranslation } from '@/hooks/useTranslation';
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const LoadingState = () => {
   const { t } = useTranslation();
@@ -40,4 +39,3 @@ const LoadingState = () => {
 };
 
 export default LoadingState;
-

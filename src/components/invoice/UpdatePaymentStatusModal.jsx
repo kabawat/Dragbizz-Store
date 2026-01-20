@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import { CreditCard } from "lucide-react";
-import { Button, Select, Input } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Button, Input, Select } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
     }
     if (
       paidAmount &&
-      (isNaN(parseFloat(paidAmount)) || parseFloat(paidAmount) < 0)
+      (Number.isNaN(parseFloat(paidAmount)) || parseFloat(paidAmount) < 0)
     ) {
       newErrors.paidAmount = "Paid amount must be a valid number >= 0";
     }
@@ -103,7 +103,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
         paymentStatus,
         null, // paymentMode (optional)
         storeId, // storeId (required for middleware)
-        paidAmount ? parseFloat(paidAmount) : null, // paidAmount (optional, for PAY_LATTER)
+        paidAmount ? parseFloat(paidAmount) : null // paidAmount (optional, for PAY_LATTER)
       );
 
       if (result.success) {
@@ -121,13 +121,12 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
         onClose();
       } else {
         showError(
-          result.message ||
-            "Failed to update payment status. Please try again.",
+          result.message || "Failed to update payment status. Please try again."
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        "An error occurred while updating payment status. Please try again.",
+        "An error occurred while updating payment status. Please try again."
       );
     } finally {
       setIsUpdating(false);

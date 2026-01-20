@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { CheckCircle, ArrowRight, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle, Plus, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 

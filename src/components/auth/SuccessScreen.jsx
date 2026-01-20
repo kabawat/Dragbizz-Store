@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Sparkles, ArrowRight } from "lucide-react";
-import { AnimatedBackground } from "../ui";
-import { cookieManager } from "@/utils/cookieManager";
-import { useTheme } from "@/contexts/ThemeContext";
 import confetti from "canvas-confetti";
+import { ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cookieManager } from "@/utils/cookieManager";
+import { AnimatedBackground } from "../ui";
 
 const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   const [countdown, setCountdown] = useState(5);
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [_showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
 
   // Rainbow palette using theme colors
@@ -23,7 +23,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
 
   // Confetti state
   let rafId = null;
-  let endAt = 0;
+  const endAt = 0;
 
   // Reduced motion fallback
   const prefersReducedMotion =
@@ -105,7 +105,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   };
 
   // Loop with cancel
-  const loop = () => {
+  const _loop = () => {
     const now = Date.now();
     if (now >= endAt) {
       stopRain(true);
@@ -113,7 +113,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     }
     const intensity = 3; // Reduced intensity for fewer particles
     rainFrame(intensity);
-    rafId = requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(_loop);
   };
 
   const startRain = () => {
@@ -137,7 +137,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     createSingleBurst();
   };
 
-  const stopRain = (fromLoop = false) => {
+  const stopRain = (_fromLoop = false) => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -166,7 +166,10 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       clearInterval(timer);
       clearTimeout(confettiTimer);
     };
-  }, []);
+  }, [
+    // Start single confetti burst immediately
+    startRain,
+  ]);
 
   // Handle countdown completion
   useEffect(() => {

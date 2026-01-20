@@ -1,16 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import {
-  User,
-  Phone,
-  Mail,
-  MapPin,
   Building2,
   FileText,
+  Mail,
+  MapPin,
+  Phone,
   Plus,
   Trash2,
+  User,
 } from "lucide-react";
-import { Input, Button, Select } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
@@ -42,7 +42,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
 
             // Get address from coordinates using reverse geocoding
             fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
             )
               .then((response) => response.json())
               .then((data) => {
@@ -57,7 +57,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                   }));
                 }
               })
-              .catch((error) => {
+              .catch((_error) => {
                 // Don't show error to user as this is optional
               });
           },
@@ -78,7 +78,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 300000, // 5 minutes
-          },
+          }
         );
       } else {
       }

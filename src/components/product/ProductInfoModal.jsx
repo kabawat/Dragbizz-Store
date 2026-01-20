@@ -1,12 +1,11 @@
 "use client";
-import React from "react";
 import {
+  BarChart3,
   Package,
+  ShoppingCart,
+  Star,
   TrendingUp,
   Users,
-  BarChart3,
-  Star,
-  ShoppingCart,
   X,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";

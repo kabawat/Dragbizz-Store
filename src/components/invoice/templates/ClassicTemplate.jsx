@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
 import moment from "moment";
-import styles from "./ClassicTemplate.module.scss";
 import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
+import styles from "./ClassicTemplate.module.scss";
 
 const ClassicTemplate = ({ invoiceData, selectedStore }) => {
   return (

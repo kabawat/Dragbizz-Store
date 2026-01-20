@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class CustomerService {
@@ -13,7 +13,7 @@ class CustomerService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.CUSTOMER,
-        customerData,
+        customerData
       );
       return handleApiSuccess(response?.data, "Customer created successfully");
     } catch (error) {
@@ -83,7 +83,7 @@ class CustomerService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Customers searched successfully",
+        "Customers searched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "customer-search");
@@ -103,7 +103,7 @@ class CustomerService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Customer statistics fetched successfully",
+        "Customer statistics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "customer-stats");

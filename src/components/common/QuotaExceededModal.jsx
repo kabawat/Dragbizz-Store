@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
-import { AlertTriangle, X, TrendingUp, Clock } from "lucide-react";
-import { Button } from "@/components/ui";
+import { AlertTriangle, Clock, TrendingUp, X } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 
 // Modal component for displaying quota exceeded messages

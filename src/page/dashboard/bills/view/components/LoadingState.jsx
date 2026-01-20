@@ -1,17 +1,13 @@
 "use client";
-import React from 'react';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 
 const LoadingState = () => {
   return (
     <div className="flex w-full h-screen relative overflow-hidden">
       <Sidebar />
       <div className="min-h-screen w-full flex flex-col">
-        <Header
-          title="View Bill"
-          description="Bill information and details"
-        />
+        <Header title="View Bill" description="Bill information and details" />
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
             <div className="bg-[rgb(var(--color-bg-primary))] p-8">
@@ -35,4 +31,3 @@ const LoadingState = () => {
 };
 
 export default LoadingState;
-

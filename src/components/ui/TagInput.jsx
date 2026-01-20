@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { useRef, useState } from "react";
 
 const TagInput = ({
   value = [],

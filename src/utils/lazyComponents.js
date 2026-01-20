@@ -1,5 +1,4 @@
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import dynamic from "next/dynamic";
 
 const LoadingFallback = ({ children }) => (
   <div className="flex items-center justify-center min-h-[200px]">
@@ -22,72 +21,71 @@ export const createLazyComponent = (importFn, options = {}) => {
 };
 
 export const LazySidebar = createLazyComponent(
-  () => import('@/components/dashboard/Sidebar'),
+  () => import("@/components/dashboard/Sidebar"),
   { ssr: false }
 );
 
 export const LazyHeader = createLazyComponent(
-  () => import('@/components/dashboard/Header'),
+  () => import("@/components/dashboard/Header"),
   { ssr: false }
 );
 
 export const LazyBillPaymentDrawer = createLazyComponent(
-  () => import('@/components/bills/BillPaymentDrawer'),
+  () => import("@/components/bills/BillPaymentDrawer"),
   { ssr: false }
 );
 
 export const LazyProductForm = createLazyComponent(
-  () => import('@/components/product/ProductForm'),
+  () => import("@/components/product/ProductForm"),
   { ssr: false }
 );
 
 export const LazyAdvancePaymentDrawer = createLazyComponent(
-  () => import('@/components/purchaseOrders/AdvancePaymentDrawer'),
+  () => import("@/components/purchaseOrders/AdvancePaymentDrawer"),
   { ssr: false }
 );
 
 export const LazyInvoiceDownloadDrawer = createLazyComponent(
-  () => import('@/components/invoice/InvoiceDownloadDrawer'),
+  () => import("@/components/invoice/InvoiceDownloadDrawer"),
   { ssr: false }
 );
 
 export const LazyExpenseDownloadDrawer = createLazyComponent(
-  () => import('@/components/expenses/ExpenseDownloadDrawer'),
+  () => import("@/components/expenses/ExpenseDownloadDrawer"),
   { ssr: false }
 );
 
 export const LazySupplierDownloadDrawer = createLazyComponent(
-  () => import('@/components/supplier/SupplierDownloadDrawer'),
+  () => import("@/components/supplier/SupplierDownloadDrawer"),
   { ssr: false }
 );
 
 export const LazyVoiceAISupplier = createLazyComponent(
-  () => import('@/components/supplier/VoiceAISupplier'),
+  () => import("@/components/supplier/VoiceAISupplier"),
   { ssr: false }
 );
 
 export const LazyVoiceAICustomer = createLazyComponent(
-  () => import('@/components/customer/VoiceAICustomer'),
+  () => import("@/components/customer/VoiceAICustomer"),
   { ssr: false }
 );
 
 export const LazyCustomerForm = createLazyComponent(
-  () => import('@/components/customer/CustomerForm'),
+  () => import("@/components/customer/CustomerForm"),
   { ssr: false }
 );
 
 export const LazyCreateBillDrawer = createLazyComponent(
-  () => import('@/components/purchaseOrders/CreateBillDrawer'),
+  () => import("@/components/purchaseOrders/CreateBillDrawer"),
   { ssr: false }
 );
 
 export const LazyPricingGSTSection = createLazyComponent(
-  () => import('@/components/product/PricingGSTSection'),
+  () => import("@/components/product/PricingGSTSection"),
   { ssr: false }
 );
 
 export const LazyProductHeader = createLazyComponent(
-  () => import('@/components/layout/ProductHeader'),
+  () => import("@/components/layout/ProductHeader"),
   { ssr: true }
 );
-

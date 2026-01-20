@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Lock,
   Mail,
   Phone,
   User,
-  Lock,
-  CheckCircle,
-  ArrowRight,
-  ArrowLeft,
 } from "lucide-react";
+import React, { useState } from "react";
 
 const RegistrationFlow = ({ onComplete }) => {
   const [step, setStep] = useState(1);

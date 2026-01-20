@@ -1,27 +1,27 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
-import logger from "@/utils/logger";
 import {
-  MoreVertical,
-  Eye,
-  Edit,
-  Trash2,
-  Building2,
-  Send,
-  MessageCircle,
-  Mail,
-  MessageSquare,
-  Copy,
-  Phone,
-  IndianRupee,
-  Receipt,
   AlertTriangle,
+  Building2,
   CheckCircle,
   Clock,
+  Copy,
+  Edit,
+  Eye,
+  IndianRupee,
+  Mail,
+  MessageCircle,
+  MessageSquare,
+  MoreVertical,
+  Phone,
+  Receipt,
+  Send,
+  Trash2,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { AddActionButton } from "@/components/ui";
-import { renderStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import logger from "@/utils/logger";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const PurchaseOrderTable = ({
   bills,
@@ -43,7 +43,7 @@ const PurchaseOrderTable = ({
   getShareUrl,
 }) => {
   const { t } = useTranslation();
-  const defaultEmptyMessage =
+  const _defaultEmptyMessage =
     emptyMessage || t("purchaseOrders.noPurchaseOrders");
 
   const getPurchaseOrderStatusBadge = (row) => {
@@ -120,13 +120,13 @@ const PurchaseOrderTable = ({
         : `91${cleanPhone}`;
       window.open(
         `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     } else {
       // Fallback to general WhatsApp if no phone number
       window.open(
         `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     }
 
@@ -189,21 +189,21 @@ const PurchaseOrderTable = ({
                 row.totalQuantity ??
                 row.items?.reduce(
                   (sum, item) => sum + (item.quantity || 0),
-                  0,
+                  0
                 ) ??
                 0;
               const receivedQuantity =
                 row.receivedQuantity ??
                 row.items?.reduce(
                   (sum, item) => sum + (item.receivedQuantity || 0),
-                  0,
+                  0
                 ) ??
                 0;
-              const pendingQuantity =
+              const _pendingQuantity =
                 row.pendingQuantity ??
                 Math.max(totalQuantity - receivedQuantity, 0);
               const hasAdvancePayments = (row.payments || []).some(
-                (payment) => payment.paymentType === "ADVANCE_PAYMENT",
+                (payment) => payment.paymentType === "ADVANCE_PAYMENT"
               );
               const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
 
@@ -288,7 +288,7 @@ const PurchaseOrderTable = ({
                               setOpenSendMenuId(
                                 openSendMenuId === (row._id || row.id)
                                   ? null
-                                  : row._id || row.id,
+                                  : row._id || row.id
                               )
                             }
                             Icon={Send}
@@ -356,7 +356,7 @@ const PurchaseOrderTable = ({
                                 onClick={() =>
                                   onMenuAction(
                                     row._id || row.id,
-                                    "advancePayment",
+                                    "advancePayment"
                                   )
                                 }
                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"

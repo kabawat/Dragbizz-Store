@@ -1,35 +1,25 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useAppSelector } from "@/store/hooks";
-import { productService, customerService, invoiceService } from "@/service";
 import {
-  Button,
-  Card,
-  Input,
-  Select,
-  Badge,
-  SideDrawer,
-} from "@/components/ui";
-import {
-  Plus,
-  Minus,
-  ShoppingCart,
-  User,
-  Calculator,
   ArrowLeft,
+  Calculator,
   Package,
-  IndianRupee,
+  Plus,
   Trash2,
+  User,
 } from "lucide-react";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CreateCustomer } from "@/components/customer";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import QuotaProgressBar from "@/components/product/QuotaProgressBar";
+import { Button, Card, Input, Select, SideDrawer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { customerService, invoiceService, productService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 
 const CreateInvoicePage = () => {
   const router = useRouter();
@@ -66,7 +56,7 @@ const CreateInvoicePage = () => {
   // Local state for products and customers
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(false);
+  const [_productsLoading, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // Refs to prevent duplicate API calls
@@ -114,7 +104,7 @@ const CreateInvoicePage = () => {
       if (result.success) {
         setProducts(result?.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
       productsFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
     } finally {
       setProductsLoading(false);
@@ -159,12 +149,12 @@ const CreateInvoicePage = () => {
         ];
         setCustomers(serializedOptions);
       }
-    } catch (error) {
+    } catch (_error) {
       customersFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
     } finally {
       setCustomersLoading(false);
     }
-  }, [storeId]);
+  }, [storeId, t]);
 
   // Reset refs when storeId changes
   useEffect(() => {
@@ -224,11 +214,11 @@ const CreateInvoicePage = () => {
     }
 
     const productPrice = product.price || product.sellingPrice || 0;
-    const quantityToAdd = parseInt(selectedQuantity) || 1;
+    const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
 
     // Check if product already exists in items
     const existingItemIndex = formData.items.findIndex(
-      (item) => item.product === selectedProduct,
+      (item) => item.product === selectedProduct
     );
 
     if (existingItemIndex !== -1) {
@@ -276,14 +266,14 @@ const CreateInvoicePage = () => {
     setFormData({ ...formData, items: updatedItems });
   };
 
-  const handleItemChange = (index, field, value) => {
+  const _handleItemChange = (index, field, value) => {
     const updatedItems = [...formData.items];
     updatedItems[index][field] = value;
 
     // Calculate total when quantity or price changes
     if (field === "quantity" || field === "price") {
       const product = products.find(
-        (p) => p._id === updatedItems[index].product,
+        (p) => p._id === updatedItems[index].product
       );
       const price = product?.price || product?.sellingPrice || 0;
       const quantity = updatedItems[index].quantity || 1;
@@ -309,7 +299,7 @@ const CreateInvoicePage = () => {
 
     // Filter out empty items
     const validItems = formData.items.filter(
-      (item) => item.product && item.quantity > 0,
+      (item) => item.product && item.quantity > 0
     );
 
     if (validItems.length === 0) {
@@ -453,7 +443,7 @@ const CreateInvoicePage = () => {
                                   {
                                     value: "",
                                     label: t(
-                                      "invoice.selectProductPlaceholder",
+                                      "invoice.selectProductPlaceholder"
                                     ),
                                   },
                                   ...products
@@ -513,7 +503,7 @@ const CreateInvoicePage = () => {
                               >
                                 {formData.items.map((item, index) => {
                                   const product = products.find(
-                                    (p) => p._id === item.product,
+                                    (p) => p._id === item.product
                                   );
                                   return (
                                     <div

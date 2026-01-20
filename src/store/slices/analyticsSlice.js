@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
 
 // Async thunk for getting revenue analytics
@@ -26,12 +26,12 @@ export const getRevenueAnalytics = createAsyncThunk(
         data: analyticsData || initialState.revenue,
         message: "Revenue analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch revenue analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {

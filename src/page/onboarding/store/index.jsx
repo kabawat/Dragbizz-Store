@@ -1,36 +1,33 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import {
-  Store,
-  MapPin,
-  Phone,
-  Mail,
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle,
   AlertCircle,
-  Building2,
-  Package,
-  BarChart3,
-  Users,
-  ChevronLeft,
-  ArrowLeftCircle,
   ArrowLeftToLine,
+  ArrowRight,
+  BarChart3,
+  Building2,
+  CheckCircle,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+  Store,
+  Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useLocation } from "@/app/LocationProvider";
+import StoreCreationSuccess from "@/components/auth/StoreCreationSuccess";
 import {
-  Input,
-  Button,
   AnimatedBackground,
   AnimatedGridPattern,
+  Button,
+  Input,
   Select,
 } from "@/components/ui";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getRetailerDetails } from "@/store/slices/profileSlice";
-import storeService from "@/service/retailer/store.service";
-import { useLocation } from "@/app/LocationProvider";
-import { useRouter } from "next/navigation";
-import StoreCreationSuccess from "@/components/auth/StoreCreationSuccess";
 import { STORE_CATEGORIES } from "@/data";
+import storeService from "@/service/retailer/store.service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
 
 export default function StoreCreation() {
   const router = useRouter();
@@ -119,7 +116,7 @@ export default function StoreCreation() {
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else {
-      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
       const cleanPhone = formData.phone.replace(/\D/g, "");
       if (!phoneRegex.test(formData.phone) || cleanPhone.length < 10) {
         newErrors.phone = "Please enter a valid phone number";
@@ -151,7 +148,7 @@ export default function StoreCreation() {
     if (
       formData.gst &&
       !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        formData.gst,
+        formData.gst
       )
     ) {
       newErrors.gst = "Please enter a valid GST number";
@@ -165,7 +162,7 @@ export default function StoreCreation() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateForm = () => {
+  const _validateForm = () => {
     return validateStep1() && validateStep2() && validateStep3();
   };
 
@@ -225,16 +222,16 @@ export default function StoreCreation() {
       // Use existing store service
       const result = await storeService.createStore(storeData);
 
-      if (result && result.success) {
+      if (result?.success) {
         // Refresh retailer profile to get updated stores list
         await dispatch(getRetailerDetails({ forceRefresh: true }));
         setShowSuccessScreen(true);
       } else {
-        if (result?.error && result?.error?.data) {
+        if (result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         }
       }
-    } catch (error) {
+    } catch (_error) {
       setErrors({
         general: "An error occurred while creating store. Please try again.",
       });

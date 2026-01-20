@@ -1,23 +1,22 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
-import { Button } from "@/components/ui";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { useTranslation } from "@/hooks/useTranslation";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-import { useTranslation } from "@/hooks/useTranslation";
-import LoadingState from "./components/LoadingState";
-import ErrorState from "./components/ErrorState";
-import CustomerBasicInfo from "./components/CustomerBasicInfo";
-import CompanyDetails from "./components/CompanyDetails";
 import AccountDetails from "./components/AccountDetails";
 import Addresses from "./components/Addresses";
+import CompanyDetails from "./components/CompanyDetails";
 import CustomerActions from "./components/CustomerActions";
+import CustomerBasicInfo from "./components/CustomerBasicInfo";
 import DeleteModal from "./components/DeleteModal";
 import DeleteSuccessModal from "./components/DeleteSuccessModal";
+import ErrorState from "./components/ErrorState";
+import LoadingState from "./components/LoadingState";
 
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
@@ -53,12 +52,12 @@ const ViewCustomerPage = ({ customerId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.customer") }),
+              t("errors.failedToFetchData", { item: t("common.customer") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.customer") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.customer") })
         );
       } finally {
         setFetching(false);
@@ -90,13 +89,13 @@ const ViewCustomerPage = ({ customerId }) => {
       } else {
         setError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.customer") }),
+            t("errors.failedToDelete", { item: t("common.customer") })
         );
         setShowDeleteModal(false);
       }
-    } catch (error) {
+    } catch (_error) {
       setError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.customer") }),
+        t("errors.failedToDeleteTryAgain", { item: t("common.customer") })
       );
       setShowDeleteModal(false);
     } finally {
@@ -156,7 +155,9 @@ const ViewCustomerPage = ({ customerId }) => {
                   >
                     <CustomerBasicInfo customerData={customerData} />
 
-                    <CompanyDetails companyDetails={customerData.companyDetails} />
+                    <CompanyDetails
+                      companyDetails={customerData.companyDetails}
+                    />
 
                     <AccountDetails account={customerData.account} />
 

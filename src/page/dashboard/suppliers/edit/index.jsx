@@ -1,16 +1,15 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Building, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, Building } from "lucide-react";
-
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { SupplierForm, SupplierAddSuccessModal } from "@/components/supplier";
+import { SupplierAddSuccessModal, SupplierForm } from "@/components/supplier";
+import { useTranslation } from "@/hooks/useTranslation";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const EditSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
@@ -65,12 +64,12 @@ const EditSupplierPage = ({ supplierId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.supplier") }),
+              t("errors.failedToFetchData", { item: t("common.supplier") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.supplier") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.supplier") })
         );
       } finally {
         setFetching(false);
@@ -78,7 +77,7 @@ const EditSupplierPage = ({ supplierId }) => {
     };
 
     fetchSupplierData();
-  }, [supplierId, storeId]);
+  }, [supplierId, storeId, t]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -130,7 +129,7 @@ const EditSupplierPage = ({ supplierId }) => {
       const result = await supplierService.updateSupplier(
         supplierId,
         formData,
-        storeId,
+        storeId
       );
 
       if (result.success) {
@@ -138,15 +137,15 @@ const EditSupplierPage = ({ supplierId }) => {
         setUpdatedSupplierName(formData.name || t("common.supplier"));
         setShowSuccessModal(true);
       } else {
-        if (result?.error && result?.error?.data) {
+        if (result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         }
       }
     } catch (error) {
       // Handle API error response
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
+        if (errorData.data?.fields) {
           setFieldErrors(errorData.data.fields);
         }
       }

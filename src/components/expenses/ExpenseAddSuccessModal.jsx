@@ -1,6 +1,4 @@
 "use client";
-import React from "react";
-import { X } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
 
 const ExpenseAddSuccessModal = ({

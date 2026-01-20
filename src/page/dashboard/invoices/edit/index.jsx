@@ -1,27 +1,25 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useAppSelector } from "@/store/hooks";
-import { productService, customerService, invoiceService } from "@/service";
-import { Button, Card, Input, Select, Badge } from "@/components/ui";
 import {
-  Plus,
-  Minus,
-  ShoppingCart,
-  User,
-  Calculator,
   ArrowLeft,
-  Package,
-  IndianRupee,
-  Trash2,
-  Save,
+  Calculator,
   FileText,
+  IndianRupee,
+  Package,
+  Plus,
+  Save,
+  Trash2,
+  User,
 } from "lucide-react";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Input, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { customerService, invoiceService, productService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -35,7 +33,7 @@ const EditInvoicePage = ({ invoiceId }) => {
   // Local state for products and customers
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(false);
+  const [_productsLoading, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // Refs to prevent duplicate API calls
@@ -75,7 +73,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       if (result.success) {
         setProducts(result?.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
       hasFetchedProducts.current = false; // Reset on error
     } finally {
       setProductsLoading(false);
@@ -109,12 +107,12 @@ const EditInvoicePage = ({ invoiceId }) => {
         ];
         setCustomers(serializedOptions);
       }
-    } catch (error) {
+    } catch (_error) {
       hasFetchedCustomers.current = false; // Reset on error
     } finally {
       setCustomersLoading(false);
     }
-  }, [selectedStore?.storeId]);
+  }, [selectedStore?.storeId, t]);
 
   // Fetch invoice data
   const fetchInvoiceData = useCallback(async () => {
@@ -158,17 +156,17 @@ const EditInvoicePage = ({ invoiceId }) => {
       } else {
         setError(
           result.message ||
-            t("errors.failedToFetchData", { item: t("common.invoice") }),
+            t("errors.failedToFetchData", { item: t("common.invoice") })
         );
       }
-    } catch (err) {
+    } catch (_err) {
       setError(
-        t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") }),
+        t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
       );
     } finally {
       setFetching(false);
     }
-  }, [invoiceId, selectedStore?.storeId]);
+  }, [invoiceId, selectedStore?.storeId, t]);
 
   // Load products, customers, and invoice data on component mount
   useEffect(() => {
@@ -205,7 +203,7 @@ const EditInvoicePage = ({ invoiceId }) => {
     // Calculate total when quantity or price changes
     if (field === "quantity" || field === "price") {
       const product = products.find(
-        (p) => (p.id || p._id) === updatedItems[index].product,
+        (p) => (p.id || p._id) === updatedItems[index].product
       );
       const price = product?.price || product?.sellingPrice || 0;
       const quantity = updatedItems[index].quantity || 1;
@@ -231,7 +229,7 @@ const EditInvoicePage = ({ invoiceId }) => {
 
     // Filter out empty items
     const validItems = formData.items.filter(
-      (item) => item.product && item.quantity > 0,
+      (item) => item.product && item.quantity > 0
     );
 
     if (validItems.length === 0) {
@@ -253,7 +251,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       setInvoiceLoading(true);
       const result = await invoiceService.updateDraftInvoice(
         invoiceId,
-        invoiceData,
+        invoiceData
       );
       if (result.success) {
         // Redirect to the updated invoice view page
@@ -261,7 +259,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       } else {
         showError(t("invoice.updateError"));
       }
-    } catch (error) {
+    } catch (_error) {
       showError(t("invoice.updateError"));
     } finally {
       setInvoiceLoading(false);
@@ -465,8 +463,8 @@ const EditInvoicePage = ({ invoiceId }) => {
 
                         <div className="space-y-4">
                           {formData.items.map((item, index) => {
-                            const product = products.find(
-                              (p) => (p.id || p._id) === item.product,
+                            const _product = products.find(
+                              (p) => (p.id || p._id) === item.product
                             );
                             return (
                               <div
@@ -499,7 +497,7 @@ const EditInvoicePage = ({ invoiceId }) => {
                                       value={item.product}
                                       onChange={(value) => {
                                         const selectedProduct = products.find(
-                                          (p) => (p.id || p._id) === value,
+                                          (p) => (p.id || p._id) === value
                                         );
                                         const productPrice =
                                           selectedProduct?.price ||
@@ -508,17 +506,17 @@ const EditInvoicePage = ({ invoiceId }) => {
                                         handleItemChange(
                                           index,
                                           "product",
-                                          value,
+                                          value
                                         );
                                         handleItemChange(
                                           index,
                                           "productName",
-                                          selectedProduct?.name || "",
+                                          selectedProduct?.name || ""
                                         );
                                         handleItemChange(
                                           index,
                                           "price",
-                                          productPrice,
+                                          productPrice
                                         );
                                       }}
                                       options={[
@@ -529,7 +527,7 @@ const EditInvoicePage = ({ invoiceId }) => {
                                         ...products
                                           .filter(
                                             (product) =>
-                                              product.id || product._id,
+                                              product.id || product._id
                                           )
                                           .map((product) => ({
                                             value: product.id || product._id,
@@ -552,7 +550,7 @@ const EditInvoicePage = ({ invoiceId }) => {
                                         handleItemChange(
                                           index,
                                           "quantity",
-                                          value,
+                                          value
                                         )
                                       }
                                       min="1"

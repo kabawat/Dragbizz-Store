@@ -1,30 +1,27 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getBills, getBillStats } from "@/store/slices/billsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
   AlertTriangle,
-  Search,
-  Filter,
-  Eye,
-  Edit,
-  IndianRupee,
-  Calendar,
   Building2,
-  Clock,
-  Phone,
+  Calendar,
+  Eye,
+  IndianRupee,
   Mail,
+  Phone,
+  Search,
 } from "lucide-react";
-import { Button, Input, Select, Badge, Card } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Badge, Button, Card, Input, Select } from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getBillStats, getBills } from "@/store/slices/billsSlice";
 
 const OverdueBills = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { bills, stats, isLoading, error } = useAppSelector(
-    (state) => state.bills,
+    (state) => state.bills
   );
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -41,7 +38,7 @@ const OverdueBills = () => {
           status: "overdue",
           limit: 20,
           page: 1,
-        }),
+        })
       );
       dispatch(getBillStats(selectedStore.id));
     }
@@ -119,12 +116,12 @@ const OverdueBills = () => {
   };
 
   // Handle send reminder
-  const handleSendReminder = (bill) => {
+  const handleSendReminder = (_bill) => {
     // Implement send reminder logic
   };
 
   // Handle contact supplier
-  const handleContactSupplier = (supplier) => {
+  const handleContactSupplier = (_supplier) => {
     // Implement contact supplier logic
   };
 
@@ -181,8 +178,8 @@ const OverdueBills = () => {
                       ? Math.round(
                           bills.reduce(
                             (sum, bill) => sum + getOverdueDays(bill.dueDate),
-                            0,
-                          ) / bills.length,
+                            0
+                          ) / bills.length
                         )
                       : 0}
                   </p>
@@ -324,7 +321,7 @@ const OverdueBills = () => {
                               leftIcon={IndianRupee}
                               onClick={() =>
                                 router.push(
-                                  `/dashboard/payments/create?billId=${bill.id}`,
+                                  `/dashboard/payments/create?billId=${bill.id}`
                                 )
                               }
                             >

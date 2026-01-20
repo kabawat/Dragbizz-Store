@@ -1,28 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Save,
-  Plus,
   ArrowLeft,
-  Info,
-  Warehouse,
+  BarChart3,
+  Package,
+  Save,
+  Star,
   TrendingUp,
   Users,
-  BarChart3,
-  Star,
-  ShoppingCart,
-  Package,
 } from "lucide-react";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
 import InventoryForm from "@/components/inventory/InventoryForm";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
 const AddInventoryPage = () => {
   const { t } = useTranslation();
@@ -33,7 +28,7 @@ const AddInventoryPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [_showInfoModal, _setShowInfoModal] = useState(false);
   const [addedInventoryName, setAddedInventoryName] = useState("");
 
   // Initial form data - Only required fields
@@ -119,7 +114,7 @@ const AddInventoryPage = () => {
       formData.batchData?.purchasePrice <= 0
     ) {
       errors["batchData.purchasePrice"] = t(
-        "inventory.validPurchasePriceRequired",
+        "inventory.validPurchasePriceRequired"
       );
     }
 
@@ -142,7 +137,7 @@ const AddInventoryPage = () => {
       }
 
       // Prepare data for API
-      const apiData = {
+      const _apiData = {
         productId: formData.productId,
         store: storeId,
         batchData: {
@@ -160,9 +155,9 @@ const AddInventoryPage = () => {
       setShowSuccessModal(true);
     } catch (error) {
       // Handle API error response
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
+        if (errorData.data?.fields) {
           setFieldErrors(errorData.data.fields);
         }
       }

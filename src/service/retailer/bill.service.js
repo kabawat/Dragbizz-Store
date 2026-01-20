@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class BillService {
@@ -10,7 +10,7 @@ class BillService {
   // Create a new bill
   async createBill(billData) {
     try {
-      let apiPayload = billData;
+      const apiPayload = billData;
       // Remove undefined values to keep payload clean
       Object.keys(apiPayload).forEach((key) => {
         if (apiPayload[key] === undefined) {
@@ -20,7 +20,7 @@ class BillService {
 
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.BILL,
-        apiPayload,
+        apiPayload
       );
       return handleApiSuccess(response?.data, "Bill created successfully");
     } catch (error) {
@@ -88,7 +88,7 @@ class BillService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Bill analytics fetched successfully",
+        "Bill analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "bill-analytics");

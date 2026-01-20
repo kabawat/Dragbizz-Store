@@ -1,14 +1,14 @@
 "use client";
-import React, { useState } from "react";
-import WelcomeScreen from "@/components/auth/WelcomeScreen";
+import { useState } from "react";
+import { useLocation } from "@/app/LocationProvider";
 import BasicInfoStep from "@/components/auth/BasicInfoStep";
 import PasswordStep from "@/components/auth/PasswordStep";
-import VerificationStep from "@/components/auth/VerificationStep";
 import SuccessScreen from "@/components/auth/SuccessScreen";
+import VerificationStep from "@/components/auth/VerificationStep";
+import WelcomeScreen from "@/components/auth/WelcomeScreen";
 import { AnimatedBackground } from "@/components/ui";
-import { authService } from "@/service/auth";
-import { useLocation } from "@/app/LocationProvider";
 import { useTranslation } from "@/hooks/useTranslation";
+import { authService } from "@/service/auth";
 
 export default function Register() {
   const { t } = useTranslation();
@@ -55,7 +55,7 @@ export default function Register() {
       }
     } else if (formData.contactType === "phone") {
       // More flexible phone validation - accepts various formats
-      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
       const cleanPhone = formData.contact.replace(/\D/g, "");
 
       if (!phoneRegex.test(formData.contact)) {
@@ -104,7 +104,7 @@ export default function Register() {
           general: result.message || t("auth.registrationFailed"),
         });
       }
-    } catch (error) {
+    } catch (_error) {
       setErrors({
         general: t("auth.unexpectedErrorOccurred"),
       });

@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { User, Phone, Mail } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Mail, Phone, User } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CustomerBasicInfo = ({ customerData }) => {
   const { t } = useTranslation();
@@ -66,4 +65,3 @@ const CustomerBasicInfo = ({ customerData }) => {
 };
 
 export default CustomerBasicInfo;
-

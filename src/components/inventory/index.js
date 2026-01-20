@@ -1,8 +1,9 @@
 // Import all inventory components
-import InventoryForm from "./InventoryForm";
-import InventoryDetailsSection from "./InventoryDetailsSection";
-import InventoryTable from "./InventoryTable";
+
 import InventoryCard from "./InventoryCard";
+import InventoryDetailsSection from "./InventoryDetailsSection";
+import InventoryForm from "./InventoryForm";
+import InventoryTable from "./InventoryTable";
 
 // Named exports
 export {

@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { Download, Calendar } from "lucide-react";
-import { SideDrawer, Select, Button, Checkbox } from "@/components/ui";
+import { Calendar, Download } from "lucide-react";
+import { useState } from "react";
+import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
 import logger from "@/utils/logger";
 
@@ -51,7 +51,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
   ];
 
   const [selectedFields, setSelectedFields] = useState(
-    availableFields.filter((field) => field.default).map((field) => field.key),
+    availableFields.filter((field) => field.default).map((field) => field.key)
   );
 
   const handleFieldToggle = (fieldKey) => {
@@ -112,7 +112,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
     const endDate = new Date(today);
     endDate.setHours(23, 59, 59, 999);
 
-    let startDate = new Date(today);
+    const startDate = new Date(today);
 
     switch (period) {
       case "1month":
@@ -205,7 +205,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await supplierService.getSuppliers(params);
@@ -262,7 +262,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await supplierService.getSuppliers(params);
@@ -333,7 +333,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
     const storeName = selectedStore?.storeName || selectedStore?.name || "N/A";
 
     const fieldMap = {
-      storeName: (supplier) => ({ "Store Name": storeName }),
+      storeName: (_supplier) => ({ "Store Name": storeName }),
       supplierName: (supplier) => ({
         "Supplier Name": supplier.name || t("common.na"),
       }),
@@ -445,9 +445,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
     setCustomEndDate("");
     setSortOrder("nameAsc");
     setSelectedFields(
-      availableFields
-        .filter((field) => field.default)
-        .map((field) => field.key),
+      availableFields.filter((field) => field.default).map((field) => field.key)
     );
     onClose();
   };

@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef, useCallback } from "react";
-import { Upload, X, Image as ImageIcon, File, AlertCircle } from "lucide-react";
+import { AlertCircle, File, Image as ImageIcon, Upload, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const FileUpload = ({
@@ -21,7 +21,7 @@ const FileUpload = ({
 }) => {
   const { currentVariant } = useTheme();
   const [isDragOver, setIsDragOver] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [_uploading, _setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFiles = useCallback(
@@ -34,7 +34,7 @@ const FileUpload = ({
         // Check file size
         if (file.size > maxSize) {
           errors.push(
-            `${file.name} is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`,
+            `${file.name} is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`
           );
           return;
         }
@@ -48,7 +48,7 @@ const FileUpload = ({
         // Check if file already exists
         const exists = value.some(
           (existingFile) =>
-            existingFile.name === file.name && existingFile.size === file.size,
+            existingFile.name === file.name && existingFile.size === file.size
         );
 
         if (exists) {
@@ -67,7 +67,7 @@ const FileUpload = ({
         onChange?.(newFiles.slice(0, maxFiles));
       }
     },
-    [value, onChange, maxFiles, maxSize, accept, multiple],
+    [value, onChange, maxFiles, maxSize, accept, multiple]
   );
 
   const handleDrop = useCallback(
@@ -80,7 +80,7 @@ const FileUpload = ({
       const files = e.dataTransfer.files;
       handleFiles(files);
     },
-    [disabled, handleFiles],
+    [disabled, handleFiles]
   );
 
   const handleDragOver = useCallback(
@@ -90,7 +90,7 @@ const FileUpload = ({
         setIsDragOver(true);
       }
     },
-    [disabled],
+    [disabled]
   );
 
   const handleDragLeave = useCallback((e) => {
@@ -103,7 +103,7 @@ const FileUpload = ({
       const files = e.target.files;
       handleFiles(files);
     },
-    [handleFiles],
+    [handleFiles]
   );
 
   const removeFile = useCallback(
@@ -111,7 +111,7 @@ const FileUpload = ({
       const newFiles = value.filter((_, i) => i !== index);
       onChange?.(newFiles);
     },
-    [value, onChange],
+    [value, onChange]
   );
 
   const openFileDialog = useCallback(() => {
@@ -120,7 +120,7 @@ const FileUpload = ({
     }
   }, [disabled]);
 
-  const getFileIcon = (file) => {
+  const _getFileIcon = (file) => {
     if (file.type.startsWith("image/")) {
       return <ImageIcon className="w-5 h-5 text-blue-500" />;
     }
@@ -132,7 +132,7 @@ const FileUpload = ({
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
   const createPreviewUrl = (file) => {

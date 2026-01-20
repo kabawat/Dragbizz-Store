@@ -1,25 +1,19 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Card, Badge, Button, Dropdown } from "../ui";
 import {
-  MoreVertical,
-  Edit,
   Copy,
-  Trash2,
+  Edit,
   Eye,
+  MoreVertical,
   Package,
+  Trash2,
   TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  IndianRupee,
-  Calendar,
-  Building2,
-  BarChart3,
 } from "lucide-react";
 import Image from "next/image";
-import { useTheme } from "../../contexts/ThemeContext";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Badge } from "../ui";
 
 const InventoryCard = ({
   inventory,
@@ -88,11 +82,11 @@ const InventoryCard = ({
     return { status: "good", color: "success", text: t("inventory.goodStock") };
   };
 
-  const stockStatus = getStockStatus();
+  const _stockStatus = getStockStatus();
   const profitMargin = inventory.pricingSummary?.profitMargin || 0;
   const totalValue = inventory.pricingSummary?.totalSellingValue || 0;
 
-  const actionMenuItems = [
+  const _actionMenuItems = [
     {
       value: "view",
       label: t("common.viewDetails"),

@@ -1,25 +1,23 @@
 "use client";
-import React from 'react';
-import styles from '../common/analyticsReport.module.scss';
 import {
+  DetailsSection,
+  PerformanceSection,
+  ReportFooter,
   ReportHeader,
   SummarySection,
-  DetailsSection,
-  ReportTable,
-  ReportFooter,
-  PerformanceSection
-} from '../common';
+} from "../common";
+import styles from "../common/analyticsReport.module.scss";
 
 const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
   const formatCurrency = (amount) => {
-    if (amount === null || amount === undefined) return '₹0.00';
-    return `₹${Number(amount).toLocaleString('en-IN', {
+    if (amount === null || amount === undefined) return "₹0.00";
+    return `₹${Number(amount).toLocaleString("en-IN", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
   };
 
-  const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
   const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
 
   const summary = analyticsData?.summary || {
@@ -27,13 +25,13 @@ const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
     totalProfit: 0,
     totalDiscount: 0,
     totalGst: 0,
-    profitMargin: 0
+    profitMargin: 0,
   };
 
   const today = analyticsData?.today || {
     revenue: 0,
     profit: 0,
-    sales: 0
+    sales: 0,
   };
 
   const change = analyticsData?.change || {
@@ -43,65 +41,65 @@ const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
     changeType: {
       revenue: "up",
       profit: "up",
-      sales: "up"
-    }
+      sales: "up",
+    },
   };
 
   const summaryCards = [
     {
-      title: 'Total Revenue',
+      title: "Total Revenue",
       value: formatCurrency(summary.totalRevenue),
-      change: `${change.changeType?.revenue === 'up' ? '↑' : '↓'} ${Math.abs(change.revenue)}% from last period`,
-      changeType: change.changeType?.revenue === 'up' ? 'up' : 'down'
+      change: `${change.changeType?.revenue === "up" ? "↑" : "↓"} ${Math.abs(change.revenue)}% from last period`,
+      changeType: change.changeType?.revenue === "up" ? "up" : "down",
     },
     {
-      title: 'Total Profit',
+      title: "Total Profit",
       value: formatCurrency(summary.totalProfit),
-      change: `${change.changeType?.profit === 'up' ? '↑' : '↓'} ${Math.abs(change.profit)}% from last period`,
-      changeType: change.changeType?.profit === 'up' ? 'up' : 'down'
+      change: `${change.changeType?.profit === "up" ? "↑" : "↓"} ${Math.abs(change.profit)}% from last period`,
+      changeType: change.changeType?.profit === "up" ? "up" : "down",
     },
     {
-      title: 'Profit Margin',
+      title: "Profit Margin",
       value: formatPercent(summary.profitMargin),
-      change: 'Overall margin percentage'
+      change: "Overall margin percentage",
     },
     {
-      title: 'Total Sales',
+      title: "Total Sales",
       value: formatNumber(today.sales),
-      change: `${change.changeType?.sales === 'up' ? '↑' : '↓'} ${Math.abs(change.sales)}% from last period`,
-      changeType: change.changeType?.sales === 'up' ? 'up' : 'down'
-    }
+      change: `${change.changeType?.sales === "up" ? "↑" : "↓"} ${Math.abs(change.sales)}% from last period`,
+      changeType: change.changeType?.sales === "up" ? "up" : "down",
+    },
   ];
 
   const performanceCards = [
     {
       label: "Today's Revenue",
       value: formatCurrency(today.revenue),
-      subValue: `${formatNumber(today.sales)} sales`
+      subValue: `${formatNumber(today.sales)} sales`,
     },
     {
       label: "Today's Profit",
       value: formatCurrency(today.profit),
-      subValue: `From ${formatNumber(today.sales)} sales`
+      subValue: `From ${formatNumber(today.sales)} sales`,
     },
     {
-      label: 'Total Sales',
+      label: "Total Sales",
       value: formatNumber(today.sales),
-      subValue: 'Transactions today'
-    }
+      subValue: "Transactions today",
+    },
   ];
 
   const tableColumns = [
-    { label: 'Category', key: 'label' },
-    { label: 'Amount', key: 'amount', align: 'right' }
+    { label: "Category", key: "label" },
+    { label: "Amount", key: "amount", align: "right" },
   ];
 
   const tableData = [
-    { label: 'Total Revenue', amount: formatCurrency(summary.totalRevenue) },
-    { label: 'Total Profit', amount: formatCurrency(summary.totalProfit) },
-    { label: 'Total Discount', amount: formatCurrency(summary.totalDiscount) },
-    { label: 'Total GST', amount: formatCurrency(summary.totalGst) },
-    { label: 'Profit Margin', amount: formatPercent(summary.profitMargin) }
+    { label: "Total Revenue", amount: formatCurrency(summary.totalRevenue) },
+    { label: "Total Profit", amount: formatCurrency(summary.totalProfit) },
+    { label: "Total Discount", amount: formatCurrency(summary.totalDiscount) },
+    { label: "Total GST", amount: formatCurrency(summary.totalGst) },
+    { label: "Profit Margin", amount: formatPercent(summary.profitMargin) },
   ];
 
   return (
@@ -114,7 +112,10 @@ const RevenueReportTemplate = ({ analyticsData, selectedStore }) => {
 
       <SummarySection cards={summaryCards} />
 
-      <PerformanceSection title="Today's Performance" cards={performanceCards} />
+      <PerformanceSection
+        title="Today's Performance"
+        cards={performanceCards}
+      />
 
       <DetailsSection
         title="Financial Breakdown"

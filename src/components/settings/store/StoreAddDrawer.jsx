@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
 import { Plus, Save } from "lucide-react";
+import { useState } from "react";
 import { FormDrawer } from "@/components/common";
-import StoreEditForm from "./StoreEditForm";
 import storeService from "@/service/retailer/store.service";
+import StoreEditForm from "./StoreEditForm";
 
 const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
   const [form, setForm] = useState({
@@ -69,7 +69,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
     if (!form.phone?.trim()) {
       newErrors.phone = "Phone number is required";
     } else {
-      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
       const cleanPhone = form.phone.replace(/\D/g, "");
       if (!phoneRegex.test(form.phone) || cleanPhone.length < 10) {
         newErrors.phone = "Please enter a valid phone number";
@@ -87,7 +87,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
     if (
       form.gst &&
       !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        form.gst,
+        form.gst
       )
     ) {
       newErrors.gst = "Please enter a valid GST number";
@@ -145,7 +145,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
           setErrors(result.error.data.fields);
         } else {
           onError?.(
-            result?.message || "Failed to create store. Please try again.",
+            result?.message || "Failed to create store. Please try again."
           );
         }
       }
@@ -188,25 +188,23 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
   };
 
   return (
-    <>
-      <FormDrawer
-        isOpen={isOpen}
-        onClose={handleCancel}
-        title="Add New Store"
-        icon={Plus}
-        description="Create a new store for your agency"
-        width="w-full md:w-2/3 lg:w-1/2"
-        onSave={handleSave}
-        onCancel={handleCancel}
-        saveLabel={isCreating ? "Creating..." : "Create Store"}
-        cancelLabel="Cancel"
-        isSaving={isCreating}
-        saveIcon={Save}
-        saveVariant="primary"
-      >
-        <StoreEditForm form={form} onChange={handleChange} errors={errors} />
-      </FormDrawer>
-    </>
+    <FormDrawer
+      isOpen={isOpen}
+      onClose={handleCancel}
+      title="Add New Store"
+      icon={Plus}
+      description="Create a new store for your agency"
+      width="w-full md:w-2/3 lg:w-1/2"
+      onSave={handleSave}
+      onCancel={handleCancel}
+      saveLabel={isCreating ? "Creating..." : "Create Store"}
+      cancelLabel="Cancel"
+      isSaving={isCreating}
+      saveIcon={Save}
+      saveVariant="primary"
+    >
+      <StoreEditForm form={form} onChange={handleChange} errors={errors} />
+    </FormDrawer>
   );
 };
 

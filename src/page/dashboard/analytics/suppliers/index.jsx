@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,31 +9,32 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getSupplierAnalytics } from "@/store/slices/suppliersSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
   Building2,
   CheckCircle,
-  XCircle,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
+  XCircle,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
-  SortableMetricCard,
   SortableCard,
+  SortableMetricCard,
 } from "@/components/templates/analytics/SortableComponents";
 import SuppliersReportTemplate from "@/components/templates/analytics/suppliers/SuppliersReportTemplate";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getSupplierAnalytics } from "@/store/slices/suppliersSlice";
 
 const SupplierAnalytics = () => {
   const { t } = useTranslation();
@@ -72,7 +72,7 @@ const SupplierAnalytics = () => {
         activeSuppliers: 0,
         inactiveSuppliers: 0,
       },
-    [analytics?.totals],
+    [analytics?.totals]
   );
 
   const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
@@ -81,7 +81,7 @@ const SupplierAnalytics = () => {
     isLoading,
     analytics,
     "suppliers-report-area",
-    "suppliers-analytics-report",
+    "suppliers-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -162,7 +162,7 @@ const SupplierAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, totals]);
+  }, [analytics, totals, formatNumber]);
 
   // Handle click outside export menu
   useEffect(() => {
@@ -223,7 +223,7 @@ const SupplierAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -432,7 +432,7 @@ const SupplierAnalytics = () => {
                       analytics,
                       selectedStore,
                       "suppliers-analytics-report",
-                      getSuppliersXLSXConfig(),
+                      getSuppliersXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

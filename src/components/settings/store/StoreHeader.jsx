@@ -1,5 +1,4 @@
 "use client";
-import { Plus } from "lucide-react";
 
 const StoreHeader = ({ storesCount = 0, isLoading = false, onAddStore }) => {
   return (

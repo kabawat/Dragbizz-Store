@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { XCircle, X } from "lucide-react";
+import { X, XCircle } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 

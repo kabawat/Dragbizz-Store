@@ -1,9 +1,8 @@
 "use client";
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Building } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Building } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ErrorState = ({ error }) => {
   const router = useRouter();
@@ -51,4 +50,3 @@ const ErrorState = ({ error }) => {
 };
 
 export default ErrorState;
-

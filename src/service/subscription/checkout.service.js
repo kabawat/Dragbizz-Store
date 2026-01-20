@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 
 class CheckoutService {
   constructor() {
@@ -10,12 +10,12 @@ class CheckoutService {
   async createCheckoutSession(checkoutData) {
     try {
       const response = await authAxios.post(
-        API_CONFIG?.SUBSCRIPTION?.CHECKOUT + "/session",
-        checkoutData,
+        `${API_CONFIG?.SUBSCRIPTION?.CHECKOUT}/session`,
+        checkoutData
       );
       return handleApiSuccess(
         response?.data,
-        "Checkout session created successfully",
+        "Checkout session created successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "checkout-session");
@@ -25,12 +25,12 @@ class CheckoutService {
   async createPaymentOrder(orderData) {
     try {
       const response = await authAxios.post(
-        API_CONFIG?.SUBSCRIPTION?.PAYMENT + "/create-order",
-        orderData,
+        `${API_CONFIG?.SUBSCRIPTION?.PAYMENT}/create-order`,
+        orderData
       );
       return handleApiSuccess(
         response?.data,
-        "Payment order created successfully",
+        "Payment order created successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "payment-order");
@@ -40,8 +40,8 @@ class CheckoutService {
   async verifyPayment(paymentData) {
     try {
       const response = await authAxios.post(
-        API_CONFIG?.SUBSCRIPTION?.PAYMENT + "/verify",
-        paymentData,
+        `${API_CONFIG?.SUBSCRIPTION?.PAYMENT}/verify`,
+        paymentData
       );
       return handleApiSuccess(response?.data, "Payment verified successfully");
     } catch (error) {

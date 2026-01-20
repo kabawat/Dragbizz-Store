@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class AccountService {
@@ -13,7 +13,7 @@ class AccountService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.ACCOUNT,
-        accountData,
+        accountData
       );
       return handleApiSuccess(response?.data, "Account created successfully");
     } catch (error) {
@@ -100,7 +100,7 @@ class AccountService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Account overview fetched successfully",
+        "Account overview fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "account-overview");
@@ -120,7 +120,7 @@ class AccountService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Account statistics fetched successfully",
+        "Account statistics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "account-stats");
@@ -132,12 +132,12 @@ class AccountService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG?.RETAILER?.ACCOUNT}/reports`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Account reports fetched successfully",
+        "Account reports fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "account-reports");
@@ -191,7 +191,7 @@ class AccountService {
       const response = await authAxios.put(url, creditLimitData);
       return handleApiSuccess(
         response?.data,
-        "Credit limit updated successfully",
+        "Credit limit updated successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "credit-limit-update");
@@ -211,7 +211,7 @@ class AccountService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Account activity fetched successfully",
+        "Account activity fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "account-activity");

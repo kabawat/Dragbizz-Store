@@ -1,16 +1,11 @@
 "use client";
-import React from 'react';
-import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const DeleteSuccessModal = ({ 
-  isOpen, 
-  billNumber, 
-  onClose 
-}) => {
+const DeleteSuccessModal = ({ isOpen, billNumber, onClose }) => {
   const { t } = useTranslation();
-  
+
   if (!isOpen) return null;
 
   return (
@@ -21,10 +16,13 @@ const DeleteSuccessModal = ({
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            {t('modals.deletedSuccessfully', { item: t('common.bill') })}
+            {t("modals.deletedSuccessfully", { item: t("common.bill") })}
           </h3>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-            {t('common.hasBeenRemovedFromList', { name: billNumber, item: t('common.bills') })}
+            {t("common.hasBeenRemovedFromList", {
+              name: billNumber,
+              item: t("common.bills"),
+            })}
           </p>
           <Button variant="primary" onClick={onClose}>
             Back to Bills
@@ -36,4 +34,3 @@ const DeleteSuccessModal = ({
 };
 
 export default DeleteSuccessModal;
-

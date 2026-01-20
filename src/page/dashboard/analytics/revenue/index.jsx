@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,32 +9,32 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  LineChart,
-  TrendingUp,
-  IndianRupee,
   Calendar,
+  ChevronDown,
   DollarSign,
   Download,
-  FileText,
   FileSpreadsheet,
-  ChevronDown,
+  FileText,
+  IndianRupee,
+  TrendingUp,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import {
-  SortableMetricCard,
-  SortableCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import RevenueReportTemplate from "@/components/templates/analytics/revenue/RevenueReportTemplate";
+import {
+  SortableCard,
+  SortableMetricCard,
+} from "@/components/templates/analytics/SortableComponents";
+import { Button, Card } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
 import { useRevenueReportPrint } from "./hooks/useRevenueReportPrint";
 
 const RevenueAnalytics = () => {
@@ -43,7 +42,7 @@ const RevenueAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { revenue: analytics, isLoading } = useAppSelector(
-    (state) => state.analytics,
+    (state) => state.analytics
   );
   const hasFetchedRef = useRef({ storeId: null, fetched: false });
 
@@ -78,7 +77,7 @@ const RevenueAnalytics = () => {
         totalGst: 0,
         profitMargin: 0,
       },
-    [analytics?.summary],
+    [analytics?.summary]
   );
 
   const today = useMemo(
@@ -88,7 +87,7 @@ const RevenueAnalytics = () => {
         profit: 0,
         sales: 0,
       },
-    [analytics?.today],
+    [analytics?.today]
   );
 
   const change = useMemo(
@@ -103,7 +102,7 @@ const RevenueAnalytics = () => {
           sales: "up",
         },
       },
-    [analytics?.change],
+    [analytics?.change]
   );
 
   const formatCurrency = (amount) =>
@@ -192,7 +191,15 @@ const RevenueAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, summary, change, today]);
+  }, [
+    analytics,
+    summary,
+    change,
+    today,
+    formatCurrency,
+    formatNumber,
+    formatPercent,
+  ]);
 
   const [cards, setCards] = useState([
     { id: "chart1", type: "chart", title: "Revenue Trend" },
@@ -204,7 +211,7 @@ const RevenueAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {

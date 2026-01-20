@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { purchaseOrderService } from "@/service/retailer";
 
 export const getPurchaseOrders = createAsyncThunk(
@@ -13,12 +13,12 @@ export const getPurchaseOrders = createAsyncThunk(
         };
       }
       return rejectWithValue(
-        result?.message || "Failed to fetch purchase orders",
+        result?.message || "Failed to fetch purchase orders"
       );
-    } catch (e) {
+    } catch (_e) {
       return rejectWithValue("Failed to fetch purchase orders");
     }
-  },
+  }
 );
 
 export const updatePurchaseOrder = createAsyncThunk(
@@ -28,16 +28,16 @@ export const updatePurchaseOrder = createAsyncThunk(
       const result = await purchaseOrderService.updatePurchaseOrder(
         id,
         updateData,
-        store,
+        store
       );
       if (result?.success) {
         return result.data;
       }
       return rejectWithValue(result?.message || "Failed to update");
-    } catch (e) {
+    } catch (_e) {
       return rejectWithValue("Failed to update");
     }
-  },
+  }
 );
 
 export const deletePurchaseOrder = createAsyncThunk(
@@ -56,10 +56,10 @@ export const deletePurchaseOrder = createAsyncThunk(
         };
       }
       return rejectWithValue(result?.message || "Failed to delete");
-    } catch (e) {
+    } catch (_e) {
       return rejectWithValue("Failed to delete");
     }
-  },
+  }
 );
 
 const initialState = {
@@ -106,7 +106,7 @@ const purchaseOrdersSlice = createSlice({
         state.list = state.list.map((po) =>
           po.id === updated.id || po._id === updated._id
             ? { ...po, ...updated }
-            : po,
+            : po
         );
       })
       .addCase(deletePurchaseOrder.fulfilled, (state, action) => {

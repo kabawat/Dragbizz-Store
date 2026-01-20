@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useEffect, useState } from "react";
 import {
-  FEATURE_ROUTES,
-  getRequiredFeatureForRoute,
-  getRequiredFeatureForMenuItem,
   FEATURE_NAMES,
+  FEATURE_ROUTES,
+  getRequiredFeatureForMenuItem,
+  getRequiredFeatureForRoute,
 } from "@/constants/featureMapping";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 // Hook to check feature access based on user's active subscription
 export function useFeatureAccess() {
@@ -69,7 +69,7 @@ export function useFeatureAccess() {
 
     // Check if feature name matches (case-insensitive)
     return features.some(
-      (f) => f === target || f.includes(target) || target.includes(f),
+      (f) => f === target || f.includes(target) || target.includes(f)
     );
   };
 

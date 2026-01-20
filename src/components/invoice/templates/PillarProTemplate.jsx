@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import moment from "moment";
 
 // --- Pillar Pro Template Component ---

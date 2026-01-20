@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { ArrowRight, Check, Lock, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Sparkles, ArrowRight, Lock, Check } from "lucide-react";
 import { Button } from "@/components/ui";
 
 const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
@@ -94,7 +94,7 @@ const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
                 feature is not available in your current plan.
               </>
             ) : (
-              <>This feature requires a premium subscription.</>
+              "This feature requires a premium subscription."
             )}
           </p>
 

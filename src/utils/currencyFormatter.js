@@ -1,25 +1,25 @@
 export const formatCurrency = (amount, options = {}) => {
   const {
-    currency = 'INR',
-    locale = 'en-IN',
+    currency = "INR",
+    locale = "en-IN",
     showSymbol = true,
     minimumFractionDigits = 2,
     maximumFractionDigits = 2,
   } = options;
 
   if (amount === null || amount === undefined) {
-    return showSymbol ? '₹0.00' : '0.00';
+    return showSymbol ? "₹0.00" : "0.00";
   }
 
   const numAmount = Number(amount);
-  
-  if (isNaN(numAmount)) {
-    return showSymbol ? '₹0.00' : '0.00';
+
+  if (Number.isNaN(numAmount)) {
+    return showSymbol ? "₹0.00" : "0.00";
   }
 
   if (showSymbol) {
     return new Intl.NumberFormat(locale, {
-      style: 'currency',
+      style: "currency",
       currency: currency,
       minimumFractionDigits,
       maximumFractionDigits,
@@ -33,33 +33,32 @@ export const formatCurrency = (amount, options = {}) => {
 };
 
 export const formatCurrencySimple = (amount) => {
-  if (!amount && amount !== 0) return '₹0';
-  return `₹${Number(amount).toLocaleString('en-IN', {
+  if (!amount && amount !== 0) return "₹0";
+  return `₹${Number(amount).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 };
 
 export const formatCurrencyWithoutSymbol = (amount) => {
-  if (amount === null || amount === undefined) return '0.00';
+  if (amount === null || amount === undefined) return "0.00";
   const numAmount = Number(amount);
-  if (isNaN(numAmount)) return '0.00';
-  
-  return numAmount.toLocaleString('en-IN', {
+  if (Number.isNaN(numAmount)) return "0.00";
+
+  return numAmount.toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 };
 
 export const formatNumber = (num) => {
-  if (num === null || num === undefined) return '0';
-  return (num || 0).toLocaleString('en-IN');
+  if (num === null || num === undefined) return "0";
+  return (num || 0).toLocaleString("en-IN");
 };
 
 export const parseCurrency = (value) => {
   if (!value) return 0;
-  const cleaned = String(value).replace(/[₹,\s]/g, '');
+  const cleaned = String(value).replace(/[₹,\s]/g, "");
   const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
+  return Number.isNaN(parsed) ? 0 : parsed;
 };
-

@@ -1,40 +1,39 @@
 "use client";
-import Link from "next/link";
-import React, { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { setSelectedStore } from "@/store/slices/profileSlice";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { useTranslation } from "@/hooks/useTranslation";
-import UpgradeModal from "@/components/ui/UpgradeModal";
 import {
-  LayoutDashboard,
-  Users,
+  Activity,
+  BarChart3,
   Building2,
-  Package,
-  Warehouse,
-  Receipt,
-  FileText,
-  IndianRupee,
-  Settings,
-  ChevronDown,
-  ShoppingCart,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
   Crown,
-  BarChart3,
-  LineChart,
-  PieChart,
-  Activity,
   DollarSign,
+  FileText,
+  IndianRupee,
+  LayoutDashboard,
+  LineChart,
+  Package,
+  PieChart,
+  Receipt,
+  Settings,
+  ShoppingCart,
+  Users,
+  Warehouse,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import UpgradeModal from "@/components/ui/UpgradeModal";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSelectedStore } from "@/store/slices/profileSlice";
 
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const router = useRouter();
+  const _router = useRouter();
   const dispatch = useAppDispatch();
   const {
     agency,
@@ -339,7 +338,7 @@ const Sidebar = ({ onStoreChange }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       const isDropdownToggle = event.target.closest(
-        "button[data-dropdown-toggle]",
+        "button[data-dropdown-toggle]"
       );
       if (isDropdownToggle) return;
 
@@ -528,10 +527,10 @@ const Sidebar = ({ onStoreChange }) => {
                         const SubIcon = subItem.icon;
                         const isSubActive =
                           pathname === subItem.href ||
-                          pathname.startsWith(subItem.href + "/");
+                          pathname.startsWith(`${subItem.href}/`);
                         const hasSubAccess = hasSubMenuItemAccess(
                           subItem.name,
-                          subItem.href,
+                          subItem.href
                         );
                         return (
                           <Link

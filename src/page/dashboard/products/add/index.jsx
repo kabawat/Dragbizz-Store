@@ -1,22 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import logger from "@/utils/logger";
-import { Save, ArrowLeft } from "lucide-react";
-
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { ProductForm, AIProductExtract } from "@/components/product";
+import { AIProductExtract, ProductForm } from "@/components/product";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import { Button, AIButton } from "@/components/ui";
+import { AIButton, Button } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import Link from "next/link";
-import { useRef } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import logger from "@/utils/logger";
 
 const AddProductPage = () => {
   const { t } = useTranslation();
@@ -284,10 +282,7 @@ const AddProductPage = () => {
               ? [
                   ...(updatedFormData.content.tags || []),
                   ...extractedData.content.tags,
-                ].filter(
-                  (tag, index, self) =>
-                    self.findIndex((t) => t === tag) === index,
-                )
+                ].filter((tag, index, self) => self.indexOf(tag) === index)
               : updatedFormData.content.tags,
           features:
             extractedData.content.features &&
@@ -296,8 +291,7 @@ const AddProductPage = () => {
                   ...(updatedFormData.content.features || []),
                   ...extractedData.content.features,
                 ].filter(
-                  (feature, index, self) =>
-                    self.findIndex((f) => f === feature) === index,
+                  (feature, index, self) => self.indexOf(feature) === index
                 )
               : updatedFormData.content.features,
           specifications:

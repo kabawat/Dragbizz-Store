@@ -1,50 +1,50 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Lock, Shield, AlertCircle, MessageSquare } from 'lucide-react';
-import { AnimatedBackground, AnimatedGridPattern } from '@/components/ui';
-import { authService } from '@/service/auth';
-import { useLocation } from '@/app/LocationProvider';
-import { handleApiError } from '@/utils/errorHandler';
-import LoginSuccessScreen from '@/components/auth/LoginSuccessScreen';
-import Link from 'next/link';
-import { useTranslation } from '@/hooks/useTranslation';
-import LoginWelcomeSection from './components/LoginWelcomeSection';
-import ContactInput from './components/ContactInput';
-import LoginMethodToggle from './components/LoginMethodToggle';
-import PasswordInput from './components/PasswordInput';
-import OTPInputSection from './components/OTPInputSection';
-import { detectContactType, formatContact, validateForm } from './utils';
+"use client";
+import { AlertCircle, Lock, MessageSquare, Shield } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "@/app/LocationProvider";
+import LoginSuccessScreen from "@/components/auth/LoginSuccessScreen";
+import { AnimatedBackground, AnimatedGridPattern } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import { authService } from "@/service/auth";
+import { handleApiError } from "@/utils/errorHandler";
+import ContactInput from "./components/ContactInput";
+import LoginMethodToggle from "./components/LoginMethodToggle";
+import LoginWelcomeSection from "./components/LoginWelcomeSection";
+import OTPInputSection from "./components/OTPInputSection";
+import PasswordInput from "./components/PasswordInput";
+import { detectContactType, formatContact, validateForm } from "./utils";
 
 export default function Login() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams?.get('redirect') || '/dashboard';
+  const redirectUrl = searchParams?.get("redirect") || "/dashboard";
   const { userLocation } = useLocation();
 
   const [formData, setFormData] = useState({
-    contact: '',
-    password: '',
-    otp: ''
+    contact: "",
+    password: "",
+    otp: "",
   });
-  const [contactType, setContactType] = useState('email');
-  const [loginMethod, setLoginMethod] = useState('password');
+  const [contactType, setContactType] = useState("email");
+  const [loginMethod, setLoginMethod] = useState("password");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState('idle');
+  const [validationStatus, setValidationStatus] = useState("idle");
   const [otpSent, setOtpSent] = useState(false);
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [loginToken, setLoginToken] = useState(null);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({
-    contact: '',
-    password: '',
-    otp: '',
-    general: ''
+    contact: "",
+    password: "",
+    otp: "",
+    general: "",
   });
   const inputRefs = useRef([]);
   const isVerifyingRef = useRef(false);
@@ -68,36 +68,36 @@ export default function Login() {
   useEffect(() => {
     if (formData.contact && formData.contact.length > 3) {
       setIsValidating(true);
-      setValidationStatus('checking');
+      setValidationStatus("checking");
 
       const timer = setTimeout(() => {
         const isValid = true;
-        setValidationStatus(isValid ? 'valid' : 'invalid');
+        setValidationStatus(isValid ? "valid" : "invalid");
         setIsValidating(false);
       }, 1000);
 
       return () => clearTimeout(timer);
     } else {
-      setValidationStatus('idle');
+      setValidationStatus("idle");
     }
   }, [formData.contact]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field] || errors.general) {
-      setErrors(prev => ({ ...prev, [field]: '', general: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "", general: "" }));
     }
 
-    if (field === 'contact') {
+    if (field === "contact") {
       const detectedType = detectContactType(value);
       setContactType(detectedType);
-      
-      if (loginMethod === 'otp' && !otpSent && detectedType === 'email') {
-        setLoginMethod('password');
+
+      if (loginMethod === "otp" && !otpSent && detectedType === "email") {
+        setLoginMethod("password");
       }
-      if (loginMethod === 'password' && !otpSent && detectedType === 'phone') {
-        setLoginMethod('otp');
+      if (loginMethod === "password" && !otpSent && detectedType === "phone") {
+        setLoginMethod("otp");
       }
     }
   };
@@ -118,10 +118,10 @@ export default function Login() {
         identifier: formData.contact,
         password: formData.password,
         useOtp: false,
-        deviceId: 'web_device_' + Date.now(),
-        platform: 'web',
-        deviceToken: '',
-        location: userLocation
+        deviceId: `web_device_${Date.now()}`,
+        platform: "web",
+        deviceToken: "",
+        location: userLocation,
       };
 
       const result = await authService.login(loginData);
@@ -129,17 +129,17 @@ export default function Login() {
       if (result.success) {
         if (result.data.token) {
           setSuccessData({
-            firstName: result.data.user?.firstName || 'User',
+            firstName: result.data.user?.firstName || "User",
             authToken: result.data.token,
-            refreshToken: result.data.refreshToken || null
+            refreshToken: result.data.refreshToken || null,
           });
           setShowSuccessScreen(true);
         }
       } else {
-        setErrors({ general: result.message || t('auth.loginFailed') });
+        setErrors({ general: result.message || t("auth.loginFailed") });
       }
     } catch (error) {
-      setErrors({ general: handleApiError(error, 'login') });
+      setErrors({ general: handleApiError(error, "login") });
     } finally {
       setIsLoading(false);
     }
@@ -147,53 +147,66 @@ export default function Login() {
 
   const handleSendOTP = async () => {
     if (!formData.contact.trim()) {
-      setErrors({ contact: t('auth.emailOrPhoneRequired') });
+      setErrors({ contact: t("auth.emailOrPhoneRequired") });
       return;
     }
 
     setIsLoading(true);
-    setErrors(prev => ({ ...prev, otp: '', general: '' }));
+    setErrors((prev) => ({ ...prev, otp: "", general: "" }));
 
     try {
       const loginData = {
         identifier: formData.contact,
-        password: '',
+        password: "",
         useOtp: true,
-        deviceId: 'web_device_' + Date.now(),
-        platform: 'web',
-        deviceToken: '',
-        location: userLocation
+        deviceId: `web_device_${Date.now()}`,
+        platform: "web",
+        deviceToken: "",
+        location: userLocation,
       };
 
       const result = await authService.sendOTP(loginData);
 
       if (result.success) {
-        const token = result.data?.token || result.token || result.data?.data?.token || result.data?.otpToken;
-        
+        const token =
+          result.data?.token ||
+          result.token ||
+          result.data?.data?.token ||
+          result.data?.otpToken;
+
         if (token) {
           setLoginToken(token);
         } else {
           setLoginToken(formData.contact);
         }
-        
+
         setOtpSent(true);
         setTimeLeft(60);
         setCanResend(false);
-        setOtpDigits(['', '', '', '', '']);
-        setErrors(prev => ({ ...prev, otp: '', contact: '', general: '' }));
-        
+        setOtpDigits(["", "", "", "", ""]);
+        setErrors((prev) => ({ ...prev, otp: "", contact: "", general: "" }));
+
         setTimeout(() => {
           inputRefs.current[0]?.focus();
         }, 100);
       } else {
         setOtpSent(false);
-        const errorMessage = result.message || result.error?.message || t('auth.failedToSendOtp');
-        setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
+        const errorMessage =
+          result.message || result.error?.message || t("auth.failedToSendOtp");
+        setErrors((prev) => ({
+          ...prev,
+          otp: errorMessage,
+          general: errorMessage,
+        }));
       }
     } catch (error) {
       setOtpSent(false);
-      const errorMessage = handleApiError(error, 'otp-send');
-      setErrors(prev => ({ ...prev, otp: errorMessage, general: errorMessage }));
+      const errorMessage = handleApiError(error, "otp-send");
+      setErrors((prev) => ({
+        ...prev,
+        otp: errorMessage,
+        general: errorMessage,
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -201,7 +214,7 @@ export default function Login() {
 
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
-    
+
     if (isVerifyingRef.current || isLoading) return;
 
     const newOtp = [...otpDigits];
@@ -209,21 +222,21 @@ export default function Login() {
     setOtpDigits(newOtp);
 
     if (errors.otp) {
-      setErrors(prev => ({ ...prev, otp: '' }));
+      setErrors((prev) => ({ ...prev, otp: "" }));
     }
 
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every(digit => digit !== '')) {
-      const otpCode = newOtp.join('');
+    if (newOtp.every((digit) => digit !== "")) {
+      const otpCode = newOtp.join("");
       handleOtpVerification(otpCode);
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -234,79 +247,85 @@ export default function Login() {
     }
 
     if (!loginToken) {
-      setErrors(prev => ({ ...prev, otp: t('auth.otpSessionExpired') }));
+      setErrors((prev) => ({ ...prev, otp: t("auth.otpSessionExpired") }));
       setOtpSent(false);
-      setOtpDigits(['', '', '', '', '']);
+      setOtpDigits(["", "", "", "", ""]);
       return;
     }
 
     isVerifyingRef.current = true;
     setIsLoading(true);
-    setErrors(prev => ({ ...prev, otp: '' }));
+    setErrors((prev) => ({ ...prev, otp: "" }));
 
     try {
       const verifyData = {
         code: code,
         token: loginToken,
-        deviceId: 'web_device_' + Date.now(),
-        platform: 'web',
-        deviceToken: '',
-        location: userLocation
+        deviceId: `web_device_${Date.now()}`,
+        platform: "web",
+        deviceToken: "",
+        location: userLocation,
       };
 
       const result = await authService.verifyLoginOTP(verifyData);
       if (result.success) {
         if (result.data.token) {
           setSuccessData({
-            firstName: result.data.user?.firstName || 'User',
+            firstName: result.data.user?.firstName || "User",
             authToken: result.data.token,
-            refreshToken: result.data.refreshToken || null
+            refreshToken: result.data.refreshToken || null,
           });
           setShowSuccessScreen(true);
         } else {
-          setErrors(prev => ({ ...prev, otp: t('auth.loginSuccessfulButTokenNotReceived') }));
-          setOtpDigits(['', '', '', '', '']);
+          setErrors((prev) => ({
+            ...prev,
+            otp: t("auth.loginSuccessfulButTokenNotReceived"),
+          }));
+          setOtpDigits(["", "", "", "", ""]);
           inputRefs.current[0]?.focus();
         }
       } else {
-        setErrors(prev => ({ ...prev, otp: result.message || t('auth.invalidOtp') }));
-        setOtpDigits(['', '', '', '', '']);
+        setErrors((prev) => ({
+          ...prev,
+          otp: result.message || t("auth.invalidOtp"),
+        }));
+        setOtpDigits(["", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp') }));
-      setOtpDigits(['', '', '', '', '']);
+      setErrors((prev) => ({ ...prev, otp: handleApiError(error, "otp") }));
+      setOtpDigits(["", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
-      isVerifyingRef.current = false; 
+      isVerifyingRef.current = false;
     }
   };
 
   const handleChangeContact = () => {
     setOtpSent(false);
-    setOtpDigits(['', '', '', '', '']);
+    setOtpDigits(["", "", "", "", ""]);
     setLoginToken(null);
     setTimeLeft(60);
     setCanResend(false);
-    setErrors({ contact: '', password: '', otp: '', general: '' });
+    setErrors({ contact: "", password: "", otp: "", general: "" });
   };
 
   const handleResendOTP = async () => {
     if (!canResend) return;
 
     setIsLoading(true);
-    setErrors(prev => ({ ...prev, otp: '' }));
+    setErrors((prev) => ({ ...prev, otp: "" }));
 
     try {
       const loginData = {
         identifier: formData.contact,
-        password: '',
+        password: "",
         useOtp: true,
-        deviceId: 'web_device_' + Date.now(),
-        platform: 'web',
-        deviceToken: '',
-        location: userLocation
+        deviceId: `web_device_${Date.now()}`,
+        platform: "web",
+        deviceToken: "",
+        location: userLocation,
       };
 
       const result = await authService.sendOTP(loginData);
@@ -314,20 +333,29 @@ export default function Login() {
       if (result.success) {
         const token = result.data?.token;
         if (!token) {
-          setErrors(prev => ({ ...prev, otp: t('auth.failedToReceiveVerificationToken') }));
+          setErrors((prev) => ({
+            ...prev,
+            otp: t("auth.failedToReceiveVerificationToken"),
+          }));
           return;
         }
         setLoginToken(token);
         setCanResend(false);
         setTimeLeft(60);
-        setOtpDigits(['', '', '', '', '']);
-        setErrors(prev => ({ ...prev, otp: '' }));
+        setOtpDigits(["", "", "", "", ""]);
+        setErrors((prev) => ({ ...prev, otp: "" }));
         inputRefs.current[0]?.focus();
       } else {
-        setErrors(prev => ({ ...prev, otp: result.message || t('auth.failedToResendOtp') }));
+        setErrors((prev) => ({
+          ...prev,
+          otp: result.message || t("auth.failedToResendOtp"),
+        }));
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, otp: handleApiError(error, 'otp-resend') }));
+      setErrors((prev) => ({
+        ...prev,
+        otp: handleApiError(error, "otp-resend"),
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -335,15 +363,15 @@ export default function Login() {
 
   const handleToggleLoginMethod = (method) => {
     setLoginMethod(method);
-    setFormData(prev => ({ 
-      ...prev, 
-      password: method === 'password' ? prev.password : '', 
-      otp: method === 'otp' ? prev.otp : '' 
+    setFormData((prev) => ({
+      ...prev,
+      password: method === "password" ? prev.password : "",
+      otp: method === "otp" ? prev.otp : "",
     }));
-    setErrors({ contact: '', password: '', otp: '', general: '' });
-    if (method === 'password') {
+    setErrors({ contact: "", password: "", otp: "", general: "" });
+    if (method === "password") {
       setOtpSent(false);
-      setOtpDigits(['', '', '', '', '']);
+      setOtpDigits(["", "", "", "", ""]);
       setTimeLeft(60);
       setCanResend(false);
     }
@@ -361,7 +389,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-login-page>
+    <div
+      className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden"
+      data-login-page
+    >
       <AnimatedBackground variant="login" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
       <div className="w-full min-h-screen flex relative z-10">
@@ -375,7 +406,7 @@ export default function Login() {
                   <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('auth.dragBizzStore')}
+                  {t("auth.dragBizzStore")}
                 </h1>
               </div>
 
@@ -384,10 +415,10 @@ export default function Login() {
                   <Lock className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  {t('auth.welcomeBack')}
+                  {t("auth.welcomeBack")}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  {t('auth.signInToContinue')}
+                  {t("auth.signInToContinue")}
                 </p>
               </div>
 
@@ -399,7 +430,7 @@ export default function Login() {
                     validationStatus={validationStatus}
                     isValidating={isValidating}
                     errors={errors}
-                    onChange={(value) => handleInputChange('contact', value)}
+                    onChange={(value) => handleInputChange("contact", value)}
                   />
                 )}
 
@@ -410,39 +441,46 @@ export default function Login() {
                   />
                 )}
 
-                {loginMethod === 'password' && !otpSent && (
+                {loginMethod === "password" && !otpSent && (
                   <PasswordInput
                     password={formData.password}
                     showPassword={showPassword}
                     error={errors.password}
-                    onChange={(value) => handleInputChange('password', value)}
+                    onChange={(value) => handleInputChange("password", value)}
                     onToggleVisibility={() => setShowPassword(!showPassword)}
                   />
                 )}
 
-                {loginMethod === 'otp' && !otpSent && (
+                {loginMethod === "otp" && !otpSent && (
                   <button
                     type="button"
                     onClick={handleSendOTP}
                     disabled={isLoading || !formData.contact.trim()}
-                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${isLoading || !formData.contact.trim() ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
-                      }`}
+                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
+                      isLoading || !formData.contact.trim()
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:opacity-90 cursor-pointer"
+                    }`}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        <span className="text-sm sm:text-base">{t('auth.sendingOtp')}</span>
+                        <span className="text-sm sm:text-base">
+                          {t("auth.sendingOtp")}
+                        </span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center">
                         <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        <span className="text-sm sm:text-base">{t('auth.sendOtpTo', { type: contactType })}</span>
+                        <span className="text-sm sm:text-base">
+                          {t("auth.sendOtpTo", { type: contactType })}
+                        </span>
                       </div>
                     )}
                   </button>
                 )}
 
-                {loginMethod === 'otp' && otpSent && (
+                {loginMethod === "otp" && otpSent && (
                   <OTPInputSection
                     otpDigits={otpDigits}
                     contact={formData.contact}
@@ -467,20 +505,27 @@ export default function Login() {
                   </p>
                 )}
 
-                {loginMethod === 'password' && (
+                {loginMethod === "password" && (
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'
-                      }`}
+                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
+                      isLoading
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:opacity-90 cursor-pointer"
+                    }`}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        <span className="text-sm sm:text-base">{t('auth.signingIn')}</span>
+                        <span className="text-sm sm:text-base">
+                          {t("auth.signingIn")}
+                        </span>
                       </div>
                     ) : (
-                      <span className="text-sm sm:text-base">{t('auth.signIn')}</span>
+                      <span className="text-sm sm:text-base">
+                        {t("auth.signIn")}
+                      </span>
                     )}
                   </button>
                 )}
@@ -488,23 +533,23 @@ export default function Login() {
 
               <div className="text-center mt-4 sm:mt-6">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t('auth.dontHaveAccount')}{' '}
+                  {t("auth.dontHaveAccount")}{" "}
                   <Link
                     href="/register"
                     className="text-[rgb(var(--color-primary))] hover:underline font-medium"
                   >
-                    {t('auth.signUpHere')}
+                    {t("auth.signUpHere")}
                   </Link>
                 </p>
               </div>
 
-              {loginMethod === 'password' && (
+              {loginMethod === "password" && (
                 <div className="text-center mt-3 sm:mt-4">
                   <Link
                     href="/forgot-password"
                     className="text-xs sm:text-sm text-[rgb(var(--color-primary))] hover:underline"
                   >
-                    {t('auth.forgotPassword')}
+                    {t("auth.forgotPassword")}
                   </Link>
                 </div>
               )}

@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
 import { AlertCircle, X } from "lucide-react";
-import Button from "./Button";
 import { useTranslation } from "@/hooks/useTranslation";
+import Button from "./Button";
 
 const ErrorModal = ({ isOpen, onClose, title, message, className = "" }) => {
   const { t } = useTranslation();

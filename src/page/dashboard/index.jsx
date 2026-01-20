@@ -1,9 +1,7 @@
 "use client";
-import React, { useState, useEffect, Suspense, lazy } from "react";
-import logger from "@/utils/logger";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -11,38 +9,39 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
+  useSortable,
 } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  IndianRupee,
-  Users,
-  Package,
-  Building2,
-  TrendingUp,
-  TrendingDown,
-  FileText,
-  UserPlus,
-  PackagePlus,
-  Building,
-  GripVertical,
-  Loader2,
-  BarChart3,
-  PieChart,
-  LineChart,
   Activity,
-  Warehouse,
-  Receipt,
   ArrowRight,
+  BarChart3,
+  Building,
+  Building2,
+  FileText,
+  GripVertical,
+  IndianRupee,
+  LineChart,
+  Package,
+  PackagePlus,
+  PieChart,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
+  UserPlus,
+  Users,
+  Warehouse,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { lazy, Suspense, useEffect, useState, useCallback } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { dashboardService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import logger from "@/utils/logger";
 
 // Lazy load components
 const Sidebar = lazy(() => import("@/components/dashboard/Sidebar"));
@@ -177,7 +176,7 @@ const SortableMetricCard = ({
   );
 };
 
-const MetricCard = ({
+const _MetricCard = ({
   title,
   value,
   change,
@@ -459,10 +458,10 @@ const BillAnalytics = ({ t }) => (
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [_selectedStore, setSelectedStore] = useState(null);
   const router = useRouter();
   const { selectedStore: storeFromRedux } = useAppSelector(
-    (state) => state.profile,
+    (state) => state.profile
   );
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState([
@@ -519,10 +518,10 @@ export default function Dashboard() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
-  const loadDashboardMetrics = async (storeId) => {
+  const loadDashboardMetrics = useCallback(async (storeId) => {
     const response = await dashboardService.getDashboard({
       period: 30,
       storeId,
@@ -570,7 +569,7 @@ export default function Dashboard() {
       ];
       setMetrics(updatedMetrics);
     }
-  };
+  }, [t]);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -594,7 +593,12 @@ export default function Dashboard() {
     };
 
     fetchDashboardData();
-  }, [storeFromRedux?._id, storeFromRedux?.id, storeFromRedux?.storeId]);
+  }, [
+    storeFromRedux?._id,
+    storeFromRedux?.id,
+    storeFromRedux?.storeId,
+    loadDashboardMetrics,
+  ]);
 
   // Load saved layout from localStorage
   useEffect(() => {
@@ -636,7 +640,7 @@ export default function Dashboard() {
             "billAnalytics",
           ];
           const missingIds = defaultIds.filter(
-            (id) => !reorderedSections.find((s) => s.id === id),
+            (id) => !reorderedSections.find((s) => s.id === id)
           );
           missingIds.forEach((id) => {
             const defaultSection = prevSections.find((s) => s.id === id);

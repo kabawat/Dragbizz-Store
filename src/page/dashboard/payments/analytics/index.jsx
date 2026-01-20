@@ -1,27 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getPayments } from "@/store/slices/paymentsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  TrendingUp,
-  TrendingDown,
-  BarChart3,
-  Download,
-  Calendar,
-  IndianRupee,
-  CreditCard,
-  Building2,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Target,
-  Zap,
   Activity,
+  BarChart3,
+  Building2,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Download,
+  IndianRupee,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  XCircle,
+  Zap,
 } from "lucide-react";
-import { Button, Select, Card } from "@/components/ui";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Select } from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getPayments } from "@/store/slices/paymentsSlice";
 
 const PaymentAnalytics = () => {
   const dispatch = useAppDispatch();
@@ -51,7 +49,7 @@ const PaymentAnalytics = () => {
           timeRange: value,
           supplier: supplierFilter,
           method: methodFilter,
-        }),
+        })
       );
     }
   };
@@ -67,7 +65,7 @@ const PaymentAnalytics = () => {
           timeRange,
           supplier: value,
           method: methodFilter,
-        }),
+        })
       );
     }
   };
@@ -83,7 +81,7 @@ const PaymentAnalytics = () => {
           timeRange,
           supplier: supplierFilter,
           method: value,
-        }),
+        })
       );
     }
   };
@@ -107,12 +105,12 @@ const PaymentAnalytics = () => {
   };
 
   // Format percentage
-  const formatPercentage = (value) => {
+  const _formatPercentage = (value) => {
     return `${value.toFixed(1)}%`;
   };
 
   // Calculate growth rate
-  const calculateGrowthRate = (current, previous) => {
+  const _calculateGrowthRate = (current, previous) => {
     if (previous === 0) return 0;
     return ((current - previous) / previous) * 100;
   };
@@ -240,7 +238,7 @@ const PaymentAnalytics = () => {
                     {formatCurrency(
                       stats.totalPayments > 0
                         ? stats.totalAmount / stats.totalPayments
-                        : 0,
+                        : 0
                     )}
                   </p>
                   <p className="text-purple-200 text-xs flex items-center mt-1">

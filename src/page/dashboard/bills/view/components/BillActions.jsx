@@ -1,17 +1,16 @@
 "use client";
-import React from 'react';
-import { Receipt, CreditCard, CheckCircle, Edit, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { CheckCircle, CreditCard, Edit, Receipt, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui";
 
-const BillActions = ({ 
-  billData, 
-  onMakePayment, 
-  onPaymentCompleted, 
-  onEditBill, 
+const BillActions = ({
+  billData,
+  onMakePayment,
+  onPaymentCompleted,
+  onEditBill,
   onDeleteBill,
   formatCurrency,
   formatDate,
-  formatDateTime
+  formatDateTime,
 }) => {
   return (
     <div className="lg:col-span-1">
@@ -21,8 +20,12 @@ const BillActions = ({
             <Receipt className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Quick Actions</h3>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Manage this bill</p>
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+              Quick Actions
+            </h3>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              Manage this bill
+            </p>
           </div>
         </div>
 
@@ -69,40 +72,54 @@ const BillActions = ({
         </div>
 
         <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Bill Stats</h4>
+          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+            Bill Stats
+          </h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Total Amount:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Total Amount:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {formatCurrency(billData.totalAmount)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Paid Amount:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Paid Amount:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {formatCurrency(billData.paidAmount)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Due Amount:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Due Amount:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {formatCurrency(billData.dueAmount)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Overdue Days:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Overdue Days:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {billData.overdueDays || 0} days
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Created:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Created:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {formatDate(billData.createdAt)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[rgb(var(--color-text-secondary))]">Last Updated:</span>
+              <span className="text-[rgb(var(--color-text-secondary))]">
+                Last Updated:
+              </span>
               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                 {formatDateTime(billData.updatedAt)}
               </span>
@@ -115,4 +132,3 @@ const BillActions = ({
 };
 
 export default BillActions;
-

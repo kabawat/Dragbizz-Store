@@ -1,27 +1,27 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import logger from "@/utils/logger";
 import {
-  MoreVertical,
-  Edit,
-  Trash2,
-  Eye,
-  Printer,
-  CheckCircle,
   Calendar,
-  User,
-  CreditCard,
-  MessageCircle,
+  CheckCircle,
   Copy,
-  Send,
+  CreditCard,
+  Edit,
+  Eye,
   Mail,
+  MessageCircle,
   MessageSquare,
+  MoreVertical,
+  Printer,
+  Send,
+  Trash2,
+  User,
 } from "lucide-react";
-import { renderStatusBadge } from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import { AddActionButton } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateLong as formatDate } from "@/utils/dateFormatter";
+import logger from "@/utils/logger";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const InvoicesListTable = ({
   invoices = [],
@@ -68,7 +68,7 @@ const InvoicesListTable = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [openMenuId]);
+  }, [openMenuId, openSendMenuId]);
 
   const buildShareUrl = (row) => {
     if (typeof window === "undefined") return "";
@@ -109,12 +109,12 @@ const InvoicesListTable = ({
         : `91${cleanPhone}`;
       window.open(
         `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     } else {
       window.open(
         `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     }
 
@@ -229,7 +229,7 @@ const InvoicesListTable = ({
                       <AddActionButton
                         onClick={() =>
                           setOpenSendMenuId(
-                            openSendMenuId === invoiceId ? null : invoiceId,
+                            openSendMenuId === invoiceId ? null : invoiceId
                           )
                         }
                         Icon={Send}

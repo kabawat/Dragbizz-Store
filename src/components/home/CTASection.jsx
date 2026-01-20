@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { ArrowRight, CheckCircle, PlayCircle, Rocket } from "lucide-react";
 import Image from "next/image";
-import { Button, Card, Badge } from "@/components/ui";
-import { ArrowRight, PlayCircle, Rocket, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge, Button, Card } from "@/components/ui";
 
 const CTASection = ({
   badge = "Ready to Transform Your Business?",
@@ -18,10 +18,10 @@ const CTASection = ({
     { text: "Cancel anytime" },
   ],
 }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [_currentImageIndex, setCurrentImageIndex] = useState(0);
   const squareImages = Array.from(
     { length: 14 },
-    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`,
+    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`
   );
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const CTASection = ({
       setCurrentImageIndex((prev) => (prev + 1) % squareImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [squareImages.length]);
 
   const handlePrimaryClick = () => {
     if (onPrimaryClick) {

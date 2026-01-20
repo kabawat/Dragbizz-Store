@@ -1,19 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import {
-  User,
-  Mail,
-  Phone,
   AlertCircle,
-  CheckCircle,
   ArrowLeft,
   ArrowRight,
+  CheckCircle,
+  Mail,
+  Phone,
   Shield,
-  Zap,
+  User,
   Users,
+  Zap,
 } from "lucide-react";
-import { Input, AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
+import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { AnimatedBackground, AnimatedGridPattern, Button, Input } from "../ui";
 
 const BasicInfoStep = ({
   firstName,
@@ -38,7 +38,7 @@ const BasicInfoStep = ({
       onUpdate("contactType", "email");
     }
     // Check for phone pattern (digits, +, -, spaces, parentheses)
-    else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
+    else if (/^[+]?[\d\s\-()]+$/.test(value) && cleanValue.length >= 10) {
       onUpdate("contactType", "phone");
     }
     // If user starts typing numbers, assume phone

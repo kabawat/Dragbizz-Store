@@ -1,9 +1,11 @@
 "use client";
-import React from 'react';
-import { Building2, FileText } from 'lucide-react';
+import { Building2, FileText } from "lucide-react";
 
 const CompanyDetails = ({ companyDetails }) => {
-  if (!companyDetails || (!companyDetails.companyName && !companyDetails.gstin)) {
+  if (
+    !companyDetails ||
+    (!companyDetails.companyName && !companyDetails.gstin)
+  ) {
     return null;
   }
 
@@ -61,4 +63,3 @@ const CompanyDetails = ({ companyDetails }) => {
 };
 
 export default CompanyDetails;
-

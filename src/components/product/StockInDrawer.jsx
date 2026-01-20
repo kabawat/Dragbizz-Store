@@ -1,15 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { X, Package, Plus, Minus, ArrowUp } from "lucide-react";
+import { ArrowUp, Package, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useAppSelector } from "@/store/hooks";
-import { stockService, supplierService } from "@/service/retailer";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
 import UpgradeModal from "@/components/ui/UpgradeModal";
+import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { useTranslation } from "@/hooks/useTranslation";
+import { stockService, supplierService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
   const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT,
+    FEATURES.SUPPLIER_MANAGEMENT
   );
 
   // Reset form when drawer opens/closes
@@ -46,7 +46,7 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
         fetchSuppliers();
       }
     }
-  }, [isOpen, hasSupplierManagement]);
+  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -64,7 +64,7 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -120,7 +120,7 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
         productId: product.id,
         store: storeId,
         batchData: {
-          quantity: parseInt(formData.quantity),
+          quantity: parseInt(formData.quantity, 10),
           purchasePrice: parseFloat(formData.purchasePrice),
           supplier: formData.supplier,
         },
@@ -141,8 +141,8 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
     }
   };
 
-  const handleQuantityChange = (type) => {
-    const currentQuantity = parseInt(formData.quantity) || 0;
+  const _handleQuantityChange = (type) => {
+    const currentQuantity = parseInt(formData.quantity, 10) || 0;
     const newQuantity =
       type === "increment"
         ? currentQuantity + 1
@@ -344,7 +344,8 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
                     {t("inventory.newStock")}:
                   </span>
                   <span className="text-green-500 font-medium">
-                    {(product?.stock || 0) + (parseInt(formData.quantity) || 0)}{" "}
+                    {(product?.stock || 0) +
+                      (parseInt(formData.quantity, 10) || 0)}{" "}
                     units
                   </span>
                 </div>

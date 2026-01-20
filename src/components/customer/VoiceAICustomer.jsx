@@ -1,26 +1,25 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
 import {
-  Mic,
-  Send,
+  AlertCircle,
+  Bot,
+  CheckCircle2,
+  Clock,
   Loader2,
   MessageSquare,
-  X,
-  Bot,
-  User,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-  Clock,
+  Mic,
   MicOff,
+  Send,
+  Sparkles,
+  User,
+  X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Input } from "@/components/ui";
-import logger from "@/utils/logger";
-import { voiceAIService } from "@/service";
-import { customerService } from "@/service";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { customerService, voiceAIService } from "@/service";
 import { getErrorMessage } from "@/utils/errorHandling";
+import logger from "@/utils/logger";
 
 const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -29,7 +28,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-  const [isReady, setIsReady] = useState(false);
+  const [_isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const messagesEndRef = useRef(null);
@@ -39,7 +38,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, []);
 
   // Check if speech recognition is supported
   useEffect(() => {
@@ -139,7 +138,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
       const result = await voiceAIService.chatCustomer(
         userMessage,
         sessionId,
-        storeId,
+        storeId
       );
 
       if (result.success && result.data) {
@@ -211,7 +210,7 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
                 },
               ]);
             }
-          } catch (error) {
+          } catch (_error) {
             setMessages((prev) => [
               ...prev,
               {
@@ -248,13 +247,17 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
       }
     } catch (error) {
       logger.error("Voice AI error:", error);
-      
+
       let errorMessage = getErrorMessage(error);
 
       if (error.response?.status === 403 || error.response?.status === 429) {
         const errorData = error.response?.data || {};
-        const quota = errorData.fields?.quota || errorData.data?.quota || errorData.details?.additionalInfo?.quota || {};
-        
+        const quota =
+          errorData.fields?.quota ||
+          errorData.data?.quota ||
+          errorData.details?.additionalInfo?.quota ||
+          {};
+
         if (quota.hasAccess === false) {
           errorMessage =
             "Voice AI feature is not available in your current subscription plan. Please upgrade your plan.";

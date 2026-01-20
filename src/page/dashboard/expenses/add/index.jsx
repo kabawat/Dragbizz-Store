@@ -1,19 +1,18 @@
 "use client";
-import React, { useState, useRef } from "react";
+import { ArrowLeft, IndianRupee, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, IndianRupee } from "lucide-react";
-
+import { useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { ExpenseForm } from "@/components/expenses";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { createExpense } from "@/store/slices/expensesSlice";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
 import useErrorHandling from "@/hooks/useErrorHandling";
-import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { createExpense } from "@/store/slices/expensesSlice";
 
 const AddExpensePage = () => {
   const { t } = useTranslation();

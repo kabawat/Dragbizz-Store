@@ -1,15 +1,14 @@
 "use client";
-import React from 'react';
-import { Select } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Select } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const DateRangeSelector = ({ 
-  selectedPeriod, 
-  onPeriodChange, 
-  customStartDate, 
-  setCustomStartDate, 
-  customEndDate, 
-  setCustomEndDate 
+const DateRangeSelector = ({
+  selectedPeriod,
+  onPeriodChange,
+  customStartDate,
+  setCustomStartDate,
+  customEndDate,
+  setCustomEndDate,
 }) => {
   const { t } = useTranslation();
 
@@ -17,16 +16,16 @@ const DateRangeSelector = ({
     <>
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-          {t('customers.selectTimePeriod')}
+          {t("customers.selectTimePeriod")}
         </label>
         <Select
-          placeholder={t('customers.selectATimePeriod')}
+          placeholder={t("customers.selectATimePeriod")}
           options={[
-            { label: t('customers.last1Month'), value: '1month' },
-            { label: t('customers.last3Months'), value: '3months' },
-            { label: t('customers.last6Months'), value: '6months' },
-            { label: t('customers.last12Months'), value: '12months' },
-            { label: t('customers.customRange'), value: 'custom' }
+            { label: t("customers.last1Month"), value: "1month" },
+            { label: t("customers.last3Months"), value: "3months" },
+            { label: t("customers.last6Months"), value: "6months" },
+            { label: t("customers.last12Months"), value: "12months" },
+            { label: t("customers.customRange"), value: "custom" },
           ]}
           value={selectedPeriod}
           onChange={onPeriodChange}
@@ -34,11 +33,11 @@ const DateRangeSelector = ({
         />
       </div>
 
-      {selectedPeriod === 'custom' && (
+      {selectedPeriod === "custom" && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('customers.startDate')}
+              {t("customers.startDate")}
             </label>
             <input
               type="date"
@@ -49,7 +48,7 @@ const DateRangeSelector = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('customers.endDate')}
+              {t("customers.endDate")}
             </label>
             <input
               type="date"
@@ -66,4 +65,3 @@ const DateRangeSelector = ({
 };
 
 export default DateRangeSelector;
-

@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { Copy, Mail, MessageCircle, MessageSquare, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import logger from "@/utils/logger";
-import { Send, MessageCircle, Mail, MessageSquare, Copy } from "lucide-react";
 import AddActionButton from "./AddActionButton";
 
 const SendMenu = ({
@@ -62,13 +62,13 @@ const SendMenu = ({
         : `91${cleanPhone}`;
       window.open(
         `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     } else {
       // Fallback to general WhatsApp if no phone number
       window.open(
         `https://wa.me/?text=${encodeURIComponent(message)}`,
-        "_blank",
+        "_blank"
       );
     }
 
@@ -94,7 +94,7 @@ const SendMenu = ({
       `Powered by DragBizz Store Management`;
     window.open(
       `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
-      "_blank",
+      "_blank"
     );
     setIsOpen(false);
     onShare?.("email", item);

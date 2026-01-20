@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import moment from "moment";
 
 const ProfessionalBlueTemplate = ({ invoiceData, selectedStore }) => {
@@ -388,7 +387,7 @@ const ProfessionalBlueTemplate = ({ invoiceData, selectedStore }) => {
                     {formatCurrency(
                       item.quantity *
                         item.price *
-                        (1 + (item.taxRate || 0) / 100),
+                        (1 + (item.taxRate || 0) / 100)
                     )}
                   </td>
                 </tr>

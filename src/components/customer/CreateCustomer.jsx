@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Save, Plus } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { CustomerForm } from "@/components/customer";
-import { customerService } from "@/service";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { customerService } from "@/service";
 
 const CreateCustomer = ({
   storeId,
@@ -204,7 +204,7 @@ const CreateCustomer = ({
   };
 
   // Reset form
-  const resetForm = () => {
+  const _resetForm = () => {
     setFormData(getInitialFormData());
     clearFieldErrors();
   };

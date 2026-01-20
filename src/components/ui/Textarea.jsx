@@ -1,6 +1,6 @@
 "use client";
-import React, { forwardRef, useState } from "react";
 import { AlertCircle } from "lucide-react";
+import React, { forwardRef } from "react";
 
 const Textarea = forwardRef(
   (
@@ -26,7 +26,7 @@ const Textarea = forwardRef(
       id,
       ...props
     },
-    ref,
+    ref
   ) => {
     const [isFocused, setIsFocused] = React.useState(false);
 
@@ -178,7 +178,7 @@ const Textarea = forwardRef(
         )}
       </div>
     );
-  },
+  }
 );
 
 Textarea.displayName = "Textarea";

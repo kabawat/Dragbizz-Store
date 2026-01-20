@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { Download, Calendar } from "lucide-react";
-import { SideDrawer, Select, Button, Checkbox } from "@/components/ui";
+import { Calendar, Download } from "lucide-react";
+import { useState } from "react";
+import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
 import logger from "@/utils/logger";
 
@@ -76,7 +76,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   ];
 
   const [selectedFields, setSelectedFields] = useState(
-    availableFields.filter((field) => field.default).map((field) => field.key),
+    availableFields.filter((field) => field.default).map((field) => field.key)
   );
 
   const handleFieldToggle = (fieldKey) => {
@@ -137,7 +137,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     const endDate = new Date(today);
     endDate.setHours(23, 59, 59, 999);
 
-    let startDate = new Date(today);
+    const startDate = new Date(today);
 
     switch (period) {
       case "1month":
@@ -231,7 +231,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await invoiceService.getInvoices(params);
@@ -288,7 +288,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await invoiceService.getInvoices(params);
@@ -371,7 +371,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     const storeName = selectedStore?.storeName || selectedStore?.name || "N/A";
 
     const fieldMap = {
-      storeName: (invoice) => ({ "Store Name": storeName }),
+      storeName: (_invoice) => ({ "Store Name": storeName }),
       invoiceNumber: (invoice) => ({
         "Invoice Number": invoice.invoiceNumber || t("common.na"),
       }),
@@ -391,7 +391,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         const itemsList = items
           .map(
             (item) =>
-              `${item.product?.name || "N/A"} (Qty: ${item.quantity}, Price: ₹${item.price})`,
+              `${item.product?.name || "N/A"} (Qty: ${item.quantity}, Price: ₹${item.price})`
           )
           .join("; ");
         return { Items: itemsList || t("common.na") };
@@ -488,9 +488,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     setCustomEndDate("");
     setSortOrder("dateDesc");
     setSelectedFields(
-      availableFields
-        .filter((field) => field.default)
-        .map((field) => field.key),
+      availableFields.filter((field) => field.default).map((field) => field.key)
     );
     onClose();
   };

@@ -1,7 +1,6 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import Cookies from "js-cookie";
 
 export const useAccountData = () => {
   const { locale, changeLanguage } = useTranslation();
@@ -34,7 +33,7 @@ export const useAccountData = () => {
         changeLanguage(value);
       }
     },
-    [locale, changeLanguage],
+    [locale, changeLanguage]
   );
 
   const handleToggle = useCallback((name) => {

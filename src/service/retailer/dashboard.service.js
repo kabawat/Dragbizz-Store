@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class DashboardService {
@@ -21,7 +21,7 @@ class DashboardService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Dashboard data fetched successfully",
+        "Dashboard data fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "dashboard-fetch");

@@ -1,53 +1,48 @@
 // Export all invoice templates
-export { default as ClassicTemplate } from "./ClassicTemplate";
-export { default as ModernTemplate } from "./ModernTemplate";
-export { default as MinimalTemplate } from "./MinimalTemplate";
-export { default as ProfessionalTemplate } from "./ProfessionalTemplate";
-export { default as ElegantTemplate } from "./ElegantTemplate";
-export { default as VintageTemplate } from "./VintageTemplate";
+
 export { default as AeroTemplate } from "./AeroTemplate";
-export { default as CrystalTemplate } from "./CrystalTemplate";
-export { default as StructedTemplate } from "./StructedTemplate";
 export { default as AetherTemplate } from "./AetherTemplate";
-export { default as AuroraTemplate } from "./AuroraTemplate";
-export { default as CelesteTemplate } from "./CelesteTemplate";
 export { default as ApexTemplate } from "./ApexTemplate";
-export { default as EclipseTemplate } from "./EclipseTemplate";
-export { default as ZenithTemplate } from "./ZentithTemplate";
-export { default as TerraTemplate } from "./TerraTemplate";
-export { default as LumosTemplate } from "./LumosTemplate";
 export { default as AuraTemplate } from "./AuraTemplate";
-export { default as FusionTemplate } from "./FusionTemplate";
-export { default as OrionTemplate } from "./OrionTemplate";
-export { default as SpectrumTemplate } from "./SpectrumTemplate";
-export { default as PrismTemplate } from "./PrismTemplate";
-export { default as FlexviewTemplate } from "./FlexviewTemplate";
-export { default as ElitePaperTemplate } from "./ElitePaperTemplate";
-export { default as NeoEdgeTemplate } from "./NeoEdgeTemplate";
-export { default as LuminousLedgerTemplate } from "./LuminousLedgerTemplate";
+export { default as AuroraTemplate } from "./AuroraTemplate";
 export { default as AurumTemplate } from "./AurumTemplate";
-export { default as VelocityLedgerTemplate } from "./VelocityLedgerTemplate";
-export { default as SleekStreamTemplate } from "./SleekStreamTemplate";
-export { default as RoyalEdgeTemplate } from "./RoyalEdgeTemplate";
-export { default as CosmicReceiptTemplate } from "./CosmicReceiptTemplate";
-export { default as GeometricEdgeTemplate } from "./GeometricEdgeTemplate";
+export { default as CelesteTemplate } from "./CelesteTemplate";
+export { default as ClassicTemplate } from "./ClassicTemplate";
 export { default as CleanDataSheetTemplate } from "./CleanDataSheetTemplate";
-export { default as NeoGeometricTemplate } from "./NeoGeometricTemplate";
-export { default as PillarProTemplate } from "./PillarProTemplate";
+export { default as CosmicReceiptTemplate } from "./CosmicReceiptTemplate";
+export { default as CrystalTemplate } from "./CrystalTemplate";
+export { default as EclipseTemplate } from "./EclipseTemplate";
+export { default as ElegantTemplate } from "./ElegantTemplate";
+export { default as ElitePaperTemplate } from "./ElitePaperTemplate";
+export { default as FlexviewTemplate } from "./FlexviewTemplate";
+export { default as FusionTemplate } from "./FusionTemplate";
+export { default as GeometricEdgeTemplate } from "./GeometricEdgeTemplate";
+export { default as LuminousLedgerTemplate } from "./LuminousLedgerTemplate";
+export { default as LumosTemplate } from "./LumosTemplate";
 export { default as MatrixLedgerTemplate } from "./MatrixLedgerTemplate";
-export { default as ProfessionalBlueTemplate } from "./ProfessionalBlueTemplate";
 export { default as MinimalistMonochromeTemplate } from "./MinimalistMonochromeTemplate";
+export { default as MinimalTemplate } from "./MinimalTemplate";
 export { default as ModernStackedTemplate } from "./ModernStackedTemplate";
+export { default as ModernTemplate } from "./ModernTemplate";
+export { default as NeoEdgeTemplate } from "./NeoEdgeTemplate";
+export { default as NeoGeometricTemplate } from "./NeoGeometricTemplate";
+export { default as OrionTemplate } from "./OrionTemplate";
+export { default as PillarProTemplate } from "./PillarProTemplate";
+export { default as PrismTemplate } from "./PrismTemplate";
+export { default as ProfessionalBlueTemplate } from "./ProfessionalBlueTemplate";
+export { default as ProfessionalTemplate } from "./ProfessionalTemplate";
+export { default as RoyalEdgeTemplate } from "./RoyalEdgeTemplate";
 export { default as RusticEleganceTemplate } from "./RusticEleganceTemplate";
+export { default as SleekStreamTemplate } from "./SleekStreamTemplate";
+export { default as SpectrumTemplate } from "./SpectrumTemplate";
+export { default as StructedTemplate } from "./StructedTemplate";
+export { default as TerraTemplate } from "./TerraTemplate";
+export { default as VelocityLedgerTemplate } from "./VelocityLedgerTemplate";
+export { default as VintageTemplate } from "./VintageTemplate";
+export { default as ZenithTemplate } from "./ZentithTemplate";
 
 // Template configuration
 export const TEMPLATE_CONFIG = {
-  cleandatasheet: {
-    name: "Clean Data Sheet",
-    description: "Data sheet style invoice with minimal design",
-    component: "CleanDataSheetTemplate",
-    preview: "/images/templates/clean-datasheet-preview.png",
-  },
   classic: {
     name: "Classic",
     description: "Traditional invoice with formal styling",

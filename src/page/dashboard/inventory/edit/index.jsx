@@ -1,19 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { ArrowLeft, Package, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Package } from "lucide-react";
-
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-
 // Import inventory components
 import InventoryForm from "@/components/inventory/InventoryForm";
-
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";
+import { useAppSelector } from "@/store/hooks";
 
 const EditInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
@@ -29,7 +26,7 @@ const EditInventoryPage = ({ inventoryId }) => {
   const [error, setError] = useState(null);
 
   // Initial form data
-  const getInitialFormData = () => ({
+  const _getInitialFormData = () => ({
     productId: "",
     batchData: {
       quantity: "",
@@ -48,7 +45,7 @@ const EditInventoryPage = ({ inventoryId }) => {
         setLoading(true);
         const response = await inventoryService.getInventoryById(
           inventoryId,
-          storeId,
+          storeId
         );
 
         if (response.success) {
@@ -69,7 +66,7 @@ const EditInventoryPage = ({ inventoryId }) => {
         } else {
           setError("Failed to fetch inventory details");
         }
-      } catch (error) {
+      } catch (_error) {
         setError("Error loading inventory details");
       } finally {
         setLoading(false);
@@ -146,7 +143,7 @@ const EditInventoryPage = ({ inventoryId }) => {
       const updateData = {
         productId: formData.productId,
         batchData: {
-          quantity: parseInt(formData.batchData.quantity),
+          quantity: parseInt(formData.batchData.quantity, 10),
           purchasePrice: parseFloat(formData.batchData.purchasePrice),
           supplier: formData.batchData.supplier,
           expiryDate: formData.batchData.expiryDate || undefined,
@@ -155,7 +152,7 @@ const EditInventoryPage = ({ inventoryId }) => {
 
       const response = await inventoryService.updateInventory(
         inventoryId,
-        updateData,
+        updateData
       );
 
       if (response.success) {
@@ -163,7 +160,7 @@ const EditInventoryPage = ({ inventoryId }) => {
       } else {
         setError(response.message || "Failed to update stock");
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Error updating stock. Please try again.");
     } finally {
       setSaving(false);

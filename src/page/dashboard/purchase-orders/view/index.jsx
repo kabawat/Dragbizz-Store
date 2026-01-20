@@ -1,25 +1,20 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  CheckCircle,
   ArrowLeft,
-  Package,
   Calendar,
+  CheckCircle,
   FileText,
-  Share2,
-  MessageCircle,
-  Mail,
-  MessageSquare,
-  Send,
+  Package,
 } from "lucide-react";
 import moment from "moment";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Loading } from "@/components/ui";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import { Loading, Card, Button } from "@/components/ui";
 import logger from "@/utils/logger";
 
 export default function ViewPurchaseOrderPage() {
@@ -284,7 +279,7 @@ export default function ViewPurchaseOrderPage() {
                                   Math.max(
                                     (item.quantity || 0) -
                                       (item.receivedQuantity || 0),
-                                    0,
+                                    0
                                   )}
                               </div>
                             </div>
@@ -300,7 +295,7 @@ export default function ViewPurchaseOrderPage() {
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {(po.items || []).reduce(
                                   (sum, item) => sum + (item.quantity || 0),
-                                  0,
+                                  0
                                 )}
                               </span>
                             </div>
@@ -312,7 +307,7 @@ export default function ViewPurchaseOrderPage() {
                                 {(po.items || []).reduce(
                                   (sum, item) =>
                                     sum + (item.receivedQuantity || 0),
-                                  0,
+                                  0
                                 )}
                               </span>
                             </div>
@@ -324,14 +319,14 @@ export default function ViewPurchaseOrderPage() {
                                 {Math.max(
                                   (po.items || []).reduce(
                                     (sum, item) => sum + (item.quantity || 0),
-                                    0,
+                                    0
                                   ) -
                                     (po.items || []).reduce(
                                       (sum, item) =>
                                         sum + (item.receivedQuantity || 0),
-                                      0,
+                                      0
                                     ),
-                                  0,
+                                  0
                                 )}
                               </span>
                             </div>
@@ -420,7 +415,7 @@ export default function ViewPurchaseOrderPage() {
                           variant="outline"
                           onClick={() =>
                             router.push(
-                              `/dashboard/purchase-orders/${po.id || po._id}/edit`,
+                              `/dashboard/purchase-orders/${po.id || po._id}/edit`
                             )
                           }
                           className="w-full"

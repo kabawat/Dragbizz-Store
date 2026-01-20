@@ -1,20 +1,18 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Card, Badge, Button, Dropdown } from "../ui";
 import {
-  MoreVertical,
   Edit,
-  Copy,
-  Trash2,
   Eye,
-  Users,
-  Phone,
   Mail,
-  Calendar,
+  MoreVertical,
+  Phone,
+  Trash2,
+  Users,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { Badge } from "../ui";
 
 const CustomerCard = ({
   customer,
@@ -44,12 +42,12 @@ const CustomerCard = ({
     };
   }, []);
 
-  const getStatusBadge = (status) => {
+  const _getStatusBadge = (status) => {
     const config = getCommonStatusBadge(status, "general");
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
 
-  const actionMenuItems = [
+  const _actionMenuItems = [
     {
       value: "view",
       label: t("common.viewDetails"),

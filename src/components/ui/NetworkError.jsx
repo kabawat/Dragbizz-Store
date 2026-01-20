@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { WifiOff, TriangleAlert } from "lucide-react";
+import { TriangleAlert, WifiOff } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const NetworkError = ({ isVisible, onRetry, onDismiss }) => {
   const [show, setShow] = useState(false);

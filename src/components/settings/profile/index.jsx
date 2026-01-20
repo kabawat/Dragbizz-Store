@@ -5,11 +5,11 @@ import useErrorHandling from "@/hooks/useErrorHandling";
 import authService from "@/service/auth/auth.service";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
-import { useProfileData } from "./useProfileData";
-import ProfilePictureSection from "./ProfilePictureSection";
-import PersonalInfoSection from "./PersonalInfoSection";
 import AccountActionsSection from "./AccountActionsSection";
+import PersonalInfoSection from "./PersonalInfoSection";
 import ProfileEditForm from "./ProfileEditForm";
+import ProfilePictureSection from "./ProfilePictureSection";
+import { useProfileData } from "./useProfileData";
 
 const ProfileSettings = ({ user }) => {
   const dispatch = useAppDispatch();

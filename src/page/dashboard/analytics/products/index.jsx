@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,30 +9,31 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector } from "@/store/hooks";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Package,
   CheckCircle,
-  XCircle,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
+  Package,
+  XCircle,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import {
-  SortableMetricCard,
-  SortableCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import ProductsReportTemplate from "@/components/templates/analytics/products/ProductsReportTemplate";
+import {
+  SortableCard,
+  SortableMetricCard,
+} from "@/components/templates/analytics/SortableComponents";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
 const ProductAnalytics = () => {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ const ProductAnalytics = () => {
         inactiveProducts: 0,
       },
     }),
-    [],
+    []
   );
 
   const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
@@ -57,7 +57,7 @@ const ProductAnalytics = () => {
     false,
     analytics,
     "products-report-area",
-    "products-analytics-report",
+    "products-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -111,7 +111,7 @@ const ProductAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -310,7 +310,7 @@ const ProductAnalytics = () => {
                                 </p>
                                 <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                   {formatNumber(
-                                    analytics.totals.activeProducts,
+                                    analytics.totals.activeProducts
                                   )}
                                 </p>
                               </div>
@@ -320,7 +320,7 @@ const ProductAnalytics = () => {
                                 </p>
                                 <p className="text-lg font-semibold text-gray-600 dark:text-gray-400">
                                   {formatNumber(
-                                    analytics.totals.inactiveProducts,
+                                    analytics.totals.inactiveProducts
                                   )}
                                 </p>
                               </div>
@@ -369,7 +369,7 @@ const ProductAnalytics = () => {
                       analytics,
                       selectedStore,
                       "products-analytics-report",
-                      getProductsXLSXConfig(),
+                      getProductsXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

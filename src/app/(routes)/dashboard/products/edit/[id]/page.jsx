@@ -1,5 +1,4 @@
 import UpdateProductPage from "@/page/dashboard/products/edit";
-import React from "react";
 
 export const metadata = {
   title: "Edit Product - DragBizz Store",

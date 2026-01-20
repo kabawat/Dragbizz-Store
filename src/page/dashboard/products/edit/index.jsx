@@ -1,20 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { ArrowLeft, Info, Loader2, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, Loader2, Info } from "lucide-react";
-
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  ProductForm,
   ProductAddSuccessModal,
+  ProductForm,
   ProductInfoModal,
 } from "@/components/product";
+import { useTranslation } from "@/hooks/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -137,7 +136,7 @@ const UpdateProductPage = ({ productId }) => {
         } else {
           setProductNotFound(true);
         }
-      } catch (error) {
+      } catch (_error) {
         setProductNotFound(true);
       } finally {
         setInitialLoading(false);
@@ -208,7 +207,7 @@ const UpdateProductPage = ({ productId }) => {
 
       if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
         discountPercentage = String(
-          Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100,
+          Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100
         ); // Round to 2 decimal places
       }
 
@@ -227,7 +226,7 @@ const UpdateProductPage = ({ productId }) => {
       const result = await productService.updateProduct(
         productId,
         updateData,
-        storeId,
+        storeId
       );
 
       if (result.success) {
@@ -235,15 +234,15 @@ const UpdateProductPage = ({ productId }) => {
         setUpdatedProductName(formData.name || "Product");
         setShowSuccessModal(true);
       } else {
-        if (result?.error && result?.error?.data) {
+        if (result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         }
       }
     } catch (error) {
       // Handle API error response
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         const errorData = error.response.data;
-        if (errorData.data && errorData.data.fields) {
+        if (errorData.data?.fields) {
           setFieldErrors(errorData.data.fields);
         }
       }

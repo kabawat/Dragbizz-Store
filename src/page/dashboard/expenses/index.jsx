@@ -1,31 +1,31 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import {
-  getExpenses,
-  deleteExpense,
-  setViewMode,
-  setSortOptions,
-} from "@/store/slices/expensesSlice";
-import {
-  ExpenseCard,
-  ExpenseTable,
-  AddExpenseDrawer,
-  ExpenseDownloadDrawer,
-} from "@/components/expenses";
-import {
+  Download,
+  Grid3X3,
+  IndianRupee,
+  List,
   Plus,
   Search,
-  Grid3X3,
-  List,
-  IndianRupee,
-  Download,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import {
+  AddExpenseDrawer,
+  ExpenseCard,
+  ExpenseDownloadDrawer,
+  ExpenseTable,
+} from "@/components/expenses";
 import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  deleteExpense,
+  getExpenses,
+  setSortOptions,
+  setViewMode,
+} from "@/store/slices/expensesSlice";
 
 const ExpensesPage = () => {
   const { t } = useTranslation();
@@ -63,7 +63,7 @@ const ExpensesPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedExpenseName, setDeletedExpenseName] = useState("");
-  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [_showErrorModal, _setShowErrorModal] = useState(false);
 
   // Drawer state
   const [showAddExpenseDrawer, setShowAddExpenseDrawer] = useState(false);
@@ -139,7 +139,7 @@ const ExpensesPage = () => {
 
     fetchExpenses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeId, currentFilter, sortBy, sortOrder]);
+  }, [storeId, currentFilter, sortBy, sortOrder, fetchExpenses, isLoading]);
 
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
@@ -181,13 +181,13 @@ const ExpensesPage = () => {
         deleteExpense({
           expenseId: expenseToDelete.id,
           storeId: selectedStore?.id,
-        }),
+        })
       );
       setShowDeleteModal(false);
       setDeletedExpenseName(expenseToDelete.title);
       setExpenseToDelete(null);
       setShowDeleteSuccessModal(true);
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsDeleting(false);
     }

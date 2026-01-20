@@ -6,4 +6,4 @@ export const messages = {
   hi: hiMessages,
 };
 
-export { defaultLocale, locales, localeNames } from "./config";
+export { defaultLocale, localeNames, locales } from "./config";

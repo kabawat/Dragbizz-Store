@@ -1,19 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import {
-  FileText,
-  Download,
-  Calendar,
-  Building2,
   AlertTriangle,
+  Building2,
+  Calendar,
   CheckCircle,
   Clock,
-  IndianRupee,
+  Download,
+  FileText,
 } from "lucide-react";
-import { purchaseOrderService } from "@/service/retailer";
-import { SideDrawer } from "@/components/ui";
+import { useEffect, useState } from "react";
 import PurchaseOrderDetails from "@/components/purchaseOrders/PurchaseOrderDetails";
+import { SideDrawer } from "@/components/ui";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { purchaseOrderService } from "@/service/retailer";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const ViewPurchaseOrder = ({ purchaseOrderId }) => {
@@ -33,7 +32,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
         } else {
           setError("Purchase order not found");
         }
-      } catch (err) {
+      } catch (_err) {
         setError("Failed to load purchase order");
       } finally {
         setLoading(false);
@@ -45,7 +44,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
     }
   }, [purchaseOrderId]);
 
-  const formatCurrency = (amount) => {
+  const _formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -151,7 +150,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
   }
 
   const statusBadge = getStatusBadge(
-    purchaseOrder.approvalStatus || purchaseOrder.status,
+    purchaseOrder.approvalStatus || purchaseOrder.status
   );
   const StatusIcon = statusBadge.icon;
 
@@ -259,7 +258,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
                     </span>
                     <span className="text-[rgb(var(--color-text-primary))] font-semibold">
                       {formatDate(
-                        purchaseOrder.poDate || purchaseOrder.billDate,
+                        purchaseOrder.poDate || purchaseOrder.billDate
                       )}
                     </span>
                   </div>
@@ -270,7 +269,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
                     <span className="text-[rgb(var(--color-text-primary))] font-semibold">
                       {formatDate(
                         purchaseOrder.expectedDeliveryDate ||
-                          purchaseOrder.dueDate,
+                          purchaseOrder.dueDate
                       )}
                     </span>
                   </div>

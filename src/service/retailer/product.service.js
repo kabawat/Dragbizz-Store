@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class ProductService {
@@ -13,7 +13,7 @@ class ProductService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.PRODUCT,
-        productData,
+        productData
       );
       return handleApiSuccess(response?.data, "Product created successfully");
     } catch (error) {

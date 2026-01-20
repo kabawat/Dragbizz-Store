@@ -1,25 +1,23 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import moment from "moment";
-import logger from "@/utils/logger";
 import {
-  FileText,
-  Building2,
-  User,
-  IndianRupee,
   AlertTriangle,
+  Building2,
   CheckCircle,
   Clock,
-  Percent,
   Download,
+  FileText,
+  User,
 } from "lucide-react";
-import { invoiceService } from "@/service/retailer";
+import moment from "moment";
+import { useEffect, useState } from "react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { invoiceService } from "@/service/retailer";
+import logger from "@/utils/logger";
 
 // Component to fetch and display public invoice
 const accentColor = "#2980b9";
 
-const getStatusBadgeCommon = (status, type = "invoice") => {
+const getStatusBadgeCommon = (status, _type = "invoice") => {
   // minimal mapping similar to first component
   const s = (status || "").toString().toUpperCase();
   const config = {
@@ -70,7 +68,7 @@ const getStatusBadgeCommon = (status, type = "invoice") => {
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
-    amount || 0,
+    amount || 0
   );
 
 const formatDate = (d) => (d ? moment(d).format("D MMM, YYYY") : "-");
@@ -81,7 +79,7 @@ const formatAddress = (addr) => {
   const { line1, line2, city, state, pincode, country, location, ...rest } =
     addr || {};
   const parts = [line1, line2, city, state, pincode, country, location].filter(
-    Boolean,
+    Boolean
   );
   const extra = Object.values(rest || {}).filter(Boolean);
   return [...parts, ...extra].join(", ") || "N/A";
@@ -182,8 +180,7 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
 
   return (
     <ThemeProvider>
-      <>
-        <style jsx global>{`
+      <style jsx global>{`
           @media print {
             body {
               background: white !important;
@@ -335,276 +332,262 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
           .print-btn { display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:8px; background:${accentColor}; color:white; font-weight:700; border:none; cursor:pointer; }
         `}</style>
 
-        <div className="modern-invoice bg-white">
-          <div className="modern-header">
-            <div className="modern-header-left">
-              <div className="brand-circle" aria-hidden>
-                <FileText style={{ color: "white" }} />
-              </div>
-              <div>
-                <h1>INVOICE</h1>
-                <div style={{ color: "#6b7280", marginTop: 6 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>
-                    #{invoice.invoiceNumber || invoice.publicId || invoiceId}
-                  </div>
-                  <div style={{ fontSize: 13 }}>
-                    {invoice.store?.name || "Store"}
-                  </div>
-                </div>
-              </div>
+      <div className="modern-invoice bg-white">
+        <div className="modern-header">
+          <div className="modern-header-left">
+            <div className="brand-circle" aria-hidden>
+              <FileText style={{ color: "white" }} />
             </div>
-
-            <div className="modern-header-right">
-              <div className="invoice-detail">
-                Invoice #:{" "}
-                <span>
-                  {invoice.invoiceNumber || invoice.publicId || invoiceId}
-                </span>
-              </div>
-              <div className="invoice-detail">
-                Date:{" "}
-                <span>
-                  {formatDate(invoice.createdAt || invoice.releasedAt)}
-                </span>
-              </div>
-              <div className="invoice-detail">
-                Released:{" "}
-                <span>
-                  {invoice.releasedAt ? formatDate(invoice.releasedAt) : "-"}
-                </span>
+            <div>
+              <h1>INVOICE</h1>
+              <div style={{ color: "#6b7280", marginTop: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>
+                  #{invoice.invoiceNumber || invoice.publicId || invoiceId}
+                </div>
+                <div style={{ fontSize: 13 }}>
+                  {invoice.store?.name || "Store"}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="badges-row">
-            <span
-              className="badge"
-              style={{ ...parseStyle(invoiceBadge.style) }}
+          <div className="modern-header-right">
+            <div className="invoice-detail">
+              Invoice #:{" "}
+              <span>
+                {invoice.invoiceNumber || invoice.publicId || invoiceId}
+              </span>
+            </div>
+            <div className="invoice-detail">
+              Date:{" "}
+              <span>{formatDate(invoice.createdAt || invoice.releasedAt)}</span>
+            </div>
+            <div className="invoice-detail">
+              Released:{" "}
+              <span>
+                {invoice.releasedAt ? formatDate(invoice.releasedAt) : "-"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="badges-row">
+          <span className="badge" style={{ ...parseStyle(invoiceBadge.style) }}>
+            <invoiceBadge.Icon style={{ width: 16, height: 16 }} />
+            {invoiceBadge.text}
+          </span>
+          <span className="badge" style={{ ...parseStyle(paymentBadge.style) }}>
+            <paymentBadge.Icon style={{ width: 16, height: 16 }} />
+            {paymentBadge.text}
+          </span>
+        </div>
+
+        <div className="info-grid">
+          <div className="info-card">
+            <h3>
+              <Building2 style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
+              Store Information
+            </h3>
+            <p style={{ fontWeight: 700 }}>{invoice.store?.name || "N/A"}</p>
+            <p>{formatAddress(invoice.store?.address)}</p>
+            <p>Phone: {invoice.store?.phone || "N/A"}</p>
+            <p>Email: {invoice.store?.email || "N/A"}</p>
+            {invoice.store?.gstNumber && <p>GST: {invoice.store.gstNumber}</p>}
+          </div>
+
+          <div className="info-card">
+            <h3>
+              <User style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
+              Customer Information
+            </h3>
+            <p style={{ fontWeight: 700 }}>
+              {invoice.customer?.name || "Walk-in Customer"}
+            </p>
+            {invoice.customer?.address && <p>{invoice.customer.address}</p>}
+            <p>Phone: {invoice.customer?.phone || "N/A"}</p>
+            <p>Email: {invoice.customer?.email || "N/A"}</p>
+            {invoice.releasedAt && (
+              <p>Released: {formatDate(invoice.releasedAt)}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="amounts-grid">
+          <div className="amount-card">
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
             >
-              <invoiceBadge.Icon style={{ width: 16, height: 16 }} />
-              {invoiceBadge.text}
-            </span>
-            <span
-              className="badge"
-              style={{ ...parseStyle(paymentBadge.style) }}
+              Subtotal
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
+              {formatCurrency(invoice.subtotal)}
+            </div>
+          </div>
+          <div className="amount-card">
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
             >
-              <paymentBadge.Icon style={{ width: 16, height: 16 }} />
-              {paymentBadge.text}
-            </span>
-          </div>
-
-          <div className="info-grid">
-            <div className="info-card">
-              <h3>
-                <Building2 style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
-                Store Information
-              </h3>
-              <p style={{ fontWeight: 700 }}>{invoice.store?.name || "N/A"}</p>
-              <p>{formatAddress(invoice.store?.address)}</p>
-              <p>Phone: {invoice.store?.phone || "N/A"}</p>
-              <p>Email: {invoice.store?.email || "N/A"}</p>
-              {invoice.store?.gstNumber && (
-                <p>GST: {invoice.store.gstNumber}</p>
-              )}
+              GST
             </div>
-
-            <div className="info-card">
-              <h3>
-                <User style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
-                Customer Information
-              </h3>
-              <p style={{ fontWeight: 700 }}>
-                {invoice.customer?.name || "Walk-in Customer"}
-              </p>
-              {invoice.customer?.address && <p>{invoice.customer.address}</p>}
-              <p>Phone: {invoice.customer?.phone || "N/A"}</p>
-              <p>Email: {invoice.customer?.email || "N/A"}</p>
-              {invoice.releasedAt && (
-                <p>Released: {formatDate(invoice.releasedAt)}</p>
-              )}
+            <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
+              {formatCurrency(invoice.gstAmount)}
             </div>
           </div>
-
-          <div className="amounts-grid">
-            <div className="amount-card">
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                Subtotal
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
-                {formatCurrency(invoice.subtotal)}
-              </div>
+          <div className="amount-card">
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Total Amount
             </div>
-            <div className="amount-card">
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                GST
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
-                {formatCurrency(invoice.gstAmount)}
-              </div>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                marginTop: 8,
+                color: accentColor,
+              }}
+            >
+              {formatCurrency(invoice.totalAmount)}
             </div>
-            <div className="amount-card">
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                Total Amount
-              </div>
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  marginTop: 8,
-                  color: accentColor,
-                }}
-              >
-                {formatCurrency(invoice.totalAmount)}
-              </div>
+          </div>
+          <div className="amount-card">
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Paid / Due
             </div>
-            <div className="amount-card">
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                Paid / Due
+            <div style={{ marginTop: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>
+                Paid: {formatCurrency(invoice.paidAmount)}
               </div>
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>
-                  Paid: {formatCurrency(invoice.paidAmount)}
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>
-                  Due: {formatCurrency(invoice.dueAmount)}
-                </div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>
+                Due: {formatCurrency(invoice.dueAmount)}
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="items-table-wrap">
-            <table className="modern-table" role="table">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>GST</th>
-                  <th>Discount</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(invoice.items) && invoice.items.length > 0 ? (
-                  invoice.items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        <div style={{ fontWeight: 700 }}>
-                          {item.name || item.product?.name || "Item"}
+        <div className="items-table-wrap">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>GST</th>
+                <th>Discount</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(invoice.items) && invoice.items.length > 0 ? (
+                invoice.items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <div style={{ fontWeight: 700 }}>
+                        {item.name || item.product?.name || "Item"}
+                      </div>
+                      {item.barcode && (
+                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                          Barcode: {item.barcode}
                         </div>
-                        {item.barcode && (
-                          <div style={{ fontSize: 12, color: "#6b7280" }}>
-                            Barcode: {item.barcode}
-                          </div>
-                        )}
-                      </td>
-                      <td>{item.quantity || 0}</td>
-                      <td>{formatCurrency(item.price)}</td>
-                      <td>{item.gstRate ? `${item.gstRate}%` : "0%"}</td>
-                      <td>{item.discount ? `${item.discount}%` : "0%"}</td>
-                      <td>{formatCurrency(item.total)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      style={{
-                        padding: 20,
-                        textAlign: "center",
-                        color: "#6b7280",
-                      }}
-                    >
-                      No items available
+                      )}
                     </td>
+                    <td>{item.quantity || 0}</td>
+                    <td>{formatCurrency(item.price)}</td>
+                    <td>{item.gstRate ? `${item.gstRate}%` : "0%"}</td>
+                    <td>{item.discount ? `${item.discount}%` : "0%"}</td>
+                    <td>{formatCurrency(item.total)}</td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="totals">
-            <div className="box">
-              <div className="total-row">
-                <div className="label">Subtotal</div>
-                <div>{formatCurrency(invoice.subtotal)}</div>
-              </div>
-              <div className="total-row">
-                <div className="label">GST</div>
-                <div>{formatCurrency(invoice.gstAmount)}</div>
-              </div>
-              {invoice.totalDiscount > 0 && (
-                <div className="total-row">
-                  <div className="label">Discount</div>
-                  <div style={{ color: "#e11d48" }}>
-                    - {formatCurrency(invoice.totalDiscount)}
-                  </div>
-                </div>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      padding: 20,
+                      textAlign: "center",
+                      color: "#6b7280",
+                    }}
+                  >
+                    No items available
+                  </td>
+                </tr>
               )}
-              <div className="total-row final">
-                <div className="label">Grand Total</div>
-                <div>{formatCurrency(invoice.totalAmount)}</div>
-              </div>
-            </div>
-          </div>
+            </tbody>
+          </table>
+        </div>
 
-          <div className="modern-footer">
-            <div className="terms">
-              <h4 style={{ margin: 0, color: accentColor }}>
-                Payment Terms & Notes
-              </h4>
-              <p style={{ marginTop: 8 }}>
-                Payment due within 7 days of invoice date. Thank you for
-                choosing our services.
-              </p>
-              <p style={{ marginTop: 8, color: "#6b7280" }}>
-                Generated on{" "}
-                {moment(invoice.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
-              </p>
+        <div className="totals">
+          <div className="box">
+            <div className="total-row">
+              <div className="label">Subtotal</div>
+              <div>{formatCurrency(invoice.subtotal)}</div>
             </div>
-            <div className="signature">Authorized Signature</div>
+            <div className="total-row">
+              <div className="label">GST</div>
+              <div>{formatCurrency(invoice.gstAmount)}</div>
+            </div>
+            {invoice.totalDiscount > 0 && (
+              <div className="total-row">
+                <div className="label">Discount</div>
+                <div style={{ color: "#e11d48" }}>
+                  - {formatCurrency(invoice.totalDiscount)}
+                </div>
+              </div>
+            )}
+            <div className="total-row final">
+              <div className="label">Grand Total</div>
+              <div>{formatCurrency(invoice.totalAmount)}</div>
+            </div>
           </div>
         </div>
-        <div className="modern-invoice">
-          <div
-            style={{ marginTop: 24, textAlign: "right" }}
-            className="no-print"
-          >
-            <button className="print-btn" onClick={handleDownload}>
-              <Download style={{ width: 16, height: 16 }} />
-              Print / Download
-            </button>
+
+        <div className="modern-footer">
+          <div className="terms">
+            <h4 style={{ margin: 0, color: accentColor }}>
+              Payment Terms & Notes
+            </h4>
+            <p style={{ marginTop: 8 }}>
+              Payment due within 7 days of invoice date. Thank you for choosing
+              our services.
+            </p>
+            <p style={{ marginTop: 8, color: "#6b7280" }}>
+              Generated on{" "}
+              {moment(invoice.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+            </p>
           </div>
+          <div className="signature">Authorized Signature</div>
         </div>
-      </>
+      </div>
+      <div className="modern-invoice">
+        <div style={{ marginTop: 24, textAlign: "right" }} className="no-print">
+          <button className="print-btn" onClick={handleDownload}>
+            <Download style={{ width: 16, height: 16 }} />
+            Print / Download
+          </button>
+        </div>
+      </div>
     </ThemeProvider>
   );
 };
@@ -616,7 +599,7 @@ function parseStyle(styleStr = "") {
   styleStr.split(";").forEach((s) => {
     const [k, v] = s.split(":") || [];
     if (!k || !v) return;
-    const key = k.trim().replace(/-([a-z])/g, (m, p1) => p1.toUpperCase());
+    const key = k.trim().replace(/-([a-z])/g, (_m, p1) => p1.toUpperCase());
     obj[key] = v.trim();
   });
   return obj;

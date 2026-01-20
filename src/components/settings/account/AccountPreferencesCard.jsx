@@ -1,5 +1,5 @@
 "use client";
-import { Globe, Clock, Calendar, DollarSign } from "lucide-react";
+import { Calendar, Clock, DollarSign, Globe } from "lucide-react";
 
 const iconMap = {
   language: Globe,

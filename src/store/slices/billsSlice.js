@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { billService, analyticsService } from "@/service/retailer";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { analyticsService, billService } from "@/service/retailer";
 
 // Async thunk for getting bills
 export const getBills = createAsyncThunk(
@@ -19,12 +19,12 @@ export const getBills = createAsyncThunk(
         data: result.data,
         message: "Bills fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch bills. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting bill analytics (using /analytics endpoint)
@@ -45,12 +45,12 @@ export const getBillStats = createAsyncThunk(
         data: result.data,
         message: "Bill analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch bill analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting bill analytics (using analyticsService)
@@ -78,12 +78,12 @@ export const getBillAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Bill analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch bill analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting bill reports
@@ -104,12 +104,12 @@ export const getBillReports = createAsyncThunk(
         data: result.data,
         message: "Bill reports fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch bill reports. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Note: CRUD operations (create, update, delete) are handled in separate pages/components
@@ -162,19 +162,21 @@ const billsSlice = createSlice({
     // Add more bills (for pagination)
     addMoreBills: (state, action) => {
       const newBills = action.payload;
-      const existingIds = new Set(state.bills.map((bill) => bill.id || bill._id));
+      const existingIds = new Set(
+        state.bills.map((bill) => bill.id || bill._id)
+      );
       const uniqueNewBills = newBills.filter(
         (bill) => !existingIds.has(bill.id || bill._id)
       );
       state.bills = [...state.bills, ...uniqueNewBills];
     },
-    
+
     // Clear bills
     clearBills: (state) => {
       state.bills = [];
       state.pagination = initialState.pagination;
     },
-    
+
     // Update single bill
     updateBill: (state, action) => {
       const { id, updates } = action.payload;
@@ -257,7 +259,8 @@ const billsSlice = createSlice({
 });
 
 // Export actions
-export const { setCurrentFilter, addMoreBills, clearBills, updateBill } = billsSlice.actions;
+export const { setCurrentFilter, addMoreBills, clearBills, updateBill } =
+  billsSlice.actions;
 
 // Export async thunks
 export { getBills, getBillStats, getBillReports, getBillAnalytics };

@@ -1,6 +1,6 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { defaultLocale, locales } from "@/i18n/config";
 import logger from "@/utils/logger";
 
@@ -18,6 +18,19 @@ export const LanguageProvider = ({ children }) => {
   const [locale, setLocale] = useState(defaultLocale);
   const [messages, setMessages] = useState(null);
 
+  const loadMessages = useCallback(async (lang) => {
+    try {
+      const messagesModule = await import(`@/i18n/messages/${lang}.json`);
+      setMessages(messagesModule.default);
+    } catch (error) {
+      logger.error(`Failed to load messages for locale: ${lang}`, error);
+      const fallbackMessages = await import(
+        `@/i18n/messages/${defaultLocale}.json`
+      );
+      setMessages(fallbackMessages.default);
+    }
+  }, []);
+
   useEffect(() => {
     const savedLocale = Cookies.get("locale") || defaultLocale;
     const finalLocale = locales.includes(savedLocale)
@@ -29,20 +42,7 @@ export const LanguageProvider = ({ children }) => {
     if (typeof document !== "undefined") {
       document.documentElement.lang = finalLocale;
     }
-  }, []);
-
-  const loadMessages = async (lang) => {
-    try {
-      const messagesModule = await import(`@/i18n/messages/${lang}.json`);
-      setMessages(messagesModule.default);
-    } catch (error) {
-      logger.error(`Failed to load messages for locale: ${lang}`, error);
-      const fallbackMessages = await import(
-        `@/i18n/messages/${defaultLocale}.json`
-      );
-      setMessages(fallbackMessages.default);
-    }
-  };
+  }, [loadMessages]);
 
   const changeLanguage = async (newLocale) => {
     if (!locales.includes(newLocale)) {

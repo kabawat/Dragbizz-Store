@@ -1,18 +1,14 @@
 "use client";
 import {
-  Package,
-  Users,
-  FileText,
-  ShoppingCart,
-  Warehouse,
-  IndianRupee,
   Building2,
-  Receipt,
-  CreditCard,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
+  FileText,
+  IndianRupee,
   Infinity,
-  CheckCircle2,
+  Package,
+  ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -82,7 +78,7 @@ const PackageFeaturesSummary = ({ features = [] }) => {
   const categoryData = Object.entries(FEATURE_CATEGORIES)
     .map(([categoryName, categoryInfo]) => {
       const categoryFeatures = features.filter((f) =>
-        categoryInfo.features.includes(f.featureKey || f.key),
+        categoryInfo.features.includes(f.featureKey || f.key)
       );
 
       if (categoryFeatures.length === 0) return null;
@@ -176,7 +172,7 @@ const PackageFeaturesSummary = ({ features = [] }) => {
           const isExpanded = expandedCategories[categoryName];
           const hasMultipleLimits = categoryFeatures.some(
             (f) =>
-              f.usageType !== commonUsageType || f.totalLimit !== commonLimit,
+              f.usageType !== commonUsageType || f.totalLimit !== commonLimit
           );
 
           return (
@@ -262,7 +258,7 @@ const PackageFeaturesSummary = ({ features = [] }) => {
                               feature.usageType !== "UNLIMITED" &&
                               getUsageBadge(
                                 feature.usageType,
-                                feature.totalLimit,
+                                feature.totalLimit
                               )}
                             {feature.usageType === "UNLIMITED" &&
                               getUsageBadge("UNLIMITED", null)}
@@ -275,7 +271,7 @@ const PackageFeaturesSummary = ({ features = [] }) => {
               )}
             </div>
           );
-        },
+        }
       )}
 
       {categoryData.length > 3 && (

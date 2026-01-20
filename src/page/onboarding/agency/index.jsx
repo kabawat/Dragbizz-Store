@@ -1,30 +1,30 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 import {
-  Building2,
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
+  Building2,
   CheckCircle,
-  AlertCircle,
-  Users,
   Shield,
+  Users,
   Zap,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
-  Input,
-  Button,
   AnimatedBackground,
   AnimatedGridPattern,
+  Button,
+  Input,
 } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createAgency, getRetailerDetails } from "@/store/slices/profileSlice";
-import { useRouter } from "next/navigation";
 
 export default function AgencyCreation() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoading, error, agency, stores } = useAppSelector(
-    (state) => state.profile,
+    (state) => state.profile
   );
   const isCreatingRef = useRef(false);
 
@@ -75,7 +75,7 @@ export default function AgencyCreation() {
           general: result.payload?.message || "Failed to create agency",
         });
       }
-    } catch (error) {
+    } catch (_error) {
       isCreatingRef.current = false;
       setErrors({
         general: "An error occurred while creating agency. Please try again.",
@@ -87,11 +87,11 @@ export default function AgencyCreation() {
     router.push("/register");
   };
 
-  const handleContinueToStore = () => {
+  const _handleContinueToStore = () => {
     router.push("/onboarding/store");
   };
 
-  const handleGoToDashboard = () => {
+  const _handleGoToDashboard = () => {
     router.push("/dashboard");
   };
 

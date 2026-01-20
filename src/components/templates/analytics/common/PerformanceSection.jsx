@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import styles from './analyticsReport.module.scss';
+import styles from "./analyticsReport.module.scss";
 
 const PerformanceSection = ({ title, cards }) => {
   return (
@@ -22,4 +21,3 @@ const PerformanceSection = ({ title, cards }) => {
 };
 
 export default PerformanceSection;
-

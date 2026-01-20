@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
 
@@ -490,10 +490,10 @@ const getStoredVariant = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(
-    () => getStoredTheme() || "default",
+    () => getStoredTheme() || "default"
   );
   const [currentVariant, setCurrentVariant] = useState(
-    () => getStoredVariant() || "light",
+    () => getStoredVariant() || "light"
   );
 
   // Apply theme to document

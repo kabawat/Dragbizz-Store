@@ -1,14 +1,13 @@
 "use client";
-import React from 'react';
-import { Building, Edit, Trash2, Download } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Building, Download, Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui";
 
-const SupplierActions = ({ 
-  supplierData, 
-  onEdit, 
-  onDelete, 
+const SupplierActions = ({
+  supplierData,
+  onEdit,
+  onDelete,
   onDownload,
-  fetching 
+  fetching,
 }) => {
   return (
     <div className="lg:col-span-1">
@@ -81,7 +80,7 @@ const SupplierActions = ({
                     ₹
                     {supplierData.account.totalPurchases?.toLocaleString(
                       "en-IN",
-                      { maximumFractionDigits: 2 },
+                      { maximumFractionDigits: 2 }
                     ) || "0.00"}
                   </span>
                 </div>
@@ -93,10 +92,9 @@ const SupplierActions = ({
                     className={`font-medium ${supplierData.account.dueAmount > 0 ? "text-orange-500" : "text-[rgb(var(--color-text-primary))]"}`}
                   >
                     ₹
-                    {supplierData.account.dueAmount?.toLocaleString(
-                      "en-IN",
-                      { maximumFractionDigits: 2 },
-                    ) || "0.00"}
+                    {supplierData.account.dueAmount?.toLocaleString("en-IN", {
+                      maximumFractionDigits: 2,
+                    }) || "0.00"}
                   </span>
                 </div>
                 {supplierData.account.onTimePaymentRate !== undefined && (
@@ -119,4 +117,3 @@ const SupplierActions = ({
 };
 
 export default SupplierActions;
-

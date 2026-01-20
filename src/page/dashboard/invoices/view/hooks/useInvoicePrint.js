@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
 export const useInvoicePrint = (fetching, invoiceData) => {
@@ -53,7 +53,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
           if (l) l.remove();
           document.body.classList.remove(
             "print-mode-mini",
-            "print-mode-standard",
+            "print-mode-standard"
           );
           window.onafterprint = null;
         }, 200);
@@ -63,7 +63,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
       window.print();
       setTimeout(cleanup, 8000);
       setShowPrintMenu(false);
-    } catch (e) {
+    } catch (_e) {
       showError("Printing failed.");
     }
   };
@@ -93,7 +93,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
-    } catch (error) {
+    } catch (_error) {
       showError("Failed to download PDF. Please try again.");
     }
   };

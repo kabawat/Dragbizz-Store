@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(0);

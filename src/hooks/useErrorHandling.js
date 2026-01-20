@@ -1,16 +1,10 @@
 "use client";
-import { useState, useCallback } from "react";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import {
-  handleError,
-  handleServiceResult,
-  getFieldErrors,
-  getQuotaData,
-  isQuotaError,
-} from "@/utils/errorHandling";
+import { useCallback, useState } from "react";
 import { QuotaExceededModal } from "@/components/common";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { handleError, handleServiceResult } from "@/utils/errorHandling";
 
-export const useErrorHandling = (options = {}) => {
+export const useErrorHandling = (_options = {}) => {
   const { showError, showSuccess } = useGlobalToast();
   const [quotaError, setQuotaError] = useState(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
@@ -26,7 +20,7 @@ export const useErrorHandling = (options = {}) => {
         context,
       });
     },
-    [showError],
+    [showError]
   );
 
   const handleApiResult = useCallback(
@@ -40,7 +34,7 @@ export const useErrorHandling = (options = {}) => {
         context,
       });
     },
-    [showError, showSuccess],
+    [showError, showSuccess]
   );
 
   const clearErrors = useCallback(() => {
@@ -64,7 +58,7 @@ export const useErrorHandling = (options = {}) => {
     (fieldName) => {
       return fieldErrors[fieldName] || null;
     },
-    [fieldErrors],
+    [fieldErrors]
   );
 
   const setQuotaErrorManually = useCallback((quotaData) => {
@@ -72,16 +66,16 @@ export const useErrorHandling = (options = {}) => {
     setShowQuotaModal(true);
   }, []);
 
-  const QuotaModal = showQuotaModal ? (
-    <QuotaExceededModal
-      isOpen={showQuotaModal}
-      onClose={() => setShowQuotaModal(false)}
-      message={quotaError?.message}
-      quota={quotaError?.quota}
-      resetTime={quotaError?.resetTime}
-      canUpgrade={quotaError?.canUpgrade}
-    />
-  ) : null;
+  const QuotaModal = showQuotaModal
+    ? <QuotaExceededModal
+        isOpen={showQuotaModal}
+        onClose={() => setShowQuotaModal(false)}
+        message={quotaError?.message}
+        quota={quotaError?.quota}
+        resetTime={quotaError?.resetTime}
+        canUpgrade={quotaError?.canUpgrade}
+      />
+    : null;
 
   return {
     handleApiError,
@@ -103,4 +97,3 @@ export const useErrorHandling = (options = {}) => {
 };
 
 export default useErrorHandling;
-

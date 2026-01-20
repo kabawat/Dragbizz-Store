@@ -1,43 +1,33 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
 import {
-  supplierService,
-  productService,
-  billService,
-  purchaseOrderService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  Receipt,
-  Plus,
-  Minus,
-  Save,
-  X,
-  Building2,
-  Package,
-  IndianRupee,
-  Calendar,
-  FileText,
   AlertCircle,
   ArrowLeft,
-  CheckCircle,
+  Building2,
+  Calendar,
   Clock,
+  FileText,
+  IndianRupee,
+  Package,
+  Plus,
+  Receipt,
+  Save,
   Trash2,
 } from "lucide-react";
-import {
-  Button,
-  Input,
-  Select,
-  Textarea,
-  Card,
-  Modal,
-} from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import {
+  billService,
+  productService,
+  purchaseOrderService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const formInit = {
   supplier: "",
@@ -128,7 +118,7 @@ const CreateBill = () => {
         const suppliersData = result.data?.data || result.data || [];
         setSuppliers(suppliersData);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -161,7 +151,7 @@ const CreateBill = () => {
         const productsData = result.data?.data || result.data || [];
         setProducts(productsData);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setProductsLoading(false);
     }
@@ -197,7 +187,7 @@ const CreateBill = () => {
         const purchaseOrdersData = result.data?.data || result.data || [];
         setPurchaseOrders(purchaseOrdersData);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setPurchaseOrdersLoading(false);
     }
@@ -210,7 +200,7 @@ const CreateBill = () => {
     if (poNumber && purchaseOrders.length > 0) {
       const foundPO = purchaseOrders.find(
         (po) =>
-          (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber,
+          (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber
       );
       if (foundPO) {
         // Pre-fill the purchase order field with the PO ID
@@ -243,7 +233,7 @@ const CreateBill = () => {
     fetchSuppliers();
     fetchProducts();
     fetchPurchaseOrders();
-  }, [storeId]);
+  }, [storeId, fetchProducts, fetchPurchaseOrders, fetchSuppliers]);
 
   // Auto-set due date as 30 days from bill date
   useEffect(() => {
@@ -255,9 +245,9 @@ const CreateBill = () => {
         dueDate: billDate.toISOString().split("T")[0],
       }));
     }
-  }, [formData.billDate]);
+  }, [formData.billDate, formData.dueDate]);
 
-  const handleStoreChange = (storeObject) => {
+  const handleStoreChange = (_storeObject) => {
     // Store change handled by Redux
   };
 
@@ -408,7 +398,7 @@ const CreateBill = () => {
         const expiryDate = new Date(item.expiryDate);
         const billDate = new Date(formData.billDate || new Date());
 
-        if (isNaN(expiryDate.getTime())) {
+        if (Number.isNaN(expiryDate.getTime())) {
           newErrors[`item_${index}_expiryDate`] = "Invalid expiry date format";
         } else if (expiryDate < billDate) {
           newErrors[`item_${index}_expiryDate`] =
@@ -439,7 +429,7 @@ const CreateBill = () => {
         goodsReceived: !!formData.goodsReceived,
         items: formData.items.map((item) => ({
           product: item.product,
-          quantity: parseInt(item.quantity),
+          quantity: parseInt(item.quantity, 10),
           purchasePrice: parseFloat(item.purchasePrice),
           expiryDate: item.expiryDate || undefined,
         })),
@@ -562,7 +552,7 @@ const CreateBill = () => {
                                 ...suppliers
                                   .filter(
                                     (supplier) =>
-                                      supplier.name || supplier.supplierName,
+                                      supplier.name || supplier.supplierName
                                   )
                                   .map((supplier) => ({
                                     value: supplier.id || supplier._id,
@@ -606,7 +596,7 @@ const CreateBill = () => {
                                 ...purchaseOrders
                                   .filter(
                                     (po) =>
-                                      po.poNumber || po.purchaseOrderNumber,
+                                      po.poNumber || po.purchaseOrderNumber
                                   )
                                   .map((po) => ({
                                     value: po.id || po._id,
@@ -709,7 +699,7 @@ const CreateBill = () => {
                               onChange={(e) =>
                                 handleInputChange(
                                   "goodsReceived",
-                                  e.target.checked,
+                                  e.target.checked
                                 )
                               }
                             />
@@ -786,7 +776,7 @@ const CreateBill = () => {
                                       ...products
                                         .filter(
                                           (product) =>
-                                            product.name || product.productName,
+                                            product.name || product.productName
                                         )
                                         .map((product) => ({
                                           value: product.id || product._id,
@@ -832,7 +822,7 @@ const CreateBill = () => {
                                       handleItemChange(
                                         index,
                                         "purchasePrice",
-                                        value,
+                                        value
                                       )
                                     }
                                     placeholder="0.00"
@@ -857,7 +847,7 @@ const CreateBill = () => {
                                       handleItemChange(
                                         index,
                                         "expiryDate",
-                                        value,
+                                        value
                                       )
                                     }
                                     min={formData.billDate}
@@ -998,7 +988,7 @@ const CreateBill = () => {
                           </p>
                           <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
                             {t(
-                              "bills.maximum500CharactersAllowedWithLiveCounter",
+                              "bills.maximum500CharactersAllowedWithLiveCounter"
                             )}
                           </p>
                         </div>

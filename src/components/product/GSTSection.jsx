@@ -1,9 +1,8 @@
 "use client";
-import React from "react";
-import { Toggle, Select, Input } from "../ui";
 import { Calculator, Hash } from "lucide-react";
 import { GST_RATE_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Input, Select, Toggle } from "../ui";
 
 const GSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
@@ -131,7 +130,7 @@ const GSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                   </span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
                     {gstTypeOptions.find(
-                      (type) => type.value === formData.gstInfo?.gstType,
+                      (type) => type.value === formData.gstInfo?.gstType
                     )?.label || formData.gstInfo?.gstType}
                   </span>
                 </div>

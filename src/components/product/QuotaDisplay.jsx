@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
-import { Package, TrendingUp, AlertCircle, RefreshCw } from "lucide-react";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { AlertCircle, Package, RefreshCw, TrendingUp } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
 
 const QuotaDisplay = ({
   featureKey = "product_management",

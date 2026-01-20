@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { paymentService } from "@/service/retailer";
 
 // Helper function to calculate payment statistics
@@ -35,7 +35,7 @@ const calculatePaymentStats = (payments) => {
       pendingPayments: 0,
       approvedPayments: 0,
       totalAmount: 0,
-    },
+    }
   );
 
   return stats;
@@ -58,12 +58,12 @@ export const getPayments = createAsyncThunk(
         data: result.data,
         message: "Payments fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch payments. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for updating a payment
@@ -74,7 +74,7 @@ export const updatePayment = createAsyncThunk(
       const result = await paymentService.updatePayment(
         paymentId,
         paymentData,
-        storeId,
+        storeId
       );
       if (!result.success) {
         return rejectWithValue({
@@ -88,12 +88,12 @@ export const updatePayment = createAsyncThunk(
         paymentId: paymentId,
         message: "Payment updated successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to update payment. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for deleting a payment
@@ -113,12 +113,12 @@ export const deletePayment = createAsyncThunk(
         paymentId: paymentId,
         message: "Payment deleted successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to delete payment. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -209,7 +209,7 @@ const paymentsSlice = createSlice({
         // Update payment in the list
         const paymentId = action.payload.paymentId;
         const index = state.payments.findIndex(
-          (payment) => payment.id === paymentId,
+          (payment) => payment.id === paymentId
         );
 
         if (index !== -1 && action.payload.data) {
@@ -239,7 +239,7 @@ const paymentsSlice = createSlice({
         // Remove payment from the list
         const paymentId = action.payload.paymentId;
         state.payments = state.payments.filter(
-          (payment) => payment.id !== paymentId,
+          (payment) => payment.id !== paymentId
         );
 
         // Recalculate stats after deleting payment

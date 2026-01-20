@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { CheckCircle, X } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";

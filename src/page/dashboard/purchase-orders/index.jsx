@@ -1,37 +1,36 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import {
-  getPurchaseOrders as getPOs,
-  addMorePurchaseOrders,
-  deletePurchaseOrder,
-} from "@/store/slices/purchaseOrdersSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  FileText,
-  Plus,
-  Search,
-  List,
-  Grid3X3,
   AlertTriangle,
   CheckCircle,
   Clock,
+  FileText,
+  Grid3X3,
+  List,
+  Plus,
+  Search,
 } from "lucide-react";
-import { Button, Input, ToastContainer } from "@/components/ui";
-import { useToast } from "@/hooks/useToast";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { useTranslation } from "@/hooks/useTranslation";
-import { formatCurrency } from "@/utils/currencyFormatter";
-import { formatDateShort as formatDate } from "@/utils/dateFormatter";
-
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from "@/components/bills";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import AdvancePaymentDrawer from "@/components/purchaseOrders/AdvancePaymentDrawer";
+import CreateBillDrawer from "@/components/purchaseOrders/CreateBillDrawer";
+import PurchaseOrderGrid from "@/components/purchaseOrders/PurchaseOrderGrid";
 // Import dedicated purchase order components
 import PurchaseOrderTable from "@/components/purchaseOrders/PurchaseOrderTable";
-import PurchaseOrderGrid from "@/components/purchaseOrders/PurchaseOrderGrid";
-import CreateBillDrawer from "@/components/purchaseOrders/CreateBillDrawer";
-import AdvancePaymentDrawer from "@/components/purchaseOrders/AdvancePaymentDrawer";
-import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from "@/components/bills";
+import { Button, Input, ToastContainer } from "@/components/ui";
+import { useToast } from "@/hooks/useToast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  addMorePurchaseOrders,
+  deletePurchaseOrder,
+  getPurchaseOrders as getPOs,
+} from "@/store/slices/purchaseOrdersSlice";
+import { formatCurrency } from "@/utils/currencyFormatter";
+import { formatDateShort as formatDate } from "@/utils/dateFormatter";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const PurchaseOrders = () => {
   const { t } = useTranslation();
@@ -46,8 +45,8 @@ const PurchaseOrders = () => {
   const { toasts, showToast, removeToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [supplierFilter, setSupplierFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("all");
+  const [supplierFilter, _setSupplierFilter] = useState("all");
+  const [dateRange, _setDateRange] = useState("all");
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -106,11 +105,9 @@ const PurchaseOrders = () => {
   useEffect(() => {
     if (pendingDeleteIds.length === 0) return;
     setPendingDeleteIds((prev) =>
-      prev.filter((id) =>
-        purchaseOrders.some((po) => (po._id || po.id) === id),
-      ),
+      prev.filter((id) => purchaseOrders.some((po) => (po._id || po.id) === id))
     );
-  }, [purchaseOrders]);
+  }, [purchaseOrders, pendingDeleteIds.length]);
 
   // Fetch POs
   useEffect(() => {
@@ -128,7 +125,7 @@ const PurchaseOrders = () => {
 
     lastFetchRef.current = { storeId, search: searchTerm, cursor: null };
     dispatch(
-      getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null }),
+      getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null })
     );
   }, [dispatch, selectedStore, searchTerm]);
 
@@ -201,7 +198,7 @@ const PurchaseOrders = () => {
           search: searchTerm,
           limit: 20,
           cursor: nextCursor,
-        }),
+        })
       );
       const payload = resultAction?.payload;
       if (payload?.data) {
@@ -214,17 +211,17 @@ const PurchaseOrders = () => {
 
   const pendingDeleteSet = useMemo(
     () => new Set(pendingDeleteIds),
-    [pendingDeleteIds],
+    [pendingDeleteIds]
   );
 
   const getFilteredPOs = () => {
     let filtered = purchaseOrders.filter(
-      (po) => !pendingDeleteSet.has(po._id || po.id),
+      (po) => !pendingDeleteSet.has(po._id || po.id)
     );
 
     if (supplierFilter !== "all") {
       filtered = filtered.filter((po) =>
-        po.supplier?.name?.toLowerCase().includes(supplierFilter.toLowerCase()),
+        po.supplier?.name?.toLowerCase().includes(supplierFilter.toLowerCase())
       );
     }
     if (dateRange !== "all") {
@@ -251,7 +248,7 @@ const PurchaseOrders = () => {
         (po) =>
           (po.poNumber || po.billNumber)?.toLowerCase().includes(lowerSearch) ||
           po.supplier?.name?.toLowerCase().includes(lowerSearch) ||
-          (po.advanceAmount ?? 0).toString().includes(lowerSearch),
+          (po.advanceAmount ?? 0).toString().includes(lowerSearch)
       );
     }
     return filtered;
@@ -266,11 +263,11 @@ const PurchaseOrders = () => {
     const items = po.items || [];
     const totalQuantity = items.reduce(
       (sum, item) => sum + (item.quantity || 0),
-      0,
+      0
     );
     const receivedQuantity = items.reduce(
       (sum, item) => sum + (item.receivedQuantity || 0),
-      0,
+      0
     );
     const pendingQuantity = Math.max(totalQuantity - receivedQuantity, 0);
     const advanceAmount = po.advanceAmount ?? 0;
@@ -302,10 +299,10 @@ const PurchaseOrders = () => {
     try {
       setIsDeleting(true);
       const result = await dispatch(
-        deletePurchaseOrder({ id: poId, store: storeId }),
+        deletePurchaseOrder({ id: poId, store: storeId })
       ).unwrap();
       setPendingDeleteIds((prev) =>
-        prev.includes(poId) ? prev : [...prev, poId],
+        prev.includes(poId) ? prev : [...prev, poId]
       );
       setSelectedPOs((prev) => prev.filter((id) => id !== poId));
       setShowDeleteModal(false);
@@ -317,14 +314,13 @@ const PurchaseOrders = () => {
       showToast(
         `Purchase Order ${poNumber} deletion has been scheduled.`,
         "success",
-        3000,
+        3000
       );
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsDeleting(false);
     }
   };
-
 
   const getStatusBadge = (po) => {
     const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
@@ -350,7 +346,7 @@ const PurchaseOrders = () => {
     const approval = (po.approvalStatus || "").toUpperCase();
     const config = getCommonStatusBadge(
       approval || "PENDING",
-      "purchase-order",
+      "purchase-order"
     );
 
     // Map icons for compatibility
@@ -607,7 +603,7 @@ const PurchaseOrders = () => {
           setSelectedPOForBill(null);
         }}
         purchaseOrder={selectedPOForBill}
-        onSuccess={(bill) => {
+        onSuccess={(_bill) => {
           // Handle successful bill creation
           // You can add toast notification or refresh data here
         }}
@@ -632,7 +628,7 @@ const PurchaseOrders = () => {
                 search: searchTerm,
                 limit: 20,
                 cursor: null,
-              }),
+              })
             );
           }
         }}

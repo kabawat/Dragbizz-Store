@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Input, Select, Textarea, Loading, Alert } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Alert, Input, Select, Textarea } from "@/components/ui";
 import {
   EXPENSE_CATEGORIES,
-  PAYMENT_METHODS,
   EXPENSE_STATUS,
+  PAYMENT_METHODS,
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/useTranslation";
 

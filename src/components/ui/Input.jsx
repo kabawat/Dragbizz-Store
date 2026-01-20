@@ -1,6 +1,5 @@
 "use client";
 import React, { forwardRef, useState } from "react";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
 const Input = forwardRef(
   (
@@ -35,9 +34,9 @@ const Input = forwardRef(
       precision,
       ...props
     },
-    ref,
+    ref
   ) => {
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, _setShowPassword] = useState(false);
 
     const inputType =
       showPasswordToggle && type === "password"
@@ -56,7 +55,7 @@ const Input = forwardRef(
         }
 
         const numValue = parseFloat(inputValue);
-        if (isNaN(numValue)) {
+        if (Number.isNaN(numValue)) {
           return;
         }
 
@@ -189,7 +188,6 @@ const Input = forwardRef(
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            autoFocus={autoFocus}
             disabled={disabled}
             required={required}
             name={name}
@@ -242,7 +240,7 @@ const Input = forwardRef(
         )}
       </div>
     );
-  },
+  }
 );
 
 Input.displayName = "Input";

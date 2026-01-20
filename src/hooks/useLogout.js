@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { cookieManager } from "../utils/cookieManager";
 import { useAppDispatch } from "../store/hooks";
 import { clearAuth } from "../store/slices/profileSlice";
+import { cookieManager } from "../utils/cookieManager";
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +27,7 @@ export function useLogout() {
       sessionStorage.clear();
 
       window.location.href = "/";
-    } catch (error) {
+    } catch (_error) {
       window.location.href = "/";
     }
   };

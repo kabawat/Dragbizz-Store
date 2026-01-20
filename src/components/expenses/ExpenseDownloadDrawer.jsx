@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { Download, Calendar } from "lucide-react";
-import { SideDrawer, Select, Button, Checkbox } from "@/components/ui";
+import { Calendar, Download } from "lucide-react";
+import { useState } from "react";
+import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { expenseService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
 import { exportData } from "@/utils/exportUtils";
 import logger from "@/utils/logger";
 
@@ -47,7 +47,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
   ];
 
   const [selectedFields, setSelectedFields] = useState(
-    availableFields.filter((field) => field.default).map((field) => field.key),
+    availableFields.filter((field) => field.default).map((field) => field.key)
   );
 
   const handleFieldToggle = (fieldKey) => {
@@ -108,7 +108,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     const endDate = new Date(today);
     endDate.setHours(23, 59, 59, 999);
 
-    let startDate = new Date(today);
+    const startDate = new Date(today);
 
     switch (period) {
       case "1month":
@@ -201,7 +201,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await expenseService.getExpenses(params);
@@ -258,7 +258,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
       const params = buildDownloadParams(
         storeId,
         dateRange.startDate,
-        dateRange.endDate,
+        dateRange.endDate
       );
 
       const result = await expenseService.getExpenses(params);
@@ -341,7 +341,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     const storeName = selectedStore?.storeName || selectedStore?.name || "N/A";
 
     const fieldMap = {
-      storeName: (expense) => ({ "Store Name": storeName }),
+      storeName: (_expense) => ({ "Store Name": storeName }),
       title: (expense) => ({ Title: expense.title || t("common.na") }),
       billNumber: (expense) => ({
         "Bill Number": expense.billNumber || t("common.na"),
@@ -464,9 +464,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     setCustomEndDate("");
     setSortOrder("dateDesc");
     setSelectedFields(
-      availableFields
-        .filter((field) => field.default)
-        .map((field) => field.key),
+      availableFields.filter((field) => field.default).map((field) => field.key)
     );
     onClose();
   };

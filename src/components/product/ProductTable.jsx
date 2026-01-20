@@ -1,15 +1,15 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 import {
-  MoreVertical,
-  Edit,
-  Copy,
-  Trash2,
-  Eye,
-  Package,
   ArrowDownToLine,
+  Copy,
+  Edit,
+  Eye,
+  MoreVertical,
+  Package,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const ProductTable = ({
@@ -33,7 +33,7 @@ const ProductTable = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
 
-  const defaultEmptyMessage = emptyMessage || t("products.noProducts");
+  const _defaultEmptyMessage = emptyMessage || t("products.noProducts");
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -96,12 +96,12 @@ const ProductTable = ({
     );
   };
 
-  const calculateDiscount = (sellingPrice, mrp) => {
+  const _calculateDiscount = (sellingPrice, mrp) => {
     if (!mrp || mrp <= sellingPrice) return 0;
     return Math.round(((mrp - sellingPrice) / mrp) * 100);
   };
 
-  const actionMenuItems = (product) => [
+  const _actionMenuItems = (product) => [
     {
       value: "view",
       label: t("common.viewDetails"),
@@ -299,7 +299,11 @@ const ProductTable = ({
                           categoryParts = rawCategory
                             .split(" > ")
                             .filter(Boolean);
-                        } else if (rawCategory && typeof rawCategory === "object" && rawCategory.name) {
+                        } else if (
+                          rawCategory &&
+                          typeof rawCategory === "object" &&
+                          rawCategory.name
+                        ) {
                           // Handle object with name property (from API)
                           categoryParts = [rawCategory.name];
                         } else if (rawCategory) {

@@ -1,13 +1,8 @@
 "use client";
-import React from "react";
-import { Select, Toggle, Input } from "../ui";
-import { Star, Award, Sparkles, Package } from "lucide-react";
-import {
-  PRODUCT_STATUS_OPTIONS,
-  PRODUCT_VISIBILITY_OPTIONS,
-  getProductStatusColor,
-} from "@/data";
+import { Award, Sparkles, Star } from "lucide-react";
+import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Select, Toggle } from "../ui";
 
 const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
@@ -16,7 +11,7 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
   };
 
   // Use imported options from data constants
-  const statusOptions = PRODUCT_STATUS_OPTIONS;
+  const _statusOptions = PRODUCT_STATUS_OPTIONS;
   const visibilityOptions = PRODUCT_VISIBILITY_OPTIONS;
 
   return (
@@ -98,7 +93,7 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
                 </span>
                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                   {visibilityOptions.find(
-                    (v) => v.value === formData.visibility,
+                    (v) => v.value === formData.visibility
                   )?.label || formData.visibility}
                 </span>
               </div>

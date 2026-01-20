@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { Badge } from "@/components/ui";
 
 const SectionHeader = ({ badge, title, description, className = "" }) => {

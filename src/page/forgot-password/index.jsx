@@ -1,17 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Mail, ArrowLeft, CheckCircle, AlertCircle, Phone } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle, Mail, Phone } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
-  Input,
+  AnimatedBackground,
   Button,
   Card,
+  CardBody,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardBody,
-  AnimatedBackground,
+  Input,
 } from "@/components/ui";
-import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const ForgotPassword = () => {
@@ -34,7 +34,7 @@ const ForgotPassword = () => {
       setContactType("email");
     }
     // Check for phone pattern (digits, +, -, spaces, parentheses)
-    else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
+    else if (/^[+]?[\d\s\-()]+$/.test(value) && cleanValue.length >= 10) {
       setContactType("phone");
     }
     // If user starts typing numbers, assume phone
@@ -73,7 +73,7 @@ const ForgotPassword = () => {
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
     return phoneRegex.test(phone.replace(/\s/g, ""));
   };
 

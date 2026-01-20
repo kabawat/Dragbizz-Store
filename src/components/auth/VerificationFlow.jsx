@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Mail, Phone, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle, Mail, Phone, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const VerificationFlow = ({
   contactType,

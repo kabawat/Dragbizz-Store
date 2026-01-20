@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { Building, Phone, Mail, Hash } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Building, Hash, Mail, Phone } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SupplierBasicInfo = ({ supplierData }) => {
   const { t } = useTranslation();
@@ -94,4 +93,3 @@ const SupplierBasicInfo = ({ supplierData }) => {
 };
 
 export default SupplierBasicInfo;
-

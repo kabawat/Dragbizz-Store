@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
-import Toast from "./Toast";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import Toast from "./Toast";
 
 const GlobalToastContainer = () => {
   const { toasts, removeToast } = useGlobalToast();

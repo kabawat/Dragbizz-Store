@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { X, Package, ArrowUp } from "lucide-react";
+import { ArrowUp, Package, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
-import { useAppSelector } from "@/store/hooks";
-import { stockService, supplierService } from "@/service/retailer";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
 import UpgradeModal from "@/components/ui/UpgradeModal";
+import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { stockService, supplierService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const StockInDrawer = ({
   isOpen,
@@ -31,7 +31,7 @@ const StockInDrawer = ({
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
   const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT,
+    FEATURES.SUPPLIER_MANAGEMENT
   );
   const { showError } = useGlobalToast();
 
@@ -48,7 +48,7 @@ const StockInDrawer = ({
         fetchSuppliers();
       }
     }
-  }, [isOpen, hasSupplierManagement]);
+  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -66,7 +66,7 @@ const StockInDrawer = ({
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -125,7 +125,7 @@ const StockInDrawer = ({
         productId: productId,
         store: storeId,
         batchData: {
-          quantity: parseInt(formData.quantity),
+          quantity: parseInt(formData.quantity, 10),
           purchasePrice: parseFloat(formData.purchasePrice),
           supplier: formData.supplier,
         },
@@ -332,7 +332,7 @@ const StockInDrawer = ({
                   <span className="text-lg font-bold text-[rgb(var(--color-success))]">
                     ₹
                     {(
-                      parseInt(formData.quantity) *
+                      parseInt(formData.quantity, 10) *
                       parseFloat(formData.purchasePrice)
                     ).toLocaleString()}
                   </span>

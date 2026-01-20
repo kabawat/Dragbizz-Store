@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 const ToastContext = createContext();
 
@@ -22,7 +22,7 @@ export const ToastProvider = ({ children }) => {
 
       return id;
     },
-    [],
+    []
   );
 
   const removeToast = useCallback((id) => {
@@ -33,14 +33,14 @@ export const ToastProvider = ({ children }) => {
     (message, duration = 5000) => {
       return showToast(message, "error", duration, "bottom-center");
     },
-    [showToast],
+    [showToast]
   );
 
   const showSuccess = useCallback(
     (message, duration = 3000) => {
       return showToast(message, "success", duration, "top-right");
     },
-    [showToast],
+    [showToast]
   );
 
   return (

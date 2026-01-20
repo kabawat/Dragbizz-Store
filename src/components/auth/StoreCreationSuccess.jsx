@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { CheckCircle, Store, ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle, Store } from "lucide-react";
 import { Button } from "@/components/ui";
 
 export default function StoreCreationSuccess({ onContinue }) {

@@ -1,16 +1,16 @@
 "use client";
-import React, { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Card, Loading } from "@/components/ui";
 import {
-  CheckCircle,
   ArrowRight,
+  CheckCircle,
   Home,
   Package,
-  Sparkles,
   Shield,
+  Sparkles,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
+import { Button, Card, Loading } from "@/components/ui";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
 
 const CheckoutSuccessContent = () => {

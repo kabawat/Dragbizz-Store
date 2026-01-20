@@ -1,18 +1,17 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
+import { ArrowLeft, CheckCircle, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, CheckCircle } from "lucide-react";
-
+import { Suspense, useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Button, AnimatedBackground } from "@/components/ui";
 import { TEMPLATE_OPTIONS } from "@/components/invoice/templates";
+import { AnimatedBackground } from "@/components/ui";
 
 const InvoiceTemplateSettingsContent = () => {
   const router = useRouter();
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
-  const [saved, setSaved] = useState(false);
+  const [_saved, setSaved] = useState(false);
 
   // Load current template from localStorage
   useEffect(() => {
@@ -44,7 +43,7 @@ const InvoiceTemplateSettingsContent = () => {
     }
   }
   // Handle save template as default
-  const handleSaveTemplate = () => {
+  const _handleSaveTemplate = () => {
     localStorage.setItem("invoice-template", selectedTemplate);
     setSaved(true);
     setTimeout(() => {
@@ -159,7 +158,7 @@ const InvoiceTemplateSettingsContent = () => {
                       Current Selection:{" "}
                       <span className="text-[rgb(var(--color-primary))]">
                         {TEMPLATE_OPTIONS.find(
-                          (t) => t.value === selectedTemplate,
+                          (t) => t.value === selectedTemplate
                         )?.label || "Modern"}
                       </span>
                     </span>

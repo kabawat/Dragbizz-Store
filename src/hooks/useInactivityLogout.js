@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useRef, useCallback } from "react";
-import { cookieManager } from "@/utils/cookieManager";
+import { useCallback, useEffect, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
+import { cookieManager } from "@/utils/cookieManager";
 
 // Constants
 const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds

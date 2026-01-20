@@ -1,23 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import { ArrowLeft, CheckCircle, Eye, EyeOff, Lock } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import {
-  Lock,
-  Eye,
-  EyeOff,
-  CheckCircle,
-  AlertCircle,
-  ArrowLeft,
-} from "lucide-react";
-import {
+  AnimatedBackground,
   Button,
   Card,
+  CardBody,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardBody,
-  AnimatedBackground,
 } from "@/components/ui";
-import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const ResetPassword = () => {

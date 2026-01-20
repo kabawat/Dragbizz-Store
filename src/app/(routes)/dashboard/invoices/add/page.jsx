@@ -1,7 +1,7 @@
 "use client";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const AddInvoicePage = dynamic(() => import('@/page/dashboard/invoices/add'), {
+const AddInvoicePage = dynamic(() => import("@/page/dashboard/invoices/add"), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">

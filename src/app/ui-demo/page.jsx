@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Accordion,
   Alert,
@@ -7,23 +7,15 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
-  Divider,
-  Dropdown,
   FileUpload,
-  Input,
-  Loading,
   Modal,
   MultiSelect,
   Pagination,
   RichTextEditor,
-  Select,
   StepProgress,
   SVGBackground,
   Tabs,
   TagInput,
-  Textarea,
-  SettingsPanel,
   Toggle,
 } from "@/components/ui";
 
@@ -32,11 +24,11 @@ const UIDemoPage = () => {
   const [tabsValue, setTabsValue] = useState("tab1");
   const [tags, setTags] = useState(["React", "Next.js"]);
   const [richTextValue, setRichTextValue] = useState(
-    "<p>Hello <strong>World</strong>!</p>",
+    "<p>Hello <strong>World</strong>!</p>"
   );
   const [fileUploadValue, setFileUploadValue] = useState([]);
 
-  const dropdownOptions = [
+  const _dropdownOptions = [
     { value: "option1", label: "Option 1" },
     { value: "option2", label: "Option 2" },
     { value: "option3", label: "Option 3" },
@@ -49,7 +41,7 @@ const UIDemoPage = () => {
     { value: "svelte", label: "Svelte" },
   ];
 
-  const selectOptions = [
+  const _selectOptions = [
     { value: "india", label: "India" },
     { value: "usa", label: "USA" },
     { value: "uk", label: "UK" },

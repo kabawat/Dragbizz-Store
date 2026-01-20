@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
 import {
+  AlertCircle,
+  ArrowRight,
+  Edit3,
   Mail,
+  MessageSquare,
   Phone,
   RefreshCw,
-  Edit3,
-  AlertCircle,
-  CheckCircle,
-  MessageSquare,
   Shield,
   Zap,
-  ArrowRight,
 } from "lucide-react";
-import { authService } from "@/service/auth";
-import { ENV_CONFIG } from "@/config";
-import { AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
-import styles from "../../page/style/Login.module.scss";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { authService } from "@/service/auth";
+import styles from "../../page/style/Login.module.scss";
+import { AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
 
 const VerificationStep = ({
   contactType,
@@ -89,7 +87,7 @@ const VerificationStep = ({
     try {
       const result = await authService.verifyRegistrationOTP(
         code,
-        registrationToken,
+        registrationToken
       );
 
       if (result.success) {
@@ -109,7 +107,7 @@ const VerificationStep = ({
           inputRefs.current[0]?.focus();
         }
       }
-    } catch (error) {
+    } catch (_error) {
       setAttempts((prev) => prev + 1);
       if (attempts >= 10) {
         setError(t("auth.tooManyFailedAttempts"));
@@ -156,7 +154,7 @@ const VerificationStep = ({
       } else {
         setError(result.message || t("auth.failedToResendOtpTryAgain"));
       }
-    } catch (error) {
+    } catch (_error) {
       setError(t("auth.errorResendingOtp"));
     } finally {
       setIsVerifying(false);
@@ -362,7 +360,6 @@ const VerificationStep = ({
                           }
                           onKeyDown={(e) => handleKeyDown(index, e)}
                           className={`${styles.otpInput} ${error ? styles.otpInputError : ""}`}
-                          autoFocus={index === 0}
                         />
                       ))}
                     </div>

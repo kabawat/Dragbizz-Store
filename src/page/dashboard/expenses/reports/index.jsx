@@ -1,21 +1,17 @@
 "use client";
-import React from "react";
 import {
   ArrowLeft,
-  Download,
-  TrendingUp,
   BarChart3,
-  PieChart,
-  IndianRupee,
   Calendar,
+  IndianRupee,
+  TrendingUp,
 } from "lucide-react";
-
+import Link from "next/link";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import Link from "next/link";
+import { Button, Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Button, Card, CardHeader, CardTitle, CardBody } from "@/components/ui";
 
 const ExpenseReportsPage = () => {
   const { t } = useTranslation();
@@ -97,7 +93,7 @@ const ExpenseReportsPage = () => {
                       <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>
                         {t(
-                          "expenses.reports.paymentAnalysisWillBeImplementedSoon",
+                          "expenses.reports.paymentAnalysisWillBeImplementedSoon"
                         )}
                       </p>
                     </div>
@@ -119,7 +115,7 @@ const ExpenseReportsPage = () => {
                       <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>
                         {t(
-                          "expenses.reports.vendorAnalysisWillBeImplementedSoon",
+                          "expenses.reports.vendorAnalysisWillBeImplementedSoon"
                         )}
                       </p>
                     </div>

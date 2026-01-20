@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import PackageCard from "@/components/package/PackageCard";
 import { Loading } from "@/components/ui";
 import { packageService } from "@/service";
-import PackageCard from "@/components/package/PackageCard";
 
 const PricingSection = ({
   title = "Choose Your Plan",
@@ -11,7 +11,7 @@ const PricingSection = ({
 }) => {
   const [packages, setPackages] = useState(defaultPackages);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [_error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -54,7 +54,7 @@ const PricingSection = ({
     } else {
       setLoading(false);
     }
-  }, [defaultPackages.length]);
+  }, [defaultPackages.length, defaultPackages]);
 
   if (loading) {
     return (

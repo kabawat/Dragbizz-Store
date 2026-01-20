@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,32 +9,33 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getBillAnalytics } from "@/store/slices/billsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Receipt,
-  CheckCircle,
-  XCircle,
   AlertTriangle,
+  CheckCircle,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
+  Receipt,
+  XCircle,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import {
-  SortableMetricCard,
-  SortableCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import BillsReportTemplate from "@/components/templates/analytics/bills/BillsReportTemplate";
+import {
+  SortableCard,
+  SortableMetricCard,
+} from "@/components/templates/analytics/SortableComponents";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getBillAnalytics } from "@/store/slices/billsSlice";
 
 const BillAnalytics = () => {
   const { t } = useTranslation();
@@ -74,7 +74,7 @@ const BillAnalytics = () => {
     isLoading,
     analytics,
     "bills-report-area",
-    "bills-analytics-report",
+    "bills-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -88,7 +88,7 @@ const BillAnalytics = () => {
         pendingBills: 0,
         overdueBills: 0,
       },
-    [analytics?.counts],
+    [analytics?.counts]
   );
 
   const amounts = useMemo(
@@ -98,7 +98,7 @@ const BillAnalytics = () => {
         totalPaid: 0,
         totalDue: 0,
       },
-    [analytics?.amounts],
+    [analytics?.amounts]
   );
 
   const [metrics, setMetrics] = useState([
@@ -230,7 +230,7 @@ const BillAnalytics = () => {
         return Array.from(cardsMap.values());
       });
     }
-  }, [analytics, counts, amounts]);
+  }, [analytics, counts, amounts, formatCurrency, formatNumber]);
 
   // Handle click outside export menu
   useEffect(() => {
@@ -294,7 +294,7 @@ const BillAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -557,7 +557,7 @@ const BillAnalytics = () => {
                       analytics,
                       selectedStore,
                       "bills-analytics-report",
-                      getBillsXLSXConfig(),
+                      getBillsXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

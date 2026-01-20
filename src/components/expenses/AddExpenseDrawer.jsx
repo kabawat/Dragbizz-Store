@@ -1,23 +1,20 @@
 "use client";
-import React, { useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { createExpense } from "@/store/slices/expensesSlice";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import {
-  SideDrawer,
-  Button,
-} from "@/components/ui";
+import { Receipt, Save } from "lucide-react";
+import { useState } from "react";
 import { ExpenseForm } from "@/components/expenses";
-import { Save, Receipt } from "lucide-react";
+import { Button, SideDrawer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { createExpense } from "@/store/slices/expensesSlice";
 
 const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { isCreating, error: expenseError } = useAppSelector(
-    (state) => state.expenses,
+    (state) => state.expenses
   );
 
   const [loading, setLoading] = useState(false);

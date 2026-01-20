@@ -1,6 +1,6 @@
 "use client";
-import React, { useRef, useEffect } from "react";
 import { Check } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const Checkbox = ({
