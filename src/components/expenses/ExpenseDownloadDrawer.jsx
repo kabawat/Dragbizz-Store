@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { Download, Calendar } from 'lucide-react';
 import { SideDrawer, Select, Button, Checkbox } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
-import { customerService } from '@/service';
+import { expenseService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
 import { useTranslation } from '@/hooks/useTranslation';
 import { exportData } from '@/utils/exportUtils';
 
-const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
+const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -18,16 +18,23 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [downloadFormat, setDownloadFormat] = useState('xlsx');
-  const [sortOrder, setSortOrder] = useState('nameAsc');
+  const [sortOrder, setSortOrder] = useState('dateDesc');
   
   const availableFields = [
-    { key: 'storeName', label: t('customers.fieldStoreName'), default: true },
-    { key: 'customerName', label: t('customers.fieldCustomerName'), default: true },
-    { key: 'phone', label: t('customers.fieldPhone'), default: true },
-    { key: 'email', label: t('customers.fieldEmail'), default: true },
-    { key: 'address', label: t('customers.fieldAddress'), default: true },
-    { key: 'createdAt', label: t('customers.fieldCreatedAt'), default: true },
-    { key: 'updatedAt', label: t('customers.fieldUpdatedAt'), default: false }
+    { key: 'storeName', label: t('expenses.fieldStoreName'), default: true },
+    { key: 'title', label: t('expenses.fieldTitle'), default: true },
+    { key: 'billNumber', label: t('expenses.fieldBillNumber'), default: true },
+    { key: 'date', label: t('expenses.fieldDate'), default: true },
+    { key: 'category', label: t('expenses.fieldCategory'), default: true },
+    { key: 'amount', label: t('expenses.fieldAmount'), default: true },
+    { key: 'gst', label: t('expenses.fieldGst'), default: false },
+    { key: 'netAmount', label: t('expenses.fieldNetAmount'), default: false },
+    { key: 'paymentMethod', label: t('expenses.fieldPaymentMethod'), default: true },
+    { key: 'vendor', label: t('expenses.fieldVendor'), default: true },
+    { key: 'status', label: t('expenses.fieldStatus'), default: true },
+    { key: 'description', label: t('expenses.fieldDescription'), default: false },
+    { key: 'createdAt', label: t('expenses.fieldCreatedAt'), default: false },
+    { key: 'updatedAt', label: t('expenses.fieldUpdatedAt'), default: false }
   ];
   
   const [selectedFields, setSelectedFields] = useState(
@@ -38,7 +45,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     setSelectedFields(prev => {
       if (prev.includes(fieldKey)) {
         if (prev.length === 1) {
-          showError(t('customers.atLeastOneFieldRequired'));
+          showError(t('expenses.atLeastOneFieldRequired'));
           return prev;
         }
         return prev.filter(key => key !== fieldKey);
@@ -131,11 +138,18 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
   const buildDownloadParams = (storeId, startDate, endDate) => {
     const fieldMapping = {
-        'storeName': 'storeName',
-      'customerName': 'customerName',
-      'phone': 'phone',
-      'email': 'email',
-      'address': 'address',
+      'storeName': 'storeName',
+      'title': 'title',
+      'billNumber': 'billNumber',
+      'date': 'date',
+      'category': 'category',
+      'amount': 'amount',
+      'gst': 'gst',
+      'netAmount': 'netAmount',
+      'paymentMethod': 'paymentMethod',
+      'vendor': 'vendor',
+      'status': 'status',
+      'description': 'description',
       'createdAt': 'createdAt',
       'updatedAt': 'updatedAt'
     };
@@ -154,19 +168,19 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
   const handlePredefinedDownload = async () => {
     if (!selectedDownloadPeriod) {
-      showError(t('customers.pleaseSelectTimePeriod'));
+      showError(t('expenses.pleaseSelectTimePeriod'));
       return;
     }
     
     const dateRange = getDateRangePreview(selectedDownloadPeriod);
     if (!dateRange) {
-      showError(t('customers.invalidDateRange'));
+      showError(t('expenses.invalidDateRange'));
       return;
     }
     
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError(t('suppliers.storeIdMissing'));
+      showError(t('expenses.storeIdMissing'));
       return;
     }
     
@@ -174,30 +188,25 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     try {
       const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
       
-      const result = await customerService.getCustomers(params);
-      
-      // Console log the response data
-      console.log('Download customers API response:', result);
-      console.log('Customers data:', result.data);
+      const result = await expenseService.getExpenses(params);
       
       if (result.success && result.data) {
-        const customersData = result.data?.data || result.data || [];
+        const expensesData = result.data || [];
         
-        if (customersData.length === 0) {
-          showError(t('customers.noCustomersFoundToDownload'));
+        if (expensesData.length === 0) {
+          showError(t('expenses.noExpensesFoundToDownload'));
           setIsDownloading(false);
           return;
         }
         
-        // Download file
-        await downloadCustomersFile(customersData);
-        showSuccess(t('customers.customersDownloadedSuccessfully'));
+        await downloadExpensesFile(expensesData);
+        showSuccess(t('expenses.expensesDownloadedSuccessfully'));
       } else {
-        showError(result.message || t('customers.failedToDownloadCustomers'));
+        showError(result.message || t('expenses.failedToDownloadExpenses'));
       }
     } catch (error) {
-      console.error('Download customers error:', error);
-      showError(t('customers.errorDownloadingCustomers'));
+      console.error('Download expenses error:', error);
+      showError(t('expenses.errorDownloadingExpenses'));
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -206,24 +215,24 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
 
   const handleCustomRangeDownload = async () => {
     if (!customStartDate || !customEndDate) {
-      showError(t('customers.pleaseSelectBothDates'));
+      showError(t('expenses.pleaseSelectBothDates'));
       return;
     }
     
     if (new Date(customEndDate) < new Date(customStartDate)) {
-      showError(t('customers.endDateMustBeAfterStart'));
+      showError(t('expenses.endDateMustBeAfterStart'));
       return;
     }
     
     const dateRange = getCustomDateRangePreview();
     if (!dateRange) {
-      showError(t('customers.invalidDateRange'));
+      showError(t('expenses.invalidDateRange'));
       return;
     }
     
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError(t('suppliers.storeIdMissing'));
+      showError(t('expenses.storeIdMissing'));
       return;
     }
     
@@ -231,108 +240,135 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     try {
       const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
       
-      const result = await customerService.getCustomers(params);
-      
-      // Console log the response data
-      console.log('Download customers API response:', result);
-      console.log('Customers data:', result.data);
+      const result = await expenseService.getExpenses(params);
       
       if (result.success && result.data) {
-        const customersData = result.data?.data || result.data || [];
+        const expensesData = result.data || [];
         
-        if (customersData.length === 0) {
-          showError(t('customers.noCustomersFoundToDownload'));
+        if (expensesData.length === 0) {
+          showError(t('expenses.noExpensesFoundToDownload'));
           setIsDownloading(false);
           return;
         }
         
-        // Download file
-        await downloadCustomersFile(customersData);
-        showSuccess(t('customers.customersDownloadedSuccessfully'));
+        await downloadExpensesFile(expensesData);
+        showSuccess(t('expenses.expensesDownloadedSuccessfully'));
       } else {
-        showError(result.message || t('customers.failedToDownloadCustomers'));
+        showError(result.message || t('expenses.failedToDownloadExpenses'));
       }
     } catch (error) {
-      console.error('Download customers error:', error);
-      showError(t('customers.errorDownloadingCustomers'));
+      console.error('Download expenses error:', error);
+      showError(t('expenses.errorDownloadingExpenses'));
     } finally {
       setIsDownloading(false);
       handleClose();
     }
   };
 
-  const sortCustomers = (customers) => {
-    if (!customers || !Array.isArray(customers)) return customers;
+  const sortExpenses = (expenses) => {
+    if (!expenses || !Array.isArray(expenses)) return expenses;
     
-    const sortedCustomers = [...customers];
+    const sortedExpenses = [...expenses];
     
     switch (sortOrder) {
-      case 'nameAsc':
-        return sortedCustomers.sort((a, b) => {
-          const nameA = (a.name || '').toLowerCase();
-          const nameB = (b.name || '').toLowerCase();
-          return nameA.localeCompare(nameB);
+      case 'titleAsc':
+        return sortedExpenses.sort((a, b) => {
+          const titleA = (a.title || '').toLowerCase();
+          const titleB = (b.title || '').toLowerCase();
+          return titleA.localeCompare(titleB);
         });
-      case 'nameDesc':
-        return sortedCustomers.sort((a, b) => {
-          const nameA = (a.name || '').toLowerCase();
-          const nameB = (b.name || '').toLowerCase();
-          return nameB.localeCompare(nameA);
+      case 'titleDesc':
+        return sortedExpenses.sort((a, b) => {
+          const titleA = (a.title || '').toLowerCase();
+          const titleB = (b.title || '').toLowerCase();
+          return titleB.localeCompare(titleA);
         });
       case 'dateAsc':
-        return sortedCustomers.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortedExpenses.sort((a, b) => {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateA - dateB;
         });
       case 'dateDesc':
-        return sortedCustomers.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortedExpenses.sort((a, b) => {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateB - dateA;
         });
+      case 'amountAsc':
+        return sortedExpenses.sort((a, b) => {
+          const amountA = a.amount || 0;
+          const amountB = b.amount || 0;
+          return amountA - amountB;
+        });
+      case 'amountDesc':
+        return sortedExpenses.sort((a, b) => {
+          const amountA = a.amount || 0;
+          const amountB = b.amount || 0;
+          return amountB - amountA;
+        });
       default:
-        return sortedCustomers;
+        return sortedExpenses;
     }
   };
 
-  const transformCustomerData = (customers) => {
-    if (!customers || !Array.isArray(customers)) return [];
+  const transformExpenseData = (expenses) => {
+    if (!expenses || !Array.isArray(expenses)) return [];
     
-    const sortedCustomers = sortCustomers(customers);
+    const sortedExpenses = sortExpenses(expenses);
     
     const storeName = selectedStore?.storeName || selectedStore?.name || 'N/A';
     
     const fieldMap = {
-      'storeName': (customer) => ({ 'Store Name': storeName }),
-      'customerName': (customer) => ({ 'Customer Name': customer.name || t('common.na') }),
-      'phone': (customer) => ({ 'Phone': customer.phone || t('common.na') }),
-      'email': (customer) => ({ 'Email': customer.email || t('common.na') }),
-      'address': (customer) => ({ 'Address': customer.address || t('common.na') }),
-      'createdAt': (customer) => ({ 'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : t('common.na') }),
-      'updatedAt': (customer) => ({ 'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : t('common.na') })
+      'storeName': (expense) => ({ 'Store Name': storeName }),
+      'title': (expense) => ({ 'Title': expense.title || t('common.na') }),
+      'billNumber': (expense) => ({ 'Bill Number': expense.billNumber || t('common.na') }),
+      'date': (expense) => ({ 'Date': expense.date ? new Date(expense.date).toLocaleDateString('en-IN') : t('common.na') }),
+      'category': (expense) => ({ 'Category': expense.category?.name || expense.category || t('common.na') }),
+      'amount': (expense) => ({ 'Amount': `₹${expense.amount || 0}` }),
+      'gst': (expense) => {
+        // Handle GST as object { percentage, amount } or as number
+        let gstAmount = 0;
+        let gstPercentage = 0;
+        
+        if (expense.gst && typeof expense.gst === 'object') {
+          gstAmount = expense.gst.amount ?? 0;
+          gstPercentage = expense.gst.percentage ?? 0;
+        } else if (typeof expense.gst === 'number') {
+          gstAmount = expense.gst;
+        }
+        
+        return { 'GST': gstPercentage > 0 ? `${gstPercentage}% (₹${gstAmount})` : `₹${gstAmount}` };
+      },
+      'netAmount': (expense) => ({ 'Net Amount': `₹${expense.netAmount || expense.amount || 0}` }),
+      'paymentMethod': (expense) => ({ 'Payment Method': expense.paymentMethod || t('common.na') }),
+      'vendor': (expense) => ({ 'Vendor': expense.vendor?.name || expense.vendor || t('common.na') }),
+      'status': (expense) => ({ 'Status': expense.status || t('common.na') }),
+      'description': (expense) => ({ 'Description': expense.description || t('common.na') }),
+      'createdAt': (expense) => ({ 'Created At': expense.createdAt ? new Date(expense.createdAt).toLocaleDateString('en-IN') : t('common.na') }),
+      'updatedAt': (expense) => ({ 'Updated At': expense.updatedAt ? new Date(expense.updatedAt).toLocaleDateString('en-IN') : t('common.na') })
     };
     
-    return sortedCustomers.map((customer) => {
+    return sortedExpenses.map((expense) => {
       const row = {};
       selectedFields.forEach(fieldKey => {
         if (fieldMap[fieldKey]) {
-          Object.assign(row, fieldMap[fieldKey](customer));
+          Object.assign(row, fieldMap[fieldKey](expense));
         }
       });
       return row;
     });
   };
 
-  const downloadCustomersFile = async (customers) => {
-    if (!customers || customers.length === 0) {
-      showError(t('customers.noCustomersToDownload'));
+  const downloadExpensesFile = async (expenses) => {
+    if (!expenses || expenses.length === 0) {
+      showError(t('expenses.noExpensesToDownload'));
       return;
     }
 
-    const transformedData = transformCustomerData(customers);
+    const transformedData = transformExpenseData(expenses);
     const timestamp = new Date().toISOString().split('T')[0];
-    const filename = `customers_${timestamp}`;
+    const filename = `expenses_${timestamp}`;
     
     const storeName = selectedStore?.storeName || selectedStore?.name;
     let dateRange = null;
@@ -348,26 +384,27 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
     if (dateRange) {
       metadata.push({ 
-        label: t('customers.dateRange'), 
+        label: t('expenses.dateRange'), 
         value: `${dateRange.start} - ${dateRange.end}` 
       });
     }
     
     await exportData(transformedData, downloadFormat, filename, {
-      sheetName: t('customers.customers'),
-      title: t('customers.customers'),
+      sheetName: t('expenses.expenses'),
+      title: t('expenses.expenses'),
       metadata: metadata,
       onError: (errorMsg) => {
         if (errorMsg === 'No data to export') {
-          showError(t('customers.noDataToExport'));
+          showError(t('expenses.noDataToExport'));
         } else if (errorMsg.includes('XLSX')) {
-          showError(t('customers.failedToExportAsXlsx'));
+          showError(t('expenses.failedToExportAsXlsx'));
         } else if (errorMsg.includes('PDF')) {
-          showError(t('customers.failedToExportAsPdf'));
+          showError(t('expenses.failedToExportAsPdf'));
         } else {
-          showError(errorMsg || t('customers.errorDownloadingCustomers'));
+          showError(errorMsg || t('expenses.errorDownloadingExpenses'));
         }
-      }
+      },
+      t: t
     });
   };
 
@@ -375,7 +412,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     setSelectedDownloadPeriod('');
     setCustomStartDate('');
     setCustomEndDate('');
-    setSortOrder('nameAsc');
+    setSortOrder('dateDesc');
     setSelectedFields(availableFields.filter(field => field.default).map(field => field.key));
     onClose();
   };
@@ -384,25 +421,25 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('customers.downloadCustomers')}
+      title={t('expenses.downloadExpenses')}
       icon={Download}
-      description={t('customers.selectTimePeriodToDownloadCustomers')}
+      description={t('expenses.selectTimePeriodToDownload')}
       width="w-full md:w-[500px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('customers.selectTimePeriod')}
+              {t('expenses.selectTimePeriod')}
             </label>
             <Select
-              placeholder={t('customers.selectATimePeriod')}
+              placeholder={t('expenses.selectATimePeriod')}
               options={[
-                { label: t('customers.last1Month'), value: '1month' },
-                { label: t('customers.last3Months'), value: '3months' },
-                { label: t('customers.last6Months'), value: '6months' },
-                { label: t('customers.last12Months'), value: '12months' },
-                { label: t('customers.customRange'), value: 'custom' }
+                { label: t('expenses.last1Month'), value: '1month' },
+                { label: t('expenses.last3Months'), value: '3months' },
+                { label: t('expenses.last6Months'), value: '6months' },
+                { label: t('expenses.last12Months'), value: '12months' },
+                { label: t('expenses.customRange'), value: 'custom' }
               ]}
               value={selectedDownloadPeriod}
               onChange={handleDownloadPeriodChange}
@@ -413,14 +450,14 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('customers.downloadFormat')}
+                {t('expenses.downloadFormat')}
               </label>
               <Select
-                placeholder={t('customers.selectFormat')}
+                placeholder={t('expenses.selectFormat')}
                 options={[
-                  { label: t('customers.csv'), value: 'csv' },
-                  { label: t('customers.excelXlsx'), value: 'xlsx' },
-                  { label: t('customers.pdf'), value: 'pdf' }
+                  { label: t('expenses.csv'), value: 'csv' },
+                  { label: t('expenses.excelXlsx'), value: 'xlsx' },
+                  { label: t('expenses.pdf'), value: 'pdf' }
                 ]}
                 value={downloadFormat}
                 onChange={setDownloadFormat}
@@ -429,19 +466,20 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Sort Order Selection */}
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('customers.sortOrder')}
+                {t('expenses.sortOrder')}
               </label>
               <Select
-                placeholder={t('customers.selectSortOrder')}
+                placeholder={t('expenses.selectSortOrder')}
                 options={[
-                  { label: t('customers.nameAscending'), value: 'nameAsc' },
-                  { label: t('customers.nameDescending'), value: 'nameDesc' },
-                  { label: t('customers.dateAscending'), value: 'dateAsc' },
-                  { label: t('customers.dateDescending'), value: 'dateDesc' }
+                  { label: t('expenses.titleAscending'), value: 'titleAsc' },
+                  { label: t('expenses.titleDescending'), value: 'titleDesc' },
+                  { label: t('expenses.dateAscending'), value: 'dateAsc' },
+                  { label: t('expenses.dateDescending'), value: 'dateDesc' },
+                  { label: t('expenses.amountAscending'), value: 'amountAsc' },
+                  { label: t('expenses.amountDescending'), value: 'amountDesc' }
                 ]}
                 value={sortOrder}
                 onChange={setSortOrder}
@@ -450,12 +488,11 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Field Selection */}
           {selectedDownloadPeriod && (
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t('customers.selectFields')}
+                  {t('expenses.selectFields')}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -463,7 +500,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                     onClick={handleSelectAll}
                     className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
                   >
-                    {t('customers.selectAll')}
+                    {t('expenses.selectAll')}
                   </button>
                   <span className="text-[rgb(var(--color-text-secondary))] text-xs">|</span>
                   <button
@@ -471,7 +508,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                     onClick={handleDeselectAll}
                     className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
                   >
-                    {t('customers.deselectAll')}
+                    {t('expenses.deselectAll')}
                   </button>
                 </div>
               </div>
@@ -490,7 +527,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                             onChange={() => handleFieldToggle(field.key)}
                             label={field.label}
                             id={`field-${field.key}`}
-                            // size="sm"
                             className={isChecked ? '[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium' : ''}
                           />
                         </div>
@@ -501,24 +537,22 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
               </div>
               <div className="flex items-center justify-between mt-2">
                 <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                  {t('customers.selectedFieldsCount', { count: selectedFields.length })}
+                  {t('expenses.selectedFieldsCount', { count: selectedFields.length })}
                 </p>
                 {selectedFields.length === availableFields.length && (
                   <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                    {t('customers.allFieldsSelected')}
+                    {t('expenses.allFieldsSelected')}
                   </span>
                 )}
               </div>
             </div>
           )}
           
-          {/* Custom Range Date Inputs */}
           {selectedDownloadPeriod === 'custom' && (
             <div className="grid grid-cols-2 gap-4">
-              {/* Start Date */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('customers.startDate')}
+                  {t('expenses.startDate')}
                 </label>
                 <input
                   type="date"
@@ -528,10 +562,9 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              {/* End Date */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('customers.endDate')}
+                  {t('expenses.endDate')}
                 </label>
                 <input
                   type="date"
@@ -544,7 +577,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
             </div>
           )}
           
-          {/* Date Range Preview */}
           {selectedDownloadPeriod && (() => {
             let dateRange = null;
             if (selectedDownloadPeriod === 'custom') {
@@ -558,23 +590,21 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
-                    {t('customers.dateRange')}
+                    {t('expenses.dateRange')}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* From Column */}
                   <div className="space-y-1">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      {t('customers.from')}
+                      {t('expenses.from')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.start}
                     </div>
                   </div>
-                  {/* To Column */}
                   <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      {t('customers.to')}
+                      {t('expenses.to')}
                     </div>
                     <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                       {dateRange.end}
@@ -585,7 +615,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
             ) : null;
           })()}
           
-          {/* Download Button */}
           {selectedDownloadPeriod && (
             <div className="pt-2 flex justify-start">
               {selectedDownloadPeriod === 'custom' ? (
@@ -595,7 +624,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={!customStartDate || !customEndDate || isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? t('customers.downloading') : t('customers.downloadButton')}
+                  {isDownloading ? t('expenses.downloading') : t('expenses.downloadButton')}
                 </Button>
               ) : (
                 <Button 
@@ -604,7 +633,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                   disabled={isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? t('customers.downloading') : t('customers.downloadButton')}
+                  {isDownloading ? t('expenses.downloading') : t('expenses.downloadButton')}
                 </Button>
               )}
             </div>
@@ -615,4 +644,5 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   );
 };
 
-export default CustomerDownloadDrawer;
+export default ExpenseDownloadDrawer;
+

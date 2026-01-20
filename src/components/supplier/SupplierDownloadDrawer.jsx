@@ -160,6 +160,7 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
       store: storeId,
       startDate: startDate,
       endDate: endDate,
+      downloadAll: true,
       limit: 10000,
       fields: backendFields
     };
