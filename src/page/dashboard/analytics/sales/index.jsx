@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getInvoiceAnalytics } from '@/store/slices/invoicesSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { FileText, CheckCircle, XCircle, FileX, Download } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, FileX, Download, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -61,7 +61,9 @@ const SalesAnalytics = () => {
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   const formatCurrency = (amount) => `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const { handleDownloadPDF } = useAnalyticsReportPrint(isLoading, analytics, 'sales-report-area', 'sales-analytics-report');
+  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(isLoading, analytics, 'sales-report-area', 'sales-analytics-report');
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -175,6 +177,73 @@ const SalesAnalytics = () => {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+  };
+
+  // Handle click outside export menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showExportMenu]);
+
+  const getSalesXLSXConfig = () => {
+    const formatCurrency = (amount) => {
+      if (amount === null || amount === undefined) return '₹0.00';
+      return `₹${Number(amount).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    };
+    const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+
+    return {
+      title: 'SALES ANALYTICS REPORT',
+      columns: 3,
+      sections: [
+        {
+          title: 'SUMMARY',
+          headers: ['Metric', 'Value', 'Details'],
+          columns: 3,
+          data: [
+            ['Total Invoices', formatNumber(counts.totalInvoices), `${formatNumber(counts.releasedInvoices)} released, ${formatNumber(counts.draftInvoices)} draft`],
+            ['Released Invoices', formatNumber(counts.releasedInvoices), formatCurrency(amounts.totalAmount)],
+            ['Draft Invoices', formatNumber(counts.draftInvoices), 'Pending release'],
+            ['Cancelled Invoices', formatNumber(counts.cancelledInvoices), 'Cancelled']
+          ]
+        },
+        {
+          title: "TODAY'S PERFORMANCE",
+          headers: ['Metric', 'Value', 'Details'],
+          columns: 3,
+          data: [
+            ["Today's Invoices", formatNumber(today.totalInvoices), `${formatNumber(today.releasedInvoices)} released`],
+            ['Average Order Value', formatCurrency(amounts.averageOrderValue), 'Per invoice']
+          ]
+        },
+        {
+          title: 'INVOICE BREAKDOWN',
+          headers: ['Category', 'Count'],
+          columns: 2,
+          data: [
+            ['Total Invoices', formatNumber(counts.totalInvoices)],
+            ['Released Invoices', formatNumber(counts.releasedInvoices)],
+            ['Draft Invoices', formatNumber(counts.draftInvoices)],
+            ['Cancelled Invoices', formatNumber(counts.cancelledInvoices)],
+            ['Total Amount', formatCurrency(amounts.totalAmount)]
+          ],
+          amountColumns: [1]
+        }
+      ]
+    };
   };
 
   return (
@@ -300,15 +369,43 @@ const SalesAnalytics = () => {
         </div>
       </div>
 
-      <div className="no-print fixed bottom-6 right-6 z-50">
-        <Button
-          variant="primary"
-          leftIcon={Download}
-          onClick={() => handleDownloadPDF()}
-          disabled={isLoading || !analytics}
-        >
-          Download Report
-        </Button>
+      <div className="no-print fixed bottom-6 right-6 z-50" ref={exportMenuRef}>
+        <div className="relative">
+          <Button
+            variant="primary"
+            leftIcon={Download}
+            rightIcon={ChevronDown}
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            disabled={isLoading || !analytics}
+          >
+            Download Report
+          </Button>
+          
+          {showExportMenu && (
+            <div className="absolute bottom-full right-0 mb-2 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+              <button
+                onClick={() => {
+                  handleDownloadPDF(analytics);
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileText className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as PDF
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadXLSX(analytics, selectedStore, 'sales-analytics-report', getSalesXLSXConfig());
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as XLSX
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

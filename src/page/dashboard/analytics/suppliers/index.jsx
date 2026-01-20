@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getSupplierAnalytics } from '@/store/slices/suppliersSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Building2, CheckCircle, XCircle, Download } from 'lucide-react';
+import { Building2, CheckCircle, XCircle, Download, FileSpreadsheet, ChevronDown, FileText } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -48,7 +48,9 @@ const SupplierAnalytics = () => {
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   
-  const { handleDownloadPDF } = useAnalyticsReportPrint(isLoading, analytics, 'suppliers-report-area', 'suppliers-analytics-report');
+  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(isLoading, analytics, 'suppliers-report-area', 'suppliers-analytics-report');
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
   
   const [metrics, setMetrics] = useState([
     { 
@@ -127,6 +129,52 @@ const SupplierAnalytics = () => {
       });
     }
   }, [analytics, totals]);
+
+  // Handle click outside export menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showExportMenu]);
+
+  const getSuppliersXLSXConfig = () => {
+    return {
+      title: 'SUPPLIERS ANALYTICS REPORT',
+      columns: 2,
+      sections: [
+        {
+          title: 'SUMMARY',
+          headers: ['Metric', 'Value'],
+          columns: 2,
+          data: [
+            ['Total Suppliers', formatNumber(totals.totalSuppliers)],
+            ['Active Suppliers', formatNumber(totals.activeSuppliers)],
+            ['Inactive Suppliers', formatNumber(totals.inactiveSuppliers)],
+            ['Total Count', formatNumber(totals.totalSuppliers)]
+          ]
+        },
+        {
+          title: 'SUPPLIERS BREAKDOWN',
+          headers: ['Category', 'Count'],
+          columns: 2,
+          data: [
+            ['Total Suppliers', formatNumber(totals.totalSuppliers)],
+            ['Active Suppliers', formatNumber(totals.activeSuppliers)],
+            ['Inactive Suppliers', formatNumber(totals.inactiveSuppliers)]
+          ]
+        }
+      ]
+    };
+  };
 
   const [cards, setCards] = useState([
     { id: 'chart1', type: 'chart', title: 'Supplier Growth Trend' },
@@ -284,15 +332,43 @@ const SupplierAnalytics = () => {
         </div>
       </div>
 
-      <div className="no-print fixed bottom-6 right-6 z-50">
-        <Button
-          variant="primary"
-          leftIcon={Download}
-          onClick={() => handleDownloadPDF(analytics)}
-          disabled={isLoading || !analytics}
-        >
-          Download Report
-        </Button>
+      <div className="no-print fixed bottom-6 right-6 z-50" ref={exportMenuRef}>
+        <div className="relative">
+          <Button
+            variant="primary"
+            leftIcon={Download}
+            rightIcon={ChevronDown}
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            disabled={isLoading || !analytics}
+          >
+            Download Report
+          </Button>
+          
+          {showExportMenu && (
+            <div className="absolute bottom-full right-0 mb-2 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+              <button
+                onClick={() => {
+                  handleDownloadPDF(analytics);
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileText className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as PDF
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadXLSX(analytics, selectedStore, 'suppliers-analytics-report', getSuppliersXLSXConfig());
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as XLSX
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
     </>
