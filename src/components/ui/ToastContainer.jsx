@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import Toast from "./Toast";
 
 const ToastContainer = ({ toasts, onRemove }) => {

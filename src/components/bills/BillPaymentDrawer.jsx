@@ -1,26 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAppSelector } from "@/store/hooks";
-import { paymentService } from "@/service/retailer";
-import SideDrawer from "@/components/ui/SideDrawer";
 import {
-  CreditCard,
-  Save,
   Building2,
-  FileText,
   CheckCircle,
+  CreditCard,
+  FileText,
   Plus,
+  Save,
   Trash2,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
+  AddActionButton,
   Button,
   Input,
   Select,
   Textarea,
-  Card,
-  AddActionButton,
 } from "@/components/ui";
+import SideDrawer from "@/components/ui/SideDrawer";
 import { useTranslation } from "@/hooks/useTranslation";
+import { paymentService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
   const { t } = useTranslation();
@@ -86,7 +85,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
       }));
       setErrors({});
     }
-  }, [isOpen, bill]);
+  }, [isOpen, bill, t]);
 
   // Handle input change
   const handleInputChange = (field, value) => {
@@ -109,7 +108,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
     setFormData((prev) => ({
       ...prev,
       paymentMethods: prev.paymentMethods.map((method, i) =>
-        i === index ? { ...method, [field]: value } : method,
+        i === index ? { ...method, [field]: value } : method
       ),
     }));
   };
@@ -159,7 +158,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
         // Validate amount
         if (!method.amount || method.amount <= 0) {
           newErrors[`paymentMethods[${index}].amount`] = t(
-            "errors.amountMustBeGreaterThanZero",
+            "errors.amountMustBeGreaterThanZero"
           );
         }
 
@@ -168,22 +167,22 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
           case "BANK_TRANSFER":
             if (!method.bankName) {
               newErrors[`paymentMethods[${index}].bankName`] = t(
-                "errors.bankNameRequired",
+                "errors.bankNameRequired"
               );
             }
             if (!method.accountNumber) {
               newErrors[`paymentMethods[${index}].accountNumber`] = t(
-                "errors.accountNumberRequired",
+                "errors.accountNumberRequired"
               );
             }
             if (!method.ifscCode) {
               newErrors[`paymentMethods[${index}].ifscCode`] = t(
-                "errors.ifscCodeRequired",
+                "errors.ifscCodeRequired"
               );
             }
             if (!method.holderName) {
               newErrors[`paymentMethods[${index}].holderName`] = t(
-                "errors.holderNameRequired",
+                "errors.holderNameRequired"
               );
             }
             break;
@@ -250,7 +249,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
       if (result.success) {
         setCreatedPaymentNumber(
-          result.data?.paymentNumber || t("payments.payment"),
+          result.data?.paymentNumber || t("payments.payment")
         );
         setShowSuccessModal(true);
       } else {
@@ -258,7 +257,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
           general: result.message || t("payments.failedToCreatePayment"),
         });
       }
-    } catch (error) {
+    } catch (_error) {
       setErrors({ general: t("payments.failedToCreatePayment") });
     } finally {
       setLoading(false);
@@ -273,7 +272,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    onSuccess && onSuccess();
+    onSuccess?.();
     onClose();
   };
 
@@ -377,8 +376,8 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                       bill?.dueAmount ||
                         Math.max(
                           (bill?.totalAmount || 0) - (bill?.paidAmount || 0),
-                          0,
-                        ),
+                          0
+                        )
                     )}
                   </span>
                 </div>
@@ -433,7 +432,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                           handlePaymentMethodChange(
                             index,
                             "amount",
-                            value || "",
+                            value || ""
                           )
                         }
                         placeholder={t("purchaseOrders.enterAmount")}
@@ -475,7 +474,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "bankName",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterBankName")}
@@ -493,7 +492,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "accountNumber",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterAccountNumber")}
@@ -513,7 +512,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "ifscCode",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterIfscCode")}
@@ -531,7 +530,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "holderName",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterAccountHolderName")}
@@ -571,7 +570,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "transactionId",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterTransactionId")}
@@ -597,7 +596,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "chequeNumber",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterChequeNumber")}
@@ -618,7 +617,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "chequeDate",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.chequeDate")}
@@ -638,7 +637,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "chequeBankName",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterBankName")}
@@ -658,7 +657,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                               handlePaymentMethodChange(
                                 index,
                                 "chequeBranchName",
-                                value,
+                                value
                               )
                             }
                             placeholder={t("payments.enterBranchName")}

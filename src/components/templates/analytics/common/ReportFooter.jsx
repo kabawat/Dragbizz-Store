@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
-import styles from './analyticsReport.module.scss';
+import moment from "moment";
+import styles from "./analyticsReport.module.scss";
 
 const ReportFooter = ({ reportType = "analytics" }) => {
   return (
@@ -13,4 +12,3 @@ const ReportFooter = ({ reportType = "analytics" }) => {
 };
 
 export default ReportFooter;
-

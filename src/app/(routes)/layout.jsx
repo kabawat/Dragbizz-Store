@@ -1,24 +1,24 @@
 "use client";
-import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { cookieManager } from "@/utils/cookieManager";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  getRetailerDetails,
-  getAuthProfile,
-} from "@/store/slices/profileSlice";
-import { Button } from "@/components/ui";
+import { useEffect, useRef } from "react";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-
-// Prevent duplicate profile API calls (e.g. React Strict Mode double effects in dev)
-let hasFetchedRetailerProfile = false;
-let hasFetchedAuthProfileOnce = false;
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  getAuthProfile,
+  getRetailerDetails,
+} from "@/store/slices/profileSlice";
+import { cookieManager } from "@/utils/cookieManager";
 
 export default function RoutesLayout({ children }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  // Use refs to track fetch status (prevents re-fetches on re-renders)
+  const hasFetchedRetailerProfileRef = useRef(false);
+  const hasFetchedAuthProfileRef = useRef(false);
+  const isCheckingAuthRef = useRef(false);
 
   // Setup inactivity logout (7 days inactivity)
   useInactivityLogout();
@@ -36,61 +36,99 @@ export default function RoutesLayout({ children }) {
     authProfileError,
     redirectTo,
   } = useAppSelector((state) => state.profile);
+
+  // Check auth and fetch profiles - only run once or when auth token changes
   useEffect(() => {
+    // Prevent concurrent executions
+    if (isCheckingAuthRef.current) {
+      return;
+    }
+
     const checkAuth = async () => {
-      const authToken = cookieManager.getAuthToken();
-      if (!authToken) {
-        router.push("/login");
-        return;
-      }
+      isCheckingAuthRef.current = true;
 
-      // If no retailer data and no ongoing/error state, fetch retailer profile
-      const hasRetailerData =
-        !!user || !!agency || (stores && stores.length > 0);
+      try {
+        const authToken = cookieManager.getAuthToken();
+        const currentPath =
+          typeof window !== "undefined" ? window.location.pathname : "";
 
-      if (
-        !hasRetailerData &&
-        !isLoading &&
-        !error &&
-        !hasFetchedRetailerProfile
-      ) {
-        hasFetchedRetailerProfile = true;
-        await dispatch(getRetailerDetails());
-      }
+        // Don't redirect if already on login page to prevent loops
+        if (!authToken && currentPath !== "/login") {
+          router.push("/login");
+          return;
+        }
 
-      // If no auth-service profile and no ongoing/error state, fetch auth profile
-      const hasAuthProfile = !!authProfile;
-      if (
-        !hasAuthProfile &&
-        !authProfileLoading &&
-        !authProfileError &&
-        !hasFetchedAuthProfileOnce
-      ) {
-        hasFetchedAuthProfileOnce = true;
-        await dispatch(getAuthProfile());
+        // If no auth token, don't proceed with fetching
+        if (!authToken) {
+          return;
+        }
+
+        // Reset flags if auth token was cleared and re-added
+        if (
+          !authToken &&
+          (hasFetchedRetailerProfileRef.current ||
+            hasFetchedAuthProfileRef.current)
+        ) {
+          hasFetchedRetailerProfileRef.current = false;
+          hasFetchedAuthProfileRef.current = false;
+        }
+
+        // If no retailer data and no ongoing/error state, fetch retailer profile
+        const hasRetailerData =
+          !!user || !!agency || (stores && stores.length > 0);
+
+        if (
+          !hasRetailerData &&
+          !isLoading &&
+          !error &&
+          !hasFetchedRetailerProfileRef.current
+        ) {
+          hasFetchedRetailerProfileRef.current = true;
+          await dispatch(getRetailerDetails());
+        }
+
+        // If no auth-service profile and no ongoing/error state, fetch auth profile
+        const hasAuthProfile = !!authProfile;
+        if (
+          !hasAuthProfile &&
+          !authProfileLoading &&
+          !authProfileError &&
+          !hasFetchedAuthProfileRef.current
+        ) {
+          hasFetchedAuthProfileRef.current = true;
+          await dispatch(getAuthProfile());
+        }
+      } finally {
+        isCheckingAuthRef.current = false;
       }
     };
 
     checkAuth();
+    // Only depend on loading states and auth token presence, not on data that changes after fetch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    router,
-    dispatch,
     isLoading,
+    authProfileLoading,
     error,
+    authProfileError,
     agency,
+    authProfile,
+    dispatch,
+    router.push,
     stores,
     user,
-    authProfile,
-    authProfileLoading,
-    authProfileError,
   ]);
 
   // Handle redirectTo from profile state (for onboarding flow)
   useEffect(() => {
     if (redirectTo && !isLoading) {
       const currentPath = window.location.pathname;
-      // Only redirect if not already on the target path
-      if (!currentPath.startsWith(redirectTo)) {
+      // Only redirect if not already on the target path or a subpath
+      // Use exact match or check if we're not already there
+      if (
+        currentPath !== redirectTo &&
+        !currentPath.startsWith(`${redirectTo}/`)
+      ) {
         router.push(redirectTo);
       }
     }

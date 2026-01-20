@@ -1,34 +1,31 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
 import {
-  supplierService,
-  productService,
-  billService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  Receipt,
-  Plus,
-  Minus,
-  Save,
-  X,
-  Building2,
-  Package,
-  IndianRupee,
-  Calendar,
-  FileText,
   AlertCircle,
   ArrowLeft,
+  Building2,
+  Calendar,
   CheckCircle,
-  Clock,
+  FileText,
+  IndianRupee,
+  Package,
+  Plus,
+  Receipt,
+  Save,
   Trash2,
 } from "lucide-react";
-import { Button, Input, Select, Textarea, Card, Modal } from "@/components/ui";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  billService,
+  productService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
@@ -67,7 +64,7 @@ const EditBill = ({ billId }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [_showSaveModal, _setShowSaveModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [updatedBillNumber, setUpdatedBillNumber] = useState("");
   const hasFetched = useRef(false);
@@ -184,12 +181,12 @@ const EditBill = ({ billId }) => {
         } else {
           setFetchError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.bill") }),
+              t("errors.failedToFetchData", { item: t("common.bill") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setFetchError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.bill") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.bill") })
         );
       } finally {
         setFetching(false);
@@ -197,7 +194,7 @@ const EditBill = ({ billId }) => {
     };
 
     fetchBillData();
-  }, [billId, selectedStore]);
+  }, [billId, selectedStore, t]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -214,7 +211,7 @@ const EditBill = ({ billId }) => {
         setSuppliers(suppliersData);
       } else {
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -235,7 +232,7 @@ const EditBill = ({ billId }) => {
         setProducts(productsData);
       } else {
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setProductsLoading(false);
     }
@@ -245,7 +242,7 @@ const EditBill = ({ billId }) => {
   useEffect(() => {
     fetchSuppliers();
     fetchProducts();
-  }, [selectedStore]);
+  }, [fetchProducts, fetchSuppliers]);
 
   // Handle store change
   const handleStoreChange = () => {
@@ -274,7 +271,7 @@ const EditBill = ({ billId }) => {
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
+        i === index ? { ...item, [field]: value } : item
       ),
     }));
   };
@@ -368,7 +365,7 @@ const EditBill = ({ billId }) => {
         goodsReceived: formData.goodsReceived,
         items: formData.items.map((item) => ({
           product: item.product,
-          quantity: parseInt(item.quantity),
+          quantity: parseInt(item.quantity, 10),
           purchasePrice: parseFloat(item.purchasePrice),
           expiryDate: item.expiryDate || undefined,
         })),
@@ -381,7 +378,7 @@ const EditBill = ({ billId }) => {
       const result = await billService.updateBill(
         billId,
         billData,
-        selectedStore.storeId,
+        selectedStore.storeId
       );
 
       if (result.success) {
@@ -390,12 +387,12 @@ const EditBill = ({ billId }) => {
       } else {
         setUpdateError(
           result.message ||
-            t("errors.failedToUpdate", { item: t("common.bill") }),
+            t("errors.failedToUpdate", { item: t("common.bill") })
         );
       }
-    } catch (error) {
+    } catch (_error) {
       setUpdateError(
-        t("errors.failedToUpdateTryAgain", { item: t("common.bill") }),
+        t("errors.failedToUpdateTryAgain", { item: t("common.bill") })
       );
     } finally {
       setIsUpdating(false);
@@ -570,7 +567,7 @@ const EditBill = ({ billId }) => {
                                 ...suppliers
                                   .filter(
                                     (supplier) =>
-                                      supplier.name || supplier.supplierName,
+                                      supplier.name || supplier.supplierName
                                   )
                                   .map((supplier) => ({
                                     value: supplier.id || supplier._id,
@@ -672,7 +669,7 @@ const EditBill = ({ billId }) => {
                               onChange={(e) =>
                                 handleInputChange(
                                   "goodsReceived",
-                                  e.target.checked,
+                                  e.target.checked
                                 )
                               }
                             />
@@ -743,13 +740,13 @@ const EditBill = ({ billId }) => {
                                     value={item.product}
                                     onChange={(value) => {
                                       const selectedProduct = products.find(
-                                        (p) => (p.id || p._id) === value,
+                                        (p) => (p.id || p._id) === value
                                       );
                                       handleItemChange(index, "product", value);
                                       handleItemChange(
                                         index,
                                         "productName",
-                                        selectedProduct?.name || "",
+                                        selectedProduct?.name || ""
                                       );
                                     }}
                                     options={[
@@ -799,7 +796,7 @@ const EditBill = ({ billId }) => {
                                       handleItemChange(
                                         index,
                                         "purchasePrice",
-                                        value,
+                                        value
                                       )
                                     }
                                     error={
@@ -826,7 +823,7 @@ const EditBill = ({ billId }) => {
                                       handleItemChange(
                                         index,
                                         "expiryDate",
-                                        value,
+                                        value
                                       )
                                     }
                                     leftIcon={Calendar}

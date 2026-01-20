@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
+import { useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
 

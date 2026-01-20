@@ -1,20 +1,18 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
 import {
-  Image,
-  Upload,
-  X,
-  Loader2,
-  CheckCircle2,
   AlertCircle,
+  CheckCircle2,
+  Loader2,
   Sparkles,
   Trash2,
+  X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button, FileUpload } from "@/components/ui";
-import { voiceAIService } from "@/service";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { voiceAIService } from "@/service";
 
 const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -22,9 +20,9 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
   const { showSuccess, showError } = useGlobalToast();
   const [selectedImages, setSelectedImages] = useState([]);
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResults, setExtractionResults] = useState([]);
-  const [currentExtractingIndex, setCurrentExtractingIndex] = useState(-1);
-  const fileInputRef = useRef(null);
+  const [_extractionResults, setExtractionResults] = useState([]);
+  const [_currentExtractingIndex, setCurrentExtractingIndex] = useState(-1);
+  const _fileInputRef = useRef(null);
 
   // Handle image selection
   const handleImageSelect = (files) => {
@@ -47,7 +45,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
         t("products.onlyMoreImagesCanBeAdded", {
           remaining: remainingSlots,
           max: MAX_IMAGES,
-        }),
+        })
       );
     }
 
@@ -67,13 +65,13 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
   const handleRemoveImage = (imageId) => {
     setSelectedImages((prev) => {
       const image = prev.find((img) => img.id === imageId);
-      if (image && image.preview) {
+      if (image?.preview) {
         URL.revokeObjectURL(image.preview);
       }
       return prev.filter((img) => img.id !== imageId);
     });
     setExtractionResults((prev) =>
-      prev.filter((result) => result.imageId !== imageId),
+      prev.filter((result) => result.imageId !== imageId)
     );
   };
 
@@ -99,14 +97,14 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
           prev.map((img) =>
             img.id === image.id
               ? { ...img, status: "extracting", error: null }
-              : img,
-          ),
+              : img
+          )
         );
 
         try {
           // Call API to extract product data
           const result = await voiceAIService.extractProductFromImage(
-            image.file,
+            image.file
           );
 
           if (result.success && result.data) {
@@ -118,8 +116,8 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
               prev.map((img) =>
                 img.id === image.id
                   ? { ...img, status: "success", extractedData }
-                  : img,
-              ),
+                  : img
+              )
             );
 
             results.push({
@@ -146,14 +144,14 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
                           ...(mergedData.content?.tags || []),
                           ...(extractedData.content?.tags || []),
                         ].filter(
-                          (tag, index, self) => self.indexOf(tag) === index,
+                          (tag, index, self) => self.indexOf(tag) === index
                         ), // Remove duplicates
                         features: [
                           ...(mergedData.content?.features || []),
                           ...(extractedData.content?.features || []),
                         ].filter(
                           (feature, index, self) =>
-                            self.indexOf(feature) === index,
+                            self.indexOf(feature) === index
                         ), // Remove duplicates
                         specifications: [
                           ...(mergedData.content?.specifications || []),
@@ -171,8 +169,8 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
               prev.map((img) =>
                 img.id === image.id
                   ? { ...img, status: "error", error: errorMessage }
-                  : img,
-              ),
+                  : img
+              )
             );
 
             results.push({
@@ -190,8 +188,8 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
             prev.map((img) =>
               img.id === image.id
                 ? { ...img, status: "error", error: errorMessage }
-                : img,
-            ),
+                : img
+            )
           );
 
           results.push({
@@ -207,7 +205,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
       // If we have merged data, call onExtractSuccess
       if (mergedData) {
         showSuccess(
-          `Successfully extracted data from ${results.filter((r) => r.success).length} image(s)`,
+          `Successfully extracted data from ${results.filter((r) => r.success).length} image(s)`
         );
         if (onExtractSuccess) {
           onExtractSuccess(mergedData);
@@ -215,7 +213,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
       } else {
         showError("Failed to extract product data from any image");
       }
-    } catch (error) {
+    } catch (_error) {
       showError("An error occurred during extraction. Please try again.");
     } finally {
       setIsExtracting(false);

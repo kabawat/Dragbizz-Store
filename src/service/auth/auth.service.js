@@ -1,8 +1,9 @@
 // src/service/auth/auth.service.js
-import { unauthAxios, authAxios } from "../config/axiosConfig";
+
 import { API_CONFIG } from "@/config";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { getUserLocation } from "@/utils/locationUtils";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios, unauthAxios } from "../config/axiosConfig";
 
 class AuthService {
   constructor() {
@@ -34,7 +35,7 @@ class AuthService {
         identifier: credentials.identifier,
         pwds: credentials.password,
         useOtp: credentials.useOtp || false,
-        deviceId: credentials.deviceId || "web_device_" + Date.now(),
+        deviceId: credentials.deviceId || `web_device_${Date.now()}`,
         platform: credentials.platform || "web",
         deviceToken: credentials.deviceToken || "",
         location: credentials.location || "0,0",
@@ -54,7 +55,7 @@ class AuthService {
         identifier: credentials.identifier,
         pwds: "", // Empty for OTP login
         useOtp: true,
-        deviceId: credentials.deviceId || "web_device_" + Date.now(),
+        deviceId: credentials.deviceId || `web_device_${Date.now()}`,
         platform: credentials.platform || "web",
         deviceToken: credentials.deviceToken || "",
         location: credentials.location || "0,0",
@@ -94,7 +95,7 @@ class AuthService {
       if (otpData.location) {
         if (typeof otpData.location === "string") {
           const [lat, lng] = otpData.location.split(",").map(Number);
-          if (!isNaN(lat) && !isNaN(lng)) {
+          if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
             locationData = { latitude: lat, longitude: lng };
           }
         } else if (
@@ -110,7 +111,7 @@ class AuthService {
         API_CONFIG.AUTH.LOGIN_VERIFY,
         {
           code: code,
-          deviceId: otpData.deviceId || "web_device_" + Date.now(),
+          deviceId: otpData.deviceId || `web_device_${Date.now()}`,
           platform: otpData.platform || "web",
           deviceToken: otpData.deviceToken || "",
           location: locationData,
@@ -119,7 +120,7 @@ class AuthService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       return handleApiSuccess(response, "OTP verified successfully");
@@ -204,7 +205,7 @@ class AuthService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       return handleApiSuccess(response, "OTP verified successfully");
@@ -289,7 +290,7 @@ class AuthService {
     try {
       const response = await authAxios.put(
         API_CONFIG.AUTH.PROFILE,
-        profileData,
+        profileData
       );
       return handleApiSuccess(response, "Profile updated successfully");
     } catch (error) {

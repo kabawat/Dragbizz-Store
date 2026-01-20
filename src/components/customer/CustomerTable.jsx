@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { MoreVertical, Edit, Copy, Trash2, Eye, Users } from "lucide-react";
+import { Edit, Eye, MoreVertical, Trash2, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const CustomerTable = ({
@@ -22,7 +22,7 @@ const CustomerTable = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
 
-  const defaultEmptyMessage = emptyMessage || t("customers.noCustomers");
+  const _defaultEmptyMessage = emptyMessage || t("customers.noCustomers");
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -42,7 +42,7 @@ const CustomerTable = ({
     };
   }, [openMenuId]);
 
-  const actionMenuItems = (customer) => [
+  const _actionMenuItems = (customer) => [
     {
       value: "view",
       label: t("common.view"),
@@ -174,7 +174,7 @@ const CustomerTable = ({
                           <span className="text-xs text-[rgb(var(--color-text-secondary))]">
                             {t("common.added")}:{" "}
                             {new Date(
-                              customer.createdAt || Date.now(),
+                              customer.createdAt || Date.now()
                             ).toLocaleDateString()}
                           </span>
                         </div>

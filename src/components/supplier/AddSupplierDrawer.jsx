@@ -1,15 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAppSelector } from "@/store/hooks";
-import { supplierService } from "@/service";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import {
-  SideDrawer,
-  Button,
-} from "@/components/ui";
+import { Building2, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SupplierForm } from "@/components/supplier";
-import { Save, Building2 } from "lucide-react";
+import { Button, SideDrawer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { supplierService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
@@ -46,7 +43,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       setFormData(getInitialFormData());
       clearFieldErrors();
     }
-  }, [isOpen, storeId, clearFieldErrors]);
+  }, [isOpen, clearFieldErrors, getInitialFormData]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {

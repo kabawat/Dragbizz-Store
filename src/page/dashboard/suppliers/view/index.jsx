@@ -1,23 +1,23 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
+import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
-import LoadingState from "./components/LoadingState";
-import ErrorState from "./components/ErrorState";
-import SupplierBasicInfo from "./components/SupplierBasicInfo";
-import SupplierAddress from "./components/SupplierAddress";
-import SupplierAccountDetails from "./components/SupplierAccountDetails";
-import SupplierActions from "./components/SupplierActions";
 import DeleteModal from "./components/DeleteModal";
 import DeleteSuccessModal from "./components/DeleteSuccessModal";
+import ErrorState from "./components/ErrorState";
+import LoadingState from "./components/LoadingState";
+import SupplierAccountDetails from "./components/SupplierAccountDetails";
+import SupplierActions from "./components/SupplierActions";
+import SupplierAddress from "./components/SupplierAddress";
+import SupplierBasicInfo from "./components/SupplierBasicInfo";
 
 const ViewSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
@@ -37,7 +37,7 @@ const ViewSupplierPage = ({ supplierId }) => {
     fetching,
     supplierData,
     "supplier-details-area",
-    "supplier-details-report",
+    "supplier-details-report"
   );
 
   useEffect(() => {
@@ -58,12 +58,12 @@ const ViewSupplierPage = ({ supplierId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.supplier") }),
+              t("errors.failedToFetchData", { item: t("common.supplier") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.supplier") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.supplier") })
         );
       } finally {
         setFetching(false);
@@ -95,13 +95,13 @@ const ViewSupplierPage = ({ supplierId }) => {
       } else {
         setError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.supplier") }),
+            t("errors.failedToDelete", { item: t("common.supplier") })
         );
         setShowDeleteModal(false);
       }
-    } catch (error) {
+    } catch (_error) {
       setError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.supplier") }),
+        t("errors.failedToDeleteTryAgain", { item: t("common.supplier") })
       );
       setShowDeleteModal(false);
     } finally {

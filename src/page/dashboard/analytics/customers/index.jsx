@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,31 +9,32 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getCustomerAnalytics } from "@/store/slices/customersSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Users,
-  UserPlus,
   Calendar,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
+  UserPlus,
+  Users,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import {
-  SortableMetricCard,
-  SortableCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import CustomersReportTemplate from "@/components/templates/analytics/customers/CustomersReportTemplate";
+import {
+  SortableCard,
+  SortableMetricCard,
+} from "@/components/templates/analytics/SortableComponents";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getCustomerAnalytics } from "@/store/slices/customersSlice";
 
 const CustomerAnalytics = () => {
   const { t } = useTranslation();
@@ -77,7 +77,7 @@ const CustomerAnalytics = () => {
         last6Months: 0,
         last12Months: 0,
       },
-    [analytics?.newCustomers],
+    [analytics?.newCustomers]
   );
 
   const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
@@ -86,7 +86,7 @@ const CustomerAnalytics = () => {
     isLoading,
     analytics,
     "customers-report-area",
-    "customers-analytics-report",
+    "customers-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -168,7 +168,7 @@ const CustomerAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, newCustomers]);
+  }, [analytics, newCustomers, formatNumber]);
 
   // Handle click outside export menu
   useEffect(() => {
@@ -234,7 +234,7 @@ const CustomerAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -443,7 +443,7 @@ const CustomerAnalytics = () => {
                       analytics,
                       selectedStore,
                       "customers-analytics-report",
-                      getCustomersXLSXConfig(),
+                      getCustomersXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

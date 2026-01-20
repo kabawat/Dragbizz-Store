@@ -1,7 +1,8 @@
 // src/service/retailer/store.service.js
-import { authAxios } from "@/service/config/axiosConfig";
+
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class StoreService {
@@ -15,7 +16,7 @@ class StoreService {
       const response = await authAxios.post(API_CONFIG?.RETAILER?.PROFILE);
       return handleApiSuccess(
         response?.data,
-        "Retailer profile fetched successfully",
+        "Retailer profile fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "retailer-profile");
@@ -31,7 +32,7 @@ class StoreService {
 
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.AGENCY,
-        payload,
+        payload
       );
       return handleApiSuccess(response, "Agency created successfully");
     } catch (error) {
@@ -77,7 +78,7 @@ class StoreService {
 
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.STORE,
-        payload,
+        payload
       );
       return handleApiSuccess(response, "Store created successfully");
     } catch (error) {
@@ -89,7 +90,7 @@ class StoreService {
   async getStore(storeId) {
     try {
       const response = await authAxios.get(
-        `${API_CONFIG?.RETAILER?.STORE}?id=${storeId}`,
+        `${API_CONFIG?.RETAILER?.STORE}?id=${storeId}`
       );
       return handleApiSuccess(response?.data, "Store fetched successfully");
     } catch (error) {
@@ -102,7 +103,7 @@ class StoreService {
     try {
       const response = await authAxios.put(
         `${API_CONFIG?.RETAILER?.STORE}/${storeId}`,
-        storeData,
+        storeData
       );
       return handleApiSuccess(response?.data, "Store updated successfully");
     } catch (error) {
@@ -126,7 +127,7 @@ class StoreService {
     try {
       const response = await authAxios.post(
         `${API_CONFIG?.RETAILER?.STORE}/${storeId}/delete/request`,
-        { channel },
+        { channel }
       );
       return handleApiSuccess(response?.data, "OTP sent successfully");
     } catch (error) {
@@ -139,7 +140,7 @@ class StoreService {
     try {
       const response = await authAxios.post(
         `${API_CONFIG?.RETAILER?.STORE}/${storeId}/delete/verify`,
-        { signature, otp },
+        { signature, otp }
       );
       return handleApiSuccess(response?.data, "Store deleted successfully");
     } catch (error) {

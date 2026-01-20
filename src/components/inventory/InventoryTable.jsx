@@ -1,25 +1,17 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 import {
-  MoreVertical,
-  Edit,
   Copy,
-  Trash2,
+  Edit,
   Eye,
+  MoreVertical,
   Package,
+  Trash2,
   TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  IndianRupee,
-  Calendar,
-  Building2,
 } from "lucide-react";
 import Image from "next/image";
-import {
-  getStatusBadge as getCommonStatusBadge,
-  renderStatusBadge,
-} from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const InventoryTable = ({
   inventories = [],
@@ -42,7 +34,7 @@ const InventoryTable = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
 
-  const defaultEmptyMessage = emptyMessage || t("inventory.noInventory");
+  const _defaultEmptyMessage = emptyMessage || t("inventory.noInventory");
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -80,7 +72,7 @@ const InventoryTable = ({
     return renderStatusBadge(paymentStatus, "bill");
   };
 
-  const actionMenuItems = (inventory) => [
+  const _actionMenuItems = (inventory) => [
     {
       value: "view",
       label: t("common.viewDetails"),
@@ -312,7 +304,7 @@ const InventoryTable = ({
                   {/* Payment Column */}
                   <td className="px-6 py-4">
                     {getPaymentStatusBadge(
-                      inventory.paymentSummary?.paymentStatus,
+                      inventory.paymentSummary?.paymentStatus
                     )}
                   </td>
 

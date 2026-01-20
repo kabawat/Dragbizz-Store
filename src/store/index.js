@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import profileSlice from "./slices/profileSlice";
-import productsSlice from "./slices/productsSlice";
-import customersSlice from "./slices/customersSlice";
-import suppliersSlice from "./slices/suppliersSlice";
-import billsSlice from "./slices/billsSlice";
-import paymentsSlice from "./slices/paymentsSlice";
 import accountsSlice from "./slices/accountsSlice";
-import invoicesSlice from "./slices/invoicesSlice";
-import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
-import expensesSlice from "./slices/expensesSlice";
 import analyticsSlice from "./slices/analyticsSlice";
+import billsSlice from "./slices/billsSlice";
+import customersSlice from "./slices/customersSlice";
+import expensesSlice from "./slices/expensesSlice";
+import invoicesSlice from "./slices/invoicesSlice";
+import paymentsSlice from "./slices/paymentsSlice";
+import productsSlice from "./slices/productsSlice";
+import profileSlice from "./slices/profileSlice";
+import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
+import suppliersSlice from "./slices/suppliersSlice";
 
 export const store = configureStore({
   reducer: {
@@ -31,5 +31,5 @@ export const store = configureStore({
         ignoredActions: ["persist/PERSIST"],
       },
     }),
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: process.env.NODE_ENV !== "production",
 });

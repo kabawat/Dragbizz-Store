@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class InventoryService {
@@ -13,7 +13,7 @@ class InventoryService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.STOCK,
-        inventoryData,
+        inventoryData
       );
       return handleApiSuccess(response?.data, "Inventory created successfully");
     } catch (error) {
@@ -47,7 +47,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Inventories fetched successfully",
+        "Inventories fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventories-list");
@@ -93,7 +93,7 @@ class InventoryService {
     try {
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.STOCK,
-        stockData,
+        stockData
       );
       return handleApiSuccess(response?.data, "Stock added successfully");
     } catch (error) {
@@ -114,7 +114,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Inventory statistics fetched successfully",
+        "Inventory statistics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-stats");
@@ -133,7 +133,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Low stock alerts fetched successfully",
+        "Low stock alerts fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "low-stock-alerts");
@@ -152,7 +152,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Out of stock items fetched successfully",
+        "Out of stock items fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "out-of-stock-items");
@@ -173,7 +173,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Inventories searched successfully",
+        "Inventories searched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-search");
@@ -192,7 +192,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Product inventory fetched successfully",
+        "Product inventory fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "product-inventory");
@@ -211,7 +211,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Supplier inventory fetched successfully",
+        "Supplier inventory fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-inventory");
@@ -231,7 +231,7 @@ class InventoryService {
       const response = await authAxios.put(url, { updates });
       return handleApiSuccess(
         response?.data,
-        "Inventory bulk updated successfully",
+        "Inventory bulk updated successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-bulk-update");
@@ -254,7 +254,7 @@ class InventoryService {
       });
       return handleApiSuccess(
         response?.data,
-        "Inventory exported successfully",
+        "Inventory exported successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-export");
@@ -274,7 +274,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Inventory alerts fetched successfully",
+        "Inventory alerts fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-alerts");
@@ -294,7 +294,7 @@ class InventoryService {
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response?.data,
-        "Inventory history fetched successfully",
+        "Inventory history fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "inventory-history");

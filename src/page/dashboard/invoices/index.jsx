@@ -1,23 +1,22 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Grid3X3, List, FileText, Download, Search } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { Download, FileText, Grid3X3, List, Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
-  InvoiceTable,
   InvoiceCard,
   InvoiceDeleteConfirmModal,
-  UpdatePaymentStatusModal,
-  ReleaseInvoiceModal,
   InvoiceDownloadDrawer,
+  InvoiceTable,
+  ReleaseInvoiceModal,
+  UpdatePaymentStatusModal,
 } from "@/components/invoice";
-import { getInvoices, setViewMode } from "@/store/slices/invoicesSlice";
-import { Input } from "@/components/ui";
-import { Button } from "@/components/ui";
-import { useRouter } from "next/navigation";
+import { Button, Input } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getInvoices, setViewMode } from "@/store/slices/invoicesSlice";
 
 const InvoicesPage = () => {
   const { t } = useTranslation();
@@ -27,7 +26,7 @@ const InvoicesPage = () => {
 
   // Redux store data
   const { invoices, isLoading, error, pagination, viewMode } = useAppSelector(
-    (state) => state.invoices,
+    (state) => state.invoices
   );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -46,7 +45,7 @@ const InvoicesPage = () => {
     if (error) {
       showError(error || t("common.failedToLoad"));
     }
-  }, [error, showError]);
+  }, [error, showError, t]);
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("invoices-view-mode");
@@ -74,7 +73,7 @@ const InvoicesPage = () => {
       searchValue: null,
       fetched: false,
     };
-  }, [selectedStore, searchValue]);
+  }, []);
 
   useEffect(() => {
     const storeId =
@@ -149,7 +148,7 @@ const InvoicesPage = () => {
       };
 
       await dispatch(getInvoices(params));
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }
@@ -220,12 +219,7 @@ const InvoicesPage = () => {
       scrollElement.removeEventListener("scroll", throttledHandleScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
-  }, [
-    isLoadingMore,
-    pagination?.hasNextPage,
-    pagination?.nextCursor,
-    handleLoadMore,
-  ]);
+  }, [isLoadingMore, pagination?.hasNextPage, handleLoadMore]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
@@ -256,7 +250,7 @@ const InvoicesPage = () => {
     setInvoiceToRelease(null);
   };
 
-  const handleUpdatePaymentStatus = (invoiceId, invoice) => {
+  const handleUpdatePaymentStatus = (_invoiceId, invoice) => {
     setInvoiceToUpdatePayment(invoice);
   };
 
@@ -407,92 +401,90 @@ const InvoicesPage = () => {
             )}
 
             {invoices.length > 0 && (
-              <>
-                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div
-                    className="h-[calc(100vh-200px)] overflow-y-auto"
-                    ref={scrollRef}
-                  >
-                    {viewMode === "table" ? (
-                      <div className="min-h-full">
-                        <InvoiceTable
-                          invoices={invoices}
-                          onEdit={handleEditInvoice}
-                          onDelete={handleDeleteInvoice}
-                          onViewDetails={handleViewInvoice}
-                          onPrint={handlePrintInvoice}
-                          onRelease={handleReleaseInvoice}
-                          onUpdatePaymentStatus={handleUpdatePaymentStatus}
-                          loading={isLoading}
-                          emptyMessage={t("common.noResults")}
-                          hasMore={pagination?.hasNextPage}
-                          onLoadMore={handleLoadMore}
-                          isLoadingMore={isLoadingMore}
-                        />
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                          {invoices.map((invoice) => (
-                            <InvoiceCard
-                              key={invoice.id || invoice._id}
-                              invoice={invoice}
-                              onEdit={handleEditInvoice}
-                              onDelete={handleDeleteInvoice}
-                              onViewDetails={handleViewInvoice}
-                              onPrint={handlePrintInvoice}
-                              onRelease={handleReleaseInvoice}
-                              onUpdatePaymentStatus={handleUpdatePaymentStatus}
-                            />
-                          ))}
+              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
+                <div
+                  className="h-[calc(100vh-200px)] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {viewMode === "table" ? (
+                    <div className="min-h-full">
+                      <InvoiceTable
+                        invoices={invoices}
+                        onEdit={handleEditInvoice}
+                        onDelete={handleDeleteInvoice}
+                        onViewDetails={handleViewInvoice}
+                        onPrint={handlePrintInvoice}
+                        onRelease={handleReleaseInvoice}
+                        onUpdatePaymentStatus={handleUpdatePaymentStatus}
+                        loading={isLoading}
+                        emptyMessage={t("common.noResults")}
+                        hasMore={pagination?.hasNextPage}
+                        onLoadMore={handleLoadMore}
+                        isLoadingMore={isLoadingMore}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {invoices.map((invoice) => (
+                          <InvoiceCard
+                            key={invoice.id || invoice._id}
+                            invoice={invoice}
+                            onEdit={handleEditInvoice}
+                            onDelete={handleDeleteInvoice}
+                            onViewDetails={handleViewInvoice}
+                            onPrint={handlePrintInvoice}
+                            onRelease={handleReleaseInvoice}
+                            onUpdatePaymentStatus={handleUpdatePaymentStatus}
+                          />
+                        ))}
 
-                          {isLoadingMore && (
-                            <div className="col-span-full flex items-center justify-center py-8">
-                              <div className="flex items-center gap-3">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  {t("common.loading")}
-                                </span>
-                              </div>
+                        {isLoadingMore && (
+                          <div className="col-span-full flex items-center justify-center py-8">
+                            <div className="flex items-center gap-3">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                {t("common.loading")}
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {pagination?.hasNextPage ? (
-                          <>
-                            Showing{" "}
-                            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                              {invoices.length}
-                            </span>{" "}
-                            invoices
-                            <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                              • Scroll down to load more
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            Showing{" "}
-                            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                              {invoices.length}
-                            </span>{" "}
-                            invoices
-                            <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                              • No more invoices
-                            </span>
-                          </>
+                          </div>
                         )}
                       </div>
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                     </div>
+                  )}
+                </div>
+
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                      {pagination?.hasNextPage ? (
+                        <>
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {invoices.length}
+                          </span>{" "}
+                          invoices
+                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
+                            • Scroll down to load more
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {invoices.length}
+                          </span>{" "}
+                          invoices
+                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
+                            • No more invoices
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>

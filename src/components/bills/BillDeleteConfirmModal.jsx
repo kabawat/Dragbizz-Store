@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { Modal, Button } from "@/components/ui";
+import { Button, Modal } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const BillDeleteConfirmModal = ({

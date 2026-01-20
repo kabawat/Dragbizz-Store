@@ -1,26 +1,20 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Card, Badge, Button, Dropdown } from "../ui";
 import {
-  MoreHorizontal,
-  Edit,
+  CheckCircle,
   Copy,
-  Trash2,
+  CreditCard,
+  Edit,
   Eye,
   FileText,
-  Phone,
-  Mail,
-  Calendar,
-  IndianRupee,
-  User,
-  Printer,
-  CheckCircle,
   MessageCircle,
-  CreditCard,
+  Printer,
+  Trash2,
 } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { getStatusBadge } from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusBadge } from "@/utils/statusBadge";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Card } from "../ui";
 
 const InvoiceCard = ({
   invoice,
@@ -253,7 +247,7 @@ const InvoiceCard = ({
             {(() => {
               const config = getStatusBadge(
                 invoice.paymentStatus || invoice.invoiceStatus,
-                "invoice",
+                "invoice"
               );
               return (
                 <span

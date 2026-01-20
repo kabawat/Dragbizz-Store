@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import { Package } from 'lucide-react';
+import { Package } from "lucide-react";
 
 const BillItemsTable = ({ items, itemsSummary, formatCurrency }) => {
   if (!items || items.length === 0) return null;
@@ -12,8 +11,12 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency }) => {
           <Package className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Line Items</h2>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Breakdown of products in this bill</p>
+          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+            Line Items
+          </h2>
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            Breakdown of products in this bill
+          </p>
         </div>
       </div>
 
@@ -32,10 +35,12 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency }) => {
               <tr key={`${item.product || index}-${index}`}>
                 <td className="py-4 pr-4">
                   <p className="font-semibold text-[rgb(var(--color-text-primary))]">
-                    {item.productName || 'Unnamed Product'}
+                    {item.productName || "Unnamed Product"}
                   </p>
                 </td>
-                <td className="py-4 pr-4 text-[rgb(var(--color-text-primary))]">{item.quantity || 0}</td>
+                <td className="py-4 pr-4 text-[rgb(var(--color-text-primary))]">
+                  {item.quantity || 0}
+                </td>
                 <td className="py-4 pr-4 text-[rgb(var(--color-text-primary))]">
                   {formatCurrency(item.unitPrice || 0)}
                 </td>
@@ -52,15 +57,21 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency }) => {
         <div className="mt-6 space-y-3 text-sm text-[rgb(var(--color-text-secondary))]">
           <div className="flex items-center justify-end gap-2">
             <span>Subtotal:</span>
-            <strong className="text-[rgb(var(--color-text-primary))]">{formatCurrency(itemsSummary.subtotal)}</strong>
+            <strong className="text-[rgb(var(--color-text-primary))]">
+              {formatCurrency(itemsSummary.subtotal)}
+            </strong>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span>GST:</span>
-            <strong className="text-[rgb(var(--color-text-primary))]">{formatCurrency(itemsSummary.gstAmount)}</strong>
+            <strong className="text-[rgb(var(--color-text-primary))]">
+              {formatCurrency(itemsSummary.gstAmount)}
+            </strong>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span>Items:</span>
-            <strong className="text-[rgb(var(--color-text-primary))]">{itemsSummary.itemCount}</strong>
+            <strong className="text-[rgb(var(--color-text-primary))]">
+              {itemsSummary.itemCount}
+            </strong>
           </div>
           <div className="flex items-center justify-end gap-2 border-t border-[rgb(var(--color-border-primary))]/40 pt-3">
             <span>Total:</span>
@@ -75,4 +86,3 @@ const BillItemsTable = ({ items, itemsSummary, formatCurrency }) => {
 };
 
 export default BillItemsTable;
-

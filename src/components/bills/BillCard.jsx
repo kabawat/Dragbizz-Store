@@ -1,19 +1,18 @@
 "use client";
-import React from "react";
 import {
-  Receipt,
-  MoreVertical,
-  Eye,
-  Edit,
-  Trash2,
+  AlertTriangle,
   Calendar,
-  CreditCard,
   CheckCircle,
   Clock,
-  AlertTriangle,
+  CreditCard,
+  Edit,
+  Eye,
+  MoreVertical,
+  Receipt,
+  Trash2,
 } from "lucide-react";
-import { renderStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const BillCard = ({
   bill,

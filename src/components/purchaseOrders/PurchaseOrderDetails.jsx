@@ -1,21 +1,12 @@
 "use client";
-import React from "react";
-import {
-  Calendar,
-  Building2,
-  FileText,
-  IndianRupee,
-  Phone,
-  Mail,
-  Barcode,
-} from "lucide-react";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { Barcode, FileText, Mail, Phone } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const PurchaseOrderDetails = ({ purchaseOrder }) => {
   const { t } = useTranslation();
 
-  const formatCurrency = (amount) => {
+  const _formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -52,8 +43,8 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
     };
   };
 
-  const statusBadge = getStatusBadge(
-    purchaseOrder.approvalStatus || purchaseOrder.status,
+  const _statusBadge = getStatusBadge(
+    purchaseOrder.approvalStatus || purchaseOrder.status
   );
 
   return (
@@ -89,7 +80,7 @@ const PurchaseOrderDetails = ({ purchaseOrder }) => {
                 <span>
                   Due Date{" "}
                   {formatDate(
-                    purchaseOrder.expectedDeliveryDate || purchaseOrder.dueDate,
+                    purchaseOrder.expectedDeliveryDate || purchaseOrder.dueDate
                   )}
                 </span>
               </div>

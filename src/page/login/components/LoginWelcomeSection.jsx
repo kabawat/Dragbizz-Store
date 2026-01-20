@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { Shield, Zap, BarChart3, Users } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { BarChart3, Shield, Users, Zap } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const LoginWelcomeSection = () => {
   const { t } = useTranslation();
@@ -15,10 +14,10 @@ const LoginWelcomeSection = () => {
               <Shield className="w-8 h-8 text-indigo-700" />
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-              {t('auth.welcomeToDragBizz')}
+              {t("auth.welcomeToDragBizz")}
             </h1>
             <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-              {t('auth.manageStoreWithPowerfulTools')}
+              {t("auth.manageStoreWithPowerfulTools")}
             </p>
           </div>
 
@@ -28,8 +27,12 @@ const LoginWelcomeSection = () => {
                 <Zap className="w-6 h-6 text-indigo-700" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.powerfulManagement')}</h3>
-                <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.completeControl')}</p>
+                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                  {t("auth.powerfulManagement")}
+                </h3>
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                  {t("auth.completeControl")}
+                </p>
               </div>
             </div>
 
@@ -38,8 +41,12 @@ const LoginWelcomeSection = () => {
                 <BarChart3 className="w-6 h-6 text-indigo-700" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.analyticsInsights')}</h3>
-                <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.trackPerformance')}</p>
+                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                  {t("auth.analyticsInsights")}
+                </h3>
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                  {t("auth.trackPerformance")}
+                </p>
               </div>
             </div>
 
@@ -48,15 +55,19 @@ const LoginWelcomeSection = () => {
                 <Users className="w-6 h-6 text-indigo-700" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureAccess')}</h3>
-                <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseSecurity')}</p>
+                <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                  {t("auth.secureAccess")}
+                </h3>
+                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                  {t("auth.enterpriseSecurity")}
+                </p>
               </div>
             </div>
           </div>
 
           <div className="mt-auto pt-8">
             <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-              {t('auth.copyright')}
+              {t("auth.copyright")}
             </p>
           </div>
         </div>
@@ -66,4 +77,3 @@ const LoginWelcomeSection = () => {
 };
 
 export default LoginWelcomeSection;
-

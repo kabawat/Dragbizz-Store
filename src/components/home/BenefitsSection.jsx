@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { Button, Badge } from "@/components/ui";
 import { ArrowRight, Award } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { Badge, Button } from "@/components/ui";
 
 const BenefitsSection = ({
   benefits,
@@ -21,7 +21,7 @@ const BenefitsSection = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const squareImages = Array.from(
     { length: 14 },
-    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`,
+    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`
   );
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const BenefitsSection = ({
       setCurrentImageIndex((prev) => (prev + 1) % squareImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [squareImages.length]);
 
   return (
     <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">

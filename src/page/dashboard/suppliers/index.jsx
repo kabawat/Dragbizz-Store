@@ -1,35 +1,32 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 import {
-  Plus,
+  Building,
+  Download,
   Grid3X3,
   List,
-  Building,
-  Search,
-  Trash2,
-  Download,
   Mic,
+  Plus,
+  Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  getSuppliers,
-  deleteSupplier,
-  setViewMode,
-} from "@/store/slices/suppliersSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
-import { Input, SettingsPanel, Select } from "@/components/ui";
-import { Button } from "@/components/ui";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
-  SupplierTable,
-  SupplierCard,
   AddSupplierDrawer,
+  SupplierCard,
+  SupplierTable,
   VoiceAISupplier,
 } from "@/components/supplier";
-import { SideDrawer } from "@/components/ui";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
+import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  deleteSupplier,
+  getSuppliers,
+  setViewMode,
+} from "@/store/slices/suppliersSlice";
 
 const SuppliersPage = () => {
   const { t } = useTranslation();
@@ -38,7 +35,7 @@ const SuppliersPage = () => {
 
   // Get data from Redux store
   const { suppliers, isLoading, error, pagination, viewMode } = useAppSelector(
-    (state) => state.suppliers,
+    (state) => state.suppliers
   );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -53,7 +50,7 @@ const SuppliersPage = () => {
       });
       setShowErrorModal(true);
     }
-  }, [error]);
+  }, [error, t]);
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("suppliers-view-mode");
@@ -179,9 +176,9 @@ const SuppliersPage = () => {
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, [isLoadingMore, pagination.hasNextPage]);
+  }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
 
-  const handleStoreChange = (storeObject) => {
+  const handleStoreChange = (_storeObject) => {
     // Store change is handled by Redux, no need for local state
   };
 
@@ -217,7 +214,7 @@ const SuppliersPage = () => {
   };
 
   // Menu action handler
-  const handleMenuAction = (supplierId, action) => {
+  const _handleMenuAction = (supplierId, action) => {
     setOpenMenuId(null);
     switch (action) {
       case "view":
@@ -251,7 +248,7 @@ const SuppliersPage = () => {
         deleteSupplier({
           supplierId: supplierToDelete.id,
           storeId: storeId,
-        }),
+        })
       );
 
       if (result.payload?.success) {
@@ -261,7 +258,7 @@ const SuppliersPage = () => {
 
       setShowDeleteModal(false);
       setSupplierToDelete(null);
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsDeleting(false);
     }
@@ -298,7 +295,7 @@ const SuppliersPage = () => {
       };
 
       await dispatch(getSuppliers(params));
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }

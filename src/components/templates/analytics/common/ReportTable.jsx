@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import styles from './analyticsReport.module.scss';
+import styles from "./analyticsReport.module.scss";
 
 const ReportTable = ({ columns, data }) => {
   return (
@@ -8,7 +7,10 @@ const ReportTable = ({ columns, data }) => {
       <thead>
         <tr>
           {columns.map((col, index) => (
-            <th key={index} style={col.align === 'right' ? { textAlign: "right" } : {}}>
+            <th
+              key={index}
+              style={col.align === "right" ? { textAlign: "right" } : {}}
+            >
               {col.label}
             </th>
           ))}
@@ -20,7 +22,7 @@ const ReportTable = ({ columns, data }) => {
             {columns.map((col, colIndex) => (
               <td
                 key={colIndex}
-                className={col.align === 'right' ? styles.amount : styles.label}
+                className={col.align === "right" ? styles.amount : styles.label}
               >
                 {row[col.key]}
               </td>
@@ -33,4 +35,3 @@ const ReportTable = ({ columns, data }) => {
 };
 
 export default ReportTable;
-

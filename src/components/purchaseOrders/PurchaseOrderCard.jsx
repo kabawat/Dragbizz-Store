@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
-import { FileText, Calendar, Building2, Phone, Mail } from "lucide-react";
-import { SendMenu, ActionMenu } from "@/components/ui";
+import { Building2, Calendar, FileText, Mail, Phone } from "lucide-react";
+import { ActionMenu, SendMenu } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const PurchaseOrderCard = ({
@@ -28,20 +27,20 @@ const PurchaseOrderCard = ({
   // Check if advance payment has been made
   const advanceAmount = purchaseOrder.advanceAmount ?? 0;
   const hasAdvancePayments = (purchaseOrder.payments || []).some(
-    (payment) => payment.paymentType === "ADVANCE_PAYMENT",
+    (payment) => payment.paymentType === "ADVANCE_PAYMENT"
   );
   const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
   const totalQuantity =
     purchaseOrder.totalQuantity ??
     (purchaseOrder.items || []).reduce(
       (sum, item) => sum + (item.quantity || 0),
-      0,
+      0
     );
   const receivedQuantity =
     purchaseOrder.receivedQuantity ??
     (purchaseOrder.items || []).reduce(
       (sum, item) => sum + (item.receivedQuantity || 0),
-      0,
+      0
     );
 
   // Build actions array conditionally
@@ -86,7 +85,7 @@ const PurchaseOrderCard = ({
           <div className="absolute top-4 right-16 z-10">
             <SendMenu
               item={purchaseOrder}
-              onShare={(type, item) => {}}
+              onShare={(_type, _item) => {}}
               getShareUrl={getShareUrl}
               formatCurrency={formatCurrency}
               formatDate={formatDate}

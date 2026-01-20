@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { accountService } from "@/service/retailer";
 
 // Async thunk for getting accounts
@@ -18,12 +18,12 @@ export const getAccounts = createAsyncThunk(
         data: result.data,
         message: "Accounts fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch accounts. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for creating an account
@@ -43,12 +43,12 @@ export const createAccount = createAsyncThunk(
         data: result.data,
         message: "Account created successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to create account. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for updating an account
@@ -59,7 +59,7 @@ export const updateAccount = createAsyncThunk(
       const result = await accountService.updateAccount(
         accountId,
         accountData,
-        storeId,
+        storeId
       );
       if (!result.success) {
         return rejectWithValue({
@@ -73,12 +73,12 @@ export const updateAccount = createAsyncThunk(
         accountId: accountId,
         message: "Account updated successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to update account. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for deleting an account
@@ -98,12 +98,12 @@ export const deleteAccount = createAsyncThunk(
         accountId: accountId,
         message: "Account deleted successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to delete account. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting account overview
@@ -123,12 +123,12 @@ export const getAccountOverview = createAsyncThunk(
         data: result.data,
         message: "Account overview fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch account overview. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting account statistics
@@ -148,12 +148,12 @@ export const getAccountStats = createAsyncThunk(
         data: result.data,
         message: "Account statistics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch account statistics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for suspending an account
@@ -164,7 +164,7 @@ export const suspendAccount = createAsyncThunk(
       const result = await accountService.suspendAccount(
         accountId,
         suspensionData,
-        storeId,
+        storeId
       );
       if (!result.success) {
         return rejectWithValue({
@@ -178,12 +178,12 @@ export const suspendAccount = createAsyncThunk(
         accountId: accountId,
         message: "Account suspended successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to suspend account. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for activating an account
@@ -194,7 +194,7 @@ export const activateAccount = createAsyncThunk(
       const result = await accountService.activateAccount(
         accountId,
         activationData,
-        storeId,
+        storeId
       );
       if (!result.success) {
         return rejectWithValue({
@@ -208,12 +208,12 @@ export const activateAccount = createAsyncThunk(
         accountId: accountId,
         message: "Account activated successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to activate account. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for updating credit limit
@@ -224,7 +224,7 @@ export const updateCreditLimit = createAsyncThunk(
       const result = await accountService.updateCreditLimit(
         accountId,
         creditLimitData,
-        storeId,
+        storeId
       );
       if (!result.success) {
         return rejectWithValue({
@@ -238,12 +238,12 @@ export const updateCreditLimit = createAsyncThunk(
         accountId: accountId,
         message: "Credit limit updated successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to update credit limit. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -404,7 +404,7 @@ const accountsSlice = createSlice({
         // Update account in the list
         const accountId = action.payload.accountId;
         const index = state.accounts.findIndex(
-          (account) => account.id === accountId,
+          (account) => account.id === accountId
         );
 
         if (index !== -1 && action.payload.data) {
@@ -431,10 +431,10 @@ const accountsSlice = createSlice({
         // Remove account from the list
         const accountId = action.payload.accountId;
         state.accounts = state.accounts.filter(
-          (account) => account.id !== accountId,
+          (account) => account.id !== accountId
         );
         state.selectedAccounts = state.selectedAccounts.filter(
-          (id) => id !== accountId,
+          (id) => id !== accountId
         );
 
         // Update total count
@@ -484,7 +484,7 @@ const accountsSlice = createSlice({
         // Update account in the list
         const accountId = action.payload.accountId;
         const index = state.accounts.findIndex(
-          (account) => account.id === accountId,
+          (account) => account.id === accountId
         );
 
         if (index !== -1 && action.payload.data) {
@@ -504,7 +504,7 @@ const accountsSlice = createSlice({
         // Update account in the list
         const accountId = action.payload.accountId;
         const index = state.accounts.findIndex(
-          (account) => account.id === accountId,
+          (account) => account.id === accountId
         );
 
         if (index !== -1 && action.payload.data) {
@@ -520,7 +520,7 @@ const accountsSlice = createSlice({
         // Update account in the list
         const accountId = action.payload.accountId;
         const index = state.accounts.findIndex(
-          (account) => account.id === accountId,
+          (account) => account.id === accountId
         );
 
         if (index !== -1 && action.payload.data) {

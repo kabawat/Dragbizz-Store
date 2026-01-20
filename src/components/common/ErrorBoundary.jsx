@@ -1,6 +1,6 @@
 "use client";
+import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import React from "react";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui";
 import logger from "@/utils/logger";
 
@@ -10,7 +10,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
@@ -105,4 +105,3 @@ class ErrorBoundary extends React.Component {
 }
 
 export default ErrorBoundary;
-

@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import { CheckCircle } from "lucide-react";
-import { Button, Select, Input } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button, Input, Select } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const ReleaseInvoiceModal = ({ onClose, invoice }) => {
   const { t } = useTranslation();
@@ -65,7 +65,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
       paidAmount
     ) {
       const numPaidAmount = parseFloat(paidAmount);
-      if (isNaN(numPaidAmount) || numPaidAmount < 0) {
+      if (Number.isNaN(numPaidAmount) || numPaidAmount < 0) {
         setErrors({ paidAmount: "Paid amount must be a valid number >= 0" });
         return;
       }
@@ -89,7 +89,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
         invoiceId,
         paymentStatus,
         storeId,
-        paidAmount ? parseFloat(paidAmount) : null,
+        paidAmount ? parseFloat(paidAmount) : null
       );
 
       if (result.success) {
@@ -108,12 +108,12 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
         router.push(`/dashboard/invoices/view/${invoiceId}`);
       } else {
         showError(
-          result.message || "Failed to release invoice. Please try again.",
+          result.message || "Failed to release invoice. Please try again."
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        "An error occurred while releasing the invoice. Please try again.",
+        "An error occurred while releasing the invoice. Please try again."
       );
     } finally {
       setIsReleasing(false);

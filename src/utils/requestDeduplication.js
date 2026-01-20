@@ -1,11 +1,11 @@
 const pendingRequests = new Map();
 
-export const getRequestKey = (url, method = 'GET', params = {}) => {
+export const getRequestKey = (url, method = "GET", params = {}) => {
   const sortedParams = Object.keys(params)
     .sort()
     .map((key) => `${key}=${JSON.stringify(params[key])}`)
-    .join('&');
-  return `${method}:${url}${sortedParams ? `?${sortedParams}` : ''}`;
+    .join("&");
+  return `${method}:${url}${sortedParams ? `?${sortedParams}` : ""}`;
 };
 
 export const getPendingRequest = (key) => {
@@ -14,7 +14,7 @@ export const getPendingRequest = (key) => {
 
 export const setPendingRequest = (key, requestPromise) => {
   pendingRequests.set(key, requestPromise);
-  
+
   requestPromise.finally(() => {
     pendingRequests.delete(key);
   });
@@ -29,4 +29,3 @@ export const clearAllPendingRequests = () => {
 };
 
 export const getPendingRequestsCount = () => pendingRequests.size;
-

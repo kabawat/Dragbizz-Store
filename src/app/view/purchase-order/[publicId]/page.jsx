@@ -1,5 +1,3 @@
-import React from "react";
-
 import ViewPurchaseOrderPage from "@/page/view/purchase-order";
 export const metadata = {
   title: "Purchase Order | DragBizz",

@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 
 const AnimatedBackground = ({ variant = "default" }) => {
   const backgrounds = {

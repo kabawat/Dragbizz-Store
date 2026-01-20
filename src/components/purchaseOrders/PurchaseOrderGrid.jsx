@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
-import PurchaseOrderCard from "./PurchaseOrderCard";
 import { useTranslation } from "@/hooks/useTranslation";
+import PurchaseOrderCard from "./PurchaseOrderCard";
 
 const PurchaseOrderGrid = ({
   purchaseOrders,

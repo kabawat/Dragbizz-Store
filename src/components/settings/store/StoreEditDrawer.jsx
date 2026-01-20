@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Save, Store, Loader2 } from "lucide-react";
+import { Loader2, Save, Store } from "lucide-react";
+import { useEffect, useState } from "react";
 import { FormDrawer } from "@/components/common";
-import StoreEditForm from "./StoreEditForm";
 import storeService from "@/service/retailer/store.service";
+import StoreEditForm from "./StoreEditForm";
 
 const StoreEditDrawer = ({
   isOpen,
@@ -126,7 +126,7 @@ const StoreEditDrawer = ({
     if (!form.phone?.trim()) {
       newErrors.phone = "Phone number is required";
     } else {
-      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
       const cleanPhone = form.phone.replace(/\D/g, "");
       if (!phoneRegex.test(form.phone) || cleanPhone.length < 10) {
         newErrors.phone = "Please enter a valid phone number";
@@ -144,7 +144,7 @@ const StoreEditDrawer = ({
     if (
       form.gst &&
       !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        form.gst,
+        form.gst
       )
     ) {
       newErrors.gst = "Please enter a valid GST number";
@@ -203,7 +203,7 @@ const StoreEditDrawer = ({
           setErrors(result.error.data.fields);
         } else {
           onError?.(
-            result?.message || "Failed to update store. Please try again.",
+            result?.message || "Failed to update store. Please try again."
           );
         }
       }

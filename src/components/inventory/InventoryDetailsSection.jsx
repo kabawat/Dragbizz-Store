@@ -1,35 +1,26 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Package,
-  Warehouse,
-  IndianRupee,
-  TrendingUp,
-  AlertTriangle,
-  TrendingDown,
-  Calculator,
-  ArrowUp,
-} from "lucide-react";
-import { Input, Select, Card, CardBody, Badge } from "@/components/ui";
-import { productService, supplierService } from "@/service/retailer";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
+import { ArrowUp, Calculator, Package, Warehouse } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Card, CardBody, Input, Select } from "@/components/ui";
 import UpgradeModal from "@/components/ui/UpgradeModal";
+import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { useTranslation } from "@/hooks/useTranslation";
+import { productService, supplierService } from "@/service/retailer";
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [_searchTerm, _setSearchTerm] = useState("");
+  const [_isLoading, setIsLoading] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
   const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT,
+    FEATURES.SUPPLIER_MANAGEMENT
   );
 
   // Fetch products and suppliers on mount and when store changes
@@ -38,7 +29,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     if (hasSupplierManagement) {
       fetchSuppliers();
     }
-  }, [formData?.store, hasSupplierManagement]);
+  }, [hasSupplierManagement, fetchProducts, fetchSuppliers]);
 
   const fetchProducts = async () => {
     try {
@@ -51,7 +42,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
       if (result.success) {
         setProducts(result.data?.data || result.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +61,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setSuppliersLoading(false);
     }
@@ -141,10 +132,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     return { status: "good", color: "success", text: t("inventory.goodStock") };
   };
 
-  const stockStatus = getStockStatus();
-  const margin = calculateMargin();
-  const profit = calculateProfit();
-  const totalCost = calculateTotalCost();
+  const _stockStatus = getStockStatus();
+  const _margin = calculateMargin();
+  const _profit = calculateProfit();
+  const _totalCost = calculateTotalCost();
 
   return (
     <div className="space-y-8">
@@ -169,10 +160,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             onChange={handleProductChange}
             options={productOptions}
             placeholder={t("inventory.searchAndSelectProduct")}
-            error={!!errors["productId"]}
-            errorMessage={errors["productId"]}
+            error={!!errors.productId}
+            errorMessage={errors.productId}
             helperText={
-              !errors["productId"]
+              !errors.productId
                 ? t("inventory.typeToSearchProducts")
                 : undefined
             }

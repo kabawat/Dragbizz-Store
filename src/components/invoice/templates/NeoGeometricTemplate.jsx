@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import moment from "moment";
 
 const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
@@ -415,7 +414,7 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                         </td>
                         <td style={{ textAlign: "right", fontWeight: 700 }}>
                           {formatCurrency(
-                            (item.quantity || 0) * (item.price || 0),
+                            (item.quantity || 0) * (item.price || 0)
                           )}
                         </td>
                       </tr>

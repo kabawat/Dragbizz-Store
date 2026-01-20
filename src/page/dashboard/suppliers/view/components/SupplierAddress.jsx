@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin } from "lucide-react";
 
 const SupplierAddress = ({ address }) => {
   if (!address) return null;
@@ -90,4 +89,3 @@ const SupplierAddress = ({ address }) => {
 };
 
 export default SupplierAddress;
-

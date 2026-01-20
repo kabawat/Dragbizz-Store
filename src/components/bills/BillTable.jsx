@@ -1,24 +1,23 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
 import {
-  MoreVertical,
-  Eye,
-  Edit,
-  Trash2,
+  AlertTriangle,
   Building2,
-  Calendar,
-  CreditCard,
-  Send,
-  MessageCircle,
-  Mail,
-  MessageSquare,
-  Copy,
   CheckCircle,
   Clock,
-  AlertTriangle,
+  Copy,
+  CreditCard,
+  Edit,
+  Eye,
+  Mail,
+  MessageCircle,
+  MessageSquare,
+  MoreVertical,
+  Send,
+  Trash2,
 } from "lucide-react";
-import { renderStatusBadge } from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const BillTable = ({
   bills,
@@ -43,7 +42,7 @@ const BillTable = ({
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const sendMenuRefs = useRef({});
 
-  const defaultEmptyMessage = emptyMessage || t("bills.noBills");
+  const _defaultEmptyMessage = emptyMessage || t("bills.noBills");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -120,7 +119,7 @@ const BillTable = ({
       <div className="overflow-auto min-h-[calc(100vh-400px)]">
         <table className="w-full min-w-[800px] table-fixed">
           <tbody className="divide-y divide-gray-100">
-            {bills.map((bill, index) => {
+            {bills.map((bill, _index) => {
               // Determine status for renderStatusBadge
               let status = bill.paymentStatus || "UNPAID";
               if (new Date(bill.dueDate) < new Date() && bill.dueAmount > 0) {
@@ -171,8 +170,8 @@ const BillTable = ({
                       bill.dueAmount ||
                         Math.max(
                           (bill.totalAmount || 0) - (bill.paidAmount || 0),
-                          0,
-                        ),
+                          0
+                        )
                     )}
                   </td>
                   <td className="w-1/6 px-6 py-4">
@@ -192,7 +191,7 @@ const BillTable = ({
                               setOpenSendMenuId(
                                 openSendMenuId === (bill._id || bill.id)
                                   ? null
-                                  : bill._id || bill.id,
+                                  : bill._id || bill.id
                               )
                             }
                             className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 cursor-pointer"
@@ -207,11 +206,11 @@ const BillTable = ({
                                 onClick={() => {
                                   const url = buildShareUrl(bill);
                                   const text = encodeURIComponent(
-                                    `${bill.billNumber || bill.poNumber || "Details"}\n${url}`,
+                                    `${bill.billNumber || bill.poNumber || "Details"}\n${url}`
                                   );
                                   window.open(
                                     `https://wa.me/?text=${text}`,
-                                    "_blank",
+                                    "_blank"
                                   );
                                   setOpenSendMenuId(null);
                                 }}
@@ -226,10 +225,10 @@ const BillTable = ({
                                   const subject = encodeURIComponent(
                                     bill.billNumber ||
                                       bill.poNumber ||
-                                      "Details",
+                                      "Details"
                                   );
                                   const body = encodeURIComponent(
-                                    `Please review:\n${url}`,
+                                    `Please review:\n${url}`
                                   );
                                   window.location.href = `mailto:?subject=${subject}&body=${body}`;
                                   setOpenSendMenuId(null);
@@ -242,7 +241,7 @@ const BillTable = ({
                                 onClick={() => {
                                   const url = buildShareUrl(bill);
                                   const body = encodeURIComponent(
-                                    `${bill.billNumber || bill.poNumber || ""} ${url}`,
+                                    `${bill.billNumber || bill.poNumber || ""} ${url}`
                                   );
                                   window.location.href = `sms:?&body=${body}`;
                                   setOpenSendMenuId(null);

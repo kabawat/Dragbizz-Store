@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { Calendar } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Calendar } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const DateRangePreview = ({ dateRange }) => {
   const { t } = useTranslation();
@@ -13,13 +12,13 @@ const DateRangePreview = ({ dateRange }) => {
       <div className="flex items-center gap-2 mb-3">
         <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
         <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
-          {t('customers.dateRange')}
+          {t("customers.dateRange")}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-            {t('customers.from')}
+            {t("customers.from")}
           </div>
           <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
             {dateRange.start}
@@ -27,7 +26,7 @@ const DateRangePreview = ({ dateRange }) => {
         </div>
         <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
           <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-            {t('customers.to')}
+            {t("customers.to")}
           </div>
           <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
             {dateRange.end}
@@ -39,4 +38,3 @@ const DateRangePreview = ({ dateRange }) => {
 };
 
 export default DateRangePreview;
-

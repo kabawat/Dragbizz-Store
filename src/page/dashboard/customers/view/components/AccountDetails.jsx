@@ -1,16 +1,15 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
 import {
-  Wallet,
+  AlertCircle,
+  Calendar,
+  CheckCircle,
   IndianRupee,
   Receipt,
   ShoppingCart,
   TrendingUp,
-  CheckCircle,
-  AlertCircle,
-  Calendar,
-} from 'lucide-react';
+  Wallet,
+} from "lucide-react";
+import moment from "moment";
 
 const AccountDetails = ({ account }) => {
   if (!account) return null;
@@ -189,4 +188,3 @@ const AccountDetails = ({ account }) => {
 };
 
 export default AccountDetails;
-

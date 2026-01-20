@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { Building, Phone, Mail, Building2, Hash } from "lucide-react";
+import { Building, Building2, Hash, Mail, Phone } from "lucide-react";
 import { Input } from "@/components/ui";
 
 const SupplierForm = ({

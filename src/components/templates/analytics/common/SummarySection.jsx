@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import styles from './analyticsReport.module.scss';
-import SummaryCard from './SummaryCard';
+import styles from "./analyticsReport.module.scss";
+import SummaryCard from "./SummaryCard";
 
 const SummarySection = ({ cards }) => {
   return (
@@ -20,4 +19,3 @@ const SummarySection = ({ cards }) => {
 };
 
 export default SummarySection;
-

@@ -1,5 +1,5 @@
 "use client";
-import { User, Camera } from "lucide-react";
+import { Camera, User } from "lucide-react";
 
 const ProfilePictureSection = ({
   firstName,

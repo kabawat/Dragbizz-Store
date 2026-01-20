@@ -11,7 +11,7 @@ export const createApiHandler = (serviceMethod) => {
       return {
         success: false,
         data: null,
-        error: error.response?.data || error.message || 'An error occurred',
+        error: error.response?.data || error.message || "An error occurred",
       };
     }
   };
@@ -42,7 +42,7 @@ export const createListHandler = (serviceMethod) => {
         success: false,
         data: [],
         pagination: null,
-        error: error.response?.data || error.message || 'Failed to fetch data',
+        error: error.response?.data || error.message || "Failed to fetch data",
       };
     }
   };
@@ -61,7 +61,7 @@ export const createCreateHandler = (serviceMethod) => {
       return {
         success: false,
         data: null,
-        error: error.response?.data || error.message || 'Failed to create',
+        error: error.response?.data || error.message || "Failed to create",
       };
     }
   };
@@ -80,7 +80,7 @@ export const createUpdateHandler = (serviceMethod) => {
       return {
         success: false,
         data: null,
-        error: error.response?.data || error.message || 'Failed to update',
+        error: error.response?.data || error.message || "Failed to update",
       };
     }
   };
@@ -99,9 +99,8 @@ export const createDeleteHandler = (serviceMethod) => {
       return {
         success: false,
         data: null,
-        error: error.response?.data || error.message || 'Failed to delete',
+        error: error.response?.data || error.message || "Failed to delete",
       };
     }
   };
 };
-

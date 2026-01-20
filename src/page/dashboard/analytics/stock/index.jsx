@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,33 +9,33 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getStockAnalytics } from "@/store/slices/productsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Warehouse,
-  Package,
   AlertTriangle,
-  XCircle,
-  IndianRupee,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
+  Package,
+  Warehouse,
+  XCircle,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
-  SortableMetricCard,
   SortableCard,
+  SortableMetricCard,
 } from "@/components/templates/analytics/SortableComponents";
 import StockReportTemplate from "@/components/templates/analytics/stock/StockReportTemplate";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getStockAnalytics } from "@/store/slices/productsSlice";
 
 const StockAnalytics = () => {
   const { t } = useTranslation();
@@ -79,7 +78,7 @@ const StockAnalytics = () => {
         lowStockItems: 0,
         outOfStockItems: 0,
       },
-    [analytics?.totals],
+    [analytics?.totals]
   );
 
   const valueSummary = useMemo(
@@ -88,7 +87,7 @@ const StockAnalytics = () => {
         averageCost: 0,
         totalStockValue: 0,
       },
-    [analytics?.valueSummary],
+    [analytics?.valueSummary]
   );
 
   const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
@@ -99,7 +98,7 @@ const StockAnalytics = () => {
     isLoading,
     analytics,
     "stock-report-area",
-    "stock-analytics-report",
+    "stock-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -236,13 +235,13 @@ const StockAnalytics = () => {
         return Array.from(cardsMap.values());
       });
     }
-  }, [analytics, totals, valueSummary]);
+  }, [analytics, totals, valueSummary, formatNumber]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -459,7 +458,7 @@ const StockAnalytics = () => {
                                     </p>
                                     <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                       {formatCurrency(
-                                        valueSummary.totalStockValue,
+                                        valueSummary.totalStockValue
                                       )}
                                     </p>
                                   </div>
@@ -518,7 +517,7 @@ const StockAnalytics = () => {
                       analytics,
                       selectedStore,
                       "stock-analytics-report",
-                      getStockXLSXConfig(),
+                      getStockXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

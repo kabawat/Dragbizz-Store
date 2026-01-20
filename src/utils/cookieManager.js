@@ -15,7 +15,7 @@ export const cookieManager = {
     // Set auth token cookie
     Cookies.set(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, token, options);
     // Verify cookie was set
-    const savedToken = Cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY);
+    const _savedToken = Cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY);
   },
 
   getAuthToken: () => {
@@ -36,7 +36,7 @@ export const cookieManager = {
     // Set refresh token cookie
     Cookies.set(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY, token, options);
     // Verify cookie was set
-    const savedToken = Cookies.get(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY);
+    const _savedToken = Cookies.get(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY);
   },
 
   getRefreshToken: () => {
@@ -58,7 +58,7 @@ export const cookieManager = {
     Cookies.set(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, token, options);
 
     // Verify cookie was set
-    const savedToken = Cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY);
+    const _savedToken = Cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY);
   },
 
   getRetailerToken: () => {

@@ -1,17 +1,16 @@
 "use client";
-import React from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import {
-  Store,
-  ShoppingBag,
   Building2,
-  Package,
-  UtensilsCrossed,
-  Shirt,
-  Laptop,
   Heart,
+  Laptop,
+  Package,
+  Shirt,
+  ShoppingBag,
+  Store,
+  UtensilsCrossed,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const UseCasesSection = () => {
   const useCases = [

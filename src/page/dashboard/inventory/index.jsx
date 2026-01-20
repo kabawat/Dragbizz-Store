@@ -1,127 +1,133 @@
-"use client"
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
-import { useAppSelector } from '@/store/hooks';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { Input } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
-
+"use client";
+import { Grid3X3, List, Package, Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 // Import inventory components
-import { InventoryTable, InventoryCard } from '@/components/inventory';
-import { StockInDrawer } from '@/components/ui';
+import { InventoryCard, InventoryTable } from "@/components/inventory";
+import { Button, Input, StockInDrawer } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Import services
-import inventoryService from '@/service/retailer/inventory.service';
-import { useGlobalToast } from '@/contexts/ToastContext';
+import inventoryService from "@/service/retailer/inventory.service";
+import { useAppSelector } from "@/store/hooks";
 
 const InventoryPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showSuccess, showError } = useGlobalToast();
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
   // State management
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [selectedInventories, setSelectedInventories] = useState([]);
-  const [viewMode, setViewMode] = useState('table'); 
+  const [viewMode, setViewMode] = useState("table");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  
+
   // Modals
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [inventoryToDelete, setInventoryToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Stock In Drawer
   const [showStockInDrawer, setShowStockInDrawer] = useState(false);
   const [inventoryForStockIn, setInventoryForStockIn] = useState(null);
-  
+
   // Refs
   const scrollRef = useRef(null);
-  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
+  const hasFetchedRef = useRef({
+    storeId: null,
+    searchValue: null,
+    fetched: false,
+  });
   const isFetchingRef = useRef(false);
   const lastFetchKeyRef = useRef(null);
 
   // Fetch inventories
-  const fetchInventories = useCallback(async (page = 1, append = false) => {
-    if (!storeId) return;
-    
-    // Create a unique key for this fetch
-    const fetchKey = `${storeId}-${searchValue}-${page}-${append}`;
-    
-    // Prevent duplicate calls with same parameters
-    if (lastFetchKeyRef.current === fetchKey) {
-      return;
-    }
+  const fetchInventories = useCallback(
+    async (page = 1, append = false) => {
+      if (!storeId) return;
 
-    // For initial load (page 1, not append), check if we've already fetched
-    if (page === 1 && !append) {
-      const lastFetched = hasFetchedRef.current;
-      if (
-        lastFetched.fetched &&
-        lastFetched.storeId === storeId &&
-        lastFetched.searchValue === searchValue &&
-        !isFetchingRef.current
-      ) {
+      // Create a unique key for this fetch
+      const fetchKey = `${storeId}-${searchValue}-${page}-${append}`;
+
+      // Prevent duplicate calls with same parameters
+      if (lastFetchKeyRef.current === fetchKey) {
         return;
       }
-    }
 
-    // Prevent call if already fetching
-    if (isFetchingRef.current && !append) {
-      return;
-    }
-
-    lastFetchKeyRef.current = fetchKey;
-    isFetchingRef.current = true;
-    
-    try {
-      if (page === 1) {
-        setLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-
-      const params = {
-        store: storeId,
-        page: page,
-        limit: 20,
-        search: searchValue || undefined
-      };
-
-      const response = await inventoryService.getInventories(params);
-      
-      if (response.success) {
-        const newInventories = response.data?.inventories || response.data || [];
-        
-        if (append) {
-          setInventories(prev => [...prev, ...newInventories]);
-        } else {
-          setInventories(newInventories);
-          // Update fetch ref for initial load
-          hasFetchedRef.current = {
-            storeId,
-            searchValue,
-            fetched: true
-          };
+      // For initial load (page 1, not append), check if we've already fetched
+      if (page === 1 && !append) {
+        const lastFetched = hasFetchedRef.current;
+        if (
+          lastFetched.fetched &&
+          lastFetched.storeId === storeId &&
+          lastFetched.searchValue === searchValue &&
+          !isFetchingRef.current
+        ) {
+          return;
         }
-        
-        setHasMore(response.data?.pagination?.hasNext || false);
       }
-    } catch (error) {
-      showError(error?.message || t('common.failedToLoad'));
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-      isFetchingRef.current = false;
-    }
-  }, [storeId, searchValue]);
+
+      // Prevent call if already fetching
+      if (isFetchingRef.current && !append) {
+        return;
+      }
+
+      lastFetchKeyRef.current = fetchKey;
+      isFetchingRef.current = true;
+
+      try {
+        if (page === 1) {
+          setLoading(true);
+        } else {
+          setIsLoadingMore(true);
+        }
+
+        const params = {
+          store: storeId,
+          page: page,
+          limit: 20,
+          search: searchValue || undefined,
+        };
+
+        const response = await inventoryService.getInventories(params);
+
+        if (response.success) {
+          const newInventories =
+            response.data?.inventories || response.data || [];
+
+          if (append) {
+            setInventories((prev) => [...prev, ...newInventories]);
+          } else {
+            setInventories(newInventories);
+            // Update fetch ref for initial load
+            hasFetchedRef.current = {
+              storeId,
+              searchValue,
+              fetched: true,
+            };
+          }
+
+          setHasMore(response.data?.pagination?.hasNext || false);
+        }
+      } catch (error) {
+        showError(error?.message || t("common.failedToLoad"));
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
+        isFetchingRef.current = false;
+      }
+    },
+    [storeId, searchValue, showError, t]
+  );
 
   // Fetch inventories on mount or when dependencies change
   useEffect(() => {
@@ -132,7 +138,11 @@ const InventoryPage = () => {
     const searchChanged = lastFetched.searchValue !== searchValue;
 
     if (storeChanged || searchChanged) {
-      hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+      hasFetchedRef.current = {
+        storeId: null,
+        searchValue: null,
+        fetched: false,
+      };
       lastFetchKeyRef.current = null;
     }
 
@@ -152,7 +162,7 @@ const InventoryPage = () => {
     }
 
     fetchInventories(1, false);
-  }, [storeId, searchValue]);
+  }, [storeId, searchValue, fetchInventories]);
 
   // Infinite scroll
   useEffect(() => {
@@ -169,10 +179,10 @@ const InventoryPage = () => {
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener('scroll', handleScroll);
-      return () => scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, [isLoadingMore, hasMore]);
+  }, [isLoadingMore, hasMore, handleLoadMore]);
 
   // Load more function
   const handleLoadMore = async () => {
@@ -188,7 +198,7 @@ const InventoryPage = () => {
   };
 
   const handleAddStock = () => {
-    router.push('/dashboard/stock/add');
+    router.push("/dashboard/stock/add");
   };
 
   const handleEditStock = (inventoryId) => {
@@ -200,7 +210,7 @@ const InventoryPage = () => {
   };
 
   const handleStockIn = (inventoryId) => {
-    const inventory = inventories.find(i => i.id === inventoryId);
+    const inventory = inventories.find((i) => i.id === inventoryId);
     setInventoryForStockIn(inventory);
     setShowStockInDrawer(true);
   };
@@ -209,7 +219,11 @@ const InventoryPage = () => {
     // Show success message
     showSuccess(message);
     // Refresh the inventory list
-    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+    hasFetchedRef.current = {
+      storeId: null,
+      searchValue: null,
+      fetched: false,
+    };
     lastFetchKeyRef.current = null;
     fetchInventories(1, false);
   };
@@ -220,55 +234,63 @@ const InventoryPage = () => {
   };
 
   // Selection handlers
-  const handleInventorySelect = (inventoryIds) => {
-    const idsArray = Array.isArray(inventoryIds) ? inventoryIds : [inventoryIds];
+  const _handleInventorySelect = (inventoryIds) => {
+    const idsArray = Array.isArray(inventoryIds)
+      ? inventoryIds
+      : [inventoryIds];
     setSelectedInventories(idsArray);
   };
 
-  const handleCardSelect = (inventoryId) => {
-    setSelectedInventories(prev => 
-      prev.includes(inventoryId) 
-        ? prev.filter(id => id !== inventoryId)
+  const _handleCardSelect = (inventoryId) => {
+    setSelectedInventories((prev) =>
+      prev.includes(inventoryId)
+        ? prev.filter((id) => id !== inventoryId)
         : [...prev, inventoryId]
     );
   };
 
-  const handleSelectAll = (isSelected) => {
+  const _handleSelectAll = (isSelected) => {
     if (isSelected) {
-      setSelectedInventories(inventories.map(i => i.id));
+      setSelectedInventories(inventories.map((i) => i.id));
     } else {
       setSelectedInventories([]);
     }
   };
 
   const handleDeleteStock = (inventoryId) => {
-    const inventory = inventories.find(i => i.id === inventoryId);
-    setInventoryToDelete({ id: inventoryId, name: inventory?.product?.name || 'Stock' });
+    const inventory = inventories.find((i) => i.id === inventoryId);
+    setInventoryToDelete({
+      id: inventoryId,
+      name: inventory?.product?.name || "Stock",
+    });
     setShowDeleteModal(true);
   };
 
   const handleConfirmDelete = async () => {
     if (!inventoryToDelete) return;
-    
+
     try {
       setIsDeleting(true);
       await inventoryService.deleteInventory(inventoryToDelete.id);
-      
+
       // Remove from local state
-      setInventories(prev => prev.filter(i => i.id !== inventoryToDelete.id));
-      setSelectedInventories(prev => prev.filter(id => id !== inventoryToDelete.id));
-      
+      setInventories((prev) =>
+        prev.filter((i) => i.id !== inventoryToDelete.id)
+      );
+      setSelectedInventories((prev) =>
+        prev.filter((id) => id !== inventoryToDelete.id)
+      );
+
       setShowDeleteModal(false);
       setInventoryToDelete(null);
-    } catch (error) {
-      showError(t('common.failedToLoad'));
+    } catch (_error) {
+      showError(t("common.failedToLoad"));
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const handleDuplicate = (inventoryId) => {
-  };
+  const handleDuplicate = (_inventoryId) => {};
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -276,12 +298,15 @@ const InventoryPage = () => {
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar/>
+      <Sidebar />
 
       {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title={t('inventory.title')} description={t('inventory.description')} />
+        <Header
+          title={t("inventory.title")}
+          description={t("inventory.description")}
+        />
 
         {/* Main content */}
         <div className="flex-1 p-5">
@@ -293,10 +318,10 @@ const InventoryPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loading')}
+                      {t("common.loading")}
                     </p>
                   </div>
                 </div>
@@ -311,7 +336,7 @@ const InventoryPage = () => {
                   <div className="w-100">
                     <Input
                       type="text"
-                      placeholder={`${t('common.search')} ${t('inventory.title').toLowerCase()}...`}
+                      placeholder={`${t("common.search")} ${t("inventory.title").toLowerCase()}...`}
                       value={searchValue}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -324,26 +349,31 @@ const InventoryPage = () => {
                     {/* View toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                            ? 'bg-[rgb(var(--color-primary))] text-white'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <List className="w-4 h-4" />
-                        {t('common.tableView')}
+                        {t("common.tableView")}
                       </button>
                       <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card" ? "bg-[rgb(var(--color-primary))] text-white" : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        {t('common.cardView')}
+                        {t("common.cardView")}
                       </button>
                     </div>
 
-                    <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
-                      {t('inventory.addStock')}
+                    <Button
+                      variant="primary"
+                      onClick={handleAddStock}
+                      leftIcon={Plus}
+                    >
+                      {t("inventory.addStock")}
                     </Button>
                   </div>
                 </div>
@@ -358,14 +388,18 @@ const InventoryPage = () => {
                     <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('common.noData')}
+                    {t("common.noData")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    {t('inventory.description')}
+                    {t("inventory.description")}
                   </p>
                   <div className="pt-4">
-                    <Button variant="primary" onClick={handleAddStock} leftIcon={Plus}>
-                      {t('inventory.addStock')}
+                    <Button
+                      variant="primary"
+                      onClick={handleAddStock}
+                      leftIcon={Plus}
+                    >
+                      {t("inventory.addStock")}
                     </Button>
                   </div>
                 </div>
@@ -375,8 +409,11 @@ const InventoryPage = () => {
             {/* Stock List */}
             {inventories.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
-                  {viewMode === 'table' ? (
+                <div
+                  className="h-[calc(100vh-200px)] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {viewMode === "table" ? (
                     <div className="h-full">
                       <InventoryTable
                         inventories={inventories}
@@ -389,7 +426,7 @@ const InventoryPage = () => {
                         hasMore={hasMore}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
-                        emptyMessage={t('common.noData')}
+                        emptyMessage={t("common.noData")}
                       />
                     </div>
                   ) : (
@@ -417,14 +454,22 @@ const InventoryPage = () => {
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                       {hasMore ? (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{inventories.length}</span> stock items
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {inventories.length}
+                          </span>{" "}
+                          stock items
                           <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                             • Scroll down to load more
                           </span>
                         </>
                       ) : (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{inventories.length}</span> stock items
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {inventories.length}
+                          </span>{" "}
+                          stock items
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                             • No more stock items
                           </span>
@@ -458,24 +503,25 @@ const InventoryPage = () => {
                 Delete Stock
               </h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-                Are you sure you want to delete "{inventoryToDelete?.name}"? This action cannot be undone.
+                Are you sure you want to delete "{inventoryToDelete?.name}"?
+                This action cannot be undone.
               </p>
               <div className="flex space-x-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowDeleteModal(false)} 
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
                   disabled={isDeleting}
                   className="flex-1"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  variant="danger" 
-                  onClick={handleConfirmDelete} 
+                <Button
+                  variant="danger"
+                  onClick={handleConfirmDelete}
                   disabled={isDeleting}
                   className="flex-1"
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </Button>
               </div>
             </div>

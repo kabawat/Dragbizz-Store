@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 let toastIdCounter = 0;
 
@@ -15,7 +15,7 @@ export const useToast = () => {
 
       return id;
     },
-    [],
+    []
   );
 
   const removeToast = useCallback((id) => {
@@ -26,14 +26,14 @@ export const useToast = () => {
     (message, duration = 3000) => {
       return showToast(message, "success", duration);
     },
-    [showToast],
+    [showToast]
   );
 
   const showError = useCallback(
     (message, duration = 3000) => {
       return showToast(message, "error", duration);
     },
-    [showToast],
+    [showToast]
   );
 
   return {

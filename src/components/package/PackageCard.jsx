@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
-import { Card, Button } from "@/components/ui";
 import { CheckCircle, Sparkles } from "lucide-react";
+import { Button, Card } from "@/components/ui";
 import { getCurrencySymbol } from "@/data/constants/currencies";
 
 const PackageCard = ({
@@ -65,7 +64,7 @@ const PackageCard = ({
   const currencySymbol = getCurrencySymbol(lowestPrice.currency);
   const features = pkg.featureUsageLimits || [];
   const highlights = features.filter(
-    (feature) => feature.enabled !== false && feature.highlight,
+    (feature) => feature.enabled !== false && feature.highlight
   );
 
   const handleSelect = () => {

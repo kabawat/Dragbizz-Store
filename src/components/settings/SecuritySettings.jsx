@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Lock, Eye, EyeOff, Save } from "lucide-react";
+import { Eye, EyeOff, Lock, Save } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const SecuritySettings = () => {

@@ -1,30 +1,29 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Plus,
+  Download,
   Grid3X3,
   List,
-  Users,
-  Search,
-  Download,
   Mic,
+  Plus,
+  Search,
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { deleteCustomer, setViewMode } from "@/store/slices/customersSlice";
-import { customerService } from "@/service";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Input, SettingsPanel, SideDrawer } from "@/components/ui";
-import { Button } from "@/components/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  CustomerTable,
-  CustomerCard,
   CreateCustomer,
+  CustomerCard,
+  CustomerTable,
   VoiceAICustomer,
 } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Input, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { customerService } from "@/service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { deleteCustomer, setViewMode } from "@/store/slices/customersSlice";
 
 const CustomersPage = () => {
   const { t } = useTranslation();
@@ -80,7 +79,7 @@ const CustomersPage = () => {
       });
       setShowErrorModal(true);
     }
-  }, [error]);
+  }, [error, t]);
 
   // Load view mode from localStorage
   useEffect(() => {
@@ -176,7 +175,7 @@ const CustomersPage = () => {
         }
       }
     },
-    [storeId, searchValue, customers.length],
+    [storeId, searchValue, customers.length]
   );
 
   // Reset fetch refs and pagination when search or store changes
@@ -191,7 +190,7 @@ const CustomersPage = () => {
       hasNextPage: false,
       nextCursor: null,
     });
-  }, [storeId, searchValue]);
+  }, []);
 
   // Fetch customers on component mount and when dependencies change (debounced for search)
   useEffect(() => {
@@ -214,7 +213,7 @@ const CustomersPage = () => {
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [storeId, searchValue]);
+  }, [storeId, searchValue, fetchCustomers, isLoading]);
 
   // Infinite scroll logic - load more customers
   const handleLoadMore = useCallback(async () => {
@@ -225,7 +224,7 @@ const CustomersPage = () => {
 
     try {
       await fetchCustomers(true, pagination.nextCursor);
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }
@@ -285,7 +284,7 @@ const CustomersPage = () => {
   };
 
   // Handle customer creation success from drawer
-  const handleCustomerSuccess = async (customerData) => {
+  const handleCustomerSuccess = async (_customerData) => {
     // Refresh customers list
     lastFetchRef.current = null;
     hasFetchedRef.current = {
@@ -323,7 +322,7 @@ const CustomersPage = () => {
         deleteCustomer({
           customerId: customerToDelete.id,
           storeId: storeId,
-        }),
+        })
       );
 
       if (result.payload?.success) {
@@ -333,7 +332,7 @@ const CustomersPage = () => {
 
       setShowDeleteModal(false);
       setCustomerToDelete(null);
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsDeleting(false);
     }

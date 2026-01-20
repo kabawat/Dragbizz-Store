@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "../ui";
+import { useState } from "react";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { deleteInvoice } from "@/store/slices/invoicesSlice";
-import { useGlobalToast } from "@/contexts/ToastContext";
+import { Button } from "../ui";
 
 const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
   const dispatch = useAppDispatch();
@@ -38,7 +38,7 @@ const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
         deleteInvoice({
           invoiceId: invoiceId,
           storeId: storeId,
-        }),
+        })
       );
 
       if (result.payload?.success) {
@@ -47,12 +47,12 @@ const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
       } else {
         showError(
           result.payload?.message ||
-            "Failed to delete invoice. Please try again.",
+            "Failed to delete invoice. Please try again."
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        "An error occurred while deleting the invoice. Please try again.",
+        "An error occurred while deleting the invoice. Please try again."
       );
     } finally {
       setIsLoading(false);

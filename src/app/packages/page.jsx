@@ -1,23 +1,22 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Loading, Card } from "@/components/ui";
 import {
   ArrowLeft,
-  RefreshCw,
-  Sparkles,
   CheckCircle,
   Crown,
-  Users,
+  Lock,
+  RefreshCw,
+  Sparkles,
   Star,
   TrendingUp,
-  Lock,
+  Users,
 } from "lucide-react";
-import { packageService } from "@/service";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
+import { Button, Card, Loading } from "@/components/ui";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
-import PackageCard from "@/components/package/PackageCard";
 import { getCurrencySymbol } from "@/data/constants/currencies";
+import { packageService } from "@/service";
 
 // Helper functions for package display
 const planTypeColors = {
@@ -78,7 +77,7 @@ const PackagesContent = () => {
 
   useEffect(() => {
     fetchPackages();
-  }, []);
+  }, [fetchPackages]);
 
   const fetchPackages = async () => {
     try {
@@ -344,7 +343,7 @@ const PackagesContent = () => {
                         {features
                           .filter(
                             (feature) =>
-                              feature.enabled !== false && feature.highlight,
+                              feature.enabled !== false && feature.highlight
                           )
                           .map((feature, index) => (
                             <div
@@ -359,7 +358,7 @@ const PackagesContent = () => {
                           ))}
                         {features.filter(
                           (feature) =>
-                            feature.enabled !== false && feature.highlight,
+                            feature.enabled !== false && feature.highlight
                         ).length === 0 && (
                           <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
                             No highlights available

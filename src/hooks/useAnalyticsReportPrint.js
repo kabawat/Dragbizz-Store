@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
 
@@ -6,7 +6,7 @@ export const useAnalyticsReportPrint = (
   fetching,
   analyticsData,
   reportId,
-  reportName,
+  reportName
 ) => {
   const { showError } = useGlobalToast();
   const [showPrintMenu, setShowPrintMenu] = useState(false);
@@ -59,7 +59,7 @@ export const useAnalyticsReportPrint = (
           if (l) l.remove();
           document.body.classList.remove(
             "print-mode-mini",
-            "print-mode-standard",
+            "print-mode-standard"
           );
           window.onafterprint = null;
         }, 200);
@@ -69,12 +69,12 @@ export const useAnalyticsReportPrint = (
       window.print();
       setTimeout(cleanup, 8000);
       setShowPrintMenu(false);
-    } catch (e) {
+    } catch (_e) {
       showError("Printing failed.");
     }
   };
 
-  const handleDownloadPDF = async (analyticsData) => {
+  const handleDownloadPDF = async (_analyticsData) => {
     const report = document.getElementById(reportId);
     if (!report) {
       showError("Report not found!");
@@ -82,8 +82,8 @@ export const useAnalyticsReportPrint = (
     }
 
     const root = document.documentElement;
-    const originalVariant = root.getAttribute("data-variant") || "light";
-    const originalTheme = root.getAttribute("data-theme") || "default";
+    const _originalVariant = root.getAttribute("data-variant") || "light";
+    const _originalTheme = root.getAttribute("data-theme") || "default";
 
     let tempStyleEl = null;
 
@@ -148,7 +148,7 @@ export const useAnalyticsReportPrint = (
       logger.error("PDF generation error:", error);
       showError("Failed to download PDF. Please try again.");
     } finally {
-      if (tempStyleEl && tempStyleEl.parentNode) {
+      if (tempStyleEl?.parentNode) {
         tempStyleEl.remove();
       }
     }
@@ -158,7 +158,7 @@ export const useAnalyticsReportPrint = (
     analyticsData,
     selectedStore,
     reportName,
-    dataConfig,
+    dataConfig
   ) => {
     try {
       if (!analyticsData) {
@@ -169,7 +169,7 @@ export const useAnalyticsReportPrint = (
       // Use exceljs for professional styling support
       const ExcelJS = (await import("exceljs")).default;
 
-      const formatCurrency = (amount) => {
+      const _formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return "₹0.00";
         return `₹${Number(amount).toLocaleString("en-IN", {
           minimumFractionDigits: 2,
@@ -177,8 +177,8 @@ export const useAnalyticsReportPrint = (
         })}`;
       };
 
-      const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-      const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+      const _formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+      const _formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
 
       // Create workbook
       const workbook = new ExcelJS.Workbook();
@@ -306,7 +306,7 @@ export const useAnalyticsReportPrint = (
 
       worksheet.getRow(currentRow).getCell(1).value = "Generated On";
       worksheet.getRow(currentRow).getCell(2).value = new Date().toLocaleString(
-        "en-IN",
+        "en-IN"
       );
       worksheet.getRow(currentRow).getCell(1).style = infoCellStyle;
       worksheet.getRow(currentRow).getCell(2).style = infoCellStyle;
@@ -315,7 +315,7 @@ export const useAnalyticsReportPrint = (
       if (analyticsData?.lastSyncedAt) {
         worksheet.getRow(currentRow).getCell(1).value = "Last Synced";
         worksheet.getRow(currentRow).getCell(2).value = new Date(
-          analyticsData.lastSyncedAt,
+          analyticsData.lastSyncedAt
         ).toLocaleString("en-IN");
         worksheet.getRow(currentRow).getCell(1).style = infoCellStyle;
         worksheet.getRow(currentRow).getCell(2).style = infoCellStyle;
@@ -361,9 +361,7 @@ export const useAnalyticsReportPrint = (
 
               if (Array.isArray(rowData)) {
                 rowData.forEach((cellValue, colIndex) => {
-                  const isAmount =
-                    section.amountColumns &&
-                    section.amountColumns.includes(colIndex);
+                  const isAmount = section.amountColumns?.includes(colIndex);
                   const cell = row.getCell(colIndex + 1);
                   cell.value = cellValue;
                   cell.style = isAmount
@@ -373,9 +371,7 @@ export const useAnalyticsReportPrint = (
               } else if (typeof rowData === "object") {
                 // Handle object format {label: '...', amount: '...'}
                 Object.values(rowData).forEach((cellValue, colIndex) => {
-                  const isAmount =
-                    section.amountColumns &&
-                    section.amountColumns.includes(colIndex);
+                  const isAmount = section.amountColumns?.includes(colIndex);
                   const cell = row.getCell(colIndex + 1);
                   cell.value = cellValue;
                   cell.style = isAmount

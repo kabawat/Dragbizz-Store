@@ -1,7 +1,7 @@
 "use client";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const EditBillPage = dynamic(() => import('@/page/dashboard/bills/edit'), {
+const EditBillPage = dynamic(() => import("@/page/dashboard/bills/edit"), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">

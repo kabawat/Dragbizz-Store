@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class SubscriptionService {
@@ -15,11 +15,11 @@ class SubscriptionService {
         `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`,
         {
           params,
-        },
+        }
       );
       return handleApiSuccess(
         response.data,
-        "Active subscription fetched successfully",
+        "Active subscription fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "subscription-active");
@@ -30,12 +30,12 @@ class SubscriptionService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/user/${userId}`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Subscriptions fetched successfully",
+        "Subscriptions fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "subscriptions-list");
@@ -45,11 +45,11 @@ class SubscriptionService {
   async getSubscriptionById(subscriptionId) {
     try {
       const response = await authAxios.get(
-        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/${subscriptionId}`,
+        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/${subscriptionId}`
       );
       return handleApiSuccess(
         response.data,
-        "Subscription fetched successfully",
+        "Subscription fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "subscription-get");
@@ -77,7 +77,7 @@ class SubscriptionService {
         {
           featureKey,
           quantity,
-        },
+        }
       );
       return handleApiSuccess(response.data, "Usage check completed");
     } catch (error) {

@@ -1,28 +1,35 @@
-"use client"
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, TrendingUp } from 'lucide-react';
-import { Card } from '@/components/ui';
+"use client";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, TrendingUp } from "lucide-react";
+import { Card } from "@/components/ui";
 
 // Map Tailwind gradient classes to CSS variable gradients
 const getGradientStyle = (iconColor) => {
   const gradientMap = {
-    'from-green-100 to-green-200': 'var(--gradient-green)',
-    'from-blue-100 to-blue-200': 'var(--gradient-blue)',
-    'from-purple-100 to-purple-200': 'var(--gradient-purple)',
-    'from-orange-100 to-orange-200': 'var(--gradient-orange)',
-    'from-red-100 to-red-200': 'var(--gradient-red)',
-    'from-yellow-100 to-yellow-200': 'var(--gradient-yellow)',
-    'from-teal-100 to-teal-200': 'var(--gradient-teal)',
-    'from-gray-100 to-gray-200': 'var(--gradient-gray)',
-    'from-indigo-100 to-indigo-200': 'var(--gradient-indigo)',
+    "from-green-100 to-green-200": "var(--gradient-green)",
+    "from-blue-100 to-blue-200": "var(--gradient-blue)",
+    "from-purple-100 to-purple-200": "var(--gradient-purple)",
+    "from-orange-100 to-orange-200": "var(--gradient-orange)",
+    "from-red-100 to-red-200": "var(--gradient-red)",
+    "from-yellow-100 to-yellow-200": "var(--gradient-yellow)",
+    "from-teal-100 to-teal-200": "var(--gradient-teal)",
+    "from-gray-100 to-gray-200": "var(--gradient-gray)",
+    "from-indigo-100 to-indigo-200": "var(--gradient-indigo)",
   };
-  
-  return gradientMap[iconColor] || 'var(--gradient-gray)';
+
+  return gradientMap[iconColor] || "var(--gradient-gray)";
 };
 
-export const SortableMetricCard = ({ id, title, value, change, icon: Icon, iconColor, textColor }) => {
+export const SortableMetricCard = ({
+  id,
+  title,
+  value,
+  change,
+  icon: Icon,
+  iconColor,
+  textColor,
+}) => {
   const {
     attributes,
     listeners,
@@ -39,11 +46,7 @@ export const SortableMetricCard = ({ id, title, value, change, icon: Icon, iconC
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="relative group"
-    >
+    <div ref={setNodeRef} style={style} className="relative group">
       <div
         {...attributes}
         {...listeners}
@@ -53,7 +56,7 @@ export const SortableMetricCard = ({ id, title, value, change, icon: Icon, iconC
           <GripVertical className="w-3 h-3 text-[rgb(var(--color-text-secondary))]" />
         </div>
       </div>
-      <Card 
+      <Card
         className={`backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative overflow-hidden`}
         style={{ background: getGradientStyle(iconColor) }}
       >
@@ -61,12 +64,16 @@ export const SortableMetricCard = ({ id, title, value, change, icon: Icon, iconC
         <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end pr-3 opacity-10">
           <Icon className="w-13 h-13 text-[rgb(var(--color-text-primary))]" />
         </div>
-        
+
         {/* Content */}
         <div className="relative z-10 p-4">
           <div className="flex-1 min-w-0">
-            <p className="text-[rgb(var(--color-text-secondary))] text-xs font-medium truncate">{title}</p>
-            <p className="text-[rgb(var(--color-text-primary))] text-xl font-bold mt-1">{value}</p>
+            <p className="text-[rgb(var(--color-text-secondary))] text-xs font-medium truncate">
+              {title}
+            </p>
+            <p className="text-[rgb(var(--color-text-primary))] text-xl font-bold mt-1">
+              {value}
+            </p>
             <p className="text-[rgb(var(--color-text-secondary))] text-xs flex items-center mt-1 truncate">
               <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
               <span className="truncate">{change}</span>
@@ -95,11 +102,7 @@ export const SortableCard = ({ id, children }) => {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="relative group"
-    >
+    <div ref={setNodeRef} style={style} className="relative group">
       <div
         {...attributes}
         {...listeners}
@@ -131,11 +134,7 @@ export const SortableSection = ({ id, children }) => {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="relative group"
-    >
+    <div ref={setNodeRef} style={style} className="relative group">
       <div
         {...attributes}
         {...listeners}

@@ -1,21 +1,10 @@
 "use client";
-import React from "react";
-import { Package } from "lucide-react";
-
-// Import sections
-import InventoryDetailsSection from "./InventoryDetailsSection";
-
 // Import UI components
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardBody,
-} from "@/components/ui";
-
+import { Card, CardBody } from "@/components/ui";
 // Import theme context
 import { useTheme } from "@/contexts/ThemeContext";
+// Import sections
+import InventoryDetailsSection from "./InventoryDetailsSection";
 
 const InventoryForm = ({
   formData = {},

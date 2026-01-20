@@ -1,19 +1,19 @@
 "use client";
-import React, { useState } from "react";
 import {
-  Lock,
-  Eye,
-  EyeOff,
-  Shield,
   AlertCircle,
-  CheckCircle,
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Lock,
+  Shield,
   Zap,
 } from "lucide-react";
-import { Input, AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
+import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { AnimatedBackground, AnimatedGridPattern, Button, Input } from "../ui";
 
 const PasswordStep = ({
   password,
@@ -26,7 +26,7 @@ const PasswordStep = ({
 }) => {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const [focused, _setFocused] = useState(false);
 
   // Password strength calculation
   const getPasswordStrength = (pwd) => {

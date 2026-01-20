@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 
 // Spinner Component
 const Spinner = ({ size = "md", color = "blue", className = "", ...props }) => {

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { CheckCircle, ArrowRight } from "lucide-react";
-import { AnimatedBackground } from "../ui";
-import { cookieManager } from "@/utils/cookieManager";
-import { useTheme } from "@/contexts/ThemeContext";
 import confetti from "canvas-confetti";
+import { ArrowRight, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cookieManager } from "@/utils/cookieManager";
+import { AnimatedBackground } from "../ui";
 
 const LoginSuccessScreen = ({
   firstName,
@@ -13,7 +13,7 @@ const LoginSuccessScreen = ({
   redirectUrl = "/dashboard",
 }) => {
   const [countdown, setCountdown] = useState(4);
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [_showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
 
   // Rainbow palette using theme colors
@@ -29,7 +29,7 @@ const LoginSuccessScreen = ({
 
   // Confetti state
   let rafId = null;
-  let endAt = 0;
+  const _endAt = 0;
 
   // Reduced motion fallback
   const prefersReducedMotion =
@@ -100,7 +100,7 @@ const LoginSuccessScreen = ({
     createSingleBurst();
   };
 
-  const stopRain = (fromLoop = false) => {
+  const _stopRain = (_fromLoop = false) => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -129,7 +129,10 @@ const LoginSuccessScreen = ({
       clearInterval(timer);
       clearTimeout(confettiTimer);
     };
-  }, []);
+  }, [
+    // Start single confetti burst immediately
+    startRain,
+  ]);
 
   // Handle countdown completion
   useEffect(() => {
@@ -221,7 +224,7 @@ const LoginSuccessScreen = ({
             if (typeof window !== "undefined") {
               localStorage.setItem(
                 "dragbizz_last_activity",
-                Date.now().toString(),
+                Date.now().toString()
               );
             }
             // Redirect to the original page or dashboard

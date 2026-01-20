@@ -1,9 +1,8 @@
 "use client";
-import React, { useState } from "react";
-import { Input, Textarea, TagInput, Select } from "../ui";
-import { Package, Tag, Barcode } from "lucide-react";
-import { PRODUCT_CATEGORY_OPTIONS } from "@/data";
+import { Barcode, Package, Tag } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Input, Select } from "../ui";
 
 const BasicInfoSection = ({
   formData,
@@ -15,7 +14,7 @@ const BasicInfoSection = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const [customCategories, setCustomCategories] = useState([]);
+  const [customCategories, _setCustomCategories] = useState([]);
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -23,7 +22,7 @@ const BasicInfoSection = ({
 
   const handleCategoryChange = (value) => {
     if (value === "add-new-category") {
-      onAddCategoryClick && onAddCategoryClick();
+      onAddCategoryClick?.();
     } else {
       handleFieldChange("category", value);
     }

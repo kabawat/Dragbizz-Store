@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class InvoiceService {
@@ -13,11 +13,11 @@ class InvoiceService {
     try {
       const response = await authAxios.post(
         API_CONFIG.RETAILER.INVOICE,
-        invoiceData,
+        invoiceData
       );
       return handleApiSuccess(
         response.data,
-        "Draft invoice created successfully",
+        "Draft invoice created successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "invoice-creation");
@@ -45,7 +45,7 @@ class InvoiceService {
       const response = await authAxios.put(url, dataToUpdate);
       return handleApiSuccess(
         response.data,
-        "Draft invoice updated successfully",
+        "Draft invoice updated successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "invoice-update");
@@ -58,7 +58,7 @@ class InvoiceService {
     paymentStatus,
     paymentMode = null,
     storeId = null,
-    paidAmount = null,
+    paidAmount = null
   ) {
     try {
       let url = `${API_CONFIG.RETAILER.INVOICE}/${invoiceId}/payment-status`;
@@ -76,7 +76,7 @@ class InvoiceService {
       const response = await authAxios.patch(url, payload);
       return handleApiSuccess(
         response.data,
-        "Payment status updated successfully",
+        "Payment status updated successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "payment-status-update");
@@ -88,7 +88,7 @@ class InvoiceService {
     invoiceId,
     paymentStatus = "PAID",
     storeId = null,
-    paidAmount = null,
+    paidAmount = null
   ) {
     try {
       const payload = {
@@ -108,7 +108,7 @@ class InvoiceService {
 
       const response = await authAxios.post(
         `${API_CONFIG.RETAILER.INVOICE}/release`,
-        payload,
+        payload
       );
       return handleApiSuccess(response.data, "Invoice released successfully");
     } catch (error) {
@@ -124,7 +124,7 @@ class InvoiceService {
         {
           id: invoiceId,
           reason,
-        },
+        }
       );
       return handleApiSuccess(response.data, "Invoice cancelled successfully");
     } catch (error) {
@@ -158,7 +158,7 @@ class InvoiceService {
       });
       return handleApiSuccess(
         response?.data,
-        "Public invoice fetched successfully",
+        "Public invoice fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "public-invoice-details");

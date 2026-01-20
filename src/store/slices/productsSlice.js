@@ -1,6 +1,6 @@
 // src/store/slices/productsSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { productService, analyticsService } from "@/service/retailer";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { analyticsService, productService } from "@/service/retailer";
 
 // Async thunk for getting products
 export const getProducts = createAsyncThunk(
@@ -19,12 +19,12 @@ export const getProducts = createAsyncThunk(
         data: result.data,
         message: "Products fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch products. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for deleting a product
@@ -44,12 +44,12 @@ export const deleteProduct = createAsyncThunk(
         productId: productId,
         message: "Product deleted successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to delete product. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting stock analytics
@@ -77,12 +77,12 @@ export const getStockAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Stock analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch stock analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -209,12 +209,12 @@ const productsSlice = createSlice({
         // Remove product from the list
         const productId = action.payload.productId;
         state.products = state.products.filter(
-          (product) => product.id !== productId,
+          (product) => product.id !== productId
         );
 
         // Remove from selected products if it was selected
         state.selectedProducts = state.selectedProducts.filter(
-          (id) => id !== productId,
+          (id) => id !== productId
         );
 
         // Update total count

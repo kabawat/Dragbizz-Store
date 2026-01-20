@@ -1,51 +1,80 @@
 "use client";
-import React, { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { Footer } from "@/components/common";
 
-const ProductHeader = dynamic(() => import("@/components/layout/ProductHeader"), {
-  ssr: true,
-});
+const ProductHeader = dynamic(
+  () => import("@/components/layout/ProductHeader"),
+  {
+    ssr: true,
+  }
+);
 
 const HeroSection = dynamic(() => import("@/components/home/HeroSection"), {
   ssr: true,
 });
 
-const FeaturesSection = dynamic(() => import("@/components/home/FeaturesSection"), {
-  ssr: true,
-});
+const FeaturesSection = dynamic(
+  () => import("@/components/home/FeaturesSection"),
+  {
+    ssr: true,
+  }
+);
 
-const AdvancedFeaturesSection = dynamic(() => import("@/components/home/AdvancedFeaturesSection"), {
-  ssr: true,
-});
+const AdvancedFeaturesSection = dynamic(
+  () => import("@/components/home/AdvancedFeaturesSection"),
+  {
+    ssr: true,
+  }
+);
 
-const BenefitsSection = dynamic(() => import("@/components/home/BenefitsSection"), {
-  ssr: true,
-});
+const BenefitsSection = dynamic(
+  () => import("@/components/home/BenefitsSection"),
+  {
+    ssr: true,
+  }
+);
 
-const TestimonialsSection = dynamic(() => import("@/components/home/TestimonialsSection"), {
-  ssr: true,
-});
+const TestimonialsSection = dynamic(
+  () => import("@/components/home/TestimonialsSection"),
+  {
+    ssr: true,
+  }
+);
 
-const PricingSection = dynamic(() => import("@/components/home/PricingSection"), {
-  ssr: true,
-});
+const PricingSection = dynamic(
+  () => import("@/components/home/PricingSection"),
+  {
+    ssr: true,
+  }
+);
 
-const ComparisonSection = dynamic(() => import("@/components/home/ComparisonSection"), {
-  ssr: true,
-});
+const ComparisonSection = dynamic(
+  () => import("@/components/home/ComparisonSection"),
+  {
+    ssr: true,
+  }
+);
 
-const IntegrationsSection = dynamic(() => import("@/components/home/IntegrationsSection"), {
-  ssr: true,
-});
+const IntegrationsSection = dynamic(
+  () => import("@/components/home/IntegrationsSection"),
+  {
+    ssr: true,
+  }
+);
 
-const SecuritySection = dynamic(() => import("@/components/home/SecuritySection"), {
-  ssr: true,
-});
+const SecuritySection = dynamic(
+  () => import("@/components/home/SecuritySection"),
+  {
+    ssr: true,
+  }
+);
 
-const UseCasesSection = dynamic(() => import("@/components/home/UseCasesSection"), {
-  ssr: true,
-});
+const UseCasesSection = dynamic(
+  () => import("@/components/home/UseCasesSection"),
+  {
+    ssr: true,
+  }
+);
 
 const FAQSection = dynamic(() => import("@/components/home/FAQSection"), {
   ssr: true,
@@ -54,23 +83,24 @@ const FAQSection = dynamic(() => import("@/components/home/FAQSection"), {
 const CTASection = dynamic(() => import("@/components/home/CTASection"), {
   ssr: true,
 });
+
 import {
-  ShoppingBag,
-  Zap,
-  Shield,
-  TrendingUp,
-  Sparkles,
-  Package,
-  Users,
   BarChart3,
-  Globe,
   Clock,
-  Lock,
-  Rocket,
-  Target,
-  Heart,
   Cloud,
   FileText,
+  Globe,
+  Heart,
+  Lock,
+  Package,
+  Rocket,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
 } from "lucide-react";
 
 const HomePage = () => {

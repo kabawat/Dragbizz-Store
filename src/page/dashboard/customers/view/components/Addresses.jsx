@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { MapPin } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { MapPin } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Addresses = ({ addresses }) => {
   const { t } = useTranslation();
@@ -136,4 +135,3 @@ const Addresses = ({ addresses }) => {
 };
 
 export default Addresses;
-

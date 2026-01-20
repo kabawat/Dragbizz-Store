@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 
 class VoiceAIService {
   // Chat with Voice AI for customer creation
@@ -14,7 +14,7 @@ class VoiceAIService {
 
       const response = await authAxios.post(
         API_CONFIG.VOICE_AI.CUSTOMER_CHAT,
-        payload,
+        payload
       );
 
       return handleApiSuccess(response?.data, "Chat processed successfully");
@@ -34,7 +34,7 @@ class VoiceAIService {
 
       const response = await authAxios.post(
         API_CONFIG.VOICE_AI.SUPPLIER_CHAT,
-        payload,
+        payload
       );
 
       return handleApiSuccess(response?.data, "Chat processed successfully");
@@ -56,12 +56,12 @@ class VoiceAIService {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        },
+        }
       );
 
       return handleApiSuccess(
         response?.data,
-        "Product data extracted successfully",
+        "Product data extracted successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "product-extract");

@@ -1,48 +1,42 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
-  Package,
-  Edit,
-  Copy,
-  Trash2,
-  CheckCircle,
-  IndianRupee,
-  Tag,
-  Calendar,
-  Eye,
-  Star,
-  TrendingUp,
   AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  BarChart3,
-  FileText,
-  Hash,
+  ArrowLeft,
   Barcode,
   Building2,
-  MapPin,
-  ShoppingCart,
+  CheckCircle,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Eye,
+  FileText,
+  Hash,
+  IndianRupee,
+  Package,
   Package2,
-  Scale,
   Percent,
-  Globe,
+  Scale,
   Shield,
+  ShoppingCart,
+  Star,
+  Tag,
+  Trash2,
+  TrendingUp,
+  XCircle,
   Zap,
 } from "lucide-react";
 import moment from "moment";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Button, Badge } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -81,12 +75,12 @@ const ViewProductPage = ({ productId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.product") }),
+              t("errors.failedToFetchData", { item: t("common.product") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.product") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.product") })
         );
       } finally {
         setFetching(false);
@@ -94,7 +88,7 @@ const ViewProductPage = ({ productId }) => {
     };
 
     fetchProductData();
-  }, [productId, storeId]);
+  }, [productId, storeId, t]);
 
   // Handle edit product
   const handleEditProduct = () => {
@@ -121,13 +115,13 @@ const ViewProductPage = ({ productId }) => {
       } else {
         setError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.product") }),
+            t("errors.failedToDelete", { item: t("common.product") })
         );
         setShowDeleteModal(false);
       }
-    } catch (error) {
+    } catch (_error) {
       setError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.product") }),
+        t("errors.failedToDeleteTryAgain", { item: t("common.product") })
       );
       setShowDeleteModal(false);
     } finally {
@@ -737,7 +731,7 @@ const ViewProductPage = ({ productId }) => {
                             </p>
                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                               {moment(productData.createdAt).format(
-                                "DD MMM YYYY",
+                                "DD MMM YYYY"
                               )}
                             </p>
                           </div>
@@ -751,7 +745,7 @@ const ViewProductPage = ({ productId }) => {
                             </p>
                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                               {moment(productData.updatedAt).format(
-                                "DD MMM YYYY",
+                                "DD MMM YYYY"
                               )}
                             </p>
                           </div>
@@ -836,7 +830,7 @@ const ViewProductPage = ({ productId }) => {
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {moment(productData.updatedAt).format(
-                                  "MMM DD, YYYY",
+                                  "MMM DD, YYYY"
                                 )}
                               </span>
                             </div>

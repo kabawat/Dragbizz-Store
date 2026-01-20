@@ -1,38 +1,28 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
 import {
-  supplierService,
-  paymentService,
-  billService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  CreditCard,
-  Save,
   ArrowLeft,
   Building2,
+  CreditCard,
   FileText,
-  CheckCircle,
-  Banknote,
-  Smartphone,
-  CreditCard as CardIcon,
   Plus,
+  Save,
+  Smartphone,
   Trash2,
 } from "lucide-react";
-import {
-  Input,
-  Select,
-  Textarea,
-  Card,
-  Modal,
-  Button,
-} from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Input, Select, Textarea } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import {
+  billService,
+  paymentService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const CreatePayment = () => {
   const { t } = useTranslation();
@@ -77,12 +67,8 @@ const CreatePayment = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const {
-    handleApiError,
-    handleApiResult,
-    QuotaModal,
-    showSuccess,
-  } = useErrorHandling();
+  const { handleApiError, handleApiResult, QuotaModal, showSuccess } =
+    useErrorHandling();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -149,7 +135,7 @@ const CreatePayment = () => {
           { id: "3", name: "Supplier 3" },
         ]);
       }
-    } catch (error) {
+    } catch (_error) {
       setSuppliers([
         { id: "1", name: "Supplier 1" },
         { id: "2", name: "Supplier 2" },
@@ -194,7 +180,7 @@ const CreatePayment = () => {
       } else {
         setBills([]);
       }
-    } catch (error) {
+    } catch (_error) {
       setBills([]);
     } finally {
       setBillsLoading(false);
@@ -218,7 +204,7 @@ const CreatePayment = () => {
   // Fetch suppliers on component mount or store change (only once per store)
   useEffect(() => {
     fetchSuppliers();
-  }, [storeId]);
+  }, [fetchSuppliers]);
 
   // Fetch available bills when supplier is selected
   useEffect(() => {
@@ -235,7 +221,7 @@ const CreatePayment = () => {
     } else {
       setBills([]);
     }
-  }, [formData.supplierId, storeId]);
+  }, [formData.supplierId, storeId, fetchBills]);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -247,7 +233,7 @@ const CreatePayment = () => {
     // Auto-fill amount when bill is selected
     if (field === "billId" && value) {
       const selectedBill = bills.find((bill) => bill._id === value);
-      if (selectedBill && selectedBill.dueAmount) {
+      if (selectedBill?.dueAmount) {
         setFormData((prev) => ({
           ...prev,
           [field]: value,
@@ -255,9 +241,7 @@ const CreatePayment = () => {
             ? prev.paymentMethods
             : []
           ).map((method, index) =>
-            index === 0
-              ? { ...method, amount: selectedBill.dueAmount }
-              : method,
+            index === 0 ? { ...method, amount: selectedBill.dueAmount } : method
           ),
         }));
       }
@@ -280,7 +264,7 @@ const CreatePayment = () => {
         ? prev.paymentMethods
         : []
       ).map((method, i) =>
-        i === index ? { ...method, [field]: value } : method,
+        i === index ? { ...method, [field]: value } : method
       ),
     }));
 
@@ -341,7 +325,7 @@ const CreatePayment = () => {
       : [];
     return methods.reduce(
       (total, method) => total + (parseFloat(method?.amount) || 0),
-      0,
+      0
     );
   };
 
@@ -379,13 +363,13 @@ const CreatePayment = () => {
     ).forEach((method, index) => {
       if (!method.amount || method.amount <= 0) {
         newErrors[`paymentMethod_${index}_amount`] = t(
-          "payments.validAmountRequired",
+          "payments.validAmountRequired"
         );
       }
 
       if (!method.method) {
         newErrors[`paymentMethod_${index}_method`] = t(
-          "payments.paymentMethodRequired",
+          "payments.paymentMethodRequired"
         );
       }
 
@@ -394,22 +378,22 @@ const CreatePayment = () => {
         case "bank_transfer":
           if (!method.bankName) {
             newErrors[`paymentMethod_${index}_bankName`] = t(
-              "payments.bankNameRequired",
+              "payments.bankNameRequired"
             );
           }
           if (!method.ifscCode) {
             newErrors[`paymentMethod_${index}_ifscCode`] = t(
-              "payments.ifscCodeRequired",
+              "payments.ifscCodeRequired"
             );
           }
           if (!method.accountNumber) {
             newErrors[`paymentMethod_${index}_accountNumber`] = t(
-              "payments.accountNumberRequired",
+              "payments.accountNumberRequired"
             );
           }
           if (!method.holderName) {
             newErrors[`paymentMethod_${index}_holderName`] = t(
-              "payments.holderNameRequired",
+              "payments.holderNameRequired"
             );
           }
           break;
@@ -417,12 +401,12 @@ const CreatePayment = () => {
         case "upi":
           if (!method.upiId) {
             newErrors[`paymentMethod_${index}_upiId`] = t(
-              "payments.upiIdRequired",
+              "payments.upiIdRequired"
             );
           }
           if (!method.transactionId) {
             newErrors[`paymentMethod_${index}_transactionId`] = t(
-              "payments.transactionIdRequired",
+              "payments.transactionIdRequired"
             );
           }
           break;
@@ -430,22 +414,22 @@ const CreatePayment = () => {
         case "cheque":
           if (!method.chequeNumber) {
             newErrors[`paymentMethod_${index}_chequeNumber`] = t(
-              "payments.chequeNumberRequired",
+              "payments.chequeNumberRequired"
             );
           }
           if (!method.chequeDate) {
             newErrors[`paymentMethod_${index}_chequeDate`] = t(
-              "payments.chequeDateRequired",
+              "payments.chequeDateRequired"
             );
           }
           if (!method.chequeBankName) {
             newErrors[`paymentMethod_${index}_chequeBankName`] = t(
-              "payments.chequeBankNameRequired",
+              "payments.chequeBankNameRequired"
             );
           }
           if (!method.chequeBranchName) {
             newErrors[`paymentMethod_${index}_chequeBranchName`] = t(
-              "payments.chequeBranchNameRequired",
+              "payments.chequeBranchNameRequired"
             );
           }
           break;
@@ -620,7 +604,7 @@ const CreatePayment = () => {
                               disabled={suppliersLoading}
                               searchable={true}
                               placeholder={t(
-                                "payments.searchAndSelectSupplier",
+                                "payments.searchAndSelectSupplier"
                               )}
                             />
                           </div>
@@ -751,7 +735,7 @@ const CreatePayment = () => {
                                       handlePaymentMethodChange(
                                         index,
                                         "amount",
-                                        value || "",
+                                        value || ""
                                       )
                                     }
                                     placeholder="0.00"
@@ -774,7 +758,7 @@ const CreatePayment = () => {
                                       handlePaymentMethodChange(
                                         index,
                                         "method",
-                                        value,
+                                        value
                                       )
                                     }
                                     options={[
@@ -816,7 +800,7 @@ const CreatePayment = () => {
                                       handlePaymentMethodChange(
                                         index,
                                         "reference",
-                                        value,
+                                        value
                                       )
                                     }
                                     placeholder={t("payments.paymentReference")}
@@ -845,11 +829,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "bankName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterBankName",
+                                            "payments.enterBankName"
                                           )}
                                           error={
                                             errors[
@@ -870,11 +854,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "ifscCode",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterIfscCode",
+                                            "payments.enterIfscCode"
                                           )}
                                           error={
                                             errors[
@@ -895,11 +879,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "accountNumber",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterAccountNumber",
+                                            "payments.enterAccountNumber"
                                           )}
                                           error={
                                             errors[
@@ -920,11 +904,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "holderName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterAccountHolderName",
+                                            "payments.enterAccountHolderName"
                                           )}
                                           error={
                                             errors[
@@ -957,7 +941,7 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "upiId",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t("payments.enterUpiId")}
@@ -979,11 +963,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "transactionId",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterTransactionId",
+                                            "payments.enterTransactionId"
                                           )}
                                           error={
                                             errors[
@@ -1015,11 +999,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeNumber",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterChequeNumber",
+                                            "payments.enterChequeNumber"
                                           )}
                                           error={
                                             errors[
@@ -1040,7 +1024,7 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeDate",
-                                              value,
+                                              value
                                             )
                                           }
                                           error={
@@ -1061,11 +1045,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeBankName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterBankName",
+                                            "payments.enterBankName"
                                           )}
                                           error={
                                             errors[
@@ -1085,11 +1069,11 @@ const CreatePayment = () => {
                                             handlePaymentMethodChange(
                                               index,
                                               "chequeBranchName",
-                                              value,
+                                              value
                                             )
                                           }
                                           placeholder={t(
-                                            "payments.enterBranchName",
+                                            "payments.enterBranchName"
                                           )}
                                           error={
                                             errors[

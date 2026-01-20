@@ -1,15 +1,14 @@
 "use client";
-import React from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import {
-  Shield,
-  Lock,
-  CheckCircle,
   Award,
+  CheckCircle,
   FileCheck,
+  Lock,
   Server,
+  Shield,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const SecuritySection = () => {
   const securityFeatures = [

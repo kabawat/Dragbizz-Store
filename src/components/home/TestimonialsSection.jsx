@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import { Star } from "lucide-react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const TestimonialsSection = ({
   testimonials,

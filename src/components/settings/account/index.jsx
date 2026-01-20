@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
 import { Save, Settings } from "lucide-react";
+import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 import useErrorHandling from "@/hooks/useErrorHandling";
-import { useAccountData } from "./useAccountData";
-import AccountPreferencesSection from "./AccountPreferencesSection";
 import { useTranslation } from "@/hooks/useTranslation";
+import AccountPreferencesSection from "./AccountPreferencesSection";
+import { useAccountData } from "./useAccountData";
 
 const AccountSettings = () => {
   const { t } = useTranslation();

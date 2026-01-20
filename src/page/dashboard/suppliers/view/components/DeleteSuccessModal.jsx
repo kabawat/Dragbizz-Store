@@ -1,16 +1,11 @@
 "use client";
-import React from 'react';
-import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const DeleteSuccessModal = ({ 
-  isOpen, 
-  supplierName, 
-  onClose 
-}) => {
+const DeleteSuccessModal = ({ isOpen, supplierName, onClose }) => {
   const { t } = useTranslation();
-  
+
   if (!isOpen) return null;
 
   return (
@@ -41,4 +36,3 @@ const DeleteSuccessModal = ({
 };
 
 export default DeleteSuccessModal;
-

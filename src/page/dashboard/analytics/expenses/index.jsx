@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,34 +9,33 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getExpenseAnalytics } from "@/store/slices/expensesSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  DollarSign,
-  CheckCircle,
   AlertTriangle,
   Calendar,
-  PieChart,
-  CreditCard,
+  CheckCircle,
+  ChevronDown,
+  DollarSign,
   Download,
   FileSpreadsheet,
-  ChevronDown,
   FileText,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import {
-  SortableMetricCard,
-  SortableCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import ExpensesReportTemplate from "@/components/templates/analytics/expenses/ExpensesReportTemplate";
+import {
+  SortableCard,
+  SortableMetricCard,
+} from "@/components/templates/analytics/SortableComponents";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getExpenseAnalytics } from "@/store/slices/expensesSlice";
 
 const ExpenseAnalytics = () => {
   const { t } = useTranslation();
@@ -58,7 +56,7 @@ const ExpenseAnalytics = () => {
     isLoading,
     analytics,
     "expenses-report-area",
-    "expenses-analytics-report",
+    "expenses-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -247,6 +245,10 @@ const ExpenseAnalytics = () => {
     amounts.todayAmount,
     amounts.paidAmount,
     amounts.pendingAmount,
+    amounts,
+    formatCurrency,
+    formatNumber,
+    counts,
   ]);
 
   const [cards, setCards] = useState([
@@ -259,7 +261,7 @@ const ExpenseAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -526,7 +528,7 @@ const ExpenseAnalytics = () => {
                                             </span>
                                           </div>
                                         </div>
-                                      ),
+                                      )
                                     )}
                                   </div>
                                 ) : (
@@ -579,7 +581,7 @@ const ExpenseAnalytics = () => {
                                             </span>
                                           </div>
                                         </div>
-                                      ),
+                                      )
                                     )}
                                   </div>
                                 ) : (
@@ -682,7 +684,7 @@ const ExpenseAnalytics = () => {
                       analytics,
                       selectedStore,
                       "expenses-analytics-report",
-                      getExpensesXLSXConfig(),
+                      getExpensesXLSXConfig()
                     );
                     setShowExportMenu(false);
                   }}

@@ -1,16 +1,16 @@
 import "./globals.scss";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ReduxProvider } from "@/store/provider";
-import { LocationProvider } from "./LocationProvider";
-import { ToastProvider } from "@/contexts/ToastContext";
-import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
-import { SettingsPanel } from "@/components/ui";
-import ToastInitializer from "@/components/ToastInitializer";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
 import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
+import ToastInitializer from "@/components/ToastInitializer";
+import { SettingsPanel } from "@/components/ui";
+import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ToastProvider } from "@/contexts/ToastContext";
+import { ReduxProvider } from "@/store/provider";
+import { LocationProvider } from "./LocationProvider";
 
 export const metadata = {
   title: "Create Next App",

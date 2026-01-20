@@ -1,12 +1,11 @@
 "use client";
-import React from "react";
 import { FileText } from "lucide-react";
 import { Badge } from "@/components/ui";
-import {
-  getStatusColor,
-  getPaymentStatusColor,
-} from "../utils/invoiceView.utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import {
+  getPaymentStatusColor,
+  getStatusColor,
+} from "../utils/invoiceView.utils";
 
 const InvoiceSummaryCard = ({
   invoiceData,

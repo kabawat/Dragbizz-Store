@@ -1,8 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,31 +9,31 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getInvoiceAnalytics } from "@/store/slices/invoicesSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  FileText,
   CheckCircle,
-  XCircle,
-  FileX,
+  ChevronDown,
   Download,
   FileSpreadsheet,
-  ChevronDown,
+  FileText,
+  XCircle,
 } from "lucide-react";
-import { Card, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
-  SortableMetricCard,
   SortableCard,
+  SortableMetricCard,
 } from "@/components/templates/analytics/SortableComponents";
 import SalesReportTemplate from "@/components/templates/analytics/sales/SalesReportTemplate";
+import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getInvoiceAnalytics } from "@/store/slices/invoicesSlice";
 
 const SalesAnalytics = () => {
   const { t } = useTranslation();
@@ -74,7 +73,7 @@ const SalesAnalytics = () => {
         draftInvoices: 0,
         cancelledInvoices: 0,
       },
-    [analytics?.counts],
+    [analytics?.counts]
   );
 
   const amounts = useMemo(
@@ -83,7 +82,7 @@ const SalesAnalytics = () => {
         totalAmount: 0,
         averageOrderValue: 0,
       },
-    [analytics?.amounts],
+    [analytics?.amounts]
   );
 
   const today = useMemo(
@@ -92,7 +91,7 @@ const SalesAnalytics = () => {
         totalInvoices: 0,
         releasedInvoices: 0,
       },
-    [analytics?.today],
+    [analytics?.today]
   );
 
   const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
@@ -103,7 +102,7 @@ const SalesAnalytics = () => {
     isLoading,
     analytics,
     "sales-report-area",
-    "sales-analytics-report",
+    "sales-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
@@ -185,7 +184,7 @@ const SalesAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, counts, amounts]);
+  }, [analytics, counts, amounts, formatCurrency, formatNumber]);
 
   const [cards, setCards] = useState([
     { id: "chart1", type: "chart", title: "Sales Trend" },
@@ -197,7 +196,7 @@ const SalesAnalytics = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const handleMetricsDragEnd = (event) => {
@@ -455,7 +454,7 @@ const SalesAnalytics = () => {
                                     </p>
                                     <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
                                       {formatCurrency(
-                                        amounts.averageOrderValue,
+                                        amounts.averageOrderValue
                                       )}
                                     </p>
                                   </div>
@@ -504,7 +503,7 @@ const SalesAnalytics = () => {
                     analytics,
                     selectedStore,
                     "sales-analytics-report",
-                    getSalesXLSXConfig(),
+                    getSalesXLSXConfig()
                   );
                   setShowExportMenu(false);
                 }}

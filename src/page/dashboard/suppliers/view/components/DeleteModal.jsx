@@ -1,13 +1,12 @@
 "use client";
-import React from 'react';
-import { Button } from '@/components/ui';
+import { Button } from "@/components/ui";
 
-const DeleteModal = ({ 
-  isOpen, 
-  supplierName, 
-  onCancel, 
-  onConfirm, 
-  isDeleting 
+const DeleteModal = ({
+  isOpen,
+  supplierName,
+  onCancel,
+  onConfirm,
+  isDeleting,
 }) => {
   if (!isOpen) return null;
 
@@ -18,21 +17,14 @@ const DeleteModal = ({
           Delete Supplier
         </h3>
         <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-          Are you sure you want to delete "{supplierName || "Supplier"}"? This action cannot be undone.
+          Are you sure you want to delete "{supplierName || "Supplier"}"? This
+          action cannot be undone.
         </p>
         <div className="flex gap-3 justify-end">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isDeleting}
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isDeleting}>
             Cancel
           </Button>
-          <Button
-            variant="danger"
-            onClick={onConfirm}
-            loading={isDeleting}
-          >
+          <Button variant="danger" onClick={onConfirm} loading={isDeleting}>
             Delete
           </Button>
         </div>
@@ -42,4 +34,3 @@ const DeleteModal = ({
 };
 
 export default DeleteModal;
-

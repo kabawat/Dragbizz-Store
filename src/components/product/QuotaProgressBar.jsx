@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect } from "react";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useEffect } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
 
 const QuotaProgressBar = ({
   featureKey = "product_management",
@@ -25,7 +25,7 @@ const QuotaProgressBar = ({
   const isUnlimited = quota.remaining === -1 || quota.limit === -1;
   const used = quota.used || 0;
   const limit = quota.limit || 0;
-  const remaining = quota.remaining || 0;
+  const _remaining = quota.remaining || 0;
   const percentage = isUnlimited
     ? 0
     : limit > 0

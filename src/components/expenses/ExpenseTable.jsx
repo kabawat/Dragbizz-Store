@@ -1,25 +1,20 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Badge } from "@/components/ui";
 import {
   Calendar,
-  IndianRupee,
-  CreditCard,
+  Edit,
+  Eye,
   FileText,
   MoreVertical,
-  Edit,
   Trash2,
-  Eye,
 } from "lucide-react";
-import { getStatusBadge, renderStatusBadge } from "@/utils/statusBadge";
+import { useEffect, useRef, useState } from "react";
 import {
   getCategoryLabel,
-  getPaymentMethodLabel,
   getPaymentMethodIcon,
-  getStatusLabel,
-  getStatusColor,
+  getPaymentMethodLabel,
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusBadge, renderStatusBadge } from "@/utils/statusBadge";
 
 const ExpenseTable = ({
   expenses = [],
@@ -60,7 +55,7 @@ const ExpenseTable = ({
     };
   }, [openMenuId]);
 
-  const handleMenuToggle = (expenseId) => {
+  const _handleMenuToggle = (expenseId) => {
     setOpenMenuId(openMenuId === expenseId ? null : expenseId);
   };
 
@@ -96,7 +91,7 @@ const ExpenseTable = ({
     }).format(amount);
   };
 
-  const getStatusBadgeColor = (status) => {
+  const _getStatusBadgeColor = (status) => {
     const config = getStatusBadge(status, "general");
     // Map variant to color name for Badge component
     const colorMap = {
@@ -230,7 +225,7 @@ const ExpenseTable = ({
                   <td className="px-6 py-4">
                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
                       {getCategoryLabel(
-                        expense.category?.name || expense.category,
+                        expense.category?.name || expense.category
                       )}
                     </div>
                   </td>
@@ -270,7 +265,7 @@ const ExpenseTable = ({
                       <button
                         onClick={() =>
                           setOpenMenuId(
-                            openMenuId === expense.id ? null : expense.id,
+                            openMenuId === expense.id ? null : expense.id
                           )
                         }
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"

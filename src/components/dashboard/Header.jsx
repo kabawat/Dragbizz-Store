@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
 import { Bell, ChevronDown } from "lucide-react";
-import { useLogout } from "@/hooks/useLogout";
+import { useEffect, useRef, useState } from "react";
 import LogoutModal from "@/components/ui/LogoutModal";
-import { useAppSelector } from "@/store/hooks";
+import { useLogout } from "@/hooks/useLogout";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
 const Header = ({ title, description }) => {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ const Header = ({ title, description }) => {
 
   // Get user data from Redux
   const { user, agency, selectedStore, authProfile } = useAppSelector(
-    (state) => state.profile,
+    (state) => state.profile
   );
 
   // Get user name and role

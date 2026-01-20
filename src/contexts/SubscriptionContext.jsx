@@ -1,12 +1,12 @@
 "use client";
-import React, {
+import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   useCallback,
-  useRef,
+  useContext,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
 import { subscriptionService } from "@/service/subscription";
 import { useAppSelector } from "@/store/hooks";
@@ -113,7 +113,7 @@ export const SubscriptionProvider = ({ children }) => {
         isFetchingRef.current = false;
       }
     },
-    [isAuthenticated, profileLoading, userId],
+    [isAuthenticated, profileLoading, userId]
   ); // Use userId instead of user object
 
   // Initial fetch - only fetch once when user is authenticated and loaded
@@ -158,7 +158,12 @@ export const SubscriptionProvider = ({ children }) => {
       fetchSubscription();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, profileLoading, userId]); // fetchSubscription is stable and checks its own dependencies
+  }, [
+    isAuthenticated,
+    profileLoading,
+    userId, // Use the latest fetchSubscription function
+    fetchSubscription,
+  ]); // fetchSubscription is stable and checks its own dependencies
 
   // Refresh function
   const refreshSubscription = useCallback(() => {
@@ -175,7 +180,7 @@ export const SubscriptionProvider = ({ children }) => {
       refreshSubscription,
       fetchSubscription,
     }),
-    [subscription, isLoading, error, refreshSubscription, fetchSubscription],
+    [subscription, isLoading, error, refreshSubscription, fetchSubscription]
   );
 
   return (
@@ -190,7 +195,7 @@ export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
     throw new Error(
-      "useSubscription must be used within a SubscriptionProvider",
+      "useSubscription must be used within a SubscriptionProvider"
     );
   }
   return context;

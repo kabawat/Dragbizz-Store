@@ -28,7 +28,7 @@ export const getCurrentLocation = () => {
         timeout: 10000,
         enableHighAccuracy: true,
         maximumAge: 300000,
-      },
+      }
     );
   });
 };
@@ -38,7 +38,7 @@ export const getUserLocation = async () => {
   try {
     const location = await getCurrentLocation();
     return location;
-  } catch (error) {
+  } catch (_error) {
     return "0,0";
   }
 };

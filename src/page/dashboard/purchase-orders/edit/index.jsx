@@ -1,35 +1,35 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAppSelector } from "@/store/hooks";
 import {
-  supplierService,
-  productService,
-  purchaseOrderService,
-} from "@/service/retailer";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
-  FileText,
-  Save,
-  Calendar,
   AlertCircle,
   ArrowLeft,
-  CheckCircle,
-  Package,
-  Trash2,
   Building2,
+  Calendar,
+  CheckCircle,
+  FileText,
+  Package,
+  Save,
+  Trash2,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
+  AddActionButton,
   Button,
+  Card,
   Input,
+  Modal,
   Select,
   Textarea,
-  Card,
-  Modal,
-  AddActionButton,
 } from "@/components/ui";
+import {
+  productService,
+  purchaseOrderService,
+  supplierService,
+} from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const formInit = {
   supplier: "",
@@ -136,7 +136,7 @@ const EditPurchaseOrder = ({ poId }) => {
           const mappedProducts = (po.items || po.products || []).map((it) => ({
             product: it.product?._id || it.product?.id || it.product || "",
             productName: it.product?.name || it.productName || it.name || "",
-            quantity: parseInt(it.quantity) || 1,
+            quantity: parseInt(it.quantity, 10) || 1,
           }));
 
           setFormData({
@@ -153,7 +153,7 @@ const EditPurchaseOrder = ({ poId }) => {
         } else {
           setFetchError(result.message || "Failed to load purchase order");
         }
-      } catch (e) {
+      } catch (_e) {
         setFetchError("Unexpected error while loading purchase order");
       } finally {
         setFetching(false);
@@ -179,14 +179,14 @@ const EditPurchaseOrder = ({ poId }) => {
     ) {
       fetchProducts();
     }
-  }, [selectedStore?.storeId]);
+  }, [selectedStore?.storeId, fetchProducts, fetchSuppliers]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleItemChange = (index, field, value) => {
+  const _handleItemChange = (index, field, value) => {
     const updated = [...formData.products];
     updated[index] = { ...updated[index], [field]: value };
     if (field === "product") {
@@ -222,13 +222,13 @@ const EditPurchaseOrder = ({ poId }) => {
       : "";
     setFormData((prev) => {
       const existingIndex = prev.products.findIndex(
-        (item) => item.product === tempProduct,
+        (item) => item.product === tempProduct
       );
       if (existingIndex !== -1) {
         const updated = [...prev.products];
         const existing = updated[existingIndex];
         const newQty =
-          (parseInt(existing.quantity) || 0) + parseInt(tempQuantity);
+          (parseInt(existing.quantity, 10) || 0) + parseInt(tempQuantity, 10);
         updated[existingIndex] = {
           ...existing,
           productName: existing.productName || productName,
@@ -243,7 +243,7 @@ const EditPurchaseOrder = ({ poId }) => {
           {
             product: tempProduct,
             productName,
-            quantity: parseInt(tempQuantity),
+            quantity: parseInt(tempQuantity, 10),
           },
         ],
       };
@@ -297,7 +297,7 @@ const EditPurchaseOrder = ({ poId }) => {
         supplier: formData.supplier,
         products: formData.products.map((it) => ({
           product: it.product,
-          quantity: parseInt(it.quantity),
+          quantity: parseInt(it.quantity, 10),
         })),
         paymentBy: formData.paymentBy,
         reference: formData.reference || undefined,
@@ -307,19 +307,19 @@ const EditPurchaseOrder = ({ poId }) => {
       const result = await purchaseOrderService.updatePurchaseOrder(
         poId,
         payload,
-        selectedStore.storeId,
+        selectedStore.storeId
       );
       if (result.success) {
         setUpdatedPONumber(
-          result.data?.poNumber || updatedPONumber || `PO-${Date.now()}`,
+          result.data?.poNumber || updatedPONumber || `PO-${Date.now()}`
         );
         setShowSuccessModal(true);
       } else {
         setUpdateError(result.message || "Failed to update purchase order");
       }
-    } catch (e) {
+    } catch (_e) {
       setUpdateError(
-        "An unexpected error occurred while updating the purchase order",
+        "An unexpected error occurred while updating the purchase order"
       );
     } finally {
       setIsUpdating(false);
@@ -537,7 +537,7 @@ const EditPurchaseOrder = ({ poId }) => {
                                   onChange={(value) =>
                                     handleInputChange(
                                       "expectedDeliveryDate",
-                                      value,
+                                      value
                                     )
                                   }
                                   error={errors.expectedDeliveryDate}

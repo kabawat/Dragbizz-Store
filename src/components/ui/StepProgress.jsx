@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
 import { Check } from "lucide-react";
+import React from "react";
 
 const StepProgress = ({
   formData = {},
@@ -149,13 +149,13 @@ const StepProgress = ({
           if (field.value && parseFloat(field.value) > 0) {
             completedFields++;
           }
-        } else if (field.value && field.value.toString().trim()) {
+        } else if (field.value?.toString().trim()) {
           completedFields++;
         }
       });
 
       const completionPercentage = Math.round(
-        (completedFields / totalFields) * 100,
+        (completedFields / totalFields) * 100
       );
       const isCompleted = completionPercentage === 100;
 
@@ -233,7 +233,7 @@ const StepProgress = ({
     return "upcoming";
   };
 
-  const getStepIcon = (stepIndex, status) => {
+  const getStepIcon = (_stepIndex, status) => {
     if (!showIcons) return null;
 
     if (status === "completed") {
@@ -316,9 +316,7 @@ const StepProgress = ({
                             step.completionPercentage === 100
                               ? "bg-emerald-500"
                               : getInformationColors(
-                                  getInformationLevel(
-                                    step.completionPercentage,
-                                  ),
+                                  getInformationLevel(step.completionPercentage)
                                 ).bg
                           }`}
                           style={{ width: `${step.completionPercentage}%` }}
@@ -329,7 +327,7 @@ const StepProgress = ({
                           step.completionPercentage === 100
                             ? "text-emerald-600"
                             : getInformationColors(
-                                getInformationLevel(step.completionPercentage),
+                                getInformationLevel(step.completionPercentage)
                               ).text
                         }`}
                       >
@@ -412,7 +410,7 @@ const StepProgress = ({
                           step.completionPercentage === 100
                             ? "bg-emerald-500"
                             : getInformationColors(
-                                getInformationLevel(step.completionPercentage),
+                                getInformationLevel(step.completionPercentage)
                               ).bg
                         }`}
                         style={{ width: `${step.completionPercentage}%` }}
@@ -423,7 +421,7 @@ const StepProgress = ({
                         step.completionPercentage === 100
                           ? "text-emerald-600"
                           : getInformationColors(
-                              getInformationLevel(step.completionPercentage),
+                              getInformationLevel(step.completionPercentage)
                             ).text
                       }`}
                     >

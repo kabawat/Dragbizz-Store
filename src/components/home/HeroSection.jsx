@@ -1,16 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { Button, Badge } from "@/components/ui";
-import { StatsCard, ScrollIndicator } from "@/components/common";
 import {
   ArrowRight,
   PlayCircle,
-  Sparkles,
-  Zap,
   Shield,
+  Sparkles,
   TrendingUp,
+  Zap,
 } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { ScrollIndicator, StatsCard } from "@/components/common";
+import { Badge, Button } from "@/components/ui";
 
 const HeroSection = ({
   heroFeatures = [
@@ -26,7 +26,7 @@ const HeroSection = ({
 
   const squareImages = Array.from(
     { length: 14 },
-    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`,
+    (_, i) => `/images/3d/square_${String(i + 1).padStart(3, "0")}.png`
   );
   const rectangleImage = "/images/3d/rectangle_001.png";
 
@@ -36,7 +36,7 @@ const HeroSection = ({
       setCurrentImageIndex((prev) => (prev + 1) % squareImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [squareImages.length]);
 
   return (
     <section

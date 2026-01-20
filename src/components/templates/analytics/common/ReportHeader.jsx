@@ -1,13 +1,14 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
-import styles from './analyticsReport.module.scss';
+import moment from "moment";
+import styles from "./analyticsReport.module.scss";
 
 const ReportHeader = ({ title, selectedStore, lastSyncedAt }) => {
   return (
     <div className={styles.header}>
       <div className={styles.storeDetails}>
-        <div className={styles.storeName}>{selectedStore?.storeName || "STORE NAME"}</div>
+        <div className={styles.storeName}>
+          {selectedStore?.storeName || "STORE NAME"}
+        </div>
         <p>
           {selectedStore?.address || "Store Address"} <br />
           {selectedStore?.phone && `Tel: ${selectedStore.phone}`} <br />
@@ -18,7 +19,9 @@ const ReportHeader = ({ title, selectedStore, lastSyncedAt }) => {
         <h1>{title}</h1>
         <p>Report Generated: {moment().format("DD/MM/YYYY HH:mm:ss")}</p>
         {lastSyncedAt && (
-          <p>Data Synced: {moment(lastSyncedAt).format("DD/MM/YYYY HH:mm:ss")}</p>
+          <p>
+            Data Synced: {moment(lastSyncedAt).format("DD/MM/YYYY HH:mm:ss")}
+          </p>
         )}
       </div>
     </div>
@@ -26,4 +29,3 @@ const ReportHeader = ({ title, selectedStore, lastSyncedAt }) => {
 };
 
 export default ReportHeader;
-

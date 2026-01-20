@@ -1,30 +1,28 @@
 "use client";
-import React from "react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardBody,
-  Badge,
-  Button,
-} from "@/components/ui";
-import {
-  Calendar,
-  IndianRupee,
-  CreditCard,
   Building,
-  FileText,
-  MoreVertical,
+  Calendar,
+  CreditCard,
   Edit,
-  Trash2,
   Eye,
+  FileText,
+  IndianRupee,
+  MoreVertical,
+  Trash2,
 } from "lucide-react";
 import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
+import {
   getCategoryLabel,
-  getPaymentMethodLabel,
   getPaymentMethodIcon,
+  getPaymentMethodLabel,
   getStatusLabel,
-  getStatusColor,
 } from "@/data/constants/expenses";
 import { getStatusBadge } from "@/utils/statusBadge";
 
@@ -84,7 +82,7 @@ const ExpenseCard = ({
           ? "ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5"
           : ""
       }`}
-      onClick={() => onSelect && onSelect(id)}
+      onClick={() => onSelect?.(id)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -218,7 +216,7 @@ const ExpenseCard = ({
             className="h-8 px-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))]"
             onClick={(e) => {
               e.stopPropagation();
-              onView && onView(expense);
+              onView?.(expense);
             }}
           >
             <Eye className="h-3 w-3 mr-1" />
@@ -231,7 +229,7 @@ const ExpenseCard = ({
             className="h-8 px-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))]"
             onClick={(e) => {
               e.stopPropagation();
-              onEdit && onEdit(expense);
+              onEdit?.(expense);
             }}
           >
             <Edit className="h-3 w-3 mr-1" />
@@ -244,7 +242,7 @@ const ExpenseCard = ({
             className="h-8 px-2 text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete && onDelete(expense);
+              onDelete?.(expense);
             }}
           >
             <Trash2 className="h-3 w-3 mr-1" />

@@ -1,36 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import {
-  getAccounts,
-  getAccountStats,
-  setCurrentFilter,
-  setViewMode,
-} from "@/store/slices/accountsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import {
+  AlertTriangle,
   Building2,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  MoreVertical,
-  Calendar,
-  IndianRupee,
   CheckCircle,
   Clock,
-  AlertTriangle,
-  XCircle,
   CreditCard,
-  TrendingUp,
-  TrendingDown,
+  Download,
+  Edit,
+  Eye,
+  Plus,
+  Search,
+  Trash2,
+  XCircle,
 } from "lucide-react";
-import { Button, Input, Select, Badge, Card, Modal } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Badge, Button, Card, Input, Modal, Select } from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getAccountStats, getAccounts } from "@/store/slices/accountsSlice";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const Accounts = () => {
@@ -63,7 +52,7 @@ const Accounts = () => {
           store: selectedStore.id,
           limit: 20,
           page: 1,
-        }),
+        })
       );
       dispatch(getAccountStats(selectedStore.id));
     }
@@ -97,7 +86,7 @@ const Accounts = () => {
     setSelectedAccounts((prev) =>
       prev.includes(accountId)
         ? prev.filter((id) => id !== accountId)
-        : [...prev, accountId],
+        : [...prev, accountId]
     );
   };
 
@@ -181,7 +170,7 @@ const Accounts = () => {
   };
 
   // Format date
-  const formatDate = (date) => {
+  const _formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
@@ -378,14 +367,14 @@ const Accounts = () => {
                   {accounts.map((account) => {
                     const statusBadge = getStatusBadge(account.status);
                     const riskBadge = getRiskBadge(account.riskLevel);
-                    const debtBadge = getDebtBadge(
+                    const _debtBadge = getDebtBadge(
                       account.creditUsed,
-                      account.creditLimit,
+                      account.creditLimit
                     );
                     const StatusIcon = statusBadge.icon;
                     const creditUtilization = calculateCreditUtilization(
                       account.creditUsed,
-                      account.creditLimit,
+                      account.creditLimit
                     );
                     const availableCredit =
                       account.creditLimit - account.creditUsed;
@@ -467,7 +456,7 @@ const Accounts = () => {
                               leftIcon={Edit}
                               onClick={() =>
                                 router.push(
-                                  `/dashboard/accounts/${account.id}/edit`,
+                                  `/dashboard/accounts/${account.id}/edit`
                                 )
                               }
                             >

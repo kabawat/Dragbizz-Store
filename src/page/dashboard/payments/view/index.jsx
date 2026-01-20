@@ -1,30 +1,28 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 import {
   ArrowLeft,
-  CreditCard,
-  Building2,
-  FileText,
-  Edit,
-  IndianRupee,
-  Calendar,
-  CheckCircle,
-  Wallet,
-  Hash,
   Banknote,
+  Building2,
+  Calendar,
+  CreditCard,
+  Edit,
+  FileText,
+  Hash,
+  IndianRupee,
   Smartphone,
+  Wallet,
 } from "lucide-react";
 import moment from "moment";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
 
 const ViewPaymentPage = ({ paymentId }) => {
   const { t } = useTranslation();
@@ -59,14 +57,14 @@ const ViewPaymentPage = ({ paymentId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("payments.payment") }),
+              t("errors.failedToFetchData", { item: t("payments.payment") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setError(
           t("errors.failedToFetchDataTryAgain", {
             item: t("payments.payment"),
-          }),
+          })
         );
       } finally {
         setFetching(false);
@@ -74,7 +72,7 @@ const ViewPaymentPage = ({ paymentId }) => {
     };
 
     fetchPaymentData();
-  }, [paymentId, storeId]);
+  }, [paymentId, storeId, t]);
 
   // Handle edit payment
   const handleEditPayment = () => {
@@ -263,7 +261,7 @@ const ViewPaymentPage = ({ paymentId }) => {
                               ₹
                               {paymentData.totalAmount?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0.00"}
                             </p>
                           </div>
@@ -292,7 +290,7 @@ const ViewPaymentPage = ({ paymentId }) => {
                               </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                 {moment(paymentData.paymentDate).format(
-                                  "DD MMM YYYY",
+                                  "DD MMM YYYY"
                                 )}
                               </p>
                             </div>
@@ -498,7 +496,7 @@ const ViewPaymentPage = ({ paymentId }) => {
                               ₹
                               {paymentData.totalAmount?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0.00"}
                             </span>
                           </div>
@@ -517,7 +515,7 @@ const ViewPaymentPage = ({ paymentId }) => {
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {moment(paymentData.paymentDate).format(
-                                  "DD MMM YYYY",
+                                  "DD MMM YYYY"
                                 )}
                               </span>
                             </div>

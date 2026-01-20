@@ -1,17 +1,16 @@
 "use client";
-import React from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import {
-  CreditCard,
-  ShoppingBag,
-  Mail,
-  MessageSquare,
   Cloud,
-  Zap,
+  CreditCard,
   Database,
   Globe,
+  Mail,
+  MessageSquare,
+  ShoppingBag,
+  Zap,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const IntegrationsSection = () => {
   const integrations = [

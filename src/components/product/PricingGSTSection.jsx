@@ -1,9 +1,8 @@
 "use client";
-import React from "react";
-import { Select, Toggle, Input } from "../ui";
-import { Package, Calculator, Hash, IndianRupee } from "lucide-react";
-import { CURRENCY_OPTIONS, UOM_OPTIONS, GST_RATE_OPTIONS } from "@/data";
+import { Calculator, Hash, Package } from "lucide-react";
+import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Input, Select, Toggle } from "../ui";
 
 const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
@@ -261,7 +260,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                       ((parseFloat(formData.mrp) -
                         parseFloat(formData.sellingPrice)) /
                         parseFloat(formData.mrp)) *
-                        100,
+                        100
                     )}
                     %
                   </span>
@@ -449,7 +448,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                       </span>
                       <span className="font-medium text-[rgb(var(--color-text-primary))]">
                         {gstTypeOptions(t).find(
-                          (type) => type.value === formData.gstInfo?.gstType,
+                          (type) => type.value === formData.gstInfo?.gstType
                         )?.label || formData.gstInfo?.gstType}
                       </span>
                     </div>

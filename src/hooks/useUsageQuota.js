@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { subscriptionService } from "@/service/subscription";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { subscriptionService } from "@/service/subscription";
 import logger from "@/utils/logger";
 
 const quotaCache = new Map();
@@ -23,7 +23,7 @@ export function useUsageQuota(featureKey = null) {
   const isFetchingRef = useRef(false);
   const lastFetchCacheKeyRef = useRef(null);
 
-  const getCacheKey = useCallback((sub, fKey) => {
+  const _getCacheKey = useCallback((sub, fKey) => {
     const subId = sub?._id || sub?.id || "no-sub";
     return fKey ? `quota:${subId}:${fKey}` : `quota:${subId}:all`;
   }, []);
@@ -95,7 +95,7 @@ export function useUsageQuota(featureKey = null) {
           hasFetchedRef.current = true;
           isFetchingRef.current = false;
           return;
-        } catch (err) {
+        } catch (_err) {
           pendingRequests.delete(cacheKey);
         }
       }
@@ -117,7 +117,7 @@ export function useUsageQuota(featureKey = null) {
           } catch (err) {
             logger.error(
               "[useUsageQuota] Error handling pending request:",
-              err,
+              err
             );
             pendingRequests.delete(cacheKey);
           }
@@ -181,7 +181,7 @@ export function useUsageQuota(featureKey = null) {
         }
       })();
     },
-    [featureKey, subscriptionId, subscriptionLoading],
+    [featureKey, subscriptionId, subscriptionLoading]
   );
 
   useEffect(() => {
@@ -274,7 +274,7 @@ export function useUsageQuota(featureKey = null) {
       fetchQuota();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [featureKey, subscriptionId, subscriptionLoading]);
+  }, [featureKey, subscriptionId, subscriptionLoading, fetchQuota]);
 
   useEffect(() => {
     return () => {
@@ -320,7 +320,7 @@ export function useFeatureUsage(featureKey, quantity = 1) {
         setCanUse(false);
         setQuota(null);
       }
-    } catch (err) {
+    } catch (_err) {
       setCanUse(false);
       setQuota(null);
     } finally {
@@ -330,7 +330,7 @@ export function useFeatureUsage(featureKey, quantity = 1) {
 
   useEffect(() => {
     checkUsage();
-  }, [featureKey, quantity]);
+  }, [checkUsage]);
 
   return {
     canUse,

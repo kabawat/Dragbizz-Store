@@ -1,5 +1,5 @@
 "use client";
-import { Store, Phone, Mail, MapPin, Building2 } from "lucide-react";
+import { Building2, Mail, MapPin, Phone, Store } from "lucide-react";
 import { Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 

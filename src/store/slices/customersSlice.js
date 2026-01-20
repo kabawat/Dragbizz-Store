@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { customerService } from "@/service";
 import { analyticsService } from "@/service/retailer";
 
@@ -35,7 +35,7 @@ export const getCustomers = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch customers");
     }
-  },
+  }
 );
 
 export const updateCustomer = createAsyncThunk(
@@ -45,7 +45,7 @@ export const updateCustomer = createAsyncThunk(
       const result = await customerService.updateCustomer(
         customerId,
         customerData,
-        storeId,
+        storeId
       );
       if (result.success) {
         return { customerId, customerData: result.data };
@@ -55,7 +55,7 @@ export const updateCustomer = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update customer");
     }
-  },
+  }
 );
 
 export const deleteCustomer = createAsyncThunk(
@@ -71,7 +71,7 @@ export const deleteCustomer = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to delete customer");
     }
-  },
+  }
 );
 
 // Async thunk for getting customer analytics
@@ -99,12 +99,12 @@ export const getCustomerAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Customer analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch customer analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Slice
@@ -179,10 +179,10 @@ const customersSlice = createSlice({
           state.customers = data;
         } else {
           const existingIds = new Set(
-            state.customers.map((customer) => customer.id || customer._id),
+            state.customers.map((customer) => customer.id || customer._id)
           );
           const newCustomers = data.filter(
-            (customer) => !existingIds.has(customer.id || customer._id),
+            (customer) => !existingIds.has(customer.id || customer._id)
           );
           state.customers = [...state.customers, ...newCustomers];
         }
@@ -213,7 +213,7 @@ const customersSlice = createSlice({
 
         const { customerId, customerData } = action.payload;
         const index = state.customers.findIndex(
-          (customer) => customer.id === customerId,
+          (customer) => customer.id === customerId
         );
 
         if (index !== -1) {
@@ -239,10 +239,10 @@ const customersSlice = createSlice({
 
         const { customerId } = action.payload;
         state.customers = state.customers.filter(
-          (customer) => customer.id !== customerId,
+          (customer) => customer.id !== customerId
         );
         state.selectedCustomers = state.selectedCustomers.filter(
-          (id) => id !== customerId,
+          (id) => id !== customerId
         );
         state.pagination.total = Math.max(0, state.pagination.total - 1);
       })

@@ -1,25 +1,24 @@
 "use client";
-import React from "react";
-import { Card } from "@/components/ui";
-import { SectionHeader } from "@/components/common";
 import {
+  BarChart3,
+  Bell,
+  Bot,
   Brain,
-  Zap,
-  Shield,
+  Cloud,
+  Code,
+  CreditCard,
   Database,
   Globe,
   Lock,
-  BarChart3,
-  Bot,
-  Cloud,
+  Settings,
+  Shield,
   Smartphone,
-  CreditCard,
-  Bell,
   TrendingUp,
   Users,
-  Settings,
-  Code,
+  Zap,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
+import { Card } from "@/components/ui";
 
 const AdvancedFeaturesSection = () => {
   const advancedFeatures = [

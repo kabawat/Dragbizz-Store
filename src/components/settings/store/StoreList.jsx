@@ -1,5 +1,5 @@
 "use client";
-import { Building2, Edit2, Trash2, Loader2, Plus } from "lucide-react";
+import { Building2, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const StoreList = ({

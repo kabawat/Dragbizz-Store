@@ -1,20 +1,18 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Card, Badge, Button, Dropdown } from "../ui";
 import {
-  MoreVertical,
-  Edit,
-  Copy,
-  Trash2,
-  Eye,
-  Package,
-  Tag,
-  Calendar,
   ArrowDownToLine,
+  Copy,
+  Edit,
+  Eye,
+  MoreVertical,
+  Package,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Badge } from "../ui";
 
 const ProductCard = ({
   product,
@@ -46,7 +44,7 @@ const ProductCard = ({
   }, []);
 
   const { t } = useTranslation();
-  const getStockBadge = (stock) => {
+  const _getStockBadge = (stock) => {
     if (stock === 0) {
       return <Badge variant="danger">{t("products.outOfStock")}</Badge>;
     } else if (stock < 10) {
@@ -82,7 +80,7 @@ const ProductCard = ({
     }
   };
 
-  const actionMenuItems = [
+  const _actionMenuItems = [
     {
       value: "view",
       label: t("common.viewDetails"),
@@ -260,7 +258,11 @@ const ProductCard = ({
               categoryParts = rawCategory.filter(Boolean);
             } else if (typeof rawCategory === "string" && rawCategory.trim()) {
               categoryParts = rawCategory.split(" > ").filter(Boolean);
-            } else if (rawCategory && typeof rawCategory === "object" && rawCategory.name) {
+            } else if (
+              rawCategory &&
+              typeof rawCategory === "object" &&
+              rawCategory.name
+            ) {
               // Handle object with name property (from API)
               categoryParts = [rawCategory.name];
             } else if (rawCategory) {

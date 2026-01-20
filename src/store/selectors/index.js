@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect';
+import { createSelector } from "reselect";
 
 const selectProfileState = (state) => state.profile;
 const selectBillsState = (state) => state.bills;
@@ -159,4 +159,3 @@ export const selectPurchaseOrdersPagination = createSelector(
   [selectPurchaseOrdersState],
   (purchaseOrders) => purchaseOrders.pagination || {}
 );
-

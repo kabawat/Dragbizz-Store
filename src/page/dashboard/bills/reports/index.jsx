@@ -1,23 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getBillReports, getBillStats } from "@/store/slices/billsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
+  AlertTriangle,
   BarChart3,
-  Download,
-  Calendar,
-  IndianRupee,
-  Receipt,
-  TrendingUp,
-  TrendingDown,
   Building2,
   Clock,
-  AlertTriangle,
+  Download,
+  IndianRupee,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
-import { Button, Select, Card } from "@/components/ui";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getBillReports, getBillStats } from "@/store/slices/billsSlice";
 
 const BillReports = () => {
   const { t } = useTranslation();
@@ -47,7 +46,7 @@ const BillReports = () => {
           type: value,
           dateRange,
           supplier: supplierFilter,
-        }),
+        })
       );
     }
   };
@@ -63,7 +62,7 @@ const BillReports = () => {
           type: reportType,
           dateRange: value,
           supplier: supplierFilter,
-        }),
+        })
       );
     }
   };
@@ -79,7 +78,7 @@ const BillReports = () => {
           type: reportType,
           dateRange,
           supplier: value,
-        }),
+        })
       );
     }
   };
@@ -98,7 +97,7 @@ const BillReports = () => {
   };
 
   // Format percentage
-  const formatPercentage = (value) => {
+  const _formatPercentage = (value) => {
     return `${value.toFixed(1)}%`;
   };
 

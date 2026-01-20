@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class PaymentService {
@@ -98,7 +98,7 @@ class PaymentService {
 
       const response = await authAxios.post(
         API_CONFIG?.RETAILER?.PAYMENT,
-        apiPayload,
+        apiPayload
       );
       return handleApiSuccess(response?.data, "Payment created successfully");
     } catch (error) {

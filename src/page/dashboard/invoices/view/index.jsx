@@ -1,30 +1,30 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Button } from "@/components/ui";
-import { invoiceService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
 import Link from "next/link";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import DeleteInvoiceModal from "./components/DeleteInvoiceModal";
-import CancelInvoiceModal from "./components/CancelInvoiceModal";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import {
   ReleaseInvoiceModal,
   UpdatePaymentStatusModal,
 } from "@/components/invoice";
-import InvoiceSummaryCard from "./components/InvoiceSummaryCard";
+import { Button } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
+import { invoiceService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import CancelInvoiceModal from "./components/CancelInvoiceModal";
+import DeleteInvoiceModal from "./components/DeleteInvoiceModal";
 import InvoiceActionButtons from "./components/InvoiceActionButtons";
+import InvoiceSummaryCard from "./components/InvoiceSummaryCard";
+import { useInvoicePrint } from "./hooks/useInvoicePrint";
 import {
   calculateGstAmount,
-  getItemsWithGst,
   calculateSubtotal,
+  getItemsWithGst,
 } from "./utils/invoiceCalculations.utils";
 import { getTemplateComponent } from "./utils/invoiceView.utils";
-import { useInvoicePrint } from "./hooks/useInvoicePrint";
 
 const ViewInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const { showSuccess, showError } = useGlobalToast();
   const { handlePrint, handleDownloadPDF } = useInvoicePrint(
     fetching,
-    invoiceData,
+    invoiceData
   );
 
   const calculatedGstAmount = invoiceData ? calculateGstAmount(invoiceData) : 0;
@@ -74,12 +74,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
         } else {
           showError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.invoice") }),
+              t("errors.failedToFetchData", { item: t("common.invoice") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         showError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
         );
       } finally {
         setFetching(false);
@@ -87,7 +87,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
     };
 
     fetchInvoiceData();
-  }, [invoiceId, storeId]);
+  }, [invoiceId, storeId, showError, t]);
 
   // Load default template from localStorage
   useEffect(() => {
@@ -103,7 +103,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   };
 
   // Handle delete invoice
-  const handleDeleteInvoice = () => {
+  const _handleDeleteInvoice = () => {
     setShowDeleteModal(true);
   };
 
@@ -117,7 +117,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
       if (result.success) {
         showSuccess(
-          t("success.deletedSuccessfully", { item: t("common.invoice") }),
+          t("success.deletedSuccessfully", { item: t("common.invoice") })
         );
         setTimeout(() => {
           router.push("/dashboard/invoices");
@@ -125,12 +125,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.invoice") }),
+            t("errors.failedToDelete", { item: t("common.invoice") })
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.invoice") }),
+        t("errors.failedToDeleteTryAgain", { item: t("common.invoice") })
       );
     } finally {
       setIsDeleting(false);
@@ -138,7 +138,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   };
 
   // Handle cancel invoice
-  const handleCancelInvoice = () => {
+  const _handleCancelInvoice = () => {
     setShowCancelModal(true);
   };
 
@@ -150,16 +150,16 @@ const ViewInvoicePage = ({ invoiceId }) => {
     try {
       const result = await invoiceService.cancelInvoice(
         invoiceId,
-        "Cancelled by user",
+        "Cancelled by user"
       );
 
       if (result.success) {
         showSuccess(
-          t("success.cancelledSuccessfully", { item: t("common.invoice") }),
+          t("success.cancelledSuccessfully", { item: t("common.invoice") })
         );
         const refreshResult = await invoiceService.getInvoiceById(
           invoiceId,
-          storeId,
+          storeId
         );
         if (refreshResult.success && refreshResult.data) {
           setInvoiceData(refreshResult.data);
@@ -167,12 +167,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToCancel", { item: t("common.invoice") }),
+            t("errors.failedToCancel", { item: t("common.invoice") })
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        t("errors.failedToCancelTryAgain", { item: t("common.invoice") }),
+        t("errors.failedToCancelTryAgain", { item: t("common.invoice") })
       );
     } finally {
       setIsCancelling(false);
@@ -194,12 +194,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
         invoiceId,
         payload.paymentStatus,
         storeId,
-        payload.paidAmount || null,
+        payload.paidAmount || null
       );
 
       if (result.success) {
         showSuccess(
-          t("success.releasedSuccessfully", { item: t("common.invoice") }),
+          t("success.releasedSuccessfully", { item: t("common.invoice") })
         );
         setShowReleaseModal(false);
         const refreshResult = await invoiceService.getInvoices({
@@ -212,12 +212,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToRelease", { item: t("common.invoice") }),
+            t("errors.failedToRelease", { item: t("common.invoice") })
         );
       }
-    } catch (error) {
+    } catch (_error) {
       showError(
-        t("errors.failedToReleaseTryAgain", { item: t("common.invoice") }),
+        t("errors.failedToReleaseTryAgain", { item: t("common.invoice") })
       );
     } finally {
       setIsReleasing(false);
@@ -240,12 +240,12 @@ const ViewInvoicePage = ({ invoiceId }) => {
         payload.paymentStatus,
         null, // paymentMode (optional)
         storeId,
-        payload.paidAmount || null, // paidAmount (optional, for PAY_LATTER)
+        payload.paidAmount || null // paidAmount (optional, for PAY_LATTER)
       );
 
       if (result.success) {
         showSuccess(
-          t("success.updatedSuccessfully", { item: t("common.paymentStatus") }),
+          t("success.updatedSuccessfully", { item: t("common.paymentStatus") })
         );
         setShowPaymentStatusModal(false);
         const refreshResult = await invoiceService.getInvoices({
@@ -258,7 +258,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(result.message || t("errors.failedToUpdatePaymentStatus"));
       }
-    } catch (error) {
+    } catch (_error) {
       showError(t("errors.failedToUpdatePaymentStatusTryAgain"));
     } finally {
       setIsUpdatingPayment(false);
@@ -390,7 +390,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
                                     : invoiceData.gstAmount,
                               },
                               selectedStore,
-                            },
+                            }
                           )}
                       </div>
                     </div>

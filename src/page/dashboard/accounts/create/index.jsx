@@ -1,27 +1,21 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import logger from "@/utils/logger";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { createAccount } from "@/store/slices/accountsSlice";
-import { getSuppliers } from "@/store/slices/suppliersSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
   Building2,
-  Save,
-  X,
-  IndianRupee,
   Calendar,
-  FileText,
-  AlertCircle,
   CheckCircle,
-  Clock,
-  CreditCard,
+  IndianRupee,
+  Save,
   Shield,
-  TrendingUp,
 } from "lucide-react";
-import { Button, Input, Select, Textarea, Card, Modal } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { createAccount } from "@/store/slices/accountsSlice";
+import { getSuppliers } from "@/store/slices/suppliersSlice";
+import logger from "@/utils/logger";
 
 const CreateAccount = () => {
   const router = useRouter();
@@ -259,7 +253,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "creditLimit",
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         placeholder="0.00"
@@ -305,7 +299,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "paymentTerms",
-                            parseInt(e.target.value) || 0,
+                            parseInt(e.target.value, 10) || 0
                           )
                         }
                         placeholder="30"
@@ -324,7 +318,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "gracePeriod",
-                            parseInt(e.target.value) || 0,
+                            parseInt(e.target.value, 10) || 0
                           )
                         }
                         placeholder="7"
@@ -355,7 +349,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "maxTransactionAmount",
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         placeholder="0.00"
@@ -375,7 +369,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "dailyTransactionLimit",
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         placeholder="0.00"
@@ -395,7 +389,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "monthlyTransactionLimit",
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         placeholder="0.00"
@@ -443,7 +437,7 @@ const CreateAccount = () => {
                         onChange={(e) =>
                           handleCheckboxChange(
                             "requireApproval",
-                            e.target.checked,
+                            e.target.checked
                           )
                         }
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"

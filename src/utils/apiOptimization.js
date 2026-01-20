@@ -1,20 +1,20 @@
-import { authAxios } from '@/service/config/axiosConfig';
+import { authAxios } from "@/service/config/axiosConfig";
 import {
-  getPendingRequest,
-  setPendingRequest,
-  getRequestKey as getDedupKey,
-} from './requestDeduplication';
-import {
+  generateCacheKey,
   getCachedResponse,
   setCachedResponse,
-  generateCacheKey,
-} from './requestCache';
+} from "./requestCache";
 import {
   createCancelToken,
-  removeCancelToken,
   getRequestKey as getCancelKey,
-} from './requestCancellation';
-import { defaultQueue } from './requestQueue';
+  removeCancelToken,
+} from "./requestCancellation";
+import {
+  getRequestKey as getDedupKey,
+  getPendingRequest,
+  setPendingRequest,
+} from "./requestDeduplication";
+import { defaultQueue } from "./requestQueue";
 
 export const optimizedGet = async (url, config = {}) => {
   const {
@@ -28,7 +28,7 @@ export const optimizedGet = async (url, config = {}) => {
     ...restConfig
   } = config;
 
-  const method = 'GET';
+  const method = "GET";
   const cacheKey = generateCacheKey(url, method, params);
   const dedupKey = getDedupKey(url, method, params);
   const cancelKey = getCancelKey(url, method, params);
@@ -68,7 +68,7 @@ export const optimizedGet = async (url, config = {}) => {
 
     try {
       const response = await authAxios.get(url, requestConfig);
-      
+
       if (useCache) {
         setCachedResponse(cacheKey, response.data, cacheTTL);
       }
@@ -107,7 +107,7 @@ export const optimizedPost = async (url, data, config = {}) => {
     ...restConfig
   } = config;
 
-  const method = 'POST';
+  const method = "POST";
   const cancelKey = getCancelKey(url, method, {});
 
   const requestFn = async () => {
@@ -122,7 +122,7 @@ export const optimizedPost = async (url, data, config = {}) => {
 
     try {
       const response = await authAxios.post(url, data, requestConfig);
-      
+
       if (useCancellation) {
         removeCancelToken(cancelKey);
       }
@@ -151,7 +151,7 @@ export const optimizedPut = async (url, data, config = {}) => {
     ...restConfig
   } = config;
 
-  const method = 'PUT';
+  const method = "PUT";
   const cancelKey = getCancelKey(url, method, {});
 
   const requestFn = async () => {
@@ -166,7 +166,7 @@ export const optimizedPut = async (url, data, config = {}) => {
 
     try {
       const response = await authAxios.put(url, data, requestConfig);
-      
+
       if (useCancellation) {
         removeCancelToken(cancelKey);
       }
@@ -195,7 +195,7 @@ export const optimizedDelete = async (url, config = {}) => {
     ...restConfig
   } = config;
 
-  const method = 'DELETE';
+  const method = "DELETE";
   const cancelKey = getCancelKey(url, method, {});
 
   const requestFn = async () => {
@@ -210,7 +210,7 @@ export const optimizedDelete = async (url, config = {}) => {
 
     try {
       const response = await authAxios.delete(url, requestConfig);
-      
+
       if (useCancellation) {
         removeCancelToken(cancelKey);
       }
@@ -230,4 +230,3 @@ export const optimizedDelete = async (url, config = {}) => {
 
   return requestFn();
 };
-

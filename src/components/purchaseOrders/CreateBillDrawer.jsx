@@ -1,27 +1,27 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import {
-  Receipt,
   Building2,
-  Package,
-  IndianRupee,
   Calendar,
-  Save,
-  Plus,
+  IndianRupee,
   Minus,
+  Package,
+  Plus,
+  Receipt,
+  Save,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
+  AddActionButton,
   Button,
+  Card,
   Input,
   Select,
-  Textarea,
-  Card,
-  AddActionButton,
   SideDrawer,
+  Textarea,
 } from "@/components/ui";
-import { productService, billService } from "@/service/retailer";
-import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/useTranslation";
+import { billService, productService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
 
 const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
     if (isOpen && storeId) {
       fetchProducts();
     }
-  }, [isOpen, storeId]);
+  }, [isOpen, storeId, fetchProducts]);
 
   const fetchProducts = async () => {
     try {
@@ -98,7 +98,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
           })),
         }));
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setProductsLoading(false);
     }
@@ -122,7 +122,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
+        i === index ? { ...item, [field]: value } : item
       ),
     }));
   };
@@ -389,13 +389,13 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                           value={item.product}
                           onChange={(value) => {
                             const selected = products.find(
-                              (p) => (p.id || p._id) === value,
+                              (p) => (p.id || p._id) === value
                             );
                             handleItemChange(index, "product", value);
                             handleItemChange(
                               index,
                               "productName",
-                              selected?.name || "",
+                              selected?.name || ""
                             );
                           }}
                           options={products.map((p) => ({
@@ -430,7 +430,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                             handleItemChange(
                               index,
                               "purchasePrice",
-                              value || "",
+                              value || ""
                             )
                           }
                           min="0"

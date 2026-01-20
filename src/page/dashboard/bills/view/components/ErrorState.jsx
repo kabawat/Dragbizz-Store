@@ -1,8 +1,7 @@
 "use client";
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Receipt } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Receipt } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui";
 
 const ErrorState = ({ error }) => {
   const router = useRouter();
@@ -19,12 +18,13 @@ const ErrorState = ({ error }) => {
               Bill Not Found
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-              The bill you're looking for doesn't exist or has been removed. Please check the bill ID and try again.
+              The bill you're looking for doesn't exist or has been removed.
+              Please check the bill ID and try again.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 variant="outline"
-                onClick={() => router.push('/dashboard/bills')}
+                onClick={() => router.push("/dashboard/bills")}
                 className="px-6 py-3"
               >
                 Back to Bills
@@ -45,4 +45,3 @@ const ErrorState = ({ error }) => {
 };
 
 export default ErrorState;
-

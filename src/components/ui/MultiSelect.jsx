@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check, Search, X, AlertCircle } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const MultiSelect = ({
   options = [],
@@ -30,13 +30,13 @@ const MultiSelect = ({
   // Filter options based on search term
   const filteredOptions = searchable
     ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase()),
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : options;
 
   // Get selected options
   const selectedOptions = options.filter((option) =>
-    value.includes(option.value),
+    value.includes(option.value)
   );
 
   // Handle option selection
@@ -75,13 +75,13 @@ const MultiSelect = ({
       case "ArrowDown":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev < filteredOptions.length - 1 ? prev + 1 : 0,
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
         );
         break;
       case "ArrowUp":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev > 0 ? prev - 1 : filteredOptions.length - 1,
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
         );
         break;
       case "Enter":
@@ -128,7 +128,7 @@ const MultiSelect = ({
   // Reset highlighted index when options change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, [filteredOptions]);
+  }, []);
 
   return (
     <div className={`relative ${className}`}>

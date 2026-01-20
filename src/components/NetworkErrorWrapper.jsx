@@ -1,6 +1,6 @@
 "use client";
-import { useNetworkError } from "@/contexts/NetworkErrorContext";
 import NetworkError from "@/components/ui/NetworkError";
+import { useNetworkError } from "@/contexts/NetworkErrorContext";
 
 const NetworkErrorWrapper = () => {
   const { isNetworkError, handleRetry, hideNetworkError } = useNetworkError();

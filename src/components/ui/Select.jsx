@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import { Check, ChevronDown, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Check, Search, AlertCircle } from "lucide-react";
 
 const Select = ({
   options = [],
@@ -34,13 +34,13 @@ const Select = ({
     ? options.filter(
         (option) =>
           option.isAddOption ||
-          option.label.toLowerCase().includes(searchTerm.toLowerCase()),
+          option.label.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : options;
 
   // Separate regular options from add options
   const regularOptions = filteredOptions.filter(
-    (option) => !option.isAddOption,
+    (option) => !option.isAddOption
   );
   const addOptions = filteredOptions.filter((option) => option.isAddOption);
 
@@ -82,13 +82,13 @@ const Select = ({
       case "ArrowDown":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev < filteredOptions.length - 1 ? prev + 1 : 0,
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
         );
         break;
       case "ArrowUp":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev > 0 ? prev - 1 : filteredOptions.length - 1,
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
         );
         break;
       case "Enter":
@@ -118,8 +118,7 @@ const Select = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Check if click is outside both the select container and the portal dropdown
-      const isClickInsideSelect =
-        selectRef.current && selectRef.current.contains(event.target);
+      const isClickInsideSelect = selectRef.current?.contains(event.target);
       const isClickInsideDropdown = event.target.closest(".select-dropdown");
 
       if (!isClickInsideSelect && !isClickInsideDropdown) {
@@ -131,8 +130,7 @@ const Select = ({
 
     const handleSelectOpen = (event) => {
       // If another select opens, close this one
-      const isClickInsideSelect =
-        selectRef.current && selectRef.current.contains(event.target);
+      const isClickInsideSelect = selectRef.current?.contains(event.target);
       const isClickInsideDropdown = event.target.closest(".select-dropdown");
 
       if (isOpen && !isClickInsideSelect && !isClickInsideDropdown) {
@@ -155,7 +153,7 @@ const Select = ({
   // Reset highlighted index when options change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, [filteredOptions]);
+  }, []);
 
   // Calculate dropdown position for portal
   const getDropdownPosition = () => {
@@ -429,7 +427,7 @@ const Select = ({
                 )}
               </div>
             </div>,
-            document.body,
+            document.body
           )}
       </div>
 

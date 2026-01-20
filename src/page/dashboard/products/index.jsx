@@ -1,26 +1,20 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
-import { Plus, Grid3X3, List, Package, Search } from "lucide-react";
+import { Grid3X3, List, Package, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Input, Select } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import { categoryService } from "@/service/retailer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  getProducts,
-  deleteProduct,
-  setViewMode,
   addMoreProducts,
+  deleteProduct,
+  getProducts,
+  setViewMode,
 } from "@/store/slices/productsSlice";
 import { transformProductsArray } from "@/utils/productUtils";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Input, SettingsPanel, Select } from "@/components/ui";
-import { categoryService } from "@/service/retailer";
-import { useTranslation } from "@/hooks/useTranslation";
 
 const getVisibilityOptions = (t) => [
   { value: "", label: t("products.allVisibility") },
@@ -37,19 +31,16 @@ const getSortOptions = (t) => [
   { value: "price_desc", label: t("products.priceDesc") },
 ];
 
-// Import UI components
-import { Button } from "@/components/ui";
-
 // Import product components
 import {
-  ProductTable,
-  ProductGrid,
   ProductCard,
   ProductDeleteConfirmModal,
   ProductDeleteSuccessModal,
   ProductErrorModal,
+  ProductTable,
 } from "@/components/product";
-import { StockInDrawer } from "@/components/ui";
+// Import UI components
+import { Button, StockInDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
 const ProductsPage = () => {
@@ -59,7 +50,7 @@ const ProductsPage = () => {
 
   // Redux store data
   const { products, isLoading, error, pagination, viewMode } = useAppSelector(
-    (state) => state.products,
+    (state) => state.products
   );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -75,7 +66,7 @@ const ProductsPage = () => {
 
   const categoryOptions = useMemo(
     () => [{ value: "", label: t("products.allCategories") }, ...categories],
-    [categories, t],
+    [categories, t]
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -111,7 +102,7 @@ const ProductsPage = () => {
       });
       setShowErrorModal(true);
     }
-  }, [error]);
+  }, [error, t]);
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("products-view-mode");
@@ -152,7 +143,7 @@ const ProductsPage = () => {
       hasFetchedCategories.current = false;
       categoriesStoreIdRef.current = storeId;
     }
-  }, [storeId, searchValue, sortBy, visibility, category]);
+  }, [storeId]);
 
   // Fetch categories - memoized callback with duplicate prevention
   const fetchCategories = useCallback(async () => {
@@ -254,7 +245,7 @@ const ProductsPage = () => {
         category,
         fetched: true,
       };
-    } catch (error) {
+    } catch (_error) {
       // Reset on error so it can retry
       lastFetchRef.current = null;
     }
@@ -328,7 +319,7 @@ const ProductsPage = () => {
       if (result.payload?.success && result.payload?.data?.data) {
         dispatch(addMoreProducts(result.payload.data.data));
       }
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }
@@ -375,7 +366,7 @@ const ProductsPage = () => {
     }
   }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
 
-  const handleStoreChange = (storeObject) => {
+  const handleStoreChange = (_storeObject) => {
     // Store change handled by Redux
   };
 
@@ -409,7 +400,7 @@ const ProductsPage = () => {
       // Navigate to edit product
       router.push(`/dashboard/products/edit/${productId}`);
     },
-    [router],
+    [router]
   );
 
   const handleViewProduct = useCallback(
@@ -417,7 +408,7 @@ const ProductsPage = () => {
       // Navigate to view product
       router.push(`/dashboard/products/view/${productId}`);
     },
-    [router],
+    [router]
   );
 
   const handleStockIn = useCallback(
@@ -426,7 +417,7 @@ const ProductsPage = () => {
       setProductForStockIn(product);
       setShowStockInDrawer(true);
     },
-    [transformedProducts],
+    [transformedProducts]
   );
 
   const handleStockInSuccess = useCallback(
@@ -434,7 +425,7 @@ const ProductsPage = () => {
       // Show success message
       showSuccess(message);
     },
-    [showSuccess],
+    [showSuccess]
   );
 
   const handleCloseStockInDrawer = useCallback(() => {
@@ -451,7 +442,7 @@ const ProductsPage = () => {
       });
       setShowDeleteModal(true);
     },
-    [transformedProducts],
+    [transformedProducts, t]
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -463,7 +454,7 @@ const ProductsPage = () => {
         deleteProduct({
           productId: productToDelete.id,
           storeId: storeId,
-        }),
+        })
       );
 
       if (result.payload?.success) {
@@ -473,7 +464,7 @@ const ProductsPage = () => {
 
       setShowDeleteModal(false);
       setProductToDelete(null);
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsDeleting(false);
     }
@@ -490,7 +481,7 @@ const ProductsPage = () => {
       dispatch(setViewMode(mode));
       localStorage.setItem("products-view-mode", mode);
     },
-    [dispatch],
+    [dispatch]
   );
 
   return (

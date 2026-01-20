@@ -1,30 +1,29 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getPayments } from "@/store/slices/paymentsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  Clock,
-  Search,
-  Filter,
-  Eye,
-  Edit,
-  IndianRupee,
-  Calendar,
-  Building2,
-  CheckCircle,
-  XCircle,
   AlertTriangle,
+  Building2,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Edit,
+  Eye,
+  IndianRupee,
+  Search,
+  XCircle,
 } from "lucide-react";
-import { Button, Input, Select, Badge, Card } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Badge, Button, Card, Input, Select } from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getPayments } from "@/store/slices/paymentsSlice";
 
 const PendingPayments = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { pendingPayments, stats, isLoading, error } = useAppSelector(
-    (state) => state.payments,
+    (state) => state.payments
   );
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -42,7 +41,7 @@ const PendingPayments = () => {
           status: "pending",
           limit: 20,
           page: 1,
-        }),
+        })
       );
     }
   }, [dispatch, selectedStore]);
@@ -130,12 +129,12 @@ const PendingPayments = () => {
   };
 
   // Handle approve payment
-  const handleApprovePayment = (payment) => {
+  const handleApprovePayment = (_payment) => {
     // Implement approve payment logic
   };
 
   // Handle reject payment
-  const handleRejectPayment = (payment) => {
+  const handleRejectPayment = (_payment) => {
     // Implement reject payment logic
   };
 
@@ -281,11 +280,11 @@ const PendingPayments = () => {
                   {pendingPayments.map((payment) => {
                     const urgencyBadge = getUrgencyBadge(payment.paymentDate);
                     const methodBadge = getPaymentMethodBadge(
-                      payment.paymentMethod,
+                      payment.paymentMethod
                     );
                     const UrgencyIcon = urgencyBadge.icon;
                     const daysPending = getDaysSincePayment(
-                      payment.paymentDate,
+                      payment.paymentDate
                     );
 
                     return (
@@ -363,7 +362,7 @@ const PendingPayments = () => {
                               leftIcon={Edit}
                               onClick={() =>
                                 router.push(
-                                  `/dashboard/payments/${payment.id}/edit`,
+                                  `/dashboard/payments/${payment.id}/edit`
                                 )
                               }
                             >

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supplierService } from "@/service";
 import { analyticsService } from "@/service/retailer";
 
@@ -36,7 +36,7 @@ export const getSuppliers = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch suppliers");
     }
-  },
+  }
 );
 
 export const updateSupplier = createAsyncThunk(
@@ -46,7 +46,7 @@ export const updateSupplier = createAsyncThunk(
       const result = await supplierService.updateSupplier(
         supplierId,
         supplierData,
-        storeId,
+        storeId
       );
       if (result.success) {
         return { supplierId, supplierData: result.data };
@@ -56,7 +56,7 @@ export const updateSupplier = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update supplier");
     }
-  },
+  }
 );
 
 export const deleteSupplier = createAsyncThunk(
@@ -72,7 +72,7 @@ export const deleteSupplier = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to delete supplier");
     }
-  },
+  }
 );
 
 export const getSupplierAnalytics = createAsyncThunk(
@@ -97,12 +97,12 @@ export const getSupplierAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Supplier analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch supplier analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Slice
@@ -177,7 +177,7 @@ const suppliersSlice = createSlice({
         state.isLoading = false;
         const { supplierId, supplierData } = action.payload;
         const index = state.suppliers.findIndex(
-          (supplier) => supplier.id === supplierId,
+          (supplier) => supplier.id === supplierId
         );
         if (index !== -1) {
           state.suppliers[index] = {
@@ -200,10 +200,10 @@ const suppliersSlice = createSlice({
         state.isLoading = false;
         const { supplierId } = action.payload;
         state.suppliers = state.suppliers.filter(
-          (supplier) => supplier.id !== supplierId,
+          (supplier) => supplier.id !== supplierId
         );
         state.selectedSuppliers = state.selectedSuppliers.filter(
-          (id) => id !== supplierId,
+          (id) => id !== supplierId
         );
         state.pagination.total = Math.max(0, state.pagination.total - 1);
       })

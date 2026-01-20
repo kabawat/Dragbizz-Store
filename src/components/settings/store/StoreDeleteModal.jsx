@@ -1,9 +1,9 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { Modal, Button } from "@/components/ui";
-import { Mail, Phone, AlertCircle } from "lucide-react";
-import { useAppSelector } from "@/store/hooks";
+import { AlertCircle, Mail, Phone } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Button, Modal } from "@/components/ui";
 import storeService from "@/service/retailer/store.service";
+import { useAppSelector } from "@/store/hooks";
 
 const StoreDeleteModal = ({
   isOpen,
@@ -89,7 +89,7 @@ const StoreDeleteModal = ({
     try {
       const result = await storeService.requestDeleteStoreOtp(
         storeIdToDelete,
-        channel,
+        channel
       );
 
       if (result?.success) {
@@ -148,7 +148,7 @@ const StoreDeleteModal = ({
       const result = await storeService.verifyDeleteStoreOtp(
         storeIdToDelete,
         signature,
-        otpCode,
+        otpCode
       );
 
       if (result?.success) {
@@ -293,7 +293,7 @@ const StoreDeleteModal = ({
                         >
                           {formatPhoneNumber(
                             userProfile?.phone,
-                            userProfile?.countryCode,
+                            userProfile?.countryCode
                           )}
                         </p>
                       </div>
@@ -421,7 +421,6 @@ const StoreDeleteModal = ({
                             ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 text-[rgb(var(--color-primary))]"
                             : "border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
                       }`}
-                      autoFocus={index === 0}
                     />
                   ))}
                 </div>

@@ -1,25 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getPayments } from "@/store/slices/paymentsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
   BarChart3,
-  Download,
-  Calendar,
-  IndianRupee,
-  CreditCard,
-  TrendingUp,
-  TrendingDown,
   Building2,
-  Clock,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
+  Clock,
+  CreditCard,
+  Download,
+  IndianRupee,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
-import { Button, Select, Card } from "@/components/ui";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Card, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getPayments } from "@/store/slices/paymentsSlice";
 
 const PaymentReports = () => {
   const { t } = useTranslation();
@@ -51,7 +48,7 @@ const PaymentReports = () => {
           dateRange,
           supplier: supplierFilter,
           method: methodFilter,
-        }),
+        })
       );
     }
   };
@@ -68,7 +65,7 @@ const PaymentReports = () => {
           dateRange: value,
           supplier: supplierFilter,
           method: methodFilter,
-        }),
+        })
       );
     }
   };
@@ -85,7 +82,7 @@ const PaymentReports = () => {
           dateRange,
           supplier: value,
           method: methodFilter,
-        }),
+        })
       );
     }
   };
@@ -102,7 +99,7 @@ const PaymentReports = () => {
           dateRange,
           supplier: supplierFilter,
           method: value,
-        }),
+        })
       );
     }
   };
@@ -121,7 +118,7 @@ const PaymentReports = () => {
   };
 
   // Format percentage
-  const formatPercentage = (value) => {
+  const _formatPercentage = (value) => {
     return `${value.toFixed(1)}%`;
   };
 

@@ -1,23 +1,22 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
 import {
-  Wallet,
+  AlertCircle,
+  CheckCircle,
+  CreditCard,
   IndianRupee,
   Receipt,
-  CheckCircle,
-  AlertCircle,
-  CreditCard,
   TrendingUp,
-} from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+  Wallet,
+} from "lucide-react";
+import moment from "moment";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SupplierAccountDetails = ({ account }) => {
   const { t } = useTranslation();
-  
+
   if (!account) return null;
 
-  const hasAdditionalInfo = 
+  const hasAdditionalInfo =
     account.creditUtilized !== undefined ||
     account.paymentTerms ||
     account.riskLevel ||
@@ -330,4 +329,3 @@ const SupplierAccountDetails = ({ account }) => {
 };
 
 export default SupplierAccountDetails;
-

@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import moment from "moment";
 import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
@@ -352,7 +351,7 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
             <p>
               Generated on{" "}
               {moment(invoiceData.createdAt).format(
-                "MMMM DD, YYYY [at] h:mm A",
+                "MMMM DD, YYYY [at] h:mm A"
               )}
             </p>
           </div>

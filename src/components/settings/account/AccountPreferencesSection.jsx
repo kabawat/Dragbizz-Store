@@ -1,9 +1,9 @@
 "use client";
-import { Edit2, Globe, Clock, Calendar, DollarSign } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import { Select, Toggle } from "@/components/ui";
-import AccountPreferencesCard from "./AccountPreferencesCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { localeNames } from "@/i18n/config";
+import AccountPreferencesCard from "./AccountPreferencesCard";
 
 const AccountPreferencesSection = ({
   settings,
@@ -46,7 +46,7 @@ const AccountPreferencesSection = ({
       timezone: timezoneOptions.find((opt) => opt.value === settings.timezone)
         ?.label,
       dateFormat: dateFormatOptions.find(
-        (opt) => opt.value === settings.dateFormat,
+        (opt) => opt.value === settings.dateFormat
       )?.label,
       currency: currencyOptions.find((opt) => opt.value === settings.currency)
         ?.label,

@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { CheckCircle, X, WifiOff } from "lucide-react";
+import { CheckCircle, WifiOff, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Toast = ({
   message,

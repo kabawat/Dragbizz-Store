@@ -1,9 +1,8 @@
 "use client";
-import React from "react";
-import { Rocket, Users, Shield, Zap } from "lucide-react";
+import { Rocket, Shield, Users, Zap } from "lucide-react";
 import Link from "next/link";
-import { AnimatedBackground, AnimatedGridPattern } from "../ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { AnimatedBackground, AnimatedGridPattern } from "../ui";
 
 const WelcomeScreen = ({ onGetStarted }) => {
   const { t } = useTranslation();

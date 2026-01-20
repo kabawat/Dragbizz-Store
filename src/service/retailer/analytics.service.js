@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 class AnalyticsService {
@@ -13,12 +13,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/customers`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Customer analytics fetched successfully",
+        "Customer analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "customer-analytics-fetch");
@@ -30,12 +30,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/customers/detailed`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Detailed customer analytics fetched successfully",
+        "Detailed customer analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "customer-detailed-analytics-fetch");
@@ -47,12 +47,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/products`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Product analytics fetched successfully",
+        "Product analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "product-analytics-fetch");
@@ -64,12 +64,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/products/detailed`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Detailed product analytics fetched successfully",
+        "Detailed product analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "product-detailed-analytics-fetch");
@@ -81,12 +81,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/suppliers`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier analytics fetched successfully",
+        "Supplier analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-analytics-fetch");
@@ -98,12 +98,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/suppliers/detailed`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Detailed supplier analytics fetched successfully",
+        "Detailed supplier analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-detailed-analytics-fetch");
@@ -115,12 +115,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/invoices`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Invoice analytics fetched successfully",
+        "Invoice analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "invoice-analytics-fetch");
@@ -132,12 +132,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/invoices/detailed`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Detailed invoice analytics fetched successfully",
+        "Detailed invoice analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "invoice-detailed-analytics-fetch");
@@ -149,12 +149,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/stock`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Stock analytics fetched successfully",
+        "Stock analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "stock-analytics-fetch");
@@ -166,12 +166,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/revenue`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Revenue analytics fetched successfully",
+        "Revenue analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "revenue-analytics-fetch");
@@ -183,12 +183,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/bills`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Bill analytics fetched successfully",
+        "Bill analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "bill-analytics-fetch");
@@ -200,12 +200,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/expenses`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Expense analytics fetched successfully",
+        "Expense analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "expense-analytics-fetch");
@@ -217,12 +217,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/supplier-accounts`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier account analytics fetched successfully",
+        "Supplier account analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-account-analytics-fetch");
@@ -234,12 +234,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/supplier-accounts/metrics`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier account metrics fetched successfully",
+        "Supplier account metrics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-account-metrics-fetch");
@@ -251,12 +251,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/supplier-accounts/dashboard`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier account dashboard fetched successfully",
+        "Supplier account dashboard fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-account-dashboard-fetch");
@@ -268,12 +268,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/supplier-accounts/bills`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier bill analytics fetched successfully",
+        "Supplier bill analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-bill-analytics-fetch");
@@ -285,12 +285,12 @@ class AnalyticsService {
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/supplier-accounts/payments`,
-        params,
+        params
       );
       const response = await authAxios.get(url);
       return handleApiSuccess(
         response.data,
-        "Supplier payment analytics fetched successfully",
+        "Supplier payment analytics fetched successfully"
       );
     } catch (error) {
       return handleApiErrorResponse(error, "supplier-payment-analytics-fetch");

@@ -1,7 +1,7 @@
-import { createSelector } from 'reselect';
+import { createSelector } from "reselect";
 
 const selectCustomersData = (state) => state.customers.customers || [];
-const selectCustomersSearchTerm = (state) => state.customers.searchTerm || '';
+const selectCustomersSearchTerm = (state) => state.customers.searchTerm || "";
 
 export const selectFilteredCustomers = createSelector(
   [selectCustomersData, selectCustomersSearchTerm],
@@ -20,17 +20,14 @@ export const selectFilteredCustomers = createSelector(
 export const selectCustomersByStatus = createSelector(
   [selectCustomersData],
   (customers) => {
-    return customers.reduce(
-      (acc, customer) => {
-        const status = customer.status || 'active';
-        if (!acc[status]) {
-          acc[status] = [];
-        }
-        acc[status].push(customer);
-        return acc;
-      },
-      {}
-    );
+    return customers.reduce((acc, customer) => {
+      const status = customer.status || "active";
+      if (!acc[status]) {
+        acc[status] = [];
+      }
+      acc[status].push(customer);
+      return acc;
+    }, {});
   }
 );
 
@@ -44,7 +41,7 @@ export const selectCustomersStats = createSelector(
         stats.totalDue += customer.account?.totalDue || 0;
         stats.totalPaid += customer.account?.totalPaid || 0;
 
-        if (customer.status === 'active') {
+        if (customer.status === "active") {
           stats.activeCustomers += 1;
         }
 
@@ -60,4 +57,3 @@ export const selectCustomersStats = createSelector(
     );
   }
 );
-

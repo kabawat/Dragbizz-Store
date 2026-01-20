@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 
 const FieldGroup = ({ children, columns = 1, className = "", ...props }) => {
   const gridCols = {

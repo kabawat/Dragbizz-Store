@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { SideDrawer, Button } from "@/components/ui";
+import { Button, SideDrawer } from "@/components/ui";
 
 const FormDrawer = ({
   isOpen,

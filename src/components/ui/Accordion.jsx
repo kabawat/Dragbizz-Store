@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 
 const Accordion = ({
   items = [],
@@ -16,7 +16,7 @@ const Accordion = ({
       setOpenItems((prev) =>
         prev.includes(itemId)
           ? prev.filter((id) => id !== itemId)
-          : [...prev, itemId],
+          : [...prev, itemId]
       );
     } else {
       setOpenItems((prev) => (prev.includes(itemId) ? [] : [itemId]));

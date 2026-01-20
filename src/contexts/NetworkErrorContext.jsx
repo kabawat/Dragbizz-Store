@@ -1,10 +1,10 @@
 "use client";
-import React, {
+import {
   createContext,
-  useContext,
-  useState,
   useCallback,
+  useContext,
   useEffect,
+  useState,
 } from "react";
 
 const NetworkErrorContext = createContext();
@@ -85,7 +85,7 @@ export const useNetworkError = () => {
   const context = useContext(NetworkErrorContext);
   if (!context) {
     throw new Error(
-      "useNetworkError must be used within a NetworkErrorProvider",
+      "useNetworkError must be used within a NetworkErrorProvider"
     );
   }
   return context;

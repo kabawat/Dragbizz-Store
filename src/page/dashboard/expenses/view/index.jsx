@@ -1,37 +1,32 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 import {
   ArrowLeft,
-  Calendar,
-  IndianRupee,
   Building,
-  FileText,
-  Edit,
-  Trash2,
+  Calendar,
   CheckCircle,
-  Hash,
-  Phone,
-  Mail,
   CreditCard,
+  Edit,
+  FileText,
+  Hash,
+  IndianRupee,
+  Trash2,
 } from "lucide-react";
-import moment from "moment";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
-import { Button, Badge } from "@/components/ui";
-import { expenseService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
+import { Badge, Button } from "@/components/ui";
 import {
   getCategoryLabel,
-  getPaymentMethodLabel,
   getPaymentMethodIcon,
+  getPaymentMethodLabel,
   getStatusLabel,
-  getStatusColor,
 } from "@/data/constants/expenses";
+import { useTranslation } from "@/hooks/useTranslation";
+import { expenseService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -64,7 +59,7 @@ const ViewExpensePage = ({ expenseId }) => {
           id: expenseId,
           store: storeId,
         });
-        
+
         if (result.success) {
           const data = result.data?.data || result.data;
           if (data) {
@@ -77,7 +72,7 @@ const ViewExpensePage = ({ expenseId }) => {
           setError(result.message || "Failed to fetch expense data");
           setExpenseData(null);
         }
-      } catch (error) {
+      } catch (_error) {
         setError("Failed to fetch expense data. Please try again.");
       } finally {
         setFetching(false);
@@ -113,7 +108,7 @@ const ViewExpensePage = ({ expenseId }) => {
         setError(result.message || "Failed to delete expense");
         setShowDeleteModal(false);
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Failed to delete expense. Please try again.");
       setShowDeleteModal(false);
     } finally {
@@ -373,7 +368,7 @@ const ViewExpensePage = ({ expenseId }) => {
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {getCategoryLabel(
                                 expenseData.category?.name ||
-                                  expenseData.category,
+                                  expenseData.category
                               )}
                             </p>
                           </div>

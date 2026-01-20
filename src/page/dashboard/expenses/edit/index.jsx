@@ -1,17 +1,16 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, IndianRupee, Save } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, IndianRupee } from "lucide-react";
-
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { ExpenseForm } from "@/components/expenses";
-import { expenseService } from "@/service";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { updateExpense } from "@/store/slices/expensesSlice";
-import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
+import { expenseService } from "@/service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { updateExpense } from "@/store/slices/expensesSlice";
 
 const EditExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -49,12 +48,12 @@ const EditExpensePage = ({ expenseId }) => {
         } else {
           setFetchingError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.expense") }),
+              t("errors.failedToFetchData", { item: t("common.expense") })
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setFetchingError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.expense") }),
+          t("errors.failedToFetchDataTryAgain", { item: t("common.expense") })
         );
       } finally {
         setIsLoading(false);
@@ -62,7 +61,7 @@ const EditExpensePage = ({ expenseId }) => {
     };
 
     fetchExpenseData();
-  }, [expenseId, storeId]);
+  }, [expenseId, storeId, t]);
 
   const handleSubmit = async (formData) => {
     try {
@@ -82,7 +81,7 @@ const EditExpensePage = ({ expenseId }) => {
           expenseId: expenseId,
           expenseData: updateData,
           storeId: storeId,
-        }),
+        })
       );
 
       if (result.payload?.success) {
@@ -90,12 +89,12 @@ const EditExpensePage = ({ expenseId }) => {
       } else {
         setSubmitError(
           result.payload?.message ||
-            t("errors.failedToUpdate", { item: t("common.expense") }),
+            t("errors.failedToUpdate", { item: t("common.expense") })
         );
       }
-    } catch (error) {
+    } catch (_error) {
       setSubmitError(
-        t("errors.failedToUpdateTryAgain", { item: t("common.expense") }),
+        t("errors.failedToUpdateTryAgain", { item: t("common.expense") })
       );
     }
   };

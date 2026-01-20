@@ -1,25 +1,24 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
 import {
-  Mic,
-  Send,
+  AlertCircle,
+  Bot,
+  CheckCircle2,
+  Clock,
   Loader2,
   MessageSquare,
-  X,
-  Bot,
-  User,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-  Clock,
+  Mic,
   MicOff,
+  Send,
+  Sparkles,
+  User,
+  X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Input } from "@/components/ui";
-import logger from "@/utils/logger";
-import { voiceAIService } from "@/service";
-import { supplierService } from "@/service";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { supplierService, voiceAIService } from "@/service";
+import logger from "@/utils/logger";
 
 const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -28,7 +27,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-  const [isReady, setIsReady] = useState(false);
+  const [_isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const messagesEndRef = useRef(null);
@@ -38,7 +37,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, []);
 
   // Check if speech recognition is supported
   useEffect(() => {
@@ -138,7 +137,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
       const result = await voiceAIService.chatSupplier(
         userMessage,
         sessionId,
-        storeId,
+        storeId
       );
 
       if (result.success && result.data) {
@@ -211,7 +210,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
                 },
               ]);
             }
-          } catch (error) {
+          } catch (_error) {
             setMessages((prev) => [
               ...prev,
               {

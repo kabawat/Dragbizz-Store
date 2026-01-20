@@ -1,36 +1,31 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
-  Package,
-  TrendingUp,
-  Edit,
-  Trash2,
-  Hash,
-  Building2,
-  Tag,
-  IndianRupee,
-  BarChart3,
-  Wallet,
-  CheckCircle,
   AlertCircle,
-  Calendar,
-  ShoppingCart,
-  Percent,
+  ArrowLeft,
+  BarChart3,
+  Building2,
+  CheckCircle,
+  Edit,
   FileText,
+  Hash,
+  IndianRupee,
+  Package,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Wallet,
 } from "lucide-react";
 import moment from "moment";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { Button } from "@/components/ui";
-import { useAppSelector } from "@/store/hooks";
-import Link from "next/link";
-
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";
+import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
 
 const ViewInventoryPage = ({ inventoryId }) => {
@@ -53,11 +48,14 @@ const ViewInventoryPage = ({ inventoryId }) => {
         setError(null);
         const response = await inventoryService.getInventoryById(
           inventoryId,
-          storeId,
+          storeId
         );
 
         if (response.success) {
-          const data = response.data?.data?.inventory || response.data?.inventory || response.data;
+          const data =
+            response.data?.data?.inventory ||
+            response.data?.inventory ||
+            response.data;
           if (data) {
             setInventory(data);
             setError(null);
@@ -238,7 +236,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                           </p>
                           <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                             {inventory.pricingSummary?.profitMargin?.toFixed(
-                              1,
+                              1
                             ) || 0}
                             %
                           </p>
@@ -256,7 +254,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             ₹
                             {inventory.pricingSummary?.totalSellingValue?.toLocaleString(
                               "en-IN",
-                              { maximumFractionDigits: 2 },
+                              { maximumFractionDigits: 2 }
                             ) || "0"}
                           </p>
                         </div>
@@ -435,7 +433,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.pricingSummary?.averagePurchasePrice?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0"}
                             </p>
                           </div>
@@ -452,7 +450,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.pricingSummary?.averageSellingPrice?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0"}
                             </p>
                           </div>
@@ -469,7 +467,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.pricingSummary?.totalPurchaseValue?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0"}
                             </p>
                           </div>
@@ -486,7 +484,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.pricingSummary?.totalProfit?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0"}
                             </p>
                           </div>
@@ -565,7 +563,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 ₹
                                 {inventory.paymentSummary?.totalPaidAmount?.toLocaleString(
                                   "en-IN",
-                                  { maximumFractionDigits: 2 },
+                                  { maximumFractionDigits: 2 }
                                 ) || "0"}
                               </p>
                             </div>
@@ -582,7 +580,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 ₹
                                 {inventory.paymentSummary?.totalDueAmount?.toLocaleString(
                                   "en-IN",
-                                  { maximumFractionDigits: 2 },
+                                  { maximumFractionDigits: 2 }
                                 ) || "0"}
                               </p>
                             </div>
@@ -648,7 +646,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                     ₹
                                     {batch.purchasePrice?.toLocaleString(
                                       "en-IN",
-                                      { maximumFractionDigits: 2 },
+                                      { maximumFractionDigits: 2 }
                                     ) || "0"}
                                   </td>
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
@@ -657,7 +655,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                   <td className="py-3 text-[rgb(var(--color-text-primary))]">
                                     {batch.expiryDate
                                       ? moment(batch.expiryDate).format(
-                                          "DD MMM YYYY",
+                                          "DD MMM YYYY"
                                         )
                                       : "N/A"}
                                   </td>
@@ -754,7 +752,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                             </span>
                             <span className="font-medium text-emerald-600 dark:text-emerald-400">
                               {inventory.pricingSummary?.profitMargin?.toFixed(
-                                1,
+                                1
                               ) || 0}
                               %
                             </span>
@@ -767,7 +765,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               ₹
                               {inventory.pricingSummary?.totalSellingValue?.toLocaleString(
                                 "en-IN",
-                                { maximumFractionDigits: 2 },
+                                { maximumFractionDigits: 2 }
                               ) || "0"}
                             </span>
                           </div>

@@ -1,7 +1,7 @@
-import { extractFieldErrors } from "./validationErrorHandler";
 import logger from "./logger";
+import { extractFieldErrors } from "./validationErrorHandler";
 
-export const getErrorMessage = (error, context = "general") => {
+export const getErrorMessage = (error, _context = "general") => {
   if (!error) return "An error occurred. Please try again.";
 
   const errorData = error.response?.data || error.error || error;
@@ -55,7 +55,10 @@ export const hasFieldErrors = (error) => {
   const errorData = error.response?.data || error.error || error;
   if (errorData.details?.additionalInfo) {
     const additionalInfo = errorData.details.additionalInfo;
-    if (typeof additionalInfo === 'object' && Object.keys(additionalInfo).length > 0) {
+    if (
+      typeof additionalInfo === "object" &&
+      Object.keys(additionalInfo).length > 0
+    ) {
       return true;
     }
   }
@@ -67,7 +70,10 @@ export const getFieldErrors = (error) => {
   const errorData = error.response?.data || error.error || error;
   if (errorData.details?.additionalInfo) {
     const additionalInfo = errorData.details.additionalInfo;
-    if (typeof additionalInfo === 'object' && Object.keys(additionalInfo).length > 0) {
+    if (
+      typeof additionalInfo === "object" &&
+      Object.keys(additionalInfo).length > 0
+    ) {
       return extractFieldErrors(additionalInfo);
     }
   }
@@ -185,4 +191,3 @@ export default {
   handleError,
   handleServiceResult,
 };
-

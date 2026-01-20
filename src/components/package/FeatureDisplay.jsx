@@ -1,19 +1,19 @@
 "use client";
 import {
-  Package,
-  Users,
-  FileText,
-  ShoppingCart,
-  Warehouse,
-  IndianRupee,
   Building2,
-  Receipt,
-  CreditCard,
-  TrendingUp,
-  Infinity,
   CheckCircle2,
-  XCircle,
+  CreditCard,
+  FileText,
+  IndianRupee,
+  Infinity,
   Info,
+  Package,
+  Receipt,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+  Warehouse,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -106,7 +106,7 @@ const FeatureDisplay = ({
   maxFeatures = null,
 }) => {
   const [expandedCategories, setExpandedCategories] = useState({});
-  const [hoveredFeature, setHoveredFeature] = useState(null);
+  const [_hoveredFeature, setHoveredFeature] = useState(null);
 
   // Group features by category
   const groupedFeatures = showCategories
@@ -114,7 +114,7 @@ const FeatureDisplay = ({
         const featureKey = feature.featureKey || feature.key;
         const category =
           Object.keys(FEATURE_CATEGORIES).find((cat) =>
-            FEATURE_CATEGORIES[cat].includes(featureKey),
+            FEATURE_CATEGORIES[cat].includes(featureKey)
           ) || "Other";
 
         if (!acc[category]) {
@@ -362,7 +362,7 @@ const FeatureDisplay = ({
                 }`}
               >
                 {displayCategoryFeatures.map((feature, index) =>
-                  renderFeature(feature, index),
+                  renderFeature(feature, index)
                 )}
                 {maxFeatures && categoryFeatures.length > maxFeatures && (
                   <div className="text-center pt-2 col-span-full">

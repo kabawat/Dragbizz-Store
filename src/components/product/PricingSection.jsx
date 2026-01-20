@@ -1,10 +1,8 @@
 "use client";
-import React from "react";
-import { Input, Select } from "../ui";
-import { IndianRupee, Percent, Package } from "lucide-react";
-import { FieldGroup } from "../layout";
+import { Package } from "lucide-react";
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Input, Select } from "../ui";
 
 const PricingSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
@@ -193,7 +191,7 @@ const PricingSection = ({ formData, onChange, errors = {}, ...props }) => {
                     ((parseFloat(formData.mrp) -
                       parseFloat(formData.sellingPrice)) /
                       parseFloat(formData.mrp)) *
-                      100,
+                      100
                   )}
                   %
                 </span>

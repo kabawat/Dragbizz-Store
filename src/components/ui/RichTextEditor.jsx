@@ -1,19 +1,19 @@
 "use client";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import DOMPurify from "dompurify";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Bold,
+  Image,
   Italic,
-  Underline,
+  Link,
   List,
   ListOrdered,
-  Link,
-  Image,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   Quote,
+  Underline,
 } from "lucide-react";
-import DOMPurify from "dompurify";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const RichTextEditor = ({
   value = "",
@@ -123,7 +123,7 @@ const RichTextEditor = ({
       ],
       ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "style"],
       ALLOWED_URI_REGEXP:
-        /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+        /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
     });
   }, [value]);
 

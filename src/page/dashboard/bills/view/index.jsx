@@ -1,29 +1,30 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { billService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
-import LoadingState from './components/LoadingState';
-import ErrorState from './components/ErrorState';
-import BillHeader from './components/BillHeader';
-import BillSupplierInfo from './components/BillSupplierInfo';
-import BillItemsTable from './components/BillItemsTable';
-import BillBatches from './components/BillBatches';
-import BillNotes from './components/BillNotes';
-import BillActions from './components/BillActions';
-import DeleteModal from './components/DeleteModal';
-import DeleteSuccessModal from './components/DeleteSuccessModal';
-import { formatDate, formatDateTime } from '@/utils/dateFormatter';
-import { formatCurrency } from '@/utils/currencyFormatter';
+"use client";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { billService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import { formatCurrency } from "@/utils/currencyFormatter";
+import { formatDate, formatDateTime } from "@/utils/dateFormatter";
+import BillActions from "./components/BillActions";
+import BillBatches from "./components/BillBatches";
+import BillHeader from "./components/BillHeader";
+import BillItemsTable from "./components/BillItemsTable";
+import BillNotes from "./components/BillNotes";
+import BillSupplierInfo from "./components/BillSupplierInfo";
+import DeleteModal from "./components/DeleteModal";
+import DeleteSuccessModal from "./components/DeleteSuccessModal";
+import ErrorState from "./components/ErrorState";
+import LoadingState from "./components/LoadingState";
 
 const ViewBillPage = ({ billId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +32,7 @@ const ViewBillPage = ({ billId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedBillNumber, setDeletedBillNumber] = useState('');
+  const [deletedBillNumber, setDeletedBillNumber] = useState("");
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -45,17 +46,17 @@ const ViewBillPage = ({ billId }) => {
 
         const params = {
           store: storeId,
-          id: billId
+          id: billId,
         };
         const result = await billService.getBills(params);
 
         if (result.success && result.data) {
           setBillData(result.data);
         } else {
-          setError(result.message || 'Failed to fetch bill data');
+          setError(result.message || "Failed to fetch bill data");
         }
-      } catch (error) {
-        setError('Failed to fetch bill data. Please try again.');
+      } catch (_error) {
+        setError("Failed to fetch bill data. Please try again.");
       } finally {
         setFetching(false);
       }
@@ -68,11 +69,9 @@ const ViewBillPage = ({ billId }) => {
     router.push(`/dashboard/bills/${billId}/edit`);
   };
 
-  const handleMakePayment = () => {
-  };
+  const handleMakePayment = () => {};
 
-  const handlePaymentCompleted = () => {
-  };
+  const handlePaymentCompleted = () => {};
 
   const handleDeleteBill = () => {
     setShowDeleteModal(true);
@@ -86,15 +85,15 @@ const ViewBillPage = ({ billId }) => {
       const result = await billService.deleteBill(billId, storeId);
 
       if (result.success) {
-        setDeletedBillNumber(billData?.billNumber || 'Bill');
+        setDeletedBillNumber(billData?.billNumber || "Bill");
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || 'Failed to delete bill');
+        setError(result.message || "Failed to delete bill");
         setShowDeleteModal(false);
       }
-    } catch (error) {
-      setError('Failed to delete bill. Please try again.');
+    } catch (_error) {
+      setError("Failed to delete bill. Please try again.");
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -107,7 +106,7 @@ const ViewBillPage = ({ billId }) => {
 
   const handleDeleteSuccess = () => {
     setShowDeleteSuccessModal(false);
-    router.push('/dashboard/bills');
+    router.push("/dashboard/bills");
   };
 
   if (fetching) {
@@ -118,14 +117,14 @@ const ViewBillPage = ({ billId }) => {
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
       <div className="min-h-screen w-full flex flex-col">
-        <Header
-          title="View Bill"
-          description="Bill information and details"
-        />
+        <Header title="View Bill" description="Bill information and details" />
         <div className="flex-1 p-6">
           <div className="">
             <div className="mb-6">
-              <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/bills"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Bills</span>
               </Link>
@@ -141,14 +140,14 @@ const ViewBillPage = ({ billId }) => {
                     <BillSupplierInfo supplier={billData.supplier} />
                   </div>
 
-                  <BillItemsTable 
-                    items={billData.items} 
+                  <BillItemsTable
+                    items={billData.items}
                     itemsSummary={billData.itemsSummary}
                     formatCurrency={formatCurrency}
                   />
 
-                  <BillBatches 
-                    batches={billData.batches} 
+                  <BillBatches
+                    batches={billData.batches}
                     formatCurrency={formatCurrency}
                   />
 

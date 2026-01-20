@@ -65,7 +65,7 @@ export const handleApiError = (error, context = "general") => {
     error.code === "NETWORK_ERROR" ||
     error.message === "Network Error" ||
     (!error.response && error.request) ||
-    (error.message?.includes("Network Error")) ||
+    error.message?.includes("Network Error") ||
     !navigator.onLine;
 
   if (isNetworkError) {
@@ -98,7 +98,7 @@ export const handleApiError = (error, context = "general") => {
 
 export const handleApiSuccess = (
   response,
-  defaultMessage = "Operation successful",
+  defaultMessage = "Operation successful"
 ) => {
   const result = {
     success: true,
@@ -149,7 +149,7 @@ export const handleApiErrorResponse = (error, context = "general") => {
           .catch(() => {
             // Toast will be shown by axios interceptor
           });
-      } catch (e) {
+      } catch (_e) {
         // Toast will be shown by axios interceptor
       }
     }

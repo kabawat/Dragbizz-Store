@@ -1,6 +1,6 @@
 import { API_CONFIG } from "@/config";
-import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
 import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
+import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 export class BaseService {
@@ -35,7 +35,13 @@ export class BaseService {
     );
   }
 
-  async post(url, data = {}, params = {}, context = "general", successMessage = null) {
+  async post(
+    url,
+    data = {},
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.authAxios.post(this.buildUrl(url, params), data),
       context,
@@ -43,7 +49,13 @@ export class BaseService {
     );
   }
 
-  async put(url, data = {}, params = {}, context = "general", successMessage = null) {
+  async put(
+    url,
+    data = {},
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.authAxios.put(this.buildUrl(url, params), data),
       context,
@@ -51,7 +63,13 @@ export class BaseService {
     );
   }
 
-  async patch(url, data = {}, params = {}, context = "general", successMessage = null) {
+  async patch(
+    url,
+    data = {},
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.authAxios.patch(this.buildUrl(url, params), data),
       context,
@@ -67,7 +85,12 @@ export class BaseService {
     );
   }
 
-  async unauthGet(url, params = {}, context = "general", successMessage = null) {
+  async unauthGet(
+    url,
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.unauthAxios.get(this.buildUrl(url, params)),
       context,
@@ -75,7 +98,13 @@ export class BaseService {
     );
   }
 
-  async unauthPost(url, data = {}, params = {}, context = "general", successMessage = null) {
+  async unauthPost(
+    url,
+    data = {},
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.unauthAxios.post(this.buildUrl(url, params), data),
       context,
@@ -83,7 +112,13 @@ export class BaseService {
     );
   }
 
-  async unauthPut(url, data = {}, params = {}, context = "general", successMessage = null) {
+  async unauthPut(
+    url,
+    data = {},
+    params = {},
+    context = "general",
+    successMessage = null
+  ) {
     return this.handleRequest(
       () => this.unauthAxios.put(this.buildUrl(url, params), data),
       context,
@@ -114,4 +149,3 @@ export class BaseService {
     return cleaned;
   }
 }
-

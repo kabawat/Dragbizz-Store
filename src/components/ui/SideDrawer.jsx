@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect } from "react";
-import { X, Download } from "lucide-react";
+import { Download, X } from "lucide-react";
+import { useEffect } from "react";
 import Button from "./Button";
 
 const SideDrawer = ({

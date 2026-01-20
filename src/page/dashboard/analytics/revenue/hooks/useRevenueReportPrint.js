@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
 
@@ -54,7 +54,7 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
           if (l) l.remove();
           document.body.classList.remove(
             "print-mode-mini",
-            "print-mode-standard",
+            "print-mode-standard"
           );
           window.onafterprint = null;
         }, 200);
@@ -64,12 +64,12 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
       window.print();
       setTimeout(cleanup, 8000);
       setShowPrintMenu(false);
-    } catch (e) {
+    } catch (_e) {
       showError("Printing failed.");
     }
   };
 
-  const handleDownloadPDF = async (analyticsData) => {
+  const handleDownloadPDF = async (_analyticsData) => {
     const report = document.getElementById("revenue-report-area");
     if (!report) {
       showError("Report not found!");
@@ -131,9 +131,9 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(
-        `revenue-analytics-report-${new Date().toISOString().split("T")[0]}.pdf`,
+        `revenue-analytics-report-${new Date().toISOString().split("T")[0]}.pdf`
       );
-    } catch (error) {
+    } catch (_error) {
       // Restore original theme variant in case of error
       const tempStyleEl = document.getElementById("pdf-generation-style");
       if (tempStyleEl) {
@@ -320,7 +320,7 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
 
       worksheet.getRow(currentRow).getCell(1).value = "Generated On";
       worksheet.getRow(currentRow).getCell(2).value = new Date().toLocaleString(
-        "en-IN",
+        "en-IN"
       );
       worksheet.getRow(currentRow).getCell(1).style = infoCellStyle;
       worksheet.getRow(currentRow).getCell(2).style = infoCellStyle;

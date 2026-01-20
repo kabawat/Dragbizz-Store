@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { FeatureCard, SectionHeader } from "@/components/common";
 
 const FeaturesSection = ({

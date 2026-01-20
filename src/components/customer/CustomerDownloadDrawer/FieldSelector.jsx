@@ -1,14 +1,13 @@
 "use client";
-import React from 'react';
-import { Checkbox } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Checkbox } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const FieldSelector = ({ 
-  availableFields, 
-  selectedFields, 
-  onFieldToggle, 
-  onSelectAll, 
-  onDeselectAll 
+const FieldSelector = ({
+  availableFields,
+  selectedFields,
+  onFieldToggle,
+  onSelectAll,
+  onDeselectAll,
 }) => {
   const { t } = useTranslation();
 
@@ -16,7 +15,7 @@ const FieldSelector = ({
     <div>
       <div className="flex items-center justify-between mb-3">
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-          {t('customers.selectFields')}
+          {t("customers.selectFields")}
         </label>
         <div className="flex items-center gap-3">
           <button
@@ -24,15 +23,17 @@ const FieldSelector = ({
             onClick={onSelectAll}
             className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
           >
-            {t('customers.selectAll')}
+            {t("customers.selectAll")}
           </button>
-          <span className="text-[rgb(var(--color-text-secondary))] text-xs">|</span>
+          <span className="text-[rgb(var(--color-text-secondary))] text-xs">
+            |
+          </span>
           <button
             type="button"
             onClick={onDeselectAll}
             className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
           >
-            {t('customers.deselectAll')}
+            {t("customers.deselectAll")}
           </button>
         </div>
       </div>
@@ -51,7 +52,11 @@ const FieldSelector = ({
                     onChange={() => onFieldToggle(field.key)}
                     label={field.label}
                     id={`field-${field.key}`}
-                    className={isChecked ? '[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium' : ''}
+                    className={
+                      isChecked
+                        ? "[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium"
+                        : ""
+                    }
                   />
                 </div>
               </div>
@@ -61,11 +66,11 @@ const FieldSelector = ({
       </div>
       <div className="flex items-center justify-between mt-2">
         <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-          {t('customers.selectedFieldsCount', { count: selectedFields.length })}
+          {t("customers.selectedFieldsCount", { count: selectedFields.length })}
         </p>
         {selectedFields.length === availableFields.length && (
           <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-            {t('customers.allFieldsSelected')}
+            {t("customers.allFieldsSelected")}
           </span>
         )}
       </div>
@@ -74,4 +79,3 @@ const FieldSelector = ({
 };
 
 export default FieldSelector;
-

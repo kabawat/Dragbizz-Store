@@ -1,33 +1,29 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getPayments, deletePayment } from "@/store/slices/paymentsSlice";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import {
-  CreditCard,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  MoreVertical,
+  Building2,
   Calendar,
-  IndianRupee,
   CheckCircle,
   Clock,
-  Building2,
-  AlertTriangle,
-  XCircle,
-  List,
+  CreditCard,
+  Edit,
+  Eye,
   Grid3X3,
+  List,
+  MoreVertical,
+  Plus,
+  Search,
+  Trash2,
+  XCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
 import { Button, Input } from "@/components/ui";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { deletePayment, getPayments } from "@/store/slices/paymentsSlice";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const Payments = () => {
   const { t } = useTranslation();
@@ -38,10 +34,10 @@ const Payments = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [supplierFilter, setSupplierFilter] = useState("all");
-  const [methodFilter, setMethodFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("all");
+  const [_statusFilter, setStatusFilter] = useState("all");
+  const [_supplierFilter, setSupplierFilter] = useState("all");
+  const [_methodFilter, setMethodFilter] = useState("all");
+  const [_dateRange, setDateRange] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
   const [viewMode, setViewMode] = useState("card");
@@ -140,7 +136,7 @@ const Payments = () => {
         store: storeId,
         limit: 20,
         page: 1,
-      }),
+      })
     );
   }, [dispatch, storeId, isLoading]);
 
@@ -168,7 +164,7 @@ const Payments = () => {
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, [isLoadingMore, pagination?.hasNextPage]);
+  }, [isLoadingMore, pagination?.hasNextPage, handleLoadMore]);
 
   // Handle load more
   const handleLoadMore = async () => {
@@ -183,16 +179,16 @@ const Payments = () => {
           store: storeId,
           limit: 20,
           page: pagination?.page ? pagination.page + 1 : 2,
-        }),
+        })
       );
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsLoadingMore(false);
     }
   };
 
   // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
+  const _handleFilterChange = (filterType, value) => {
     switch (filterType) {
       case "status":
         setStatusFilter(value);
@@ -246,9 +242,9 @@ const Payments = () => {
               store: storeId,
               limit: pagination?.limit || 20,
               page: 1,
-            }),
+            })
           );
-        } catch (error) {
+        } catch (_error) {
           // Error is already handled by the slice
         }
       }
@@ -496,13 +492,13 @@ const Payments = () => {
                             {payments.map((payment) => {
                               const paymentId = payment._id || payment.id;
                               const statusBadge = getStatusBadge(
-                                payment.paymentStatus || payment.status,
+                                payment.paymentStatus || payment.status
                               );
                               const methodBadge = getPaymentMethodBadge(
-                                payment.paymentMethod,
+                                payment.paymentMethod
                               );
                               const typeBadge = getPaymentTypeBadge(
-                                payment.paymentType,
+                                payment.paymentType
                               );
                               const StatusIcon = statusBadge.icon;
 
@@ -529,7 +525,7 @@ const Payments = () => {
                                   </td>
                                   <td className="w-1/7 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">
                                     {formatCurrency(
-                                      payment.totalAmount || payment.amount,
+                                      payment.totalAmount || payment.amount
                                     )}
                                   </td>
                                   <td className="w-1/7 px-6 py-4">
@@ -607,7 +603,7 @@ const Payments = () => {
                                             onClick={() =>
                                               handleMenuAction(
                                                 paymentId,
-                                                "view",
+                                                "view"
                                               )
                                             }
                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
@@ -619,7 +615,7 @@ const Payments = () => {
                                             onClick={() =>
                                               handleMenuAction(
                                                 paymentId,
-                                                "edit",
+                                                "edit"
                                               )
                                             }
                                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
@@ -631,7 +627,7 @@ const Payments = () => {
                                             onClick={() =>
                                               handleMenuAction(
                                                 paymentId,
-                                                "delete",
+                                                "delete"
                                               )
                                             }
                                             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
@@ -668,13 +664,13 @@ const Payments = () => {
                         {payments.map((payment) => {
                           const paymentId = payment._id || payment.id;
                           const statusBadge = getStatusBadge(
-                            payment.paymentStatus || payment.status,
+                            payment.paymentStatus || payment.status
                           );
                           const methodBadge = getPaymentMethodBadge(
-                            payment.paymentMethod,
+                            payment.paymentMethod
                           );
                           const typeBadge = getPaymentTypeBadge(
-                            payment.paymentType,
+                            payment.paymentType
                           );
                           const StatusIcon = statusBadge.icon;
 
@@ -748,7 +744,7 @@ const Payments = () => {
                                           onClick={() =>
                                             handleMenuAction(
                                               paymentId,
-                                              "delete",
+                                              "delete"
                                             )
                                           }
                                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
@@ -839,7 +835,7 @@ const Payments = () => {
                                   </div>
                                   <div className="text-lg sm:text-lg xl:text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                     {formatCurrency(
-                                      payment.totalAmount || payment.amount,
+                                      payment.totalAmount || payment.amount
                                     )}
                                   </div>
                                 </div>
@@ -919,7 +915,7 @@ const Payments = () => {
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   Amount:{" "}
                   {formatCurrency(
-                    paymentToDelete.totalAmount || paymentToDelete.amount,
+                    paymentToDelete.totalAmount || paymentToDelete.amount
                   )}
                 </p>
               </div>

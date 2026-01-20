@@ -1,14 +1,14 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { getRetailerDetails } from "@/store/slices/profileSlice";
-import storeService from "@/service/retailer/store.service";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useErrorHandling from "@/hooks/useErrorHandling";
+import storeService from "@/service/retailer/store.service";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
+import StoreAddDrawer from "./StoreAddDrawer";
+import StoreDeleteModal from "./StoreDeleteModal";
+import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
-import StoreAddDrawer from "./StoreAddDrawer";
-import StoreEditDrawer from "./StoreEditDrawer";
-import StoreDeleteModal from "./StoreDeleteModal";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
@@ -80,7 +80,7 @@ const StoreSettings = () => {
   // Fetch stores on component mount (only once)
   useEffect(() => {
     fetchStores();
-  }, []);
+  }, [fetchStores]);
 
   // Handle add store - open drawer
   const handleAddStore = () => {
@@ -104,7 +104,7 @@ const StoreSettings = () => {
     // Frontend guard: don't allow deleting the only store
     if (stores.filter((s) => s.status !== "DELETED").length <= 1) {
       showError(
-        "You must have at least one active store. The last store cannot be deleted.",
+        "You must have at least one active store. The last store cannot be deleted."
       );
       return;
     }
@@ -185,7 +185,6 @@ const StoreSettings = () => {
         onSuccess={handleDeleteSuccess}
         onError={showError}
       />
-
     </div>
   );
 };

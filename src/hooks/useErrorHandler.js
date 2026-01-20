@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { extractFieldErrors } from "@/utils/validationErrorHandler";
 
 export const useErrorHandler = () => {
@@ -13,7 +13,7 @@ export const useErrorHandler = () => {
     (
       error,
       setFieldErrorsFn,
-      defaultMessage = "An error occurred. Please try again.",
+      defaultMessage = "An error occurred. Please try again."
     ) => {
       if (error.response?.data) {
         const errorData = error.response.data;
@@ -57,14 +57,14 @@ export const useErrorHandler = () => {
         return { handled: true, type: "general", message: defaultMessage };
       }
     },
-    [],
+    []
   );
 
   const handleApiResult = useCallback(
     (
       result,
       setFieldErrorsFn,
-      defaultMessage = "An error occurred. Please try again.",
+      defaultMessage = "An error occurred. Please try again."
     ) => {
       if (!result.success) {
         if (result.error?.fields) {
@@ -94,7 +94,7 @@ export const useErrorHandler = () => {
 
       return { handled: false };
     },
-    [],
+    []
   );
 
   const clearErrors = useCallback(() => {

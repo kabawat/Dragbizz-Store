@@ -1,7 +1,6 @@
 "use client";
-import React from 'react';
-import { User, Edit, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Edit, Trash2, User } from "lucide-react";
+import { Button } from "@/components/ui";
 
 const CustomerActions = ({ customerData, onEdit, onDelete }) => {
   return (
@@ -96,4 +95,3 @@ const CustomerActions = ({ customerData, onEdit, onDelete }) => {
 };
 
 export default CustomerActions;
-

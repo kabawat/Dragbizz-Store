@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Input, Select } from "../ui";
-import { Package, IndianRupee, Calculator, Truck, ArrowUp } from "lucide-react";
-import { supplierService } from "@/service/retailer";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
+import { ArrowUp, Calculator, Package, Truck } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import UpgradeModal from "@/components/ui/UpgradeModal";
+import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { useTranslation } from "@/hooks/useTranslation";
+import { supplierService } from "@/service/retailer";
+import { Input, Select } from "../ui";
 
 const OpeningQuantitySection = ({
   formData,
@@ -26,7 +26,7 @@ const OpeningQuantitySection = ({
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
   const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT,
+    FEATURES.SUPPLIER_MANAGEMENT
   );
 
   const handleFieldChange = (field, value) => {
@@ -50,7 +50,7 @@ const OpeningQuantitySection = ({
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
-    } catch (error) {
+    } catch (_error) {
       hasFetchedSuppliers.current = false; // Reset on error
     } finally {
       setSuppliersLoading(false);
@@ -229,7 +229,7 @@ const OpeningQuantitySection = ({
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                   ₹
                   {parseFloat(
-                    formData.openingStock?.purchasePrice || 0,
+                    formData.openingStock?.purchasePrice || 0
                   ).toFixed(2)}
                 </span>
               </div>

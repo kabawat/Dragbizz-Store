@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { expenseService, analyticsService } from "@/service/retailer";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { analyticsService, expenseService } from "@/service/retailer";
 
 // Async thunk for getting expenses
 export const getExpenses = createAsyncThunk(
@@ -19,12 +19,12 @@ export const getExpenses = createAsyncThunk(
         data: result.data,
         message: "Expenses fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch expenses. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for creating expense
@@ -45,12 +45,12 @@ export const createExpense = createAsyncThunk(
         data: result.data,
         message: "Expense created successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to create expense. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for updating expense
@@ -61,7 +61,7 @@ export const updateExpense = createAsyncThunk(
       const result = await expenseService.updateExpense(
         expenseId,
         expenseData,
-        storeId,
+        storeId
       );
 
       if (!result.success) {
@@ -76,12 +76,12 @@ export const updateExpense = createAsyncThunk(
         expenseId: expenseId,
         message: "Expense updated successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to update expense. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for deleting expense
@@ -102,12 +102,12 @@ export const deleteExpense = createAsyncThunk(
         expenseId: expenseId,
         message: "Expense deleted successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to delete expense. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting expense statistics
@@ -128,12 +128,12 @@ export const getExpenseStats = createAsyncThunk(
         data: result.data,
         message: "Expense statistics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch expense statistics. Please try again.",
       });
     }
-  },
+  }
 );
 
 // Async thunk for getting expense analytics
@@ -161,12 +161,12 @@ export const getExpenseAnalytics = createAsyncThunk(
         data: analyticsData || initialState.analytics,
         message: "Expense analytics fetched successfully",
       };
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue({
         message: "Failed to fetch expense analytics. Please try again.",
       });
     }
-  },
+  }
 );
 
 const initialState = {
@@ -344,7 +344,7 @@ const expensesSlice = createSlice({
         // Update expense in the list
         const expenseId = action.payload.expenseId;
         const index = state.expenses.findIndex(
-          (expense) => expense.id === expenseId,
+          (expense) => expense.id === expenseId
         );
 
         if (index !== -1 && action.payload.data) {
@@ -368,12 +368,12 @@ const expensesSlice = createSlice({
         // Remove expense from the list
         const expenseId = action.payload.expenseId;
         state.expenses = state.expenses.filter(
-          (expense) => expense.id !== expenseId,
+          (expense) => expense.id !== expenseId
         );
 
         // Remove from selected expenses if it was selected
         state.selectedExpenses = state.selectedExpenses.filter(
-          (id) => id !== expenseId,
+          (id) => id !== expenseId
         );
 
         // Update total count
