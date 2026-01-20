@@ -1,16 +1,20 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Github, Chrome, Phone, CheckCircle, MessageSquare, RefreshCw, Edit3, Shield, Zap, Users, BarChart3 } from 'lucide-react';
-import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '@/components/ui';
+import { Lock, Shield, AlertCircle, MessageSquare } from 'lucide-react';
+import { AnimatedBackground, AnimatedGridPattern } from '@/components/ui';
 import { authService } from '@/service/auth';
-import { cookieManager } from '@/utils/cookieManager';
 import { useLocation } from '@/app/LocationProvider';
 import { handleApiError } from '@/utils/errorHandler';
 import LoginSuccessScreen from '@/components/auth/LoginSuccessScreen';
 import Link from 'next/link';
-import styles from '../style/Login.module.scss';
 import { useTranslation } from '@/hooks/useTranslation';
+import LoginWelcomeSection from './components/LoginWelcomeSection';
+import ContactInput from './components/ContactInput';
+import LoginMethodToggle from './components/LoginMethodToggle';
+import PasswordInput from './components/PasswordInput';
+import OTPInputSection from './components/OTPInputSection';
+import { detectContactType, formatContact, validateForm } from './utils';
 
 export default function Login() {
   const { t } = useTranslation();
@@ -61,35 +65,6 @@ export default function Login() {
     }
   }, [otpSent, timeLeft]);
 
-  const detectContactType = (value) => {
-    const cleanValue = value.replace(/\s+/g, '');
-
-    if (value.includes('@') && value.includes('.')) {
-      setContactType('email');
-      if (loginMethod === 'otp' && !otpSent) {
-        setLoginMethod('password');
-      }
-    }
-    else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
-      setContactType('phone');
-      if (loginMethod === 'password' && !otpSent) {
-        setLoginMethod('otp');
-      }
-    }
-    else if (/^\d/.test(cleanValue)) {
-      setContactType('phone');
-      if (loginMethod === 'password' && !otpSent) {
-        setLoginMethod('otp');
-      }
-    }
-    else if (/^[a-zA-Z@]/.test(cleanValue)) {
-      setContactType('email');
-      if (loginMethod === 'otp' && !otpSent) {
-        setLoginMethod('password');
-      }
-    }
-  };
-
   useEffect(() => {
     if (formData.contact && formData.contact.length > 3) {
       setIsValidating(true);
@@ -115,54 +90,25 @@ export default function Login() {
     }
 
     if (field === 'contact') {
-      detectContactType(value);
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.contact.trim()) {
-      newErrors.contact = t('auth.emailOrPhoneRequired');
-    } else if (contactType === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.contact)) {
-        newErrors.contact = t('auth.validEmailRequired');
+      const detectedType = detectContactType(value);
+      setContactType(detectedType);
+      
+      if (loginMethod === 'otp' && !otpSent && detectedType === 'email') {
+        setLoginMethod('password');
       }
-    } else if (contactType === 'phone') {
-      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
-      const cleanPhone = formData.contact.replace(/\D/g, '');
-
-      if (!phoneRegex.test(formData.contact)) {
-        newErrors.contact = t('auth.validPhoneRequired');
-      } else if (cleanPhone.length < 10) {
-        newErrors.contact = t('auth.phoneMinDigits');
-      } else if (cleanPhone.length > 15) {
-        newErrors.contact = t('auth.phoneTooLong');
+      if (loginMethod === 'password' && !otpSent && detectedType === 'phone') {
+        setLoginMethod('otp');
       }
     }
-
-    if (loginMethod === 'password') {
-      if (!formData.password.trim()) {
-        newErrors.password = t('auth.passwordRequired');
-      } else if (formData.password.length < 6) {
-        newErrors.password = t('auth.passwordMinLength');
-      }
-    } else if (loginMethod === 'otp') {
-      if (!formData.otp.trim()) {
-        newErrors.otp = t('auth.otpRequired');
-      } else if (formData.otp.length !== 5) {
-        newErrors.otp = t('auth.otpMustBe5Digits');
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    const newErrors = validateForm(formData, contactType, loginMethod, t);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     setIsLoading(true);
     setErrors({});
@@ -209,7 +155,7 @@ export default function Login() {
     setErrors(prev => ({ ...prev, otp: '', general: '' }));
 
     try {
-        const loginData = {
+      const loginData = {
         identifier: formData.contact,
         password: '',
         useOtp: true,
@@ -387,28 +333,20 @@ export default function Login() {
     }
   };
 
-  const formatContact = (contact, type) => {
-    if (type === 'email') {
-      const [username, domain] = contact.split('@');
-      if (username.length <= 3) return contact;
-      return `${username.slice(0, 2)}***@${domain}`;
-    } else {
-      if (contact.length <= 6) return contact;
-      return `${contact.slice(0, 3)}***${contact.slice(-2)}`;
-    }
-  };
-
-  const toggleLoginMethod = () => {
-    setLoginMethod(prev => prev === 'password' ? 'otp' : 'password');
-    setFormData(prev => ({ ...prev, password: '', otp: '' }));
+  const handleToggleLoginMethod = (method) => {
+    setLoginMethod(method);
+    setFormData(prev => ({ 
+      ...prev, 
+      password: method === 'password' ? prev.password : '', 
+      otp: method === 'otp' ? prev.otp : '' 
+    }));
     setErrors({ contact: '', password: '', otp: '', general: '' });
-    setOtpSent(false);
-    setOtpDigits(['', '', '', '', '']);
-    setTimeLeft(60);
-    setCanResend(false);
-  };
-
-  const handleSocialLogin = (provider) => {
+    if (method === 'password') {
+      setOtpSent(false);
+      setOtpDigits(['', '', '', '', '']);
+      setTimeLeft(60);
+      setCanResend(false);
+    }
   };
 
   if (showSuccessScreen && successData) {
@@ -427,61 +365,7 @@ export default function Login() {
       <AnimatedBackground variant="login" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
       <div className="w-full min-h-screen flex relative z-10">
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center">
-          <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center relative z-10 pl-4 sm:pl-6 lg:pl-8 xl:pl-10">
-            <div className="flex flex-col justify-center xl:pl-35 pr-8 xl:pr-22 py-12 w-full max-w-full">
-              <div className="mb-8">
-                <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mb-6 border border-indigo-300/30">
-                  <Shield className="w-8 h-8 text-indigo-700" />
-                </div>
-                <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  {t('auth.welcomeToDragBizz')}
-                </h1>
-                <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  {t('auth.manageStoreWithPowerfulTools')}
-                </p>
-              </div>
-
-              <div className="mt-16 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-300/30">
-                    <Zap className="w-6 h-6 text-indigo-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.powerfulManagement')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.completeControl')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-300/30">
-                    <BarChart3 className="w-6 h-6 text-indigo-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.analyticsInsights')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.trackPerformance')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-300/30">
-                    <Users className="w-6 h-6 text-indigo-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureAccess')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseSecurity')}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-8">
-                <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  {t('auth.copyright')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LoginWelcomeSection />
 
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10">
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
@@ -507,168 +391,35 @@ export default function Login() {
                 </p>
               </div>
 
-
               <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-                {formData.contact && !otpSent && (
-                  <div className="mb-2">
-                    <div className="flex items-center justify-start">
-                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                        ? 'bg-blue-600 text-white dark:bg-blue-600 dark:text-white'
-                        : 'bg-green-600 text-white dark:bg-green-600 dark:text-white'
-                        }`}>
-                        {contactType === 'email' ? (
-                          <>
-                            <Mail className="w-3 h-3 mr-1" />
-                            {t('auth.email')}
-                          </>
-                        ) : (
-                          <>
-                            <Phone className="w-3 h-3 mr-1" />
-                            {t('auth.phone')}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Contact Field - Only show when OTP not sent */}
                 {!otpSent && (
-                  <div>
-                    <Input
-                      label={t('auth.enterEmailOrPhone')}
-                      type={contactType === 'email' ? 'email' : 'tel'}
-                      placeholder={contactType === 'email' ? t('auth.emailPlaceholder') : t('auth.phonePlaceholder')}
-                      value={formData.contact}
-                      onChange={(value) => handleInputChange('contact', value)}
-                      leftIcon={contactType === 'email' ? Mail : Phone}
-                      error={errors.contact}
-                      rightElement={
-                        <div>
-                          {isValidating && (
-                            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                          )}
-                          {validationStatus === 'valid' && (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                          )}
-                          {validationStatus === 'invalid' && (
-                            <AlertCircle className="w-5 h-5 text-red-500" />
-                          )}
-                        </div>
-                      }
-                      className={
-                        validationStatus === 'valid' ? 'border-green-500 bg-green-50' :
-                          validationStatus === 'invalid' ? 'border-red-500 bg-red-50' :
-                            ''
-                      }
-                    />
-                    
-                    {/* Phone detection helper - suggest OTP */}
-                    {contactType === 'phone' && formData.contact && formData.contact.length >= 10 && loginMethod === 'password' && (
-                      <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <p className="text-blue-700 dark:text-blue-300 text-xs flex items-center">
-                          <MessageSquare className="w-3 h-3 mr-1" />
-                          {t('auth.phoneDetected')}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Helper Text */}
-                    <div className="mt-2">
-                      {validationStatus === 'valid' && (
-                        <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          {t('auth.accountFound')}
-                        </p>
-                      )}
-                      {validationStatus === 'invalid' && (
-                        <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
-                          <AlertCircle className="w-4 h-4 mr-1" />
-                          {t('auth.noAccountFound', { type: contactType })}
-                        </p>
-                      )}
-                      {errors.contact && (
-                        <p className="text-red-500 text-sm flex items-center">
-                          <AlertCircle className="w-4 h-4 mr-1" />
-                          {errors.contact}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <ContactInput
+                    contact={formData.contact}
+                    contactType={contactType}
+                    validationStatus={validationStatus}
+                    isValidating={isValidating}
+                    errors={errors}
+                    onChange={(value) => handleInputChange('contact', value)}
+                  />
                 )}
 
-                {/* Login Method Toggle - Show when OTP not sent */}
                 {!otpSent && (
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 p-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLoginMethod('password');
-                          setFormData(prev => ({ ...prev, otp: '' }));
-                          setErrors({ contact: '', password: '', otp: '', general: '' });
-                        }}
-                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${loginMethod === 'password'
-                            ? 'bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-primary))] shadow-sm'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <Lock className="w-4 h-4" />
-                          <span>{t('auth.password')}</span>
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLoginMethod('otp');
-                          setFormData(prev => ({ ...prev, password: '' }));
-                          setErrors({ contact: '', password: '', otp: '', general: '' });
-                        }}
-                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${loginMethod === 'otp'
-                            ? 'bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-primary))] shadow-sm'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <MessageSquare className="w-4 h-4" />
-                          <span>{t('auth.otp')}</span>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
+                  <LoginMethodToggle
+                    loginMethod={loginMethod}
+                    onToggle={handleToggleLoginMethod}
+                  />
                 )}
 
-                {/* Password Field - Only show when password method is selected */}
                 {loginMethod === 'password' && !otpSent && (
-                  <div>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('auth.enterPassword')}
-                      value={formData.password}
-                      onChange={(value) => handleInputChange('password', value)}
-                      leftIcon={Lock}
-                      rightElement={
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors cursor-pointer"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      }
-                      error={errors.password}
-                    />
-                    {errors.password && (
-                      <p className="text-red-500 text-sm flex items-center mt-2">
-                        <AlertCircle className="w-4 h-4 mr-1" />
-                        {errors.password}
-                      </p>
-                    )}
-                  </div>
+                  <PasswordInput
+                    password={formData.password}
+                    showPassword={showPassword}
+                    error={errors.password}
+                    onChange={(value) => handleInputChange('password', value)}
+                    onToggleVisibility={() => setShowPassword(!showPassword)}
+                  />
                 )}
 
-                {/* Send OTP Button - Only show when OTP method is selected and OTP not sent yet */}
                 {loginMethod === 'otp' && !otpSent && (
                   <button
                     type="button"
@@ -691,127 +442,24 @@ export default function Login() {
                   </button>
                 )}
 
-                {/* OTP Input Section - Only show when OTP is sent */}
                 {loginMethod === 'otp' && otpSent && (
-                  <div className={styles.otpSection}>
-                    <div className={styles.otpHeader}>
-                      <div className={styles.otpHeaderIcon}>
-                        {contactType === 'email' ? (
-                          <Mail className="w-8 h-8 text-blue-500" />
-                        ) : (
-                          <Phone className="w-8 h-8 text-blue-500" />
-                        )}
-                      </div>
-
-                      <h2 className={styles.otpTitle}>
-                        {t('auth.almostThere')}
-                      </h2>
-
-                      <p className={styles.otpDescription}>
-                        {t('auth.sentCodeTo')}
-                      </p>
-
-                      <div className={styles.otpContactInfo}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
-                              {contactType === 'email' ? (
-                                <>
-                                  <Mail className="w-3 h-3 mr-1" />
-                                  {t('auth.email')}
-                                </>
-                              ) : (
-                                <>
-                                  <Phone className="w-3 h-3 mr-1" />
-                                  {t('auth.phone')}
-                                </>
-                              )}
-                            </div>
-                            <p className={styles.otpContactText}>
-                              {formatContact(formData.contact, contactType)}
-                            </p>
-                          </div>
-                          <button
-                            onClick={handleChangeContact}
-                            className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
-                            title={t('auth.changeContact')}
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.otpInputSection}>
-                      {/* OTP Input */}
-                      <div>
-                        <label className={styles.otpLabel}>
-                          {t('auth.enterVerificationCode')}
-                        </label>
-                        <div className={styles.otpInputs}>
-                          {otpDigits.map((digit, index) => (
-                            <input
-                              key={index}
-                              ref={(el) => {
-                                if (el) inputRefs.current[index] = el;
-                              }}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleOtpChange(index, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                              className={`${styles.otpInput} ${errors.otp ? styles.otpInputError : ''}`}
-                              autoFocus={index === 0}
-                            />
-                          ))}
-                        </div>
-
-                        {errors.otp && (
-                          <div className={styles.otpError}>
-                            <p className={styles.otpErrorMessage}>
-                              <AlertCircle className="w-4 h-4 mr-1" />
-                              {errors.otp}
-                            </p>
-                          </div>
-                        )}
-
-                        {isLoading && (
-                          <div className={styles.otpLoading}>
-                            <div className={styles.otpLoadingSpinner}></div>
-                            <span className={styles.otpLoadingText}>{t('auth.verifying')}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Resend Section */}
-                      <div className={styles.resendSection}>
-                        <p className={styles.resendText}>
-                          {t('auth.didntReceiveCode')}
-                        </p>
-
-                        {canResend ? (
-                          <button
-                            type="button"
-                            onClick={handleResendOTP}
-                            className={styles.resendButton}
-                          >
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            {t('auth.resendCode')}
-                          </button>
-                        ) : (
-                          <p className={styles.resendTimer}>
-                            {t('auth.resendIn', { time: timeLeft })}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <OTPInputSection
+                    otpDigits={otpDigits}
+                    contact={formData.contact}
+                    contactType={contactType}
+                    errors={errors}
+                    isLoading={isLoading}
+                    timeLeft={timeLeft}
+                    canResend={canResend}
+                    inputRefs={inputRefs}
+                    onOtpChange={handleOtpChange}
+                    onOtpKeyDown={handleOtpKeyDown}
+                    onChangeContact={handleChangeContact}
+                    onResendOTP={handleResendOTP}
+                    formatContact={formatContact}
+                  />
                 )}
 
-
-
-                {/* General Error Display - Above submit button */}
                 {errors.general && (
                   <p className="text-red-500 text-sm flex items-center mb-2">
                     <AlertCircle className="w-4 h-4 mr-1" />
@@ -867,4 +515,3 @@ export default function Login() {
     </div>
   );
 }
-
