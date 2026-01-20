@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 // Prevent duplicate profile API calls (e.g. React Strict Mode double effects in dev)
 let hasFetchedRetailerProfile = false;
@@ -113,10 +114,12 @@ export default function RoutesLayout({ children }) {
   }
   // Render routes with profile data available
   return (
-    <SubscriptionProvider>
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
-        {children}
-      </div>
-    </SubscriptionProvider>
+    <ErrorBoundary>
+      <SubscriptionProvider>
+        <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+          {children}
+        </div>
+      </SubscriptionProvider>
+    </ErrorBoundary>
   );
 }

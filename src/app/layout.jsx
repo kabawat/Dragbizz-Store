@@ -10,6 +10,7 @@ import { SettingsPanel } from "@/components/ui";
 import ToastInitializer from "@/components/ToastInitializer";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
 import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 export const metadata = {
   title: "Create Next App",
@@ -25,14 +26,16 @@ export default function RootLayout({ children }) {
             <LanguageProvider>
               <ToastProvider>
                 <NetworkErrorProvider>
-                  <ToastInitializer />
-                  <NetworkErrorInitializer />
-                  <LocationProvider>
-                    {children}
-                    <GlobalToastContainer />
-                    <NetworkErrorWrapper />
-                    <SettingsPanel />
-                  </LocationProvider>
+                  <ErrorBoundary>
+                    <ToastInitializer />
+                    <NetworkErrorInitializer />
+                    <LocationProvider>
+                      {children}
+                      <GlobalToastContainer />
+                      <NetworkErrorWrapper />
+                      <SettingsPanel />
+                    </LocationProvider>
+                  </ErrorBoundary>
                 </NetworkErrorProvider>
               </ToastProvider>
             </LanguageProvider>
