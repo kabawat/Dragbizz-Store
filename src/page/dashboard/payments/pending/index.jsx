@@ -1,45 +1,49 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPayments } from '@/store/slices/paymentsSlice';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { 
-  Clock, 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { getPayments } from "@/store/slices/paymentsSlice";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import {
+  Clock,
+  Search,
+  Filter,
+  Eye,
+  Edit,
   IndianRupee,
   Calendar,
   Building2,
   CheckCircle,
   XCircle,
-  AlertTriangle
-} from 'lucide-react';
-import { Button, Input, Select, Badge, Card } from '@/components/ui';
+  AlertTriangle,
+} from "lucide-react";
+import { Button, Input, Select, Badge, Card } from "@/components/ui";
 
 const PendingPayments = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { pendingPayments, stats, isLoading, error } = useAppSelector((state) => state.payments);
+  const { pendingPayments, stats, isLoading, error } = useAppSelector(
+    (state) => state.payments,
+  );
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [supplierFilter, setSupplierFilter] = useState('all');
-  const [methodFilter, setMethodFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [dateRange, setDateRange] = useState("all");
 
   // Fetch pending payments and stats on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getPayments({ 
-        store: selectedStore.id,
-        status: 'pending',
-        limit: 20,
-        page: 1
-      }));
+      dispatch(
+        getPayments({
+          store: selectedStore.id,
+          status: "pending",
+          limit: 20,
+          page: 1,
+        }),
+      );
     }
   }, [dispatch, selectedStore]);
 
@@ -52,13 +56,13 @@ const PendingPayments = () => {
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
-      case 'supplier':
+      case "supplier":
         setSupplierFilter(value);
         break;
-      case 'method':
+      case "method":
         setMethodFilter(value);
         break;
-      case 'date':
+      case "date":
         setDateRange(value);
         break;
       default:
@@ -68,18 +72,18 @@ const PendingPayments = () => {
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(amount);
   };
 
   // Format date
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -95,33 +99,33 @@ const PendingPayments = () => {
   // Get urgency badge
   const getUrgencyBadge = (paymentDate) => {
     const days = getDaysSincePayment(paymentDate);
-    
+
     if (days <= 1) {
-      return { variant: 'success', text: 'Recent', icon: CheckCircle };
+      return { variant: "success", text: "Recent", icon: CheckCircle };
     } else if (days <= 3) {
-      return { variant: 'info', text: 'This Week', icon: Clock };
+      return { variant: "info", text: "This Week", icon: Clock };
     } else if (days <= 7) {
-      return { variant: 'warning', text: 'Overdue', icon: AlertTriangle };
+      return { variant: "warning", text: "Overdue", icon: AlertTriangle };
     } else {
-      return { variant: 'danger', text: 'Long Overdue', icon: XCircle };
+      return { variant: "danger", text: "Long Overdue", icon: XCircle };
     }
   };
 
   // Get payment method badge
   const getPaymentMethodBadge = (method) => {
     switch (method) {
-      case 'cash':
-        return { variant: 'success', text: 'Cash' };
-      case 'bank_transfer':
-        return { variant: 'info', text: 'Bank Transfer' };
-      case 'cheque':
-        return { variant: 'warning', text: 'Cheque' };
-      case 'upi':
-        return { variant: 'primary', text: 'UPI' };
-      case 'card':
-        return { variant: 'secondary', text: 'Card' };
+      case "cash":
+        return { variant: "success", text: "Cash" };
+      case "bank_transfer":
+        return { variant: "info", text: "Bank Transfer" };
+      case "cheque":
+        return { variant: "warning", text: "Cheque" };
+      case "upi":
+        return { variant: "primary", text: "UPI" };
+      case "card":
+        return { variant: "secondary", text: "Card" };
       default:
-        return { variant: 'secondary', text: 'Unknown' };
+        return { variant: "secondary", text: "Unknown" };
     }
   };
 
@@ -154,7 +158,9 @@ const PendingPayments = () => {
             <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100 text-sm font-medium">Total Pending</p>
+                  <p className="text-yellow-100 text-sm font-medium">
+                    Total Pending
+                  </p>
                   <p className="text-2xl font-bold">{stats.pendingPayments}</p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-200" />
@@ -164,8 +170,12 @@ const PendingPayments = () => {
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Pending Amount</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.pendingAmount)}</p>
+                  <p className="text-blue-100 text-sm font-medium">
+                    Pending Amount
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(stats.pendingAmount)}
+                  </p>
                 </div>
                 <IndianRupee className="w-8 h-8 text-blue-200" />
               </div>
@@ -174,7 +184,9 @@ const PendingPayments = () => {
             <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Avg. Processing Time</p>
+                  <p className="text-green-100 text-sm font-medium">
+                    Avg. Processing Time
+                  </p>
                   <p className="text-2xl font-bold">2.5 days</p>
                 </div>
                 <Calendar className="w-8 h-8 text-green-200" />
@@ -198,35 +210,35 @@ const PendingPayments = () => {
 
                 <Select
                   value={supplierFilter}
-                  onChange={(value) => handleFilterChange('supplier', value)}
+                  onChange={(value) => handleFilterChange("supplier", value)}
                   options={[
-                    { value: 'all', label: 'All Suppliers' },
-                    { value: 'supplier1', label: 'Supplier 1' },
-                    { value: 'supplier2', label: 'Supplier 2' }
+                    { value: "all", label: "All Suppliers" },
+                    { value: "supplier1", label: "Supplier 1" },
+                    { value: "supplier2", label: "Supplier 2" },
                   ]}
                 />
 
                 <Select
                   value={methodFilter}
-                  onChange={(value) => handleFilterChange('method', value)}
+                  onChange={(value) => handleFilterChange("method", value)}
                   options={[
-                    { value: 'all', label: 'All Methods' },
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'bank_transfer', label: 'Bank Transfer' },
-                    { value: 'cheque', label: 'Cheque' },
-                    { value: 'upi', label: 'UPI' },
-                    { value: 'card', label: 'Card' }
+                    { value: "all", label: "All Methods" },
+                    { value: "cash", label: "Cash" },
+                    { value: "bank_transfer", label: "Bank Transfer" },
+                    { value: "cheque", label: "Cheque" },
+                    { value: "upi", label: "UPI" },
+                    { value: "card", label: "Card" },
                   ]}
                 />
 
                 <Select
                   value={dateRange}
-                  onChange={(value) => handleFilterChange('date', value)}
+                  onChange={(value) => handleFilterChange("date", value)}
                   options={[
-                    { value: 'all', label: 'All Time' },
-                    { value: 'today', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' }
+                    { value: "all", label: "All Time" },
+                    { value: "today", label: "Today" },
+                    { value: "week", label: "This Week" },
+                    { value: "month", label: "This Month" },
                   ]}
                 />
               </div>
@@ -239,55 +251,96 @@ const PendingPayments = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left p-4 font-medium text-gray-900">Payment Number</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Supplier</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Payment Date</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Amount</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Method</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Days Pending</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Actions</th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Payment Number
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Supplier
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Payment Date
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Amount
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Method
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Days Pending
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {pendingPayments.map((payment) => {
                     const urgencyBadge = getUrgencyBadge(payment.paymentDate);
-                    const methodBadge = getPaymentMethodBadge(payment.paymentMethod);
+                    const methodBadge = getPaymentMethodBadge(
+                      payment.paymentMethod,
+                    );
                     const UrgencyIcon = urgencyBadge.icon;
-                    const daysPending = getDaysSincePayment(payment.paymentDate);
-                    
+                    const daysPending = getDaysSincePayment(
+                      payment.paymentDate,
+                    );
+
                     return (
-                      <tr key={payment.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={payment.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
                         <td className="p-4">
-                          <div className="font-medium text-gray-900">{payment.paymentNumber}</div>
+                          <div className="font-medium text-gray-900">
+                            {payment.paymentNumber}
+                          </div>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center">
                             <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-gray-900">{payment.supplier?.name || 'N/A'}</span>
+                            <span className="text-gray-900">
+                              {payment.supplier?.name || "N/A"}
+                            </span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-600">{formatDate(payment.paymentDate)}</td>
-                        <td className="p-4 font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
+                        <td className="p-4 text-gray-600">
+                          {formatDate(payment.paymentDate)}
+                        </td>
+                        <td className="p-4 font-medium text-gray-900">
+                          {formatCurrency(payment.amount)}
+                        </td>
                         <td className="p-4">
                           <Badge variant={methodBadge.variant}>
                             {methodBadge.text}
                           </Badge>
                         </td>
                         <td className="p-4">
-                          <span className={`font-medium ${
-                            daysPending <= 1 ? 'text-green-600' :
-                            daysPending <= 3 ? 'text-blue-600' :
-                            daysPending <= 7 ? 'text-yellow-600' :
-                            'text-red-600'
-                          }`}>
-                            {daysPending === 0 ? 'Today' :
-                             daysPending === 1 ? '1 day' :
-                             `${daysPending} days`}
+                          <span
+                            className={`font-medium ${
+                              daysPending <= 1
+                                ? "text-green-600"
+                                : daysPending <= 3
+                                  ? "text-blue-600"
+                                  : daysPending <= 7
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                            }`}
+                          >
+                            {daysPending === 0
+                              ? "Today"
+                              : daysPending === 1
+                                ? "1 day"
+                                : `${daysPending} days`}
                           </span>
                         </td>
                         <td className="p-4">
-                          <Badge variant={urgencyBadge.variant} className="flex items-center gap-1">
+                          <Badge
+                            variant={urgencyBadge.variant}
+                            className="flex items-center gap-1"
+                          >
                             <UrgencyIcon className="w-3 h-3" />
                             {urgencyBadge.text}
                           </Badge>
@@ -298,7 +351,9 @@ const PendingPayments = () => {
                               variant="ghost"
                               size="sm"
                               leftIcon={Eye}
-                              onClick={() => router.push(`/dashboard/payments/${payment.id}`)}
+                              onClick={() =>
+                                router.push(`/dashboard/payments/${payment.id}`)
+                              }
                             >
                               View
                             </Button>
@@ -306,7 +361,11 @@ const PendingPayments = () => {
                               variant="ghost"
                               size="sm"
                               leftIcon={Edit}
-                              onClick={() => router.push(`/dashboard/payments/${payment.id}/edit`)}
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/payments/${payment.id}/edit`,
+                                )
+                              }
                             >
                               Edit
                             </Button>
@@ -339,11 +398,15 @@ const PendingPayments = () => {
             {pendingPayments.length === 0 && !isLoading && (
               <div className="text-center py-12">
                 <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No pending payments</h3>
-                <p className="text-gray-600 mb-4">All payments are processed!</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No pending payments
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  All payments are processed!
+                </p>
                 <Button
                   variant="primary"
-                  onClick={() => router.push('/dashboard/payments/create')}
+                  onClick={() => router.push("/dashboard/payments/create")}
                 >
                   Create New Payment
                 </Button>

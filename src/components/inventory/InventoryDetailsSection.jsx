@@ -1,25 +1,36 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { Package, Warehouse, IndianRupee, TrendingUp, AlertTriangle, TrendingDown, Calculator, ArrowUp } from 'lucide-react';
-import { Input, Select, Card, CardBody, Badge } from '@/components/ui';
-import { productService, supplierService } from '@/service/retailer';
-import { useFeatureAccess } from '@/hooks/useFeatureAccess';
-import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
-import UpgradeModal from '@/components/ui/UpgradeModal';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Package,
+  Warehouse,
+  IndianRupee,
+  TrendingUp,
+  AlertTriangle,
+  TrendingDown,
+  Calculator,
+  ArrowUp,
+} from "lucide-react";
+import { Input, Select, Card, CardBody, Badge } from "@/components/ui";
+import { productService, supplierService } from "@/service/retailer";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
+import UpgradeModal from "@/components/ui/UpgradeModal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(FEATURES.SUPPLIER_MANAGEMENT);
+  const hasSupplierManagement = checkFeatureAccess(
+    FEATURES.SUPPLIER_MANAGEMENT,
+  );
 
   // Fetch products and suppliers on mount and when store changes
   useEffect(() => {
@@ -32,7 +43,11 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const result = await productService.getProducts({ limit: 100, lightweight: true, store: formData?.store });
+      const result = await productService.getProducts({
+        limit: 100,
+        lightweight: true,
+        store: formData?.store,
+      });
       if (result.success) {
         setProducts(result.data?.data || result.data || []);
       }
@@ -44,10 +59,14 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
 
   const fetchSuppliers = async () => {
     if (!hasSupplierManagement || !formData?.store) return;
-    
+
     try {
       setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({ limit: 100, lightweight: true, store: formData?.store });
+      const result = await supplierService.getSuppliers({
+        limit: 100,
+        lightweight: true,
+        store: formData?.store,
+      });
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
       }
@@ -58,7 +77,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   };
 
   const handleProductChange = (productId) => {
-    onChange('productId', productId);
+    onChange("productId", productId);
   };
 
   const handleSupplierChange = (supplierId) => {
@@ -67,17 +86,17 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
       setShowUpgradeModal(true);
       return;
     }
-    onChange('batchData.supplier', supplierId);
+    onChange("batchData.supplier", supplierId);
   };
 
-  const productOptions = (products || []).map(p => ({
+  const productOptions = (products || []).map((p) => ({
     value: p.id || p._id,
-    label: p.name || p.title || (p.code ? `${p.code}` : t('common.unknown'))
+    label: p.name || p.title || (p.code ? `${p.code}` : t("common.unknown")),
   }));
 
-  const supplierOptions = (suppliers || []).map(s => ({
+  const supplierOptions = (suppliers || []).map((s) => ({
     value: s.id || s._id,
-    label: s.name || s.companyName || t('common.unknown')
+    label: s.name || s.companyName || t("common.unknown"),
   }));
 
   // Calculations
@@ -105,10 +124,21 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const getStockStatus = () => {
     const currentStock = parseFloat(formData.batchData?.quantity || 0);
 
-    if (currentStock === 0) return { status: 'out', color: 'danger', text: t('inventory.outOfStock') };
-    if (currentStock <= 10) return { status: 'low', color: 'warning', text: t('inventory.lowStock') };
-    if (currentStock <= 50) return { status: 'medium', color: 'secondary', text: t('inventory.mediumStock') };
-    return { status: 'good', color: 'success', text: t('inventory.goodStock') };
+    if (currentStock === 0)
+      return {
+        status: "out",
+        color: "danger",
+        text: t("inventory.outOfStock"),
+      };
+    if (currentStock <= 10)
+      return { status: "low", color: "warning", text: t("inventory.lowStock") };
+    if (currentStock <= 50)
+      return {
+        status: "medium",
+        color: "secondary",
+        text: t("inventory.mediumStock"),
+      };
+    return { status: "good", color: "success", text: t("inventory.goodStock") };
   };
 
   const stockStatus = getStockStatus();
@@ -124,22 +154,28 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           <div className="w-8 h-8 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
             <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.productSelection')}</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+            {t("inventory.productSelection")}
+          </h3>
         </div>
 
         <div>
           <Select
-            label={t('inventory.selectProduct')}
+            label={t("inventory.selectProduct")}
             required
             searchable
             clearable
-            value={formData.productId || ''}
+            value={formData.productId || ""}
             onChange={handleProductChange}
             options={productOptions}
-            placeholder={t('inventory.searchAndSelectProduct')}
-            error={!!errors['productId']}
-            errorMessage={errors['productId']}
-            helperText={!errors['productId'] ? t('inventory.typeToSearchProducts') : undefined}
+            placeholder={t("inventory.searchAndSelectProduct")}
+            error={!!errors["productId"]}
+            errorMessage={errors["productId"]}
+            helperText={
+              !errors["productId"]
+                ? t("inventory.typeToSearchProducts")
+                : undefined
+            }
           />
         </div>
       </div>
@@ -150,66 +186,71 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
           <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
             <Warehouse className="w-4 h-4 text-green-600" />
           </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.stockInformation')}</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+            {t("inventory.stockInformation")}
+          </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quantity */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('inventory.quantity')} <span className="text-red-500">*</span>
+              {t("inventory.quantity")} <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
-              value={formData.batchData?.quantity || ''}
-              onChange={(value) => onChange('batchData.quantity', value)}
-              placeholder={t('inventory.enterQuantity')}
-              error={errors['batchData.quantity']}
-              helperText={t('inventory.enterQuantityToAdd')}
+              value={formData.batchData?.quantity || ""}
+              onChange={(value) => onChange("batchData.quantity", value)}
+              placeholder={t("inventory.enterQuantity")}
+              error={errors["batchData.quantity"]}
+              helperText={t("inventory.enterQuantityToAdd")}
             />
           </div>
 
           {/* Purchase Price */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('inventory.purchasePricePerUnit')} <span className="text-red-500">*</span>
+              {t("inventory.purchasePricePerUnit")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
-              value={formData.batchData?.purchasePrice || ''}
-              onChange={(value) => onChange('batchData.purchasePrice', value)}
-              placeholder={t('inventory.enterPurchasePricePerUnit')}
-              error={errors['batchData.purchasePrice']}
-              helperText={t('inventory.pricePaidToSupplierPerUnit')}
+              value={formData.batchData?.purchasePrice || ""}
+              onChange={(value) => onChange("batchData.purchasePrice", value)}
+              placeholder={t("inventory.enterPurchasePricePerUnit")}
+              error={errors["batchData.purchasePrice"]}
+              helperText={t("inventory.pricePaidToSupplierPerUnit")}
             />
           </div>
 
           {/* Supplier */}
           <div className="md:col-span-2 relative">
             <Select
-              label={t('inventory.supplierOptional')}
+              label={t("inventory.supplierOptional")}
               searchable
               clearable
-              value={formData.batchData?.supplier || ''}
+              value={formData.batchData?.supplier || ""}
               onChange={handleSupplierChange}
               options={hasSupplierManagement ? supplierOptions : []}
               placeholder={
-                !hasSupplierManagement 
-                  ? t('inventory.enableSupplierManagementToSelect')
-                  : t('inventory.searchAndSelectSupplierOptional')
+                !hasSupplierManagement
+                  ? t("inventory.enableSupplierManagementToSelect")
+                  : t("inventory.searchAndSelectSupplierOptional")
               }
-              error={!!errors['batchData.supplier']}
-              errorMessage={errors['batchData.supplier']}
+              error={!!errors["batchData.supplier"]}
+              errorMessage={errors["batchData.supplier"]}
               helperText={
-                !hasSupplierManagement 
-                  ? t('inventory.enableSupplierManagementFeature')
-                  : !errors['batchData.supplier'] 
-                    ? t('inventory.optionalTypeToSearchSuppliers')
+                !hasSupplierManagement
+                  ? t("inventory.enableSupplierManagementFeature")
+                  : !errors["batchData.supplier"]
+                    ? t("inventory.optionalTypeToSearchSuppliers")
                     : undefined
               }
-              disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
+              disabled={
+                !hasSupplierManagement || suppliersLoading || featuresLoading
+              }
             />
-            
+
             {/* Upgrade Button - Right Side */}
             {!hasSupplierManagement && (
               <button
@@ -219,10 +260,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                   setShowUpgradeModal(true);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                title={t('inventory.upgradeToEnableSupplierManagement')}
+                title={t("inventory.upgradeToEnableSupplierManagement")}
               >
                 <ArrowUp className="w-3.5 h-3.5" />
-                <span>{t('common.upgrade')}</span>
+                <span>{t("common.upgrade")}</span>
               </button>
             )}
           </div>
@@ -230,13 +271,15 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
       </div>
 
       {/* Summary Card */}
-      {(formData.batchData?.quantity && formData.batchData?.purchasePrice) && (
+      {formData.batchData?.quantity && formData.batchData?.purchasePrice && (
         <div className="space-y-6">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
               <Calculator className="w-4 h-4 text-indigo-600" />
             </div>
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.summary')}</h3>
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("inventory.summary")}
+            </h3>
           </div>
 
           <Card className="border-2 border-[rgb(var(--color-border-primary))]">
@@ -248,15 +291,19 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                      {t('inventory.stockAdditionSummary')}
+                      {t("inventory.stockAdditionSummary")}
                     </h3>
                     <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {formData.batchData?.quantity} {t('inventory.units')} × ₹{formData.batchData?.purchasePrice} {t('inventory.perUnit')}
+                      {formData.batchData?.quantity} {t("inventory.units")} × ₹
+                      {formData.batchData?.purchasePrice}{" "}
+                      {t("inventory.perUnit")}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('inventory.totalValue')}</p>
+                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                    {t("inventory.totalValue")}
+                  </p>
                   <p className="text-2xl font-bold text-green-600">
                     ₹{calculateTotalValue().toLocaleString()}
                   </p>
@@ -272,7 +319,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         featureName="Supplier Management"
-        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+        requiredFeature={
+          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
+          "Supplier Management"
+        }
       />
     </div>
   );

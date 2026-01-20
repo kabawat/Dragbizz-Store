@@ -1,15 +1,15 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { createAccount } from '@/store/slices/accountsSlice';
-import { getSuppliers } from '@/store/slices/suppliersSlice';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { 
-  Building2, 
-  Save, 
-  X, 
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { createAccount } from "@/store/slices/accountsSlice";
+import { getSuppliers } from "@/store/slices/suppliersSlice";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import {
+  Building2,
+  Save,
+  X,
   IndianRupee,
   Calendar,
   FileText,
@@ -18,9 +18,9 @@ import {
   Clock,
   CreditCard,
   Shield,
-  TrendingUp
-} from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal } from '@/components/ui';
+  TrendingUp,
+} from "lucide-react";
+import { Button, Input, Select, Textarea, Card, Modal } from "@/components/ui";
 
 const CreateAccount = () => {
   const router = useRouter();
@@ -30,19 +30,19 @@ const CreateAccount = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [formData, setFormData] = useState({
-    supplierId: '',
-    accountStatus: 'active',
-    riskLevel: 'low',
+    supplierId: "",
+    accountStatus: "active",
+    riskLevel: "low",
     creditLimit: 0,
-    paymentTerms: '30',
-    gracePeriod: '7',
-    notes: '',
+    paymentTerms: "30",
+    gracePeriod: "7",
+    notes: "",
     // Additional account settings
     autoApproval: false,
     requireApproval: false,
     maxTransactionAmount: 0,
     dailyTransactionLimit: 0,
-    monthlyTransactionLimit: 0
+    monthlyTransactionLimit: 0,
   });
 
   const [errors, setErrors] = useState({});
@@ -57,25 +57,25 @@ const CreateAccount = () => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: null
+        [field]: null,
       }));
     }
   };
 
   // Handle checkbox changes
   const handleCheckboxChange = (field, checked) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: checked
+      [field]: checked,
     }));
   };
 
@@ -84,31 +84,37 @@ const CreateAccount = () => {
     const newErrors = {};
 
     if (!formData.supplierId) {
-      newErrors.supplierId = 'Supplier is required';
+      newErrors.supplierId = "Supplier is required";
     }
 
     if (!formData.creditLimit || formData.creditLimit <= 0) {
-      newErrors.creditLimit = 'Valid credit limit is required';
+      newErrors.creditLimit = "Valid credit limit is required";
     }
 
     if (!formData.paymentTerms || formData.paymentTerms <= 0) {
-      newErrors.paymentTerms = 'Valid payment terms are required';
+      newErrors.paymentTerms = "Valid payment terms are required";
     }
 
     if (!formData.gracePeriod || formData.gracePeriod < 0) {
-      newErrors.gracePeriod = 'Valid grace period is required';
+      newErrors.gracePeriod = "Valid grace period is required";
     }
 
     if (formData.maxTransactionAmount && formData.maxTransactionAmount <= 0) {
-      newErrors.maxTransactionAmount = 'Valid max transaction amount is required';
+      newErrors.maxTransactionAmount =
+        "Valid max transaction amount is required";
     }
 
     if (formData.dailyTransactionLimit && formData.dailyTransactionLimit <= 0) {
-      newErrors.dailyTransactionLimit = 'Valid daily transaction limit is required';
+      newErrors.dailyTransactionLimit =
+        "Valid daily transaction limit is required";
     }
 
-    if (formData.monthlyTransactionLimit && formData.monthlyTransactionLimit <= 0) {
-      newErrors.monthlyTransactionLimit = 'Valid monthly transaction limit is required';
+    if (
+      formData.monthlyTransactionLimit &&
+      formData.monthlyTransactionLimit <= 0
+    ) {
+      newErrors.monthlyTransactionLimit =
+        "Valid monthly transaction limit is required";
     }
 
     setErrors(newErrors);
@@ -124,17 +130,16 @@ const CreateAccount = () => {
     try {
       const accountData = {
         ...formData,
-        status: isDraft ? 'draft' : formData.accountStatus,
-        storeId: selectedStore?.id
+        status: isDraft ? "draft" : formData.accountStatus,
+        storeId: selectedStore?.id,
       };
 
       const result = await dispatch(createAccount(accountData));
-      
-      if (result.type === 'accounts/createAccount/fulfilled') {
-        router.push('/dashboard/accounts');
+
+      if (result.type === "accounts/createAccount/fulfilled") {
+        router.push("/dashboard/accounts");
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // Handle save draft
@@ -150,9 +155,9 @@ const CreateAccount = () => {
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -171,7 +176,12 @@ const CreateAccount = () => {
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto">
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
               {/* Basic Account Information */}
               <Card className="mb-6">
                 <div className="p-6">
@@ -187,13 +197,15 @@ const CreateAccount = () => {
                       </label>
                       <Select
                         value={formData.supplierId}
-                        onChange={(value) => handleInputChange('supplierId', value)}
+                        onChange={(value) =>
+                          handleInputChange("supplierId", value)
+                        }
                         options={[
-                          { value: '', label: 'Select Supplier' },
-                          ...suppliers.map(supplier => ({
+                          { value: "", label: "Select Supplier" },
+                          ...suppliers.map((supplier) => ({
                             value: supplier.id,
-                            label: supplier.name
-                          }))
+                            label: supplier.name,
+                          })),
                         ]}
                         error={errors.supplierId}
                       />
@@ -205,12 +217,14 @@ const CreateAccount = () => {
                       </label>
                       <Select
                         value={formData.accountStatus}
-                        onChange={(value) => handleInputChange('accountStatus', value)}
+                        onChange={(value) =>
+                          handleInputChange("accountStatus", value)
+                        }
                         options={[
-                          { value: 'active', label: 'Active' },
-                          { value: 'pending', label: 'Pending' },
-                          { value: 'suspended', label: 'Suspended' },
-                          { value: 'inactive', label: 'Inactive' }
+                          { value: "active", label: "Active" },
+                          { value: "pending", label: "Pending" },
+                          { value: "suspended", label: "Suspended" },
+                          { value: "inactive", label: "Inactive" },
                         ]}
                       />
                     </div>
@@ -221,11 +235,13 @@ const CreateAccount = () => {
                       </label>
                       <Select
                         value={formData.riskLevel}
-                        onChange={(value) => handleInputChange('riskLevel', value)}
+                        onChange={(value) =>
+                          handleInputChange("riskLevel", value)
+                        }
                         options={[
-                          { value: 'low', label: 'Low Risk' },
-                          { value: 'medium', label: 'Medium Risk' },
-                          { value: 'high', label: 'High Risk' }
+                          { value: "low", label: "Low Risk" },
+                          { value: "medium", label: "Medium Risk" },
+                          { value: "high", label: "High Risk" },
                         ]}
                       />
                     </div>
@@ -237,7 +253,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.creditLimit}
-                        onChange={(e) => handleInputChange('creditLimit', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "creditLimit",
+                            parseFloat(e.target.value) || 0,
+                          )
+                        }
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -252,7 +273,9 @@ const CreateAccount = () => {
                     </label>
                     <Textarea
                       value={formData.notes}
-                      onChange={(e) => handleInputChange('notes', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("notes", e.target.value)
+                      }
                       placeholder="Additional notes about this account..."
                       rows={3}
                     />
@@ -276,7 +299,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.paymentTerms}
-                        onChange={(e) => handleInputChange('paymentTerms', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "paymentTerms",
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
                         placeholder="30"
                         min="0"
                         error={errors.paymentTerms}
@@ -290,7 +318,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.gracePeriod}
-                        onChange={(e) => handleInputChange('gracePeriod', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "gracePeriod",
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
                         placeholder="7"
                         min="0"
                         error={errors.gracePeriod}
@@ -316,7 +349,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.maxTransactionAmount}
-                        onChange={(e) => handleInputChange('maxTransactionAmount', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "maxTransactionAmount",
+                            parseFloat(e.target.value) || 0,
+                          )
+                        }
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -331,7 +369,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.dailyTransactionLimit}
-                        onChange={(e) => handleInputChange('dailyTransactionLimit', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "dailyTransactionLimit",
+                            parseFloat(e.target.value) || 0,
+                          )
+                        }
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -346,7 +389,12 @@ const CreateAccount = () => {
                       <Input
                         type="number"
                         value={formData.monthlyTransactionLimit}
-                        onChange={(e) => handleInputChange('monthlyTransactionLimit', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "monthlyTransactionLimit",
+                            parseFloat(e.target.value) || 0,
+                          )
+                        }
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -371,10 +419,15 @@ const CreateAccount = () => {
                         type="checkbox"
                         id="autoApproval"
                         checked={formData.autoApproval}
-                        onChange={(e) => handleCheckboxChange('autoApproval', e.target.checked)}
+                        onChange={(e) =>
+                          handleCheckboxChange("autoApproval", e.target.checked)
+                        }
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="autoApproval" className="ml-2 text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="autoApproval"
+                        className="ml-2 text-sm font-medium text-gray-700"
+                      >
                         Enable Auto-Approval
                       </label>
                     </div>
@@ -384,10 +437,18 @@ const CreateAccount = () => {
                         type="checkbox"
                         id="requireApproval"
                         checked={formData.requireApproval}
-                        onChange={(e) => handleCheckboxChange('requireApproval', e.target.checked)}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "requireApproval",
+                            e.target.checked,
+                          )
+                        }
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="requireApproval" className="ml-2 text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="requireApproval"
+                        className="ml-2 text-sm font-medium text-gray-700"
+                      >
                         Require Manual Approval
                       </label>
                     </div>
@@ -407,34 +468,46 @@ const CreateAccount = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Credit Limit:</span>
-                        <span className="font-medium">{formatCurrency(formData.creditLimit)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(formData.creditLimit)}
+                        </span>
                       </div>
 
                       <div className="flex justify-between">
                         <span className="text-gray-600">Payment Terms:</span>
-                        <span className="font-medium">{formData.paymentTerms} days</span>
+                        <span className="font-medium">
+                          {formData.paymentTerms} days
+                        </span>
                       </div>
 
                       <div className="flex justify-between">
                         <span className="text-gray-600">Grace Period:</span>
-                        <span className="font-medium">{formData.gracePeriod} days</span>
+                        <span className="font-medium">
+                          {formData.gracePeriod} days
+                        </span>
                       </div>
                     </div>
 
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Risk Level:</span>
-                        <span className="font-medium capitalize">{formData.riskLevel}</span>
+                        <span className="font-medium capitalize">
+                          {formData.riskLevel}
+                        </span>
                       </div>
 
                       <div className="flex justify-between">
                         <span className="text-gray-600">Account Status:</span>
-                        <span className="font-medium capitalize">{formData.accountStatus}</span>
+                        <span className="font-medium capitalize">
+                          {formData.accountStatus}
+                        </span>
                       </div>
 
                       <div className="flex justify-between">
                         <span className="text-gray-600">Auto-Approval:</span>
-                        <span className="font-medium">{formData.autoApproval ? 'Enabled' : 'Disabled'}</span>
+                        <span className="font-medium">
+                          {formData.autoApproval ? "Enabled" : "Disabled"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -446,7 +519,7 @@ const CreateAccount = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push('/dashboard/accounts')}
+                  onClick={() => router.push("/dashboard/accounts")}
                 >
                   Cancel
                 </Button>
@@ -481,7 +554,8 @@ const CreateAccount = () => {
       >
         <div className="space-y-4">
           <p className="text-gray-600">
-            Are you sure you want to save this account as a draft? You can continue editing it later.
+            Are you sure you want to save this account as a draft? You can
+            continue editing it later.
           </p>
           <div className="flex justify-end gap-3">
             <Button
@@ -490,10 +564,7 @@ const CreateAccount = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={confirmSaveDraft}
-            >
+            <Button variant="primary" onClick={confirmSaveDraft}>
               Save Draft
             </Button>
           </div>

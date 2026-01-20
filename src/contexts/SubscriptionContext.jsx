@@ -1,14 +1,26 @@
-"use client"
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { subscriptionService } from '@/service/subscription';
-import { useAppSelector } from '@/store/hooks';
+"use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
+import { subscriptionService } from "@/service/subscription";
+import { useAppSelector } from "@/store/hooks";
 
 // Create Subscription Context
 const SubscriptionContext = createContext();
 
 // Subscription Provider Component
 export const SubscriptionProvider = ({ children }) => {
-  const { isAuthenticated, user, isLoading: profileLoading } = useAppSelector((state) => state.profile);
+  const {
+    isAuthenticated,
+    user,
+    isLoading: profileLoading,
+  } = useAppSelector((state) => state.profile);
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,71 +40,81 @@ export const SubscriptionProvider = ({ children }) => {
     subscriptionRef.current = subscription;
   }, [subscription]);
 
-  const fetchSubscription = useCallback(async (forceRefresh = false) => {
-    // Don't fetch if not authenticated or profile is loading
-    if (profileLoading || !isAuthenticated) {
-      setIsLoading(false);
-      return;
-    }
+  const fetchSubscription = useCallback(
+    async (forceRefresh = false) => {
+      // Don't fetch if not authenticated or profile is loading
+      if (profileLoading || !isAuthenticated) {
+        setIsLoading(false);
+        return;
+      }
 
-    // Prevent concurrent fetches
-    if (isFetchingRef.current && !forceRefresh) {
-      return;
-    }
+      // Prevent concurrent fetches
+      if (isFetchingRef.current && !forceRefresh) {
+        return;
+      }
 
-    // Check if user changed
-    const userChanged = userIdRef.current !== userId;
-    if (userChanged) {
-      userIdRef.current = userId;
-      // Reset cache if user changed
-      lastFetchTimeRef.current = 0;
-    }
+      // Check if user changed
+      const userChanged = userIdRef.current !== userId;
+      if (userChanged) {
+        userIdRef.current = userId;
+        // Reset cache if user changed
+        lastFetchTimeRef.current = 0;
+      }
 
-    // Check cache if not forcing refresh
-    const now = Date.now();
-    if (!forceRefresh && !userChanged && subscriptionRef.current && (now - lastFetchTimeRef.current) < CACHE_TTL) {
-      setIsLoading(false);
-      return;
-    }
+      // Check cache if not forcing refresh
+      const now = Date.now();
+      if (
+        !forceRefresh &&
+        !userChanged &&
+        subscriptionRef.current &&
+        now - lastFetchTimeRef.current < CACHE_TTL
+      ) {
+        setIsLoading(false);
+        return;
+      }
 
-    // Mark as fetching
-    isFetchingRef.current = true;
+      // Mark as fetching
+      isFetchingRef.current = true;
 
-    try {
-      setIsLoading(true);
-      setError(null);
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const result = await subscriptionService.getActiveSubscription(userId);
+        const result = await subscriptionService.getActiveSubscription(userId);
 
-      if (result.success && result.data) {
-        const subData = result.data;
-        // Verify subscription is still active
-        const isActive = subData.status === 'ACTIVE' || subData.status === 'TRIAL';
-        const currentTime = new Date();
-        const isWithinDateRange =
-          subData.startDate && subData.endDate &&
-          new Date(subData.startDate) <= currentTime &&
-          new Date(subData.endDate) >= currentTime;
+        if (result.success && result.data) {
+          const subData = result.data;
+          // Verify subscription is still active
+          const isActive =
+            subData.status === "ACTIVE" || subData.status === "TRIAL";
+          const currentTime = new Date();
+          const isWithinDateRange =
+            subData.startDate &&
+            subData.endDate &&
+            new Date(subData.startDate) <= currentTime &&
+            new Date(subData.endDate) >= currentTime;
 
-        if (isActive && isWithinDateRange) {
-          setSubscription(subData);
-          lastFetchTimeRef.current = Date.now();
+          if (isActive && isWithinDateRange) {
+            setSubscription(subData);
+            lastFetchTimeRef.current = Date.now();
+          } else {
+            setSubscription(null);
+            lastFetchTimeRef.current = Date.now();
+          }
         } else {
           setSubscription(null);
           lastFetchTimeRef.current = Date.now();
         }
-      } else {
+      } catch (err) {
+        setError(err.message || "Failed to fetch subscription");
         setSubscription(null);
-        lastFetchTimeRef.current = Date.now();
+      } finally {
+        setIsLoading(false);
+        isFetchingRef.current = false;
       }
-    } catch (err) {
-      setError(err.message || 'Failed to fetch subscription');
-      setSubscription(null);
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [isAuthenticated, profileLoading, userId]); // Use userId instead of user object
+    },
+    [isAuthenticated, profileLoading, userId],
+  ); // Use userId instead of user object
 
   // Initial fetch - only fetch once when user is authenticated and loaded
   useEffect(() => {
@@ -124,9 +146,10 @@ export const SubscriptionProvider = ({ children }) => {
     // Only fetch if user changed or we haven't fetched yet
     const userChanged = userIdRef.current !== userId;
     const hasCachedData = subscriptionRef.current !== null;
-    const cacheValid = lastFetchTimeRef.current > 0 && (Date.now() - lastFetchTimeRef.current) < CACHE_TTL;
-    
-   
+    const cacheValid =
+      lastFetchTimeRef.current > 0 &&
+      Date.now() - lastFetchTimeRef.current < CACHE_TTL;
+
     if (userChanged || !hasCachedData || !cacheValid) {
       if (userChanged) {
         userIdRef.current = userId;
@@ -143,14 +166,17 @@ export const SubscriptionProvider = ({ children }) => {
   }, [fetchSubscription]);
 
   // Memoize context value to prevent unnecessary re-renders
-  const value = useMemo(() => ({
-    subscription,
-    isLoading,
-    error,
-    hasSubscription: subscription !== null,
-    refreshSubscription,
-    fetchSubscription
-  }), [subscription, isLoading, error, refreshSubscription, fetchSubscription]);
+  const value = useMemo(
+    () => ({
+      subscription,
+      isLoading,
+      error,
+      hasSubscription: subscription !== null,
+      refreshSubscription,
+      fetchSubscription,
+    }),
+    [subscription, isLoading, error, refreshSubscription, fetchSubscription],
+  );
 
   return (
     <SubscriptionContext.Provider value={value}>
@@ -163,8 +189,9 @@ export const SubscriptionProvider = ({ children }) => {
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    throw new Error(
+      "useSubscription must be used within a SubscriptionProvider",
+    );
   }
   return context;
 };
-

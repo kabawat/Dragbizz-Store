@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const LumosTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -296,8 +296,12 @@ const LumosTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="block">
               <div className="label">Issued By</div>
@@ -313,11 +317,11 @@ const LumosTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             tdClassName="product-name"
             columnWidths={{
-              product: '40%',
-              quantity: '15%',
-              unitPrice: '20%',
-              gst: '10%',
-              total: '15%'
+              product: "40%",
+              quantity: "15%",
+              unitPrice: "20%",
+              gst: "10%",
+              total: "15%",
             }}
           />
 
@@ -354,7 +358,9 @@ const LumosTemplate = ({ invoiceData, selectedStore }) => {
 
         {/* Footer */}
         <div className="footer">
-          <p>Thank you for choosing {selectedStore?.storeName || "our store"}!</p>
+          <p>
+            Thank you for choosing {selectedStore?.storeName || "our store"}!
+          </p>
           <p>
             Generated on{" "}
             {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}

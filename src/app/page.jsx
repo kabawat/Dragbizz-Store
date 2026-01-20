@@ -1,7 +1,7 @@
-"use client"
-import React from 'react';
-import ProductHeader from '@/components/layout/ProductHeader';
-import { Footer } from '@/components/common';
+"use client";
+import React from "react";
+import ProductHeader from "@/components/layout/ProductHeader";
+import { Footer } from "@/components/common";
 import {
   HeroSection,
   FeaturesSection,
@@ -14,13 +14,13 @@ import {
   SecuritySection,
   UseCasesSection,
   FAQSection,
-  CTASection
-} from '@/components/home';
-import { 
-  ShoppingBag, 
-  Zap, 
-  Shield, 
-  TrendingUp, 
+  CTASection,
+} from "@/components/home";
+import {
+  ShoppingBag,
+  Zap,
+  Shield,
+  TrendingUp,
   Sparkles,
   Package,
   Users,
@@ -32,120 +32,156 @@ import {
   Target,
   Heart,
   Cloud,
-  FileText
-} from 'lucide-react';
+  FileText,
+} from "lucide-react";
 
 const HomePage = () => {
   const heroFeatures = [
-    { icon: Zap, text: 'Lightning Fast' },
-    { icon: Shield, text: 'Secure' },
-    { icon: TrendingUp, text: 'Scalable' },
-    { icon: Sparkles, text: 'AI-Powered' }
+    { icon: Zap, text: "Lightning Fast" },
+    { icon: Shield, text: "Secure" },
+    { icon: TrendingUp, text: "Scalable" },
+    { icon: Sparkles, text: "AI-Powered" },
   ];
 
   const stats = [
-    { value: '50K+', label: 'Active Users', icon: Users, color: 'text-blue-500' },
-    { value: '1M+', label: 'Transactions', icon: ShoppingBag, color: 'text-green-500' },
-    { value: '120+', label: 'Countries', icon: Globe, color: 'text-purple-500' },
-    { value: '98%', label: 'Satisfaction', icon: Heart, color: 'text-red-500' }
+    {
+      value: "50K+",
+      label: "Active Users",
+      icon: Users,
+      color: "text-blue-500",
+    },
+    {
+      value: "1M+",
+      label: "Transactions",
+      icon: ShoppingBag,
+      color: "text-green-500",
+    },
+    {
+      value: "120+",
+      label: "Countries",
+      icon: Globe,
+      color: "text-purple-500",
+    },
+    { value: "98%", label: "Satisfaction", icon: Heart, color: "text-red-500" },
   ];
 
   const mainFeatures = [
     {
       icon: ShoppingBag,
-      title: 'Complete Retail Management',
-      description: 'Manage inventory, sales, customers, and suppliers all in one place with our comprehensive retail management system.',
-      color: 'from-blue-500 to-cyan-500',
-      gradient: 'bg-gradient-to-br from-blue-500/10 to-cyan-500/10'
+      title: "Complete Retail Management",
+      description:
+        "Manage inventory, sales, customers, and suppliers all in one place with our comprehensive retail management system.",
+      color: "from-blue-500 to-cyan-500",
+      gradient: "bg-gradient-to-br from-blue-500/10 to-cyan-500/10",
     },
     {
       icon: BarChart3,
-      title: 'Advanced Analytics',
-      description: 'Get real-time insights into your business performance with powerful analytics and reporting tools.',
-      color: 'from-purple-500 to-pink-500',
-      gradient: 'bg-gradient-to-br from-purple-500/10 to-pink-500/10'
+      title: "Advanced Analytics",
+      description:
+        "Get real-time insights into your business performance with powerful analytics and reporting tools.",
+      color: "from-purple-500 to-pink-500",
+      gradient: "bg-gradient-to-br from-purple-500/10 to-pink-500/10",
     },
     {
       icon: Package,
-      title: 'Inventory Control',
-      description: 'Track stock levels, manage suppliers, and automate reordering with intelligent inventory management.',
-      color: 'from-green-500 to-emerald-500',
-      gradient: 'bg-gradient-to-br from-green-500/10 to-emerald-500/10'
+      title: "Inventory Control",
+      description:
+        "Track stock levels, manage suppliers, and automate reordering with intelligent inventory management.",
+      color: "from-green-500 to-emerald-500",
+      gradient: "bg-gradient-to-br from-green-500/10 to-emerald-500/10",
     },
     {
       icon: Users,
-      title: 'Customer Management',
-      description: 'Build stronger relationships with comprehensive customer profiles and purchase history tracking.',
-      color: 'from-orange-500 to-red-500',
-      gradient: 'bg-gradient-to-br from-orange-500/10 to-red-500/10'
+      title: "Customer Management",
+      description:
+        "Build stronger relationships with comprehensive customer profiles and purchase history tracking.",
+      color: "from-orange-500 to-red-500",
+      gradient: "bg-gradient-to-br from-orange-500/10 to-red-500/10",
     },
     {
       icon: FileText,
-      title: 'Invoice Generation',
-      description: 'Create professional invoices instantly with customizable templates and automated billing.',
-      color: 'from-indigo-500 to-blue-500',
-      gradient: 'bg-gradient-to-br from-indigo-500/10 to-blue-500/10'
+      title: "Invoice Generation",
+      description:
+        "Create professional invoices instantly with customizable templates and automated billing.",
+      color: "from-indigo-500 to-blue-500",
+      gradient: "bg-gradient-to-br from-indigo-500/10 to-blue-500/10",
     },
     {
       icon: Cloud,
-      title: 'Cloud-Based Solution',
-      description: 'Access your business data from anywhere, anytime with our secure cloud infrastructure.',
-      color: 'from-teal-500 to-cyan-500',
-      gradient: 'bg-gradient-to-br from-teal-500/10 to-cyan-500/10'
-    }
+      title: "Cloud-Based Solution",
+      description:
+        "Access your business data from anywhere, anytime with our secure cloud infrastructure.",
+      color: "from-teal-500 to-cyan-500",
+      gradient: "bg-gradient-to-br from-teal-500/10 to-cyan-500/10",
+    },
   ];
 
   const benefits = [
-    { icon: Clock, title: 'Save Time', description: 'Automate repetitive tasks and focus on growing your business' },
-    { icon: Target, title: 'Increase Sales', description: 'Make data-driven decisions to boost revenue' },
-    { icon: Lock, title: 'Secure Data', description: 'Enterprise-grade security to protect your business information' },
-    { icon: Rocket, title: 'Scale Fast', description: 'Grow your business without worrying about system limitations' }
+    {
+      icon: Clock,
+      title: "Save Time",
+      description:
+        "Automate repetitive tasks and focus on growing your business",
+    },
+    {
+      icon: Target,
+      title: "Increase Sales",
+      description: "Make data-driven decisions to boost revenue",
+    },
+    {
+      icon: Lock,
+      title: "Secure Data",
+      description:
+        "Enterprise-grade security to protect your business information",
+    },
+    {
+      icon: Rocket,
+      title: "Scale Fast",
+      description:
+        "Grow your business without worrying about system limitations",
+    },
   ];
 
   const testimonials = [
     {
-      name: 'Rajesh Kumar',
-      role: 'CEO, TechStart India',
-      content: 'DragBizz transformed our retail operations. We\'ve seen a 40% increase in efficiency since switching.',
+      name: "Rajesh Kumar",
+      role: "CEO, TechStart India",
+      content:
+        "DragBizz transformed our retail operations. We've seen a 40% increase in efficiency since switching.",
       rating: 5,
-      avatar: 'RK'
+      avatar: "RK",
     },
     {
-      name: 'Priya Sharma',
-      role: 'Store Owner, FashionHub',
-      content: 'The best investment we made. Inventory management is now effortless and sales tracking is a breeze.',
+      name: "Priya Sharma",
+      role: "Store Owner, FashionHub",
+      content:
+        "The best investment we made. Inventory management is now effortless and sales tracking is a breeze.",
       rating: 5,
-      avatar: 'PS'
+      avatar: "PS",
     },
     {
-      name: 'Amit Patel',
-      role: 'Operations Manager, QuickMart',
-      content: 'Outstanding platform with excellent support. Our team productivity increased significantly.',
+      name: "Amit Patel",
+      role: "Operations Manager, QuickMart",
+      content:
+        "Outstanding platform with excellent support. Our team productivity increased significantly.",
       rating: 5,
-      avatar: 'AP'
-    }
+      avatar: "AP",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] overflow-x-hidden">
       <ProductHeader />
 
-      <HeroSection 
-        heroFeatures={heroFeatures}
-        stats={stats}
-      />
+      <HeroSection heroFeatures={heroFeatures} stats={stats} />
 
-      <FeaturesSection 
-        features={mainFeatures}
-      />
+      <FeaturesSection features={mainFeatures} />
 
       <AdvancedFeaturesSection />
 
       <ComparisonSection />
 
-      <BenefitsSection 
-        benefits={benefits}
-      />
+      <BenefitsSection benefits={benefits} />
 
       <IntegrationsSection />
 
@@ -153,9 +189,7 @@ const HomePage = () => {
 
       <UseCasesSection />
 
-      <TestimonialsSection 
-        testimonials={testimonials}
-      />
+      <TestimonialsSection testimonials={testimonials} />
 
       <PricingSection />
 

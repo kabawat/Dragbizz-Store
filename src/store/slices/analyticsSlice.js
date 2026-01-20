@@ -1,48 +1,51 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { analyticsService } from '@/service/retailer';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { analyticsService } from "@/service/retailer";
 
 // Async thunk for getting revenue analytics
 export const getRevenueAnalytics = createAsyncThunk(
-  'analytics/getRevenueAnalytics',
+  "analytics/getRevenueAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
       // Use analyticsService for analytics
-      const result = await analyticsService.getRevenueAnalytics({ store: storeId });
-      
+      const result = await analyticsService.getRevenueAnalytics({
+        store: storeId,
+      });
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch revenue analytics'
+          message: result.message || "Failed to fetch revenue analytics",
         });
       }
 
       // Handle null data from backend
-      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
-      
+      const analyticsData =
+        result.data?.data !== undefined ? result.data.data : result.data;
+
       return {
         success: true,
         data: analyticsData || initialState.revenue,
-        message: 'Revenue analytics fetched successfully'
+        message: "Revenue analytics fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch revenue analytics. Please try again.'
+        message: "Failed to fetch revenue analytics. Please try again.",
       });
     }
-  }
+  },
 );
 
 const initialState = {
   revenue: {
     summary: {},
     today: {},
-    change: {}
+    change: {},
   },
   isLoading: false,
   error: null,
 };
 
 const analyticsSlice = createSlice({
-  name: 'analytics',
+  name: "analytics",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -63,7 +66,8 @@ const analyticsSlice = createSlice({
       })
       .addCase(getRevenueAnalytics.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || 'Failed to fetch revenue analytics';
+        state.error =
+          action.payload?.message || "Failed to fetch revenue analytics";
       });
   },
 });
@@ -71,4 +75,3 @@ const analyticsSlice = createSlice({
 export const { clearError } = analyticsSlice.actions;
 export { getRevenueAnalytics };
 export default analyticsSlice.reducer;
-

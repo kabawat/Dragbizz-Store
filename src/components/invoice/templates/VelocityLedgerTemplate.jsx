@@ -270,115 +270,146 @@ const VelocityLedgerTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="velocity-invoice-body">
         <div className="velocity-invoice">
-          
           {/* Header Band */}
           <div className="velocity-header-band">
             <h1>TAX INVOICE</h1>
             <div className="velocity-invoice-number">
-                INVOICE # {invoiceData.invoiceNumber}
+              INVOICE # {invoiceData.invoiceNumber}
             </div>
           </div>
-          
+
           {/* Store Info Block (Right-aligned) */}
           <div className="velocity-store-info-area">
-            <div className="store-name">{selectedStore?.storeName || "Velocity Solutions Corp."}</div>
-            <p>{selectedStore?.address || "101 Commerce Tower, Business Park"}</p>
-            <p>Ph: {selectedStore?.phone || "+91 80000 11111"} | Email: {selectedStore?.email || "contact@velocity.com"}</p>
+            <div className="store-name">
+              {selectedStore?.storeName || "Velocity Solutions Corp."}
+            </div>
+            <p>
+              {selectedStore?.address || "101 Commerce Tower, Business Park"}
+            </p>
+            <p>
+              Ph: {selectedStore?.phone || "+91 80000 11111"} | Email:{" "}
+              {selectedStore?.email || "contact@velocity.com"}
+            </p>
           </div>
 
           {/* Info Bar - Invoice Meta and Customer */}
           <div className="velocity-info-container">
             {/* Invoice Details Box */}
             <div className="velocity-detail-box">
-                <div className="title">Invoice Date & Due</div>
-                <p>Issued: <span className="velocity-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-                <p>Due: <span className="velocity-value-bold">N/A</span></p>
+              <div className="title">Invoice Date & Due</div>
+              <p>
+                Issued:{" "}
+                <span className="velocity-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due: <span className="velocity-value-bold">N/A</span>
+              </p>
             </div>
-            
+
             {/* Bill To Box */}
             <div className="velocity-detail-box">
-                <div className="title">Bill To / Customer</div>
-                <p className="velocity-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To / Customer</div>
+              <p className="velocity-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
-          
+
           {/* Table Container (to apply padding) */}
-          <div className="velocity-table-container" style={{ padding: '0 30px' }}> 
-              <table className="velocity-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th style={{ width: "45%" }}>Description</th>
-                    <th style={{ width: "15%", textAlign: "center" }}>Qty</th>
-                    <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                    <th style={{ width: "20%", textAlign: "right" }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoiceData.items?.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <div className="velocity-product-name">
-                          {item.product?.name || "Unnamed Item"}
+          <div
+            className="velocity-table-container"
+            style={{ padding: "0 30px" }}
+          >
+            <table className="velocity-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "45%" }}>Description</th>
+                  <th style={{ width: "15%", textAlign: "center" }}>Qty</th>
+                  <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
+                  <th style={{ width: "20%", textAlign: "right" }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceData.items?.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="velocity-product-name">
+                        {item.product?.name || "Unnamed Item"}
+                      </div>
+                      {item.product?.sku && (
+                        <div className="velocity-product-sku">
+                          SKU: {item.product.sku}
                         </div>
-                        {item.product?.sku && (
-                          <div className="velocity-product-sku">
-                            SKU: {item.product.sku}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {formatCurrency(item.price)}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        {formatCurrency(item.quantity * item.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      )}
+                    </td>
+                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(item.price)}
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(item.quantity * item.price)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          
+
           {/* Totals Area */}
           <div className="velocity-totals-area">
-              <div className="velocity-totals-table">
-                  <div className="row">
-                    <div className="label">Subtotal:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.subtotal)}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="label">Tax (GST):</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.gstAmount)}
-                    </div>
-                  </div>
-                  {invoiceData.totalDiscount > 0 && (
-                    <div className="row">
-                      <div className="label">Discount:</div>
-                      <div className="amount" style={{ color: '#e74c3c' }}>
-                        -{formatCurrency(invoiceData.totalDiscount)}
-                      </div>
-                    </div>
-                  )}
+            <div className="velocity-totals-table">
+              <div className="row">
+                <div className="label">Subtotal:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
+              <div className="row">
+                <div className="label">Tax (GST):</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
+              </div>
+              {invoiceData.totalDiscount > 0 && (
+                <div className="row">
+                  <div className="label">Discount:</div>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          
+
           {/* Grand Total Footer Band */}
           <div className="velocity-grand-total">
             <div className="label">TOTAL AMOUNT DUE:</div>
             <div className="amount">
-                {formatCurrency(invoiceData.totalAmount)}
+              {formatCurrency(invoiceData.totalAmount)}
             </div>
           </div>
-          
-          <div style={{ padding: '15px 30px', textAlign: 'center', fontSize: '11px', color: '#777' }}>
-            <p style={{ margin: 0 }}>This invoice was generated electronically and is valid without a signature. Thank you for your continued partnership.</p>
-          </div>
 
+          <div
+            style={{
+              padding: "15px 30px",
+              textAlign: "center",
+              fontSize: "11px",
+              color: "#777",
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              This invoice was generated electronically and is valid without a
+              signature. Thank you for your continued partnership.
+            </p>
+          </div>
         </div>
       </div>
     </>

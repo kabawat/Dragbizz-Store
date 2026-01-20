@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { paymentService } from '@/service/retailer';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { paymentService } from "@/service/retailer";
 
 // Helper function to calculate payment statistics
 const calculatePaymentStats = (payments) => {
@@ -8,70 +8,77 @@ const calculatePaymentStats = (payments) => {
       totalPayments: 0,
       pendingPayments: 0,
       approvedPayments: 0,
-      totalAmount: 0
+      totalAmount: 0,
     };
   }
 
-  const stats = payments.reduce((acc, payment) => {
-    acc.totalPayments += 1;
-    acc.totalAmount += payment.amount || 0;
-    
-    switch (payment.status?.toLowerCase()) {
-      case 'pending':
-        acc.pendingPayments += 1;
-        break;
-      case 'approved':
-        acc.approvedPayments += 1;
-        break;
-      default:
-        break;
-    }
-    
-    return acc;
-  }, {
-    totalPayments: 0,
-    pendingPayments: 0,
-    approvedPayments: 0,
-    totalAmount: 0
-  });
+  const stats = payments.reduce(
+    (acc, payment) => {
+      acc.totalPayments += 1;
+      acc.totalAmount += payment.amount || 0;
+
+      switch (payment.status?.toLowerCase()) {
+        case "pending":
+          acc.pendingPayments += 1;
+          break;
+        case "approved":
+          acc.approvedPayments += 1;
+          break;
+        default:
+          break;
+      }
+
+      return acc;
+    },
+    {
+      totalPayments: 0,
+      pendingPayments: 0,
+      approvedPayments: 0,
+      totalAmount: 0,
+    },
+  );
 
   return stats;
 };
 
 // Async thunk for getting payments
 export const getPayments = createAsyncThunk(
-  'payments/getPayments',
+  "payments/getPayments",
   async (params = {}, { rejectWithValue }) => {
     try {
       const result = await paymentService.getPayments(params);
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch payments'
+          message: result.message || "Failed to fetch payments",
         });
       }
 
       return {
         success: true,
         data: result.data,
-        message: 'Payments fetched successfully'
+        message: "Payments fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch payments. Please try again.'
+        message: "Failed to fetch payments. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Async thunk for updating a payment
 export const updatePayment = createAsyncThunk(
-  'payments/updatePayment',
+  "payments/updatePayment",
   async ({ paymentId, paymentData, storeId }, { rejectWithValue }) => {
     try {
-      const result = await paymentService.updatePayment(paymentId, paymentData, storeId);
+      const result = await paymentService.updatePayment(
+        paymentId,
+        paymentData,
+        storeId,
+      );
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to update payment'
+          message: result.message || "Failed to update payment",
         });
       }
 
@@ -79,51 +86,51 @@ export const updatePayment = createAsyncThunk(
         success: true,
         data: result.data,
         paymentId: paymentId,
-        message: 'Payment updated successfully'
+        message: "Payment updated successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to update payment. Please try again.'
+        message: "Failed to update payment. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Async thunk for deleting a payment
 export const deletePayment = createAsyncThunk(
-  'payments/deletePayment',
+  "payments/deletePayment",
   async ({ paymentId, storeId }, { rejectWithValue }) => {
     try {
       const result = await paymentService.deletePayment(paymentId, storeId);
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to delete payment'
+          message: result.message || "Failed to delete payment",
         });
       }
 
       return {
         success: true,
         paymentId: paymentId,
-        message: 'Payment deleted successfully'
+        message: "Payment deleted successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to delete payment. Please try again.'
+        message: "Failed to delete payment. Please try again.",
       });
     }
-  }
+  },
 );
 
 const initialState = {
   // Payments data
   payments: [],
-  
+
   // Pagination
   pagination: {
     hasNextPage: false,
     nextCursor: null,
     limit: 20,
-    total: 0
+    total: 0,
   },
 
   // Statistics
@@ -131,20 +138,20 @@ const initialState = {
     totalPayments: 0,
     pendingPayments: 0,
     approvedPayments: 0,
-    totalAmount: 0
+    totalAmount: 0,
   },
-  
+
   // Loading states
   isLoading: false,
   isUpdating: false,
   isDeleting: false,
-  
+
   // Error handling
   error: null,
 };
 
 const paymentsSlice = createSlice({
-  name: 'payments',
+  name: "payments",
   initialState,
   reducers: {
     // Clear error
@@ -181,15 +188,14 @@ const paymentsSlice = createSlice({
             hasNextPage: data.meta.pagination.hasNextPage || false,
             nextCursor: data.meta.pagination.nextCursor || null,
             limit: data.meta.pagination.limit || 20,
-            total: data.meta.pagination.total || 0
+            total: data.meta.pagination.total || 0,
           };
         }
       })
       .addCase(getPayments.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || 'Failed to fetch payments';
+        state.error = action.payload?.message || "Failed to fetch payments";
       })
-
 
       // Update payment
       .addCase(updatePayment.pending, (state) => {
@@ -202,10 +208,15 @@ const paymentsSlice = createSlice({
 
         // Update payment in the list
         const paymentId = action.payload.paymentId;
-        const index = state.payments.findIndex(payment => payment.id === paymentId);
+        const index = state.payments.findIndex(
+          (payment) => payment.id === paymentId,
+        );
 
         if (index !== -1 && action.payload.data) {
-          state.payments[index] = { ...state.payments[index], ...action.payload.data };
+          state.payments[index] = {
+            ...state.payments[index],
+            ...action.payload.data,
+          };
         }
 
         // Recalculate stats after updating payment
@@ -213,7 +224,7 @@ const paymentsSlice = createSlice({
       })
       .addCase(updatePayment.rejected, (state, action) => {
         state.isUpdating = false;
-        state.error = action.payload?.message || 'Failed to update payment';
+        state.error = action.payload?.message || "Failed to update payment";
       })
 
       // Delete payment
@@ -227,7 +238,9 @@ const paymentsSlice = createSlice({
 
         // Remove payment from the list
         const paymentId = action.payload.paymentId;
-        state.payments = state.payments.filter(payment => payment.id !== paymentId);
+        state.payments = state.payments.filter(
+          (payment) => payment.id !== paymentId,
+        );
 
         // Recalculate stats after deleting payment
         state.stats = calculatePaymentStats(state.payments);
@@ -239,19 +252,13 @@ const paymentsSlice = createSlice({
       })
       .addCase(deletePayment.rejected, (state, action) => {
         state.isDeleting = false;
-        state.error = action.payload?.message || 'Failed to delete payment';
-      })
+        state.error = action.payload?.message || "Failed to delete payment";
+      });
   },
 });
 
-export const {
-  clearError
-} = paymentsSlice.actions;
+export const { clearError } = paymentsSlice.actions;
 
-export {
-  getPayments,
-  updatePayment,
-  deletePayment
-};
+export { getPayments, updatePayment, deletePayment };
 
 export default paymentsSlice.reducer;

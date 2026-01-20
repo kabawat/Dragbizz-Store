@@ -1,6 +1,6 @@
-"use client"
-import React from 'react';
-import Toast from './Toast';
+"use client";
+import React from "react";
+import Toast from "./Toast";
 
 const ToastContainer = ({ toasts, onRemove }) => {
   return (
@@ -19,4 +19,3 @@ const ToastContainer = ({ toasts, onRemove }) => {
 };
 
 export default ToastContainer;
-

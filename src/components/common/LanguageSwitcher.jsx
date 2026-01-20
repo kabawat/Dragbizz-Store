@@ -1,10 +1,10 @@
-"use client"
-import React from 'react';
-import { Globe } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
-import { locales, localeNames } from '@/i18n/config';
+"use client";
+import React from "react";
+import { Globe } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+import { locales, localeNames } from "@/i18n/config";
 
-const LanguageSwitcher = ({ className = '' }) => {
+const LanguageSwitcher = ({ className = "" }) => {
   const { locale, changeLanguage } = useTranslation();
 
   const handleLanguageChange = (e) => {
@@ -25,7 +25,11 @@ const LanguageSwitcher = ({ className = '' }) => {
           aria-label="Select language"
         >
           {locales.map((loc) => (
-            <option key={loc} value={loc} className="bg-[rgb(var(--color-bg-primary))]">
+            <option
+              key={loc}
+              value={loc}
+              className="bg-[rgb(var(--color-bg-primary))]"
+            >
               {localeNames[loc]}
             </option>
           ))}
@@ -36,4 +40,3 @@ const LanguageSwitcher = ({ className = '' }) => {
 };
 
 export default LanguageSwitcher;
-

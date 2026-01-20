@@ -1,8 +1,17 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { User, Phone, Mail, MapPin, Building2, FileText, Plus, Trash2 } from 'lucide-react';
-import { Input, Button, Select } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Building2,
+  FileText,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { Input, Button, Select } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
   const { t } = useTranslation();
@@ -30,29 +39,31 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           (position) => {
             const { latitude, longitude } = position.coords;
             setUserLocation({ latitude, longitude });
-            
+
             // Get address from coordinates using reverse geocoding
-            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
-              .then(response => response.json())
-              .then(data => {
+            fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+            )
+              .then((response) => response.json())
+              .then((data) => {
                 if (data.city && data.principalSubdivision && data.postcode) {
-                  setUserLocation(prev => ({
+                  setUserLocation((prev) => ({
                     ...prev,
                     city: data.city,
                     state: data.principalSubdivision,
                     pincode: data.postcode,
-                    country: data.countryName || 'India',
-                    addressLine1: data.locality || data.city
+                    country: data.countryName || "India",
+                    addressLine1: data.locality || data.city,
                   }));
                 }
               })
-              .catch(error => {
+              .catch((error) => {
                 // Don't show error to user as this is optional
               });
           },
           (error) => {
             // Handle different geolocation errors
-            switch(error.code) {
+            switch (error.code) {
               case error.PERMISSION_DENIED:
                 break;
               case error.POSITION_UNAVAILABLE:
@@ -66,8 +77,8 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 300000 // 5 minutes
-          }
+            maximumAge: 300000, // 5 minutes
+          },
         );
       } else {
       }
@@ -80,10 +91,10 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     onChange(fieldName, value);
   };
 
-  const handleCompanyDetailsChange = (fieldName, value) => {    
-    onChange('companyDetails', {
+  const handleCompanyDetailsChange = (fieldName, value) => {
+    onChange("companyDetails", {
       ...formData.companyDetails,
-      [fieldName]: value
+      [fieldName]: value,
     });
   };
 
@@ -91,16 +102,16 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     // Clear error for this field when user starts typing
     const errorKey = `addresses.billing.${fieldName}`;
     if (fieldErrors[errorKey]) {
-      onChange('clearError', errorKey);
+      onChange("clearError", errorKey);
     }
-    
+
     const currentAddresses = formData.addresses || {};
-    onChange('addresses', {
+    onChange("addresses", {
       ...currentAddresses,
       billing: {
         ...currentAddresses.billing,
-        [fieldName]: value
-      }
+        [fieldName]: value,
+      },
     });
   };
 
@@ -108,16 +119,16 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     // Clear error for this field when user starts typing
     const errorKey = `addresses.shipping.${fieldName}`;
     if (fieldErrors[errorKey]) {
-      onChange('clearError', errorKey);
+      onChange("clearError", errorKey);
     }
-    
+
     const currentAddresses = formData.addresses || {};
-    onChange('addresses', {
+    onChange("addresses", {
       ...currentAddresses,
       shipping: {
         ...currentAddresses.shipping,
-        [fieldName]: value
-      }
+        [fieldName]: value,
+      },
     });
   };
 
@@ -125,26 +136,26 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     setShowBillingAddress(true);
     // Initialize billing address with user location if available
     const billingAddress = {
-      label: t('customers.homeAddress'),
-      addressLine1: userLocation?.addressLine1 || '',
-      city: userLocation?.city || '',
-      state: userLocation?.state || '',
-      pincode: userLocation?.pincode || '',
-      country: userLocation?.country || 'India',
+      label: t("customers.homeAddress"),
+      addressLine1: userLocation?.addressLine1 || "",
+      city: userLocation?.city || "",
+      state: userLocation?.state || "",
+      pincode: userLocation?.pincode || "",
+      country: userLocation?.country || "India",
       coordinates: {
-        latitude: userLocation?.latitude || '0',
-        longitude: userLocation?.longitude || '0'
-      }
+        latitude: userLocation?.latitude || "0",
+        longitude: userLocation?.longitude || "0",
+      },
     };
 
     if (!formData.addresses) {
-      onChange('addresses', {
-        billing: billingAddress
+      onChange("addresses", {
+        billing: billingAddress,
       });
     } else {
-      onChange('addresses', {
+      onChange("addresses", {
         ...formData.addresses,
-        billing: billingAddress
+        billing: billingAddress,
       });
     }
   };
@@ -153,27 +164,27 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     setShowShippingAddress(true);
     // Initialize shipping address with user location if available
     const shippingAddress = {
-      label: t('customers.officeAddress'),
-      addressLine1: userLocation?.addressLine1 || '',
-      city: userLocation?.city || '',
-      state: userLocation?.state || '',
-      pincode: userLocation?.pincode || '',
-      country: userLocation?.country || 'India',
+      label: t("customers.officeAddress"),
+      addressLine1: userLocation?.addressLine1 || "",
+      city: userLocation?.city || "",
+      state: userLocation?.state || "",
+      pincode: userLocation?.pincode || "",
+      country: userLocation?.country || "India",
       coordinates: {
-        latitude: userLocation?.latitude || '',
-        longitude: userLocation?.longitude || ''
-      }
+        latitude: userLocation?.latitude || "",
+        longitude: userLocation?.longitude || "",
+      },
     };
 
     if (!formData.addresses) {
-      onChange('addresses', {
-        shipping: shippingAddress
+      onChange("addresses", {
+        shipping: shippingAddress,
       });
     } else {
       // Update existing addresses with shipping
-      onChange('addresses', {
+      onChange("addresses", {
         ...formData.addresses,
-        shipping: shippingAddress
+        shipping: shippingAddress,
       });
     }
   };
@@ -182,12 +193,12 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     setShowBillingAddress(false);
     const currentAddresses = formData.addresses || {};
     const { billing, ...remainingAddresses } = currentAddresses;
-    
+
     // If no addresses left, set to null
     if (Object.keys(remainingAddresses).length === 0) {
-      onChange('addresses', null);
+      onChange("addresses", null);
     } else {
-      onChange('addresses', remainingAddresses);
+      onChange("addresses", remainingAddresses);
     }
   };
 
@@ -195,12 +206,12 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
     setShowShippingAddress(false);
     const currentAddresses = formData.addresses || {};
     const { shipping, ...remainingAddresses } = currentAddresses;
-    
+
     // If no addresses left, set to null
     if (Object.keys(remainingAddresses).length === 0) {
-      onChange('addresses', null);
+      onChange("addresses", null);
     } else {
-      onChange('addresses', remainingAddresses);
+      onChange("addresses", remainingAddresses);
     }
   };
 
@@ -213,8 +224,12 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t('customers.customerInformation')}</h2>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('customers.enterBasicDetails')}</p>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("customers.customerInformation")}
+            </h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("customers.enterBasicDetails")}
+            </p>
           </div>
         </div>
 
@@ -222,10 +237,10 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {/* Customer Name */}
           <Input
             type="text"
-            label={t('customers.customerName')}
-            placeholder={t('customers.enterCustomerName')}
-            value={formData.name || ''}
-            onChange={(value) => handleInputChange('name', value)}
+            label={t("customers.customerName")}
+            placeholder={t("customers.enterCustomerName")}
+            value={formData.name || ""}
+            onChange={(value) => handleInputChange("name", value)}
             error={!!fieldErrors.name}
             errorMessage={fieldErrors.name}
             required
@@ -236,10 +251,10 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {/* Phone Number */}
           <Input
             type="tel"
-            label={t('customers.customerPhone')}
-            placeholder={t('customers.enterPhoneNumber')}
-            value={formData.phone || ''}
-            onChange={(value) => handleInputChange('phone', value)}
+            label={t("customers.customerPhone")}
+            placeholder={t("customers.enterPhoneNumber")}
+            value={formData.phone || ""}
+            onChange={(value) => handleInputChange("phone", value)}
             error={!!fieldErrors.phone}
             errorMessage={fieldErrors.phone}
             required
@@ -250,10 +265,10 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {/* Email Address */}
           <Input
             type="email"
-            label={t('customers.customerEmail')}
-            placeholder={t('customers.enterEmailAddress')}
-            value={formData.email || ''}
-            onChange={(value) => handleInputChange('email', value)}
+            label={t("customers.customerEmail")}
+            placeholder={t("customers.enterEmailAddress")}
+            value={formData.email || ""}
+            onChange={(value) => handleInputChange("email", value)}
             error={!!fieldErrors.email}
             errorMessage={fieldErrors.email}
             leftIcon={Mail}
@@ -269,8 +284,12 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <Building2 className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t('customers.companyDetails')}</h2>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('customers.enterCompanyInfo')}</p>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("customers.companyDetails")}
+            </h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("customers.enterCompanyInfo")}
+            </p>
           </div>
         </div>
 
@@ -278,12 +297,14 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {/* Company Name */}
           <Input
             type="text"
-            label={t('customers.companyName')}
-            placeholder={t('customers.enterCompanyName')}
-            value={formData.companyDetails?.companyName || ''}
-            onChange={(value) => handleCompanyDetailsChange('companyName', value)}
-            error={!!fieldErrors['companyDetails.companyName']}
-            errorMessage={fieldErrors['companyDetails.companyName']}
+            label={t("customers.companyName")}
+            placeholder={t("customers.enterCompanyName")}
+            value={formData.companyDetails?.companyName || ""}
+            onChange={(value) =>
+              handleCompanyDetailsChange("companyName", value)
+            }
+            error={!!fieldErrors["companyDetails.companyName"]}
+            errorMessage={fieldErrors["companyDetails.companyName"]}
             leftIcon={Building2}
             size="sm"
           />
@@ -291,12 +312,12 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {/* GSTIN */}
           <Input
             type="text"
-            label={t('customers.gstin')}
-            placeholder={t('customers.enterGstin')}
-            value={formData.companyDetails?.gstin || ''}
-            onChange={(value) => handleCompanyDetailsChange('gstin', value)}
-            error={!!fieldErrors['companyDetails.gstin']}
-            errorMessage={fieldErrors['companyDetails.gstin']}
+            label={t("customers.gstin")}
+            placeholder={t("customers.enterGstin")}
+            value={formData.companyDetails?.gstin || ""}
+            onChange={(value) => handleCompanyDetailsChange("gstin", value)}
+            error={!!fieldErrors["companyDetails.gstin"]}
+            errorMessage={fieldErrors["companyDetails.gstin"]}
             leftIcon={FileText}
             size="sm"
           />
@@ -310,11 +331,18 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
             <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
           </div>
           <div className="flex-1">
-            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">{t('customers.addresses')}</h2>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('customers.addBillingShipping')}</p>
+            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+              {t("customers.addresses")}
+            </h2>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("customers.addBillingShipping")}
+            </p>
             {userLocation && (
               <p className="text-xs text-green-600 mt-1">
-                {t('customers.locationDetected', { city: userLocation.city, state: userLocation.state })}
+                {t("customers.locationDetected", {
+                  city: userLocation.city,
+                  state: userLocation.state,
+                })}
               </p>
             )}
           </div>
@@ -330,7 +358,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 onClick={addBillingAddress}
                 leftIcon={Plus}
               >
-                {t('customers.addBillingAddress')}
+                {t("customers.addBillingAddress")}
               </Button>
             )}
             {!showShippingAddress && (
@@ -340,7 +368,7 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 onClick={addShippingAddress}
                 leftIcon={Plus}
               >
-                {t('customers.addShippingAddress')}
+                {t("customers.addShippingAddress")}
               </Button>
             )}
           </div>
@@ -349,7 +377,9 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {showBillingAddress && (
             <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">{t('customers.billingAddress')}</h3>
+                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("customers.billingAddress")}
+                </h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -363,12 +393,14 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 {/* Address Line 1 */}
                 <Input
                   type="text"
-                  label={t('customers.addressLine1')}
-                  placeholder={t('customers.enterAddressLine1')}
-                  value={formData.addresses?.billing?.addressLine1 || ''}
-                  onChange={(value) => handleBillingAddressChange('addressLine1', value)}
-                  error={!!fieldErrors['addresses.billing.addressLine1']}
-                  errorMessage={fieldErrors['addresses.billing.addressLine1']}
+                  label={t("customers.addressLine1")}
+                  placeholder={t("customers.enterAddressLine1")}
+                  value={formData.addresses?.billing?.addressLine1 || ""}
+                  onChange={(value) =>
+                    handleBillingAddressChange("addressLine1", value)
+                  }
+                  error={!!fieldErrors["addresses.billing.addressLine1"]}
+                  errorMessage={fieldErrors["addresses.billing.addressLine1"]}
                   className="md:col-span-2"
                   size="sm"
                 />
@@ -376,48 +408,56 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 {/* City */}
                 <Input
                   type="text"
-                  label={t('customers.city')}
-                  placeholder={t('customers.enterCity')}
-                  value={formData.addresses?.billing?.city || ''}
-                  onChange={(value) => handleBillingAddressChange('city', value)}
-                  error={!!fieldErrors['addresses.billing.city']}
-                  errorMessage={fieldErrors['addresses.billing.city']}
+                  label={t("customers.city")}
+                  placeholder={t("customers.enterCity")}
+                  value={formData.addresses?.billing?.city || ""}
+                  onChange={(value) =>
+                    handleBillingAddressChange("city", value)
+                  }
+                  error={!!fieldErrors["addresses.billing.city"]}
+                  errorMessage={fieldErrors["addresses.billing.city"]}
                   size="sm"
                 />
 
                 {/* State */}
                 <Input
                   type="text"
-                  label={t('customers.state')}
-                  placeholder={t('customers.enterState')}
-                  value={formData.addresses?.billing?.state || ''}
-                  onChange={(value) => handleBillingAddressChange('state', value)}
-                  error={!!fieldErrors['addresses.billing.state']}
-                  errorMessage={fieldErrors['addresses.billing.state']}
+                  label={t("customers.state")}
+                  placeholder={t("customers.enterState")}
+                  value={formData.addresses?.billing?.state || ""}
+                  onChange={(value) =>
+                    handleBillingAddressChange("state", value)
+                  }
+                  error={!!fieldErrors["addresses.billing.state"]}
+                  errorMessage={fieldErrors["addresses.billing.state"]}
                   size="sm"
                 />
 
                 {/* Pincode */}
                 <Input
                   type="text"
-                  label={t('customers.pincode')}
-                  placeholder={t('customers.enterPincode')}
-                  value={formData.addresses?.billing?.pincode || ''}
-                  onChange={(value) => handleBillingAddressChange('pincode', value)}
-                  error={!!fieldErrors['addresses.billing.pincode']}
-                  errorMessage={fieldErrors['addresses.billing.pincode']}
+                  label={t("customers.pincode")}
+                  placeholder={t("customers.enterPincode")}
+                  value={formData.addresses?.billing?.pincode || ""}
+                  onChange={(value) =>
+                    handleBillingAddressChange("pincode", value)
+                  }
+                  error={!!fieldErrors["addresses.billing.pincode"]}
+                  errorMessage={fieldErrors["addresses.billing.pincode"]}
                   size="sm"
                 />
 
                 {/* Country */}
                 <Input
                   type="text"
-                  label={t('customers.country')}
-                  placeholder={t('customers.enterCountry')}
-                  value={formData.addresses?.billing?.country || ''}
-                  onChange={(value) => handleBillingAddressChange('country', value)}
-                  error={!!fieldErrors['addresses.billing.country']}
-                  errorMessage={fieldErrors['addresses.billing.country']}
+                  label={t("customers.country")}
+                  placeholder={t("customers.enterCountry")}
+                  value={formData.addresses?.billing?.country || ""}
+                  onChange={(value) =>
+                    handleBillingAddressChange("country", value)
+                  }
+                  error={!!fieldErrors["addresses.billing.country"]}
+                  errorMessage={fieldErrors["addresses.billing.country"]}
                   size="sm"
                 />
               </div>
@@ -428,7 +468,9 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
           {showShippingAddress && (
             <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">{t('customers.shippingAddress')}</h3>
+                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("customers.shippingAddress")}
+                </h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -442,12 +484,14 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 {/* Address Line 1 */}
                 <Input
                   type="text"
-                  label={t('customers.addressLine1')}
-                  placeholder={t('customers.enterAddressLine1')}
-                  value={formData.addresses?.shipping?.addressLine1 || ''}
-                  onChange={(value) => handleShippingAddressChange('addressLine1', value)}
-                  error={!!fieldErrors['addresses.shipping.addressLine1']}
-                  errorMessage={fieldErrors['addresses.shipping.addressLine1']}
+                  label={t("customers.addressLine1")}
+                  placeholder={t("customers.enterAddressLine1")}
+                  value={formData.addresses?.shipping?.addressLine1 || ""}
+                  onChange={(value) =>
+                    handleShippingAddressChange("addressLine1", value)
+                  }
+                  error={!!fieldErrors["addresses.shipping.addressLine1"]}
+                  errorMessage={fieldErrors["addresses.shipping.addressLine1"]}
                   className="md:col-span-2"
                   size="sm"
                 />
@@ -455,48 +499,56 @@ const CustomerForm = ({ formData, onChange, fieldErrors = {} }) => {
                 {/* City */}
                 <Input
                   type="text"
-                  label={t('customers.city')}
-                  placeholder={t('customers.enterCity')}
-                  value={formData.addresses?.shipping?.city || ''}
-                  onChange={(value) => handleShippingAddressChange('city', value)}
-                  error={!!fieldErrors['addresses.shipping.city']}
-                  errorMessage={fieldErrors['addresses.shipping.city']}
+                  label={t("customers.city")}
+                  placeholder={t("customers.enterCity")}
+                  value={formData.addresses?.shipping?.city || ""}
+                  onChange={(value) =>
+                    handleShippingAddressChange("city", value)
+                  }
+                  error={!!fieldErrors["addresses.shipping.city"]}
+                  errorMessage={fieldErrors["addresses.shipping.city"]}
                   size="sm"
                 />
 
                 {/* State */}
                 <Input
                   type="text"
-                  label={t('customers.state')}
-                  placeholder={t('customers.enterState')}
-                  value={formData.addresses?.shipping?.state || ''}
-                  onChange={(value) => handleShippingAddressChange('state', value)}
-                  error={!!fieldErrors['addresses.shipping.state']}
-                  errorMessage={fieldErrors['addresses.shipping.state']}
+                  label={t("customers.state")}
+                  placeholder={t("customers.enterState")}
+                  value={formData.addresses?.shipping?.state || ""}
+                  onChange={(value) =>
+                    handleShippingAddressChange("state", value)
+                  }
+                  error={!!fieldErrors["addresses.shipping.state"]}
+                  errorMessage={fieldErrors["addresses.shipping.state"]}
                   size="sm"
                 />
 
                 {/* Pincode */}
                 <Input
                   type="text"
-                  label={t('customers.pincode')}
-                  placeholder={t('customers.enterPincode')}
-                  value={formData.addresses?.shipping?.pincode || ''}
-                  onChange={(value) => handleShippingAddressChange('pincode', value)}
-                  error={!!fieldErrors['addresses.shipping.pincode']}
-                  errorMessage={fieldErrors['addresses.shipping.pincode']}
+                  label={t("customers.pincode")}
+                  placeholder={t("customers.enterPincode")}
+                  value={formData.addresses?.shipping?.pincode || ""}
+                  onChange={(value) =>
+                    handleShippingAddressChange("pincode", value)
+                  }
+                  error={!!fieldErrors["addresses.shipping.pincode"]}
+                  errorMessage={fieldErrors["addresses.shipping.pincode"]}
                   size="sm"
                 />
 
                 {/* Country */}
                 <Input
                   type="text"
-                  label={t('customers.country')}
-                  placeholder={t('customers.enterCountry')}
-                  value={formData.addresses?.shipping?.country || ''}
-                  onChange={(value) => handleShippingAddressChange('country', value)}
-                  error={!!fieldErrors['addresses.shipping.country']}
-                  errorMessage={fieldErrors['addresses.shipping.country']}
+                  label={t("customers.country")}
+                  placeholder={t("customers.enterCountry")}
+                  value={formData.addresses?.shipping?.country || ""}
+                  onChange={(value) =>
+                    handleShippingAddressChange("country", value)
+                  }
+                  error={!!fieldErrors["addresses.shipping.country"]}
+                  errorMessage={fieldErrors["addresses.shipping.country"]}
                   size="sm"
                 />
               </div>

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency
@@ -13,7 +13,7 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
   };
 
   const GRADIENT_START = "#4e54c8"; // Deep Blue
-  const GRADIENT_END = "#8f94fb";   // Light Violet
+  const GRADIENT_END = "#8f94fb"; // Light Violet
   const DARK_HEADER_COLOR = "#34495e"; // Dark slate gray for table
 
   return (
@@ -270,31 +270,43 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="spectrum-invoice-body">
         <div className="spectrum-invoice">
-          
           {/* Header Section: Branding Left, Details Right */}
           <div className="spectrum-header">
             <div className="spectrum-branding">
               <h1>INVOICE</h1>
               <div className="spectrum-store-info">
-                  <p style={{ fontWeight: 700, color: DARK_HEADER_COLOR }}>{selectedStore?.storeName || "Spectrum Solutions"}</p>
-                  <p>{selectedStore?.address || "404 Innovation Street"}</p>
-                  <p>{selectedStore?.phone || "+91 9876543210"} | {selectedStore?.email || "info@spectrum.com"}</p>
+                <p style={{ fontWeight: 700, color: DARK_HEADER_COLOR }}>
+                  {selectedStore?.storeName || "Spectrum Solutions"}
+                </p>
+                <p>{selectedStore?.address || "404 Innovation Street"}</p>
+                <p>
+                  {selectedStore?.phone || "+91 9876543210"} |{" "}
+                  {selectedStore?.email || "info@spectrum.com"}
+                </p>
               </div>
             </div>
-            
+
             {/* Key Invoice Details */}
             <div className="spectrum-details-block">
-                <div className="label">Invoice Number</div>
-                <div className="value">{invoiceData.invoiceNumber}</div>
-                <div className="label">Date Issued</div>
-                <div className="value">{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}</div>
-                
-                <div className="spectrum-customer-info">
-                    <div className="label">Bill To:</div>
-                    <div className="value">{invoiceData.customer?.name || "Walk-in Customer"}</div>
-                    {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                    {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="label">Invoice Number</div>
+              <div className="value">{invoiceData.invoiceNumber}</div>
+              <div className="label">Date Issued</div>
+              <div className="value">
+                {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
+              </div>
+
+              <div className="spectrum-customer-info">
+                <div className="label">Bill To:</div>
+                <div className="value">
+                  {invoiceData.customer?.name || "Walk-in Customer"}
                 </div>
+                {invoiceData.customer?.email && (
+                  <p>{invoiceData.customer.email}</p>
+                )}
+                {invoiceData.customer?.phone && (
+                  <p>{invoiceData.customer.phone}</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -303,11 +315,11 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="spectrum-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => (
               <>
@@ -323,7 +335,7 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
             )}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -346,7 +358,7 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#e74c3c' }}>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>
@@ -363,9 +375,7 @@ const SpectrumTemplate = ({ invoiceData, selectedStore }) => {
           {/* Footer */}
           <div className="spectrum-footer">
             <p>Thank you for your business. Payment due within 7 days.</p>
-            <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
-            </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

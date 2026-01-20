@@ -1,47 +1,81 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getExpenses, deleteExpense, setViewMode, setSortOptions } from '@/store/slices/expensesSlice';
-import { ExpenseCard, ExpenseTable, AddExpenseDrawer, ExpenseDownloadDrawer } from '@/components/expenses';
-import { Plus, Search, Grid3X3, List, IndianRupee, Download } from 'lucide-react';
-import Header from '@/components/dashboard/Header';
-import Sidebar from '@/components/dashboard/Sidebar';
-import { Button, Input } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  getExpenses,
+  deleteExpense,
+  setViewMode,
+  setSortOptions,
+} from "@/store/slices/expensesSlice";
+import {
+  ExpenseCard,
+  ExpenseTable,
+  AddExpenseDrawer,
+  ExpenseDownloadDrawer,
+} from "@/components/expenses";
+import {
+  Plus,
+  Search,
+  Grid3X3,
+  List,
+  IndianRupee,
+  Download,
+} from "lucide-react";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Button, Input } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ExpensesPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { expenses, isLoading, error, viewMode, currentFilter, sortBy, sortOrder } = useAppSelector((state) => state.expenses);
+  const {
+    expenses,
+    isLoading,
+    error,
+    viewMode,
+    currentFilter,
+    sortBy,
+    sortOrder,
+  } = useAppSelector((state) => state.expenses);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   // Refs to prevent duplicate API calls
-  const lastFetchedRef = useRef({ storeId: null, filter: null, sortBy: null, sortOrder: null });
+  const lastFetchedRef = useRef({
+    storeId: null,
+    filter: null,
+    sortBy: null,
+    sortOrder: null,
+  });
   const hasFetched = useRef(false);
 
   // Get stable storeId
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Local state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedExpenseName, setDeletedExpenseName] = useState('');
+  const [deletedExpenseName, setDeletedExpenseName] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
-  
+
   // Drawer state
   const [showAddExpenseDrawer, setShowAddExpenseDrawer] = useState(false);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
 
   // Load view mode from localStorage
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('expenses-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+    const savedViewMode = localStorage.getItem("expenses-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
       dispatch(setViewMode(savedViewMode));
     }
   }, [dispatch]);
@@ -52,9 +86,9 @@ const ExpensesPage = () => {
     const params = {
       store: storeId,
       limit: 20,
-      ...(currentFilter !== 'all' && { status: currentFilter }),
+      ...(currentFilter !== "all" && { status: currentFilter }),
       ...(sortBy && { sortBy }),
-      ...(sortOrder && { sortOrder })
+      ...(sortOrder && { sortOrder }),
     };
 
     await dispatch(getExpenses(params));
@@ -63,7 +97,12 @@ const ExpensesPage = () => {
   // Reset refs when storeId changes
   useEffect(() => {
     if (storeId && lastFetchedRef.current.storeId !== storeId) {
-      lastFetchedRef.current = { storeId: null, filter: null, sortBy: null, sortOrder: null };
+      lastFetchedRef.current = {
+        storeId: null,
+        filter: null,
+        sortBy: null,
+        sortOrder: null,
+      };
       hasFetched.current = false;
     }
   }, [storeId]);
@@ -94,7 +133,7 @@ const ExpensesPage = () => {
       storeId,
       filter: currentFilter,
       sortBy,
-      sortOrder
+      sortOrder,
     };
     hasFetched.current = true;
 
@@ -104,13 +143,12 @@ const ExpensesPage = () => {
 
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
-    localStorage.setItem('expenses-view-mode', mode);
+    localStorage.setItem("expenses-view-mode", mode);
   };
 
   const handleSort = (column, order) => {
     dispatch(setSortOptions({ sortBy: column, sortOrder: order }));
   };
-
 
   const handleAddExpense = () => {
     setShowAddExpenseDrawer(true);
@@ -139,10 +177,12 @@ const ExpensesPage = () => {
 
     setIsDeleting(true);
     try {
-      await dispatch(deleteExpense({
-        expenseId: expenseToDelete.id,
-        storeId: selectedStore?.id
-      }));
+      await dispatch(
+        deleteExpense({
+          expenseId: expenseToDelete.id,
+          storeId: selectedStore?.id,
+        }),
+      );
       setShowDeleteModal(false);
       setDeletedExpenseName(expenseToDelete.title);
       setExpenseToDelete(null);
@@ -160,7 +200,10 @@ const ExpensesPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title={t('expenses.title')} description={t('expenses.description')} />
+        <Header
+          title={t("expenses.title")}
+          description={t("expenses.description")}
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
@@ -171,8 +214,12 @@ const ExpensesPage = () => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">{t('common.loadingData')}</h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</p>
+                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+                      {t("common.loadingData")}
+                    </h2>
+                    <p className="text-[rgb(var(--color-text-secondary))]">
+                      {t("common.loading")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -186,7 +233,7 @@ const ExpensesPage = () => {
                   <div className="w-100 bg-red">
                     <Input
                       type="text"
-                      placeholder={`${t('common.search')} ${t('expenses.title').toLowerCase()}...`}
+                      placeholder={`${t("common.search")} ${t("expenses.title").toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       leftIcon={Search}
@@ -199,31 +246,43 @@ const ExpensesPage = () => {
                     {/* View Toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <List className="w-4 h-4" />
-                        {t('common.tableView')}
+                        {t("common.tableView")}
                       </button>
                       <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "card"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        {t('common.cardView')}
+                        {t("common.cardView")}
                       </button>
                     </div>
 
-                    <Button variant="outline" onClick={() => setShowDownloadDrawer(true)} leftIcon={Download}>
-                      {t('expenses.download')}
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowDownloadDrawer(true)}
+                      leftIcon={Download}
+                    >
+                      {t("expenses.download")}
                     </Button>
-                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}>{t('expenses.addExpense')}</Button>
+                    <Button
+                      variant="primary"
+                      onClick={handleAddExpense}
+                      leftIcon={Plus}
+                    >
+                      {t("expenses.addExpense")}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -237,20 +296,26 @@ const ExpensesPage = () => {
                     <IndianRupee className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('expenses.noExpenses')}
+                    {t("expenses.noExpenses")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    {t('common.noData')}
+                    {t("common.noData")}
                   </p>
                   {error && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
                       <p className="text-red-600 text-sm">
-                        <strong>{t('common.error')}:</strong> {error}
+                        <strong>{t("common.error")}:</strong> {error}
                       </p>
                     </div>
                   )}
                   <div className="pt-4">
-                    <Button variant="primary" onClick={handleAddExpense} leftIcon={Plus}>{t('expenses.addExpense')}</Button>
+                    <Button
+                      variant="primary"
+                      onClick={handleAddExpense}
+                      leftIcon={Plus}
+                    >
+                      {t("expenses.addExpense")}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -260,7 +325,7 @@ const ExpensesPage = () => {
             {expenses.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                 <div className="h-[calc(100vh-200px)] overflow-y-auto">
-                  {viewMode === 'table' ? (
+                  {viewMode === "table" ? (
                     <div className="h-full">
                       <ExpenseTable
                         expenses={expenses}
@@ -293,7 +358,11 @@ const ExpensesPage = () => {
                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{expenses.length}</span> expenses
+                      Showing{" "}
+                      <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                        {expenses.length}
+                      </span>{" "}
+                      expenses
                       <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                         • All expenses loaded
                       </span>
@@ -315,13 +384,22 @@ const ExpensesPage = () => {
               Delete Expense
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{expenseToDelete?.title}"? This action cannot be undone.
+              Are you sure you want to delete "{expenseToDelete?.title}"? This
+              action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
                 Cancel
               </Button>
-              <Button variant="danger" onClick={confirmDelete} loading={isDeleting}>
+              <Button
+                variant="danger"
+                onClick={confirmDelete}
+                loading={isDeleting}
+              >
                 Delete
               </Button>
             </div>
@@ -334,14 +412,16 @@ const ExpensesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
           <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-[rgb(var(--color-success))] mb-4">
-              {t('common.success')}
+              {t("common.success")}
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              {t('errors.expenseRemovedFromList', { expenseName: deletedExpenseName })}
+              {t("errors.expenseRemovedFromList", {
+                expenseName: deletedExpenseName,
+              })}
             </p>
             <div className="flex gap-3 justify-end">
               <Button onClick={() => setShowDeleteSuccessModal(false)}>
-                {t('common.ok')}
+                {t("common.ok")}
               </Button>
             </div>
           </div>

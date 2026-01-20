@@ -1,69 +1,92 @@
-"use client"
-import React, { useState, useRef, useEffect } from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
-import { useLogout } from '@/hooks/useLogout';
-import LogoutModal from '@/components/ui/LogoutModal';
-import { useAppSelector } from '@/store/hooks';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { Bell, ChevronDown } from "lucide-react";
+import { useLogout } from "@/hooks/useLogout";
+import LogoutModal from "@/components/ui/LogoutModal";
+import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const Header = ({
-  title,
-  description
-}) => {
+const Header = ({ title, description }) => {
   const { t } = useTranslation();
-  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
+  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } =
+    useLogout();
 
   // Get user data from Redux
-  const { user, agency, selectedStore, authProfile } = useAppSelector((state) => state.profile);
-  
+  const { user, agency, selectedStore, authProfile } = useAppSelector(
+    (state) => state.profile,
+  );
+
   // Get user name and role
-  const userName = user?.firstName && user?.lastName 
-    ? `${user.firstName} ${user.lastName}` 
-    : user?.name || authProfile?.firstName && authProfile?.lastName
-    ? `${authProfile.firstName} ${authProfile.lastName}`
-    : authProfile?.name || user?.email || t('header.user');
-  
+  const userName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.name || (authProfile?.firstName && authProfile?.lastName)
+        ? `${authProfile.firstName} ${authProfile.lastName}`
+        : authProfile?.name || user?.email || t("header.user");
+
   const userRole = user?.role || authProfile?.role || null;
-  
+
   // Format role for display
   const formatRole = (role) => {
     if (!role) return null;
     return role
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
-  
-  const displayRole = formatRole(userRole) || t('header.user');
+
+  const displayRole = formatRole(userRole) || t("header.user");
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
+    useState(false);
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
         setIsProfileDropdownOpen(false);
       }
-      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target)) {
+      if (
+        notificationDropdownRef.current &&
+        !notificationDropdownRef.current.contains(event.target)
+      ) {
         setIsNotificationDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const notifications = [
-    { id: 1, message: t('notifications.newOrderReceived'), time: t('notifications.twoMinAgo'), unread: true },
-    { id: 2, message: t('notifications.inventoryLowAlert'), time: t('notifications.fifteenMinAgo'), unread: true },
-    { id: 3, message: t('notifications.paymentReceived'), time: t('notifications.oneHourAgo'), unread: false },
+    {
+      id: 1,
+      message: t("notifications.newOrderReceived"),
+      time: t("notifications.twoMinAgo"),
+      unread: true,
+    },
+    {
+      id: 2,
+      message: t("notifications.inventoryLowAlert"),
+      time: t("notifications.fifteenMinAgo"),
+      unread: true,
+    },
+    {
+      id: 3,
+      message: t("notifications.paymentReceived"),
+      time: t("notifications.oneHourAgo"),
+      unread: false,
+    },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   const handleLogout = () => {
     showLogoutModal();
@@ -75,9 +98,11 @@ const Header = ({
         <div className="flex items-center justify-between">
           {/* Left side - Page Title and Description */}
           <div>
-            <h1 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-0.5">{title || t('dashboard.title')}</h1>
+            <h1 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-0.5">
+              {title || t("dashboard.title")}
+            </h1>
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              {description || t('dashboard.description')}
+              {description || t("dashboard.description")}
             </p>
           </div>
 
@@ -86,7 +111,9 @@ const Header = ({
             {/* Notification Bell */}
             <div className="relative" ref={notificationDropdownRef}>
               <button
-                onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+                onClick={() =>
+                  setIsNotificationDropdownOpen(!isNotificationDropdownOpen)
+                }
                 className="relative w-8 h-8 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
               >
                 <Bell className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
@@ -101,25 +128,34 @@ const Header = ({
               {isNotificationDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-72 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="p-3 border-b border-[rgb(var(--color-border-primary))]">
-                    <h3 className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">{t('notifications.title')}</h3>
+                    <h3 className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">
+                      {t("notifications.title")}
+                    </h3>
                   </div>
                   <div className="max-h-48 overflow-y-auto">
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${notification.unread ? 'bg-[rgb(var(--color-primary))]/10' : ''
-                          }`}
+                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${
+                          notification.unread
+                            ? "bg-[rgb(var(--color-primary))]/10"
+                            : ""
+                        }`}
                       >
-                        <p className={`text-xs ${notification.unread ? 'font-semibold text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-secondary))]'}`}>
+                        <p
+                          className={`text-xs ${notification.unread ? "font-semibold text-[rgb(var(--color-text-primary))]" : "text-[rgb(var(--color-text-secondary))]"}`}
+                        >
                           {notification.message}
                         </p>
-                        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-0.5">{notification.time}</p>
+                        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-0.5">
+                          {notification.time}
+                        </p>
                       </div>
                     ))}
                   </div>
                   <div className="p-2 border-t border-[rgb(var(--color-border-primary))]">
                     <button className="text-xs text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))]/80 font-medium cursor-pointer">
-                      {t('notifications.viewAll')}
+                      {t("notifications.viewAll")}
                     </button>
                   </div>
                 </div>
@@ -152,7 +188,9 @@ const Header = ({
                 </div>
 
                 {/* Dropdown Arrow */}
-                <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${isProfileDropdownOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {/* Profile Dropdown */}
@@ -160,20 +198,20 @@ const Header = ({
                 <div className="absolute right-0 top-full mt-2 w-40 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                   <div className="py-1">
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      {t('header.profileSettings')}
+                      {t("header.profileSettings")}
                     </button>
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      {t('header.accountSettings')}
+                      {t("header.accountSettings")}
                     </button>
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
-                      {t('header.preferences')}
+                      {t("header.preferences")}
                     </button>
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                     <button
                       onClick={handleLogout}
                       className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 cursor-pointer"
                     >
-                      {t('header.signOut')}
+                      {t("header.signOut")}
                     </button>
                   </div>
                 </div>
@@ -191,7 +229,6 @@ const Header = ({
           onConfirm={confirmLogout}
         />
       )}
-
     </>
   );
 };

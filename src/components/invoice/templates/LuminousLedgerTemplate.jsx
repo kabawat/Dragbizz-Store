@@ -262,21 +262,30 @@ const LuminousLedgerTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="luminous-invoice-body">
         <div className="luminous-invoice">
-          
           {/* Top Header Bar */}
           <div className="luminous-header-top">
             <h1>INVOICE</h1>
             <div className="luminous-invoice-tag">
-                #<span style={{ fontWeight: 800 }}>{invoiceData.invoiceNumber}</span>
+              #
+              <span style={{ fontWeight: 800 }}>
+                {invoiceData.invoiceNumber}
+              </span>
             </div>
           </div>
-          
+
           {/* Store Info Block */}
           <div className="luminous-store-block">
-            <div className="luminous-store-name">{selectedStore?.storeName || "Luminous Ledger Co."}</div>
+            <div className="luminous-store-name">
+              {selectedStore?.storeName || "Luminous Ledger Co."}
+            </div>
             <div className="luminous-store-details">
-                <p>{selectedStore?.address || "123 Modern Avenue, City, Country"}</p>
-                <p>Ph: {selectedStore?.phone || "+91 9876543210"} | Email: {selectedStore?.email || "info@luminousledger.com"}</p>
+              <p>
+                {selectedStore?.address || "123 Modern Avenue, City, Country"}
+              </p>
+              <p>
+                Ph: {selectedStore?.phone || "+91 9876543210"} | Email:{" "}
+                {selectedStore?.email || "info@luminousledger.com"}
+              </p>
             </div>
           </div>
 
@@ -284,92 +293,117 @@ const LuminousLedgerTemplate = ({ invoiceData, selectedStore }) => {
           <div className="luminous-info-bar">
             {/* Invoice Details Block */}
             <div className="luminous-meta">
-                <div className="title">Date & Due</div>
-                <p>Issued: <span className="luminous-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-                <p>Due: <span className="luminous-value-bold">N/A</span></p>
+              <div className="title">Date & Due</div>
+              <p>
+                Issued:{" "}
+                <span className="luminous-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due: <span className="luminous-value-bold">N/A</span>
+              </p>
             </div>
-            
+
             {/* Bill To Block */}
             <div className="luminous-customer-info">
-                <div className="title">Bill To</div>
-                <p className="luminous-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="luminous-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
-          
+
           {/* Table */}
-          <div style={{ padding: '0 40px' }}> {/* Container for table to align with info bar */}
-              <table className="luminous-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th style={{ width: "50%" }}>Description</th>
-                    <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                    <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                    <th style={{ width: "20%", textAlign: "right" }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoiceData.items?.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <div className="luminous-product-name">
-                          {item.product?.name || "Unnamed Item"}
+          <div style={{ padding: "0 40px" }}>
+            {" "}
+            {/* Container for table to align with info bar */}
+            <table className="luminous-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "50%" }}>Description</th>
+                  <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
+                  <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
+                  <th style={{ width: "20%", textAlign: "right" }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceData.items?.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="luminous-product-name">
+                        {item.product?.name || "Unnamed Item"}
+                      </div>
+                      {item.product?.sku && (
+                        <div className="luminous-product-sku">
+                          SKU: {item.product.sku}
                         </div>
-                        {item.product?.sku && (
-                          <div className="luminous-product-sku">
-                            SKU: {item.product.sku}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {formatCurrency(item.price)}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        {formatCurrency(item.quantity * item.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      )}
+                    </td>
+                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(item.price)}
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(item.quantity * item.price)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          
+
           {/* Totals Area */}
           <div className="luminous-totals-area">
-              <div className="luminous-totals-table">
-                  <div className="row">
-                    <div className="label">Subtotal:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.subtotal)}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="label">Tax (GST):</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.gstAmount)}
-                    </div>
-                  </div>
-                  {invoiceData.totalDiscount > 0 && (
-                    <div className="row">
-                      <div className="label">Discount:</div>
-                      <div className="amount" style={{ color: '#e74c3c' }}>
-                        -{formatCurrency(invoiceData.totalDiscount)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="row final-row">
-                    <div className="label">AMOUNT DUE:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.totalAmount)}
-                    </div>
-                  </div>
+            <div className="luminous-totals-table">
+              <div className="row">
+                <div className="label">Subtotal:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
+              <div className="row">
+                <div className="label">Tax (GST):</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
+              </div>
+              {invoiceData.totalDiscount > 0 && (
+                <div className="row">
+                  <div className="label">Discount:</div>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
+                </div>
+              )}
+              <div className="row final-row">
+                <div className="label">AMOUNT DUE:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.totalAmount)}
+                </div>
+              </div>
+            </div>
           </div>
-          
+
           {/* Simple Note at the bottom */}
-          <div style={{ padding: '0 40px 20px', textAlign: 'left', fontSize: '11px', color: '#999' }}>
-            <p style={{ margin: 0 }}>**Note:** Thank you for your business. Payment is due upon receipt.</p>
+          <div
+            style={{
+              padding: "0 40px 20px",
+              textAlign: "left",
+              fontSize: "11px",
+              color: "#999",
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              **Note:** Thank you for your business. Payment is due upon
+              receipt.
+            </p>
           </div>
         </div>
       </div>

@@ -1,64 +1,77 @@
-"use client"
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button, Loading, Card } from '@/components/ui';
-import { ArrowLeft, RefreshCw, Sparkles, CheckCircle, Crown, Users, Star, TrendingUp, Lock } from 'lucide-react';
-import { packageService } from '@/service';
-import ProductHeader from '@/components/layout/ProductHeader';
-import AnimatedBackground from '@/components/ui/AnimatedBackground';
-import PackageCard from '@/components/package/PackageCard';
-import { getCurrencySymbol } from '@/data/constants/currencies';
+"use client";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button, Loading, Card } from "@/components/ui";
+import {
+  ArrowLeft,
+  RefreshCw,
+  Sparkles,
+  CheckCircle,
+  Crown,
+  Users,
+  Star,
+  TrendingUp,
+  Lock,
+} from "lucide-react";
+import { packageService } from "@/service";
+import ProductHeader from "@/components/layout/ProductHeader";
+import AnimatedBackground from "@/components/ui/AnimatedBackground";
+import PackageCard from "@/components/package/PackageCard";
+import { getCurrencySymbol } from "@/data/constants/currencies";
 
 // Helper functions for package display
 const planTypeColors = {
-  'BASIC': 'blue',
-  'PROFESSIONAL': 'purple',
-  'ENTERPRISE': 'orange',
-  'CUSTOM': 'blue'
+  BASIC: "blue",
+  PROFESSIONAL: "purple",
+  ENTERPRISE: "orange",
+  CUSTOM: "blue",
 };
 
 const getColorClasses = (color) => {
   const colors = {
     blue: {
-      border: 'border-[rgb(var(--color-primary))]/30',
-      button: 'bg-[rgb(var(--color-primary))] hover:opacity-90',
+      border: "border-[rgb(var(--color-primary))]/30",
+      button: "bg-[rgb(var(--color-primary))] hover:opacity-90",
     },
     purple: {
-      border: 'border-purple-500/30',
-      button: 'bg-purple-500 hover:bg-purple-600',
+      border: "border-purple-500/30",
+      button: "bg-purple-500 hover:bg-purple-600",
     },
     orange: {
-      border: 'border-orange-500/30',
-      button: 'bg-orange-500 hover:bg-orange-600',
-    }
+      border: "border-orange-500/30",
+      button: "bg-orange-500 hover:bg-orange-600",
+    },
   };
   return colors[color] || colors.blue;
 };
 
 const getLowestPrice = (pkg) => {
-  if (!pkg.pricing?.durationPricing || pkg.pricing.durationPricing.length === 0) {
-    return { price: 0, months: 1, currency: 'INR' };
+  if (
+    !pkg.pricing?.durationPricing ||
+    pkg.pricing.durationPricing.length === 0
+  ) {
+    return { price: 0, months: 1, currency: "INR" };
   }
-  
+
   const sortedPricing = [...pkg.pricing.durationPricing].sort((a, b) => {
     const priceA = a.discountedPrice || a.price || 0;
     const priceB = b.discountedPrice || b.price || 0;
     return priceA - priceB;
   });
-  
+
   const lowest = sortedPricing[0];
   return {
     price: lowest.discountedPrice || lowest.price || 0,
     months: lowest.months || 1,
-    currency: pkg.pricing?.currency || 'INR'
+    currency: pkg.pricing?.currency || "INR",
   };
 };
 
 const PackagesContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const upgrade = searchParams.get('upgrade');
-  
+  const upgrade = searchParams.get("upgrade");
+
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -71,23 +84,23 @@ const PackagesContent = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await packageService.getPackages({
-        status: 'ACTIVE',
+        status: "ACTIVE",
         isVisible: true,
-        sortBy: 'displayOrder',
-        sortOrder: 'asc',
-        limit: 100
+        sortBy: "displayOrder",
+        sortOrder: "asc",
+        limit: 100,
       });
 
       if (response.success && response.data) {
         const packagesData = Array.isArray(response.data) ? response.data : [];
         setPackages(packagesData);
       } else {
-        setError('Failed to load packages');
+        setError("Failed to load packages");
       }
     } catch (err) {
-      setError(err.message || 'Failed to load packages');
+      setError(err.message || "Failed to load packages");
     } finally {
       setLoading(false);
     }
@@ -117,7 +130,7 @@ const PackagesContent = () => {
         <div className="flex items-center justify-center min-h-[60vh] relative z-10">
           <Card className="p-8 text-center max-w-md">
             <p className="text-red-500 mb-4">{error}</p>
-            <Button onClick={() => router.push('/')}>Go Back Home</Button>
+            <Button onClick={() => router.push("/")}>Go Back Home</Button>
           </Card>
         </div>
       </div>
@@ -128,7 +141,7 @@ const PackagesContent = () => {
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative overflow-hidden">
       <AnimatedBackground variant="default" />
       <ProductHeader />
-      
+
       <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16 relative">
@@ -164,9 +177,11 @@ const PackagesContent = () => {
 
           {/* Description */}
           <p className="text-lg md:text-xl text-[rgb(var(--color-text-secondary))] max-w-3xl mx-auto mb-8 leading-relaxed">
-            Select the perfect subscription plan tailored for your business needs. 
+            Select the perfect subscription plan tailored for your business
+            needs.
             <span className="block mt-2 text-base">
-              All plans include our comprehensive features with flexible limits to scale as you grow.
+              All plans include our comprehensive features with flexible limits
+              to scale as you grow.
             </span>
           </p>
 
@@ -177,8 +192,12 @@ const PackagesContent = () => {
                 <CheckCircle className="w-5 h-5 text-[rgb(var(--color-success))]" />
               </div>
               <div className="text-left">
-                <div className="text-xs text-[rgb(var(--color-success))] font-medium">No Credit Card</div>
-                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Required</div>
+                <div className="text-xs text-[rgb(var(--color-success))] font-medium">
+                  No Credit Card
+                </div>
+                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                  Required
+                </div>
               </div>
             </div>
 
@@ -187,8 +206,12 @@ const PackagesContent = () => {
                 <RefreshCw className="w-5 h-5 text-[rgb(var(--color-primary))]" />
               </div>
               <div className="text-left">
-                <div className="text-xs text-[rgb(var(--color-primary))] font-medium">Cancel</div>
-                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Anytime</div>
+                <div className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                  Cancel
+                </div>
+                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                  Anytime
+                </div>
               </div>
             </div>
 
@@ -197,8 +220,12 @@ const PackagesContent = () => {
                 <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="text-left">
-                <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">24/7</div>
-                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Support</div>
+                <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                  24/7
+                </div>
+                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                  Support
+                </div>
               </div>
             </div>
 
@@ -207,8 +234,12 @@ const PackagesContent = () => {
                 <Star className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="text-left">
-                <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">Free Trial</div>
-                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Available</div>
+                <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                  Free Trial
+                </div>
+                <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                  Available
+                </div>
               </div>
             </div>
           </div>
@@ -217,11 +248,15 @@ const PackagesContent = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mt-12">
             <div className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
               <TrendingUp className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-              <span className="text-sm font-medium">Trusted by 10,000+ businesses</span>
+              <span className="text-sm font-medium">
+                Trusted by 10,000+ businesses
+              </span>
             </div>
             <div className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
               <Lock className="w-5 h-5 text-[rgb(var(--color-success))]" />
-              <span className="text-sm font-medium">100% Secure & Encrypted</span>
+              <span className="text-sm font-medium">
+                100% Secure & Encrypted
+              </span>
             </div>
             <div className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
               <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
@@ -234,8 +269,8 @@ const PackagesContent = () => {
         {packages.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {packages.map((pkg) => {
-              const planType = pkg.planType || 'BASIC';
-              const color = planTypeColors[planType] || 'blue';
+              const planType = pkg.planType || "BASIC";
+              const color = planTypeColors[planType] || "blue";
               const colorClasses = getColorClasses(color);
               const lowestPrice = getLowestPrice(pkg);
               const currencySymbol = getCurrencySymbol(lowestPrice.currency);
@@ -246,7 +281,7 @@ const PackagesContent = () => {
               return (
                 <Card
                   key={pkg.id || pkg._id}
-                  className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : 'border-[rgb(var(--color-border-primary))]'} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible`}
+                  className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : "border-[rgb(var(--color-border-primary))]"} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible`}
                 >
                   {pkg.isPopular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -255,7 +290,7 @@ const PackagesContent = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   {pkg.isRecommended && !pkg.isPopular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
@@ -281,17 +316,22 @@ const PackagesContent = () => {
                     <div className="mb-6">
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold text-[rgb(var(--color-text-primary))]">
-                          {currencySymbol}{lowestPrice.price.toFixed(2)}
+                          {currencySymbol}
+                          {lowestPrice.price.toFixed(2)}
                         </span>
                         <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                          /{lowestPrice.months === 1 ? 'month' : `${lowestPrice.months} months`}
+                          /
+                          {lowestPrice.months === 1
+                            ? "month"
+                            : `${lowestPrice.months} months`}
                         </span>
                       </div>
-                      {pkg.pricing?.durationPricing && pkg.pricing.durationPricing.length > 1 && (
-                        <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
-                          Starting from
-                        </p>
-                      )}
+                      {pkg.pricing?.durationPricing &&
+                        pkg.pricing.durationPricing.length > 1 && (
+                          <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
+                            Starting from
+                          </p>
+                        )}
                     </div>
 
                     {/* Features */}
@@ -302,7 +342,10 @@ const PackagesContent = () => {
                       </h4>
                       <div className="space-y-2">
                         {features
-                          .filter(feature => feature.enabled !== false && feature.highlight)
+                          .filter(
+                            (feature) =>
+                              feature.enabled !== false && feature.highlight,
+                          )
                           .map((feature, index) => (
                             <div
                               key={index}
@@ -314,7 +357,10 @@ const PackagesContent = () => {
                               </p>
                             </div>
                           ))}
-                        {features.filter(feature => feature.enabled !== false && feature.highlight).length === 0 && (
+                        {features.filter(
+                          (feature) =>
+                            feature.enabled !== false && feature.highlight,
+                        ).length === 0 && (
                           <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
                             No highlights available
                           </p>
@@ -323,7 +369,8 @@ const PackagesContent = () => {
                       {pkg.maxSubscribers && (
                         <div className="mt-3 p-2 rounded-lg bg-[rgb(var(--color-primary))]/10">
                           <p className="text-xs text-[rgb(var(--color-primary))]">
-                            Limited to {pkg.maxSubscribers.toLocaleString()} subscribers
+                            Limited to {pkg.maxSubscribers.toLocaleString()}{" "}
+                            subscribers
                           </p>
                         </div>
                       )}
@@ -342,9 +389,9 @@ const PackagesContent = () => {
                       size="md"
                       fullWidth
                       onClick={() => handleSelectPackage(pkg.id || pkg._id)}
-                      className={pkg.isPopular ? colorClasses.button : ''}
+                      className={pkg.isPopular ? colorClasses.button : ""}
                     >
-                      {upgrade ? 'Upgrade Now' : 'Select Plan'}
+                      {upgrade ? "Upgrade Now" : "Select Plan"}
                     </Button>
                   </div>
                 </Card>
@@ -371,7 +418,8 @@ const PackagesContent = () => {
                   Can I change my plan later?
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.
+                  Yes! You can upgrade or downgrade your plan at any time.
+                  Changes will be reflected in your next billing cycle.
                 </p>
               </div>
               <div>
@@ -379,7 +427,8 @@ const PackagesContent = () => {
                   What payment methods do you accept?
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  We accept all major credit cards, debit cards, UPI, and bank transfers. All payments are secure and encrypted.
+                  We accept all major credit cards, debit cards, UPI, and bank
+                  transfers. All payments are secure and encrypted.
                 </p>
               </div>
               <div>
@@ -387,7 +436,8 @@ const PackagesContent = () => {
                   Is there a free trial?
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Some plans offer free trials. Check the plan details above for trial period information.
+                  Some plans offer free trials. Check the plan details above for
+                  trial period information.
                 </p>
               </div>
               <div>
@@ -395,7 +445,8 @@ const PackagesContent = () => {
                   What happens if I exceed my limits?
                 </h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  You'll receive notifications when approaching limits. Upgrade your plan anytime to increase limits.
+                  You'll receive notifications when approaching limits. Upgrade
+                  your plan anytime to increase limits.
                 </p>
               </div>
             </div>
@@ -419,19 +470,20 @@ const PackagesContent = () => {
 
 const PackagesPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
-        <ProductHeader />
-        <AnimatedBackground variant="default" />
-        <div className="flex items-center justify-center min-h-[60vh] relative z-10">
-          <Loading />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+          <ProductHeader />
+          <AnimatedBackground variant="default" />
+          <div className="flex items-center justify-center min-h-[60vh] relative z-10">
+            <Loading />
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <PackagesContent />
     </Suspense>
   );
 };
 
 export default PackagesPage;
-

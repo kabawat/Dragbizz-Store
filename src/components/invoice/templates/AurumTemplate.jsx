@@ -281,8 +281,12 @@ const AurumTemplate = ({ invoiceData, selectedStore }) => {
               <p>
                 <b>{invoiceData.customer?.name || "Walk-in Customer"}</b>
               </p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
 
@@ -343,9 +347,7 @@ const AurumTemplate = ({ invoiceData, selectedStore }) => {
             <p>
               <em>Thank you for your trust and partnership.</em>
             </p>
-            <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
-            </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

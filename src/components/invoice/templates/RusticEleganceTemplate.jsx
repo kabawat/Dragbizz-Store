@@ -265,44 +265,61 @@ const RusticEleganceTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="rustic-body">
         <div className="rustic-invoice">
-          
           {/* Header Section */}
           <div className="rustic-header">
             <div className="rustic-header-left">
-                <h1>INVOICE</h1>
-                <p style={{ fontSize: 13, color: ACCENT_TAUPE }}>
-                    {selectedStore?.storeName || "The Artisan Collective"}
-                </p>
+              <h1>INVOICE</h1>
+              <p style={{ fontSize: 13, color: ACCENT_TAUPE }}>
+                {selectedStore?.storeName || "The Artisan Collective"}
+              </p>
             </div>
             <div className="rustic-store-info">
-                <p>
-                    {selectedStore?.address || "88 Serene Road, Old Town"}
-                </p>
-                <p>
-                    {selectedStore?.phone || "+91 999-RUSTIC"} | {selectedStore?.email || "contact@artisan.com"}
-                </p>
+              <p>{selectedStore?.address || "88 Serene Road, Old Town"}</p>
+              <p>
+                {selectedStore?.phone || "+91 999-RUSTIC"} |{" "}
+                {selectedStore?.email || "contact@artisan.com"}
+              </p>
             </div>
           </div>
-          
+
           {/* Info Section */}
           <div className="rustic-info-row">
             {/* Bill To Details */}
             <div className="rustic-block">
-                <div className="title">Billed To</div>
-                <p className="rustic-value-bold">{invoiceData.customer?.name || "Esteemed Patron"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Billed To</div>
+              <p className="rustic-value-bold">
+                {invoiceData.customer?.name || "Esteemed Patron"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
-            
+
             {/* Invoice Details */}
-            <div className="rustic-block" style={{ textAlign: 'right' }}>
-                <div className="title">Invoice Details</div>
-                <p>Invoice #: <span className="rustic-invoice-number">{invoiceData.invoiceNumber}</span></p>
-                <p>Date Issued: <span className="rustic-value-bold">{moment(invoiceData.createdAt).format("DD MMM, YYYY")}</span></p>
-                <p>Due Date: <span className="rustic-value-bold">Upon Receipt</span></p>
+            <div className="rustic-block" style={{ textAlign: "right" }}>
+              <div className="title">Invoice Details</div>
+              <p>
+                Invoice #:{" "}
+                <span className="rustic-invoice-number">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date Issued:{" "}
+                <span className="rustic-value-bold">
+                  {moment(invoiceData.createdAt).format("DD MMM, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due Date:{" "}
+                <span className="rustic-value-bold">Upon Receipt</span>
+              </p>
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="rustic-table">
             <thead>
@@ -332,37 +349,37 @@ const RusticEleganceTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="rustic-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount:</div>
+                <div className="amount" style={{ color: "#2e7d32" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#2e7d32' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="rustic-footer">
             <p>Thank you for supporting our work. We value your business.</p>

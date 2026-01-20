@@ -1,5 +1,5 @@
-"use client"
-import { Globe, Clock, Calendar, DollarSign } from 'lucide-react';
+"use client";
+import { Globe, Clock, Calendar, DollarSign } from "lucide-react";
 
 const iconMap = {
   language: Globe,
@@ -10,7 +10,7 @@ const iconMap = {
 
 const AccountPreferencesCard = ({ icon, label, value, options = [] }) => {
   const IconComponent = iconMap[icon] || null;
-  
+
   return (
     <div className="p-4 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]/60">
       <div className="flex items-center gap-2 mb-1">
@@ -22,11 +22,10 @@ const AccountPreferencesCard = ({ icon, label, value, options = [] }) => {
         </p>
       </div>
       <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-        {value || '-'}
+        {value || "-"}
       </p>
     </div>
   );
 };
 
 export default AccountPreferencesCard;
-

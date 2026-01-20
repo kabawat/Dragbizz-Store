@@ -1,23 +1,54 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Package, Edit, Copy, Trash2, CheckCircle, IndianRupee, Tag, Calendar, Eye, Star, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Clock, BarChart3, FileText, Hash, Barcode, Building2, MapPin, ShoppingCart, Package2, Scale, Percent, Globe, Shield, Zap } from 'lucide-react';
-import moment from 'moment';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Package,
+  Edit,
+  Copy,
+  Trash2,
+  CheckCircle,
+  IndianRupee,
+  Tag,
+  Calendar,
+  Eye,
+  Star,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  BarChart3,
+  FileText,
+  Hash,
+  Barcode,
+  Building2,
+  MapPin,
+  ShoppingCart,
+  Package2,
+  Scale,
+  Percent,
+  Globe,
+  Shield,
+  Zap,
+} from "lucide-react";
+import moment from "moment";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { productService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
-import { useTranslation } from '@/hooks/useTranslation';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { productService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +56,7 @@ const ViewProductPage = ({ productId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedProductName, setDeletedProductName] = useState('');
+  const [deletedProductName, setDeletedProductName] = useState("");
   const hasFetched = useRef(false);
 
   // Fetch product data on component mount
@@ -40,17 +71,22 @@ const ViewProductPage = ({ productId }) => {
 
         const params = {
           store: storeId,
-          id: productId
+          id: productId,
         };
         const result = await productService.getProducts(params);
-        
+
         if (result.success && result.data) {
           setProductData(result.data);
         } else {
-          setError(result.message || t('errors.failedToFetchData', { item: t('common.product') }));
+          setError(
+            result.message ||
+              t("errors.failedToFetchData", { item: t("common.product") }),
+          );
         }
       } catch (error) {
-        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.product') }));
+        setError(
+          t("errors.failedToFetchDataTryAgain", { item: t("common.product") }),
+        );
       } finally {
         setFetching(false);
       }
@@ -78,15 +114,20 @@ const ViewProductPage = ({ productId }) => {
       const result = await productService.deleteProduct(productId, storeId);
 
       if (result.success) {
-        setDeletedProductName(productData?.name || 'Product');
+        setDeletedProductName(productData?.name || "Product");
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || t('errors.failedToDelete', { item: t('common.product') }));
+        setError(
+          result.message ||
+            t("errors.failedToDelete", { item: t("common.product") }),
+        );
         setShowDeleteModal(false);
       }
     } catch (error) {
-      setError(t('errors.failedToDeleteTryAgain', { item: t('common.product') }));
+      setError(
+        t("errors.failedToDeleteTryAgain", { item: t("common.product") }),
+      );
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -101,22 +142,22 @@ const ViewProductPage = ({ productId }) => {
   // Handle delete success
   const handleDeleteSuccess = () => {
     setShowDeleteSuccessModal(false);
-    router.push('/dashboard/products');
+    router.push("/dashboard/products");
   };
 
   // Get status badge
   const getStatusBadge = (status) => {
-    const config = getCommonStatusBadge(status, 'general');
+    const config = getCommonStatusBadge(status, "general");
     // Map icons for products
     const iconMap = {
-      'ACTIVE': CheckCircle2,
-      'INACTIVE': XCircle,
-      'DRAFT': Clock,
-      'OUT_OF_STOCK': AlertTriangle,
-      'LOW_STOCK': AlertTriangle
+      ACTIVE: CheckCircle2,
+      INACTIVE: XCircle,
+      DRAFT: Clock,
+      OUT_OF_STOCK: AlertTriangle,
+      LOW_STOCK: AlertTriangle,
     };
     const IconComponent = iconMap[status] || Package;
-    
+
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">
         <IconComponent className="w-3 h-3" />
@@ -128,14 +169,18 @@ const ViewProductPage = ({ productId }) => {
   // Get visibility badge
   const getVisibilityBadge = (visibility) => {
     const visibilityConfig = {
-      VISIBLE: { variant: 'success', text: 'Visible', icon: Eye },
-      HIDDEN: { variant: 'secondary', text: 'Hidden', icon: XCircle },
-      DRAFT: { variant: 'warning', text: 'Draft', icon: Clock }
+      VISIBLE: { variant: "success", text: "Visible", icon: Eye },
+      HIDDEN: { variant: "secondary", text: "Hidden", icon: XCircle },
+      DRAFT: { variant: "warning", text: "Draft", icon: Clock },
     };
-    
-    const config = visibilityConfig[visibility] || { variant: 'secondary', text: visibility, icon: Eye };
+
+    const config = visibilityConfig[visibility] || {
+      variant: "secondary",
+      text: visibility,
+      icon: Eye,
+    };
     const IconComponent = config.icon;
-    
+
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">
         <IconComponent className="w-3 h-3" />
@@ -152,8 +197,8 @@ const ViewProductPage = ({ productId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title={t('products.viewProduct')}
-            description={t('products.viewProductDescription')}
+            title={t("products.viewProduct")}
+            description={t("products.viewProductDescription")}
           />
 
           <div className="flex-1 p-6">
@@ -163,10 +208,12 @@ const ViewProductPage = ({ productId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.loadingData', { item: t('common.product') })}
+                      {t("modals.loadingData", { item: t("common.product") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.product') })}
+                      {t("common.pleaseWaitWhileWeFetch", {
+                        item: t("common.product"),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -187,8 +234,8 @@ const ViewProductPage = ({ productId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title={t('products.viewProduct')}
-          description={t('products.viewProductDescription')}
+          title={t("products.viewProduct")}
+          description={t("products.viewProductDescription")}
         />
 
         {/* Main Content */}
@@ -196,9 +243,14 @@ const ViewProductPage = ({ productId }) => {
           <div className="">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/products"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.products') })}</span>
+                <span className="text-sm font-medium">
+                  {t("common.backTo", { item: t("common.products") })}
+                </span>
               </Link>
             </div>
 
@@ -212,18 +264,20 @@ const ViewProductPage = ({ productId }) => {
                         <Package className="w-10 h-10 text-red-600" />
                       </div>
                       <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        {t('modals.notFound', { item: t('common.product') })}
+                        {t("modals.notFound", { item: t("common.product") })}
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        {t('common.doesntExistOrRemoved', { item: t('common.product') })}
+                        {t("common.doesntExistOrRemoved", {
+                          item: t("common.product"),
+                        })}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
                           variant="outline"
-                          onClick={() => router.push('/dashboard/products')}
+                          onClick={() => router.push("/dashboard/products")}
                           className="px-6 py-3"
                         >
-                          {t('common.backTo', { item: t('common.products') })}
+                          {t("common.backTo", { item: t("common.products") })}
                         </Button>
                         <Button
                           variant="primary"
@@ -241,11 +295,19 @@ const ViewProductPage = ({ productId }) => {
 
             {/* Product Details - Only show when no error */}
             {!error && productData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: 'calc(100vh - 300px)' }}>
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{ height: "calc(100vh - 300px)" }}
+              >
                 {/* Left Side - Product Info */}
                 <div className="lg:col-span-2 flex flex-col h-full">
-                  <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
-                    
+                  <div
+                    className="overflow-y-auto pe-3 space-y-6"
+                    style={{
+                      height: "calc(100vh - 200px)",
+                      maxHeight: "calc(100vh - 200px)",
+                    }}
+                  >
                     {/* Basic Information Card */}
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center justify-between mb-6">
@@ -254,8 +316,12 @@ const ViewProductPage = ({ productId }) => {
                             <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Information</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic product details</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              Product Information
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Basic product details
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -265,9 +331,11 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-lg overflow-hidden">
                           <Package className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Product Name</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Product Name
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.name || t('common.na')}
+                              {productData.name || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -276,9 +344,11 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                           <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Brand</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Brand
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.brand || t('common.na')}
+                              {productData.brand || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -287,9 +357,13 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                           <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Category</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Category
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.category?.name || productData.category || t('common.na')}
+                              {productData.category?.name ||
+                                productData.category ||
+                                t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -298,9 +372,11 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
                           <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">SKU</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              SKU
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                              {productData.sku || t('common.na')}
+                              {productData.sku || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -310,9 +386,11 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                             <Barcode className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Barcode</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Barcode
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                {productData.barcode || t('common.na')}
+                                {productData.barcode || t("common.na")}
                               </p>
                             </div>
                           </div>
@@ -323,9 +401,11 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-teal-50/15 to-teal-100/10 dark:from-teal-900/5 dark:to-teal-800/3 rounded-lg overflow-hidden">
                             <Scale className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-teal-500/35 dark:!text-teal-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Unit of Measure</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Unit of Measure
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {productData.uom || t('common.na')}
+                                {productData.uom || t("common.na")}
                               </p>
                             </div>
                           </div>
@@ -340,8 +420,12 @@ const ViewProductPage = ({ productId }) => {
                           <IndianRupee className="w-6 h-6 text-green-500" />
                         </div>
                         <div>
-                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Pricing Information</h2>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product pricing details</p>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                            Pricing Information
+                          </h2>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Product pricing details
+                          </p>
                         </div>
                       </div>
 
@@ -350,9 +434,14 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                           <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Base Price</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Base Price
+                            </p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {productData.basePrice && productData.basePrice !== '' ? `${productData.currency || '₹'}${productData.basePrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
+                              {productData.basePrice &&
+                              productData.basePrice !== ""
+                                ? `${productData.currency || "₹"}${productData.basePrice?.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                                : t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -361,9 +450,13 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                           <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">MRP</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              MRP
+                            </p>
                             <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                              {productData.mrp ? `${productData.currency || '₹'}${productData.mrp?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
+                              {productData.mrp
+                                ? `${productData.currency || "₹"}${productData.mrp?.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                                : t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -372,25 +465,32 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-lg overflow-hidden">
                           <ShoppingCart className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-emerald-500/35 dark:!text-emerald-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Selling Price</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Selling Price
+                            </p>
                             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                              {productData.sellingPrice ? `${productData.currency || '₹'}${productData.sellingPrice?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : t('common.na')}
+                              {productData.sellingPrice
+                                ? `${productData.currency || "₹"}${productData.sellingPrice?.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                                : t("common.na")}
                             </p>
                           </div>
                         </div>
 
                         {/* Discount */}
-                        {productData.discount && productData.discount !== '' && (
-                          <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
-                            <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
-                            <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Discount</p>
-                              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                                {productData.discount}%
-                              </p>
+                        {productData.discount &&
+                          productData.discount !== "" && (
+                            <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                              <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                              <div className="relative z-10">
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                  Discount
+                                </p>
+                                <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                                  {productData.discount}%
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     </div>
 
@@ -402,8 +502,12 @@ const ViewProductPage = ({ productId }) => {
                             <Shield className="w-6 h-6 text-blue-500" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">GST Information</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Tax and compliance details</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              GST Information
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Tax and compliance details
+                            </p>
                           </div>
                         </div>
 
@@ -412,51 +516,66 @@ const ViewProductPage = ({ productId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                             <Shield className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Applicable</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                GST Applicable
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {productData.gstInfo.isGstApplicable ? t('common.yes') : t('common.no')}
+                                {productData.gstInfo.isGstApplicable
+                                  ? t("common.yes")
+                                  : t("common.no")}
                               </p>
                             </div>
                           </div>
 
                           {/* GST Rate */}
-                          {productData.gstInfo.isGstApplicable && productData.gstInfo.gstRate && (
-                            <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
-                              <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
-                              <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Rate</p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {productData.gstInfo.gstRate}%
-                                </p>
+                          {productData.gstInfo.isGstApplicable &&
+                            productData.gstInfo.gstRate && (
+                              <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
+                                <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
+                                <div className="relative z-10">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    GST Rate
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                    {productData.gstInfo.gstRate}%
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
                           {/* GST Type */}
-                          {productData.gstInfo.isGstApplicable && productData.gstInfo.gstType && (
-                            <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
-                              <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
-                              <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GST Type</p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {productData.gstInfo.gstType || t('common.na')}
-                                </p>
+                          {productData.gstInfo.isGstApplicable &&
+                            productData.gstInfo.gstType && (
+                              <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
+                                <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
+                                <div className="relative z-10">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    GST Type
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                    {productData.gstInfo.gstType ||
+                                      t("common.na")}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
                           {/* HSN Code */}
-                          {productData.gstInfo.isGstApplicable && productData.gstInfo.hsnCode && (
-                            <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
-                              <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
-                              <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">HSN Code</p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                  {productData.gstInfo.hsnCode || t('common.na')}
-                                </p>
+                          {productData.gstInfo.isGstApplicable &&
+                            productData.gstInfo.hsnCode && (
+                              <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                                <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                                <div className="relative z-10">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    HSN Code
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                                    {productData.gstInfo.hsnCode ||
+                                      t("common.na")}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       </div>
                     )}
@@ -468,8 +587,12 @@ const ViewProductPage = ({ productId }) => {
                           <Zap className="w-6 h-6 text-purple-500" />
                         </div>
                         <div>
-                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Features</h2>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Special product attributes</p>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                            Product Features
+                          </h2>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Special product attributes
+                          </p>
                         </div>
                       </div>
 
@@ -478,9 +601,13 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-yellow-50/15 to-yellow-100/10 dark:from-yellow-900/5 dark:to-yellow-800/3 rounded-lg overflow-hidden">
                           <Star className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-yellow-500/35 dark:!text-yellow-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Featured</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Featured
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.featured ? t('common.yes') : t('common.no')}
+                              {productData.featured
+                                ? t("common.yes")
+                                : t("common.no")}
                             </p>
                           </div>
                         </div>
@@ -489,9 +616,13 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-lg overflow-hidden">
                           <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-emerald-500/35 dark:!text-emerald-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Best Seller</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Best Seller
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.bestSeller ? t('common.yes') : t('common.no')}
+                              {productData.bestSeller
+                                ? t("common.yes")
+                                : t("common.no")}
                             </p>
                           </div>
                         </div>
@@ -500,9 +631,13 @@ const ViewProductPage = ({ productId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-pink-50/15 to-pink-100/10 dark:from-pink-900/5 dark:to-pink-800/3 rounded-lg overflow-hidden">
                           <Package2 className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-pink-500/35 dark:!text-pink-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">New Arrival</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              New Arrival
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {productData.newArrival ? t('common.yes') : t('common.no')}
+                              {productData.newArrival
+                                ? t("common.yes")
+                                : t("common.no")}
                             </p>
                           </div>
                         </div>
@@ -510,45 +645,55 @@ const ViewProductPage = ({ productId }) => {
                     </div>
 
                     {/* Product Description Card */}
-                    {productData.content && (productData.content.shortDescription || productData.content.longDescription) && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
-                        <div className="flex items-center space-x-3 mb-6">
-                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-500/10 rounded-full flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-orange-500" />
+                    {productData.content &&
+                      (productData.content.shortDescription ||
+                        productData.content.longDescription) && (
+                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
+                          <div className="flex items-center space-x-3 mb-6">
+                            <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-500/10 rounded-full flex items-center justify-center">
+                              <FileText className="w-6 h-6 text-orange-500" />
+                            </div>
+                            <div>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                Product Description
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                Product content and details
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Product Description</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product content and details</p>
+
+                          <div className="space-y-6">
+                            {/* Short Description */}
+                            {productData.content.shortDescription && (
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                                  Short Description
+                                </label>
+                                <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                  <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
+                                    {productData.content.shortDescription}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Long Description */}
+                            {productData.content.longDescription && (
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                                  Long Description
+                                </label>
+                                <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                                  <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
+                                    {productData.content.longDescription}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-
-                        <div className="space-y-6">
-                          {/* Short Description */}
-                          {productData.content.shortDescription && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Short Description</label>
-                              <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
-                                  {productData.content.shortDescription}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Long Description */}
-                          {productData.content.longDescription && (
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Long Description</label>
-                              <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                                <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
-                                  {productData.content.longDescription}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Additional Information Card */}
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
@@ -557,31 +702,42 @@ const ViewProductPage = ({ productId }) => {
                           <FileText className="w-6 h-6 text-gray-500" />
                         </div>
                         <div>
-                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Additional Information</h2>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Product status and metadata</p>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                            Additional Information
+                          </h2>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Product status and metadata
+                          </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Status */}
                         <div>
-                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Status</p>
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                            Status
+                          </p>
                           {getStatusBadge(productData.status)}
                         </div>
 
                         {/* Visibility */}
                         <div>
-                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Visibility</p>
+                          <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                            Visibility
+                          </p>
                           {getVisibilityBadge(productData.visibility)}
                         </div>
-
 
                         {/* Created Date */}
                         {productData.createdAt && (
                           <div>
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Created Date</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                              Created Date
+                            </p>
                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                              {moment(productData.createdAt).format('DD MMM YYYY')}
+                              {moment(productData.createdAt).format(
+                                "DD MMM YYYY",
+                              )}
                             </p>
                           </div>
                         )}
@@ -589,15 +745,18 @@ const ViewProductPage = ({ productId }) => {
                         {/* Last Updated */}
                         {productData.updatedAt && (
                           <div>
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Last Updated</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                              Last Updated
+                            </p>
                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                              {moment(productData.updatedAt).format('DD MMM YYYY')}
+                              {moment(productData.updatedAt).format(
+                                "DD MMM YYYY",
+                              )}
                             </p>
                           </div>
                         )}
                       </div>
                     </div>
-
                   </div>
                 </div>
 
@@ -605,64 +764,84 @@ const ViewProductPage = ({ productId }) => {
                 <div className="lg:col-span-1">
                   <div className="sticky top-6">
                     <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                          <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                            Quick Actions
+                          </h3>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Manage this product
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Quick Actions</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Manage this product</p>
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="primary"
+                          className="flex-1"
+                          onClick={handleEditProduct}
+                          leftIcon={Edit}
+                        >
+                          Edit Product
+                        </Button>
+
+                        <Button
+                          variant="danger"
+                          className="flex-1"
+                          onClick={handleDeleteProduct}
+                          leftIcon={Trash2}
+                        >
+                          Delete Product
+                        </Button>
                       </div>
-                    </div>
 
-                    <div className="flex gap-3">
-                      <Button
-                        variant="primary"
-                        className="flex-1"
-                        onClick={handleEditProduct}
-                        leftIcon={Edit}
-                      >
-                        Edit Product
-                      </Button>
-
-                      <Button
-                        variant="danger"
-                        className="flex-1"
-                        onClick={handleDeleteProduct}
-                        leftIcon={Trash2}
-                      >
-                        Delete Product
-                      </Button>
-                    </div>
-
-                    {/* Product Stats */}
-                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Quick Stats</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Stock:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            {productData.stock || 0} units
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Total Sales:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Revenue:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
-                        </div>
-                        {productData.updatedAt && (
+                      {/* Product Stats */}
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                          Quick Stats
+                        </h4>
+                        <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-secondary))]">Last Updated:</span>
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Stock:
+                            </span>
                             <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                              {moment(productData.updatedAt).format('MMM DD, YYYY')}
+                              {productData.stock || 0} units
                             </span>
                           </div>
-                        )}
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Total Sales:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              0
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Revenue:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              ₹0
+                            </span>
+                          </div>
+                          {productData.updatedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Last Updated:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {moment(productData.updatedAt).format(
+                                  "MMM DD, YYYY",
+                                )}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </div>
@@ -680,13 +859,23 @@ const ViewProductPage = ({ productId }) => {
               Delete Product
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              {t('modals.deleteConfirmWithName', { name: productData?.name || t('common.product') })}
+              {t("modals.deleteConfirmWithName", {
+                name: productData?.name || t("common.product"),
+              })}
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={handleCancelDelete} disabled={isDeleting}>
+              <Button
+                variant="outline"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
                 Cancel
               </Button>
-              <Button variant="danger" onClick={handleConfirmDelete} loading={isDeleting}>
+              <Button
+                variant="danger"
+                onClick={handleConfirmDelete}
+                loading={isDeleting}
+              >
                 Delete
               </Button>
             </div>
@@ -703,10 +892,13 @@ const ViewProductPage = ({ productId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t('modals.deletedSuccessfully', { item: t('common.product') })}
+                {t("modals.deletedSuccessfully", { item: t("common.product") })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                {t('common.hasBeenRemovedFromList', { name: deletedProductName, item: t('common.products') })}
+                {t("common.hasBeenRemovedFromList", {
+                  name: deletedProductName,
+                  item: t("common.products"),
+                })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Products

@@ -224,7 +224,9 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="aero-header">
           <div>
-            <div className="store-name">{selectedStore?.storeName || "Your Store"}</div>
+            <div className="store-name">
+              {selectedStore?.storeName || "Your Store"}
+            </div>
             <div className="store-details">
               <p>{selectedStore?.address || "123 Market Street, City"}</p>
               {selectedStore?.phone && <p>Phone: {selectedStore.phone}</p>}
@@ -242,16 +244,29 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         <div className="info-section">
           <div className="info-card">
             <h3>Bill To</h3>
-            <p><strong>{invoiceData.customer?.name || "Walk-in Customer"}</strong></p>
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
+            <p>
+              <strong>
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </strong>
+            </p>
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
             {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
           </div>
 
           <div className="info-card">
             <h3>Payment Info</h3>
-            <p><strong>Mode:</strong> {invoiceData.paymentMode || "Cash"}</p>
-            <p><strong>Status:</strong> {invoiceData.status || "Paid"}</p>
-            <p><strong>Date:</strong> {moment(invoiceData.createdAt).format("DD MMM YYYY")}</p>
+            <p>
+              <strong>Mode:</strong> {invoiceData.paymentMode || "Cash"}
+            </p>
+            <p>
+              <strong>Status:</strong> {invoiceData.status || "Paid"}
+            </p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {moment(invoiceData.createdAt).format("DD MMM YYYY")}
+            </p>
           </div>
         </div>
 
@@ -268,10 +283,18 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
           <tbody>
             {invoiceData.items?.map((item, index) => (
               <tr key={index}>
-                <td><span className="product-name">{item.product?.name || "Product"}</span></td>
+                <td>
+                  <span className="product-name">
+                    {item.product?.name || "Product"}
+                  </span>
+                </td>
                 <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                <td style={{ textAlign: "right" }}>₹{item.price?.toLocaleString()}</td>
-                <td style={{ textAlign: "right" }}>₹{(item.quantity * item.price)?.toLocaleString()}</td>
+                <td style={{ textAlign: "right" }}>
+                  ₹{item.price?.toLocaleString()}
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  ₹{(item.quantity * item.price)?.toLocaleString()}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -304,7 +327,10 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
         {/* Footer */}
         <div className="footer">
           <p>Thank you for your purchase!</p>
-          <p>This invoice was generated on {moment(invoiceData.createdAt).format("DD/MM/YYYY")}.</p>
+          <p>
+            This invoice was generated on{" "}
+            {moment(invoiceData.createdAt).format("DD/MM/YYYY")}.
+          </p>
         </div>
       </div>
     </>

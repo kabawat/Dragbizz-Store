@@ -1,12 +1,12 @@
-"use client"
-import { useEffect, useRef, useCallback } from 'react';
-import { cookieManager } from '@/utils/cookieManager';
-import { useAppDispatch } from '@/store/hooks';
-import { clearAuth } from '@/store/slices/profileSlice';
+"use client";
+import { useEffect, useRef, useCallback } from "react";
+import { cookieManager } from "@/utils/cookieManager";
+import { useAppDispatch } from "@/store/hooks";
+import { clearAuth } from "@/store/slices/profileSlice";
 
 // Constants
 const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-const LAST_ACTIVITY_KEY = 'dragbizz_last_activity';
+const LAST_ACTIVITY_KEY = "dragbizz_last_activity";
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check every hour
 
 /**
@@ -21,14 +21,14 @@ export function useInactivityLogout() {
   // Update last activity timestamp
   const updateLastActivity = useCallback(() => {
     const now = Date.now();
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
     }
   }, []);
 
   // Check if user should be logged out due to inactivity
   const checkInactivity = useCallback(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (!lastActivity) {
@@ -46,21 +46,21 @@ export function useInactivityLogout() {
       // Clear auth
       dispatch(clearAuth());
       cookieManager.clearAuth();
-      
+
       // Clear sessionStorage
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
         localStorage.removeItem(LAST_ACTIVITY_KEY);
       }
 
       // Redirect to login
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   }, [dispatch, updateLastActivity]);
 
   // Setup activity listeners
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     // Check if user is authenticated
     const authToken = cookieManager.getAuthToken();
@@ -86,13 +86,13 @@ export function useInactivityLogout() {
 
     // Track user activity events
     const activityEvents = [
-      'mousedown',
-      'mousemove',
-      'keypress',
-      'scroll',
-      'touchstart',
-      'click',
-      'focus'
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+      "click",
+      "focus",
     ];
 
     // Throttle activity updates (update max once per minute)
@@ -108,7 +108,7 @@ export function useInactivityLogout() {
     };
 
     // Add event listeners
-    activityHandlersRef.current = activityEvents.map(event => {
+    activityHandlersRef.current = activityEvents.map((event) => {
       window.addEventListener(event, handleActivity, { passive: true });
       return { event, handler: handleActivity };
     });
@@ -139,4 +139,3 @@ export function useInactivityLogout() {
 }
 
 export default useInactivityLogout;
-

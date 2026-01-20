@@ -1,18 +1,21 @@
-"use client"
-import React from 'react';
-import { Rocket, Users, Shield, Zap } from 'lucide-react';
-import Link from 'next/link';
-import { AnimatedBackground, AnimatedGridPattern } from '../ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { Rocket, Users, Shield, Zap } from "lucide-react";
+import Link from "next/link";
+import { AnimatedBackground, AnimatedGridPattern } from "../ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const WelcomeScreen = ({ onGetStarted }) => {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
+    <div
+      className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden"
+      data-register-page
+    >
       {/* Animated Background */}
       <AnimatedBackground variant="register" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
-      
+
       {/* Full width wrapper */}
       <div className="w-full min-h-screen flex relative z-10">
         {/* Left Side - Welcome Content */}
@@ -26,10 +29,10 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  {t('auth.welcomeToDragBizzStore')}
+                  {t("auth.welcomeToDragBizzStore")}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  {t('auth.createAccountStartManaging')}
+                  {t("auth.createAccountStartManaging")}
                 </p>
               </div>
 
@@ -40,8 +43,12 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.join10MUsers')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.partOfGrowingCommunity')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.join10MUsers")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.partOfGrowingCommunity")}
+                    </p>
                   </div>
                 </div>
 
@@ -50,8 +57,12 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.hundredPercentSecure')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.enterpriseGradeSecurity')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.hundredPercentSecure")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.enterpriseGradeSecurity")}
+                    </p>
                   </div>
                 </div>
 
@@ -60,8 +71,12 @@ const WelcomeScreen = ({ onGetStarted }) => {
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickSetupLessThanMinute')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.getStartedLessThanMinute')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.quickSetupLessThanMinute")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.getStartedLessThanMinute")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -69,7 +84,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  {t('auth.copyright')}
+                  {t("auth.copyright")}
                 </p>
               </div>
             </div>
@@ -87,7 +102,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('auth.dragBizzStore')}
+                  {t("auth.dragBizzStore")}
                 </h1>
               </div>
 
@@ -97,10 +112,10 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   <Rocket className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  {t('auth.welcome')}
+                  {t("auth.welcome")}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  {t('auth.createAccountLessThanMinute')}
+                  {t("auth.createAccountLessThanMinute")}
                 </p>
               </div>
 
@@ -109,22 +124,22 @@ const WelcomeScreen = ({ onGetStarted }) => {
                 onClick={onGetStarted}
                 className="w-full bg-[rgb(var(--color-primary))] text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base hover:brightness-[1.01] transition-all duration-200 shadow-md hover:shadow-lg mb-3 sm:mb-4"
               >
-                {t('auth.getStarted')}
+                {t("auth.getStarted")}
               </button>
 
               <p className="text-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] mb-4 sm:mb-6">
-                {t('auth.noSpamEver')}
+                {t("auth.noSpamEver")}
               </p>
 
               {/* Login Link */}
               <div className="text-center">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t('auth.alreadyHaveAccount')}{' '}
+                  {t("auth.alreadyHaveAccount")}{" "}
                   <Link
                     href="/login"
                     className="text-[rgb(var(--color-primary))] hover:underline font-medium"
                   >
-                    {t('auth.signInHere')}
+                    {t("auth.signInHere")}
                   </Link>
                 </p>
               </div>

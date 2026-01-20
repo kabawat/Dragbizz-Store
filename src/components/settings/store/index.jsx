@@ -1,30 +1,34 @@
-"use client"
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getRetailerDetails } from '@/store/slices/profileSlice';
-import storeService from '@/service/retailer/store.service';
-import { useToast } from '@/hooks/useToast';
-import { ToastContainer } from '@/components/ui';
-import StoreHeader from './StoreHeader';
-import StoreList from './StoreList';
-import StoreAddDrawer from './StoreAddDrawer';
-import StoreEditDrawer from './StoreEditDrawer';
-import StoreDeleteModal from './StoreDeleteModal';
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
+import storeService from "@/service/retailer/store.service";
+import { useToast } from "@/hooks/useToast";
+import { ToastContainer } from "@/components/ui";
+import StoreHeader from "./StoreHeader";
+import StoreList from "./StoreList";
+import StoreAddDrawer from "./StoreAddDrawer";
+import StoreEditDrawer from "./StoreEditDrawer";
+import StoreDeleteModal from "./StoreDeleteModal";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
-  const { stores: reduxStores, selectedStore, agency } = useAppSelector((state) => state.profile);
+  const {
+    stores: reduxStores,
+    selectedStore,
+    agency,
+  } = useAppSelector((state) => state.profile);
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toasts, showError, showSuccess, removeToast } = useToast();
-  
+
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const [editingStoreId, setEditingStoreId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
-  
+
   // Refs to prevent duplicate API calls
   const hasFetchedRef = useRef(false);
   const isFetchingRef = useRef(false);
@@ -37,7 +41,7 @@ const StoreSettings = () => {
     }
 
     isFetchingRef.current = true;
-    
+
     try {
       setIsLoading(true);
       const result = await storeService.getStores();
@@ -51,13 +55,16 @@ const StoreSettings = () => {
           setStores(reduxStores);
           hasFetchedRef.current = true;
         } else {
-          showError(result?.message || 'Failed to fetch stores');
+          showError(result?.message || "Failed to fetch stores");
           setStores([]);
         }
       }
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'An unexpected error occurred';
-      
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "An unexpected error occurred";
+
       if (reduxStores && reduxStores.length > 0) {
         setStores(reduxStores);
         hasFetchedRef.current = true;
@@ -74,12 +81,12 @@ const StoreSettings = () => {
   // Fetch stores on component mount (only once)
   useEffect(() => {
     fetchStores();
-  }, []); 
+  }, []);
 
   // Handle add store - open drawer
   const handleAddStore = () => {
     if (!agency || !agency.agencyId) {
-      showError('Agency not found. Please create an agency first.');
+      showError("Agency not found. Please create an agency first.");
       return;
     }
     setIsAddDrawerOpen(true);
@@ -96,8 +103,10 @@ const StoreSettings = () => {
     if (!store) return;
 
     // Frontend guard: don't allow deleting the only store
-    if (stores.filter(s => s.status !== 'DELETED').length <= 1) {
-      showError('You must have at least one active store. The last store cannot be deleted.');
+    if (stores.filter((s) => s.status !== "DELETED").length <= 1) {
+      showError(
+        "You must have at least one active store. The last store cannot be deleted.",
+      );
       return;
     }
 

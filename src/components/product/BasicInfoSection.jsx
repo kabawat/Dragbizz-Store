@@ -1,9 +1,9 @@
-"use client"
-import React, { useState } from 'react';
-import { Input, Textarea, TagInput, Select } from '../ui';
-import { Package, Tag, Barcode } from 'lucide-react';
-import { PRODUCT_CATEGORY_OPTIONS } from '@/data';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState } from "react";
+import { Input, Textarea, TagInput, Select } from "../ui";
+import { Package, Tag, Barcode } from "lucide-react";
+import { PRODUCT_CATEGORY_OPTIONS } from "@/data";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const BasicInfoSection = ({
   formData,
@@ -22,10 +22,10 @@ const BasicInfoSection = ({
   };
 
   const handleCategoryChange = (value) => {
-    if (value === 'add-new-category') {
+    if (value === "add-new-category") {
       onAddCategoryClick && onAddCategoryClick();
     } else {
-      handleFieldChange('category', value);
+      handleFieldChange("category", value);
     }
   };
 
@@ -33,7 +33,11 @@ const BasicInfoSection = ({
   const allCategories = [
     ...apiCategories,
     ...customCategories,
-    { value: 'add-new-category', label: `+ ${t('products.addNewCategory')}`, isAddOption: true }
+    {
+      value: "add-new-category",
+      label: `+ ${t("products.addNewCategory")}`,
+      isAddOption: true,
+    },
   ];
 
   return (
@@ -43,10 +47,10 @@ const BasicInfoSection = ({
         {/* Product Name */}
         <div>
           <Input
-            label={t('products.productName')}
-            placeholder={t('products.enterProductName')}
-            value={formData.name || ''}
-            onChange={(value) => handleFieldChange('name', value)}
+            label={t("products.productName")}
+            placeholder={t("products.enterProductName")}
+            value={formData.name || ""}
+            onChange={(value) => handleFieldChange("name", value)}
             error={errors.name}
             errorMessage={errors.name}
             required
@@ -57,10 +61,10 @@ const BasicInfoSection = ({
         {/* Brand */}
         <div>
           <Input
-            label={t('products.brand')}
-            placeholder={t('products.enterBrandName')}
-            value={formData.brand || ''}
-            onChange={(value) => handleFieldChange('brand', value)}
+            label={t("products.brand")}
+            placeholder={t("products.enterBrandName")}
+            value={formData.brand || ""}
+            onChange={(value) => handleFieldChange("brand", value)}
             error={errors.brand}
             errorMessage={errors.brand}
             leftIcon={Tag}
@@ -73,9 +77,13 @@ const BasicInfoSection = ({
         {/* Category Selection */}
         <div>
           <Select
-            label={t('products.category')}
-            placeholder={categoriesLoading ? t('products.loadingCategories') : t('products.selectCategory')}
-            value={formData.category || ''}
+            label={t("products.category")}
+            placeholder={
+              categoriesLoading
+                ? t("products.loadingCategories")
+                : t("products.selectCategory")
+            }
+            value={formData.category || ""}
             onChange={handleCategoryChange}
             error={errors.category}
             errorMessage={errors.category}
@@ -89,17 +97,16 @@ const BasicInfoSection = ({
         {/* Barcode */}
         <div>
           <Input
-            label={t('products.barcode')}
-            placeholder={t('products.enterBarcode')}
-            value={formData.barcode || ''}
-            onChange={(value) => handleFieldChange('barcode', value)}
+            label={t("products.barcode")}
+            placeholder={t("products.enterBarcode")}
+            value={formData.barcode || ""}
+            onChange={(value) => handleFieldChange("barcode", value)}
             error={errors.barcode}
             errorMessage={errors.barcode}
             leftIcon={Barcode}
           />
         </div>
       </div>
-
     </>
   );
 };

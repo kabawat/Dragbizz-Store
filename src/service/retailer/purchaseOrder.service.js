@@ -1,10 +1,9 @@
-import API_CONFIG from '@/config/api.config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios, unauthAxios } from '@/service/config/axiosConfig';
-import { attachQueryParams } from '@/utils/queryParams';
+import API_CONFIG from "@/config/api.config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
+import { attachQueryParams } from "@/utils/queryParams";
 
 class PurchaseOrderService {
-
   async createPurchaseOrder(poData) {
     try {
       let payload = poData;
@@ -14,20 +13,32 @@ class PurchaseOrderService {
         }
       });
 
-      const response = await authAxios.post(API_CONFIG?.RETAILER?.PURCHASE_ORDER, payload);
-      return handleApiSuccess(response?.data, 'Purchase order created successfully');
+      const response = await authAxios.post(
+        API_CONFIG?.RETAILER?.PURCHASE_ORDER,
+        payload,
+      );
+      return handleApiSuccess(
+        response?.data,
+        "Purchase order created successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'po-creation');
+      return handleApiErrorResponse(error, "po-creation");
     }
   }
 
   async getPurchaseOrders(params = {}) {
     try {
-      const url = attachQueryParams(API_CONFIG?.RETAILER?.PURCHASE_ORDER, params);
+      const url = attachQueryParams(
+        API_CONFIG?.RETAILER?.PURCHASE_ORDER,
+        params,
+      );
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Purchase orders fetched successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Purchase orders fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'po-list');
+      return handleApiErrorResponse(error, "po-list");
     }
   }
 
@@ -38,9 +49,12 @@ class PurchaseOrderService {
         url = attachQueryParams(url, { store: storeId });
       }
       const response = await authAxios.put(url, updateData);
-      return handleApiSuccess(response?.data, 'Purchase order updated successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Purchase order updated successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'po-update');
+      return handleApiErrorResponse(error, "po-update");
     }
   }
 
@@ -51,20 +65,29 @@ class PurchaseOrderService {
         url = attachQueryParams(url, { store: storeId });
       }
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Purchase order fetched successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Purchase order fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'po-details');
+      return handleApiErrorResponse(error, "po-details");
     }
   }
 
   async getPublicPurchaseOrder(poId) {
     try {
-      const response = await unauthAxios.post('/retailer/public/purchase-orders', {
-        id: poId
-      });
-      return handleApiSuccess(response?.data, 'Public purchase order fetched successfully');
+      const response = await unauthAxios.post(
+        "/retailer/public/purchase-orders",
+        {
+          id: poId,
+        },
+      );
+      return handleApiSuccess(
+        response?.data,
+        "Public purchase order fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'public-po-details');
+      return handleApiErrorResponse(error, "public-po-details");
     }
   }
 
@@ -75,14 +98,15 @@ class PurchaseOrderService {
         url = attachQueryParams(url, { store: storeId });
       }
       const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, 'Purchase order deleted successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Purchase order deleted successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'po-deletion');
+      return handleApiErrorResponse(error, "po-deletion");
     }
   }
 }
 
 const purchaseOrderService = new PurchaseOrderService();
 export default purchaseOrderService;
-
-

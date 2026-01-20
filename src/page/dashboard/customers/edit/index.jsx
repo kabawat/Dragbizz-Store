@@ -1,39 +1,40 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, User } from 'lucide-react';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Save, ArrowLeft, User } from "lucide-react";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { CustomerForm, CustomerAddSuccessModal } from '@/components/customer';
-import { customerService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { CustomerForm, CustomerAddSuccessModal } from "@/components/customer";
+import { customerService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
 
 const EditCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [updatedCustomerName, setUpdatedCustomerName] = useState('');
+  const [updatedCustomerName, setUpdatedCustomerName] = useState("");
 
   // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
     companyDetails: {
-      gstin: '',
-      companyName: ''
+      gstin: "",
+      companyName: "",
     },
-    addresses: null
+    addresses: null,
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -50,36 +51,39 @@ const EditCustomerPage = ({ customerId }) => {
         setFetching(true);
         setError(null);
 
-        const result = await customerService.getCustomers({ id: customerId, store: storeId });
+        const result = await customerService.getCustomers({
+          id: customerId,
+          store: storeId,
+        });
         if (result.success && result.data) {
           const customerData = result.data;
-          
+
           // Initialize addresses properly
           let addresses = null;
           if (customerData.addresses) {
             addresses = {
               billing: customerData.addresses.billing || null,
-              shipping: customerData.addresses.shipping || null
+              shipping: customerData.addresses.shipping || null,
             };
           }
-          
+
           setFormData({
             store: storeId,
-            name: customerData.name || '',
-            phone: customerData.phone || '',
-            email: customerData.email || '',
-            address: customerData.address || '',
+            name: customerData.name || "",
+            phone: customerData.phone || "",
+            email: customerData.email || "",
+            address: customerData.address || "",
             companyDetails: customerData.companyDetails || {
-              gstin: '',
-              companyName: ''
+              gstin: "",
+              companyName: "",
             },
-            addresses: addresses
+            addresses: addresses,
           });
         } else {
-          setError(result.message || t('customers.errorLoading'));
+          setError(result.message || t("customers.errorLoading"));
         }
       } catch (error) {
-        setError(t('customers.errorLoading'));
+        setError(t("customers.errorLoading"));
       } finally {
         setFetching(false);
       }
@@ -91,8 +95,8 @@ const EditCustomerPage = ({ customerId }) => {
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     // Handle special clearError command
-    if (fieldName === 'clearError') {
-      setFieldErrors(prev => {
+    if (fieldName === "clearError") {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[value];
         return newErrors;
@@ -101,13 +105,13 @@ const EditCustomerPage = ({ customerId }) => {
     }
 
     // Ensure fieldName is a string
-    if (typeof fieldName !== 'string') {
+    if (typeof fieldName !== "string") {
       return;
     }
 
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
@@ -115,11 +119,11 @@ const EditCustomerPage = ({ customerId }) => {
     }
 
     // Handle nested field errors (like companyDetails.gstin)
-    if (fieldName === 'companyDetails') {
-      setFieldErrors(prev => {
+    if (fieldName === "companyDetails") {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
-        Object.keys(newErrors).forEach(key => {
-          if (key.startsWith('companyDetails.')) {
+        Object.keys(newErrors).forEach((key) => {
+          if (key.startsWith("companyDetails.")) {
             delete newErrors[key];
           }
         });
@@ -128,12 +132,12 @@ const EditCustomerPage = ({ customerId }) => {
     }
 
     // Handle addresses field errors
-    if (fieldName === 'addresses') {
+    if (fieldName === "addresses") {
       // Clear any addresses related errors
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
-        Object.keys(newErrors).forEach(key => {
-          if (key.startsWith('addresses.')) {
+        Object.keys(newErrors).forEach((key) => {
+          if (key.startsWith("addresses.")) {
             delete newErrors[key];
           }
         });
@@ -141,9 +145,9 @@ const EditCustomerPage = ({ customerId }) => {
       });
     }
 
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [fieldName]: value
+      [fieldName]: value,
     }));
   };
 
@@ -154,29 +158,40 @@ const EditCustomerPage = ({ customerId }) => {
       setFieldErrors({});
       setError(null);
 
-      const result = await customerService.updateCustomer(customerId, formData, storeId);
+      const result = await customerService.updateCustomer(
+        customerId,
+        formData,
+        storeId,
+      );
 
       if (result.success) {
-        setUpdatedCustomerName(formData.name || 'Customer');
+        setUpdatedCustomerName(formData.name || "Customer");
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         } else {
-          setError(result.message || t('errors.failedToUpdate', { item: t('common.customer') }));
+          setError(
+            result.message ||
+              t("errors.failedToUpdate", { item: t("common.customer") }),
+          );
         }
       }
-
     } catch (error) {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
         if (errorData.data && errorData.data.fields) {
           setFieldErrors(errorData.data.fields);
         } else {
-          setError(errorData.message || t('errors.failedToUpdate', { item: t('common.customer') }));
+          setError(
+            errorData.message ||
+              t("errors.failedToUpdate", { item: t("common.customer") }),
+          );
         }
       } else {
-        setError(t('errors.failedToUpdateTryAgain', { item: t('common.customer') }));
+        setError(
+          t("errors.failedToUpdateTryAgain", { item: t("common.customer") }),
+        );
       }
     } finally {
       setLoading(false);
@@ -185,13 +200,13 @@ const EditCustomerPage = ({ customerId }) => {
 
   // Handle cancel
   const handleCancel = () => {
-    router.push('/dashboard/customers');
+    router.push("/dashboard/customers");
   };
 
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/customers');
+    router.push("/dashboard/customers");
   };
 
   const handleEditMore = () => {
@@ -206,8 +221,8 @@ const EditCustomerPage = ({ customerId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title={t('customers.editCustomer')}
-            description={t('customers.editCustomerDescription')}
+            title={t("customers.editCustomer")}
+            description={t("customers.editCustomerDescription")}
           />
 
           <div className="flex-1 p-6">
@@ -217,10 +232,10 @@ const EditCustomerPage = ({ customerId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.loadingData', { item: t('common.customer') })}
+                      {t("modals.loadingData", { item: t("common.customer") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </p>
                   </div>
                 </div>
@@ -240,21 +255,32 @@ const EditCustomerPage = ({ customerId }) => {
       {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
-        <Header title={t('customers.editCustomer')} description={t('customers.editCustomerDescription')} />
+        <Header
+          title={t("customers.editCustomer")}
+          description={t("customers.editCustomerDescription")}
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/customers"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.customers') })}</span>
+                <span className="text-sm font-medium">
+                  {t("common.backTo", { item: t("common.customers") })}
+                </span>
               </Link>
             </div>
 
             {/* Form Container - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+            <div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              style={{ height: "calc(100vh - 200px)" }}
+            >
               {/* Main Form - Left Side */}
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
@@ -264,10 +290,14 @@ const EditCustomerPage = ({ customerId }) => {
                     fieldErrors={fieldErrors}
                   />
                 </div>
-                
+
                 {/* Action Buttons - Fixed Bottom */}
                 <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
-                  <Button variant="outline" onClick={handleCancel} disabled={loading}>
+                  <Button
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={loading}
+                  >
                     Cancel
                   </Button>
                   <Button
@@ -291,8 +321,12 @@ const EditCustomerPage = ({ customerId }) => {
                         <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Why Update Customer Details?</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Keep information current for better service</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                          Why Update Customer Details?
+                        </h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                          Keep information current for better service
+                        </p>
                       </div>
                     </div>
 
@@ -303,8 +337,13 @@ const EditCustomerPage = ({ customerId }) => {
                           <span className="text-green-600 text-sm">📊</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Data Accuracy</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Ensure customer information is up-to-date for accurate billing and delivery</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                            Data Accuracy
+                          </h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                            Ensure customer information is up-to-date for
+                            accurate billing and delivery
+                          </p>
                         </div>
                       </div>
 
@@ -314,8 +353,13 @@ const EditCustomerPage = ({ customerId }) => {
                           <span className="text-blue-600 text-sm">🎯</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Better Service</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Updated details help provide personalized and efficient customer service</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                            Better Service
+                          </h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                            Updated details help provide personalized and
+                            efficient customer service
+                          </p>
                         </div>
                       </div>
 
@@ -325,8 +369,13 @@ const EditCustomerPage = ({ customerId }) => {
                           <span className="text-purple-600 text-sm">📞</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Communication</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Keep contact information current for order updates and notifications</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                            Communication
+                          </h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                            Keep contact information current for order updates
+                            and notifications
+                          </p>
                         </div>
                       </div>
 
@@ -336,15 +385,22 @@ const EditCustomerPage = ({ customerId }) => {
                           <span className="text-orange-600 text-sm">📈</span>
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Business Growth</h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">Accurate customer data helps in business analytics and growth strategies</p>
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                            Business Growth
+                          </h4>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                            Accurate customer data helps in business analytics
+                            and growth strategies
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Tips Section */}
                     <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">💡 Pro Tips</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                        💡 Pro Tips
+                      </h4>
                       <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
                         <li>• Verify phone numbers for SMS notifications</li>
                         <li>• Update email for receipt delivery</li>
@@ -368,10 +424,10 @@ const EditCustomerPage = ({ customerId }) => {
           onContinue={handleContinue}
           onAddMore={handleEditMore}
           customerName={updatedCustomerName}
-          title={t('customers.updateSuccess')}
-          continueText={t('customers.backToCustomers')}
-          addMoreText={t('customers.addMoreCustomers')}
-          description={t('customers.updateSuccessDescription')}
+          title={t("customers.updateSuccess")}
+          continueText={t("customers.backToCustomers")}
+          addMoreText={t("customers.addMoreCustomers")}
+          description={t("customers.updateSuccessDescription")}
           isEditMode={true}
         />
       )}

@@ -1,7 +1,7 @@
-"use client"
-import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Save } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState } from "react";
+import { Lock, Eye, EyeOff, Save } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SecuritySettings = () => {
   const { t } = useTranslation();
@@ -10,27 +10,29 @@ const SecuritySettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({ ...prev, [name]: value }));
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
-    setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
     setShowChangePassword(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">{t('settings.securitySettings')}</h2>
+        <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
+          {t("settings.securitySettings")}
+        </h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-          {t('settings.manageAccountSecurity')}
+          {t("settings.manageAccountSecurity")}
         </p>
       </div>
 
@@ -45,8 +47,12 @@ const SecuritySettings = () => {
                 <Lock className="w-6 h-6 text-[rgb(var(--color-primary))]" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('settings.changePassword')}</p>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('settings.updatePassword')}</p>
+                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("settings.changePassword")}
+                </p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                  {t("settings.updatePassword")}
+                </p>
               </div>
             </div>
           </button>
@@ -54,15 +60,15 @@ const SecuritySettings = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('settings.currentPassword')}
+                {t("settings.currentPassword")}
               </label>
               <div className="relative">
                 <input
-                  type={showOldPassword ? 'text' : 'password'}
+                  type={showOldPassword ? "text" : "password"}
                   name="oldPassword"
                   value={passwordData.oldPassword}
                   onChange={handleChange}
-                  placeholder={t('settings.enterCurrentPassword')}
+                  placeholder={t("settings.enterCurrentPassword")}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -70,22 +76,26 @@ const SecuritySettings = () => {
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                 >
-                  {showOldPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showOldPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('settings.newPassword')}
+                {t("settings.newPassword")}
               </label>
               <div className="relative">
                 <input
-                  type={showNewPassword ? 'text' : 'password'}
+                  type={showNewPassword ? "text" : "password"}
                   name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handleChange}
-                  placeholder={t('settings.enterNewPassword')}
+                  placeholder={t("settings.enterNewPassword")}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -93,22 +103,26 @@ const SecuritySettings = () => {
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                 >
-                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showNewPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('settings.confirmNewPassword')}
+                {t("settings.confirmNewPassword")}
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handleChange}
-                  placeholder={t('settings.confirmNewPasswordPlaceholder')}
+                  placeholder={t("settings.confirmNewPasswordPlaceholder")}
                   className="w-full px-4 py-2 pr-10 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))]"
                 />
                 <button
@@ -116,7 +130,11 @@ const SecuritySettings = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -125,18 +143,22 @@ const SecuritySettings = () => {
               <button
                 onClick={() => {
                   setShowChangePassword(false);
-                  setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                  setPasswordData({
+                    oldPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
                 }}
                 className="flex-1 px-4 py-2 border border-[rgb(var(--color-border-primary))] rounded-lg hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors cursor-pointer"
               >
-                {t('common.cancel')}
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleSave}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer"
               >
                 <Save className="w-4 h-4" />
-                {t('settings.updatePassword')}
+                {t("settings.updatePassword")}
               </button>
             </div>
           </div>
@@ -147,4 +169,3 @@ const SecuritySettings = () => {
 };
 
 export default SecuritySettings;
-

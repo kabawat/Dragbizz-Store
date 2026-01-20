@@ -1,5 +1,11 @@
-"use client"
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+"use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 
 const NetworkErrorContext = createContext();
 
@@ -16,7 +22,7 @@ export const NetworkErrorProvider = ({ children }) => {
   const [errorCount, setErrorCount] = useState(0);
 
   const showNetworkError = useCallback(() => {
-    setErrorCount(prev => prev + 1);
+    setErrorCount((prev) => prev + 1);
     setIsNetworkError(true);
   }, []);
 
@@ -27,12 +33,12 @@ export const NetworkErrorProvider = ({ children }) => {
 
   const handleRetry = useCallback(() => {
     hideNetworkError();
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.location.reload();
     }
   }, [hideNetworkError]);
 
-  useEffect(() => { 
+  useEffect(() => {
     setNetworkErrorHandler(showNetworkError);
 
     const handleOnline = () => {
@@ -45,23 +51,31 @@ export const NetworkErrorProvider = ({ children }) => {
       showNetworkError();
     };
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
 
       if (!navigator.onLine) {
         showNetworkError();
       }
 
       return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
       };
     }
   }, [isNetworkError, showNetworkError, hideNetworkError]);
 
   return (
-    <NetworkErrorContext.Provider value={{ isNetworkError, errorCount, showNetworkError, hideNetworkError, handleRetry }}>
+    <NetworkErrorContext.Provider
+      value={{
+        isNetworkError,
+        errorCount,
+        showNetworkError,
+        hideNetworkError,
+        handleRetry,
+      }}
+    >
       {children}
     </NetworkErrorContext.Provider>
   );
@@ -70,8 +84,9 @@ export const NetworkErrorProvider = ({ children }) => {
 export const useNetworkError = () => {
   const context = useContext(NetworkErrorContext);
   if (!context) {
-    throw new Error('useNetworkError must be used within a NetworkErrorProvider');
+    throw new Error(
+      "useNetworkError must be used within a NetworkErrorProvider",
+    );
   }
   return context;
 };
-

@@ -1,12 +1,15 @@
-"use client"
-import React from 'react';
-import { Badge } from '@/components/ui';
+"use client";
+import React from "react";
+import { Badge } from "@/components/ui";
 
-const SectionHeader = ({ badge, title, description, className = '' }) => {
+const SectionHeader = ({ badge, title, description, className = "" }) => {
   return (
     <div className={`text-center mb-10 sm:mb-12 md:mb-16 px-4 ${className}`}>
       {badge && (
-        <Badge variant="secondary" className="mb-3 sm:mb-4 text-xs sm:text-sm md:text-base px-3 sm:px-4 py-1.5 sm:py-2">
+        <Badge
+          variant="secondary"
+          className="mb-3 sm:mb-4 text-xs sm:text-sm md:text-base px-3 sm:px-4 py-1.5 sm:py-2"
+        >
           {badge}
         </Badge>
       )}
@@ -23,4 +26,3 @@ const SectionHeader = ({ badge, title, description, className = '' }) => {
 };
 
 export default SectionHeader;
-

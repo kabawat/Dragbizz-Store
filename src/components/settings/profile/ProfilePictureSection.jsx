@@ -1,7 +1,13 @@
-"use client"
-import { User, Camera } from 'lucide-react';
+"use client";
+import { User, Camera } from "lucide-react";
 
-const ProfilePictureSection = ({ firstName, lastName, email, phone, countryCode }) => {
+const ProfilePictureSection = ({
+  firstName,
+  lastName,
+  email,
+  phone,
+  countryCode,
+}) => {
   return (
     <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -37,4 +43,3 @@ const ProfilePictureSection = ({ firstName, lastName, email, phone, countryCode 
 };
 
 export default ProfilePictureSection;
-

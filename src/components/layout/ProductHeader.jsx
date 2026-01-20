@@ -1,23 +1,23 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui';
-import { 
-  Menu, 
-  X, 
-  ShoppingBag, 
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui";
+import {
+  Menu,
+  X,
+  ShoppingBag,
   ChevronDown,
   ArrowRight,
   User,
   LogOut,
-  Settings
-} from 'lucide-react';
-import { cookieManager } from '@/utils/cookieManager';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getRetailerDetails } from '@/store/slices/profileSlice';
-import { useLogout } from '@/hooks/useLogout';
-import LogoutModal from '@/components/ui/LogoutModal';
+  Settings,
+} from "lucide-react";
+import { cookieManager } from "@/utils/cookieManager";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
+import { useLogout } from "@/hooks/useLogout";
+import LogoutModal from "@/components/ui/LogoutModal";
 
 const ProductHeader = () => {
   const router = useRouter();
@@ -28,8 +28,9 @@ const ProductHeader = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const profileDropdownRef = useRef(null);
-  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
-  
+  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } =
+    useLogout();
+
   // Get user data from Redux
   const { user, agency } = useAppSelector((state) => state.profile);
 
@@ -37,8 +38,8 @@ const ProductHeader = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Check if user is logged in
@@ -51,8 +52,7 @@ const ProductHeader = () => {
         if (!user) {
           try {
             await dispatch(getRetailerDetails()).unwrap();
-          } catch (error) {
-          }
+          } catch (error) {}
         }
       } else {
         setIsLoggedIn(false);
@@ -64,38 +64,41 @@ const ProductHeader = () => {
   // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { 
-      name: 'Products', 
-      href: '/products',
+    { name: "Home", href: "/" },
+    {
+      name: "Products",
+      href: "/products",
       hasDropdown: true,
       dropdownItems: [
-        { name: 'All Products', href: '/products' },
-        { name: 'Features', href: '/products#features' },
-        { name: 'Pricing', href: '/products#pricing' },
-        { name: 'Solutions', href: '/products#solutions' }
-      ]
+        { name: "All Products", href: "/products" },
+        { name: "Features", href: "/products#features" },
+        { name: "Pricing", href: "/products#pricing" },
+        { name: "Solutions", href: "/products#solutions" },
+      ],
     },
-    { name: 'About', href: '/about' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' }
+    { name: "About", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
       setIsMobileMenuOpen(false);
     }
   };
@@ -104,14 +107,17 @@ const ProductHeader = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-md shadow-lg border-b border-[rgb(var(--color-border-primary))]'
-          : 'bg-transparent'
+          ? "bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-md shadow-lg border-b border-[rgb(var(--color-border-primary))]"
+          : "bg-transparent"
       }`}
     >
       <nav className="container mx-auto px-3 sm:px-4 md:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 group">
+          <Link
+            href="/"
+            className="flex items-center space-x-1.5 sm:space-x-2 group"
+          >
             <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-br from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
             </div>
@@ -127,13 +133,17 @@ const ProductHeader = () => {
                 {item.hasDropdown ? (
                   <>
                     <button
-                      onClick={() => setIsProductsDropdownOpen(!isProductsDropdownOpen)}
+                      onClick={() =>
+                        setIsProductsDropdownOpen(!isProductsDropdownOpen)
+                      }
                       className="flex items-center space-x-1 text-sm lg:text-base text-[rgb(var(--color-text-primary))] hover:text-[rgb(var(--color-primary))] transition-colors font-medium"
                     >
                       <span>{item.name}</span>
-                      <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${isProductsDropdownOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${isProductsDropdownOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
-                    
+
                     {isProductsDropdownOpen && (
                       <div className="absolute top-full left-0 mt-2 w-44 lg:w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-xl py-2 animate-fade-in">
                         {item.dropdownItems.map((dropdownItem) => (
@@ -166,15 +176,22 @@ const ProductHeader = () => {
             {isLoggedIn ? (
               <div className="relative" ref={profileDropdownRef}>
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
                   className="flex items-center space-x-2 hover:bg-[rgb(var(--color-bg-secondary))] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-                  style={{ paddingTop: 'calc(0.375rem + 2.5px)', paddingBottom: 'calc(0.375rem + 2.5px)' }}
+                  style={{
+                    paddingTop: "calc(0.375rem + 2.5px)",
+                    paddingBottom: "calc(0.375rem + 2.5px)",
+                  }}
                 >
                   {/* Profile Picture/Avatar */}
                   <div className="w-7 h-7 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center overflow-hidden">
                     {user?.firstName || user?.name ? (
                       <span className="text-xs font-semibold text-white">
-                        {(user?.firstName || user?.name || 'U').charAt(0).toUpperCase()}
+                        {(user?.firstName || user?.name || "U")
+                          .charAt(0)
+                          .toUpperCase()}
                       </span>
                     ) : (
                       <User className="w-4 h-4 text-white" />
@@ -184,7 +201,10 @@ const ProductHeader = () => {
                   {/* User Info */}
                   <div className="text-left">
                     <div className="text-xs font-medium text-[rgb(var(--color-text-primary))]">
-                      {user?.firstName || user?.name || user?.email?.split('@')[0] || 'User'}
+                      {user?.firstName ||
+                        user?.name ||
+                        user?.email?.split("@")[0] ||
+                        "User"}
                     </div>
                     {agency?.agencyName && (
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
@@ -194,9 +214,11 @@ const ProductHeader = () => {
                   </div>
 
                   {/* Dropdown Arrow */}
-                  <ChevronDown className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${
-                    isProfileDropdownOpen ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown
+                    className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${
+                      isProfileDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
                 {/* Profile Dropdown */}
@@ -205,9 +227,9 @@ const ProductHeader = () => {
                     <div className="py-2">
                       <div className="px-4 py-2 border-b border-[rgb(var(--color-border-primary))]">
                         <div className="text-xs font-medium text-[rgb(var(--color-text-primary))]">
-                          {user?.firstName && user?.lastName 
-                            ? `${user.firstName} ${user.lastName}` 
-                            : user?.name || user?.email || 'User'}
+                          {user?.firstName && user?.lastName
+                            ? `${user.firstName} ${user.lastName}`
+                            : user?.name || user?.email || "User"}
                         </div>
                         {user?.email && (
                           <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5">
@@ -232,7 +254,7 @@ const ProductHeader = () => {
                         Settings
                       </Link>
                       <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                      <button 
+                      <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
                           showLogoutModal();
@@ -251,7 +273,7 @@ const ProductHeader = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => scrollToSection('features')}
+                  onClick={() => scrollToSection("features")}
                   className="text-xs text-[rgb(var(--color-text-primary))] px-2.5 py-1.5"
                 >
                   Features
@@ -260,9 +282,12 @@ const ProductHeader = () => {
                   variant="primary"
                   size="sm"
                   rightIcon={ArrowRight}
-                  onClick={() => scrollToSection('cta')}
+                  onClick={() => scrollToSection("cta")}
                   className="text-xs px-3"
-                  style={{ paddingTop: 'calc(0.375rem + 2.5px)', paddingBottom: 'calc(0.375rem + 2.5px)' }}
+                  style={{
+                    paddingTop: "calc(0.375rem + 2.5px)",
+                    paddingBottom: "calc(0.375rem + 2.5px)",
+                  }}
                 >
                   Get Started
                 </Button>
@@ -293,11 +318,15 @@ const ProductHeader = () => {
                   {item.hasDropdown ? (
                     <div>
                       <button
-                        onClick={() => setIsProductsDropdownOpen(!isProductsDropdownOpen)}
+                        onClick={() =>
+                          setIsProductsDropdownOpen(!isProductsDropdownOpen)
+                        }
                         className="flex items-center justify-between w-full px-3 sm:px-4 py-2 text-sm sm:text-base text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
                       >
                         <span>{item.name}</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${isProductsDropdownOpen ? 'rotate-180' : ''}`} />
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform ${isProductsDropdownOpen ? "rotate-180" : ""}`}
+                        />
                       </button>
                       {isProductsDropdownOpen && (
                         <div className="pl-3 sm:pl-4 mt-2 space-y-1.5 sm:space-y-2">
@@ -328,7 +357,7 @@ const ProductHeader = () => {
                   )}
                 </div>
               ))}
-              
+
               <div className="pt-3 sm:pt-4 border-t border-[rgb(var(--color-border-primary))] space-y-2">
                 {isLoggedIn ? (
                   <>
@@ -337,7 +366,9 @@ const ProductHeader = () => {
                         <div className="w-8 h-8 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center overflow-hidden">
                           {user?.firstName || user?.name ? (
                             <span className="text-xs font-semibold text-white">
-                              {(user?.firstName || user?.name || 'U').charAt(0).toUpperCase()}
+                              {(user?.firstName || user?.name || "U")
+                                .charAt(0)
+                                .toUpperCase()}
                             </span>
                           ) : (
                             <User className="w-4 h-4 text-white" />
@@ -345,9 +376,9 @@ const ProductHeader = () => {
                         </div>
                         <div className="flex-1">
                           <div className="text-xs font-medium text-[rgb(var(--color-text-primary))]">
-                            {user?.firstName && user?.lastName 
-                              ? `${user.firstName} ${user.lastName}` 
-                              : user?.name || user?.email || 'User'}
+                            {user?.firstName && user?.lastName
+                              ? `${user.firstName} ${user.lastName}`
+                              : user?.name || user?.email || "User"}
                           </div>
                           {user?.email && (
                             <div className="text-xs text-[rgb(var(--color-text-secondary))]">
@@ -362,7 +393,7 @@ const ProductHeader = () => {
                       size="sm"
                       fullWidth
                       onClick={() => {
-                        router.push('/dashboard');
+                        router.push("/dashboard");
                         setIsMobileMenuOpen(false);
                       }}
                       className="text-xs sm:text-sm"
@@ -389,7 +420,7 @@ const ProductHeader = () => {
                       size="sm"
                       fullWidth
                       onClick={() => {
-                        scrollToSection('features');
+                        scrollToSection("features");
                         setIsMobileMenuOpen(false);
                       }}
                       className="text-xs sm:text-sm"
@@ -402,7 +433,7 @@ const ProductHeader = () => {
                       fullWidth
                       rightIcon={ArrowRight}
                       onClick={() => {
-                        scrollToSection('cta');
+                        scrollToSection("cta");
                         setIsMobileMenuOpen(false);
                       }}
                       className="text-xs sm:text-sm"
@@ -438,4 +469,3 @@ const ProductHeader = () => {
 };
 
 export default ProductHeader;
-

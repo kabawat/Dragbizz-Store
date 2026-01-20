@@ -1,25 +1,32 @@
-"use client"
-import React from 'react';
-import { Toggle, Select, Input } from '../ui';
-import { Calculator, Hash } from 'lucide-react';
-import { GST_RATE_OPTIONS } from '@/data';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { Toggle, Select, Input } from "../ui";
+import { Calculator, Hash } from "lucide-react";
+import { GST_RATE_OPTIONS } from "@/data";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const GSTSection = ({
-  formData,
-  onChange,
-  errors = {},
-  ...props
-}) => {
+const GSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
   // GST Type options
   const gstTypeOptions = [
-    { value: 'CGST_SGST', label: t('products.cgstSgst'), description: t('products.cgstSgstDescription') },
-    { value: 'IGST', label: t('products.igst'), description: t('products.igstDescription') },
-    { value: 'UTGST', label: t('products.utgst'), description: t('products.utgstDescription') }
+    {
+      value: "CGST_SGST",
+      label: t("products.cgstSgst"),
+      description: t("products.cgstSgstDescription"),
+    },
+    {
+      value: "IGST",
+      label: t("products.igst"),
+      description: t("products.igstDescription"),
+    },
+    {
+      value: "UTGST",
+      label: t("products.utgst"),
+      description: t("products.utgstDescription"),
+    },
   ];
 
   // Calculate total GST amount
@@ -36,10 +43,12 @@ const GSTSection = ({
       {/* GST Applicable Toggle */}
       <div className="mb-6">
         <Toggle
-          label={t('products.gstApplicable')}
+          label={t("products.gstApplicable")}
           checked={formData.gstInfo?.isGstApplicable || false}
-          onChange={(checked) => handleFieldChange('gstInfo.isGstApplicable', checked)}
-          helperText={t('products.gstApplicableHelperText')}
+          onChange={(checked) =>
+            handleFieldChange("gstInfo.isGstApplicable", checked)
+          }
+          helperText={t("products.gstApplicableHelperText")}
         />
       </div>
 
@@ -49,91 +58,108 @@ const GSTSection = ({
           {/* GST Rate */}
           <div className="mb-6">
             <Select
-              label={t('products.gstRateLabel')}
+              label={t("products.gstRateLabel")}
               options={GST_RATE_OPTIONS}
-              value={formData.gstInfo?.gstRate || ''}
-              onChange={(value) => handleFieldChange('gstInfo.gstRate', value)}
+              value={formData.gstInfo?.gstRate || ""}
+              onChange={(value) => handleFieldChange("gstInfo.gstRate", value)}
               error={errors.gstRate}
               errorMessage={errors.gstRate}
               required
               leftIcon={Calculator}
               searchable
-              placeholder={t('products.selectGstRatePlaceholder')}
+              placeholder={t("products.selectGstRatePlaceholder")}
             />
           </div>
 
           {/* GST Type */}
           <div className="mb-6">
             <Select
-              label={t('products.gstType')}
+              label={t("products.gstType")}
               options={gstTypeOptions}
-              value={formData.gstInfo?.gstType || 'CGST_SGST'}
-              onChange={(value) => handleFieldChange('gstInfo.gstType', value)}
+              value={formData.gstInfo?.gstType || "CGST_SGST"}
+              onChange={(value) => handleFieldChange("gstInfo.gstType", value)}
               error={errors.gstType}
               errorMessage={errors.gstType}
               required
               searchable
-              placeholder={t('products.selectGstTypePlaceholder')}
-              helperText={t('products.gstTypeHelperText')}
+              placeholder={t("products.selectGstTypePlaceholder")}
+              helperText={t("products.gstTypeHelperText")}
             />
           </div>
 
           {/* HSN Code */}
           <div className="mb-6">
             <Input
-              label={t('products.hsnCode')}
-              placeholder={t('products.enterHsnCode')}
-              value={formData.gstInfo?.hsnCode || ''}
-              onChange={(value) => handleFieldChange('gstInfo.hsnCode', value)}
+              label={t("products.hsnCode")}
+              placeholder={t("products.enterHsnCode")}
+              value={formData.gstInfo?.hsnCode || ""}
+              onChange={(value) => handleFieldChange("gstInfo.hsnCode", value)}
               error={errors.hsnCode}
               errorMessage={errors.hsnCode}
               leftIcon={Hash}
               maxLength={8}
-              helperText={t('products.hsnCodeHelperText')}
+              helperText={t("products.hsnCodeHelperText")}
             />
           </div>
 
           {/* GST Summary */}
           {formData.gstInfo?.gstRate && formData.sellingPrice && (
             <div className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('products.gstSummary')}</h4>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                {t("products.gstSummary")}
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('products.sellingPrice')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("products.sellingPrice")}:
+                  </span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
                     ₹{parseFloat(formData.sellingPrice).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('products.gstRate')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("products.gstRate")}:
+                  </span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
                     {parseFloat(formData.gstInfo?.gstRate).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('products.gstType')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("products.gstType")}:
+                  </span>
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {gstTypeOptions.find(type => type.value === formData.gstInfo?.gstType)?.label || formData.gstInfo?.gstType}
+                    {gstTypeOptions.find(
+                      (type) => type.value === formData.gstInfo?.gstType,
+                    )?.label || formData.gstInfo?.gstType}
                   </span>
                 </div>
                 {formData.gstInfo?.hsnCode && (
                   <div className="flex justify-between">
-                    <span className="text-[rgb(var(--color-text-secondary))]">{t('products.hsnCode')}:</span>
+                    <span className="text-[rgb(var(--color-text-secondary))]">
+                      {t("products.hsnCode")}:
+                    </span>
                     <span className="font-medium text-[rgb(var(--color-text-primary))]">
                       {formData.gstInfo.hsnCode}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('products.gstAmount')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("products.gstAmount")}:
+                  </span>
                   <span className="font-medium text-[rgb(var(--color-primary))]">
                     ₹{gstAmount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between border-t border-[rgb(var(--color-border-primary))] pt-2">
-                  <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t('products.totalPrice')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))] font-medium">
+                    {t("products.totalPrice")}:
+                  </span>
                   <span className="font-bold text-[rgb(var(--color-primary))]">
-                    ₹{(parseFloat(formData.sellingPrice) + gstAmount).toFixed(2)}
+                    ₹
+                    {(parseFloat(formData.sellingPrice) + gstAmount).toFixed(2)}
                   </span>
                 </div>
               </div>

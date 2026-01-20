@@ -1,6 +1,13 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Eye, Edit, Trash2, IndianRupee, Receipt } from 'lucide-react';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  IndianRupee,
+  Receipt,
+} from "lucide-react";
 
 const ActionMenu = ({
   item,
@@ -9,22 +16,22 @@ const ActionMenu = ({
   isOpen,
   onToggle,
   menuRef,
-  actions = ['view', 'edit', 'delete'],
-  className = '',
-  buttonClassName = '',
+  actions = ["view", "edit", "delete"],
+  className = "",
+  buttonClassName = "",
   ...props
 }) => {
   const getActionIcon = (action) => {
     switch (action) {
-      case 'view':
+      case "view":
         return Eye;
-      case 'edit':
+      case "edit":
         return Edit;
-      case 'delete':
+      case "delete":
         return Trash2;
-      case 'advancePayment':
+      case "advancePayment":
         return IndianRupee;
-      case 'createBill':
+      case "createBill":
         return Receipt;
       default:
         return Edit;
@@ -33,26 +40,26 @@ const ActionMenu = ({
 
   const getActionLabel = (action) => {
     switch (action) {
-      case 'view':
-        return 'View Details';
-      case 'edit':
-        return 'Edit';
-      case 'delete':
-        return 'Delete';
-      case 'advancePayment':
-        return 'Advance Payment';
-      case 'createBill':
-        return 'Create Bill';
+      case "view":
+        return "View Details";
+      case "edit":
+        return "Edit";
+      case "delete":
+        return "Delete";
+      case "advancePayment":
+        return "Advance Payment";
+      case "createBill":
+        return "Create Bill";
       default:
         return action;
     }
   };
 
   const getActionStyle = (action) => {
-    if (action === 'delete') {
-      return 'text-red-600 hover:bg-red-500/10 focus:bg-red-500/10';
+    if (action === "delete") {
+      return "text-red-600 hover:bg-red-500/10 focus:bg-red-500/10";
     }
-    return 'text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] focus:bg-[rgb(var(--color-bg-secondary))]';
+    return "text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] focus:bg-[rgb(var(--color-bg-secondary))]";
   };
 
   const handleAction = (action) => {
@@ -79,7 +86,9 @@ const ActionMenu = ({
                 onClick={() => handleAction(action)}
                 className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none ${getActionStyle(action)}`}
               >
-                <Icon className={`w-4 h-4 ${action === 'delete' ? 'text-red-500' : 'text-[rgb(var(--color-text-secondary))]'}`} />
+                <Icon
+                  className={`w-4 h-4 ${action === "delete" ? "text-red-500" : "text-[rgb(var(--color-text-secondary))]"}`}
+                />
                 {getActionLabel(action)}
               </button>
             );

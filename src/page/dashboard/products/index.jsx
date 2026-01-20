@@ -1,43 +1,56 @@
-"use client"
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Plus, Grid3X3, List, Package, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+"use client";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import { Plus, Grid3X3, List, Package, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getProducts,
   deleteProduct,
   setViewMode,
-  addMoreProducts
-} from '@/store/slices/productsSlice';
-import { transformProductsArray } from '@/utils/productUtils';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { Input, SettingsPanel, Select } from '@/components/ui';
-import { categoryService } from '@/service/retailer';
-import { useTranslation } from '@/hooks/useTranslation';
+  addMoreProducts,
+} from "@/store/slices/productsSlice";
+import { transformProductsArray } from "@/utils/productUtils";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { Input, SettingsPanel, Select } from "@/components/ui";
+import { categoryService } from "@/service/retailer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const getVisibilityOptions = (t) => [
-  { value: '', label: t('products.allVisibility') },
-  { value: 'PUBLIC', label: t('products.public') },
-  { value: 'PRIVATE', label: t('products.private') },
-  { value: 'CATALOG', label: t('products.catalog') }
+  { value: "", label: t("products.allVisibility") },
+  { value: "PUBLIC", label: t("products.public") },
+  { value: "PRIVATE", label: t("products.private") },
+  { value: "CATALOG", label: t("products.catalog") },
 ];
 
 const getSortOptions = (t) => [
-  { value: '', label: t('products.defaultSort') },
-  { value: 'low-high', label: t('products.priceLowHigh') },
-  { value: 'high-low', label: t('products.priceHighLow') },
-  { value: 'price_asc', label: t('products.priceAsc') },
-  { value: 'price_desc', label: t('products.priceDesc') }
+  { value: "", label: t("products.defaultSort") },
+  { value: "low-high", label: t("products.priceLowHigh") },
+  { value: "high-low", label: t("products.priceHighLow") },
+  { value: "price_asc", label: t("products.priceAsc") },
+  { value: "price_desc", label: t("products.priceDesc") },
 ];
 
 // Import UI components
-import { Button } from '@/components/ui';
+import { Button } from "@/components/ui";
 
 // Import product components
-import { ProductTable, ProductGrid, ProductCard, ProductDeleteConfirmModal, ProductDeleteSuccessModal, ProductErrorModal } from '@/components/product';
-import { StockInDrawer } from '@/components/ui';
-import { useGlobalToast } from '@/contexts/ToastContext';
+import {
+  ProductTable,
+  ProductGrid,
+  ProductCard,
+  ProductDeleteConfirmModal,
+  ProductDeleteSuccessModal,
+  ProductErrorModal,
+} from "@/components/product";
+import { StockInDrawer } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
@@ -45,35 +58,31 @@ const ProductsPage = () => {
   const dispatch = useAppDispatch();
 
   // Redux store data
-  const {
-    products,
-    isLoading,
-    error,
-    pagination,
-    viewMode
-  } = useAppSelector((state) => state.products);
+  const { products, isLoading, error, pagination, viewMode } = useAppSelector(
+    (state) => state.products,
+  );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showSuccess } = useGlobalToast();
 
   // Local state
-  const [searchValue, setSearchValue] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [visibility, setVisibility] = useState('');
-  const [category, setCategory] = useState('');
+  const [searchValue, setSearchValue] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [visibility, setVisibility] = useState("");
+  const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  const categoryOptions = useMemo(() => [
-    { value: '', label: t('products.allCategories') },
-    ...categories
-  ], [categories, t]);
+  const categoryOptions = useMemo(
+    () => [{ value: "", label: t("products.allCategories") }, ...categories],
+    [categories, t],
+  );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedProductName, setDeletedProductName] = useState('');
+  const [deletedProductName, setDeletedProductName] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
   const [showStockInDrawer, setShowStockInDrawer] = useState(false);
@@ -82,7 +91,9 @@ const ProductsPage = () => {
 
   // Memoize storeId to avoid repeated calculations
   const storeId = useMemo(() => {
-    return selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+    return (
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ""
+    );
   }, [selectedStore?.storeId, selectedStore?._id, selectedStore?.id]);
 
   // Transform products data - memoized to avoid recalculation on every render
@@ -94,31 +105,48 @@ const ProductsPage = () => {
   useEffect(() => {
     if (error) {
       setErrorDetails({
-        title: t('products.errorLoading'),
+        title: t("products.errorLoading"),
         message: error,
-        details: t('common.tryAgain')
+        details: t("common.tryAgain"),
       });
       setShowErrorModal(true);
     }
   }, [error]);
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('products-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+    const savedViewMode = localStorage.getItem("products-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
       dispatch(setViewMode(savedViewMode));
     }
   }, [dispatch]);
 
   // Fetch products on mount and search changes
   const lastFetchRef = useRef(null);
-  const hasFetchedRef = useRef({ storeId: null, searchValue: null, sortBy: null, visibility: null, category: null, fetched: false });
+  const hasFetchedRef = useRef({
+    storeId: null,
+    searchValue: null,
+    sortBy: null,
+    visibility: null,
+    category: null,
+    fetched: false,
+  });
   const hasFetchedCategories = useRef(false);
   const categoriesStoreIdRef = useRef(null);
 
   // Reset fetch refs and pagination when search, sortBy, filters or store changes
   useEffect(() => {
     lastFetchRef.current = null;
-    hasFetchedRef.current = { storeId: null, searchValue: null, sortBy: null, visibility: null, category: null, fetched: false };
+    hasFetchedRef.current = {
+      storeId: null,
+      searchValue: null,
+      sortBy: null,
+      visibility: null,
+      category: null,
+      fetched: false,
+    };
     // Reset categories fetch ref when store changes
     if (categoriesStoreIdRef.current !== storeId) {
       hasFetchedCategories.current = false;
@@ -134,23 +162,23 @@ const ProductsPage = () => {
 
     try {
       setCategoriesLoading(true);
-      
+
       const response = await categoryService.getCategories({
         limit: 100,
         store: storeId,
-        lightweight: true
+        lightweight: true,
       });
-      
+
       if (response.success) {
         const categoriesData = response.data?.data || response.data || [];
-        const formattedCategories = categoriesData.map(cat => ({
+        const formattedCategories = categoriesData.map((cat) => ({
           value: cat.id || cat._id,
-          label: cat.name
+          label: cat.name,
         }));
         setCategories(formattedCategories);
       }
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error("Failed to fetch categories:", error);
       // Reset on error so it can retry
       hasFetchedCategories.current = false;
     } finally {
@@ -168,12 +196,12 @@ const ProductsPage = () => {
   // Fetch products with debouncing (similar to customer page)
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
-    
+
     const params = {
       store: storeId,
       search: searchValue,
       limit: 20,
-      cursor: null
+      cursor: null,
     };
 
     // Add sortBy if provided
@@ -224,7 +252,7 @@ const ProductsPage = () => {
         sortBy,
         visibility,
         category,
-        fetched: true
+        fetched: true,
       };
     } catch (error) {
       // Reset on error so it can retry
@@ -239,13 +267,14 @@ const ProductsPage = () => {
     const shouldSkip = () => {
       const lastFetched = hasFetchedRef.current;
       return (
-        lastFetched.fetched &&
-        lastFetched.storeId === storeId &&
-        lastFetched.searchValue === searchValue &&
-        lastFetched.sortBy === sortBy &&
-        lastFetched.visibility === visibility &&
-        lastFetched.category === category
-      ) || isLoading;
+        (lastFetched.fetched &&
+          lastFetched.storeId === storeId &&
+          lastFetched.searchValue === searchValue &&
+          lastFetched.sortBy === sortBy &&
+          lastFetched.visibility === visibility &&
+          lastFetched.category === category) ||
+        isLoading
+      );
     };
 
     if (shouldSkip()) return;
@@ -255,7 +284,15 @@ const ProductsPage = () => {
     }, 350); // 350ms debounce like customer page
 
     return () => clearTimeout(timer);
-  }, [storeId, searchValue, sortBy, visibility, category, isLoading, fetchProducts]);
+  }, [
+    storeId,
+    searchValue,
+    sortBy,
+    visibility,
+    category,
+    isLoading,
+    fetchProducts,
+  ]);
 
   // Load more products - memoized callback
   const handleLoadMore = useCallback(async () => {
@@ -268,7 +305,7 @@ const ProductsPage = () => {
         store: storeId,
         search: searchValue,
         limit: 20,
-        cursor: pagination.nextCursor
+        cursor: pagination.nextCursor,
       };
 
       // Add sortBy if provided
@@ -295,12 +332,22 @@ const ProductsPage = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, pagination.hasNextPage, pagination.nextCursor, storeId, searchValue, sortBy, visibility, category, dispatch]);
+  }, [
+    isLoadingMore,
+    pagination.hasNextPage,
+    pagination.nextCursor,
+    storeId,
+    searchValue,
+    sortBy,
+    visibility,
+    category,
+    dispatch,
+  ]);
 
   // Infinite scroll with throttling
   useEffect(() => {
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -323,8 +370,8 @@ const ProductsPage = () => {
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener('scroll', handleScroll, { passive: true });
-      return () => scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
 
@@ -352,56 +399,72 @@ const ProductsPage = () => {
     setCategory(value);
   };
 
-
   const handleAddProduct = useCallback(() => {
     // Navigate to add product
-    router.push('/dashboard/products/add');
+    router.push("/dashboard/products/add");
   }, [router]);
 
-  const handleEditProduct = useCallback((productId) => {
-    // Navigate to edit product
-    router.push(`/dashboard/products/edit/${productId}`);
-  }, [router]);
+  const handleEditProduct = useCallback(
+    (productId) => {
+      // Navigate to edit product
+      router.push(`/dashboard/products/edit/${productId}`);
+    },
+    [router],
+  );
 
-  const handleViewProduct = useCallback((productId) => {
-    // Navigate to view product
-    router.push(`/dashboard/products/view/${productId}`);
-  }, [router]);
+  const handleViewProduct = useCallback(
+    (productId) => {
+      // Navigate to view product
+      router.push(`/dashboard/products/view/${productId}`);
+    },
+    [router],
+  );
 
-  const handleStockIn = useCallback((productId) => {
-    const product = transformedProducts.find(p => p.id === productId);
-    setProductForStockIn(product);
-    setShowStockInDrawer(true);
-  }, [transformedProducts]);
+  const handleStockIn = useCallback(
+    (productId) => {
+      const product = transformedProducts.find((p) => p.id === productId);
+      setProductForStockIn(product);
+      setShowStockInDrawer(true);
+    },
+    [transformedProducts],
+  );
 
-  const handleStockInSuccess = useCallback((message) => {
-    // Show success message
-    showSuccess(message);
-  }, [showSuccess]);
+  const handleStockInSuccess = useCallback(
+    (message) => {
+      // Show success message
+      showSuccess(message);
+    },
+    [showSuccess],
+  );
 
   const handleCloseStockInDrawer = useCallback(() => {
     setShowStockInDrawer(false);
     setProductForStockIn(null);
   }, []);
 
-
-
-
-  const handleDeleteProduct = useCallback((productId) => {
-    const product = transformedProducts.find(p => p.id === productId);
-    setProductToDelete({ id: productId, name: product?.name || t('products.product') });
-    setShowDeleteModal(true);
-  }, [transformedProducts]);
+  const handleDeleteProduct = useCallback(
+    (productId) => {
+      const product = transformedProducts.find((p) => p.id === productId);
+      setProductToDelete({
+        id: productId,
+        name: product?.name || t("products.product"),
+      });
+      setShowDeleteModal(true);
+    },
+    [transformedProducts],
+  );
 
   const handleConfirmDelete = useCallback(async () => {
     if (!productToDelete) return;
 
     setIsDeleting(true);
     try {
-      const result = await dispatch(deleteProduct({
-        productId: productToDelete.id,
-        storeId: storeId
-      }));
+      const result = await dispatch(
+        deleteProduct({
+          productId: productToDelete.id,
+          storeId: storeId,
+        }),
+      );
 
       if (result.payload?.success) {
         setDeletedProductName(productToDelete.name);
@@ -421,12 +484,14 @@ const ProductsPage = () => {
     setProductToDelete(null);
   }, []);
 
-
   // Save view mode - memoized callback
-  const handleViewModeChange = useCallback((mode) => {
-    dispatch(setViewMode(mode));
-    localStorage.setItem('products-view-mode', mode);
-  }, [dispatch]);
+  const handleViewModeChange = useCallback(
+    (mode) => {
+      dispatch(setViewMode(mode));
+      localStorage.setItem("products-view-mode", mode);
+    },
+    [dispatch],
+  );
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -436,8 +501,8 @@ const ProductsPage = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title={t('products.title')}
-          description={t('products.description')}
+          title={t("products.title")}
+          description={t("products.description")}
         />
 
         {/* Main content */}
@@ -450,10 +515,10 @@ const ProductsPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loading')}
+                      {t("common.loading")}
                     </p>
                   </div>
                 </div>
@@ -467,7 +532,7 @@ const ProductsPage = () => {
                   <div className="flex">
                     <Input
                       type="text"
-                      placeholder={`${t('common.search')} ${t('products.title').toLowerCase()}...`}
+                      placeholder={`${t("common.search")} ${t("products.title").toLowerCase()}...`}
                       value={searchValue}
                       onChange={(value) => handleSearch(value)}
                       leftIcon={Search}
@@ -480,7 +545,7 @@ const ProductsPage = () => {
                     {/* Visibility Filter */}
                     <div className="min-w-[150px]">
                       <Select
-                        placeholder={t('products.visibility')}
+                        placeholder={t("products.visibility")}
                         value={visibility}
                         onChange={handleVisibilityChange}
                         options={getVisibilityOptions(t)}
@@ -490,7 +555,7 @@ const ProductsPage = () => {
 
                     <div className="min-w-[180px]">
                       <Select
-                        placeholder={t('products.category')}
+                        placeholder={t("products.category")}
                         value={category}
                         onChange={handleCategoryChange}
                         options={categoryOptions}
@@ -502,7 +567,7 @@ const ProductsPage = () => {
 
                     <div className="min-w-[180px]">
                       <Select
-                        placeholder={t('common.sortBy')}
+                        placeholder={t("common.sortBy")}
                         value={sortBy}
                         onChange={handleSortByChange}
                         options={getSortOptions(t)}
@@ -513,25 +578,30 @@ const ProductsPage = () => {
                     {/* View toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <List className="w-4 h-4" />
-                        {t('common.tableView')}
+                        {t("common.tableView")}
                       </button>
                       <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card" ? "bg-[rgb(var(--color-primary))] text-white" : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"}`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        {t('common.cardView')}
+                        {t("common.cardView")}
                       </button>
                     </div>
 
-                    <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus}>
+                    <Button
+                      variant="primary"
+                      onClick={handleAddProduct}
+                      leftIcon={Plus}
+                    >
                       Add Product
                     </Button>
                   </div>
@@ -547,17 +617,20 @@ const ProductsPage = () => {
                     <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('products.noProducts')}
+                    {t("products.noProducts")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {searchValue
-                      ? t('common.noResults')
-                      : t('products.description')
-                    }
+                      ? t("common.noResults")
+                      : t("products.description")}
                   </p>
                   <div className="pt-4">
-                    <Button variant="primary" onClick={handleAddProduct} leftIcon={Plus}>
-                      {t('products.addProduct')}
+                    <Button
+                      variant="primary"
+                      onClick={handleAddProduct}
+                      leftIcon={Plus}
+                    >
+                      {t("products.addProduct")}
                     </Button>
                   </div>
                 </div>
@@ -567,8 +640,11 @@ const ProductsPage = () => {
             {/* Products list */}
             {transformedProducts.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
-                  {viewMode === 'table' ? (
+                <div
+                  className="h-[calc(100vh-200px)] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {viewMode === "table" ? (
                     <div className="h-full">
                       <ProductTable
                         products={transformedProducts}
@@ -577,7 +653,7 @@ const ProductsPage = () => {
                         onViewDetails={handleViewProduct}
                         onStockIn={handleStockIn}
                         loading={isLoading}
-                        emptyMessage={t('products.noProducts')}
+                        emptyMessage={t("products.noProducts")}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
@@ -602,7 +678,9 @@ const ProductsPage = () => {
                           <div className="col-span-full flex items-center justify-center py-8">
                             <div className="flex items-center gap-3">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('products.loadingMore')}</span>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                {t("products.loadingMore")}
+                              </span>
                             </div>
                           </div>
                         )}
@@ -617,16 +695,24 @@ const ProductsPage = () => {
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                       {pagination.hasNextPage ? (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{transformedProducts.length}</span> products
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {transformedProducts.length}
+                          </span>{" "}
+                          products
                           <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                             • Scroll down to load more
                           </span>
                         </>
                       ) : (
                         <>
-                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">{t('products.showingProducts', { count: transformedProducts.length })}</span>
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {t("products.showingProducts", {
+                              count: transformedProducts.length,
+                            })}
+                          </span>
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • {t('products.noMore')}
+                            • {t("products.noMore")}
                           </span>
                         </>
                       )}

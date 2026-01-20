@@ -1,16 +1,13 @@
-import React from 'react';
+import React from "react";
 
-import ViewPurchaseOrderPage from '@/page/view/purchase-order'
+import ViewPurchaseOrderPage from "@/page/view/purchase-order";
 export const metadata = {
-    title: 'Purchase Order | DragBizz',
-    description: 'View shared purchase order details.'
+  title: "Purchase Order | DragBizz",
+  description: "View shared purchase order details.",
 };
 
 export default async function PublicPurchaseOrderView({ params }) {
-    const { publicId } = await params;
+  const { publicId } = await params;
 
-    return <ViewPurchaseOrderPage purchaseOrderId={publicId} />;
+  return <ViewPurchaseOrderPage purchaseOrderId={publicId} />;
 }
-
-
-

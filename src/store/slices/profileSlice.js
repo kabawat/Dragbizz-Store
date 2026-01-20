@@ -1,61 +1,60 @@
 // src/store/slices/profileSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService } from '@/service/auth';
-import { storeService } from '@/service/retailer';
-import { cookieManager } from '@/utils/cookieManager';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { authService } from "@/service/auth";
+import { storeService } from "@/service/retailer";
+import { cookieManager } from "@/utils/cookieManager";
 
 // Async thunk for creating agency
 export const createAgency = createAsyncThunk(
-  'profile/createAgency',
+  "profile/createAgency",
   async (agencyData, { rejectWithValue }) => {
     try {
       const result = await storeService.createAgency(agencyData);
-      
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to create agency'
+          message: result.message || "Failed to create agency",
         });
       }
-      
+
       return {
         success: true,
         data: result.data,
-        redirectTo: '/onboarding/store',
-        message: 'Agency created successfully'
+        redirectTo: "/onboarding/store",
+        message: "Agency created successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to create agency. Please try again.'
+        message: "Failed to create agency. Please try again.",
       });
     }
-  }
+  },
 );
-
 
 // Async thunk for getting retailer details
 // options: { forceRefresh?: boolean } - when true, always hit API instead of using cached Redux data
 export const getRetailerDetails = createAsyncThunk(
-  'profile/getRetailerDetails',
+  "profile/getRetailerDetails",
   async (options = {}, { rejectWithValue, getState }) => {
     try {
       const { forceRefresh = false } = options || {};
       const authToken = cookieManager.getAuthToken();
-      
+
       if (!authToken) {
         return rejectWithValue({
-          message: 'No auth service token found. Please login again.',
-          redirectTo: '/login'
+          message: "No auth service token found. Please login again.",
+          redirectTo: "/login",
         });
       }
-      
+
       // Check if agency already exists in Redux state (and we are not forcing refresh)
       const currentState = getState();
       const existingAgency = currentState.profile.agency;
-      
+
       // If agency exists in Redux and we're not forcing refresh, reuse cached data
       if (existingAgency && !forceRefresh) {
         const existingStores = currentState.profile.stores || [];
-        
+
         // If agency exists but no stores, redirect to store onboarding (first-time only)
         if (existingStores.length === 0) {
           return {
@@ -63,89 +62,89 @@ export const getRetailerDetails = createAsyncThunk(
             data: {
               user: currentState.profile.user,
               agency: existingAgency,
-              stores: existingStores
+              stores: existingStores,
             },
-            message: 'Agency found, store details required',
-            redirectTo: '/onboarding/store'
+            message: "Agency found, store details required",
+            redirectTo: "/onboarding/store",
           };
         }
-        
+
         // Both agency and stores exist - no redirect needed (onboarding complete)
         return {
           success: true,
           data: {
             user: currentState.profile.user,
             agency: existingAgency,
-            stores: existingStores
+            stores: existingStores,
           },
-          message: 'Retailer details already available',
-          redirectTo: null // No redirect - onboarding is complete
+          message: "Retailer details already available",
+          redirectTo: null, // No redirect - onboarding is complete
         };
       }
-            
+
       // Get retailer data using store service
       const profileResult = await storeService.getRetailerProfile();
       if (!profileResult.success) {
         return rejectWithValue({
-          message: profileResult.message || 'Failed to get retailer profile',
-          redirectTo: '/login'
+          message: profileResult.message || "Failed to get retailer profile",
+          redirectTo: "/login",
         });
       }
-      
+
       // Extract actual data (data is nested in data.data)
       const actualData = profileResult.data.data || profileResult.data;
       // Extract data from profile result
       const combinedData = {
         user: actualData.user || null,
         agency: actualData.agency || null,
-        stores: actualData.stores || []
+        stores: actualData.stores || [],
       };
-      
+
       const { agency, stores } = combinedData;
       // If no agency data, set redirect to agency onboarding
       if (!agency) {
         return {
           success: true,
           data: combinedData,
-          message: 'Agency details required',
-          redirectTo: '/onboarding/agency'
+          message: "Agency details required",
+          redirectTo: "/onboarding/agency",
         };
       }
-      
+
       // If agency exists but no stores, still return success but with redirect
       if (agency && (!stores || stores.length === 0)) {
         return {
           success: true,
-          data: combinedData,  // ← Agency data भी include करें
-          message: 'Agency found, store details required',
-          redirectTo: '/onboarding/store'  // ← Redirect info के साथ success return
+          data: combinedData, // ← Agency data भी include करें
+          message: "Agency found, store details required",
+          redirectTo: "/onboarding/store", // ← Redirect info के साथ success return
         };
       }
-      
+
       return {
         success: true,
         data: combinedData,
-        message: 'Retailer details fetched successfully'
+        message: "Retailer details fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to get retailer details. Please login again.',
-        redirectTo: '/login'
+        message: "Failed to get retailer details. Please login again.",
+        redirectTo: "/login",
       });
     }
-  }
+  },
 );
 
 // Async thunk for getting auth-service user profile
 export const getAuthProfile = createAsyncThunk(
-  'profile/getAuthProfile',
+  "profile/getAuthProfile",
   async (_, { rejectWithValue }) => {
     try {
       const result = await authService.getProfile();
 
       if (!result?.success) {
         return rejectWithValue({
-          message: result?.message || 'Failed to fetch auth profile',
+          message: result?.message || "Failed to fetch auth profile",
         });
       }
 
@@ -154,14 +153,14 @@ export const getAuthProfile = createAsyncThunk(
       return {
         success: true,
         data,
-        message: 'Auth profile fetched successfully',
+        message: "Auth profile fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch auth profile',
+        message: "Failed to fetch auth profile",
       });
     }
-  }
+  },
 );
 
 const initialState = {
@@ -186,7 +185,7 @@ const initialState = {
 };
 
 const profileSlice = createSlice({
-  name: 'profile',
+  name: "profile",
   initialState,
   reducers: {
     clearAuth: (state) => {
@@ -221,7 +220,7 @@ const profileSlice = createSlice({
       })
       .addCase(createAgency.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || 'Failed to create agency';
+        state.error = action.payload?.message || "Failed to create agency";
       })
 
       // Get retailer details
@@ -233,17 +232,17 @@ const profileSlice = createSlice({
       .addCase(getRetailerDetails.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        
+
         const { data, redirectTo } = action.payload;
-        
+
         if (data.user) {
           state.user = data.user;
         }
-        
+
         if (data.agency) {
           state.agency = data.agency;
         }
-        
+
         if (data.stores) {
           // Keep track of previous selected store ID (if any)
           const prevSelectedId =
@@ -263,8 +262,7 @@ const profileSlice = createSlice({
             if (prevSelectedId) {
               const matchingStore =
                 data.stores.find(
-                  (s) =>
-                    (s._id || s.id || s.storeId) === prevSelectedId,
+                  (s) => (s._id || s.id || s.storeId) === prevSelectedId,
                 ) || null;
 
               state.selectedStore = matchingStore || data.stores[0];
@@ -275,19 +273,20 @@ const profileSlice = createSlice({
             state.selectedStore = null;
           }
         }
-        
+
         if (redirectTo) {
           state.redirectTo = redirectTo;
         } else {
           state.redirectTo = null;
         }
-        
+
         state.isAuthenticated = true;
       })
       .addCase(getRetailerDetails.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || 'Failed to get retailer details';
-        state.redirectTo = action.payload?.redirectTo || '/login';
+        state.error =
+          action.payload?.message || "Failed to get retailer details";
+        state.redirectTo = action.payload?.redirectTo || "/login";
         state.isAuthenticated = false;
       })
 
@@ -308,7 +307,7 @@ const profileSlice = createSlice({
       .addCase(getAuthProfile.rejected, (state, action) => {
         state.authProfileLoading = false;
         state.authProfileError =
-          action.payload?.message || 'Failed to fetch auth profile';
+          action.payload?.message || "Failed to fetch auth profile";
       });
   },
 });

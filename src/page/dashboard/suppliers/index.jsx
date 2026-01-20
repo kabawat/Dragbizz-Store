@@ -1,21 +1,35 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Grid3X3, List, Building, Search, Trash2, Download, Mic } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Plus,
+  Grid3X3,
+  List,
+  Building,
+  Search,
+  Trash2,
+  Download,
+  Mic,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getSuppliers,
   deleteSupplier,
-  setViewMode
-} from '@/store/slices/suppliersSlice';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { Input, SettingsPanel, Select } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { SupplierTable, SupplierCard, AddSupplierDrawer, VoiceAISupplier } from '@/components/supplier';
-import { SideDrawer } from '@/components/ui';
-import SupplierDownloadDrawer from '@/components/supplier/SupplierDownloadDrawer';
-import { useTranslation } from '@/hooks/useTranslation';
+  setViewMode,
+} from "@/store/slices/suppliersSlice";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { Input, SettingsPanel, Select } from "@/components/ui";
+import { Button } from "@/components/ui";
+import {
+  SupplierTable,
+  SupplierCard,
+  AddSupplierDrawer,
+  VoiceAISupplier,
+} from "@/components/supplier";
+import { SideDrawer } from "@/components/ui";
+import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SuppliersPage = () => {
   const { t } = useTranslation();
@@ -23,13 +37,9 @@ const SuppliersPage = () => {
   const dispatch = useAppDispatch();
 
   // Get data from Redux store
-  const {
-    suppliers,
-    isLoading,
-    error,
-    pagination,
-    viewMode
-  } = useAppSelector((state) => state.suppliers);
+  const { suppliers, isLoading, error, pagination, viewMode } = useAppSelector(
+    (state) => state.suppliers,
+  );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -37,34 +47,37 @@ const SuppliersPage = () => {
   useEffect(() => {
     if (error) {
       setErrorDetails({
-        title: t('suppliers.errorLoading'),
+        title: t("suppliers.errorLoading"),
         message: error,
-        details: t('common.tryAgain')
+        details: t("common.tryAgain"),
       });
       setShowErrorModal(true);
     }
   }, [error]);
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('suppliers-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+    const savedViewMode = localStorage.getItem("suppliers-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
       dispatch(setViewMode(savedViewMode));
     }
   }, [dispatch]);
 
   // Local state
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   // Filters
-  const [accountStatus, setAccountStatus] = useState('');
-  const [riskLevel, setRiskLevel] = useState('');
-  const [isActive, setIsActive] = useState('');
+  const [accountStatus, setAccountStatus] = useState("");
+  const [riskLevel, setRiskLevel] = useState("");
+  const [isActive, setIsActive] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedSupplierName, setDeletedSupplierName] = useState('');
+  const [deletedSupplierName, setDeletedSupplierName] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -80,14 +93,18 @@ const SuppliersPage = () => {
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+      if (
+        openMenuId &&
+        menuRefs.current[openMenuId] &&
+        !menuRefs.current[openMenuId].contains(event.target)
+      ) {
         setOpenMenuId(null);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openMenuId]);
 
@@ -102,7 +119,8 @@ const SuppliersPage = () => {
   // Fetch suppliers on component mount and when search changes
   useEffect(() => {
     const fetchSuppliers = async () => {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
       const params = {
         store: storeId,
         search: debouncedSearch,
@@ -111,7 +129,7 @@ const SuppliersPage = () => {
         isFreshLoad: true,
         accountStatus: accountStatus || undefined,
         riskLevel: riskLevel || undefined,
-        isActive: isActive === '' ? undefined : isActive
+        isActive: isActive === "" ? undefined : isActive,
       };
 
       // Create a unique key for this fetch
@@ -127,15 +145,26 @@ const SuppliersPage = () => {
     };
 
     // Only fetch if selectedStore is available and has a valid ID
-    if (selectedStore && (selectedStore.storeId || selectedStore._id || selectedStore.id)) {
+    if (
+      selectedStore &&
+      (selectedStore.storeId || selectedStore._id || selectedStore.id)
+    ) {
       fetchSuppliers();
     }
-  }, [selectedStore, debouncedSearch, accountStatus, riskLevel, isActive, dispatch]);
+  }, [
+    selectedStore,
+    debouncedSearch,
+    accountStatus,
+    riskLevel,
+    isActive,
+    dispatch,
+  ]);
 
   // Infinite scroll detection
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage) return;
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage)
+        return;
 
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const threshold = 100;
@@ -147,8 +176,8 @@ const SuppliersPage = () => {
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener('scroll', handleScroll);
-      return () => scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, [isLoadingMore, pagination.hasNextPage]);
 
@@ -167,13 +196,14 @@ const SuppliersPage = () => {
 
   const handleSupplierSuccess = async () => {
     // Refresh suppliers list after successful creation
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     const params = {
       store: storeId,
       search: searchValue,
       limit: 10,
       nextCursor: null,
-      isFreshLoad: true
+      isFreshLoad: true,
     };
     await dispatch(getSuppliers(params));
   };
@@ -190,13 +220,13 @@ const SuppliersPage = () => {
   const handleMenuAction = (supplierId, action) => {
     setOpenMenuId(null);
     switch (action) {
-      case 'view':
+      case "view":
         handleViewSupplier(supplierId);
         break;
-      case 'edit':
+      case "edit":
         handleEditSupplier(supplierId);
         break;
-      case 'delete':
+      case "delete":
         handleDeleteSupplier(supplierId);
         break;
       default:
@@ -204,10 +234,9 @@ const SuppliersPage = () => {
     }
   };
 
-
   const handleDeleteSupplier = (supplierId) => {
-    const supplier = suppliers.find(s => s.id === supplierId);
-    setSupplierToDelete({ id: supplierId, name: supplier?.name || 'Supplier' });
+    const supplier = suppliers.find((s) => s.id === supplierId);
+    setSupplierToDelete({ id: supplierId, name: supplier?.name || "Supplier" });
     setShowDeleteModal(true);
   };
 
@@ -216,11 +245,14 @@ const SuppliersPage = () => {
 
     setIsDeleting(true);
     try {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-      const result = await dispatch(deleteSupplier({
-        supplierId: supplierToDelete.id,
-        storeId: storeId
-      }));
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const result = await dispatch(
+        deleteSupplier({
+          supplierId: supplierToDelete.id,
+          storeId: storeId,
+        }),
+      );
 
       if (result.payload?.success) {
         setDeletedSupplierName(supplierToDelete.name);
@@ -243,7 +275,7 @@ const SuppliersPage = () => {
   // Save view mode to localStorage
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
-    localStorage.setItem('suppliers-view-mode', mode);
+    localStorage.setItem("suppliers-view-mode", mode);
   };
 
   // Infinite scroll logic - load more suppliers
@@ -254,14 +286,15 @@ const SuppliersPage = () => {
 
     try {
       const params = {
-        store: selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+        store:
+          selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
         search: debouncedSearch,
         limit: 10,
         nextCursor: pagination.nextCursor,
         isFreshLoad: false,
         accountStatus: accountStatus || undefined,
         riskLevel: riskLevel || undefined,
-        isActive: isActive === '' ? undefined : isActive
+        isActive: isActive === "" ? undefined : isActive,
       };
 
       await dispatch(getSuppliers(params));
@@ -279,14 +312,13 @@ const SuppliersPage = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title={t('suppliers.title')}
-          description={t('suppliers.description')}
+          title={t("suppliers.title")}
+          description={t("suppliers.description")}
         />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-
             {/* Search and actions */}
             <div className="mb-3">
               <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
@@ -294,7 +326,7 @@ const SuppliersPage = () => {
                 <div className="w-100">
                   <Input
                     type="text"
-                    placeholder={`${t('common.search')} ${t('suppliers.title').toLowerCase()}...`}
+                    placeholder={`${t("common.search")} ${t("suppliers.title").toLowerCase()}...`}
                     value={searchValue}
                     onChange={(value) => handleSearch(value)}
                     leftIcon={Search}
@@ -310,10 +342,10 @@ const SuppliersPage = () => {
                       value={accountStatus}
                       onChange={setAccountStatus}
                       options={[
-                        { value: '', label: 'All statuses' },
-                        { value: 'ACTIVE', label: 'Active' },
-                        { value: 'INACTIVE', label: 'Inactive' },
-                        { value: 'SUSPENDED', label: 'Suspended' }
+                        { value: "", label: "All statuses" },
+                        { value: "ACTIVE", label: "Active" },
+                        { value: "INACTIVE", label: "Inactive" },
+                        { value: "SUSPENDED", label: "Suspended" },
                       ]}
                       clearable
                     />
@@ -324,10 +356,10 @@ const SuppliersPage = () => {
                       value={riskLevel}
                       onChange={setRiskLevel}
                       options={[
-                        { value: '', label: 'All risk levels' },
-                        { value: 'LOW', label: 'Low' },
-                        { value: 'MEDIUM', label: 'Medium' },
-                        { value: 'HIGH', label: 'High' }
+                        { value: "", label: "All risk levels" },
+                        { value: "LOW", label: "Low" },
+                        { value: "MEDIUM", label: "Medium" },
+                        { value: "HIGH", label: "High" },
                       ]}
                       clearable
                     />
@@ -338,9 +370,9 @@ const SuppliersPage = () => {
                       value={isActive}
                       onChange={setIsActive}
                       options={[
-                        { value: '', label: 'All' },
-                        { value: 'true', label: 'Active' },
-                        { value: 'false', label: 'Inactive' }
+                        { value: "", label: "All" },
+                        { value: "true", label: "Active" },
+                        { value: "false", label: "Inactive" },
                       ]}
                       clearable
                     />
@@ -349,24 +381,26 @@ const SuppliersPage = () => {
                   {suppliers.length > 0 && (
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <List className="w-4 h-4" />
-                        {t('common.tableView')}
+                        {t("common.tableView")}
                       </button>
                       <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "card"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
-                        {t('common.cardView')}
+                        {t("common.cardView")}
                       </button>
                     </div>
                   )}
@@ -375,17 +409,21 @@ const SuppliersPage = () => {
                     onClick={() => setShowDownloadDrawer(true)}
                     leftIcon={Download}
                   >
-                    {t('common.download')}
+                    {t("common.download")}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowVoiceAIDrawer(true)}
                     leftIcon={Mic}
                   >
-                    {t('customers.voiceAI')}
+                    {t("customers.voiceAI")}
                   </Button>
-                  <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
-                    {t('suppliers.addSupplier')}
+                  <Button
+                    variant="primary"
+                    onClick={handleAddSupplier}
+                    leftIcon={Plus}
+                  >
+                    {t("suppliers.addSupplier")}
                   </Button>
                 </div>
               </div>
@@ -397,10 +435,10 @@ const SuppliersPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loading')}
+                      {t("common.loading")}
                     </p>
                   </div>
                 </div>
@@ -415,23 +453,26 @@ const SuppliersPage = () => {
                     <Building className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('suppliers.noSuppliers')}
+                    {t("suppliers.noSuppliers")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    {t('common.noData')}
+                    {t("common.noData")}
                   </p>
                   {error && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
                       <p className="text-red-600 text-sm">
-                        <strong>{t('common.error')}:</strong> {error}
+                        <strong>{t("common.error")}:</strong> {error}
                       </p>
                     </div>
                   )}
                   <div className="pt-4">
-                    <Button variant="primary" onClick={handleAddSupplier} leftIcon={Plus}>
-                      {t('suppliers.addSupplier')}
+                    <Button
+                      variant="primary"
+                      onClick={handleAddSupplier}
+                      leftIcon={Plus}
+                    >
+                      {t("suppliers.addSupplier")}
                     </Button>
-                   
                   </div>
                 </div>
               </div>
@@ -440,8 +481,11 @@ const SuppliersPage = () => {
             {/* Suppliers List */}
             {suppliers.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
-                  {viewMode === 'table' ? (
+                <div
+                  className="h-[calc(100vh-200px)] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {viewMode === "table" ? (
                     <div className="h-full">
                       <SupplierTable
                         suppliers={suppliers}
@@ -449,7 +493,7 @@ const SuppliersPage = () => {
                         onDelete={handleDeleteSupplier}
                         onViewDetails={handleViewSupplier}
                         loading={isLoading}
-                        emptyMessage={t('suppliers.noSuppliers')}
+                        emptyMessage={t("suppliers.noSuppliers")}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
@@ -473,7 +517,9 @@ const SuppliersPage = () => {
                           <div className="col-span-full flex items-center justify-center py-8">
                             <div className="flex items-center gap-3">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</span>
+                              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                {t("common.loading")}
+                              </span>
                             </div>
                           </div>
                         )}
@@ -488,14 +534,22 @@ const SuppliersPage = () => {
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                       {pagination.hasNextPage ? (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{suppliers.length}</span> suppliers
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {suppliers.length}
+                          </span>{" "}
+                          suppliers
                           <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                             • Scroll down to load more
                           </span>
                         </>
                       ) : (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{suppliers.length}</span> suppliers
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {suppliers.length}
+                          </span>{" "}
+                          suppliers
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                             • No more suppliers
                           </span>
@@ -519,13 +573,22 @@ const SuppliersPage = () => {
               Delete Supplier
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{supplierToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{supplierToDelete?.name}"? This
+              action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={handleCancelDelete} disabled={isDeleting}>
+              <Button
+                variant="outline"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
                 Cancel
               </Button>
-              <Button variant="danger" onClick={handleConfirmDelete} loading={isDeleting}>
+              <Button
+                variant="danger"
+                onClick={handleConfirmDelete}
+                loading={isDeleting}
+              >
                 Delete
               </Button>
             </div>
@@ -542,12 +605,20 @@ const SuppliersPage = () => {
                 <Building className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t('modals.deletedSuccessfully', { item: t('common.supplier') })}
+                {t("modals.deletedSuccessfully", {
+                  item: t("common.supplier"),
+                })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                {t('common.hasBeenRemovedFromList', { name: deletedSupplierName, item: t('common.suppliers') })}
+                {t("common.hasBeenRemovedFromList", {
+                  name: deletedSupplierName,
+                  item: t("common.suppliers"),
+                })}
               </p>
-              <Button variant="primary" onClick={() => setShowDeleteSuccessModal(false)}>
+              <Button
+                variant="primary"
+                onClick={() => setShowDeleteSuccessModal(false)}
+              >
                 Continue
               </Button>
             </div>
@@ -592,7 +663,12 @@ const SuppliersPage = () => {
       >
         <div className="h-full">
           <VoiceAISupplier
-            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            storeId={
+              selectedStore?.storeId ||
+              selectedStore?._id ||
+              selectedStore?.id ||
+              ""
+            }
             onSuccess={(supplierData) => {
               handleSupplierSuccess(supplierData);
               setShowVoiceAIDrawer(false);

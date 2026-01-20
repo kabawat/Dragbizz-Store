@@ -244,40 +244,49 @@ const MinimalistMonochromeTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="mono-invoice-body">
         <div className="mono-invoice">
-          
           {/* Header Section */}
           <div className="mono-header">
             <div className="mono-header-left">
-                <h1>INVOICE</h1>
-                <p>{selectedStore?.storeName || "Minimalist Design Co."}</p>
-                <p>
-                    {selectedStore?.address || "789 White Space, Zen City"}
-                </p>
+              <h1>INVOICE</h1>
+              <p>{selectedStore?.storeName || "Minimalist Design Co."}</p>
+              <p>{selectedStore?.address || "789 White Space, Zen City"}</p>
             </div>
-            
+
             <div className="mono-header-right">
-                <div className="title">Invoice #</div>
-                <div className="mono-invoice-number">{invoiceData.invoiceNumber}</div>
+              <div className="title">Invoice #</div>
+              <div className="mono-invoice-number">
+                {invoiceData.invoiceNumber}
+              </div>
             </div>
           </div>
-          
+
           {/* Bill To & Date Block */}
           <div className="mono-address-block">
             {/* Bill To Details */}
             <div className="mono-address-details">
-                <div className="title">Bill To</div>
-                <p className="mono-customer-name">{invoiceData.customer?.name || "Client"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="mono-customer-name">
+                {invoiceData.customer?.name || "Client"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
-            
+
             {/* Date Details */}
             <div className="mono-address-details">
-                <div className="title" style={{textAlign: 'right'}}>Date Issued</div>
-                <p className="mono-date-issued">{moment(invoiceData.createdAt).format("DD MMMM YYYY")}</p>
+              <div className="title" style={{ textAlign: "right" }}>
+                Date Issued
+              </div>
+              <p className="mono-date-issued">
+                {moment(invoiceData.createdAt).format("DD MMMM YYYY")}
+              </p>
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="mono-table">
             <thead>
@@ -307,37 +316,36 @@ const MinimalistMonochromeTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="mono-totals-table">
+            <div className="row">
+              <div className="label">Subtotal</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST)</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount</div>
+                <div className="amount" style={{ color: "#888" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST)</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">TOTAL</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount</div>
-                  <div className="amount" style={{ color: '#888' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">TOTAL</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
         </div>
       </div>
     </>

@@ -1,26 +1,28 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import { CheckCircle, ArrowRight, Plus, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui';
+"use client";
+import React, { useEffect, useState } from "react";
+import { CheckCircle, ArrowRight, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui";
 
-const SupplierAddSuccessModal = ({ 
-  isOpen, 
-  onClose, 
-  onContinue, 
+const SupplierAddSuccessModal = ({
+  isOpen,
+  onClose,
+  onContinue,
   onAddMore,
   supplierName = "Supplier",
   title = "🎉 Supplier Added Successfully!",
   continueText = "Continue to Suppliers",
   addMoreText = "Add More Suppliers",
   description = "Your supplier is now added and ready for business",
-  isEditMode = false
+  isEditMode = false,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   // Dynamic content based on edit mode
   const modalTitle = isEditMode ? "🎉 Supplier Updated Successfully!" : title;
-  const modalDescription = isEditMode ? "Your supplier information has been updated and saved" : description;
+  const modalDescription = isEditMode
+    ? "Your supplier information has been updated and saved"
+    : description;
   const modalContinueText = isEditMode ? "Back to Suppliers" : continueText;
   const modalAddMoreText = isEditMode ? "Edit More" : addMoreText;
 
@@ -37,12 +39,18 @@ const SupplierAddSuccessModal = ({
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed inset-0 backdrop-blur-[1px] bg-black/10 flex items-start pt-6 justify-center z-[9999] transition-all duration-300 ${
-      isVisible ? 'opacity-100' : 'opacity-0'
-    }`}>
-      <div className={`bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-500 ${
-        showContent ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
-      }`}>
+    <div
+      className={`fixed inset-0 backdrop-blur-[1px] bg-black/10 flex items-start pt-6 justify-center z-[9999] transition-all duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <div
+        className={`bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-500 ${
+          showContent
+            ? "scale-100 opacity-100 translate-y-0"
+            : "scale-95 opacity-0 translate-y-4"
+        }`}
+      >
         {/* Animated Background */}
         <div className="relative overflow-hidden rounded-t-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 opacity-10"></div>
@@ -77,7 +85,8 @@ const SupplierAddSuccessModal = ({
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{supplierName}" has been {isEditMode ? 'updated in' : 'added to'} your supplier list
+              "{supplierName}" has been {isEditMode ? "updated in" : "added to"}{" "}
+              your supplier list
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
               {modalDescription}
@@ -94,7 +103,7 @@ const SupplierAddSuccessModal = ({
             >
               {modalContinueText}
             </Button>
-            
+
             <Button
               variant="outline"
               onClick={onAddMore}

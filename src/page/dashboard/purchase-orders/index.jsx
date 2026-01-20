@@ -1,10 +1,14 @@
-"use client"
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getPurchaseOrders as getPOs, addMorePurchaseOrders, deletePurchaseOrder } from '@/store/slices/purchaseOrdersSlice';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+"use client";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  getPurchaseOrders as getPOs,
+  addMorePurchaseOrders,
+  deletePurchaseOrder,
+} from "@/store/slices/purchaseOrdersSlice";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
 import {
   FileText,
   Plus,
@@ -13,58 +17,66 @@ import {
   Grid3X3,
   AlertTriangle,
   CheckCircle,
-  Clock
-} from 'lucide-react';
-import { Button, Input, ToastContainer } from '@/components/ui';
-import { useToast } from '@/hooks/useToast';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
-import { useTranslation } from '@/hooks/useTranslation';
+  Clock,
+} from "lucide-react";
+import { Button, Input, ToastContainer } from "@/components/ui";
+import { useToast } from "@/hooks/useToast";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Import dedicated purchase order components
-import PurchaseOrderTable from '@/components/purchaseOrders/PurchaseOrderTable';
-import PurchaseOrderGrid from '@/components/purchaseOrders/PurchaseOrderGrid';
-import CreateBillDrawer from '@/components/purchaseOrders/CreateBillDrawer';
-import AdvancePaymentDrawer from '@/components/purchaseOrders/AdvancePaymentDrawer';
-import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from '@/components/bills';
+import PurchaseOrderTable from "@/components/purchaseOrders/PurchaseOrderTable";
+import PurchaseOrderGrid from "@/components/purchaseOrders/PurchaseOrderGrid";
+import CreateBillDrawer from "@/components/purchaseOrders/CreateBillDrawer";
+import AdvancePaymentDrawer from "@/components/purchaseOrders/AdvancePaymentDrawer";
+import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from "@/components/bills";
 
 const PurchaseOrders = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { list: purchaseOrders, isLoading, pagination } = useAppSelector((state) => state.purchaseOrders);
+  const {
+    list: purchaseOrders,
+    isLoading,
+    pagination,
+  } = useAppSelector((state) => state.purchaseOrders);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { toasts, showToast, removeToast } = useToast();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [supplierFilter, setSupplierFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("all");
+  const [dateRange, setDateRange] = useState("all");
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [poToDelete, setPoToDelete] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const scrollRef = useRef(null);
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState("table");
   const lastFetchRef = useRef({ storeId: null, search: null, cursor: null });
   const [isDeleting, setIsDeleting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState([]);
-  
+
   // Create Bill Drawer state
   const [showCreateBillDrawer, setShowCreateBillDrawer] = useState(false);
   const [selectedPOForBill, setSelectedPOForBill] = useState(null);
-  
+
   // Advance Payment Drawer state
-  const [showAdvancePaymentDrawer, setShowAdvancePaymentDrawer] = useState(false);
+  const [showAdvancePaymentDrawer, setShowAdvancePaymentDrawer] =
+    useState(false);
   const [selectedPOForPayment, setSelectedPOForPayment] = useState(null);
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
-    localStorage.setItem('purchase-orders-view-mode', mode);
+    localStorage.setItem("purchase-orders-view-mode", mode);
   };
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('purchase-orders-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+    const savedViewMode = localStorage.getItem("purchase-orders-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
       setViewMode(savedViewMode);
     }
   }, []);
@@ -75,28 +87,33 @@ const PurchaseOrders = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+      if (
+        openMenuId &&
+        menuRefs.current[openMenuId] &&
+        !menuRefs.current[openMenuId].contains(event.target)
+      ) {
         setOpenMenuId(null);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openMenuId]);
 
-useEffect(() => {
-  if (pendingDeleteIds.length === 0) return;
-  setPendingDeleteIds((prev) =>
-    prev.filter((id) =>
-      purchaseOrders.some((po) => (po._id || po.id) === id)
-    )
-  );
-}, [purchaseOrders]);
+  useEffect(() => {
+    if (pendingDeleteIds.length === 0) return;
+    setPendingDeleteIds((prev) =>
+      prev.filter((id) =>
+        purchaseOrders.some((po) => (po._id || po.id) === id),
+      ),
+    );
+  }, [purchaseOrders]);
 
   // Fetch POs
   useEffect(() => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) return;
 
     if (
@@ -108,7 +125,9 @@ useEffect(() => {
     }
 
     lastFetchRef.current = { storeId, search: searchTerm, cursor: null };
-    dispatch(getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null }));
+    dispatch(
+      getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null }),
+    );
   }, [dispatch, selectedStore, searchTerm]);
 
   const handleMenuToggle = (id) => {
@@ -116,34 +135,34 @@ useEffect(() => {
   };
 
   const handleMenuAction = (id, action) => {
-    const po = purchaseOrders.find(b => (b._id || b.id) === id);
+    const po = purchaseOrders.find((b) => (b._id || b.id) === id);
     if (!po) return;
-    const poStatus = (po.status || '').toUpperCase();
-    const isDeleted = poStatus === 'DELETED';
+    const poStatus = (po.status || "").toUpperCase();
+    const isDeleted = poStatus === "DELETED";
 
     switch (action) {
-      case 'view':
+      case "view":
         router.push(`/dashboard/purchase-orders/${po._id || po.id}`);
         break;
-      case 'edit':
+      case "edit":
         if (isDeleted) return;
         router.push(`/dashboard/purchase-orders/${po._id || po.id}/edit`);
         break;
-      case 'createBill':
+      case "createBill":
         if (isDeleted) return;
         // Open create bill drawer with purchase order data
         setSelectedPOForBill(po);
         setShowCreateBillDrawer(true);
         setOpenMenuId(null);
         break;
-      case 'advancePayment':
+      case "advancePayment":
         if (isDeleted) return;
         // Open advance payment drawer with purchase order data
         setSelectedPOForPayment(po);
         setShowAdvancePaymentDrawer(true);
         setOpenMenuId(null);
         break;
-      case 'delete':
+      case "delete":
         handleDelete(po);
         break;
       default:
@@ -154,7 +173,8 @@ useEffect(() => {
 
   const handleLoadMore = async () => {
     if (isLoadingMore || !pagination.hasNextPage) return;
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) return;
     try {
       setIsLoadingMore(true);
@@ -168,8 +188,19 @@ useEffect(() => {
         return;
       }
 
-      lastFetchRef.current = { storeId, search: searchTerm, cursor: nextCursor };
-      const resultAction = await dispatch(getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: nextCursor }));
+      lastFetchRef.current = {
+        storeId,
+        search: searchTerm,
+        cursor: nextCursor,
+      };
+      const resultAction = await dispatch(
+        getPOs({
+          store: storeId,
+          search: searchTerm,
+          limit: 20,
+          cursor: nextCursor,
+        }),
+      );
       const payload = resultAction?.payload;
       if (payload?.data) {
         dispatch(addMorePurchaseOrders(payload.data));
@@ -179,27 +210,33 @@ useEffect(() => {
     }
   };
 
-const pendingDeleteSet = useMemo(() => new Set(pendingDeleteIds), [pendingDeleteIds]);
+  const pendingDeleteSet = useMemo(
+    () => new Set(pendingDeleteIds),
+    [pendingDeleteIds],
+  );
 
-const getFilteredPOs = () => {
-  let filtered = purchaseOrders
-    .filter(po => !pendingDeleteSet.has(po._id || po.id));
-    
-    if (supplierFilter !== 'all') {
-      filtered = filtered.filter(po => po.supplier?.name?.toLowerCase().includes(supplierFilter.toLowerCase()));
+  const getFilteredPOs = () => {
+    let filtered = purchaseOrders.filter(
+      (po) => !pendingDeleteSet.has(po._id || po.id),
+    );
+
+    if (supplierFilter !== "all") {
+      filtered = filtered.filter((po) =>
+        po.supplier?.name?.toLowerCase().includes(supplierFilter.toLowerCase()),
+      );
     }
-    if (dateRange !== 'all') {
+    if (dateRange !== "all") {
       const now = new Date();
-      filtered = filtered.filter(po => {
+      filtered = filtered.filter((po) => {
         const date = new Date(po.billDate);
         switch (dateRange) {
-          case 'today':
+          case "today":
             return date.toDateString() === now.toDateString();
-          case 'week':
+          case "week":
             return date >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          case 'month':
+          case "month":
             return date >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          case 'year':
+          case "year":
             return date >= new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
           default:
             return true;
@@ -208,10 +245,11 @@ const getFilteredPOs = () => {
     }
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(po =>
-        (po.poNumber || po.billNumber)?.toLowerCase().includes(lowerSearch) ||
-        po.supplier?.name?.toLowerCase().includes(lowerSearch) ||
-        (po.advanceAmount ?? 0).toString().includes(lowerSearch)
+      filtered = filtered.filter(
+        (po) =>
+          (po.poNumber || po.billNumber)?.toLowerCase().includes(lowerSearch) ||
+          po.supplier?.name?.toLowerCase().includes(lowerSearch) ||
+          (po.advanceAmount ?? 0).toString().includes(lowerSearch),
       );
     }
     return filtered;
@@ -224,8 +262,14 @@ const getFilteredPOs = () => {
     const billDate = po.poDate || po.billDate;
     const dueDate = po.expectedDeliveryDate || po.dueDate;
     const items = po.items || [];
-    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-    const receivedQuantity = items.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0);
+    const totalQuantity = items.reduce(
+      (sum, item) => sum + (item.quantity || 0),
+      0,
+    );
+    const receivedQuantity = items.reduce(
+      (sum, item) => sum + (item.receivedQuantity || 0),
+      0,
+    );
     const pendingQuantity = Math.max(totalQuantity - receivedQuantity, 0);
     const advanceAmount = po.advanceAmount ?? 0;
     return {
@@ -240,7 +284,6 @@ const getFilteredPOs = () => {
     };
   });
 
-
   const handleDelete = (po) => {
     setPoToDelete(po);
     setShowDeleteModal(true);
@@ -249,75 +292,105 @@ const getFilteredPOs = () => {
   const confirmDelete = async () => {
     if (!poToDelete || isDeleting) return;
 
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     const poId = poToDelete._id || poToDelete.id;
     if (!poId) return;
 
     try {
       setIsDeleting(true);
-      const result = await dispatch(deletePurchaseOrder({ id: poId, store: storeId })).unwrap();
-      setPendingDeleteIds((prev) => (prev.includes(poId) ? prev : [...prev, poId]));
+      const result = await dispatch(
+        deletePurchaseOrder({ id: poId, store: storeId }),
+      ).unwrap();
+      setPendingDeleteIds((prev) =>
+        prev.includes(poId) ? prev : [...prev, poId],
+      );
       setSelectedPOs((prev) => prev.filter((id) => id !== poId));
       setShowDeleteModal(false);
       setPoToDelete(null);
       const friendlyPo = poToDelete?.poNumber || poToDelete?.billNumber || poId;
       const poNumber = result?.poNumber || friendlyPo;
-      
+
       // Show simple toast notification
-      showToast(`Purchase Order ${poNumber} deletion has been scheduled.`, 'success', 3000);
+      showToast(
+        `Purchase Order ${poNumber} deletion has been scheduled.`,
+        "success",
+        3000,
+      );
     } catch (error) {
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const formatCurrency = (amount = 0) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+  const formatCurrency = (amount = 0) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
   const formatDate = (date) => {
-    if (!date) return '--';
+    if (!date) return "--";
     const parsed = new Date(date);
-    if (Number.isNaN(parsed.getTime())) return '--';
-    return parsed.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+    if (Number.isNaN(parsed.getTime())) return "--";
+    return parsed.toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const getStatusBadge = (po) => {
     const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
-    const hasPending = (po.pendingQuantity ?? Math.max((po.totalQuantity || 0) - (po.receivedQuantity || 0), 0)) > 0;
-    const isOverdue = !!dueDateObj && !Number.isNaN(dueDateObj.getTime()) && dueDateObj < new Date() && hasPending;
-    
+    const hasPending =
+      (po.pendingQuantity ??
+        Math.max((po.totalQuantity || 0) - (po.receivedQuantity || 0), 0)) > 0;
+    const isOverdue =
+      !!dueDateObj &&
+      !Number.isNaN(dueDateObj.getTime()) &&
+      dueDateObj < new Date() &&
+      hasPending;
+
     if (isOverdue) {
-      const config = getCommonStatusBadge('OVERDUE', 'purchase-order');
+      const config = getCommonStatusBadge("OVERDUE", "purchase-order");
       return {
         variant: config.variant,
         icon: AlertTriangle,
         text: config.text,
-        color: 'bg-red-500/10 text-red-600 border-red-500/20'
+        color: "bg-red-500/10 text-red-600 border-red-500/20",
       };
     }
 
-    const approval = (po.approvalStatus || '').toUpperCase();
-    const config = getCommonStatusBadge(approval || 'PENDING', 'purchase-order');
-    
+    const approval = (po.approvalStatus || "").toUpperCase();
+    const config = getCommonStatusBadge(
+      approval || "PENDING",
+      "purchase-order",
+    );
+
     // Map icons for compatibility
     const iconMap = {
-      'PENDING': Clock,
-      'APPROVED': CheckCircle,
-      'REJECTED': AlertTriangle
+      PENDING: Clock,
+      APPROVED: CheckCircle,
+      REJECTED: AlertTriangle,
     };
-    
+
     const getColorClass = (variant) => {
-      switch(variant) {
-        case 'success': return 'bg-green-500/10 text-green-600 border-green-500/20';
-        case 'danger': return 'bg-red-500/10 text-red-600 border-red-500/20';
-        case 'primary': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
-        default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
+      switch (variant) {
+        case "success":
+          return "bg-green-500/10 text-green-600 border-green-500/20";
+        case "danger":
+          return "bg-red-500/10 text-red-600 border-red-500/20";
+        case "primary":
+          return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+        default:
+          return "bg-gray-500/10 text-gray-600 border-gray-500/20";
       }
     };
-    
+
     return {
       variant: config.variant,
       icon: iconMap[approval] || Clock,
       text: config.text,
-      color: getColorClass(config.variant)
+      color: getColorClass(config.variant),
     };
   };
 
@@ -329,8 +402,8 @@ const getFilteredPOs = () => {
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
         <Header
-          title={t('purchaseOrders.title')}
-          description={t('purchaseOrders.description')}
+          title={t("purchaseOrders.title")}
+          description={t("purchaseOrders.description")}
         />
 
         {/* Main Content */}
@@ -343,10 +416,10 @@ const getFilteredPOs = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loading')}
+                      {t("common.loading")}
                     </p>
                   </div>
                 </div>
@@ -361,7 +434,7 @@ const getFilteredPOs = () => {
                   <div className="w-100 bg-red">
                     <Input
                       type="text"
-                      placeholder={`${t('common.search')} ${t('purchaseOrders.title').toLowerCase()}...`}
+                      placeholder={`${t("common.search")} ${t("purchaseOrders.title").toLowerCase()}...`}
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                       leftIcon={Search}
@@ -374,26 +447,37 @@ const getFilteredPOs = () => {
                     {/* View toggle */}
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
-                        <List className={`w-4 h-4 ${viewMode === 'table' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
-                        {t('common.tableView')}
+                        <List
+                          className={`w-4 h-4 ${viewMode === "table" ? "text-white" : "text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]"}`}
+                        />
+                        {t("common.tableView")}
                       </button>
                       <button
-                        onClick={() => handleViewModeChange('card')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card" ? "bg-[rgb(var(--color-primary))] text-white" : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"}`}
                       >
-                        <Grid3X3 className={`w-4 h-4 ${viewMode === 'card' ? 'text-white' : 'text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]'}`} />
-                        {t('common.cardView')}
+                        <Grid3X3
+                          className={`w-4 h-4 ${viewMode === "card" ? "text-white" : "text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]"}`}
+                        />
+                        {t("common.cardView")}
                       </button>
                     </div>
 
-                    <Button variant="primary" onClick={() => router.push('/dashboard/purchase-orders/create')} leftIcon={Plus}>
-                      {t('purchaseOrders.createPO')}
+                    <Button
+                      variant="primary"
+                      onClick={() =>
+                        router.push("/dashboard/purchase-orders/create")
+                      }
+                      leftIcon={Plus}
+                    >
+                      {t("purchaseOrders.createPO")}
                     </Button>
                   </div>
                 </div>
@@ -408,18 +492,20 @@ const getFilteredPOs = () => {
                     <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('purchaseOrders.noPurchaseOrders')}
+                    {t("purchaseOrders.noPurchaseOrders")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    {t('common.noData')}
+                    {t("common.noData")}
                   </p>
                   <div className="pt-4">
                     <Button
                       variant="primary"
-                      onClick={() => router.push('/dashboard/purchase-orders/create')}
+                      onClick={() =>
+                        router.push("/dashboard/purchase-orders/create")
+                      }
                     >
                       <Plus className="w-4 h-4 mr-2 text-white" />
-                      {t('purchaseOrders.createPO')}
+                      {t("purchaseOrders.createPO")}
                     </Button>
                   </div>
                 </div>
@@ -429,15 +515,22 @@ const getFilteredPOs = () => {
             {/* PO list */}
             {purchaseOrders.length > 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
-                  {viewMode === 'table' ? (
+                <div
+                  className="h-[calc(100vh-200px)] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {viewMode === "table" ? (
                     <PurchaseOrderTable
                       bills={normalizedPOs}
-                      onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
+                      onEdit={(id) =>
+                        router.push(`/dashboard/purchase-orders/${id}/edit`)
+                      }
                       onDelete={handleDelete}
-                      onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
+                      onViewDetails={(id) =>
+                        router.push(`/dashboard/purchase-orders/${id}`)
+                      }
                       loading={isLoading}
-                      emptyMessage={t('purchaseOrders.noPurchaseOrders')}
+                      emptyMessage={t("purchaseOrders.noPurchaseOrders")}
                       hasMore={pagination.hasNextPage}
                       onLoadMore={handleLoadMore}
                       isLoadingMore={isLoadingMore}
@@ -452,9 +545,13 @@ const getFilteredPOs = () => {
                   ) : (
                     <PurchaseOrderGrid
                       purchaseOrders={normalizedPOs}
-                      onEdit={(id) => router.push(`/dashboard/purchase-orders/${id}/edit`)}
+                      onEdit={(id) =>
+                        router.push(`/dashboard/purchase-orders/${id}/edit`)
+                      }
                       onDelete={handleDelete}
-                      onViewDetails={(id) => router.push(`/dashboard/purchase-orders/${id}`)}
+                      onViewDetails={(id) =>
+                        router.push(`/dashboard/purchase-orders/${id}`)
+                      }
                       isLoadingMore={isLoadingMore}
                       openMenuId={openMenuId}
                       onMenuToggle={handleMenuToggle}
@@ -474,14 +571,22 @@ const getFilteredPOs = () => {
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                       {pagination.hasNextPage ? (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{purchaseOrders.length}</span> purchase orders
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {purchaseOrders.length}
+                          </span>{" "}
+                          purchase orders
                           <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                             • Scroll down to load more
                           </span>
                         </>
                       ) : (
                         <>
-                          Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{purchaseOrders.length}</span> purchase orders
+                          Showing{" "}
+                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                            {purchaseOrders.length}
+                          </span>{" "}
+                          purchase orders
                           <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                             • No more purchase orders
                           </span>
@@ -531,9 +636,17 @@ const getFilteredPOs = () => {
         onSuccess={() => {
           // Handle successful advance payment creation
           // Refresh purchase orders list
-          const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+          const storeId =
+            selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
           if (storeId) {
-            dispatch(getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null }));
+            dispatch(
+              getPOs({
+                store: storeId,
+                search: searchTerm,
+                limit: 20,
+                cursor: null,
+              }),
+            );
           }
         }}
       />
@@ -545,5 +658,3 @@ const getFilteredPOs = () => {
 };
 
 export default PurchaseOrders;
-
-

@@ -35,14 +35,23 @@
   /* page size */
   @page {
     size: A4 portrait;
-    margin: 12mm; 
+    margin: 12mm;
   }
 
-  img { -webkit-user-select: none; user-select: none; }
+  img {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 
-  table { page-break-inside: avoid; border-collapse: collapse; }
+  table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+  }
 
-  * { color-adjust: exact; -webkit-print-color-adjust: exact; }
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 @media screen {

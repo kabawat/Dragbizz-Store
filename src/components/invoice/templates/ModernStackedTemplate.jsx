@@ -283,42 +283,58 @@ const ModernStackedTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="modern-body">
         <div className="modern-invoice">
-          
           {/* Header Section */}
           <div className="modern-header">
             <h1>INVOICE</h1>
             <div className="modern-store-info">
-                <p style={{ fontWeight: 700, color: TEXT_DARK, fontSize: 16 }}>
-                    {selectedStore?.storeName || "Redline Solutions"}
-                </p>
-                <p>
-                    {selectedStore?.address || "101 Modern Street, High City"}
-                </p>
-                <p>
-                    Ph: {selectedStore?.phone || "+91 800-REDLINE"} | {selectedStore?.email || "info@redlines.com"}
-                </p>
+              <p style={{ fontWeight: 700, color: TEXT_DARK, fontSize: 16 }}>
+                {selectedStore?.storeName || "Redline Solutions"}
+              </p>
+              <p>{selectedStore?.address || "101 Modern Street, High City"}</p>
+              <p>
+                Ph: {selectedStore?.phone || "+91 800-REDLINE"} |{" "}
+                {selectedStore?.email || "info@redlines.com"}
+              </p>
             </div>
           </div>
-          
+
           {/* Info Blocks */}
           <div className="modern-info-container">
             {/* Bill To Details */}
             <div className="modern-block customer">
-                <div className="title">Bill To</div>
-                <p className="modern-value-large">{invoiceData.customer?.name || "Premium Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="modern-value-large">
+                {invoiceData.customer?.name || "Premium Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
-            
+
             {/* Invoice Details */}
             <div className="modern-block invoice">
-                <div className="title">Invoice Details</div>
-                <p>Invoice #: <span className="modern-value-large">{invoiceData.invoiceNumber}</span></p>
-                <p>Date Issued: <span className="modern-value-large">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-                <p>Due Date: <span className="modern-value-large">IMMEDIATE</span></p>
+              <div className="title">Invoice Details</div>
+              <p>
+                Invoice #:{" "}
+                <span className="modern-value-large">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date Issued:{" "}
+                <span className="modern-value-large">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due Date: <span className="modern-value-large">IMMEDIATE</span>
+              </p>
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="modern-table">
             <thead>
@@ -337,7 +353,7 @@ const ModernStackedTemplate = ({ invoiceData, selectedStore }) => {
                       {item.product?.name || "Unnamed Service"}
                     </div>
                     {item.product?.sku && (
-                      <div style={{ fontSize: '11px', color: '#7f8c8d' }}>
+                      <div style={{ fontSize: "11px", color: "#7f8c8d" }}>
                         SKU: {item.product.sku}
                       </div>
                     )}
@@ -353,41 +369,42 @@ const ModernStackedTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="modern-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount:</div>
+                <div className="amount" style={{ color: "#2ecc71" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#2ecc71' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="modern-footer">
-            <p style={{ textAlign: 'center' }}>
-                Payment confirms acceptance of services. Invoice generated on {moment().format('MMMM Do YYYY, h:mm a')}.
+            <p style={{ textAlign: "center" }}>
+              Payment confirms acceptance of services. Invoice generated on{" "}
+              {moment().format("MMMM Do YYYY, h:mm a")}.
             </p>
           </div>
         </div>

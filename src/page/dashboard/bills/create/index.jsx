@@ -1,10 +1,15 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAppSelector } from '@/store/hooks';
-import { supplierService, productService, billService, purchaseOrderService } from '@/service/retailer';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import {
+  supplierService,
+  productService,
+  billService,
+  purchaseOrderService,
+} from "@/service/retailer";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
 import {
   Receipt,
   Plus,
@@ -20,31 +25,40 @@ import {
   ArrowLeft,
   CheckCircle,
   Clock,
-  Trash2
-} from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal, ToastContainer, ErrorModal } from '@/components/ui';
-import { useToast } from '@/hooks/useToast';
-import { extractFieldErrors } from '@/utils/validationErrorHandler';
-import Link from 'next/link';
-import { useTranslation } from '@/hooks/useTranslation';
+  Trash2,
+} from "lucide-react";
+import {
+  Button,
+  Input,
+  Select,
+  Textarea,
+  Card,
+  Modal,
+  ToastContainer,
+  ErrorModal,
+} from "@/components/ui";
+import { useToast } from "@/hooks/useToast";
+import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const formInit = {
-  supplier: '',
-  purchaseOrder: '',
-  billDate: new Date().toISOString().split('T')[0],
-  dueDate: '',
-  notes: '',
+  supplier: "",
+  purchaseOrder: "",
+  billDate: new Date().toISOString().split("T")[0],
+  dueDate: "",
+  notes: "",
   goodsReceived: true,
   items: [
     {
-      product: '',
-      productName: '',
+      product: "",
+      productName: "",
       quantity: 1,
       purchasePrice: 0,
-      expiryDate: ''
-    }
-  ]
-}
+      expiryDate: "",
+    },
+  ],
+};
 const CreateBill = () => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -72,7 +86,7 @@ const CreateBill = () => {
   const [errors, setErrors] = useState({});
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const { toasts, showSuccess, removeToast } = useToast();
 
   // Refs to prevent duplicate API calls
@@ -81,13 +95,17 @@ const CreateBill = () => {
   const purchaseOrdersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // Get stable storeId
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
     if (!storeId) return;
 
-    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) {
+    if (
+      suppliersFetchedRef.current.storeId === storeId &&
+      suppliersFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -102,7 +120,7 @@ const CreateBill = () => {
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
@@ -118,7 +136,10 @@ const CreateBill = () => {
   const fetchProducts = async () => {
     if (!storeId) return;
 
-    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+    if (
+      productsFetchedRef.current.storeId === storeId &&
+      productsFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -132,7 +153,7 @@ const CreateBill = () => {
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         const productsData = result.data?.data || result.data || [];
@@ -149,7 +170,10 @@ const CreateBill = () => {
     if (!storeId) return;
 
     // Prevent duplicate calls for the same store
-    if (purchaseOrdersFetchedRef.current.storeId === storeId && purchaseOrdersFetchedRef.current.fetched) {
+    if (
+      purchaseOrdersFetchedRef.current.storeId === storeId &&
+      purchaseOrdersFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -165,7 +189,7 @@ const CreateBill = () => {
       const result = await purchaseOrderService.getPurchaseOrders({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         const purchaseOrdersData = result.data?.data || result.data || [];
@@ -179,17 +203,18 @@ const CreateBill = () => {
 
   // Handle URL parameters for purchase order
   useEffect(() => {
-    const poNumber = searchParams.get('poNumber');
+    const poNumber = searchParams.get("poNumber");
 
     if (poNumber && purchaseOrders.length > 0) {
-      const foundPO = purchaseOrders.find(po =>
-        (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber
+      const foundPO = purchaseOrders.find(
+        (po) =>
+          (po.poNumber || po.purchaseOrderNumber || po.billNumber) === poNumber,
       );
       if (foundPO) {
         // Pre-fill the purchase order field with the PO ID
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          purchaseOrder: foundPO.id || foundPO._id
+          purchaseOrder: foundPO.id || foundPO._id,
         }));
       }
     }
@@ -197,11 +222,12 @@ const CreateBill = () => {
 
   // Reset refs when storeId changes
   useEffect(() => {
-    if (storeId && (
-      suppliersFetchedRef.current.storeId !== storeId ||
-      productsFetchedRef.current.storeId !== storeId ||
-      purchaseOrdersFetchedRef.current.storeId !== storeId
-    )) {
+    if (
+      storeId &&
+      (suppliersFetchedRef.current.storeId !== storeId ||
+        productsFetchedRef.current.storeId !== storeId ||
+        purchaseOrdersFetchedRef.current.storeId !== storeId)
+    ) {
       suppliersFetchedRef.current = { storeId: null, fetched: false };
       productsFetchedRef.current = { storeId: null, fetched: false };
       purchaseOrdersFetchedRef.current = { storeId: null, fetched: false };
@@ -222,9 +248,9 @@ const CreateBill = () => {
     if (formData.billDate && !formData.dueDate) {
       const billDate = new Date(formData.billDate);
       billDate.setDate(billDate.getDate() + 30);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        dueDate: billDate.toISOString().split('T')[0]
+        dueDate: billDate.toISOString().split("T")[0],
       }));
     }
   }, [formData.billDate]);
@@ -235,25 +261,25 @@ const CreateBill = () => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    if (value === 'add-new-supplier') {
-      router.push('/dashboard/suppliers/add');
+    if (value === "add-new-supplier") {
+      router.push("/dashboard/suppliers/add");
       return;
     }
 
-    if (value === 'add-new-purchase-order') {
-      router.push('/dashboard/purchase-orders/create');
+    if (value === "add-new-purchase-order") {
+      router.push("/dashboard/purchase-orders/create");
       return;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: "",
       }));
     }
   };
@@ -263,46 +289,47 @@ const CreateBill = () => {
     const updatedItems = [...formData.items];
     updatedItems[index] = {
       ...updatedItems[index],
-      [field]: value
+      [field]: value,
     };
 
     // Update product name when product is selected
-    if (field === 'product') {
-      const selectedProduct = products.find(p => (p.id || p._id) === value);
+    if (field === "product") {
+      const selectedProduct = products.find((p) => (p.id || p._id) === value);
       if (selectedProduct) {
-        updatedItems[index].productName = selectedProduct.name || selectedProduct.productName || '';
+        updatedItems[index].productName =
+          selectedProduct.name || selectedProduct.productName || "";
       }
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: updatedItems
+      items: updatedItems,
     }));
 
     // Clear item errors
     const errorKey = `item_${index}_${field}`;
     if (errors[errorKey]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [errorKey]: ''
+        [errorKey]: "",
       }));
     }
   };
 
   // Add new item
   const addItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: [
         ...prev.items,
         {
-          product: '',
-          productName: '',
+          product: "",
+          productName: "",
           quantity: 1,
           purchasePrice: 0,
-          expiryDate: ''
-        }
-      ]
+          expiryDate: "",
+        },
+      ],
     }));
   };
 
@@ -310,9 +337,9 @@ const CreateBill = () => {
   const removeItem = (index) => {
     if (formData.items.length > 1) {
       const updatedItems = formData.items.filter((_, i) => i !== index);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        items: updatedItems
+        items: updatedItems,
       }));
     }
   };
@@ -323,41 +350,55 @@ const CreateBill = () => {
 
     // REQUIRED FIELDS VALIDATION
     if (!formData.supplier) {
-      newErrors.supplier = 'Supplier is required';
+      newErrors.supplier = "Supplier is required";
     }
 
     // OPTIONAL FIELDS VALIDATION
     if (formData.billDate && new Date(formData.billDate) > new Date()) {
-      newErrors.billDate = 'Bill date cannot be in the future';
+      newErrors.billDate = "Bill date cannot be in the future";
     }
 
-    if (formData.dueDate && formData.billDate && new Date(formData.dueDate) < new Date(formData.billDate)) {
-      newErrors.dueDate = 'Due date cannot be before bill date';
+    if (
+      formData.dueDate &&
+      formData.billDate &&
+      new Date(formData.dueDate) < new Date(formData.billDate)
+    ) {
+      newErrors.dueDate = "Due date cannot be before bill date";
     }
 
     if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = t('errors.notesCannotExceed500Chars');
+      newErrors.notes = t("errors.notesCannotExceed500Chars");
     }
 
     // ITEMS VALIDATION (Required)
     if (!formData.items || formData.items.length === 0) {
-      newErrors.items = 'At least one item is required';
+      newErrors.items = "At least one item is required";
     }
 
     formData.items.forEach((item, index) => {
       // Product ID validation (Required)
       if (!item.product) {
-        newErrors[`item_${index}_product`] = 'Product is required';
+        newErrors[`item_${index}_product`] = "Product is required";
       }
 
       // Quantity validation (Required - number > 0)
-      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(Number(item.quantity))) {
-        newErrors[`item_${index}_quantity`] = 'Valid quantity (integer &gt; 0) is required';
+      if (
+        !item.quantity ||
+        item.quantity <= 0 ||
+        !Number.isInteger(Number(item.quantity))
+      ) {
+        newErrors[`item_${index}_quantity`] =
+          "Valid quantity (integer &gt; 0) is required";
       }
 
       // Purchase Price validation (Required - number >= 0)
-      if (item.purchasePrice === undefined || item.purchasePrice === null || item.purchasePrice < 0) {
-        newErrors[`item_${index}_purchasePrice`] = 'Valid purchase price (number &gt;= 0) is required';
+      if (
+        item.purchasePrice === undefined ||
+        item.purchasePrice === null ||
+        item.purchasePrice < 0
+      ) {
+        newErrors[`item_${index}_purchasePrice`] =
+          "Valid purchase price (number &gt;= 0) is required";
       }
 
       // Expiry Date validation (Optional - ISO date string)
@@ -366,9 +407,10 @@ const CreateBill = () => {
         const billDate = new Date(formData.billDate || new Date());
 
         if (isNaN(expiryDate.getTime())) {
-          newErrors[`item_${index}_expiryDate`] = 'Invalid expiry date format';
+          newErrors[`item_${index}_expiryDate`] = "Invalid expiry date format";
         } else if (expiryDate < billDate) {
-          newErrors[`item_${index}_expiryDate`] = 'Expiry date cannot be before bill date';
+          newErrors[`item_${index}_expiryDate`] =
+            "Expiry date cannot be before bill date";
         }
       }
     });
@@ -393,28 +435,30 @@ const CreateBill = () => {
         supplier: formData.supplier,
         purchaseOrder: formData.purchaseOrder || undefined,
         goodsReceived: !!formData.goodsReceived,
-        items: formData.items.map(item => ({
+        items: formData.items.map((item) => ({
           product: item.product,
           quantity: parseInt(item.quantity),
           purchasePrice: parseFloat(item.purchasePrice),
-          expiryDate: item.expiryDate || undefined
+          expiryDate: item.expiryDate || undefined,
         })),
 
-        billDate: formData.billDate || new Date().toISOString().split('T')[0],
+        billDate: formData.billDate || new Date().toISOString().split("T")[0],
         dueDate: formData.dueDate || undefined,
-        notes: formData.notes || undefined
+        notes: formData.notes || undefined,
       };
 
       const result = await billService.createBill(billData);
 
       if (result.success) {
-        showSuccess(t('success.createdSuccessfully', { item: t('common.bill') }));
+        showSuccess(
+          t("success.createdSuccessfully", { item: t("common.bill") }),
+        );
         setTimeout(() => {
           const billId = result.data?.id || result.data?._id;
           if (billId) {
             router.push(`/dashboard/bills/${billId}`);
           } else {
-            router.push('/dashboard/bills');
+            router.push("/dashboard/bills");
           }
         }, 1500);
       } else {
@@ -424,7 +468,10 @@ const CreateBill = () => {
           setErrors(fieldErrors);
         } else {
           // Show error modal for general errors
-          setErrorMessage(result.message || t('errors.failedToCreateTryAgain', { item: t('common.bill') }));
+          setErrorMessage(
+            result.message ||
+              t("errors.failedToCreateTryAgain", { item: t("common.bill") }),
+          );
           setShowErrorModal(true);
         }
       }
@@ -435,11 +482,14 @@ const CreateBill = () => {
         if (Object.keys(fieldErrors).length > 0) {
           setErrors(fieldErrors);
         } else {
-          setErrorMessage(error.response.data.message || 'An error occurred while creating the bill. Please try again.');
+          setErrorMessage(
+            error.response.data.message ||
+              "An error occurred while creating the bill. Please try again.",
+          );
           setShowErrorModal(true);
         }
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage("An unexpected error occurred. Please try again.");
         setShowErrorModal(true);
       }
     } finally {
@@ -465,31 +515,44 @@ const CreateBill = () => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title={t('bills.createBill')}
-          description={searchParams.get('poNumber') ?
-            t('bills.billForPO', { poNumber: searchParams.get('poNumber') }) :
-            t('bills.createBillDescription')
+          title={t("bills.createBill")}
+          description={
+            searchParams.get("poNumber")
+              ? t("bills.billForPO", { poNumber: searchParams.get("poNumber") })
+              : t("bills.createBillDescription")
           }
         />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-
             {/* Back Button */}
             <div className="mb-4">
-              <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/bills"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.bills') })}</span>
+                <span className="text-sm font-medium">
+                  {t("common.backTo", { item: t("common.bills") })}
+                </span>
               </Link>
             </div>
 
             {/* Form Container - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 204px)' }}>
+            <div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              style={{ height: "calc(100vh - 204px)" }}
+            >
               {/* Main Form - Left Side */}
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-204px)]">
-                  <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSubmit();
+                    }}
+                  >
                     {/* Bill Information */}
                     <Card className="mb-6">
                       <div className="p-6">
@@ -505,14 +568,31 @@ const CreateBill = () => {
                             </label>
                             <Select
                               value={formData.supplier}
-                              onChange={(value) => handleInputChange('supplier', value)}
+                              onChange={(value) =>
+                                handleInputChange("supplier", value)
+                              }
                               options={[
-                                { value: '', label: suppliersLoading ? t('errors.loading') : t('errors.selectSupplier') },
-                                ...suppliers.filter(supplier => supplier.name || supplier.supplierName).map(supplier => ({
-                                  value: supplier.id || supplier._id,
-                                  label: supplier.name || supplier.supplierName
-                                })),
-                                { value: 'add-new-supplier', label: t('errors.addNewSupplier'), isAddOption: true }
+                                {
+                                  value: "",
+                                  label: suppliersLoading
+                                    ? t("errors.loading")
+                                    : t("errors.selectSupplier"),
+                                },
+                                ...suppliers
+                                  .filter(
+                                    (supplier) =>
+                                      supplier.name || supplier.supplierName,
+                                  )
+                                  .map((supplier) => ({
+                                    value: supplier.id || supplier._id,
+                                    label:
+                                      supplier.name || supplier.supplierName,
+                                  })),
+                                {
+                                  value: "add-new-supplier",
+                                  label: t("errors.addNewSupplier"),
+                                  isAddOption: true,
+                                },
                               ]}
                               error={errors.supplier}
                               disabled={suppliersLoading}
@@ -526,18 +606,39 @@ const CreateBill = () => {
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                               Purchase Order
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                (Optional)
+                              </span>
                             </label>
                             <Select
                               value={formData.purchaseOrder}
-                              onChange={(value) => handleInputChange('purchaseOrder', value)}
+                              onChange={(value) =>
+                                handleInputChange("purchaseOrder", value)
+                              }
                               options={[
-                                { value: '', label: purchaseOrdersLoading ? t('errors.loading') : t('errors.selectPurchaseOrder') },
-                                ...purchaseOrders.filter(po => po.poNumber || po.purchaseOrderNumber).map(po => ({
-                                  value: po.id || po._id,
-                                  label: po.poNumber || po.purchaseOrderNumber || `PO-${po.id || po._id}`
-                                })),
-                                { value: 'add-new-purchase-order', label: t('errors.addNewPurchaseOrder'), isAddOption: true }
+                                {
+                                  value: "",
+                                  label: purchaseOrdersLoading
+                                    ? t("errors.loading")
+                                    : t("errors.selectPurchaseOrder"),
+                                },
+                                ...purchaseOrders
+                                  .filter(
+                                    (po) =>
+                                      po.poNumber || po.purchaseOrderNumber,
+                                  )
+                                  .map((po) => ({
+                                    value: po.id || po._id,
+                                    label:
+                                      po.poNumber ||
+                                      po.purchaseOrderNumber ||
+                                      `PO-${po.id || po._id}`,
+                                  })),
+                                {
+                                  value: "add-new-purchase-order",
+                                  label: t("errors.addNewPurchaseOrder"),
+                                  isAddOption: true,
+                                },
                               ]}
                               error={errors.purchaseOrder}
                               disabled={purchaseOrdersLoading}
@@ -551,12 +652,16 @@ const CreateBill = () => {
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                               Bill Date
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to today)</span>
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                (Optional - defaults to today)
+                              </span>
                             </label>
                             <Input
                               type="date"
                               value={formData.billDate}
-                              onChange={(value) => handleInputChange('billDate', value)}
+                              onChange={(value) =>
+                                handleInputChange("billDate", value)
+                              }
                               error={errors.billDate}
                               leftIcon={Calendar}
                             />
@@ -565,12 +670,16 @@ const CreateBill = () => {
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                               Due Date
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - defaults to +30 days)</span>
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                (Optional - defaults to +30 days)
+                              </span>
                             </label>
                             <Input
                               type="date"
                               value={formData.dueDate}
-                              onChange={(value) => handleInputChange('dueDate', value)}
+                              onChange={(value) =>
+                                handleInputChange("dueDate", value)
+                              }
                               error={errors.dueDate}
                               leftIcon={Calendar}
                             />
@@ -580,11 +689,15 @@ const CreateBill = () => {
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                             Notes
-                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional - max 500 characters)</span>
+                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                              (Optional - max 500 characters)
+                            </span>
                           </label>
                           <Textarea
                             value={formData.notes}
-                            onChange={(value) => handleInputChange('notes', value)}
+                            onChange={(value) =>
+                              handleInputChange("notes", value)
+                            }
                             placeholder="Additional notes for this bill..."
                             rows={3}
                             leftIcon={FileText}
@@ -599,9 +712,12 @@ const CreateBill = () => {
 
                         <div className="mt-4 border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 flex items-center justify-between gap-4">
                           <div>
-                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Goods already received?</p>
+                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                              Goods already received?
+                            </p>
                             <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                              Turn this on to stock add these items to stock when the bill is created.
+                              Turn this on to stock add these items to stock
+                              when the bill is created.
                             </p>
                           </div>
                           <label className="inline-flex items-center gap-2 cursor-pointer select-none">
@@ -609,10 +725,17 @@ const CreateBill = () => {
                               type="checkbox"
                               className="w-5 h-5 accent-[rgb(var(--color-primary))] rounded"
                               checked={formData.goodsReceived}
-                              onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  "goodsReceived",
+                                  e.target.checked,
+                                )
+                              }
                             />
                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                              {formData.goodsReceived ? t('common.yes') : t('common.no')}
+                              {formData.goodsReceived
+                                ? t("common.yes")
+                                : t("common.no")}
                             </span>
                           </label>
                         </div>
@@ -634,13 +757,18 @@ const CreateBill = () => {
                             title="Add new item"
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Item</span>
+                            <span className="text-sm font-medium">
+                              Add Item
+                            </span>
                           </button>
                         </div>
 
                         <div className="space-y-4">
                           {formData.items.map((item, index) => (
-                            <div key={index} className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30">
+                            <div
+                              key={index}
+                              className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30"
+                            >
                               <div className="flex items-center justify-between mb-3">
                                 <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                   Item {index + 1}
@@ -664,13 +792,26 @@ const CreateBill = () => {
                                   </label>
                                   <Select
                                     value={item.product}
-                                    onChange={(value) => handleItemChange(index, 'product', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(index, "product", value)
+                                    }
                                     options={[
-                                      { value: '', label: productsLoading ? t('errors.loading') : t('errors.selectProduct') },
-                                      ...products.filter(product => product.name || product.productName).map(product => ({
-                                        value: product.id || product._id,
-                                        label: product.name || product.productName
-                                      }))
+                                      {
+                                        value: "",
+                                        label: productsLoading
+                                          ? t("errors.loading")
+                                          : t("errors.selectProduct"),
+                                      },
+                                      ...products
+                                        .filter(
+                                          (product) =>
+                                            product.name || product.productName,
+                                        )
+                                        .map((product) => ({
+                                          value: product.id || product._id,
+                                          label:
+                                            product.name || product.productName,
+                                        })),
                                     ]}
                                     error={errors[`item_${index}_product`]}
                                     disabled={productsLoading}
@@ -687,7 +828,9 @@ const CreateBill = () => {
                                   <Input
                                     type="number"
                                     value={item.quantity}
-                                    onChange={(value) => handleItemChange(index, 'quantity', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(index, "quantity", value)
+                                    }
                                     placeholder="1"
                                     min="1"
                                     step="1"
@@ -704,11 +847,19 @@ const CreateBill = () => {
                                   <Input
                                     type="number"
                                     value={item.purchasePrice}
-                                    onChange={(value) => handleItemChange(index, 'purchasePrice', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(
+                                        index,
+                                        "purchasePrice",
+                                        value,
+                                      )
+                                    }
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
-                                    error={errors[`item_${index}_purchasePrice`]}
+                                    error={
+                                      errors[`item_${index}_purchasePrice`]
+                                    }
                                     leftIcon={IndianRupee}
                                     size="sm"
                                   />
@@ -721,7 +872,13 @@ const CreateBill = () => {
                                   <Input
                                     type="date"
                                     value={item.expiryDate}
-                                    onChange={(value) => handleItemChange(index, 'expiryDate', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(
+                                        index,
+                                        "expiryDate",
+                                        value,
+                                      )
+                                    }
                                     min={formData.billDate}
                                     error={errors[`item_${index}_expiryDate`]}
                                     leftIcon={Clock}
@@ -741,7 +898,9 @@ const CreateBill = () => {
                         <div className="p-6">
                           <div className="flex items-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
                             <AlertCircle className="w-5 h-5 mr-2" />
-                            <span className="text-sm font-medium">{createError}</span>
+                            <span className="text-sm font-medium">
+                              {createError}
+                            </span>
                           </div>
                         </div>
                       </Card>
@@ -782,8 +941,12 @@ const CreateBill = () => {
                         <Receipt className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">{t('bills.billManagementTips')}</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">{t('bills.bestPracticesForEfficientBillProcessing')}</p>
+                        <h3 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">
+                          {t("bills.billManagementTips")}
+                        </h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">
+                          {t("bills.bestPracticesForEfficientBillProcessing")}
+                        </p>
                       </div>
                     </div>
 
@@ -793,8 +956,12 @@ const CreateBill = () => {
                           <Building2 className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.requiredFields')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.supplierAndItemsMandatory')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.requiredFields")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t("bills.supplierAndItemsMandatory")}
+                          </p>
                         </div>
                       </div>
 
@@ -803,8 +970,12 @@ const CreateBill = () => {
                           <Package className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.itemManagement')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.useAddItemToAddProducts')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.itemManagement")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t("bills.useAddItemToAddProducts")}
+                          </p>
                         </div>
                       </div>
 
@@ -813,8 +984,12 @@ const CreateBill = () => {
                           <AlertCircle className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.itemValidation')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.quantityMustBeIntegerGreaterThanZero')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.itemValidation")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t("bills.quantityMustBeIntegerGreaterThanZero")}
+                          </p>
                         </div>
                       </div>
 
@@ -823,8 +998,12 @@ const CreateBill = () => {
                           <Calendar className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.expiryDates')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.optionalButCannotBeBeforeBillDate')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.expiryDates")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t("bills.optionalButCannotBeBeforeBillDate")}
+                          </p>
                         </div>
                       </div>
 
@@ -833,8 +1012,14 @@ const CreateBill = () => {
                           <FileText className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.notesLimit')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.maximum500CharactersAllowedWithLiveCounter')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.notesLimit")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t(
+                              "bills.maximum500CharactersAllowedWithLiveCounter",
+                            )}
+                          </p>
                         </div>
                       </div>
 
@@ -843,8 +1028,12 @@ const CreateBill = () => {
                           <IndianRupee className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('bills.currency')}</p>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">{t('bills.allPricesDisplayedInIndianRupee')}</p>
+                          <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                            {t("bills.currency")}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed">
+                            {t("bills.allPricesDisplayedInIndianRupee")}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -869,10 +1058,13 @@ const CreateBill = () => {
             This bill will be saved as a draft and can be completed later.
           </p>
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => setShowSaveDraftModal(false)} >
+            <Button
+              variant="outline"
+              onClick={() => setShowSaveDraftModal(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleConfirmSaveDraft} leftIcon={Save} >
+            <Button onClick={handleConfirmSaveDraft} leftIcon={Save}>
               Save Draft
             </Button>
           </div>

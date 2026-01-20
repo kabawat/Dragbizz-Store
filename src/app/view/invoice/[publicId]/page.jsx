@@ -1,8 +1,8 @@
-import ViewInvoicePublic from '@/page/view/invoice';
+import ViewInvoicePublic from "@/page/view/invoice";
 
 export const metadata = {
-  title: 'Invoice | DragBizz',
-  description: 'View shared invoice details.',
+  title: "Invoice | DragBizz",
+  description: "View shared invoice details.",
 };
 
 export default async function PublicInvoiceView({ params }) {

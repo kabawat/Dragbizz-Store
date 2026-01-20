@@ -1,29 +1,35 @@
-"use client"
-import React from 'react';
-import { Package } from 'lucide-react';
+"use client";
+import React from "react";
+import { Package } from "lucide-react";
 
 // Import sections
-import InventoryDetailsSection from './InventoryDetailsSection';
+import InventoryDetailsSection from "./InventoryDetailsSection";
 
 // Import UI components
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+} from "@/components/ui";
 
 // Import theme context
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const InventoryForm = ({
   formData = {},
   onChange = () => {},
   fieldErrors = {},
-  className = '',
+  className = "",
   ...props
 }) => {
   const { themeConfig, currentVariant } = useTheme();
 
   // Theme-aware glass effect styles
   const getGlassStyles = () => {
-    const isDark = currentVariant === 'dark';
-    
+    const isDark = currentVariant === "dark";
+
     if (isDark) {
       return {
         card: `backdrop-blur-md bg-black/20 border border-white/20 shadow-xl`,
@@ -31,7 +37,7 @@ const InventoryForm = ({
         body: ``,
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm border-[${themeConfig.primary}]/10`,
         title: `text-white`,
-        description: `text-gray-300`
+        description: `text-gray-300`,
       };
     } else {
       return {
@@ -40,7 +46,7 @@ const InventoryForm = ({
         body: `backdrop-blur-sm`,
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm border border-gray-200/60`,
         title: `text-gray-800`,
-        description: `text-gray-600`
+        description: `text-gray-600`,
       };
     }
   };
@@ -58,10 +64,10 @@ const InventoryForm = ({
     <div className={`space-y-6 ${className}`}>
       <Card className={`${glassStyles.card} h-full`}>
         <CardBody className={`${glassStyles.body} overflow-y-auto max-h-full`}>
-          <InventoryDetailsSection 
-            formData={formData} 
-            onChange={handleFormDataChange} 
-            errors={fieldErrors} 
+          <InventoryDetailsSection
+            formData={formData}
+            onChange={handleFormDataChange}
+            errors={fieldErrors}
           />
         </CardBody>
       </Card>

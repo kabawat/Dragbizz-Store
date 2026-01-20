@@ -1,7 +1,7 @@
-import { API_CONFIG } from '@/config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
-import { attachQueryParams } from '@/utils/queryParams';
+import { API_CONFIG } from "@/config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
+import { attachQueryParams } from "@/utils/queryParams";
 
 class SubscriptionService {
   constructor() {
@@ -11,31 +11,48 @@ class SubscriptionService {
   async getActiveSubscription(userId = null) {
     try {
       const params = userId ? { userId } : {};
-      const response = await authAxios.get(`${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`, {
-        params
-      });
-      return handleApiSuccess(response.data, 'Active subscription fetched successfully');
+      const response = await authAxios.get(
+        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`,
+        {
+          params,
+        },
+      );
+      return handleApiSuccess(
+        response.data,
+        "Active subscription fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'subscription-active');
+      return handleApiErrorResponse(error, "subscription-active");
     }
   }
 
   async getUserSubscriptions(userId, params = {}) {
     try {
-      const url = attachQueryParams(`${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/user/${userId}`, params);
+      const url = attachQueryParams(
+        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/user/${userId}`,
+        params,
+      );
       const response = await authAxios.get(url);
-      return handleApiSuccess(response.data, 'Subscriptions fetched successfully');
+      return handleApiSuccess(
+        response.data,
+        "Subscriptions fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'subscriptions-list');
+      return handleApiErrorResponse(error, "subscriptions-list");
     }
   }
 
   async getSubscriptionById(subscriptionId) {
     try {
-      const response = await authAxios.get(`${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/${subscriptionId}`);
-      return handleApiSuccess(response.data, 'Subscription fetched successfully');
+      const response = await authAxios.get(
+        `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/${subscriptionId}`,
+      );
+      return handleApiSuccess(
+        response.data,
+        "Subscription fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'subscription-get');
+      return handleApiErrorResponse(error, "subscription-get");
     }
   }
 
@@ -46,13 +63,13 @@ class SubscriptionService {
    */
   async getQuota(featureKey = null) {
     try {
-      const url = featureKey 
+      const url = featureKey
         ? `${API_CONFIG.SUBSCRIPTION.USAGE}/quota?featureKey=${featureKey}`
         : `${API_CONFIG.SUBSCRIPTION.USAGE}/quota`;
       const response = await authAxios.get(url);
-      return handleApiSuccess(response.data, 'Quota fetched successfully');
+      return handleApiSuccess(response.data, "Quota fetched successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'quota-get');
+      return handleApiErrorResponse(error, "quota-get");
     }
   }
 
@@ -64,17 +81,19 @@ class SubscriptionService {
    */
   async checkUsage(featureKey, quantity = 1) {
     try {
-      const response = await authAxios.post(`${API_CONFIG.SUBSCRIPTION.USAGE}/check`, {
-        featureKey,
-        quantity
-      });
-      return handleApiSuccess(response.data, 'Usage check completed');
+      const response = await authAxios.post(
+        `${API_CONFIG.SUBSCRIPTION.USAGE}/check`,
+        {
+          featureKey,
+          quantity,
+        },
+      );
+      return handleApiSuccess(response.data, "Usage check completed");
     } catch (error) {
-      return handleApiErrorResponse(error, 'usage-check');
+      return handleApiErrorResponse(error, "usage-check");
     }
   }
 }
 
 const subscriptionService = new SubscriptionService();
 export default subscriptionService;
-

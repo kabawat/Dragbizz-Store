@@ -1,15 +1,15 @@
-"use client"
-import React from 'react';
-import { AlertTriangle, Trash2, X } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { AlertTriangle, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const ProductDeleteConfirmModal = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
+const ProductDeleteConfirmModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
   productName = "Product",
-  isLoading = false
+  isLoading = false,
 }) => {
   const { t } = useTranslation();
   if (!isOpen) return null;
@@ -26,10 +26,10 @@ const ProductDeleteConfirmModal = ({
               </div>
               <div>
                 <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                  {t('products.deleteProduct')}
+                  {t("products.deleteProduct")}
                 </h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t('modals.deleteConfirmMessage')}
+                  {t("modals.deleteConfirmMessage")}
                 </p>
               </div>
             </div>
@@ -47,14 +47,14 @@ const ProductDeleteConfirmModal = ({
         <div className="px-6 py-4">
           <div className="mb-6">
             <p className="text-[rgb(var(--color-text-primary))] mb-2">
-              {t('products.deleteConfirm')}
+              {t("products.deleteConfirm")}
             </p>
             <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 border border-[rgb(var(--color-border-primary))]">
               <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                 "{productName}"
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                {t('modals.deleteConfirmMessage')}
+                {t("modals.deleteConfirmMessage")}
               </p>
             </div>
           </div>
@@ -67,9 +67,9 @@ const ProductDeleteConfirmModal = ({
               className="flex-1 h-10 text-sm font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
               disabled={isLoading}
             >
-              {t('common.cancel')}
+              {t("common.cancel")}
             </Button>
-            
+
             <Button
               variant="danger"
               onClick={onConfirm}
@@ -78,7 +78,7 @@ const ProductDeleteConfirmModal = ({
               loading={isLoading}
               disabled={isLoading}
             >
-              {isLoading ? t('common.loading') : t('products.deleteProduct')}
+              {isLoading ? t("common.loading") : t("products.deleteProduct")}
             </Button>
           </div>
         </div>
@@ -86,7 +86,7 @@ const ProductDeleteConfirmModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            {t('products.deletePermanentlyWarning')}
+            {t("products.deletePermanentlyWarning")}
           </p>
         </div>
       </div>

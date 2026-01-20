@@ -1,7 +1,7 @@
-import { API_CONFIG } from '@/config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
-import { attachQueryParams } from '@/utils/queryParams';
+import { API_CONFIG } from "@/config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
+import { attachQueryParams } from "@/utils/queryParams";
 
 class DashboardService {
   constructor() {
@@ -19,9 +19,12 @@ class DashboardService {
       }
       const url = attachQueryParams(API_CONFIG.RETAILER.DASHBOARD, queryParams);
       const response = await authAxios.get(url);
-      return handleApiSuccess(response.data, 'Dashboard data fetched successfully');
+      return handleApiSuccess(
+        response.data,
+        "Dashboard data fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'dashboard-fetch');
+      return handleApiErrorResponse(error, "dashboard-fetch");
     }
   }
 }
@@ -29,4 +32,3 @@ class DashboardService {
 // Create and export a singleton instance
 const dashboardService = new DashboardService();
 export default dashboardService;
-

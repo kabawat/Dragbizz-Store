@@ -1043,7 +1043,7 @@
     "addPaymentMethod": "भुगतान विधि जोड़ें",
     "removePaymentMethod": "भुगतान विधि हटाएं",
     "paymentMethods": "भुगतान के तरीके",
-    "totalAmount": "कुल राशि", 
+    "totalAmount": "कुल राशि",
     "paymentMethod": "भुगतान विधि {number}",
     "amountLabel": "राशि *",
     "paymentMethodLabel": "भुगतान विधि *",

@@ -232,42 +232,67 @@ const PillarProTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="pillar-invoice-body">
         <div className="pillar-invoice">
-          
           {/* Header Section */}
           <div className="pillar-header">
             <h1>INVOICE</h1>
             <div className="pillar-store-info">
-                <p className="pillar-value-bold" style={{ color: PRIMARY_COLOR }}>{selectedStore?.storeName || "Pillar Pro Solutions"}</p>
-                <p>{selectedStore?.address || "321 Executive Center"}</p>
-                <p>{selectedStore?.phone || "+91 99999 88888"} | {selectedStore?.email || "contact@pillarpro.com"}</p>
+              <p className="pillar-value-bold" style={{ color: PRIMARY_COLOR }}>
+                {selectedStore?.storeName || "Pillar Pro Solutions"}
+              </p>
+              <p>{selectedStore?.address || "321 Executive Center"}</p>
+              <p>
+                {selectedStore?.phone || "+91 99999 88888"} |{" "}
+                {selectedStore?.email || "contact@pillarpro.com"}
+              </p>
             </div>
           </div>
-          
+
           {/* Detail Columns */}
           <div className="pillar-detail-columns">
             {/* Invoice Meta */}
             <div className="pillar-meta-block">
-                <div className="title">Invoice Details</div>
-                <p># <span className="pillar-value-bold">{invoiceData.invoiceNumber}</span></p>
-                <p>Issued: <span className="pillar-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-            </div>
-            
-            {/* Bill To */}
-            <div className="pillar-meta-block">
-                <div className="title">Bill To</div>
-                <p className="pillar-customer-name">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Invoice Details</div>
+              <p>
+                #{" "}
+                <span className="pillar-value-bold">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Issued:{" "}
+                <span className="pillar-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
             </div>
 
-             {/* Payment Terms */}
+            {/* Bill To */}
             <div className="pillar-meta-block">
-                <div className="title">Terms</div>
-                <p>Due: <span className="pillar-value-bold">N/A</span></p>
-                <p>Payment Method: <span className="pillar-value-bold">E-Transfer</span></p>
+              <div className="title">Bill To</div>
+              <p className="pillar-customer-name">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
+            </div>
+
+            {/* Payment Terms */}
+            <div className="pillar-meta-block">
+              <div className="title">Terms</div>
+              <p>
+                Due: <span className="pillar-value-bold">N/A</span>
+              </p>
+              <p>
+                Payment Method:{" "}
+                <span className="pillar-value-bold">E-Transfer</span>
+              </p>
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="pillar-table">
             <thead>
@@ -297,41 +322,52 @@ const PillarProTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="pillar-totals-area">
-              <div className="pillar-totals-table">
-                  <div className="row">
-                    <div className="label">Subtotal:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.subtotal)}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="label">Tax (GST):</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.gstAmount)}
-                    </div>
-                  </div>
-                  {invoiceData.totalDiscount > 0 && (
-                    <div className="row">
-                      <div className="label">Discount:</div>
-                      <div className="amount" style={{ color: '#c0392b' }}>
-                        -{formatCurrency(invoiceData.totalDiscount)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="row final-row">
-                    <div className="label">AMOUNT DUE:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.totalAmount)}
-                    </div>
-                  </div>
+            <div className="pillar-totals-table">
+              <div className="row">
+                <div className="label">Subtotal:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
+              <div className="row">
+                <div className="label">Tax (GST):</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
+              </div>
+              {invoiceData.totalDiscount > 0 && (
+                <div className="row">
+                  <div className="label">Discount:</div>
+                  <div className="amount" style={{ color: "#c0392b" }}>
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
+                </div>
+              )}
+              <div className="row final-row">
+                <div className="label">AMOUNT DUE:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.totalAmount)}
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div style={{ textAlign: 'center', marginTop: '30px', borderTop: '1px dashed #ccc', paddingTop: '15px', fontSize: '11px', color: '#777' }}>
-            <p>Thank you for your order. Please remit payment by the due date.</p>
+
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "30px",
+              borderTop: "1px dashed #ccc",
+              paddingTop: "15px",
+              fontSize: "11px",
+              color: "#777",
+            }}
+          >
+            <p>
+              Thank you for your order. Please remit payment by the due date.
+            </p>
           </div>
         </div>
       </div>

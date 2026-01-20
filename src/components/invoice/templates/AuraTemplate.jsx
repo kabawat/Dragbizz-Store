@@ -269,14 +269,16 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="aura-invoice-body">
         <div className="aura-invoice">
-          
           {/* Top Bar for Invoice Number and Date */}
           <div className="aura-top-bar">
             <span>
-                Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+              Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
             </span>
             <span>
-                Date Issued: <strong>{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}</strong>
+              Date Issued:{" "}
+              <strong>
+                {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
+              </strong>
             </span>
           </div>
 
@@ -286,10 +288,10 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
               <h1>INVOICE</h1>
             </div>
             <div className="aura-store-info">
-                <h2>{selectedStore?.storeName || "PREMIUM SOLUTIONS"}</h2>
-                <p>{selectedStore?.address || "789 Corporate Drive"}</p>
-                <p>{selectedStore?.phone || "+91 9876543210"}</p>
-                <p>{selectedStore?.email || "contact@premium.com"}</p>
+              <h2>{selectedStore?.storeName || "PREMIUM SOLUTIONS"}</h2>
+              <p>{selectedStore?.address || "789 Corporate Drive"}</p>
+              <p>{selectedStore?.phone || "+91 9876543210"}</p>
+              <p>{selectedStore?.email || "contact@premium.com"}</p>
             </div>
           </div>
 
@@ -300,10 +302,14 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
-            <div className="aura-info-block" style={{ textAlign: 'right' }}>
+            <div className="aura-info-block" style={{ textAlign: "right" }}>
               <div className="label">Payment Status</div>
               <div className="value" style={{ color: TEXT_COLOR }}>
                 PAID / DUE
@@ -364,7 +370,7 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#e74c3c' }}>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>
@@ -381,9 +387,7 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
           {/* Footer */}
           <div className="aura-footer">
             <p>Thank you for your business. Please make payments promptly.</p>
-            <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
-            </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

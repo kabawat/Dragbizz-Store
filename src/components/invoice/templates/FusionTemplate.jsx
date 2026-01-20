@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const FusionTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency
@@ -268,7 +268,6 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="fusion-invoice-body">
         <div className="fusion-invoice">
-          
           {/* Header Section (Branding and Invoice ID) */}
           <div className="fusion-header-section">
             <div className="fusion-branding-block">
@@ -278,17 +277,17 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
               <p>{selectedStore?.email || "contact@fusioninc.com"}</p>
             </div>
             <div className="fusion-invoice-info">
-                <h1>INVOICE</h1>
-                <div>
-                    <span style={{color: '#bdc3c7'}}>No:</span>
-                    <span className="fusion-tag">{invoiceData.invoiceNumber}</span>
-                </div>
-                <div style={{marginTop: '5px'}}>
-                    <span style={{color: '#bdc3c7'}}>Date:</span>
-                    <span className="fusion-tag">
-                        {moment(invoiceData.createdAt).format("DD-MMM-YYYY")}
-                    </span>
-                </div>
+              <h1>INVOICE</h1>
+              <div>
+                <span style={{ color: "#bdc3c7" }}>No:</span>
+                <span className="fusion-tag">{invoiceData.invoiceNumber}</span>
+              </div>
+              <div style={{ marginTop: "5px" }}>
+                <span style={{ color: "#bdc3c7" }}>Date:</span>
+                <span className="fusion-tag">
+                  {moment(invoiceData.createdAt).format("DD-MMM-YYYY")}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -299,8 +298,12 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="fusion-details-block">
               <div className="label">Issued By</div>
@@ -317,11 +320,11 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="fusion-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => (
               <>
@@ -337,7 +340,7 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
             )}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -360,7 +363,7 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#e74c3c' }}>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>
@@ -376,10 +379,10 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="fusion-footer">
-            <p>Thank you for your business. We look forward to serving you again!</p>
             <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
+              Thank you for your business. We look forward to serving you again!
             </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

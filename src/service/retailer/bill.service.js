@@ -1,25 +1,27 @@
-import API_CONFIG from '@/config/api.config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
-import { attachQueryParams } from '@/utils/queryParams';
+import API_CONFIG from "@/config/api.config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
+import { attachQueryParams } from "@/utils/queryParams";
 
 class BillService {
-
   // Create a new bill
   async createBill(billData) {
     try {
       let apiPayload = billData;
       // Remove undefined values to keep payload clean
-      Object.keys(apiPayload).forEach(key => {
+      Object.keys(apiPayload).forEach((key) => {
         if (apiPayload[key] === undefined) {
           delete apiPayload[key];
         }
       });
 
-      const response = await authAxios.post(API_CONFIG?.RETAILER?.BILL, apiPayload);
-      return handleApiSuccess(response?.data, 'Bill created successfully');
+      const response = await authAxios.post(
+        API_CONFIG?.RETAILER?.BILL,
+        apiPayload,
+      );
+      return handleApiSuccess(response?.data, "Bill created successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'bill-creation');
+      return handleApiErrorResponse(error, "bill-creation");
     }
   }
 
@@ -35,9 +37,9 @@ class BillService {
       }
 
       const response = await authAxios.put(url, billData);
-      return handleApiSuccess(response?.data, 'Bill updated successfully');
+      return handleApiSuccess(response?.data, "Bill updated successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'bill-updation');
+      return handleApiErrorResponse(error, "bill-updation");
     }
   }
 
@@ -47,9 +49,9 @@ class BillService {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.BILL, params);
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bills fetched successfully');
+      return handleApiSuccess(response?.data, "Bills fetched successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'bills-list');
+      return handleApiErrorResponse(error, "bills-list");
     }
   }
 
@@ -64,9 +66,9 @@ class BillService {
       }
 
       const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, 'Bill deleted successfully');
+      return handleApiSuccess(response?.data, "Bill deleted successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'bill-deletion');
+      return handleApiErrorResponse(error, "bill-deletion");
     }
   }
 
@@ -81,9 +83,12 @@ class BillService {
       }
 
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Bill analytics fetched successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Bill analytics fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'bill-analytics');
+      return handleApiErrorResponse(error, "bill-analytics");
     }
   }
 }

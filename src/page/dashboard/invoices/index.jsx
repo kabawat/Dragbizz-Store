@@ -1,16 +1,23 @@
-"use client"
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Grid3X3, List, FileText, Download, Search } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { InvoiceTable, InvoiceCard, InvoiceDeleteConfirmModal, UpdatePaymentStatusModal, ReleaseInvoiceModal, InvoiceDownloadDrawer } from '@/components/invoice';
-import { getInvoices, setViewMode } from '@/store/slices/invoicesSlice';
-import { Input } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { useRouter } from 'next/navigation';
-import { useGlobalToast } from '@/contexts/ToastContext';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Grid3X3, List, FileText, Download, Search } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  InvoiceTable,
+  InvoiceCard,
+  InvoiceDeleteConfirmModal,
+  UpdatePaymentStatusModal,
+  ReleaseInvoiceModal,
+  InvoiceDownloadDrawer,
+} from "@/components/invoice";
+import { getInvoices, setViewMode } from "@/store/slices/invoicesSlice";
+import { Input } from "@/components/ui";
+import { Button } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const InvoicesPage = () => {
   const { t } = useTranslation();
@@ -19,13 +26,9 @@ const InvoicesPage = () => {
   const { showError } = useGlobalToast();
 
   // Redux store data
-  const {
-    invoices,
-    isLoading,
-    error,
-    pagination,
-    viewMode
-  } = useAppSelector((state) => state.invoices);
+  const { invoices, isLoading, error, pagination, viewMode } = useAppSelector(
+    (state) => state.invoices,
+  );
 
   const { selectedStore } = useAppSelector((state) => state.profile);
 
@@ -34,45 +37,57 @@ const InvoicesPage = () => {
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const scrollRef = useRef(null);
 
   // Error display
   useEffect(() => {
     if (error) {
-      showError(error || t('common.failedToLoad'));
+      showError(error || t("common.failedToLoad"));
     }
   }, [error, showError]);
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('invoices-view-mode');
-    if (savedViewMode && (savedViewMode === 'table' || savedViewMode === 'card')) {
+    const savedViewMode = localStorage.getItem("invoices-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
       dispatch(setViewMode(savedViewMode));
     }
   }, [dispatch]);
 
-
   // Fetch invoices on mount and filter changes
   const lastFetchRef = useRef(null);
-  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
+  const hasFetchedRef = useRef({
+    storeId: null,
+    searchValue: null,
+    fetched: false,
+  });
 
   // Reset fetch refs and pagination when search or store changes
   useEffect(() => {
     lastFetchRef.current = null;
-    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+    hasFetchedRef.current = {
+      storeId: null,
+      searchValue: null,
+      fetched: false,
+    };
   }, [selectedStore, searchValue]);
 
   useEffect(() => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) return;
     const shouldSkip = () => {
       const lastFetched = hasFetchedRef.current;
       return (
-        lastFetched.fetched &&
-        lastFetched.storeId === storeId &&
-        lastFetched.searchValue === searchValue
-      ) || isLoading;
+        (lastFetched.fetched &&
+          lastFetched.storeId === storeId &&
+          lastFetched.searchValue === searchValue) ||
+        isLoading
+      );
     };
 
     if (shouldSkip()) return;
@@ -92,7 +107,7 @@ const InvoicesPage = () => {
           limit: 20,
           cursor: null,
           isFreshLoad: true,
-          search: searchValue || undefined
+          search: searchValue || undefined,
         };
 
         await dispatch(getInvoices(params));
@@ -100,7 +115,7 @@ const InvoicesPage = () => {
         hasFetchedRef.current = {
           storeId,
           searchValue,
-          fetched: true
+          fetched: true,
         };
       };
 
@@ -118,7 +133,8 @@ const InvoicesPage = () => {
     setIsLoadingMore(true);
 
     try {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
       if (!storeId) {
         setIsLoadingMore(false);
         return;
@@ -129,7 +145,7 @@ const InvoicesPage = () => {
         search: searchValue || undefined,
         limit: 20,
         cursor: pagination.nextCursor,
-        isFreshLoad: false
+        isFreshLoad: false,
       };
 
       await dispatch(getInvoices(params));
@@ -137,7 +153,14 @@ const InvoicesPage = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, searchValue, selectedStore, dispatch]);
+  }, [
+    isLoadingMore,
+    pagination?.hasNextPage,
+    pagination?.nextCursor,
+    searchValue,
+    selectedStore,
+    dispatch,
+  ]);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
@@ -181,7 +204,9 @@ const InvoicesPage = () => {
       }, 100);
     };
 
-    scrollElement.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    scrollElement.addEventListener("scroll", throttledHandleScroll, {
+      passive: true,
+    });
 
     setTimeout(() => {
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
@@ -192,17 +217,22 @@ const InvoicesPage = () => {
     }, 500);
 
     return () => {
-      scrollElement.removeEventListener('scroll', throttledHandleScroll);
+      scrollElement.removeEventListener("scroll", throttledHandleScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
-  }, [isLoadingMore, pagination?.hasNextPage, pagination?.nextCursor, handleLoadMore]);
+  }, [
+    isLoadingMore,
+    pagination?.hasNextPage,
+    pagination?.nextCursor,
+    handleLoadMore,
+  ]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
   };
 
   const handleAddInvoice = () => {
-    router.push('/dashboard/invoices/add');
+    router.push("/dashboard/invoices/add");
   };
 
   const handleEditInvoice = (invoiceId) => {
@@ -244,7 +274,7 @@ const InvoicesPage = () => {
 
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
-    localStorage.setItem('invoices-view-mode', mode);
+    localStorage.setItem("invoices-view-mode", mode);
   };
 
   const showSkeleton = isLoading && invoices.length === 0 && !error;
@@ -256,7 +286,10 @@ const InvoicesPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title={t('sidebar.invoices')} description={t('invoice.createInvoiceDescription')} />
+        <Header
+          title={t("sidebar.invoices")}
+          description={t("invoice.createInvoiceDescription")}
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-5">
@@ -267,10 +300,10 @@ const InvoicesPage = () => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('common.loadingData')}
+                      {t("common.loadingData")}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.loading')}
+                      {t("common.loading")}
                     </p>
                   </div>
                 </div>
@@ -282,7 +315,7 @@ const InvoicesPage = () => {
                 <div className="w-100">
                   <Input
                     type="text"
-                    placeholder={`${t('common.search')} ${t('sidebar.invoices').toLowerCase()}...`}
+                    placeholder={`${t("common.search")} ${t("sidebar.invoices").toLowerCase()}...`}
                     value={searchValue}
                     onChange={(value) => handleSearch(value)}
                     leftIcon={Search}
@@ -294,18 +327,22 @@ const InvoicesPage = () => {
                   {invoices.length > 0 && (
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
-                        onClick={() => handleViewModeChange('table')}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'table'
-                          ? 'bg-[rgb(var(--color-primary))] text-white'
-                          : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
-                          }`}
+                        onClick={() => handleViewModeChange("table")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                          viewMode === "table"
+                            ? "bg-[rgb(var(--color-primary))] text-white"
+                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                        }`}
                       >
                         <List className="w-4 h-4" />
-                        {t('common.tableView')}
+                        {t("common.tableView")}
                       </button>
-                      <button onClick={() => handleViewModeChange('card')} className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === 'card' ? 'bg-[rgb(var(--color-primary))] text-white' : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'}`}>
+                      <button
+                        onClick={() => handleViewModeChange("card")}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card" ? "bg-[rgb(var(--color-primary))] text-white" : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"}`}
+                      >
                         <Grid3X3 className="w-4 h-4" />
-                        {t('common.cardView')}
+                        {t("common.cardView")}
                       </button>
                     </div>
                   )}
@@ -318,11 +355,15 @@ const InvoicesPage = () => {
                     className="flex items-center gap-2 h-9"
                   >
                     <Download className="w-4 h-4" />
-                    {t('common.download')}
+                    {t("common.download")}
                   </Button>
 
-                  <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                    {t('invoice.createInvoice')}
+                  <Button
+                    variant="primary"
+                    onClick={handleAddInvoice}
+                    leftIcon={Plus}
+                  >
+                    {t("invoice.createInvoice")}
                   </Button>
                 </div>
               </div>
@@ -335,23 +376,30 @@ const InvoicesPage = () => {
                     <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('common.noResults')}
+                    {t("common.noResults")}
                   </h3>
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {error
-                      ? `${t('common.error')}: ${error}`
+                      ? `${t("common.error")}: ${error}`
                       : searchValue
-                        ? t('common.noResults')
-                        : t('common.noData')}
+                        ? t("common.noResults")
+                        : t("common.noData")}
                   </p>
                   <div className="pt-4 flex gap-3">
                     {searchValue && (
-                      <Button variant="outline" onClick={() => setSearchValue('')}>
-                        {t('common.clear')}
+                      <Button
+                        variant="outline"
+                        onClick={() => setSearchValue("")}
+                      >
+                        {t("common.clear")}
                       </Button>
                     )}
-                    <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                      {t('invoice.createInvoice')}
+                    <Button
+                      variant="primary"
+                      onClick={handleAddInvoice}
+                      leftIcon={Plus}
+                    >
+                      {t("invoice.createInvoice")}
                     </Button>
                   </div>
                 </div>
@@ -361,8 +409,11 @@ const InvoicesPage = () => {
             {invoices.length > 0 && (
               <>
                 <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                  <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef} >
-                    {viewMode === 'table' ? (
+                  <div
+                    className="h-[calc(100vh-200px)] overflow-y-auto"
+                    ref={scrollRef}
+                  >
+                    {viewMode === "table" ? (
                       <div className="min-h-full">
                         <InvoiceTable
                           invoices={invoices}
@@ -373,7 +424,7 @@ const InvoicesPage = () => {
                           onRelease={handleReleaseInvoice}
                           onUpdatePaymentStatus={handleUpdatePaymentStatus}
                           loading={isLoading}
-                          emptyMessage={t('common.noResults')}
+                          emptyMessage={t("common.noResults")}
                           hasMore={pagination?.hasNextPage}
                           onLoadMore={handleLoadMore}
                           isLoadingMore={isLoadingMore}
@@ -399,7 +450,9 @@ const InvoicesPage = () => {
                             <div className="col-span-full flex items-center justify-center py-8">
                               <div className="flex items-center gap-3">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">{t('common.loading')}</span>
+                                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                  {t("common.loading")}
+                                </span>
                               </div>
                             </div>
                           )}
@@ -413,14 +466,22 @@ const InvoicesPage = () => {
                       <div className="text-sm text-[rgb(var(--color-text-secondary))]">
                         {pagination?.hasNextPage ? (
                           <>
-                            Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                            Showing{" "}
+                            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                              {invoices.length}
+                            </span>{" "}
+                            invoices
                             <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
                               • Scroll down to load more
                             </span>
                           </>
                         ) : (
                           <>
-                            Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{invoices.length}</span> invoices
+                            Showing{" "}
+                            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                              {invoices.length}
+                            </span>{" "}
+                            invoices
                             <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
                               • No more invoices
                             </span>

@@ -1,13 +1,13 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { Loading } from '@/components/ui';
-import { packageService } from '@/service';
-import PackageCard from '@/components/package/PackageCard';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Loading } from "@/components/ui";
+import { packageService } from "@/service";
+import PackageCard from "@/components/package/PackageCard";
 
 const PricingSection = ({
-  title = 'Choose Your Plan',
-  description = 'Select the perfect plan for your business needs',
-  packages: defaultPackages = []
+  title = "Choose Your Plan",
+  description = "Select the perfect plan for your business needs",
+  packages: defaultPackages = [],
 }) => {
   const [packages, setPackages] = useState(defaultPackages);
   const [loading, setLoading] = useState(true);
@@ -20,15 +20,17 @@ const PricingSection = ({
         setError(null);
 
         const response = await packageService.getPackages({
-          status: 'ACTIVE',
+          status: "ACTIVE",
           isVisible: true,
-          sortBy: 'displayOrder',
-          sortOrder: 'asc',
-          limit: 10
+          sortBy: "displayOrder",
+          sortOrder: "asc",
+          limit: 10,
         });
 
         if (response.success && response.data) {
-          const packagesData = Array.isArray(response.data) ? response.data : [];
+          const packagesData = Array.isArray(response.data)
+            ? response.data
+            : [];
 
           if (packagesData.length > 0) {
             setPackages(packagesData);
@@ -56,7 +58,10 @@ const PricingSection = ({
 
   if (loading) {
     return (
-      <section id="pricing" className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+      <section
+        id="pricing"
+        className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden"
+      >
         <div className="container mx-auto px-3 sm:px-4 md:px-6 relative z-10">
           <div className="flex justify-center items-center min-h-[400px]">
             <Loading />
@@ -67,7 +72,10 @@ const PricingSection = ({
   }
 
   return (
-    <section id="pricing" className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+    <section
+      id="pricing"
+      className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden"
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-blue-500/10" />
 
       <div className="container mx-auto px-3 sm:px-4 md:px-6 relative z-10">
@@ -95,4 +103,3 @@ const PricingSection = ({
 };
 
 export default PricingSection;
-

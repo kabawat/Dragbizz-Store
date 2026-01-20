@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { cookieManager } from '../utils/cookieManager';
-import { useAppDispatch } from '../store/hooks';
-import { clearAuth } from '../store/slices/profileSlice';
+import { useState } from "react";
+import { cookieManager } from "../utils/cookieManager";
+import { useAppDispatch } from "../store/hooks";
+import { clearAuth } from "../store/slices/profileSlice";
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,24 +19,23 @@ export function useLogout() {
     try {
       // Clear Redux store
       dispatch(clearAuth());
-      
+
       // Clear cookies
       cookieManager.clearAuth();
 
       // Clear sessionStorage
       sessionStorage.clear();
-      
-      window.location.href = '/';
 
+      window.location.href = "/";
     } catch (error) {
-      window.location.href = '/';
+      window.location.href = "/";
     }
   };
 
-  return { 
-    showLogoutModal, 
-    hideLogoutModal, 
+  return {
+    showLogoutModal,
+    hideLogoutModal,
     confirmLogout,
-    isModalOpen 
+    isModalOpen,
   };
 }

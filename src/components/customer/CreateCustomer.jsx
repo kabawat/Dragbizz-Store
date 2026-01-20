@@ -1,14 +1,14 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Save, Plus } from 'lucide-react';
-import { Button, ToastContainer, ErrorModal } from '@/components/ui';
-import { CustomerForm } from '@/components/customer';
-import { QuotaExceededModal } from '@/components/common';
-import { customerService } from '@/service';
-import { useUsageQuota } from '@/hooks/useUsageQuota';
-import { useToast } from '@/hooks/useToast';
-import { extractFieldErrors } from '@/utils/validationErrorHandler';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Save, Plus } from "lucide-react";
+import { Button, ToastContainer, ErrorModal } from "@/components/ui";
+import { CustomerForm } from "@/components/customer";
+import { QuotaExceededModal } from "@/components/common";
+import { customerService } from "@/service";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useToast } from "@/hooks/useToast";
+import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CreateCustomer = ({
   storeId,
@@ -16,19 +16,23 @@ const CreateCustomer = ({
   onCancel,
   showCancelButton = true,
   autoRedirect = false,
-  mode = 'page' // 'page' or 'drawer'
+  mode = "page", // 'page' or 'drawer'
 }) => {
   const { t } = useTranslation();
   const quotaRefreshRef = useRef(null);
 
   // Get quota information for frontend validation
-  const { quota, isLoading: quotaLoading, refresh: refreshQuota } = useUsageQuota('customer_management');
+  const {
+    quota,
+    isLoading: quotaLoading,
+    refresh: refreshQuota,
+  } = useUsageQuota("customer_management");
 
   const [loading, setLoading] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [quotaError, setQuotaError] = useState(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const { toasts, showSuccess, removeToast } = useToast();
 
   // Check if quota is available
@@ -52,16 +56,16 @@ const CreateCustomer = ({
 
   // Initial form data
   const getInitialFormData = () => ({
-    store: storeId || '',
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
+    store: storeId || "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
     companyDetails: {
-      gstin: '',
-      companyName: ''
+      gstin: "",
+      companyName: "",
     },
-    addresses: null
+    addresses: null,
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -70,9 +74,9 @@ const CreateCustomer = ({
   // Update store ID when storeId prop changes
   useEffect(() => {
     if (storeId) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        store: storeId
+        store: storeId,
       }));
     }
   }, [storeId]);
@@ -80,8 +84,8 @@ const CreateCustomer = ({
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     // Handle special clearError command
-    if (fieldName === 'clearError') {
-      setFieldErrors(prev => {
+    if (fieldName === "clearError") {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[value];
         return newErrors;
@@ -90,13 +94,13 @@ const CreateCustomer = ({
     }
 
     // Ensure fieldName is a string
-    if (typeof fieldName !== 'string') {
+    if (typeof fieldName !== "string") {
       return;
     }
 
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
@@ -104,11 +108,11 @@ const CreateCustomer = ({
     }
 
     // Handle nested field errors (like companyDetails.gstin)
-    if (fieldName === 'companyDetails') {
-      setFieldErrors(prev => {
+    if (fieldName === "companyDetails") {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
-        Object.keys(newErrors).forEach(key => {
-          if (key.startsWith('companyDetails.')) {
+        Object.keys(newErrors).forEach((key) => {
+          if (key.startsWith("companyDetails.")) {
             delete newErrors[key];
           }
         });
@@ -117,11 +121,11 @@ const CreateCustomer = ({
     }
 
     // Handle addresses field errors
-    if (fieldName === 'addresses') {
-      setFieldErrors(prev => {
+    if (fieldName === "addresses") {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
-        Object.keys(newErrors).forEach(key => {
-          if (key.startsWith('addresses.')) {
+        Object.keys(newErrors).forEach((key) => {
+          if (key.startsWith("addresses.")) {
             delete newErrors[key];
           }
         });
@@ -129,9 +133,9 @@ const CreateCustomer = ({
       });
     }
 
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [fieldName]: value
+      [fieldName]: value,
     }));
   };
 
@@ -141,16 +145,18 @@ const CreateCustomer = ({
     if (!isQuotaAvailable()) {
       const quotaData = quota || {};
       setQuotaError({
-        message: quota.remaining === 0 
-          ? `Daily limit reached. You have used all ${quota.limit} customers for today. Please try again tomorrow or upgrade your plan.`
-          : 'Quota exceeded. Please upgrade your plan to continue.',
+        message:
+          quota.remaining === 0
+            ? `Daily limit reached. You have used all ${quota.limit} customers for today. Please try again tomorrow or upgrade your plan.`
+            : "Quota exceeded. Please upgrade your plan to continue.",
         quota: quotaData,
-        resetTime: quota.usageType === 'DAILY_FIXED' 
-          ? 'tomorrow' 
-          : quota.usageType === 'MONTHLY_TOTAL' 
-            ? 'next month' 
-            : null,
-        canUpgrade: true
+        resetTime:
+          quota.usageType === "DAILY_FIXED"
+            ? "tomorrow"
+            : quota.usageType === "MONTHLY_TOTAL"
+              ? "next month"
+              : null,
+        canUpgrade: true,
       });
       setShowQuotaModal(true);
       return;
@@ -161,12 +167,12 @@ const CreateCustomer = ({
       setFieldErrors({});
       setQuotaError(null);
       setShowQuotaModal(false);
-      
+
       // Prepare payload: make companyDetails optional (omit when empty)
       const payload = (() => {
         const data = { ...formData };
-        const gstin = data?.companyDetails?.gstin?.trim?.() || '';
-        const companyName = data?.companyDetails?.companyName?.trim?.() || '';
+        const gstin = data?.companyDetails?.gstin?.trim?.() || "";
+        const companyName = data?.companyDetails?.companyName?.trim?.() || "";
         if (!gstin && !companyName) {
           const { companyDetails, ...rest } = data;
           return rest;
@@ -182,15 +188,15 @@ const CreateCustomer = ({
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
-        
+
         // Show success toast
-        showSuccess(t('customers.createSuccess'));
-        
+        showSuccess(t("customers.createSuccess"));
+
         // Call onSuccess callback with customer data
         if (onSuccess) {
           onSuccess(result.data);
         }
-        
+
         // Reset form
         setFormData(getInitialFormData());
         setFieldErrors({});
@@ -199,19 +205,20 @@ const CreateCustomer = ({
         const errorData = result?.error || {};
         const isQuotaError =
           result?.statusCode === 403 ||
-          errorData.error === 'Quota Exceeded' ||
-          errorData.error === 'Forbidden' ||
-          result.message?.includes('Quota exceeded') ||
-          result.message?.includes('limit reached') ||
-          result.message?.includes('Quota Exceeded');
+          errorData.error === "Quota Exceeded" ||
+          errorData.error === "Forbidden" ||
+          result.message?.includes("Quota exceeded") ||
+          result.message?.includes("limit reached") ||
+          result.message?.includes("Quota Exceeded");
 
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.message || errorData.message || t('quota.quotaExceeded'),
+            message:
+              result.message || errorData.message || t("quota.quotaExceeded"),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false
+            canUpgrade: quotaData.canUpgrade !== false,
           });
           setShowQuotaModal(true);
         } else {
@@ -220,7 +227,7 @@ const CreateCustomer = ({
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
           } else {
-            setErrorMessage(result.message || t('customers.createError'));
+            setErrorMessage(result.message || t("customers.createError"));
             setShowErrorModal(true);
           }
         }
@@ -228,22 +235,22 @@ const CreateCustomer = ({
     } catch (error) {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        
+
         // Check if it's a quota exceeded error (403)
         const isQuotaError =
           error.response.status === 403 ||
-          errorData.error === 'Quota Exceeded' ||
-          errorData.error === 'Forbidden' ||
-          errorData.message?.includes('Quota exceeded') ||
-          errorData.message?.includes('limit reached');
+          errorData.error === "Quota Exceeded" ||
+          errorData.error === "Forbidden" ||
+          errorData.message?.includes("Quota exceeded") ||
+          errorData.message?.includes("limit reached");
 
         if (isQuotaError) {
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: errorData.message || t('quota.quotaExceeded'),
+            message: errorData.message || t("quota.quotaExceeded"),
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false
+            canUpgrade: quotaData.canUpgrade !== false,
           });
           setShowQuotaModal(true);
         } else {
@@ -252,12 +259,12 @@ const CreateCustomer = ({
           if (Object.keys(fieldErrors).length > 0) {
             setFieldErrors(fieldErrors);
           } else {
-            setErrorMessage(errorData.message || t('customers.createError'));
+            setErrorMessage(errorData.message || t("customers.createError"));
             setShowErrorModal(true);
           }
         }
       } else {
-        setErrorMessage(t('common.error'));
+        setErrorMessage(t("common.error"));
         setShowErrorModal(true);
       }
     } finally {
@@ -273,14 +280,24 @@ const CreateCustomer = ({
 
   return (
     <>
-      <div className={`flex flex-col ${mode === 'drawer' ? 'h-full' : 'min-h-full'}`}>
-        <div className={`${mode === 'drawer' ? 'flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0' : ''}`}>
-          <CustomerForm formData={formData} onChange={handleFormDataChange} fieldErrors={fieldErrors} />
+      <div
+        className={`flex flex-col ${mode === "drawer" ? "h-full" : "min-h-full"}`}
+      >
+        <div
+          className={`${mode === "drawer" ? "flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0" : ""}`}
+        >
+          <CustomerForm
+            formData={formData}
+            onChange={handleFormDataChange}
+            fieldErrors={fieldErrors}
+          />
         </div>
 
         {/* Action Buttons */}
-        {(mode === 'drawer' || showCancelButton) && (
-          <div className={`flex-shrink-0 ${mode === 'drawer' ? 'bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6' : 'mt-auto bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4 pb-4'} flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3`}>
+        {(mode === "drawer" || showCancelButton) && (
+          <div
+            className={`flex-shrink-0 ${mode === "drawer" ? "bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6" : "mt-auto bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4 pb-4"} flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3`}
+          >
             <Button
               variant="success"
               onClick={handleSaveAndPublish}
@@ -290,17 +307,17 @@ const CreateCustomer = ({
               className="w-full sm:w-auto"
               size="sm"
             >
-              {t('customers.saveCustomer')}
+              {t("customers.saveCustomer")}
             </Button>
             {showCancelButton && onCancel && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={onCancel}
                 disabled={loading}
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                {t('common.cancel')}
+                {t("common.cancel")}
               </Button>
             )}
           </div>
@@ -314,7 +331,7 @@ const CreateCustomer = ({
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title={t('common.error')}
+        title={t("common.error")}
         message={errorMessage}
       />
 
@@ -322,7 +339,7 @@ const CreateCustomer = ({
       <QuotaExceededModal
         isOpen={showQuotaModal}
         onClose={() => setShowQuotaModal(false)}
-        message={quotaError?.message || t('quota.quotaExceeded')}
+        message={quotaError?.message || t("quota.quotaExceeded")}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}
@@ -332,4 +349,3 @@ const CreateCustomer = ({
 };
 
 export default CreateCustomer;
-

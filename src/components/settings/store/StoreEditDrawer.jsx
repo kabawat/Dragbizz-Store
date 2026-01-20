@@ -1,9 +1,9 @@
-"use client"
-import { useState, useEffect } from 'react';
-import { Save, Store, Loader2 } from 'lucide-react';
-import { FormDrawer } from '@/components/common';
-import StoreEditForm from './StoreEditForm';
-import storeService from '@/service/retailer/store.service';
+"use client";
+import { useState, useEffect } from "react";
+import { Save, Store, Loader2 } from "lucide-react";
+import { FormDrawer } from "@/components/common";
+import StoreEditForm from "./StoreEditForm";
+import storeService from "@/service/retailer/store.service";
 
 const StoreEditDrawer = ({
   isOpen,
@@ -13,20 +13,20 @@ const StoreEditDrawer = ({
   onError,
 }) => {
   const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
+    name: "",
+    phone: "",
+    email: "",
     address: {
-      street: '',
-      line1: '',
-      city: '',
-      state: '',
-      pincode: '',
-      landmark: ''
+      street: "",
+      line1: "",
+      city: "",
+      state: "",
+      pincode: "",
+      landmark: "",
     },
-    category: '',
-    gst: '',
-    pan: ''
+    category: "",
+    gst: "",
+    pan: "",
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -39,36 +39,39 @@ const StoreEditDrawer = ({
         try {
           setIsLoadingStore(true);
           setErrors({});
-          
+
           // Fetch store details
           const result = await storeService.getStore(editingStoreId);
-          
+
           if (result?.success) {
             const storeData = result.data?.data || result.data || {};
             const address = storeData.address || {};
-            
+
             // Format form data
             setForm({
-              name: storeData.name || '',
-              phone: storeData.phone || '',
-              email: storeData.email || '',
+              name: storeData.name || "",
+              phone: storeData.phone || "",
+              email: storeData.email || "",
               address: {
-                street: address.line1 || '',
-                line1: address.line1 || '',
-                city: address.city || '',
-                state: address.state || '',
-                pincode: address.pincode || '',
-                landmark: address.landmark || ''
+                street: address.line1 || "",
+                line1: address.line1 || "",
+                city: address.city || "",
+                state: address.state || "",
+                pincode: address.pincode || "",
+                landmark: address.landmark || "",
               },
-              category: storeData.category || '',
-              gst: storeData.gst || '',
-              pan: storeData.pan || ''
+              category: storeData.category || "",
+              gst: storeData.gst || "",
+              pan: storeData.pan || "",
             });
           } else {
-            onError?.(result?.message || 'Failed to fetch store details');
+            onError?.(result?.message || "Failed to fetch store details");
           }
         } catch (error) {
-          const errorMessage = error?.response?.data?.message || error?.message || 'An unexpected error occurred';
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            "An unexpected error occurred";
           onError?.(errorMessage);
         } finally {
           setIsLoadingStore(false);
@@ -82,32 +85,32 @@ const StoreEditDrawer = ({
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
     }
-    
+
     // Handle nested address fields
-    if (name.startsWith('address.')) {
-      const field = name.split('.')[1];
-      setForm(prev => ({
+    if (name.startsWith("address.")) {
+      const field = name.split(".")[1];
+      setForm((prev) => ({
         ...prev,
         address: {
           ...prev.address,
           [field]: value,
           // Also update line1 if it's street
-          ...(field === 'street' && { line1: value })
-        }
+          ...(field === "street" && { line1: value }),
+        },
       }));
     } else {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -117,33 +120,38 @@ const StoreEditDrawer = ({
     const newErrors = {};
 
     if (!form.name?.trim()) {
-      newErrors.name = 'Store name is required';
+      newErrors.name = "Store name is required";
     }
 
     if (!form.phone?.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = "Phone number is required";
     } else {
       const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
-      const cleanPhone = form.phone.replace(/\D/g, '');
+      const cleanPhone = form.phone.replace(/\D/g, "");
       if (!phoneRegex.test(form.phone) || cleanPhone.length < 10) {
-        newErrors.phone = 'Please enter a valid phone number';
+        newErrors.phone = "Please enter a valid phone number";
       }
     }
 
     if (!form.address?.city?.trim()) {
-      newErrors['address.city'] = 'City is required';
+      newErrors["address.city"] = "City is required";
     }
 
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
-    if (form.gst && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gst)) {
-      newErrors.gst = 'Please enter a valid GST number';
+    if (
+      form.gst &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
+        form.gst,
+      )
+    ) {
+      newErrors.gst = "Please enter a valid GST number";
     }
 
     if (form.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan)) {
-      newErrors.pan = 'Please enter a valid PAN number';
+      newErrors.pan = "Please enter a valid PAN number";
     }
 
     setErrors(newErrors);
@@ -157,50 +165,55 @@ const StoreEditDrawer = ({
     }
 
     if (!editingStoreId) {
-      onError?.('Store ID not found');
+      onError?.("Store ID not found");
       return;
     }
 
     try {
       setIsSaving(true);
       setErrors({});
-      
+
       // Prepare payload according to API structure
       const payload = {
         name: form.name.trim(),
         phone: form.phone.trim(),
-        email: form.email?.trim() || '',
+        email: form.email?.trim() || "",
         address: {
-          line1: form.address.street || form.address.line1 || '',
-          line2: '',
+          line1: form.address.street || form.address.line1 || "",
+          line2: "",
           city: form.address.city,
-          state: form.address.state || '',
-          country: 'India',
-          pincode: form.address.pincode || '',
-          landmark: form.address.landmark || ''
+          state: form.address.state || "",
+          country: "India",
+          pincode: form.address.pincode || "",
+          landmark: form.address.landmark || "",
         },
-        category: form.category || '',
-        gst: form.gst?.trim() || '',
-        pan: form.pan?.trim() || ''
+        category: form.category || "",
+        gst: form.gst?.trim() || "",
+        pan: form.pan?.trim() || "",
       };
-      
+
       const result = await storeService.updateStore(editingStoreId, payload);
-      
+
       if (result?.success) {
-        onSuccess?.(result.message || 'Store updated successfully!');
+        onSuccess?.(result.message || "Store updated successfully!");
         handleCancel();
       } else {
         // Handle field errors from API
         if (result?.error?.data?.fields) {
           setErrors(result.error.data.fields);
         } else {
-          onError?.(result?.message || 'Failed to update store. Please try again.');
+          onError?.(
+            result?.message || "Failed to update store. Please try again.",
+          );
         }
       }
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'An unexpected error occurred. Please try again.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "An unexpected error occurred. Please try again.";
       onError?.(errorMessage);
-      
+
       // Handle field errors from API
       if (error?.response?.data?.fields) {
         setErrors(error.response.data.fields);
@@ -213,20 +226,20 @@ const StoreEditDrawer = ({
   // Handle cancel
   const handleCancel = () => {
     setForm({
-      name: '',
-      phone: '',
-      email: '',
+      name: "",
+      phone: "",
+      email: "",
       address: {
-        street: '',
-        line1: '',
-        city: '',
-        state: '',
-        pincode: '',
-        landmark: ''
+        street: "",
+        line1: "",
+        city: "",
+        state: "",
+        pincode: "",
+        landmark: "",
       },
-      category: '',
-      gst: '',
-      pan: ''
+      category: "",
+      gst: "",
+      pan: "",
     });
     setErrors({});
     onClose?.();
@@ -242,7 +255,7 @@ const StoreEditDrawer = ({
       width="w-full md:w-2/3 lg:w-1/2"
       onSave={handleSave}
       onCancel={handleCancel}
-      saveLabel={isSaving ? 'Saving...' : 'Save Changes'}
+      saveLabel={isSaving ? "Saving..." : "Save Changes"}
       cancelLabel="Cancel"
       isSaving={isSaving}
       isLoading={isLoadingStore}

@@ -1,13 +1,13 @@
-"use client"
-import React from 'react';
-import { FileText, CheckCircle } from 'lucide-react';
-import { Button } from '../ui';
+"use client";
+import React from "react";
+import { FileText, CheckCircle } from "lucide-react";
+import { Button } from "../ui";
 
 const InvoiceDeleteSuccessModal = ({
   isOpen,
   onClose,
   invoiceNumber,
-  className = ''
+  className = "",
 }) => {
   if (!isOpen) return null;
 
@@ -23,9 +23,15 @@ const InvoiceDeleteSuccessModal = ({
           </h3>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             {invoiceNumber ? (
-              <>Invoice <span className="font-semibold text-[rgb(var(--color-text-primary))]">"{invoiceNumber}"</span> has been removed from your invoice list.</>
+              <>
+                Invoice{" "}
+                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                  "{invoiceNumber}"
+                </span>{" "}
+                has been removed from your invoice list.
+              </>
             ) : (
-              'The invoice has been removed from your invoice list.'
+              "The invoice has been removed from your invoice list."
             )}
           </p>
           <Button variant="primary" onClick={onClose}>

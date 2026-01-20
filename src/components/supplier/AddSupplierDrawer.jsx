@@ -1,32 +1,38 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useAppSelector } from '@/store/hooks';
-import { supplierService } from '@/service';
-import { useToast } from '@/hooks/useToast';
-import { extractFieldErrors } from '@/utils/validationErrorHandler';
-import { SideDrawer, ToastContainer, ErrorModal, Button } from '@/components/ui';
-import { SupplierForm } from '@/components/supplier';
-import { Save, Building2 } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { supplierService } from "@/service";
+import { useToast } from "@/hooks/useToast";
+import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import {
+  SideDrawer,
+  ToastContainer,
+  ErrorModal,
+  Button,
+} from "@/components/ui";
+import { SupplierForm } from "@/components/supplier";
+import { Save, Building2 } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
   const [loading, setLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const { toasts, showSuccess, showError, removeToast } = useToast();
 
   // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
-    name: '',
-    agency: '',
-    gstNumber: '',
-    phone: '',
-    email: ''
+    name: "",
+    agency: "",
+    gstNumber: "",
+    phone: "",
+    email: "",
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -43,31 +49,31 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   // Update store ID when selectedStore changes
   useEffect(() => {
     if (storeId && isOpen) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        store: storeId
+        store: storeId,
       }));
     }
   }, [storeId, isOpen]);
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
-    if (typeof fieldName !== 'string') {
+    if (typeof fieldName !== "string") {
       return;
     }
 
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
       });
     }
 
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [fieldName]: value
+      [fieldName]: value,
     }));
   };
 
@@ -79,10 +85,10 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
       // Client-side validation: At least one contact method required
       if (!formData.phone && !formData.email) {
-        const errorMsg = t('suppliers.phoneOrEmailRequired');
+        const errorMsg = t("suppliers.phoneOrEmailRequired");
         setFieldErrors({
           phone: errorMsg,
-          email: errorMsg
+          email: errorMsg,
         });
         setLoading(false);
         return;
@@ -93,7 +99,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
       if (result.success) {
         // Show success toast
-        showSuccess(t('suppliers.addSuccess'));
+        showSuccess(t("suppliers.addSuccess"));
         // Reset form
         setFormData(getInitialFormData());
         setFieldErrors({});
@@ -107,23 +113,26 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
         // Handle validation errors
         const errorData = result?.error || result;
         const fieldErrors = extractFieldErrors(errorData);
-        
+
         // Extract general errors from validationErrors array
         const generalErrors = [];
-        const validationErrors = errorData?.data?.validationErrors || errorData?.validationErrors || [];
+        const validationErrors =
+          errorData?.data?.validationErrors ||
+          errorData?.validationErrors ||
+          [];
         if (Array.isArray(validationErrors)) {
           validationErrors.forEach((error) => {
-            if (error.field === 'general' && error.message) {
+            if (error.field === "general" && error.message) {
               generalErrors.push(error.message);
             }
           });
         }
-        
+
         // Set field-specific errors
         if (Object.keys(fieldErrors).length > 0) {
           setFieldErrors(fieldErrors);
         }
-        
+
         // Show general errors in toast
         if (generalErrors.length > 0) {
           generalErrors.forEach((errorMsg) => {
@@ -131,7 +140,9 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
           });
         } else if (Object.keys(fieldErrors).length === 0) {
           // If no field errors and no general errors, show message in toast
-          showError(result.message || 'Failed to create supplier. Please try again.');
+          showError(
+            result.message || "Failed to create supplier. Please try again.",
+          );
         }
       }
     } catch (error) {
@@ -139,23 +150,23 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
         const fieldErrors = extractFieldErrors(errorData);
-        
+
         // Extract general errors from validationErrors array
         const generalErrors = [];
         const validationErrors = errorData?.validationErrors || [];
         if (Array.isArray(validationErrors)) {
           validationErrors.forEach((error) => {
-            if (error.field === 'general' && error.message) {
+            if (error.field === "general" && error.message) {
               generalErrors.push(error.message);
             }
           });
         }
-        
+
         // Set field-specific errors
         if (Object.keys(fieldErrors).length > 0) {
           setFieldErrors(fieldErrors);
         }
-        
+
         // Show general errors in toast
         if (generalErrors.length > 0) {
           generalErrors.forEach((errorMsg) => {
@@ -163,10 +174,13 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
           });
         } else if (Object.keys(fieldErrors).length === 0) {
           // If no field errors and no general errors, show message in toast
-          showError(errorData.message || 'An error occurred while creating the supplier. Please try again.');
+          showError(
+            errorData.message ||
+              "An error occurred while creating the supplier. Please try again.",
+          );
         }
       } else {
-        showError('An unexpected error occurred. Please try again.');
+        showError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -184,9 +198,9 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       <SideDrawer
         isOpen={isOpen}
         onClose={handleClose}
-        title={t('suppliers.addSupplier')}
+        title={t("suppliers.addSupplier")}
         icon={Building2}
-        description={t('suppliers.addSupplierDescription')}
+        description={t("suppliers.addSupplierDescription")}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full">
@@ -212,16 +226,16 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                {t('suppliers.saveSupplier')}
+                {t("suppliers.saveSupplier")}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleClose}
                 disabled={loading}
                 className="w-full sm:w-auto"
                 size="sm"
               >
-                {t('common.cancel')}
+                {t("common.cancel")}
               </Button>
             </div>
           </div>
@@ -235,7 +249,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title={t('common.error')}
+        title={t("common.error")}
         message={errorMessage}
       />
     </>
@@ -243,4 +257,3 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 };
 
 export default AddSupplierDrawer;
-

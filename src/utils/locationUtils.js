@@ -1,7 +1,7 @@
 export const getCurrentLocation = () => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by this browser'));
+      reject(new Error("Geolocation is not supported by this browser"));
       return;
     }
 
@@ -14,23 +14,24 @@ export const getCurrentLocation = () => {
       },
       (error) => {
         const errorMessages = {
-          1: 'Permission denied - User denied the request for Geolocation',
-          2: 'Position unavailable - Location information is unavailable',
-          3: 'Request timeout - The request to get user location timed out'
+          1: "Permission denied - User denied the request for Geolocation",
+          2: "Position unavailable - Location information is unavailable",
+          3: "Request timeout - The request to get user location timed out",
         };
-        
-        const errorMessage = errorMessages[error.code] || `Unknown geolocation error: ${error.message}`;
+
+        const errorMessage =
+          errorMessages[error.code] ||
+          `Unknown geolocation error: ${error.message}`;
         reject(new Error(errorMessage));
       },
       {
         timeout: 10000,
         enableHighAccuracy: true,
-        maximumAge: 300000
-      }
+        maximumAge: 300000,
+      },
     );
   });
 };
-
 
 // "latitude,longitude"
 export const getUserLocation = async () => {
@@ -38,7 +39,7 @@ export const getUserLocation = async () => {
     const location = await getCurrentLocation();
     return location;
   } catch (error) {
-    return '0,0';
+    return "0,0";
   }
 };
 
@@ -49,16 +50,16 @@ export const getUserLocationWithDetails = async () => {
     return {
       location,
       success: true,
-      error: null
+      error: null,
     };
   } catch (error) {
     return {
-      location: '0,0',
+      location: "0,0",
       success: false,
       error: {
         message: error.message,
-        code: error.code || 'UNKNOWN'
-      }
+        code: error.code || "UNKNOWN",
+      },
     };
   }
 };

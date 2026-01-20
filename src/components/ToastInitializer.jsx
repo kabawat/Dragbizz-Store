@@ -1,7 +1,7 @@
-"use client"
-import { useEffect } from 'react';
-import { useGlobalToast } from '@/contexts/ToastContext';
-import { setGlobalToast } from '@/service/config/axiosConfig';
+"use client";
+import { useEffect } from "react";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { setGlobalToast } from "@/service/config/axiosConfig";
 
 export default function ToastInitializer() {
   const { showError } = useGlobalToast();
@@ -13,4 +13,3 @@ export default function ToastInitializer() {
 
   return null;
 }
-

@@ -254,17 +254,19 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="clean-invoice-body">
         <div className="clean-invoice">
-
           {/* Header Section */}
           <div className="clean-header">
             <h1>INVOICE</h1>
-            <div className="clean-store-name">{selectedStore?.storeName || "Data Stream Accounting"}</div>
+            <div className="clean-store-name">
+              {selectedStore?.storeName || "Data Stream Accounting"}
+            </div>
             <div className="clean-store-info">
               <p>
                 {selectedStore?.address || "456 Minimalist Way, Clarity City"}
               </p>
               <p>
-                Ph: {selectedStore?.phone || "+91 7654321098"} | Email: {selectedStore?.email || "billing@datastream.com"}
+                Ph: {selectedStore?.phone || "+91 7654321098"} | Email:{" "}
+                {selectedStore?.email || "billing@datastream.com"}
               </p>
             </div>
           </div>
@@ -274,17 +276,35 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
             {/* Invoice Details */}
             <div className="clean-block">
               <div className="title">Invoice Details</div>
-              <p>Invoice #: <span className="clean-invoice-number">{invoiceData.invoiceNumber}</span></p>
-              <p>Date Issued: <span className="clean-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-              <p>Due Date: <span className="clean-value-bold">N/A</span></p>
+              <p>
+                Invoice #:{" "}
+                <span className="clean-invoice-number">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date Issued:{" "}
+                <span className="clean-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due Date: <span className="clean-value-bold">N/A</span>
+              </p>
             </div>
 
             {/* Bill To Details */}
             <div className="clean-block">
               <div className="title">Bill To</div>
-              <p className="clean-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <p className="clean-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
 
@@ -340,7 +360,7 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.totalDiscount > 0 && (
               <div className="row">
                 <div className="label">Discount:</div>
-                <div className="amount" style={{ color: '#c0392b' }}>
+                <div className="amount" style={{ color: "#c0392b" }}>
                   -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
@@ -355,7 +375,10 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="clean-footer">
-            <p>We appreciate your business. All figures are accurate as of the invoice date.</p>
+            <p>
+              We appreciate your business. All figures are accurate as of the
+              invoice date.
+            </p>
           </div>
         </div>
       </div>

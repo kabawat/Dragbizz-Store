@@ -1,6 +1,6 @@
-"use client"
-import { useNetworkError } from '@/contexts/NetworkErrorContext';
-import NetworkError from '@/components/ui/NetworkError';
+"use client";
+import { useNetworkError } from "@/contexts/NetworkErrorContext";
+import NetworkError from "@/components/ui/NetworkError";
 
 const NetworkErrorWrapper = () => {
   const { isNetworkError, handleRetry, hideNetworkError } = useNetworkError();
@@ -15,4 +15,3 @@ const NetworkErrorWrapper = () => {
 };
 
 export default NetworkErrorWrapper;
-

@@ -1,5 +1,5 @@
-"use client"
-import React from 'react';
+"use client";
+import React from "react";
 
 const ScrollIndicator = () => {
   return (
@@ -12,4 +12,3 @@ const ScrollIndicator = () => {
 };
 
 export default ScrollIndicator;
-

@@ -1,23 +1,43 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Edit, Copy, Trash2, CheckCircle, Building2, FileText, Wallet, TrendingUp, ShoppingCart, Receipt, IndianRupee, AlertCircle } from 'lucide-react';
-import moment from 'moment';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  Edit,
+  Copy,
+  Trash2,
+  CheckCircle,
+  Building2,
+  FileText,
+  Wallet,
+  TrendingUp,
+  ShoppingCart,
+  Receipt,
+  IndianRupee,
+  AlertCircle,
+} from "lucide-react";
+import moment from "moment";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { Button } from '@/components/ui';
-import { customerService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
-import { useTranslation } from '@/hooks/useTranslation';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { Button } from "@/components/ui";
+import { customerService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +45,7 @@ const ViewCustomerPage = ({ customerId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedCustomerName, setDeletedCustomerName] = useState('');
+  const [deletedCustomerName, setDeletedCustomerName] = useState("");
   const hasFetched = useRef(false);
 
   // Fetch customer data on component mount
@@ -38,14 +58,22 @@ const ViewCustomerPage = ({ customerId }) => {
         setFetching(true);
         setError(null);
 
-        const result = await customerService.getCustomers({ id: customerId, store: storeId });
+        const result = await customerService.getCustomers({
+          id: customerId,
+          store: storeId,
+        });
         if (result.success && result.data) {
           setCustomerData(result.data);
         } else {
-          setError(result.message || t('errors.failedToFetchData', { item: t('common.customer') }));
+          setError(
+            result.message ||
+              t("errors.failedToFetchData", { item: t("common.customer") }),
+          );
         }
       } catch (error) {
-        setError(t('errors.failedToFetchDataTryAgain', { item: t('common.customer') }));
+        setError(
+          t("errors.failedToFetchDataTryAgain", { item: t("common.customer") }),
+        );
       } finally {
         setFetching(false);
       }
@@ -58,7 +86,6 @@ const ViewCustomerPage = ({ customerId }) => {
   const handleEditCustomer = () => {
     router.push(`/dashboard/customers/edit/${customerId}`);
   };
-
 
   // Handle delete customer
   const handleDeleteCustomer = () => {
@@ -74,15 +101,20 @@ const ViewCustomerPage = ({ customerId }) => {
       const result = await customerService.deleteCustomer(customerId, storeId);
 
       if (result.success) {
-        setDeletedCustomerName(customerData?.name || 'Customer');
+        setDeletedCustomerName(customerData?.name || "Customer");
         setShowDeleteSuccessModal(true);
         setShowDeleteModal(false);
       } else {
-        setError(result.message || t('errors.failedToDelete', { item: t('common.customer') }));
+        setError(
+          result.message ||
+            t("errors.failedToDelete", { item: t("common.customer") }),
+        );
         setShowDeleteModal(false);
       }
     } catch (error) {
-      setError(t('errors.failedToDeleteTryAgain', { item: t('common.customer') }));
+      setError(
+        t("errors.failedToDeleteTryAgain", { item: t("common.customer") }),
+      );
       setShowDeleteModal(false);
     } finally {
       setIsDeleting(false);
@@ -97,7 +129,7 @@ const ViewCustomerPage = ({ customerId }) => {
   // Handle delete success
   const handleDeleteSuccess = () => {
     setShowDeleteSuccessModal(false);
-    router.push('/dashboard/customers');
+    router.push("/dashboard/customers");
   };
 
   // Loading state while fetching customer data
@@ -108,8 +140,8 @@ const ViewCustomerPage = ({ customerId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title={t('customers.viewCustomer')}
-            description={t('customers.viewCustomerDescription')}
+            title={t("customers.viewCustomer")}
+            description={t("customers.viewCustomerDescription")}
           />
 
           <div className="flex-1 p-6">
@@ -119,7 +151,7 @@ const ViewCustomerPage = ({ customerId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.loadingData', { item: t('common.customer') })}
+                      {t("modals.loadingData", { item: t("common.customer") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
                       Please wait while we fetch the customer information
@@ -143,8 +175,8 @@ const ViewCustomerPage = ({ customerId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title={t('customers.viewCustomer')}
-          description={t('customers.viewCustomerDescription')}
+          title={t("customers.viewCustomer")}
+          description={t("customers.viewCustomerDescription")}
         />
 
         {/* Main Content */}
@@ -152,9 +184,14 @@ const ViewCustomerPage = ({ customerId }) => {
           <div className="">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/customers"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('common.backTo', { item: t('common.customers') })}</span>
+                <span className="text-sm font-medium">
+                  {t("common.backTo", { item: t("common.customers") })}
+                </span>
               </Link>
             </div>
 
@@ -168,18 +205,20 @@ const ViewCustomerPage = ({ customerId }) => {
                         <User className="w-10 h-10 text-red-600" />
                       </div>
                       <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        {t('modals.notFound', { item: t('common.customer') })}
+                        {t("modals.notFound", { item: t("common.customer") })}
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        {t('common.doesntExistOrRemoved', { item: t('common.customer') })}
+                        {t("common.doesntExistOrRemoved", {
+                          item: t("common.customer"),
+                        })}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
                           variant="outline"
-                          onClick={() => router.push('/dashboard/customers')}
+                          onClick={() => router.push("/dashboard/customers")}
                           className="px-6 py-3"
                         >
-                          {t('common.backTo', { item: t('common.customers') })}
+                          {t("common.backTo", { item: t("common.customers") })}
                         </Button>
                         <Button
                           variant="primary"
@@ -197,10 +236,19 @@ const ViewCustomerPage = ({ customerId }) => {
 
             {/* Customer Details - Only show when no error */}
             {!error && customerData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: 'calc(100vh - 300px)' }}>
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{ height: "calc(100vh - 300px)" }}
+              >
                 {/* Left Side - Customer Info */}
                 <div className="lg:col-span-2 flex flex-col h-full">
-                  <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
+                  <div
+                    className="overflow-y-auto pe-3 space-y-6"
+                    style={{
+                      height: "calc(100vh - 200px)",
+                      maxHeight: "calc(100vh - 200px)",
+                    }}
+                  >
                     {/* Basic Information Card */}
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center justify-between mb-6">
@@ -209,8 +257,12 @@ const ViewCustomerPage = ({ customerId }) => {
                             <User className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Customer Information</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Basic customer details</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              Customer Information
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Basic customer details
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -220,9 +272,11 @@ const ViewCustomerPage = ({ customerId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-xl overflow-hidden">
                           <User className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Customer Name</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Customer Name
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {customerData.name || t('common.na')}
+                              {customerData.name || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -231,9 +285,11 @@ const ViewCustomerPage = ({ customerId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
                           <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Phone Number</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Phone Number
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                              {customerData.phone || t('common.na')}
+                              {customerData.phone || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -242,9 +298,11 @@ const ViewCustomerPage = ({ customerId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
                           <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Email Address</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Email Address
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
-                              {customerData.email || t('common.na')}
+                              {customerData.email || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -252,51 +310,61 @@ const ViewCustomerPage = ({ customerId }) => {
                     </div>
 
                     {/* Company Details Card */}
-                    {customerData.companyDetails && (customerData.companyDetails.companyName || customerData.companyDetails.gstin) && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-                        <div className="flex items-center space-x-3 mb-6">
-                          <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
-                            <Building2 className="w-6 h-6 text-green-500" />
+                    {customerData.companyDetails &&
+                      (customerData.companyDetails.companyName ||
+                        customerData.companyDetails.gstin) && (
+                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                          <div className="flex items-center space-x-3 mb-6">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
+                              <Building2 className="w-6 h-6 text-green-500" />
+                            </div>
+                            <div>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                Company Details
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                Business information
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Company Details</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Business information</p>
+
+                          <div className="space-y-6">
+                            {/* Company Name */}
+                            {customerData.companyDetails.companyName && (
+                              <div className="flex items-start space-x-4 pb-4 border-b border-[rgb(var(--color-border-primary))]/30">
+                                <div className="flex-shrink-0 w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                                  <Building2 className="w-5 h-5 text-green-500" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    Company Name
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                    {customerData.companyDetails.companyName}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* GSTIN */}
+                            {customerData.companyDetails.gstin && (
+                              <div className="flex items-start space-x-4">
+                                <div className="flex-shrink-0 w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                                  <FileText className="w-5 h-5 text-orange-500" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    GSTIN
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                                    {customerData.companyDetails.gstin}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-
-                        <div className="space-y-6">
-                          {/* Company Name */}
-                          {customerData.companyDetails.companyName && (
-                            <div className="flex items-start space-x-4 pb-4 border-b border-[rgb(var(--color-border-primary))]/30">
-                              <div className="flex-shrink-0 w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-green-500" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Company Name</p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {customerData.companyDetails.companyName}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* GSTIN */}
-                          {customerData.companyDetails.gstin && (
-                            <div className="flex items-start space-x-4">
-                              <div className="flex-shrink-0 w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
-                                <FileText className="w-5 h-5 text-orange-500" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">GSTIN</p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                  {customerData.companyDetails.gstin}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Account Details Card */}
                     {customerData.account && (
@@ -306,8 +374,12 @@ const ViewCustomerPage = ({ customerId }) => {
                             <Wallet className="w-6 h-6 text-blue-500" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Account Details</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Customer purchase and payment information</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              Account Details
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Customer purchase and payment information
+                            </p>
                           </div>
                         </div>
 
@@ -316,18 +388,29 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-xl overflow-hidden">
                             <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Amount</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Total Amount
+                              </p>
                               <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                                ₹{customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                ₹
+                                {customerData.account.totalAmount?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
                               </p>
                             </div>
                           </div>
 
                           {/* Total Invoices */}
                           <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-xl overflow-hidden">
-                            <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400" style={{ opacity: '0.4' }} />
+                            <Receipt
+                              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-purple-500/35 dark:!text-purple-400"
+                              style={{ opacity: "0.4" }}
+                            />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Invoices</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Total Invoices
+                              </p>
                               <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                 {customerData.account.totalInvoices || 0}
                               </p>
@@ -338,7 +421,9 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-indigo-50/15 to-indigo-100/10 dark:from-indigo-900/5 dark:to-indigo-800/3 rounded-xl overflow-hidden">
                             <ShoppingCart className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-indigo-500/35 dark:!text-indigo-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Items Purchased</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Items Purchased
+                              </p>
                               <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
                                 {customerData.account.totalItemsPurchased || 0}
                               </p>
@@ -349,9 +434,15 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-xl overflow-hidden">
                             <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Profit</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Total Profit
+                              </p>
                               <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                                ₹{customerData.account.totalProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                ₹
+                                {customerData.account.totalProfit?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
                               </p>
                             </div>
                           </div>
@@ -360,9 +451,15 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-emerald-50/15 to-emerald-100/10 dark:from-emerald-900/5 dark:to-emerald-800/3 rounded-xl overflow-hidden">
                             <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-emerald-500/35 dark:text-emerald-400/40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Paid</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Total Paid
+                              </p>
                               <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                                ₹{customerData.account.totalPaid?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                ₹
+                                {customerData.account.totalPaid?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
                               </p>
                             </div>
                           </div>
@@ -371,22 +468,34 @@ const ViewCustomerPage = ({ customerId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-xl overflow-hidden">
                             <AlertCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Due</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Total Due
+                              </p>
                               <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                                ₹{customerData.account.totalDue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                              </p>    
+                                ₹
+                                {customerData.account.totalDue?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
+                              </p>
                             </div>
                           </div>
 
                           {/* Account Status */}
                           <div className="relative p-4 bg-gradient-to-br from-gray-50/15 to-gray-100/10 dark:from-gray-900/5 dark:to-gray-800/3 rounded-xl overflow-hidden">
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center">
-                              <div className={`w-8 h-8 rounded-full ${customerData.account.accountStatus === 'ACTIVE' ? 'bg-green-500/35 dark:!bg-green-400 dark:opacity-40' : customerData.account.accountStatus === 'BLOCKED' ? 'bg-red-500/35 dark:!bg-red-400 dark:opacity-40' : 'bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40'}`}></div>
+                              <div
+                                className={`w-8 h-8 rounded-full ${customerData.account.accountStatus === "ACTIVE" ? "bg-green-500/35 dark:!bg-green-400 dark:opacity-40" : customerData.account.accountStatus === "BLOCKED" ? "bg-red-500/35 dark:!bg-red-400 dark:opacity-40" : "bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40"}`}
+                              ></div>
                             </div>
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Account Status</p>
-                              <p className={`text-lg font-bold ${customerData.account.accountStatus === 'ACTIVE' ? 'text-green-600 dark:text-green-400' : customerData.account.accountStatus === 'BLOCKED' ? 'text-red-600 dark:text-red-400' : 'text-[rgb(var(--color-text-primary))]'}`}>
-                                {customerData.account.accountStatus || 'ACTIVE'}
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Account Status
+                              </p>
+                              <p
+                                className={`text-lg font-bold ${customerData.account.accountStatus === "ACTIVE" ? "text-green-600 dark:text-green-400" : customerData.account.accountStatus === "BLOCKED" ? "text-red-600 dark:text-red-400" : "text-[rgb(var(--color-text-primary))]"}`}
+                              >
+                                {customerData.account.accountStatus || "ACTIVE"}
                               </p>
                             </div>
                           </div>
@@ -396,9 +505,13 @@ const ViewCustomerPage = ({ customerId }) => {
                             <div className="relative p-4 bg-gradient-to-br from-teal-50/15 to-teal-100/10 dark:from-teal-900/5 dark:to-teal-800/3 rounded-xl overflow-hidden">
                               <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 text-teal-500/35 dark:!text-teal-400 dark:opacity-40" />
                               <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Joined At</p>
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                  Joined At
+                                </p>
                                 <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-                                  {moment(customerData.account.joinedAt).format('DD MMM YYYY')}
+                                  {moment(customerData.account.joinedAt).format(
+                                    "DD MMM YYYY",
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -406,13 +519,18 @@ const ViewCustomerPage = ({ customerId }) => {
                         </div>
 
                         {/* Additional Account Info */}
-                        {(customerData.account.totalReturns > 0 || customerData.account.netProfit !== undefined) && (
+                        {(customerData.account.totalReturns > 0 ||
+                          customerData.account.netProfit !== undefined) && (
                           <div className="mt-6 pt-6 border-t border-[rgb(var(--color-border-primary))]">
-                            <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-4">Additional Information</h3>
+                            <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-4">
+                              Additional Information
+                            </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {customerData.account.totalReturns > 0 && (
                                 <div>
-                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Total Returns</p>
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                    Total Returns
+                                  </p>
                                   <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                     {customerData.account.totalReturns || 0}
                                   </p>
@@ -420,9 +538,15 @@ const ViewCustomerPage = ({ customerId }) => {
                               )}
                               {customerData.account.netProfit !== undefined && (
                                 <div>
-                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Net Profit</p>
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                    Net Profit
+                                  </p>
                                   <p className="text-base font-semibold text-green-600 dark:text-green-400">
-                                    ₹{customerData.account.netProfit?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                                    ₹
+                                    {customerData.account.netProfit?.toLocaleString(
+                                      "en-IN",
+                                      { maximumFractionDigits: 2 },
+                                    ) || "0.00"}
                                   </p>
                                 </div>
                               )}
@@ -433,104 +557,143 @@ const ViewCustomerPage = ({ customerId }) => {
                     )}
 
                     {/* Addresses Card */}
-                    {customerData.addresses && (customerData.addresses.billing || customerData.addresses.shipping) && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
-                        <div className="flex items-center space-x-3 mb-6">
-                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
-                            <MapPin className="w-6 h-6 text-purple-500" />
+                    {customerData.addresses &&
+                      (customerData.addresses.billing ||
+                        customerData.addresses.shipping) && (
+                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                          <div className="flex items-center space-x-3 mb-6">
+                            <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
+                              <MapPin className="w-6 h-6 text-purple-500" />
+                            </div>
+                            <div>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                Addresses
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                Billing and shipping addresses
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Addresses</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Billing and shipping addresses</p>
-                          </div>
-                        </div>
 
-                        <div className="space-y-6">
-                          {/* Billing Address */}
-                          {customerData.addresses.billing && (
-                            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
-                              <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Billing Address</h3>
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.addressLine1 || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.city || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.state || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.pincode || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.billing.country || t('common.na')}
-                                    </p>
+                          <div className="space-y-6">
+                            {/* Billing Address */}
+                            {customerData.addresses.billing && (
+                              <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+                                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">
+                                  Billing Address
+                                </h3>
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Address Line 1
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.billing
+                                          .addressLine1 || t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        City
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.billing.city ||
+                                          t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        State
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.billing.state ||
+                                          t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Pincode
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.billing
+                                          .pincode || t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Country
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.billing
+                                          .country || t("common.na")}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {/* Shipping Address */}
-                          {customerData.addresses.shipping && (
-                            <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
-                              <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">Shipping Address</h3>
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Address Line 1</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.addressLine1 || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">City</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.city || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">State</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.state || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Pincode</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.pincode || t('common.na')}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">Country</p>
-                                    <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {customerData.addresses.shipping.country || t('common.na')}
-                                    </p>
+                            {/* Shipping Address */}
+                            {customerData.addresses.shipping && (
+                              <div className="border border-[rgb(var(--color-border-primary))]/30 rounded-lg p-4">
+                                <h3 className="text-lg font-medium text-[rgb(var(--color-text-primary))] mb-4">
+                                  Shipping Address
+                                </h3>
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Address Line 1
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.shipping
+                                          .addressLine1 || t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        City
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.shipping.city ||
+                                          t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        State
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.shipping
+                                          .state || t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Pincode
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.shipping
+                                          .pincode || t("common.na")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-2">
+                                        Country
+                                      </p>
+                                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                                        {customerData.addresses.shipping
+                                          .country || t("common.na")}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-
+                      )}
                   </div>
                 </div>
 
@@ -542,8 +705,12 @@ const ViewCustomerPage = ({ customerId }) => {
                         <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Quick Actions</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Manage this customer</p>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                          Quick Actions
+                        </h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                          Manage this customer
+                        </p>
                       </div>
                     </div>
 
@@ -569,42 +736,80 @@ const ViewCustomerPage = ({ customerId }) => {
 
                     {/* Customer Stats */}
                     <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Quick Stats</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        Quick Stats
+                      </h4>
                       <div className="space-y-2 text-sm">
                         {customerData.account ? (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Invoices:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerData.account.totalInvoices || 0}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Spent:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">₹{customerData.account.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Due:</span>
-                              <span className={`font-medium ${customerData.account.totalDue > 0 ? 'text-orange-500' : 'text-[rgb(var(--color-text-primary))]'}`}>
-                                ₹{customerData.account.totalDue?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Total Invoices:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {customerData.account.totalInvoices || 0}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Items Purchased:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">{customerData.account.totalItemsPurchased || 0}</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Total Spent:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                ₹
+                                {customerData.account.totalAmount?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Total Due:
+                              </span>
+                              <span
+                                className={`font-medium ${customerData.account.totalDue > 0 ? "text-orange-500" : "text-[rgb(var(--color-text-primary))]"}`}
+                              >
+                                ₹
+                                {customerData.account.totalDue?.toLocaleString(
+                                  "en-IN",
+                                  { maximumFractionDigits: 2 },
+                                ) || "0.00"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Items Purchased:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {customerData.account.totalItemsPurchased || 0}
+                              </span>
                             </div>
                           </>
                         ) : (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Orders:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">0</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Total Orders:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                0
+                              </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Total Spent:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">₹0</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Total Spent:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                ₹0
+                              </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[rgb(var(--color-text-secondary))]">Last Order:</span>
-                              <span className="font-medium text-[rgb(var(--color-text-primary))]">Never</span>
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Last Order:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                Never
+                              </span>
                             </div>
                           </>
                         )}
@@ -626,13 +831,23 @@ const ViewCustomerPage = ({ customerId }) => {
               Delete Customer
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              {t('modals.deleteConfirmWithName', { name: customerData?.name || t('common.customer') })}
+              {t("modals.deleteConfirmWithName", {
+                name: customerData?.name || t("common.customer"),
+              })}
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={handleCancelDelete} disabled={isDeleting}>
+              <Button
+                variant="outline"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
                 Cancel
               </Button>
-              <Button variant="danger" onClick={handleConfirmDelete} loading={isDeleting}>
+              <Button
+                variant="danger"
+                onClick={handleConfirmDelete}
+                loading={isDeleting}
+              >
                 Delete
               </Button>
             </div>
@@ -649,10 +864,15 @@ const ViewCustomerPage = ({ customerId }) => {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t('modals.deletedSuccessfully', { item: t('common.customer') })}
+                {t("modals.deletedSuccessfully", {
+                  item: t("common.customer"),
+                })}
               </h3>
               <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                {t('common.hasBeenRemovedFromList', { name: deletedCustomerName, item: t('common.customers') })}
+                {t("common.hasBeenRemovedFromList", {
+                  name: deletedCustomerName,
+                  item: t("common.customers"),
+                })}
               </p>
               <Button variant="primary" onClick={handleDeleteSuccess}>
                 Back to Customers

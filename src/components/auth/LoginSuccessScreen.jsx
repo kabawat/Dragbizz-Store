@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { CheckCircle, ArrowRight } from 'lucide-react';
-import { AnimatedBackground } from '../ui';
-import { cookieManager } from '@/utils/cookieManager';
-import { useTheme } from '@/contexts/ThemeContext';
-import confetti from 'canvas-confetti';
+import React, { useEffect, useState } from "react";
+import { CheckCircle, ArrowRight } from "lucide-react";
+import { AnimatedBackground } from "../ui";
+import { cookieManager } from "@/utils/cookieManager";
+import { useTheme } from "@/contexts/ThemeContext";
+import confetti from "canvas-confetti";
 
-const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, redirectUrl = '/dashboard' }) => {
+const LoginSuccessScreen = ({
+  firstName,
+  onContinue,
+  authToken,
+  refreshToken,
+  redirectUrl = "/dashboard",
+}) => {
   const [countdown, setCountdown] = useState(4);
   const [showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
@@ -18,7 +24,7 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
     "#22c55e",
     themeConfig.primary,
     "#8b5cf6",
-    "#ec4899"
+    "#ec4899",
   ];
 
   // Confetti state
@@ -26,7 +32,9 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
   let endAt = 0;
 
   // Reduced motion fallback
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Single burst with fade effect
   const createSingleBurst = () => {
@@ -40,7 +48,7 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
       gravity: 1,
       ticks: 300,
       scalar: 1,
-      shapes: ['square', 'circle'],
+      shapes: ["square", "circle"],
     });
 
     // Additional scattered bursts for full coverage
@@ -134,8 +142,8 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
         cookieManager.setRefreshToken(refreshToken);
       }
       // Set last activity timestamp for inactivity tracking
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('dragbizz_last_activity', Date.now().toString());
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dragbizz_last_activity", Date.now().toString());
       }
       // Redirect to the original page or dashboard
       window.location.href = redirectUrl;
@@ -147,20 +155,19 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
       <AnimatedBackground variant="success" />
 
       <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto text-center">
-
         {/* Success Message */}
         <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-6 flex items-center justify-center">
           <CheckCircle className="w-8 h-8 text-white" />
         </div>
-        
+
         <h1 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-          Welcome back, {firstName || 'User'}! 👋
+          Welcome back, {firstName || "User"}! 👋
         </h1>
-        
+
         <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-2">
           Login successful
         </p>
-        
+
         <p className="text-sm sm:text-base font-semibold gradient-text mb-6">
           Redirecting...
         </p>
@@ -172,11 +179,17 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
             <span className="text-sm">Authentication verified</span>
           </div>
           <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
-            <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mr-3 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+            <div
+              className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mr-3 animate-pulse"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
             <span className="text-sm">Session established</span>
           </div>
           <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
-            <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            <div
+              className="w-2 h-2 bg-purple-500 rounded-full mr-3 animate-pulse"
+              style={{ animationDelay: "0.4s" }}
+            ></div>
             <span className="text-sm">Ready to continue</span>
           </div>
         </div>
@@ -200,13 +213,16 @@ const LoginSuccessScreen = ({ firstName, onContinue, authToken, refreshToken, re
             if (authToken) {
               cookieManager.setAuthToken(authToken);
             }
-            
+
             if (refreshToken) {
               cookieManager.setRefreshToken(refreshToken);
             }
 
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('dragbizz_last_activity', Date.now().toString());
+            if (typeof window !== "undefined") {
+              localStorage.setItem(
+                "dragbizz_last_activity",
+                Date.now().toString(),
+              );
             }
             // Redirect to the original page or dashboard
             window.location.href = redirectUrl;

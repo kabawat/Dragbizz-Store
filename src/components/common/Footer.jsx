@@ -1,25 +1,25 @@
-"use client"
-import React from 'react';
-import Link from 'next/link';
-import { ShoppingBag } from 'lucide-react';
+"use client";
+import React from "react";
+import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 
 const Footer = () => {
   const footerLinks = {
     product: [
-      { name: 'Features', href: '/products' },
-      { name: 'Pricing', href: '/products#pricing' },
-      { name: 'Updates', href: '/products#features' }
+      { name: "Features", href: "/products" },
+      { name: "Pricing", href: "/products#pricing" },
+      { name: "Updates", href: "/products#features" },
     ],
     company: [
-      { name: 'About', href: '/about' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Contact', href: '/contact' }
+      { name: "About", href: "/about" },
+      { name: "Blog", href: "/blog" },
+      { name: "Contact", href: "/contact" },
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Documentation', href: '/docs' },
-      { name: 'Get Support', href: '/contact' }
-    ]
+      { name: "Help Center", href: "/help" },
+      { name: "Documentation", href: "/docs" },
+      { name: "Get Support", href: "/contact" },
+    ],
   };
 
   return (
@@ -38,11 +38,16 @@ const Footer = () => {
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">Product</h3>
+            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">
+              Product
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {footerLinks.product.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="hover:text-[rgb(var(--color-primary))] transition-colors">
+                  <Link
+                    href={link.href}
+                    className="hover:text-[rgb(var(--color-primary))] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -50,11 +55,16 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">Company</h3>
+            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">
+              Company
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="hover:text-[rgb(var(--color-primary))] transition-colors">
+                  <Link
+                    href={link.href}
+                    className="hover:text-[rgb(var(--color-primary))] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -62,11 +72,16 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">Support</h3>
+            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">
+              Support
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="hover:text-[rgb(var(--color-primary))] transition-colors">
+                  <Link
+                    href={link.href}
+                    className="hover:text-[rgb(var(--color-primary))] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -83,4 +98,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

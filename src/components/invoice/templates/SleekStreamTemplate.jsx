@@ -298,116 +298,137 @@ const SleekStreamTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="sleek-invoice-body">
         <div className="sleek-invoice">
-          
           {/* Top Split Header */}
           <div className="sleek-split-header">
             {/* Left Sidebar (Blue) */}
             <div className="sleek-meta-sidebar">
-                <h1>INVOICE</h1>
-                
-                <div className="sleek-meta-detail">Invoice Number:</div>
-                <div className="sleek-meta-value">{invoiceData.invoiceNumber}</div>
-                
-                <div className="sleek-meta-detail">Date Issued:</div>
-                <div className="sleek-meta-value">{moment(invoiceData.createdAt).format("DD MMMM, YYYY")}</div>
-                
-                <div className="sleek-meta-detail">Due Date:</div>
-                <div className="sleek-meta-value">N/A</div>
+              <h1>INVOICE</h1>
+
+              <div className="sleek-meta-detail">Invoice Number:</div>
+              <div className="sleek-meta-value">
+                {invoiceData.invoiceNumber}
+              </div>
+
+              <div className="sleek-meta-detail">Date Issued:</div>
+              <div className="sleek-meta-value">
+                {moment(invoiceData.createdAt).format("DD MMMM, YYYY")}
+              </div>
+
+              <div className="sleek-meta-detail">Due Date:</div>
+              <div className="sleek-meta-value">N/A</div>
             </div>
-            
+
             {/* Right Info Section (White) */}
             <div className="sleek-store-customer-info">
-                {/* Store Info */}
-                <div className="sleek-info-block">
-                    <div className="title">From: Billed By</div>
-                    <p className="sleek-store-name">{selectedStore?.storeName || "Sleek Stream Services"}</p>
-                    <p className="sleek-store-address">{selectedStore?.address || "555 Modern Plaza, Tech City"}</p>
-                    <p className="sleek-store-address">Ph: {selectedStore?.phone || "+91 9988776655"}</p>
-                    <p className="sleek-store-address">Email: {selectedStore?.email || "contact@sleekstream.com"}</p>
-                </div>
-                
-                {/* Customer Info */}
-                <div className="sleek-info-block">
-                    <div className="title">To: Bill To</div>
-                    <p className="sleek-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                    {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                    {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-                </div>
+              {/* Store Info */}
+              <div className="sleek-info-block">
+                <div className="title">From: Billed By</div>
+                <p className="sleek-store-name">
+                  {selectedStore?.storeName || "Sleek Stream Services"}
+                </p>
+                <p className="sleek-store-address">
+                  {selectedStore?.address || "555 Modern Plaza, Tech City"}
+                </p>
+                <p className="sleek-store-address">
+                  Ph: {selectedStore?.phone || "+91 9988776655"}
+                </p>
+                <p className="sleek-store-address">
+                  Email: {selectedStore?.email || "contact@sleekstream.com"}
+                </p>
+              </div>
+
+              {/* Customer Info */}
+              <div className="sleek-info-block">
+                <div className="title">To: Bill To</div>
+                <p className="sleek-value-bold">
+                  {invoiceData.customer?.name || "Walk-in Customer"}
+                </p>
+                {invoiceData.customer?.email && (
+                  <p>{invoiceData.customer.email}</p>
+                )}
+                {invoiceData.customer?.phone && (
+                  <p>{invoiceData.customer.phone}</p>
+                )}
+              </div>
             </div>
           </div>
-          
+
           {/* Table Container (to apply padding) */}
-          <div style={{ padding: '0 30px' }}>
-              <table className="sleek-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th style={{ width: "45%" }}>Service/Product Description</th>
-                    <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                    <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                    <th style={{ width: "25%", textAlign: "right" }}>Line Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoiceData.items?.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <div className="sleek-product-name">
-                          {item.product?.name || "Unnamed Item"}
+          <div style={{ padding: "0 30px" }}>
+            <table className="sleek-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "45%" }}>Service/Product Description</th>
+                  <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
+                  <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
+                  <th style={{ width: "25%", textAlign: "right" }}>
+                    Line Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceData.items?.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="sleek-product-name">
+                        {item.product?.name || "Unnamed Item"}
+                      </div>
+                      {item.product?.sku && (
+                        <div className="sleek-product-sku">
+                          SKU: {item.product.sku}
                         </div>
-                        {item.product?.sku && (
-                          <div className="sleek-product-sku">
-                            SKU: {item.product.sku}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {formatCurrency(item.price)}
-                      </td>
-                      <td style={{ textAlign: "right", fontWeight: 700 }}>
-                        {formatCurrency(item.quantity * item.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      )}
+                    </td>
+                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCurrency(item.price)}
+                    </td>
+                    <td style={{ textAlign: "right", fontWeight: 700 }}>
+                      {formatCurrency(item.quantity * item.price)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          
+
           {/* Totals Area */}
           <div className="sleek-totals-area">
-              <div className="sleek-totals-table">
-                  <div className="row">
-                    <div className="label">Subtotal:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.subtotal)}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="label">Tax (GST):</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.gstAmount)}
-                    </div>
-                  </div>
-                  {invoiceData.totalDiscount > 0 && (
-                    <div className="row">
-                      <div className="label">Discount:</div>
-                      <div className="amount" style={{ color: '#e74c3c' }}>
-                        -{formatCurrency(invoiceData.totalDiscount)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="row final-row">
-                    <div className="label">AMOUNT DUE:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.totalAmount)}
-                    </div>
-                  </div>
+            <div className="sleek-totals-table">
+              <div className="row">
+                <div className="label">Subtotal:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
+              <div className="row">
+                <div className="label">Tax (GST):</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
+              </div>
+              {invoiceData.totalDiscount > 0 && (
+                <div className="row">
+                  <div className="label">Discount:</div>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
+                </div>
+              )}
+              <div className="row final-row">
+                <div className="label">AMOUNT DUE:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.totalAmount)}
+                </div>
+              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="sleek-footer">
-            <p style={{ margin: 0 }}>Payment instructions will follow. Thank you for your business!</p>
+            <p style={{ margin: 0 }}>
+              Payment instructions will follow. Thank you for your business!
+            </p>
           </div>
         </div>
       </div>

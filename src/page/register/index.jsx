@@ -1,27 +1,27 @@
-"use client"
-import React, { useState } from 'react';
-import WelcomeScreen from '@/components/auth/WelcomeScreen';
-import BasicInfoStep from '@/components/auth/BasicInfoStep';
-import PasswordStep from '@/components/auth/PasswordStep';
-import VerificationStep from '@/components/auth/VerificationStep';
-import SuccessScreen from '@/components/auth/SuccessScreen';
-import { AnimatedBackground } from '@/components/ui';
-import { authService } from '@/service/auth';
-import { useLocation } from '@/app/LocationProvider';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState } from "react";
+import WelcomeScreen from "@/components/auth/WelcomeScreen";
+import BasicInfoStep from "@/components/auth/BasicInfoStep";
+import PasswordStep from "@/components/auth/PasswordStep";
+import VerificationStep from "@/components/auth/VerificationStep";
+import SuccessScreen from "@/components/auth/SuccessScreen";
+import { AnimatedBackground } from "@/components/ui";
+import { authService } from "@/service/auth";
+import { useLocation } from "@/app/LocationProvider";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Register() {
   const { t } = useTranslation();
   // Get location from context
   const { userLocation } = useLocation();
 
-  const [currentState, setCurrentState] = useState('welcome');
+  const [currentState, setCurrentState] = useState("welcome");
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    contact: '',
-    contactType: 'email',
-    password: ''
+    firstName: "",
+    lastName: "",
+    contact: "",
+    contactType: "email",
+    password: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -29,9 +29,9 @@ export default function Register() {
   const [authToken, setAuthToken] = useState(null);
 
   const updateFormData = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -39,31 +39,31 @@ export default function Register() {
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = t('auth.firstNameRequired');
+      newErrors.firstName = t("auth.firstNameRequired");
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = t('auth.lastNameRequired');
+      newErrors.lastName = t("auth.lastNameRequired");
     }
 
     if (!formData.contact.trim()) {
-      newErrors.contact = t('auth.emailOrPhoneRequired');
-    } else if (formData.contactType === 'email') {
+      newErrors.contact = t("auth.emailOrPhoneRequired");
+    } else if (formData.contactType === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.contact)) {
-        newErrors.contact = t('auth.validEmailAddress');
+        newErrors.contact = t("auth.validEmailAddress");
       }
-    } else if (formData.contactType === 'phone') {
+    } else if (formData.contactType === "phone") {
       // More flexible phone validation - accepts various formats
       const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
-      const cleanPhone = formData.contact.replace(/\D/g, '');
+      const cleanPhone = formData.contact.replace(/\D/g, "");
 
       if (!phoneRegex.test(formData.contact)) {
-        newErrors.contact = t('auth.validPhoneNumber');
+        newErrors.contact = t("auth.validPhoneNumber");
       } else if (cleanPhone.length < 10) {
-        newErrors.contact = t('auth.phoneMustBe10Digits');
+        newErrors.contact = t("auth.phoneMustBe10Digits");
       } else if (cleanPhone.length > 15) {
-        newErrors.contact = t('auth.phoneTooLong');
+        newErrors.contact = t("auth.phoneTooLong");
       }
     }
     setErrors(newErrors);
@@ -71,12 +71,12 @@ export default function Register() {
   };
 
   const handleGetStarted = () => {
-    setCurrentState('basic-info');
+    setCurrentState("basic-info");
   };
 
   const handleBasicInfoNext = () => {
     if (validateBasicInfo()) {
-      setCurrentState('password');
+      setCurrentState("password");
     }
   };
 
@@ -90,7 +90,7 @@ export default function Register() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         identifier: formData.contact,
-        pwds: formData.password
+        pwds: formData.password,
       };
 
       // Call the registration API
@@ -98,15 +98,15 @@ export default function Register() {
 
       if (result.success) {
         setRegistrationToken(result.token);
-        setCurrentState('verification');
+        setCurrentState("verification");
       } else {
         setErrors({
-          general: result.message || t('auth.registrationFailed')
+          general: result.message || t("auth.registrationFailed"),
         });
       }
     } catch (error) {
       setErrors({
-        general: t('auth.unexpectedErrorOccurred')
+        general: t("auth.unexpectedErrorOccurred"),
       });
     } finally {
       setIsLoading(false);
@@ -115,31 +115,31 @@ export default function Register() {
 
   const handleVerificationComplete = (token) => {
     setAuthToken(token);
-    setCurrentState('success');
+    setCurrentState("success");
   };
 
   const handleBackToWelcome = () => {
-    setCurrentState('welcome');
+    setCurrentState("welcome");
   };
 
   const handleBackToBasicInfo = () => {
-    setCurrentState('basic-info');
+    setCurrentState("basic-info");
   };
 
   const handleChangeContact = () => {
-    setCurrentState('basic-info');
+    setCurrentState("basic-info");
   };
 
   const handleSuccessContinue = () => {
     // Redirect to agency creation instead of showing complete state
-    window.location.href = '/onboarding/agency';
+    window.location.href = "/onboarding/agency";
   };
 
-  if (currentState === 'welcome') {
+  if (currentState === "welcome") {
     return <WelcomeScreen onGetStarted={handleGetStarted} />;
   }
 
-  if (currentState === 'success') {
+  if (currentState === "success") {
     return (
       <SuccessScreen
         firstName={formData.firstName}
@@ -149,7 +149,7 @@ export default function Register() {
     );
   }
 
-  if (currentState === 'complete') {
+  if (currentState === "complete") {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
         <AnimatedBackground variant="success" />
@@ -161,7 +161,8 @@ export default function Register() {
             Dashboard
           </h1>
           <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6">
-            Welcome to your new account, {formData.firstName}! Start exploring all the amazing features we have to offer.
+            Welcome to your new account, {formData.firstName}! Start exploring
+            all the amazing features we have to offer.
           </p>
           <div className="flex flex-col gap-3">
             <button className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out cursor-pointer">
@@ -177,8 +178,11 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
-      {currentState === 'basic-info' && (
+    <div
+      className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden"
+      data-register-page
+    >
+      {currentState === "basic-info" && (
         <BasicInfoStep
           firstName={formData.firstName}
           lastName={formData.lastName}
@@ -191,7 +195,7 @@ export default function Register() {
         />
       )}
 
-      {currentState === 'password' && (
+      {currentState === "password" && (
         <PasswordStep
           password={formData.password}
           onUpdate={updateFormData}
@@ -203,7 +207,7 @@ export default function Register() {
         />
       )}
 
-      {currentState === 'verification' && (
+      {currentState === "verification" && (
         <VerificationStep
           contactType={formData.contactType}
           contact={formData.contact}

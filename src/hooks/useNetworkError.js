@@ -1,19 +1,19 @@
-"use client"
-import { useState, useEffect, useCallback } from 'react';
+"use client";
+import { useState, useEffect, useCallback } from "react";
 
 export const useNetworkError = () => {
   const [isNetworkError, setIsNetworkError] = useState(false);
   const [errorCount, setErrorCount] = useState(0);
 
   const handleNetworkError = useCallback(() => {
-    setErrorCount(prev => prev + 1);
+    setErrorCount((prev) => prev + 1);
     setIsNetworkError(true);
   }, []);
 
   const handleRetry = useCallback(() => {
     setIsNetworkError(false);
     setErrorCount(0);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.location.reload();
     }
   }, []);
@@ -34,17 +34,17 @@ export const useNetworkError = () => {
       setIsNetworkError(true);
     };
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
 
       if (!navigator.onLine) {
         setIsNetworkError(true);
       }
 
       return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
       };
     }
   }, [isNetworkError]);
@@ -54,7 +54,6 @@ export const useNetworkError = () => {
     errorCount,
     handleNetworkError,
     handleRetry,
-    handleDismiss
+    handleDismiss,
   };
 };
-
