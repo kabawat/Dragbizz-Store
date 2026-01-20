@@ -1,18 +1,18 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { AnimatedBackground } from '@/components/ui';
-import { useTheme } from '@/contexts/ThemeContext';
+"use client";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { AnimatedBackground } from "@/components/ui";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   AppearanceSettings,
   ProfileSettings,
   AccountSettings,
   StoreSettings,
   SecuritySettings,
-  NotificationsSettings
-} from '@/components/settings';
+  NotificationsSettings,
+} from "@/components/settings";
 import {
   User,
   Shield,
@@ -20,10 +20,10 @@ import {
   Bell,
   Settings as SettingsIcon,
   Palette,
-  ChevronRight
-} from 'lucide-react';
-import { useAppSelector } from '@/store/hooks';
-import { useTranslation } from '@/hooks/useTranslation';
+  ChevronRight,
+} from "lucide-react";
+import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -32,21 +32,25 @@ export default function SettingsPage() {
   const pathname = usePathname();
   const { user, selectedStore } = useAppSelector((state) => state.profile);
   const { toggleVariant, currentVariant } = useTheme();
-  const [activeTab, setActiveTab] = useState('appearance');
+  const [activeTab, setActiveTab] = useState("appearance");
   const [animationKey, setAnimationKey] = useState(0);
 
   const settingsTabs = [
-    { id: 'appearance', label: t('settings.appearance'), icon: Palette },
-    { id: 'profile', label: t('settings.profile'), icon: User },
-    { id: 'account', label: t('settings.account'), icon: SettingsIcon },
-    { id: 'store', label: t('settings.store'), icon: Store },
-    { id: 'security', label: t('settings.security'), icon: Shield },
-    { id: 'notifications', label: t('settings.notificationsLabel'), icon: Bell },
+    { id: "appearance", label: t("settings.appearance"), icon: Palette },
+    { id: "profile", label: t("settings.profile"), icon: User },
+    { id: "account", label: t("settings.account"), icon: SettingsIcon },
+    { id: "store", label: t("settings.store"), icon: Store },
+    { id: "security", label: t("settings.security"), icon: Shield },
+    {
+      id: "notifications",
+      label: t("settings.notificationsLabel"),
+      icon: Bell,
+    },
   ];
 
   // Sync active tab from query params on mount / URL change
   useEffect(() => {
-    const tabFromUrl = searchParams.get('tab');
+    const tabFromUrl = searchParams.get("tab");
     if (!tabFromUrl) return;
 
     const isValidTab = settingsTabs.some((tab) => tab.id === tabFromUrl);
@@ -60,13 +64,13 @@ export default function SettingsPage() {
     setActiveTab(tabId);
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', tabId);
+    params.set("tab", tabId);
 
     router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleToggleVariant = () => {
-    setAnimationKey(prev => prev + 1);
+    setAnimationKey((prev) => prev + 1);
     toggleVariant();
   };
 
@@ -80,8 +84,8 @@ export default function SettingsPage() {
         <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
           {/* Header */}
           <Header
-            title={t('settings.title')}
-            description={t('settings.description')}
+            title={t("settings.title")}
+            description={t("settings.description")}
           />
 
           {/* Main Content */}
@@ -98,8 +102,8 @@ export default function SettingsPage() {
                         onClick={() => handleTabChange(tab.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
                           activeTab === tab.id
-                            ? 'bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20'
-                            : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]'
+                            ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
+                            : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -118,29 +122,24 @@ export default function SettingsPage() {
             <div className="flex-1 min-h-0 overflow-hidden p-4 sm:p-6">
               <div className="w-full h-full mx-auto">
                 {/* Tab Content */}
-                {activeTab === 'appearance' && (
-                  <AppearanceSettings animationKey={animationKey} handleToggleVariant={handleToggleVariant} />
+                {activeTab === "appearance" && (
+                  <AppearanceSettings
+                    animationKey={animationKey}
+                    handleToggleVariant={handleToggleVariant}
+                  />
                 )}
 
-                {activeTab === 'profile' && (
-                  <ProfileSettings user={user} />
-                )}
+                {activeTab === "profile" && <ProfileSettings user={user} />}
 
-                {activeTab === 'account' && (
-                  <AccountSettings />
-                )}
+                {activeTab === "account" && <AccountSettings />}
 
-                {activeTab === 'store' && (
+                {activeTab === "store" && (
                   <StoreSettings selectedStore={selectedStore} />
                 )}
 
-                {activeTab === 'security' && (
-                  <SecuritySettings />
-                )}
+                {activeTab === "security" && <SecuritySettings />}
 
-                {activeTab === 'notifications' && (
-                  <NotificationsSettings />
-                )}
+                {activeTab === "notifications" && <NotificationsSettings />}
               </div>
             </div>
           </div>

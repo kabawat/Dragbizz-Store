@@ -1,15 +1,15 @@
-"use client"
-import React from 'react';
-import { AlertCircle, X } from 'lucide-react';
-import { Button } from '../ui';
+"use client";
+import React from "react";
+import { AlertCircle, X } from "lucide-react";
+import { Button } from "../ui";
 
 const InvoiceErrorModal = ({
   isOpen,
   onClose,
-  title = 'Error',
-  message = 'Something went wrong',
-  details = '',
-  className = ''
+  title = "Error",
+  message = "Something went wrong",
+  details = "",
+  className = "",
 }) => {
   if (!isOpen) return null;
 

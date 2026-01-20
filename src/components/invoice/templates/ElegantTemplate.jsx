@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const ElegantTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -322,7 +322,9 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="elegant-header">
           <div className="elegant-store-details">
-            <div className="elegant-store-name">{selectedStore?.storeName || "Your Store"}</div>
+            <div className="elegant-store-name">
+              {selectedStore?.storeName || "Your Store"}
+            </div>
             <div className="elegant-store-address">
               {selectedStore?.address || "123 Market Road, City 12345"} <br />
               {selectedStore?.phone && `Phone: ${selectedStore.phone}`} <br />
@@ -340,10 +342,20 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
         <div className="elegant-info-section">
           <div className="elegant-info-box">
             <h3>Bill To</h3>
-            <p><strong>{invoiceData.customer?.name || "Walk-in Customer"}</strong></p>
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
-            {invoiceData.customer?.phone && <p>Phone: {invoiceData.customer.phone}</p>}
-            {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
+            <p>
+              <strong>
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </strong>
+            </p>
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
+            {invoiceData.customer?.phone && (
+              <p>Phone: {invoiceData.customer.phone}</p>
+            )}
+            {invoiceData.customer?.email && (
+              <p>Email: {invoiceData.customer.email}</p>
+            )}
           </div>
         </div>
 
@@ -353,21 +365,31 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
           className="elegant-table"
           thClassName="align-center"
           columnWidths={{
-            product: '35%',
-            quantity: '12%',
-            unitPrice: '18%',
-            gst: '15%',
-            total: '20%'
+            product: "35%",
+            quantity: "12%",
+            unitPrice: "18%",
+            gst: "15%",
+            total: "20%",
           }}
-          renderQuantityCell={(item) => <span className="align-center">{item.quantity}</span>}
-          renderUnitPriceCell={(item) => <span className="align-right">₹{item.price?.toLocaleString()}</span>}
+          renderQuantityCell={(item) => (
+            <span className="align-center">{item.quantity}</span>
+          )}
+          renderUnitPriceCell={(item) => (
+            <span className="align-right">₹{item.price?.toLocaleString()}</span>
+          )}
           renderGstCell={(item) => {
             const itemGst = item.calculatedGst || 0;
-            return <span className="align-right">{itemGst > 0 ? `₹${itemGst.toLocaleString()}` : '-'}</span>;
+            return (
+              <span className="align-right">
+                {itemGst > 0 ? `₹${itemGst.toLocaleString()}` : "-"}
+              </span>
+            );
           }}
           renderTotalCell={(item) => {
-            const total = item.calculatedTotal || (item.quantity * item.price);
-            return <span className="align-right">₹{total.toLocaleString()}</span>;
+            const total = item.calculatedTotal || item.quantity * item.price;
+            return (
+              <span className="align-right">₹{total.toLocaleString()}</span>
+            );
           }}
         />
 
@@ -398,8 +420,13 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
         {/* Footer */}
         <div className="elegant-footer">
           <p>Thank you for shopping with us!</p>
-          <p>Generated on {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] hh:mm A")}</p>
-          <p>This is a system-generated invoice and does not require a signature.</p>
+          <p>
+            Generated on{" "}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] hh:mm A")}
+          </p>
+          <p>
+            This is a system-generated invoice and does not require a signature.
+          </p>
         </div>
       </div>
     </>

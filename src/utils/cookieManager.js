@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie';
-import { ENV_CONFIG } from '@/config';
+import Cookies from "js-cookie";
+import { ENV_CONFIG } from "@/config";
 
 export const cookieManager = {
   // Auth Microservice Token (from login/register)
@@ -7,11 +7,11 @@ export const cookieManager = {
     const options = {
       expires: expiresInDays,
       secure: false,
-      sameSite: 'lax',
-      path: '/',
+      sameSite: "lax",
+      path: "/",
       httpOnly: false,
     };
-    
+
     // Set auth token cookie
     Cookies.set(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, token, options);
     // Verify cookie was set
@@ -28,11 +28,11 @@ export const cookieManager = {
     const options = {
       expires: expiresInDays,
       secure: false,
-      sameSite: 'lax',
-      path: '/',
+      sameSite: "lax",
+      path: "/",
       httpOnly: false,
     };
-    
+
     // Set refresh token cookie
     Cookies.set(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY, token, options);
     // Verify cookie was set
@@ -49,14 +49,14 @@ export const cookieManager = {
     const options = {
       expires: expiresInDays,
       secure: false,
-      sameSite: 'lax',
-      path: '/',
+      sameSite: "lax",
+      path: "/",
       httpOnly: false,
     };
-    
+
     // Set retailer token cookie
     Cookies.set(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, token, options);
-    
+
     // Verify cookie was set
     const savedToken = Cookies.get(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY);
   },
@@ -67,17 +67,16 @@ export const cookieManager = {
   },
 
   // Clear all authentication tokens
-  clearAuth: () => {    
+  clearAuth: () => {
     // Clear auth microservice tokens
-    Cookies.remove(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, { path: '/' });
-    
-    // Clear refresh token
-    Cookies.remove(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY, { path: '/' });
-    
-    // Clear retailer microservice tokens
-    Cookies.remove(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, { path: '/' });
-  },
+    Cookies.remove(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY, { path: "/" });
 
+    // Clear refresh token
+    Cookies.remove(ENV_CONFIG.AUTH.REFRESH_TOKEN_KEY, { path: "/" });
+
+    // Clear retailer microservice tokens
+    Cookies.remove(ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY, { path: "/" });
+  },
 };
 
 export default cookieManager;

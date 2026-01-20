@@ -1,11 +1,15 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/store/hooks';
-import { useTranslation } from '@/hooks/useTranslation';
-import { supplierService, productService, billService } from '@/service/retailer';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  supplierService,
+  productService,
+  billService,
+} from "@/service/retailer";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
 import {
   Receipt,
   Plus,
@@ -21,10 +25,10 @@ import {
   ArrowLeft,
   CheckCircle,
   Clock,
-  Trash2
-} from 'lucide-react';
-import { Button, Input, Select, Textarea, Card, Modal } from '@/components/ui';
-import Link from 'next/link';
+  Trash2,
+} from "lucide-react";
+import { Button, Input, Select, Textarea, Card, Modal } from "@/components/ui";
+import Link from "next/link";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
@@ -46,26 +50,26 @@ const EditBill = ({ billId }) => {
   const [fetchError, setFetchError] = useState(null);
 
   const [formData, setFormData] = useState({
-    supplier: '',
-    billDate: new Date().toISOString().split('T')[0],
-    dueDate: '',
-    notes: '',
+    supplier: "",
+    billDate: new Date().toISOString().split("T")[0],
+    dueDate: "",
+    notes: "",
     goodsReceived: true,
     items: [
       {
-        product: '',
-        productName: '',
+        product: "",
+        productName: "",
         quantity: 1,
         purchasePrice: 0,
-        expiryDate: ''
-      }
-    ]
+        expiryDate: "",
+      },
+    ],
   });
 
   const [errors, setErrors] = useState({});
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [updatedBillNumber, setUpdatedBillNumber] = useState('');
+  const [updatedBillNumber, setUpdatedBillNumber] = useState("");
   const hasFetched = useRef(false);
 
   // Fetch bill data on component mount
@@ -80,19 +84,18 @@ const EditBill = ({ billId }) => {
 
         const params = {
           store: selectedStore.storeId,
-          id: billId
+          id: billId,
         };
         const result = await billService.getBills(params);
-        
+
         if (result.success && result.data) {
-          
           // Transform API data to form data
           const billData = result.data;
-          
+
           // Create a map of product IDs to batches for expiry date lookup
           const batchMap = new Map();
           if (billData.batches && Array.isArray(billData.batches)) {
-            billData.batches.forEach(batch => {
+            billData.batches.forEach((batch) => {
               // If batch has product reference, use it as key
               const productId = batch.product?._id || batch.product || null;
               if (productId) {
@@ -100,62 +103,94 @@ const EditBill = ({ billId }) => {
               }
             });
           }
-          
+
           // Map items from billData.items (primary source) or fallback to batches
           let mappedItems = [];
-          if (billData.items && Array.isArray(billData.items) && billData.items.length > 0) {
+          if (
+            billData.items &&
+            Array.isArray(billData.items) &&
+            billData.items.length > 0
+          ) {
             // Use items array (has product info and unitPrice)
-            mappedItems = billData.items.map(item => {
-              const productId = item.product?._id || item.product?._id?.toString() || item.product?.toString() || item.product || '';
-              const productName = item.productName || item.product?.name || '';
+            mappedItems = billData.items.map((item) => {
+              const productId =
+                item.product?._id ||
+                item.product?._id?.toString() ||
+                item.product?.toString() ||
+                item.product ||
+                "";
+              const productName = item.productName || item.product?.name || "";
               const batch = batchMap.get(productId.toString());
-              
+
               return {
                 product: productId.toString(),
                 productName: productName,
                 quantity: item.quantity || 1,
                 purchasePrice: item.unitPrice || item.purchasePrice || 0,
-                expiryDate: batch?.expiryDate ? new Date(batch.expiryDate).toISOString().split('T')[0] : ''
+                expiryDate: batch?.expiryDate
+                  ? new Date(batch.expiryDate).toISOString().split("T")[0]
+                  : "",
               };
             });
-          } else if (billData.batches && Array.isArray(billData.batches) && billData.batches.length > 0) {
+          } else if (
+            billData.batches &&
+            Array.isArray(billData.batches) &&
+            billData.batches.length > 0
+          ) {
             // Fallback to batches if items array is not available
-            mappedItems = billData.batches.map(batch => {
-              const productId = batch.product?._id || batch.product?.toString() || batch.product || '';
+            mappedItems = billData.batches.map((batch) => {
+              const productId =
+                batch.product?._id ||
+                batch.product?.toString() ||
+                batch.product ||
+                "";
               return {
                 product: productId.toString(),
-                productName: batch.productName || batch.product?.name || '',
+                productName: batch.productName || batch.product?.name || "",
                 quantity: batch.quantity || 1,
                 purchasePrice: batch.purchasePrice || 0,
-                expiryDate: batch.expiryDate ? new Date(batch.expiryDate).toISOString().split('T')[0] : ''
+                expiryDate: batch.expiryDate
+                  ? new Date(batch.expiryDate).toISOString().split("T")[0]
+                  : "",
               };
             });
           }
-          
+
           // Ensure at least one empty item if no items found
           if (mappedItems.length === 0) {
-            mappedItems = [{
-              product: '',
-              productName: '',
-              quantity: 1,
-              purchasePrice: 0,
-              expiryDate: ''
-            }];
+            mappedItems = [
+              {
+                product: "",
+                productName: "",
+                quantity: 1,
+                purchasePrice: 0,
+                expiryDate: "",
+              },
+            ];
           }
-          
+
           setFormData({
-            supplier: billData.supplier?._id || billData.supplier?.id || '',
-            billDate: billData.billDate ? new Date(billData.billDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split('T')[0] : '',
-            notes: billData.notes || '',
+            supplier: billData.supplier?._id || billData.supplier?.id || "",
+            billDate: billData.billDate
+              ? new Date(billData.billDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+            dueDate: billData.dueDate
+              ? new Date(billData.dueDate).toISOString().split("T")[0]
+              : "",
+            notes: billData.notes || "",
             goodsReceived: billData.goodsReceived ?? true,
-            items: mappedItems
+            items: mappedItems,
           });
         } else {
-          setFetchError(result.message || t('errors.failedToFetchData', { item: t('common.bill') }));
+          setFetchError(
+            result.message ||
+              t("errors.failedToFetchData", { item: t("common.bill") }),
+          );
         }
       } catch (error) {
-        setFetchError(t('errors.failedToFetchDataTryAgain', { item: t('common.bill') }));
+        setFetchError(
+          t("errors.failedToFetchDataTryAgain", { item: t("common.bill") }),
+        );
       } finally {
         setFetching(false);
       }
@@ -172,7 +207,7 @@ const EditBill = ({ billId }) => {
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: selectedStore.storeId,
       });
       if (result.success) {
         const suppliersData = result.data?.data || result.data || [];
@@ -193,7 +228,7 @@ const EditBill = ({ billId }) => {
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: selectedStore.storeId
+        store: selectedStore.storeId,
       });
       if (result.success) {
         const productsData = result.data?.data || result.data || [];
@@ -220,50 +255,53 @@ const EditBill = ({ billId }) => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: null
+        [field]: null,
       }));
     }
   };
 
   // Handle item changes
   const handleItemChange = (index, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: prev.items.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      items: prev.items.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
   // Add new item
   const addItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, {
-        product: '',
-        productName: '',
-        quantity: 1,
-        purchasePrice: 0,
-        expiryDate: ''
-      }]
+      items: [
+        ...prev.items,
+        {
+          product: "",
+          productName: "",
+          quantity: 1,
+          purchasePrice: 0,
+          expiryDate: "",
+        },
+      ],
     }));
   };
 
   // Remove item
   const removeItem = (index) => {
     if (formData.items.length > 1) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        items: prev.items.filter((_, i) => i !== index)
+        items: prev.items.filter((_, i) => i !== index),
       }));
     }
   };
@@ -271,13 +309,13 @@ const EditBill = ({ billId }) => {
   // Calculate totals
   const calculateTotals = () => {
     const subtotal = formData.items.reduce((sum, item) => {
-      return sum + (parseFloat(item.quantity) * parseFloat(item.purchasePrice));
+      return sum + parseFloat(item.quantity) * parseFloat(item.purchasePrice);
     }, 0);
-    
+
     return {
       subtotal: subtotal,
       discount: 0,
-      total: subtotal
+      total: subtotal,
     };
   };
 
@@ -288,23 +326,24 @@ const EditBill = ({ billId }) => {
     const newErrors = {};
 
     if (!formData.supplier) {
-      newErrors.supplier = t('errors.selectSupplier');
+      newErrors.supplier = t("errors.selectSupplier");
     }
 
     if (!formData.billDate) {
-      newErrors.billDate = t('bills.selectBillDate');
+      newErrors.billDate = t("bills.selectBillDate");
     }
 
     // Validate items
     formData.items.forEach((item, index) => {
       if (!item.product) {
-        newErrors[`item_${index}_product`] = t('errors.selectProduct');
+        newErrors[`item_${index}_product`] = t("errors.selectProduct");
       }
       if (!item.quantity || item.quantity <= 0) {
-        newErrors[`item_${index}_quantity`] = 'Please enter a valid quantity';
+        newErrors[`item_${index}_quantity`] = "Please enter a valid quantity";
       }
       if (!item.purchasePrice || item.purchasePrice <= 0) {
-        newErrors[`item_${index}_purchasePrice`] = 'Please enter a valid purchase price';
+        newErrors[`item_${index}_purchasePrice`] =
+          "Please enter a valid purchase price";
       }
     });
 
@@ -327,28 +366,37 @@ const EditBill = ({ billId }) => {
         store: selectedStore.storeId,
         supplier: formData.supplier,
         goodsReceived: formData.goodsReceived,
-        items: formData.items.map(item => ({
+        items: formData.items.map((item) => ({
           product: item.product,
           quantity: parseInt(item.quantity),
           purchasePrice: parseFloat(item.purchasePrice),
-          expiryDate: item.expiryDate || undefined
+          expiryDate: item.expiryDate || undefined,
         })),
-        
-        billDate: formData.billDate || new Date().toISOString().split('T')[0],
+
+        billDate: formData.billDate || new Date().toISOString().split("T")[0],
         dueDate: formData.dueDate || undefined,
-        notes: formData.notes || undefined
+        notes: formData.notes || undefined,
       };
 
-      const result = await billService.updateBill(billId, billData, selectedStore.storeId);
+      const result = await billService.updateBill(
+        billId,
+        billData,
+        selectedStore.storeId,
+      );
 
       if (result.success) {
         setUpdatedBillNumber(result.data?.billNumber || `Bill-${Date.now()}`);
         setShowSuccessModal(true);
       } else {
-        setUpdateError(result.message || t('errors.failedToUpdate', { item: t('common.bill') }));
+        setUpdateError(
+          result.message ||
+            t("errors.failedToUpdate", { item: t("common.bill") }),
+        );
       }
     } catch (error) {
-      setUpdateError(t('errors.failedToUpdateTryAgain', { item: t('common.bill') }));
+      setUpdateError(
+        t("errors.failedToUpdateTryAgain", { item: t("common.bill") }),
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -357,7 +405,7 @@ const EditBill = ({ billId }) => {
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/bills');
+    router.push("/dashboard/bills");
   };
 
   const handleViewBill = () => {
@@ -373,8 +421,8 @@ const EditBill = ({ billId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title={t('bills.editBill')}
-            description={t('bills.updateBillInformationAndDetails')}
+            title={t("bills.editBill")}
+            description={t("bills.updateBillInformationAndDetails")}
           />
 
           <div className="flex-1 p-6">
@@ -384,10 +432,12 @@ const EditBill = ({ billId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.loadingData', { item: t('common.bill') })}
+                      {t("modals.loadingData", { item: t("common.bill") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.bill') })}
+                      {t("common.pleaseWaitWhileWeFetch", {
+                        item: t("common.bill"),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -407,8 +457,8 @@ const EditBill = ({ billId }) => {
 
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title={t('bills.editBill')}
-            description={t('bills.updateBillInformationAndDetails')}
+            title={t("bills.editBill")}
+            description={t("bills.updateBillInformationAndDetails")}
           />
 
           <div className="flex-1 p-6">
@@ -420,25 +470,27 @@ const EditBill = ({ billId }) => {
                       <Receipt className="w-10 h-10 text-red-600" />
                     </div>
                     <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                      {t('modals.notFound', { item: t('common.bill') })}
+                      {t("modals.notFound", { item: t("common.bill") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                      {t('common.doesntExistOrRemoved', { item: t('common.bill') })}
+                      {t("common.doesntExistOrRemoved", {
+                        item: t("common.bill"),
+                      })}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <Button
                         variant="outline"
-                        onClick={() => router.push('/dashboard/bills')}
+                        onClick={() => router.push("/dashboard/bills")}
                         className="px-6 py-3"
                       >
-                        {t('common.backTo', { item: t('common.bills') })}
+                        {t("common.backTo", { item: t("common.bills") })}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => window.location.reload()}
                         className="px-6 py-3"
                       >
-                        {t('common.tryAgain')}
+                        {t("common.tryAgain")}
                       </Button>
                     </div>
                   </div>
@@ -466,21 +518,30 @@ const EditBill = ({ billId }) => {
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-
             {/* Back Button */}
             <div className="mb-4">
-              <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/bills"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Bills</span>
               </Link>
             </div>
 
             {/* Form Container - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 204px)' }}>
-              
+            <div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              style={{ height: "calc(100vh - 204px)" }}
+            >
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-204px)]">
-                  <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSubmit();
+                    }}
+                  >
                     {/* Bill Information */}
                     <Card className="mb-6">
                       <div className="p-6">
@@ -496,13 +557,26 @@ const EditBill = ({ billId }) => {
                             </label>
                             <Select
                               value={formData.supplier}
-                              onChange={(value) => handleInputChange('supplier', value)}
+                              onChange={(value) =>
+                                handleInputChange("supplier", value)
+                              }
                               options={[
-                                { value: '', label: suppliersLoading ? t('common.loading') : t('errors.selectSupplier') },
-                                ...suppliers.filter(supplier => supplier.name || supplier.supplierName).map(supplier => ({
-                                  value: supplier.id || supplier._id,
-                                  label: supplier.name || supplier.supplierName
-                                }))
+                                {
+                                  value: "",
+                                  label: suppliersLoading
+                                    ? t("common.loading")
+                                    : t("errors.selectSupplier"),
+                                },
+                                ...suppliers
+                                  .filter(
+                                    (supplier) =>
+                                      supplier.name || supplier.supplierName,
+                                  )
+                                  .map((supplier) => ({
+                                    value: supplier.id || supplier._id,
+                                    label:
+                                      supplier.name || supplier.supplierName,
+                                  })),
                               ]}
                               error={errors.supplier}
                               disabled={suppliersLoading}
@@ -513,13 +587,18 @@ const EditBill = ({ billId }) => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              {t('bills.billDate')}
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.defaultsToToday')})</span>
+                              {t("bills.billDate")}
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                ({t("common.optional")} -{" "}
+                                {t("bills.defaultsToToday")})
+                              </span>
                             </label>
                             <Input
                               type="date"
                               value={formData.billDate}
-                              onChange={(value) => handleInputChange('billDate', value)}
+                              onChange={(value) =>
+                                handleInputChange("billDate", value)
+                              }
                               error={errors.billDate}
                               leftIcon={Calendar}
                             />
@@ -527,13 +606,18 @@ const EditBill = ({ billId }) => {
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              {t('bills.dueDate')}
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.defaultsTo30Days')})</span>
+                              {t("bills.dueDate")}
+                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                ({t("common.optional")} -{" "}
+                                {t("bills.defaultsTo30Days")})
+                              </span>
                             </label>
                             <Input
                               type="date"
                               value={formData.dueDate}
-                              onChange={(value) => handleInputChange('dueDate', value)}
+                              onChange={(value) =>
+                                handleInputChange("dueDate", value)
+                              }
                               error={errors.dueDate}
                               leftIcon={Calendar}
                             />
@@ -542,12 +626,17 @@ const EditBill = ({ billId }) => {
 
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            {t('bills.notes')}
-                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - {t('bills.max500Characters')})</span>
+                            {t("bills.notes")}
+                            <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                              ({t("common.optional")} -{" "}
+                              {t("bills.max500Characters")})
+                            </span>
                           </label>
                           <Textarea
                             value={formData.notes}
-                            onChange={(value) => handleInputChange('notes', value)}
+                            onChange={(value) =>
+                              handleInputChange("notes", value)
+                            }
                             placeholder="Additional notes for this bill..."
                             rows={3}
                             leftIcon={FileText}
@@ -562,23 +651,37 @@ const EditBill = ({ billId }) => {
 
                         <div className="mt-4 flex items-center justify-between p-4 border border-[rgb(var(--color-border-primary))] rounded-lg bg-[rgb(var(--color-bg-tertiary))]/30">
                           <div>
-                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">Goods Received</p>
+                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                              Goods Received
+                            </p>
                             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                              Toggle ON if stock has already been received for this bill.
+                              Toggle ON if stock has already been received for
+                              this bill.
                             </p>
                           </div>
                           <label className="inline-flex items-center cursor-pointer gap-3">
-                            <span className={`text-sm font-semibold ${formData.goodsReceived ? 'text-green-500' : 'text-[rgb(var(--color-text-secondary))]'}`}>
-                              {formData.goodsReceived ? 'Yes' : 'No'}
+                            <span
+                              className={`text-sm font-semibold ${formData.goodsReceived ? "text-green-500" : "text-[rgb(var(--color-text-secondary))]"}`}
+                            >
+                              {formData.goodsReceived ? "Yes" : "No"}
                             </span>
                             <input
                               type="checkbox"
                               className="sr-only"
                               checked={formData.goodsReceived}
-                              onChange={(e) => handleInputChange('goodsReceived', e.target.checked)}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  "goodsReceived",
+                                  e.target.checked,
+                                )
+                              }
                             />
-                            <div className={`w-12 h-6 rounded-full transition-colors duration-200 ${formData.goodsReceived ? 'bg-green-500' : 'bg-[rgb(var(--color-border-primary))]'}`}>
-                              <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 translate-y-0.5 ${formData.goodsReceived ? 'translate-x-6' : 'translate-x-1'}`}></div>
+                            <div
+                              className={`w-12 h-6 rounded-full transition-colors duration-200 ${formData.goodsReceived ? "bg-green-500" : "bg-[rgb(var(--color-border-primary))]"}`}
+                            >
+                              <div
+                                className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 translate-y-0.5 ${formData.goodsReceived ? "translate-x-6" : "translate-x-1"}`}
+                              ></div>
                             </div>
                           </label>
                         </div>
@@ -600,16 +703,21 @@ const EditBill = ({ billId }) => {
                             title="Add new item"
                           >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">{t('bills.addItem')}</span>
+                            <span className="text-sm font-medium">
+                              {t("bills.addItem")}
+                            </span>
                           </button>
                         </div>
 
                         <div className="space-y-4">
                           {formData.items.map((item, index) => (
-                            <div key={index} className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30">
+                            <div
+                              key={index}
+                              className="border border-[rgb(var(--color-border-primary))] rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30"
+                            >
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                  {t('bills.itemNumber', { number: index + 1 })}
+                                  {t("bills.itemNumber", { number: index + 1 })}
                                 </h4>
                                 {formData.items.length > 1 && (
                                   <button
@@ -619,7 +727,9 @@ const EditBill = ({ billId }) => {
                                     title="Remove item"
                                   >
                                     <Trash2 className="w-3 h-3" />
-                                    <span className="text-xs">{t('common.remove')}</span>
+                                    <span className="text-xs">
+                                      {t("common.remove")}
+                                    </span>
                                   </button>
                                 )}
                               </div>
@@ -627,21 +737,32 @@ const EditBill = ({ billId }) => {
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    {t('common.product')} *
+                                    {t("common.product")} *
                                   </label>
                                   <Select
                                     value={item.product}
                                     onChange={(value) => {
-                                      const selectedProduct = products.find(p => (p.id || p._id) === value);
-                                      handleItemChange(index, 'product', value);
-                                      handleItemChange(index, 'productName', selectedProduct?.name || '');
+                                      const selectedProduct = products.find(
+                                        (p) => (p.id || p._id) === value,
+                                      );
+                                      handleItemChange(index, "product", value);
+                                      handleItemChange(
+                                        index,
+                                        "productName",
+                                        selectedProduct?.name || "",
+                                      );
                                     }}
                                     options={[
-                                      { value: '', label: productsLoading ? t('common.loading') : t('errors.selectProduct') },
-                                      ...products.map(product => ({
+                                      {
+                                        value: "",
+                                        label: productsLoading
+                                          ? t("common.loading")
+                                          : t("errors.selectProduct"),
+                                      },
+                                      ...products.map((product) => ({
                                         value: product.id || product._id,
-                                        label: product.name
-                                      }))
+                                        label: product.name,
+                                      })),
                                     ]}
                                     error={errors[`item_${index}_product`]}
                                     disabled={productsLoading}
@@ -657,7 +778,9 @@ const EditBill = ({ billId }) => {
                                   <Input
                                     type="number"
                                     value={item.quantity}
-                                    onChange={(value) => handleItemChange(index, 'quantity', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(index, "quantity", value)
+                                    }
                                     error={errors[`item_${index}_quantity`]}
                                     leftIcon={Package}
                                     size="sm"
@@ -672,8 +795,16 @@ const EditBill = ({ billId }) => {
                                   <Input
                                     type="number"
                                     value={item.purchasePrice}
-                                    onChange={(value) => handleItemChange(index, 'purchasePrice', value)}
-                                    error={errors[`item_${index}_purchasePrice`]}
+                                    onChange={(value) =>
+                                      handleItemChange(
+                                        index,
+                                        "purchasePrice",
+                                        value,
+                                      )
+                                    }
+                                    error={
+                                      errors[`item_${index}_purchasePrice`]
+                                    }
                                     leftIcon={IndianRupee}
                                     size="sm"
                                     min="0"
@@ -684,12 +815,20 @@ const EditBill = ({ billId }) => {
                                 <div>
                                   <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                     Expiry Date
-                                    <span className="text-[rgb(var(--color-text-tertiary))] ml-1">(Optional)</span>
+                                    <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                      (Optional)
+                                    </span>
                                   </label>
                                   <Input
                                     type="date"
                                     value={item.expiryDate}
-                                    onChange={(value) => handleItemChange(index, 'expiryDate', value)}
+                                    onChange={(value) =>
+                                      handleItemChange(
+                                        index,
+                                        "expiryDate",
+                                        value,
+                                      )
+                                    }
                                     leftIcon={Calendar}
                                     size="sm"
                                   />
@@ -698,9 +837,15 @@ const EditBill = ({ billId }) => {
 
                               <div className="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                                 <div className="flex justify-between items-center text-sm">
-                                  <span className="text-[rgb(var(--color-text-secondary))]">Item Total:</span>
+                                  <span className="text-[rgb(var(--color-text-secondary))]">
+                                    Item Total:
+                                  </span>
                                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{(parseFloat(item.quantity) * parseFloat(item.purchasePrice)).toFixed(2)}
+                                    ₹
+                                    {(
+                                      parseFloat(item.quantity) *
+                                      parseFloat(item.purchasePrice)
+                                    ).toFixed(2)}
                                   </span>
                                 </div>
                               </div>
@@ -716,7 +861,9 @@ const EditBill = ({ billId }) => {
                         <div className="p-4">
                           <div className="flex items-center">
                             <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-                            <span className="text-red-700 text-sm">{updateError}</span>
+                            <span className="text-red-700 text-sm">
+                              {updateError}
+                            </span>
                           </div>
                         </div>
                       </Card>
@@ -733,30 +880,42 @@ const EditBill = ({ billId }) => {
                       <Receipt className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Bill Summary</h3>
-                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">Review before updating</p>
+                      <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                        Bill Summary
+                      </h3>
+                      <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        Review before updating
+                      </p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Financial Summary</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        Financial Summary
+                      </h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">
+                            Subtotal:
+                          </span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{totals.subtotal.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Discount:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">
+                            Discount:
+                          </span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{totals.discount.toFixed(2)}
                           </span>
                         </div>
                         <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
                           <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">Total:</span>
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              Total:
+                            </span>
                             <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
                               ₹{totals.total.toFixed(2)}
                             </span>
@@ -766,13 +925,15 @@ const EditBill = ({ billId }) => {
                     </div>
 
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Item Count</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        Item Count
+                      </h4>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
                           {formData.items.length}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                          {formData.items.length === 1 ? 'Item' : 'Items'}
+                          {formData.items.length === 1 ? "Item" : "Items"}
                         </div>
                       </div>
                     </div>
@@ -791,7 +952,7 @@ const EditBill = ({ billId }) => {
                       <Button
                         variant="outline"
                         className="w-full"
-                        onClick={() => router.push('/dashboard/bills')}
+                        onClick={() => router.push("/dashboard/bills")}
                       >
                         Cancel
                       </Button>
@@ -816,17 +977,17 @@ const EditBill = ({ billId }) => {
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t('success.updatedSuccessfully', { item: t('common.bill') })}!
+              {t("success.updatedSuccessfully", { item: t("common.bill") })}!
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              "{updatedBillNumber}" {t('success.hasBeenUpdatedSuccessfully')}.
+              "{updatedBillNumber}" {t("success.hasBeenUpdatedSuccessfully")}.
             </p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={handleContinue}>
-                {t('common.backTo', { item: t('common.bills') })}
+                {t("common.backTo", { item: t("common.bills") })}
               </Button>
               <Button variant="primary" onClick={handleViewBill}>
-                {t('common.view')} {t('common.bill')}
+                {t("common.view")} {t("common.bill")}
               </Button>
             </div>
           </div>

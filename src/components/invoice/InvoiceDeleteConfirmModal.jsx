@@ -1,15 +1,12 @@
-"use client"
-import React, { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { Button } from '../ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { deleteInvoice } from '@/store/slices/invoicesSlice';
-import { useGlobalToast } from '@/contexts/ToastContext';
+"use client";
+import React, { useState } from "react";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "../ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { deleteInvoice } from "@/store/slices/invoicesSlice";
+import { useGlobalToast } from "@/contexts/ToastContext";
 
-const InvoiceDeleteConfirmModal = ({
-  onClose,
-  invoice
-}) => {
+const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError, showSuccess } = useGlobalToast();
@@ -17,7 +14,10 @@ const InvoiceDeleteConfirmModal = ({
 
   if (!invoice) return null;
 
-  const invoiceNumber = invoice?.invoiceNumber || invoice?.name || `INV-${(invoice?.id || invoice?._id)?.slice(-6)}`;
+  const invoiceNumber =
+    invoice?.invoiceNumber ||
+    invoice?.name ||
+    `INV-${(invoice?.id || invoice?._id)?.slice(-6)}`;
 
   const handleConfirmDelete = async () => {
     if (!invoice) return;
@@ -25,27 +25,35 @@ const InvoiceDeleteConfirmModal = ({
     setIsLoading(true);
     try {
       const invoiceId = invoice.id || invoice._id;
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-      
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
       if (!storeId) {
-        showError('Store ID is missing. Please select a store.');
+        showError("Store ID is missing. Please select a store.");
         setIsLoading(false);
         return;
       }
 
-      const result = await dispatch(deleteInvoice({
-        invoiceId: invoiceId,
-        storeId: storeId
-      }));
+      const result = await dispatch(
+        deleteInvoice({
+          invoiceId: invoiceId,
+          storeId: storeId,
+        }),
+      );
 
       if (result.payload?.success) {
-        showSuccess('Invoice deleted successfully');
+        showSuccess("Invoice deleted successfully");
         onClose();
       } else {
-        showError(result.payload?.message || 'Failed to delete invoice. Please try again.');
+        showError(
+          result.payload?.message ||
+            "Failed to delete invoice. Please try again.",
+        );
       }
     } catch (error) {
-      showError('An error occurred while deleting the invoice. Please try again.');
+      showError(
+        "An error occurred while deleting the invoice. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -63,16 +71,26 @@ const InvoiceDeleteConfirmModal = ({
           </h3>
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             {invoiceNumber ? (
-              <>Are you sure you want to delete invoice <span className="font-semibold text-[rgb(var(--color-text-primary))]">"{invoiceNumber}"</span>? This action cannot be undone.</>
+              <>
+                Are you sure you want to delete invoice{" "}
+                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                  "{invoiceNumber}"
+                </span>
+                ? This action cannot be undone.
+              </>
             ) : (
-              'Are you sure you want to delete this invoice? This action cannot be undone.'
+              "Are you sure you want to delete this invoice? This action cannot be undone."
             )}
           </p>
           <div className="flex gap-3 justify-center">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={handleConfirmDelete} loading={isLoading}>
+            <Button
+              variant="danger"
+              onClick={handleConfirmDelete}
+              loading={isLoading}
+            >
               Delete
             </Button>
           </div>

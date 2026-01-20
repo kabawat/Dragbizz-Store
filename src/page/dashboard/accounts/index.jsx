@@ -1,19 +1,24 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { getAccounts, getAccountStats, setCurrentFilter, setViewMode } from '@/store/slices/accountsSlice';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { 
-  Building2, 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit, 
-  Trash2, 
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  getAccounts,
+  getAccountStats,
+  setCurrentFilter,
+  setViewMode,
+} from "@/store/slices/accountsSlice";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import {
+  Building2,
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
   MoreVertical,
   Calendar,
   IndianRupee,
@@ -23,21 +28,29 @@ import {
   XCircle,
   CreditCard,
   TrendingUp,
-  TrendingDown
-} from 'lucide-react';
-import { Button, Input, Select, Badge, Card, Modal } from '@/components/ui';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
+  TrendingDown,
+} from "lucide-react";
+import { Button, Input, Select, Badge, Card, Modal } from "@/components/ui";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const Accounts = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { accounts, stats, isLoading, error, currentFilter, viewMode, pagination } = useAppSelector((state) => state.accounts);
+  const {
+    accounts,
+    stats,
+    isLoading,
+    error,
+    currentFilter,
+    viewMode,
+    pagination,
+  } = useAppSelector((state) => state.accounts);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [riskFilter, setRiskFilter] = useState('all');
-  const [debtFilter, setDebtFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [debtFilter, setDebtFilter] = useState("all");
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
@@ -45,11 +58,13 @@ const Accounts = () => {
   // Fetch accounts and stats on component mount
   useEffect(() => {
     if (selectedStore?.id) {
-      dispatch(getAccounts({ 
-        store: selectedStore.id,
-        limit: 20,
-        page: 1
-      }));
+      dispatch(
+        getAccounts({
+          store: selectedStore.id,
+          limit: 20,
+          page: 1,
+        }),
+      );
       dispatch(getAccountStats(selectedStore.id));
     }
   }, [dispatch, selectedStore]);
@@ -63,13 +78,13 @@ const Accounts = () => {
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
-      case 'status':
+      case "status":
         setStatusFilter(value);
         break;
-      case 'risk':
+      case "risk":
         setRiskFilter(value);
         break;
-      case 'debt':
+      case "debt":
         setDebtFilter(value);
         break;
       default:
@@ -79,10 +94,10 @@ const Accounts = () => {
 
   // Handle account selection
   const handleAccountSelect = (accountId) => {
-    setSelectedAccounts(prev => 
-      prev.includes(accountId) 
-        ? prev.filter(id => id !== accountId)
-        : [...prev, accountId]
+    setSelectedAccounts((prev) =>
+      prev.includes(accountId)
+        ? prev.filter((id) => id !== accountId)
+        : [...prev, accountId],
     );
   };
 
@@ -91,7 +106,7 @@ const Accounts = () => {
     if (selectedAccounts.length === accounts.length) {
       setSelectedAccounts([]);
     } else {
-      setSelectedAccounts(accounts.map(account => account.id));
+      setSelectedAccounts(accounts.map((account) => account.id));
     }
   };
 
@@ -113,64 +128,64 @@ const Accounts = () => {
   // Get status badge variant
   const getStatusBadge = (status) => {
     const statusUpper = String(status).toUpperCase();
-    const config = getCommonStatusBadge(statusUpper, 'general');
-    
+    const config = getCommonStatusBadge(statusUpper, "general");
+
     // Map icons for compatibility
     const iconMap = {
-      'ACTIVE': CheckCircle,
-      'SUSPENDED': XCircle,
-      'PENDING': Clock,
-      'INACTIVE': Clock
+      ACTIVE: CheckCircle,
+      SUSPENDED: XCircle,
+      PENDING: Clock,
+      INACTIVE: Clock,
     };
-    
+
     return {
       variant: config.variant,
       icon: iconMap[statusUpper] || Clock,
-      text: config.text
+      text: config.text,
     };
   };
 
   // Get risk level badge
   const getRiskBadge = (riskLevel) => {
     switch (riskLevel) {
-      case 'low':
-        return { variant: 'success', text: 'Low Risk' };
-      case 'medium':
-        return { variant: 'warning', text: 'Medium Risk' };
-      case 'high':
-        return { variant: 'danger', text: 'High Risk' };
+      case "low":
+        return { variant: "success", text: "Low Risk" };
+      case "medium":
+        return { variant: "warning", text: "Medium Risk" };
+      case "high":
+        return { variant: "danger", text: "High Risk" };
       default:
-        return { variant: 'secondary', text: 'Unknown' };
+        return { variant: "secondary", text: "Unknown" };
     }
   };
 
   // Get debt status badge
   const getDebtBadge = (debtAmount, creditLimit) => {
     const utilization = (debtAmount / creditLimit) * 100;
-    
+
     if (utilization <= 50) {
-      return { variant: 'success', text: 'Low Debt' };
+      return { variant: "success", text: "Low Debt" };
     } else if (utilization <= 80) {
-      return { variant: 'warning', text: 'Medium Debt' };
+      return { variant: "warning", text: "Medium Debt" };
     } else {
-      return { variant: 'danger', text: 'High Debt' };
+      return { variant: "danger", text: "High Debt" };
     }
   };
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(amount);
   };
 
   // Format date
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -187,7 +202,10 @@ const Accounts = () => {
       {/* Main Content Area */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
         {/* Header */}
-        <Header title="Supplier Accounts" description="Manage supplier accounts and credit limits" />
+        <Header
+          title="Supplier Accounts"
+          description="Manage supplier accounts and credit limits"
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -196,7 +214,9 @@ const Accounts = () => {
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Accounts</p>
+                  <p className="text-blue-100 text-sm font-medium">
+                    Total Accounts
+                  </p>
                   <p className="text-2xl font-bold">{stats.totalAccounts}</p>
                 </div>
                 <Building2 className="w-8 h-8 text-blue-200" />
@@ -206,7 +226,9 @@ const Accounts = () => {
             <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Active Accounts</p>
+                  <p className="text-green-100 text-sm font-medium">
+                    Active Accounts
+                  </p>
                   <p className="text-2xl font-bold">{stats.activeAccounts}</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-200" />
@@ -216,8 +238,12 @@ const Accounts = () => {
             <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Total Credit Limit</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalCreditLimit)}</p>
+                  <p className="text-purple-100 text-sm font-medium">
+                    Total Credit Limit
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(stats.totalCreditLimit)}
+                  </p>
                 </div>
                 <CreditCard className="w-8 h-8 text-purple-200" />
               </div>
@@ -227,7 +253,9 @@ const Accounts = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-red-100 text-sm font-medium">Total Debt</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalDebt)}</p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(stats.totalDebt)}
+                  </p>
                 </div>
                 <AlertTriangle className="w-8 h-8 text-red-200" />
               </div>
@@ -251,35 +279,35 @@ const Accounts = () => {
 
                 <Select
                   value={statusFilter}
-                  onChange={(value) => handleFilterChange('status', value)}
+                  onChange={(value) => handleFilterChange("status", value)}
                   options={[
-                    { value: 'all', label: 'All Status' },
-                    { value: 'active', label: 'Active' },
-                    { value: 'suspended', label: 'Suspended' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'inactive', label: 'Inactive' }
+                    { value: "all", label: "All Status" },
+                    { value: "active", label: "Active" },
+                    { value: "suspended", label: "Suspended" },
+                    { value: "pending", label: "Pending" },
+                    { value: "inactive", label: "Inactive" },
                   ]}
                 />
 
                 <Select
                   value={riskFilter}
-                  onChange={(value) => handleFilterChange('risk', value)}
+                  onChange={(value) => handleFilterChange("risk", value)}
                   options={[
-                    { value: 'all', label: 'All Risk Levels' },
-                    { value: 'low', label: 'Low Risk' },
-                    { value: 'medium', label: 'Medium Risk' },
-                    { value: 'high', label: 'High Risk' }
+                    { value: "all", label: "All Risk Levels" },
+                    { value: "low", label: "Low Risk" },
+                    { value: "medium", label: "Medium Risk" },
+                    { value: "high", label: "High Risk" },
                   ]}
                 />
 
                 <Select
                   value={debtFilter}
-                  onChange={(value) => handleFilterChange('debt', value)}
+                  onChange={(value) => handleFilterChange("debt", value)}
                   options={[
-                    { value: 'all', label: 'All Debt Levels' },
-                    { value: 'low', label: 'Low Debt' },
-                    { value: 'medium', label: 'Medium Debt' },
-                    { value: 'high', label: 'High Debt' }
+                    { value: "all", label: "All Debt Levels" },
+                    { value: "low", label: "Low Debt" },
+                    { value: "medium", label: "Medium Debt" },
+                    { value: "high", label: "High Debt" },
                   ]}
                 />
               </div>
@@ -289,14 +317,16 @@ const Accounts = () => {
                 <Button
                   variant="outline"
                   leftIcon={Download}
-                  onClick={() => {/* Export logic */}}
+                  onClick={() => {
+                    /* Export logic */
+                  }}
                 >
                   Export
                 </Button>
                 <Button
                   variant="primary"
                   leftIcon={Plus}
-                  onClick={() => router.push('/dashboard/accounts/create')}
+                  onClick={() => router.push("/dashboard/accounts/create")}
                 >
                   Create Account
                 </Button>
@@ -313,31 +343,58 @@ const Accounts = () => {
                     <th className="text-left p-4">
                       <input
                         type="checkbox"
-                        checked={selectedAccounts.length === accounts.length && accounts.length > 0}
+                        checked={
+                          selectedAccounts.length === accounts.length &&
+                          accounts.length > 0
+                        }
                         onChange={handleSelectAll}
                         className="rounded border-gray-300"
                       />
                     </th>
-                    <th className="text-left p-4 font-medium text-gray-900">Supplier</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Credit Limit</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Used Credit</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Available Credit</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Risk Level</th>
-                    <th className="text-left p-4 font-medium text-gray-900">Actions</th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Supplier
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Credit Limit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Used Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Available Credit
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Risk Level
+                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {accounts.map((account) => {
                     const statusBadge = getStatusBadge(account.status);
                     const riskBadge = getRiskBadge(account.riskLevel);
-                    const debtBadge = getDebtBadge(account.creditUsed, account.creditLimit);
+                    const debtBadge = getDebtBadge(
+                      account.creditUsed,
+                      account.creditLimit,
+                    );
                     const StatusIcon = statusBadge.icon;
-                    const creditUtilization = calculateCreditUtilization(account.creditUsed, account.creditLimit);
-                    const availableCredit = account.creditLimit - account.creditUsed;
-                    
+                    const creditUtilization = calculateCreditUtilization(
+                      account.creditUsed,
+                      account.creditLimit,
+                    );
+                    const availableCredit =
+                      account.creditLimit - account.creditUsed;
+
                     return (
-                      <tr key={account.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={account.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
                         <td className="p-4">
                           <input
                             type="checkbox"
@@ -349,26 +406,41 @@ const Accounts = () => {
                         <td className="p-4">
                           <div className="flex items-center">
                             <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-gray-900">{account.supplier?.name || 'N/A'}</span>
+                            <span className="text-gray-900">
+                              {account.supplier?.name || "N/A"}
+                            </span>
                           </div>
                         </td>
                         <td className="p-4">
-                          <Badge variant={statusBadge.variant} className="flex items-center gap-1">
+                          <Badge
+                            variant={statusBadge.variant}
+                            className="flex items-center gap-1"
+                          >
                             <StatusIcon className="w-3 h-3" />
                             {statusBadge.text}
                           </Badge>
                         </td>
-                        <td className="p-4 font-medium text-gray-900">{formatCurrency(account.creditLimit)}</td>
+                        <td className="p-4 font-medium text-gray-900">
+                          {formatCurrency(account.creditLimit)}
+                        </td>
                         <td className="p-4">
                           <div className="flex items-center">
-                            <span className="font-medium text-gray-900 mr-2">{formatCurrency(account.creditUsed)}</span>
-                            <span className="text-sm text-gray-600">({creditUtilization.toFixed(1)}%)</span>
+                            <span className="font-medium text-gray-900 mr-2">
+                              {formatCurrency(account.creditUsed)}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              ({creditUtilization.toFixed(1)}%)
+                            </span>
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className={`font-medium ${
-                            availableCredit > 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <span
+                            className={`font-medium ${
+                              availableCredit > 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
                             {formatCurrency(availableCredit)}
                           </span>
                         </td>
@@ -383,7 +455,9 @@ const Accounts = () => {
                               variant="ghost"
                               size="sm"
                               leftIcon={Eye}
-                              onClick={() => router.push(`/dashboard/accounts/${account.id}`)}
+                              onClick={() =>
+                                router.push(`/dashboard/accounts/${account.id}`)
+                              }
                             >
                               View
                             </Button>
@@ -391,7 +465,11 @@ const Accounts = () => {
                               variant="ghost"
                               size="sm"
                               leftIcon={Edit}
-                              onClick={() => router.push(`/dashboard/accounts/${account.id}/edit`)}
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/accounts/${account.id}/edit`,
+                                )
+                              }
                             >
                               Edit
                             </Button>
@@ -417,12 +495,16 @@ const Accounts = () => {
             {accounts.length === 0 && !isLoading && (
               <div className="text-center py-12">
                 <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
-                <p className="text-gray-600 mb-4">Get started by creating your first supplier account.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No accounts found
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Get started by creating your first supplier account.
+                </p>
                 <Button
                   variant="primary"
                   leftIcon={Plus}
-                  onClick={() => router.push('/dashboard/accounts/create')}
+                  onClick={() => router.push("/dashboard/accounts/create")}
                 >
                   Create Account
                 </Button>
@@ -449,25 +531,24 @@ const Accounts = () => {
       >
         <div className="space-y-4">
           <p className="text-gray-600">
-            Are you sure you want to delete this account? This action cannot be undone.
+            Are you sure you want to delete this account? This action cannot be
+            undone.
           </p>
           {accountToDelete && (
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="font-medium">Supplier: {accountToDelete.supplier?.name}</p>
-              <p className="text-sm text-gray-600">Credit Limit: {formatCurrency(accountToDelete.creditLimit)}</p>
+              <p className="font-medium">
+                Supplier: {accountToDelete.supplier?.name}
+              </p>
+              <p className="text-sm text-gray-600">
+                Credit Limit: {formatCurrency(accountToDelete.creditLimit)}
+              </p>
             </div>
           )}
           <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteModal(false)}
-            >
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
-            <Button
-              variant="danger"
-              onClick={confirmDelete}
-            >
+            <Button variant="danger" onClick={confirmDelete}>
               Delete Account
             </Button>
           </div>

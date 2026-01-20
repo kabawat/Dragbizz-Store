@@ -1421,7 +1421,7 @@
     "summary": "Summary",
     "stockAdditionSummary": "Stock Addition Summary",
     "units": "units",
-        "perUnit": "per unit"
+    "perUnit": "per unit"
   },
   "sidebar": {
     "dashboard": "Dashboard",

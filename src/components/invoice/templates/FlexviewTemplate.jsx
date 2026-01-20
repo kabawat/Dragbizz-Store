@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
   const formatCurrency = (amount) => {
@@ -264,13 +264,22 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
             <div className="block">
               <h3>Bill To</h3>
               <p>{invoiceData.customer?.name || "Walk-in Customer"}</p>
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
             </div>
             <div className="block" style={{ textAlign: "right" }}>
               <h3>Invoice Details</h3>
-              <p><b>Invoice #:</b> {invoiceData.invoiceNumber}</p>
-              <p><b>Date:</b> {moment(invoiceData.createdAt).format("MMM DD, YYYY")}</p>
+              <p>
+                <b>Invoice #:</b> {invoiceData.invoiceNumber}
+              </p>
+              <p>
+                <b>Date:</b>{" "}
+                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+              </p>
             </div>
           </div>
 
@@ -279,16 +288,16 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="flexview-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => item.product?.name || "Unnamed Item"}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -311,10 +320,7 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount</div>
-                  <div
-                    className="amount"
-                    style={{ color: "#e74c3c" }}
-                  >
+                  <div className="amount" style={{ color: "#e74c3c" }}>
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>

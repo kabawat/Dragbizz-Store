@@ -1,6 +1,6 @@
-"use client"
-import { Building2, Edit2, Trash2, Loader2, Plus } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import { Building2, Edit2, Trash2, Loader2, Plus } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const StoreList = ({
   stores = [],
@@ -23,7 +23,7 @@ const StoreList = ({
   const handleDeleteStore = (storeId) => {
     if (!storeId) return;
 
-    const store = stores.find(s => (s._id || s.id) === storeId);
+    const store = stores.find((s) => (s._id || s.id) === storeId);
     onDeleteStore?.(store);
   };
 
@@ -34,7 +34,7 @@ const StoreList = ({
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-[rgb(var(--color-primary))]" />
           <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {t('settings.loadingStores')}
+            {t("settings.loadingStores")}
           </span>
         </div>
       </div>
@@ -47,17 +47,17 @@ const StoreList = ({
       <div className="backdrop-blur-[1px] rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-12 text-center">
         <Building2 className="w-16 h-16 mx-auto mb-4 text-[rgb(var(--color-text-tertiary))]" />
         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-          {t('settings.noStoresFound')}
+          {t("settings.noStoresFound")}
         </h3>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-          {t('settings.getStartedByAddingFirstStore')}
+          {t("settings.getStartedByAddingFirstStore")}
         </p>
         <button
           onClick={onAddStore}
           className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary))]/90 transition-colors cursor-pointer mx-auto"
         >
           <Plus className="w-5 h-5" />
-          {t('settings.addNewStore')}
+          {t("settings.addNewStore")}
         </button>
       </div>
     );
@@ -110,13 +110,13 @@ const StoreList = ({
 
             {/* Store Name */}
             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {store.name || '-'}
+              {store.name || "-"}
             </h3>
 
             {/* Address */}
             {addressParts.length > 0 && (
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
-                {addressParts.join(', ')}
+                {addressParts.join(", ")}
               </p>
             )}
 
@@ -125,16 +125,16 @@ const StoreList = ({
               {store.gst && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {t('settings.gst')}:
-                  </span>{' '}
+                    {t("settings.gst")}:
+                  </span>{" "}
                   {store.gst}
                 </p>
               )}
               {store.pan && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {t('settings.pan')}:
-                  </span>{' '}
+                    {t("settings.pan")}:
+                  </span>{" "}
                   {store.pan}
                 </p>
               )}
@@ -145,16 +145,16 @@ const StoreList = ({
               {store.phone && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {t('settings.phone')}:
-                  </span>{' '}
+                    {t("settings.phone")}:
+                  </span>{" "}
                   {store.phone}
                 </p>
               )}
               {store.email && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                    {t('settings.email')}:
-                  </span>{' '}
+                    {t("settings.email")}:
+                  </span>{" "}
                   {store.email}
                 </p>
               )}
@@ -164,7 +164,7 @@ const StoreList = ({
             {isCurrent && (
               <div className="mt-auto pt-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700">
-                  {t('settings.currentStore')}
+                  {t("settings.currentStore")}
                 </span>
               </div>
             )}
@@ -181,10 +181,10 @@ const StoreList = ({
           <Plus className="w-6 h-6 text-[rgb(var(--color-primary))]" />
         </div>
         <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-1">
-          {t('settings.createNewStore')}
+          {t("settings.createNewStore")}
         </h3>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] text-center max-w-[220px]">
-          {t('settings.addAnotherStoreToAccount')}
+          {t("settings.addAnotherStoreToAccount")}
         </p>
       </button>
     </div>

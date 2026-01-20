@@ -1,6 +1,6 @@
-"use client"
-import React from 'react';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+"use client";
+import React from "react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 const Pagination = ({
   currentPage = 1,
@@ -9,17 +9,17 @@ const Pagination = ({
   showFirstLast = true,
   showPrevNext = true,
   maxVisiblePages = 5,
-  className = '',
+  className = "",
   ...props
 }) => {
   // Calculate visible page numbers
   const getVisiblePages = () => {
     const pages = [];
     const halfVisible = Math.floor(maxVisiblePages / 2);
-    
+
     let startPage = Math.max(1, currentPage - halfVisible);
     let endPage = Math.min(totalPages, currentPage + halfVisible);
-    
+
     // Adjust if we're near the beginning or end
     if (currentPage <= halfVisible) {
       endPage = Math.min(totalPages, maxVisiblePages);
@@ -27,26 +27,29 @@ const Pagination = ({
     if (currentPage > totalPages - halfVisible) {
       startPage = Math.max(1, totalPages - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   };
-  
+
   const visiblePages = getVisiblePages();
-  
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       onPageChange?.(page);
     }
   };
-  
+
   if (totalPages <= 1) return null;
-  
+
   return (
-    <nav className={`flex items-center justify-center space-x-1 ${className}`} {...props}>
+    <nav
+      className={`flex items-center justify-center space-x-1 ${className}`}
+      {...props}
+    >
       {/* First Page */}
       {showFirstLast && currentPage > 1 && (
         <button
@@ -57,7 +60,7 @@ const Pagination = ({
           First
         </button>
       )}
-      
+
       {/* Previous Page */}
       {showPrevNext && (
         <button
@@ -69,7 +72,7 @@ const Pagination = ({
           <ChevronLeft className="w-4 h-4" />
         </button>
       )}
-      
+
       {/* Page Numbers */}
       <div className="flex items-center space-x-1">
         {/* Show ellipsis at start if needed */}
@@ -88,7 +91,7 @@ const Pagination = ({
             )}
           </>
         )}
-        
+
         {/* Visible page numbers */}
         {visiblePages.map((page) => (
           <button
@@ -96,16 +99,16 @@ const Pagination = ({
             onClick={() => handlePageChange(page)}
             className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
               page === currentPage
-                ? 'bg-[rgb(var(--color-primary))] text-white border border-[rgb(var(--color-primary))]'
-                : 'text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))]'
+                ? "bg-[rgb(var(--color-primary))] text-white border border-[rgb(var(--color-primary))]"
+                : "text-[rgb(var(--color-text-primary))] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
             }`}
             aria-label={`Go to page ${page}`}
-            aria-current={page === currentPage ? 'page' : undefined}
+            aria-current={page === currentPage ? "page" : undefined}
           >
             {page}
           </button>
         ))}
-        
+
         {/* Show ellipsis at end if needed */}
         {visiblePages[visiblePages.length - 1] < totalPages && (
           <>
@@ -123,7 +126,7 @@ const Pagination = ({
           </>
         )}
       </div>
-      
+
       {/* Next Page */}
       {showPrevNext && (
         <button
@@ -135,7 +138,7 @@ const Pagination = ({
           <ChevronRight className="w-4 h-4" />
         </button>
       )}
-      
+
       {/* Last Page */}
       {showFirstLast && currentPage < totalPages && (
         <button

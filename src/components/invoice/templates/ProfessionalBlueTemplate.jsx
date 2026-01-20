@@ -312,38 +312,46 @@ const ProfessionalBlueTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="blue-invoice-body">
         <div className="blue-invoice">
-          
           {/* Header Grid Section */}
           <div className="blue-header-grid">
             {/* Store Info - Left */}
             <div className="blue-store-info">
-                <h2>{selectedStore?.storeName || "Corporate Solutions Inc."}</h2>
-                <p>{selectedStore?.address || "123 Business Park, Metro City"}</p>
-                <p>Ph: {selectedStore?.phone || "+91 9876543210"} | Email: {selectedStore?.email || "contact@corp.com"}</p>
+              <h2>{selectedStore?.storeName || "Corporate Solutions Inc."}</h2>
+              <p>{selectedStore?.address || "123 Business Park, Metro City"}</p>
+              <p>
+                Ph: {selectedStore?.phone || "+91 9876543210"} | Email:{" "}
+                {selectedStore?.email || "contact@corp.com"}
+              </p>
             </div>
-            
+
             {/* Invoice Details - Right */}
             <div className="blue-invoice-details">
-                <h1>INVOICE</h1>
-                <div className="blue-detail-row">
-                    <div className="blue-detail-label">Invoice #</div>
-                    <div className="blue-invoice-number">{invoiceData.invoiceNumber}</div>
+              <h1>INVOICE</h1>
+              <div className="blue-detail-row">
+                <div className="blue-detail-label">Invoice #</div>
+                <div className="blue-invoice-number">
+                  {invoiceData.invoiceNumber}
                 </div>
-                <div className="blue-detail-row">
-                    <div className="blue-detail-label">Date Issued</div>
-                    <div>{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}</div>
+              </div>
+              <div className="blue-detail-row">
+                <div className="blue-detail-label">Date Issued</div>
+                <div>
+                  {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
                 </div>
+              </div>
             </div>
           </div>
-          
+
           {/* Bill To Section */}
           <div className="blue-bill-to">
-              <div className="blue-bill-to-title">Bill To</div>
-              <p className="blue-bill-to-name">{invoiceData.customer?.name || "Valued Client Name"}</p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+            <div className="blue-bill-to-title">Bill To</div>
+            <p className="blue-bill-to-name">
+              {invoiceData.customer?.name || "Valued Client Name"}
+            </p>
+            {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+            {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
           </div>
-          
+
           {/* Table */}
           <table className="blue-table">
             <thead>
@@ -363,7 +371,10 @@ const ProfessionalBlueTemplate = ({ invoiceData, selectedStore }) => {
                       {item.product?.name || "Service Rendered"}
                     </div>
                     {item.product?.sku && (
-                      <div className="product-sku" style={{fontSize: '11px', color: '#95a5a6'}}>
+                      <div
+                        className="product-sku"
+                        style={{ fontSize: "11px", color: "#95a5a6" }}
+                      >
                         SKU: {item.product.sku}
                       </div>
                     )}
@@ -374,45 +385,58 @@ const ProfessionalBlueTemplate = ({ invoiceData, selectedStore }) => {
                   </td>
                   <td style={{ textAlign: "right" }}>{item.taxRate || 0}%</td>
                   <td className="blue-table-total-cell">
-                    {formatCurrency(item.quantity * item.price * (1 + (item.taxRate || 0)/100))}
+                    {formatCurrency(
+                      item.quantity *
+                        item.price *
+                        (1 + (item.taxRate || 0) / 100),
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="blue-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Total Tax:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Total Discount:</div>
+                <div className="amount" style={{ color: "#e74c3c" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Total Tax:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Total Discount:</div>
-                  <div className="amount" style={{ color: '#e74c3c' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
-          <div style={{ textAlign: 'center', marginTop: '30px', borderTop: '1px solid #ecf0f1', paddingTop: '15px', fontSize: '12px', color: '#7f8c8d' }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "30px",
+              borderTop: "1px solid #ecf0f1",
+              paddingTop: "15px",
+              fontSize: "12px",
+              color: "#7f8c8d",
+            }}
+          >
             <p>Thank you for choosing us. Please pay within 30 days.</p>
           </div>
         </div>

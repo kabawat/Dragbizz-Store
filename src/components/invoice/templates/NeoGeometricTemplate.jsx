@@ -322,8 +322,12 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
             <div className="neo-brand">
               <div className="neo-logo">N</div>
               <div>
-                <div className="title">{selectedStore?.storeName || "NeoGeometric"}</div>
-                <div className="neo-sub">{selectedStore?.tagline || "Precision Invoice Design"}</div>
+                <div className="title">
+                  {selectedStore?.storeName || "NeoGeometric"}
+                </div>
+                <div className="neo-sub">
+                  {selectedStore?.tagline || "Precision Invoice Design"}
+                </div>
               </div>
             </div>
 
@@ -340,17 +344,33 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
               <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
                 <div className="neo-card">
                   <div className="neo-title">From</div>
-                  <div className="neo-val">{selectedStore?.storeName || "NeoGeometric Billing"}</div>
-                  <div className="neo-sub">{selectedStore?.address || "Suite 100, Central Avenue"}</div>
-                  <div className="neo-sub">Phone: {selectedStore?.phone || "+91 98765 43210"}</div>
-                  <div className="neo-sub">Email: {selectedStore?.email || "info@neogeometric.com"}</div>
+                  <div className="neo-val">
+                    {selectedStore?.storeName || "NeoGeometric Billing"}
+                  </div>
+                  <div className="neo-sub">
+                    {selectedStore?.address || "Suite 100, Central Avenue"}
+                  </div>
+                  <div className="neo-sub">
+                    Phone: {selectedStore?.phone || "+91 98765 43210"}
+                  </div>
+                  <div className="neo-sub">
+                    Email: {selectedStore?.email || "info@neogeometric.com"}
+                  </div>
                 </div>
 
                 <div className="neo-card">
                   <div className="neo-title">Bill To</div>
-                  <div className="neo-val">{invoiceData.customer?.name || "Walk-in Customer"}</div>
-                  {invoiceData.customer?.email && <div className="neo-sub">{invoiceData.customer.email}</div>}
-                  {invoiceData.customer?.phone && <div className="neo-sub">Phone: {invoiceData.customer.phone}</div>}
+                  <div className="neo-val">
+                    {invoiceData.customer?.name || "Walk-in Customer"}
+                  </div>
+                  {invoiceData.customer?.email && (
+                    <div className="neo-sub">{invoiceData.customer.email}</div>
+                  )}
+                  {invoiceData.customer?.phone && (
+                    <div className="neo-sub">
+                      Phone: {invoiceData.customer.phone}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -362,24 +382,41 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                       <th style={{ width: "50%" }}>Description</th>
                       <th style={{ width: "12%", textAlign: "center" }}>Qty</th>
                       <th style={{ width: "18%", textAlign: "right" }}>Rate</th>
-                      <th style={{ width: "20%", textAlign: "right" }}>Total</th>
+                      <th style={{ width: "20%", textAlign: "right" }}>
+                        Total
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(invoiceData.items && invoiceData.items.length > 0 ? invoiceData.items : [{
-                      product: { name: "No items" },
-                      quantity: 0,
-                      price: 0,
-                    }]).map((item, idx) => (
+                    {(invoiceData.items && invoiceData.items.length > 0
+                      ? invoiceData.items
+                      : [
+                          {
+                            product: { name: "No items" },
+                            quantity: 0,
+                            price: 0,
+                          },
+                        ]
+                    ).map((item, idx) => (
                       <tr key={idx}>
                         <td>
-                          <div style={{ fontWeight: 600 }}>{item.product?.name || "Unnamed Item"}</div>
-                          {item.product?.sku && <div className="neo-sub">SKU: {item.product.sku}</div>}
+                          <div style={{ fontWeight: 600 }}>
+                            {item.product?.name || "Unnamed Item"}
+                          </div>
+                          {item.product?.sku && (
+                            <div className="neo-sub">
+                              SKU: {item.product.sku}
+                            </div>
+                          )}
                         </td>
                         <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                        <td style={{ textAlign: "right" }}>{formatCurrency(item.price)}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {formatCurrency(item.price)}
+                        </td>
                         <td style={{ textAlign: "right", fontWeight: 700 }}>
-                          {formatCurrency((item.quantity || 0) * (item.price || 0))}
+                          {formatCurrency(
+                            (item.quantity || 0) * (item.price || 0),
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -393,16 +430,22 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
               <div className="neo-title">Summary</div>
               <div className="neo-row">
                 <div>Subtotal</div>
-                <div className="val">{formatCurrency(invoiceData.subtotal)}</div>
+                <div className="val">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
               <div className="neo-row">
                 <div>Tax (GST)</div>
-                <div className="val">{formatCurrency(invoiceData.gstAmount)}</div>
+                <div className="val">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
               </div>
               {invoiceData.totalDiscount > 0 && (
                 <div className="neo-row">
                   <div>Discount</div>
-                  <div className="val">-{formatCurrency(invoiceData.totalDiscount)}</div>
+                  <div className="val">
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
                 </div>
               )}
               <div className="neo-grand">
@@ -410,8 +453,12 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                 <div>{formatCurrency(invoiceData.totalAmount)}</div>
               </div>
               <div style={{ marginTop: 10 }}>
-                <div className="neo-title" style={{ fontSize: 12 }}>Payment</div>
-                <div className="neo-sub">Mode: {invoiceData.paymentMode || "Not specified"}</div>
+                <div className="neo-title" style={{ fontSize: 12 }}>
+                  Payment
+                </div>
+                <div className="neo-sub">
+                  Mode: {invoiceData.paymentMode || "Not specified"}
+                </div>
               </div>
             </div>
           </div>
@@ -419,7 +466,10 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
           {/* Footer */}
           <div className="neo-footer">
             <div>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</div>
-            <div>© {new Date().getFullYear()} {selectedStore?.storeName || "NeoGeometric"}</div>
+            <div>
+              © {new Date().getFullYear()}{" "}
+              {selectedStore?.storeName || "NeoGeometric"}
+            </div>
           </div>
         </div>
       </div>

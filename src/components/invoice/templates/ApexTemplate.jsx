@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const ApexTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency
@@ -245,12 +245,20 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
           <div className="apex-header">
             <div>
               <h1>INVOICE</h1>
-              <p style={{ fontSize: "14px", marginTop: "10px", color: "#bdc3c7" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  marginTop: "10px",
+                  color: "#bdc3c7",
+                }}
+              >
                 Date: {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
               </p>
             </div>
             <div className="apex-store-info">
-              <h2 style={{ fontSize: "20px", margin: "0", color: ACCENT_COLOR }}>
+              <h2
+                style={{ fontSize: "20px", margin: "0", color: ACCENT_COLOR }}
+              >
                 {selectedStore?.storeName || "Your Store"}
               </h2>
               <p>{selectedStore?.address || "123 Corporate Tower"}</p>
@@ -268,8 +276,12 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
               <p className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="apex-info-block right-align">
               <div className="label">Payment Status</div>
@@ -285,11 +297,11 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="apex-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => (
               <>
@@ -305,7 +317,7 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
             )}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -328,7 +340,10 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: ACCENT_COLOR, fontWeight: 700 }}>
+                  <div
+                    className="amount"
+                    style={{ color: ACCENT_COLOR, fontWeight: 700 }}
+                  >
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>
@@ -344,8 +359,12 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="apex-footer">
-            <p>Thank you for your business. We appreciate your prompt payment.</p>
-            <p>This document is computer-generated and requires no signature.</p>
+            <p>
+              Thank you for your business. We appreciate your prompt payment.
+            </p>
+            <p>
+              This document is computer-generated and requires no signature.
+            </p>
           </div>
         </div>
       </div>

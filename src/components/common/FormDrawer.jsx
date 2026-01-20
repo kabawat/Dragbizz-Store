@@ -1,6 +1,6 @@
-"use client"
-import React from 'react';
-import { SideDrawer, Button } from '@/components/ui';
+"use client";
+import React from "react";
+import { SideDrawer, Button } from "@/components/ui";
 
 const FormDrawer = ({
   isOpen,
@@ -9,23 +9,23 @@ const FormDrawer = ({
   icon: Icon,
   description,
   children,
-  width = 'w-full md:w-2/3 lg:w-1/2',
+  width = "w-full md:w-2/3 lg:w-1/2",
   // Footer button props
   onSave,
   onCancel,
-  saveLabel = 'Save',
-  cancelLabel = 'Cancel',
+  saveLabel = "Save",
+  cancelLabel = "Cancel",
   isLoading = false,
   isSaving = false,
   saveIcon: SaveIcon,
-  saveVariant = 'success',
-  cancelVariant = 'outline',
+  saveVariant = "success",
+  cancelVariant = "outline",
   disabled = false,
   // Custom footer content (if provided, overrides default buttons)
   footer,
   // Additional props for SideDrawer
   showDownloadButton = false,
-  onDownload = null
+  onDownload = null,
 }) => {
   const handleCancel = () => {
     if (onCancel) {
@@ -91,4 +91,3 @@ const FormDrawer = ({
 };
 
 export default FormDrawer;
-

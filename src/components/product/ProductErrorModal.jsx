@@ -1,18 +1,18 @@
-"use client"
-import React from 'react';
-import { XCircle, X } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { XCircle, X } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const ProductErrorModal = ({ 
-  isOpen, 
-  onClose, 
+const ProductErrorModal = ({
+  isOpen,
+  onClose,
   title,
   message = "Something went wrong",
-  details = null
+  details = null,
 }) => {
   const { t } = useTranslation();
-  const defaultTitle = title || t('common.error');
+  const defaultTitle = title || t("common.error");
   if (!isOpen) return null;
 
   return (
@@ -30,7 +30,7 @@ const ProductErrorModal = ({
                   {defaultTitle}
                 </h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t('products.pleaseTryAgain')}
+                  {t("products.pleaseTryAgain")}
                 </p>
               </div>
             </div>
@@ -65,7 +65,7 @@ const ProductErrorModal = ({
               onClick={onClose}
               className="px-6 h-10 text-sm font-semibold bg-[rgb(var(--color-primary))] text-white"
             >
-              {t('common.ok')}
+              {t("common.ok")}
             </Button>
           </div>
         </div>
@@ -73,7 +73,7 @@ const ProductErrorModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            {t('products.ifProblemPersists')}
+            {t("products.ifProblemPersists")}
           </p>
         </div>
       </div>

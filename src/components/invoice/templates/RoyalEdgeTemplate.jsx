@@ -9,9 +9,8 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
       maximumFractionDigits: 2,
     })}`;
 
-  
-  const GRADIENT_START = "#7c3aed"; 
-  const GRADIENT_END = "#0f172a"; 
+  const GRADIENT_START = "#7c3aed";
+  const GRADIENT_END = "#0f172a";
   const CARD_BG = "#ffffff";
   const MUTED = "#6b7280";
 
@@ -398,14 +397,20 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
             <div className="royal-brand" aria-hidden>
               <div className="royal-logo">R</div>
               <div>
-                <div className="title">{selectedStore?.storeName || "RoyalEdge"}</div>
-                <div className="royal-small">{selectedStore?.tagline || "Premium Billing & Invoicing"}</div>
+                <div className="title">
+                  {selectedStore?.storeName || "RoyalEdge"}
+                </div>
+                <div className="royal-small">
+                  {selectedStore?.tagline || "Premium Billing & Invoicing"}
+                </div>
               </div>
             </div>
 
             <div className="royal-meta">
               <div className="meta-row">Invoice</div>
-              <div className="meta-strong">{invoiceData.invoiceNumber || "—"}</div>
+              <div className="meta-strong">
+                {invoiceData.invoiceNumber || "—"}
+              </div>
               <div className="meta-row">
                 {moment(invoiceData.createdAt).format("DD MMM YYYY")}
               </div>
@@ -418,51 +423,104 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
             <div>
               {/* Store & Customer Cards */}
               <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
-                <div style={{ flex: 1 }} className="royal-card" aria-labelledby="from">
-                  <div id="from" className="royal-info-title">From</div>
-                  <div className="royal-info-val">{selectedStore?.storeName || "RoyalEdge Billing"}</div>
-                  <div className="royal-small">{selectedStore?.address || "Suite 100, Central Avenue"}</div>
+                <div
+                  style={{ flex: 1 }}
+                  className="royal-card"
+                  aria-labelledby="from"
+                >
+                  <div id="from" className="royal-info-title">
+                    From
+                  </div>
+                  <div className="royal-info-val">
+                    {selectedStore?.storeName || "RoyalEdge Billing"}
+                  </div>
+                  <div className="royal-small">
+                    {selectedStore?.address || "Suite 100, Central Avenue"}
+                  </div>
                   <div className="royal-small" style={{ marginTop: 8 }}>
                     Phone: {selectedStore?.phone || "+91 98765 43210"}
                   </div>
-                  <div className="royal-small">Email: {selectedStore?.email || "hello@royaledge.com"}</div>
+                  <div className="royal-small">
+                    Email: {selectedStore?.email || "hello@royaledge.com"}
+                  </div>
                 </div>
 
-                <div style={{ flex: 1 }} className="royal-card" aria-labelledby="to">
-                  <div id="to" className="royal-info-title">Bill To</div>
-                  <div className="royal-info-val">{invoiceData.customer?.name || "Walk-in Customer"}</div>
-                  {invoiceData.customer?.email && <div className="royal-small">{invoiceData.customer.email}</div>}
-                  {invoiceData.customer?.phone && <div className="royal-small">Phone: {invoiceData.customer.phone}</div>}
+                <div
+                  style={{ flex: 1 }}
+                  className="royal-card"
+                  aria-labelledby="to"
+                >
+                  <div id="to" className="royal-info-title">
+                    Bill To
+                  </div>
+                  <div className="royal-info-val">
+                    {invoiceData.customer?.name || "Walk-in Customer"}
+                  </div>
+                  {invoiceData.customer?.email && (
+                    <div className="royal-small">
+                      {invoiceData.customer.email}
+                    </div>
+                  )}
+                  {invoiceData.customer?.phone && (
+                    <div className="royal-small">
+                      Phone: {invoiceData.customer.phone}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Items Table */}
               <div className="royal-card">
-                <div className="royal-info-title" style={{ marginBottom: 10 }}>Items</div>
+                <div className="royal-info-title" style={{ marginBottom: 10 }}>
+                  Items
+                </div>
 
-                <table className="royal-items-table" role="table" aria-label="Invoice items">
+                <table
+                  className="royal-items-table"
+                  role="table"
+                  aria-label="Invoice items"
+                >
                   <thead>
                     <tr>
                       <th style={{ width: "52%" }}>Description</th>
                       <th style={{ width: "12%", textAlign: "center" }}>Qty</th>
                       <th style={{ width: "18%", textAlign: "right" }}>Rate</th>
-                      <th style={{ width: "18%", textAlign: "right" }}>Total</th>
+                      <th style={{ width: "18%", textAlign: "right" }}>
+                        Total
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(invoiceData.items && invoiceData.items.length > 0 ? invoiceData.items : [{
-                      product: { name: "No items" },
-                      quantity: 0,
-                      price: 0,
-                    }]).map((item, idx) => (
+                    {(invoiceData.items && invoiceData.items.length > 0
+                      ? invoiceData.items
+                      : [
+                          {
+                            product: { name: "No items" },
+                            quantity: 0,
+                            price: 0,
+                          },
+                        ]
+                    ).map((item, idx) => (
                       <tr key={idx}>
                         <td>
-                          <div className="royal-desc">{item.product?.name || "Unnamed Item"}</div>
-                          {item.product?.sku && <div className="royal-sku">SKU: {item.product.sku}</div>}
+                          <div className="royal-desc">
+                            {item.product?.name || "Unnamed Item"}
+                          </div>
+                          {item.product?.sku && (
+                            <div className="royal-sku">
+                              SKU: {item.product.sku}
+                            </div>
+                          )}
                         </td>
                         <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                        <td style={{ textAlign: "right" }}>{formatCurrency(item.price)}</td>
-                        <td style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency((item.quantity || 0) * (item.price || 0))}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {formatCurrency(item.price)}
+                        </td>
+                        <td style={{ textAlign: "right", fontWeight: 700 }}>
+                          {formatCurrency(
+                            (item.quantity || 0) * (item.price || 0),
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -472,23 +530,34 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
 
             {/* Right column: totals, notes */}
             <div className="royal-right-stack">
-              <div className="royal-card royal-totals" aria-labelledby="summary">
-                <div id="summary" className="royal-info-title">Summary</div>
+              <div
+                className="royal-card royal-totals"
+                aria-labelledby="summary"
+              >
+                <div id="summary" className="royal-info-title">
+                  Summary
+                </div>
 
                 <div className="royal-row">
                   <div>Subtotal</div>
-                  <div className="val">{formatCurrency(invoiceData.subtotal)}</div>
+                  <div className="val">
+                    {formatCurrency(invoiceData.subtotal)}
+                  </div>
                 </div>
 
                 <div className="royal-row">
                   <div>Tax (GST)</div>
-                  <div className="val">{formatCurrency(invoiceData.gstAmount)}</div>
+                  <div className="val">
+                    {formatCurrency(invoiceData.gstAmount)}
+                  </div>
                 </div>
 
                 {invoiceData.totalDiscount > 0 && (
                   <div className="royal-row">
                     <div>Discount</div>
-                    <div className="val">-{formatCurrency(invoiceData.totalDiscount)}</div>
+                    <div className="val">
+                      -{formatCurrency(invoiceData.totalDiscount)}
+                    </div>
                   </div>
                 )}
 
@@ -498,8 +567,12 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                 </div>
 
                 <div style={{ marginTop: 12 }}>
-                  <div className="royal-info-title" style={{ fontSize: 12 }}>Payment</div>
-                  <div className="royal-small">Payment Mode: {invoiceData.paymentMode || "Not specified"}</div>
+                  <div className="royal-info-title" style={{ fontSize: 12 }}>
+                    Payment
+                  </div>
+                  <div className="royal-small">
+                    Payment Mode: {invoiceData.paymentMode || "Not specified"}
+                  </div>
                 </div>
               </div>
 
@@ -511,14 +584,39 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                 </div>
               </div>
 
-              <div className="royal-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                className="royal-card"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div>
-                  <div className="royal-info-title" style={{ fontSize: 12 }}>Prepared By</div>
-                  <div className="royal-small">{selectedStore?.preparedBy || "Accounts Team"}</div>
+                  <div className="royal-info-title" style={{ fontSize: 12 }}>
+                    Prepared By
+                  </div>
+                  <div className="royal-small">
+                    {selectedStore?.preparedBy || "Accounts Team"}
+                  </div>
                 </div>
                 <div>
-                  <div style={{ textAlign: "center", fontSize: 12, color: MUTED }}>Signature</div>
-                  <div style={{ marginTop: 8, width: 120, height: 36, borderRadius: 8, background: "linear-gradient(90deg, rgba(15,23,42,0.04), rgba(124,58,237,0.06))", display: "inline-block" }} />
+                  <div
+                    style={{ textAlign: "center", fontSize: 12, color: MUTED }}
+                  >
+                    Signature
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 8,
+                      width: 120,
+                      height: 36,
+                      borderRadius: 8,
+                      background:
+                        "linear-gradient(90deg, rgba(15,23,42,0.04), rgba(124,58,237,0.06))",
+                      display: "inline-block",
+                    }}
+                  />
                 </div>
               </div>
             </div>

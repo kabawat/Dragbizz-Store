@@ -282,7 +282,8 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           </div>
           <div>
             <p style={{ fontSize: "10px", marginTop: "40px" }}>
-              © {moment().format("YYYY")} {selectedStore?.storeName || "Your Store"}
+              © {moment().format("YYYY")}{" "}
+              {selectedStore?.storeName || "Your Store"}
             </p>
           </div>
         </div>
@@ -309,13 +310,19 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
 
             <div className="block">
               <div className="label">Issued By</div>
-              <div className="value">{selectedStore?.storeName || "Your Store"}</div>
+              <div className="value">
+                {selectedStore?.storeName || "Your Store"}
+              </div>
               <p>{selectedStore?.email}</p>
             </div>
           </div>
@@ -351,7 +358,9 @@ const AetherTemplate = ({ invoiceData, selectedStore }) => {
           <div className="totals">
             <div className="row">
               <div className="label">Subtotal:</div>
-              <div className="amount">₹{invoiceData.subtotal?.toLocaleString()}</div>
+              <div className="amount">
+                ₹{invoiceData.subtotal?.toLocaleString()}
+              </div>
             </div>
             <div className="row">
               <div className="label">GST:</div>

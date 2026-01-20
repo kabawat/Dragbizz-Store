@@ -1,11 +1,25 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreVertical, Edit, Copy, Trash2, Eye, Package, TrendingUp, TrendingDown, AlertTriangle, IndianRupee, Calendar, Building2, BarChart3 } from 'lucide-react';
-import Image from 'next/image';
-import { useTheme } from '../../contexts/ThemeContext';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Card, Badge, Button, Dropdown } from "../ui";
+import {
+  MoreVertical,
+  Edit,
+  Copy,
+  Trash2,
+  Eye,
+  Package,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  IndianRupee,
+  Calendar,
+  Building2,
+  BarChart3,
+} from "lucide-react";
+import Image from "next/image";
+import { useTheme } from "../../contexts/ThemeContext";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const InventoryCard = ({
   inventory,
@@ -16,7 +30,7 @@ const InventoryCard = ({
   onStockIn,
   onSelect,
   selected = false,
-  className = '',
+  className = "",
   ...props
 }) => {
   const { t } = useTranslation();
@@ -24,7 +38,7 @@ const InventoryCard = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
   const { currentVariant, themeConfig } = useTheme();
-  
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -32,109 +46,119 @@ const InventoryCard = ({
         setOpenMenuId(null);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const getStatusBadge = (inventory) => {
-    let status = 'INACTIVE';
+    let status = "INACTIVE";
     if (inventory.status?.isOutOfStock) {
-      status = 'OUT_OF_STOCK';
+      status = "OUT_OF_STOCK";
     } else if (inventory.status?.isLowStock) {
-      status = 'LOW_STOCK';
+      status = "LOW_STOCK";
     } else if (inventory.status?.isActive) {
-      status = 'ACTIVE';
+      status = "ACTIVE";
     }
-    
-    const config = getCommonStatusBadge(status, 'general');
+
+    const config = getCommonStatusBadge(status, "general");
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
-  
+
   const getPaymentStatusBadge = (paymentStatus) => {
-    const config = getCommonStatusBadge(paymentStatus, 'bill');
+    const config = getCommonStatusBadge(paymentStatus, "bill");
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
-  
+
   const getStockStatus = () => {
     const availableStock = inventory.stockSummary?.availableQuantity || 0;
-    
-    if (availableStock === 0) return { status: 'out', color: 'danger', text: t('products.outOfStock') };
-    if (availableStock <= 10) return { status: 'low', color: 'warning', text: t('products.lowStock') };
-    if (availableStock <= 50) return { status: 'medium', color: 'secondary', text: t('inventory.mediumStock') };
-    return { status: 'good', color: 'success', text: t('inventory.goodStock') };
+
+    if (availableStock === 0)
+      return { status: "out", color: "danger", text: t("products.outOfStock") };
+    if (availableStock <= 10)
+      return { status: "low", color: "warning", text: t("products.lowStock") };
+    if (availableStock <= 50)
+      return {
+        status: "medium",
+        color: "secondary",
+        text: t("inventory.mediumStock"),
+      };
+    return { status: "good", color: "success", text: t("inventory.goodStock") };
   };
-  
+
   const stockStatus = getStockStatus();
   const profitMargin = inventory.pricingSummary?.profitMargin || 0;
   const totalValue = inventory.pricingSummary?.totalSellingValue || 0;
-  
+
   const actionMenuItems = [
     {
-      value: 'view',
-      label: t('common.viewDetails'),
+      value: "view",
+      label: t("common.viewDetails"),
       icon: Eye,
-      onClick: () => onViewDetails?.(inventory.id)
+      onClick: () => onViewDetails?.(inventory.id),
     },
     {
-      value: 'stock-in',
-      label: t('inventory.addStock'),
+      value: "stock-in",
+      label: t("inventory.addStock"),
       icon: TrendingUp,
       onClick: () => onStockIn?.(inventory.id),
-      className: 'text-green-600 hover:text-green-700'
+      className: "text-green-600 hover:text-green-700",
     },
     {
-      value: 'edit',
-      label: t('common.edit'),
+      value: "edit",
+      label: t("common.edit"),
       icon: Edit,
-      onClick: () => onEdit?.(inventory.id)
+      onClick: () => onEdit?.(inventory.id),
     },
     {
-      value: 'duplicate',
-      label: t('common.duplicate'),
+      value: "duplicate",
+      label: t("common.duplicate"),
       icon: Copy,
-      onClick: () => onDuplicate?.(inventory.id)
+      onClick: () => onDuplicate?.(inventory.id),
     },
     {
-      value: 'delete',
-      label: t('common.delete'),
+      value: "delete",
+      label: t("common.delete"),
       icon: Trash2,
-      onClick: () => onDelete?.(inventory.id)
-    }
+      onClick: () => onDelete?.(inventory.id),
+    },
   ];
-  
+
   const handleMenuToggle = (inventoryId) => {
     setOpenMenuId(openMenuId === inventoryId ? null : inventoryId);
   };
-  
+
   const handleMenuAction = (inventoryId, action) => {
     setOpenMenuId(null);
     switch (action) {
-      case 'view':
+      case "view":
         onViewDetails?.(inventoryId);
         break;
-      case 'stock-in':
+      case "stock-in":
         onStockIn?.(inventoryId);
         break;
-      case 'edit':
+      case "edit":
         onEdit?.(inventoryId);
         break;
-      case 'duplicate':
+      case "duplicate":
         onDuplicate?.(inventoryId);
         break;
-      case 'delete':
+      case "delete":
         onDelete?.(inventoryId);
         break;
       default:
         break;
     }
   };
-  
+
   // Grid view - Modern Card Design
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? "ring-2 ring-blue-500" : ""} ${className}`}
+      {...props}
+    >
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -146,15 +170,14 @@ const InventoryCard = ({
             style={{
               color: themeConfig.primary,
               borderColor: themeConfig.border,
-              backgroundColor: themeConfig.background
+              backgroundColor: themeConfig.background,
             }}
           />
         </div>
       )}
-      
+
       {/* Product Image with Gradient Overlay */}
-      <div 
-        className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
+      <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
         <div className="w-full h-full overflow-hidden rounded-t-xl">
           {inventory.product?.image && !imageError ? (
             <Image
@@ -165,168 +188,233 @@ const InventoryCard = ({
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ color: themeConfig.textSecondary }}>
-              <Package className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" style={{ color: themeConfig.textSecondary }} />
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              <Package
+                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                style={{ color: themeConfig.textSecondary }}
+              />
             </div>
           )}
         </div>
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl"></div>
-        
+
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
-            <button 
+            <button
               onClick={() => handleMenuToggle(inventory.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t('common.actions')}
+              title={t("common.actions")}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
-            
+
             {/* Popup Menu */}
             {openMenuId === inventory.id && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-[9999]">
                 <button
-                  onClick={() => handleMenuAction(inventory.id, 'view')}
+                  onClick={() => handleMenuAction(inventory.id, "view")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.viewDetails')}
+                  {t("common.viewDetails")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(inventory.id, 'stock-in')}
+                  onClick={() => handleMenuAction(inventory.id, "stock-in")}
                   className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                 >
                   <TrendingUp className="w-4 h-4 text-green-500" />
-                  {t('inventory.addStock')}
+                  {t("inventory.addStock")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(inventory.id, 'edit')}
+                  onClick={() => handleMenuAction(inventory.id, "edit")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.edit')}
+                  {t("common.edit")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(inventory.id, 'duplicate')}
+                  onClick={() => handleMenuAction(inventory.id, "duplicate")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.duplicate')}
+                  {t("common.duplicate")}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
-                  onClick={() => handleMenuAction(inventory.id, 'delete')}
+                  onClick={() => handleMenuAction(inventory.id, "delete")}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  {t('common.delete')}
+                  {t("common.delete")}
                 </button>
               </div>
             )}
           </div>
         </div>
-        
+
         {/* Status Badge */}
         <div className="absolute bottom-4 left-4">
           {getStatusBadge(inventory)}
         </div>
       </div>
-      
+
       {/* Product Info */}
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Product Name */}
         <div>
-          <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
-            {inventory.product?.name || t('products.unknownProduct')}
+          <h3
+            className="font-bold text-md sm:text-xl mb-1"
+            style={{ color: themeConfig.text }}
+          >
+            {inventory.product?.name || t("products.unknownProduct")}
           </h3>
-          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
-            {inventory.product?.brand || t('products.unknownBrand')}
+          <p
+            className="text-xs sm:text-sm font-medium"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            {inventory.product?.brand || t("products.unknownBrand")}
           </p>
         </div>
-        
+
         {/* Category */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          <span 
+          <span
             className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
             style={{
-              backgroundColor: '#8b5cf6',
-              color: 'white'
+              backgroundColor: "#8b5cf6",
+              color: "white",
             }}
           >
-            {inventory.product?.category || t('products.noCategory')}
+            {inventory.product?.category || t("products.noCategory")}
           </span>
         </div>
-        
+
         {/* Stock Info */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('inventory.availableStock')}:</span> {inventory.stockSummary?.availableQuantity || 0}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">
+              {t("inventory.availableStock")}:
+            </span>{" "}
+            {inventory.stockSummary?.availableQuantity || 0}
           </div>
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('common.total')}:</span> {inventory.stockSummary?.totalQuantity || 0}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">{t("common.total")}:</span>{" "}
+            {inventory.stockSummary?.totalQuantity || 0}
           </div>
         </div>
-        
+
         {/* Batches Info */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('inventory.batches')}:</span> {inventory.batchSummary?.totalBatches || 0}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">{t("inventory.batches")}:</span>{" "}
+            {inventory.batchSummary?.totalBatches || 0}
           </div>
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('common.active')}:</span> {inventory.batchSummary?.activeBatches || 0}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">{t("common.active")}:</span>{" "}
+            {inventory.batchSummary?.activeBatches || 0}
           </div>
         </div>
-        
+
         {/* Pricing Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.sellingPrice')}</span>
-            <span className="text-sm sm:text-base md:text-lg font-bold" style={{ color: themeConfig.text }}>
-              ₹{inventory.pricingSummary?.averageSellingPrice?.toLocaleString() || '0'}
+            <span
+              className="text-xs sm:text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              {t("products.sellingPrice")}
+            </span>
+            <span
+              className="text-sm sm:text-base md:text-lg font-bold"
+              style={{ color: themeConfig.text }}
+            >
+              ₹
+              {inventory.pricingSummary?.averageSellingPrice?.toLocaleString() ||
+                "0"}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.costPrice')}</span>
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-              ₹{inventory.pricingSummary?.averagePurchasePrice?.toLocaleString() || '0'}
+            <span
+              className="text-xs sm:text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              {t("products.costPrice")}
+            </span>
+            <span
+              className="text-xs sm:text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              ₹
+              {inventory.pricingSummary?.averagePurchasePrice?.toLocaleString() ||
+                "0"}
             </span>
           </div>
           {profitMargin > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-green-500 font-medium">{t('inventory.profitMargin')}</span>
+              <span className="text-xs sm:text-sm text-green-500 font-medium">
+                {t("inventory.profitMargin")}
+              </span>
               <span className="text-xs sm:text-sm text-green-500 font-medium">
                 {profitMargin.toFixed(1)}%
               </span>
             </div>
           )}
         </div>
-        
+
         {/* Payment Status */}
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('invoice.paymentStatus')}:</span>
+          <span
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            {t("invoice.paymentStatus")}:
+          </span>
           {getPaymentStatusBadge(inventory.paymentSummary?.paymentStatus)}
         </div>
-        
+
         {/* Total Value */}
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('inventory.totalValue')}:</span>
+          <span
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            {t("inventory.totalValue")}:
+          </span>
           <span className="text-sm font-bold text-green-600">
             ₹{totalValue.toLocaleString()}
           </span>
         </div>
-        
+
         {/* Last Updated */}
-        <div 
-          className="text-xs text-center pt-1.5 border-t" 
-          style={{ 
+        <div
+          className="text-xs text-center pt-1.5 border-t"
+          style={{
             color: themeConfig.textSecondary,
-            borderColor: themeConfig.border
+            borderColor: themeConfig.border,
           }}
         >
-          {t('common.lastUpdated')}: {inventory.lastUpdated ? new Date(inventory.lastUpdated).toLocaleDateString() : t('common.notAvailable')}
+          {t("common.lastUpdated")}:{" "}
+          {inventory.lastUpdated
+            ? new Date(inventory.lastUpdated).toLocaleDateString()
+            : t("common.notAvailable")}
         </div>
       </div>
     </div>

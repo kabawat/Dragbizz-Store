@@ -12,7 +12,7 @@ const MatrixLedgerTemplate = ({ invoiceData, selectedStore }) => {
   };
 
   const PRIMARY_TEXT = "#111111"; // Near Black
-  const LIGHT_TEXT = "#555555"; 
+  const LIGHT_TEXT = "#555555";
   const BORDER_HEAVY = "#333333"; // Heavy Black Border
   const BORDER_LIGHT = "#dddddd"; // Light Gray Border
 
@@ -267,38 +267,55 @@ const MatrixLedgerTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="matrix-invoice-body">
         <div className="matrix-invoice">
-          
           {/* Header Section */}
           <div className="matrix-header">
             <h1>TAX INVOICE / RECEIPT</h1>
             <div className="matrix-store-info">
-                <p>
-                    {selectedStore?.storeName || "Matrix Ledger Systems"} | {selectedStore?.address || "Data Center, Ledger Street"}
-                </p>
-                <p>
-                    TIN: XXXX-XXXXX | Email: {selectedStore?.email || "data@matrixledger.com"}
-                </p>
+              <p>
+                {selectedStore?.storeName || "Matrix Ledger Systems"} |{" "}
+                {selectedStore?.address || "Data Center, Ledger Street"}
+              </p>
+              <p>
+                TIN: XXXX-XXXXX | Email:{" "}
+                {selectedStore?.email || "data@matrixledger.com"}
+              </p>
             </div>
           </div>
-          
+
           {/* Info Bar */}
           <div className="matrix-info-bar">
             {/* Invoice Meta */}
             <div className="matrix-meta-block">
-                <div className="title">Transaction Data</div>
-                <p>Invoice #: <span className="matrix-value-bold matrix-invoice-number">{invoiceData.invoiceNumber}</span></p>
-                <p>Date Issued: <span className="matrix-value-bold">{moment(invoiceData.createdAt).format("YYYY-MM-DD")}</span></p>
+              <div className="title">Transaction Data</div>
+              <p>
+                Invoice #:{" "}
+                <span className="matrix-value-bold matrix-invoice-number">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date Issued:{" "}
+                <span className="matrix-value-bold">
+                  {moment(invoiceData.createdAt).format("YYYY-MM-DD")}
+                </span>
+              </p>
             </div>
-            
+
             {/* Bill To */}
             <div className="matrix-meta-block">
-                <div className="title">Bill To Entity</div>
-                <p className="matrix-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.phone && <p>Ph: {invoiceData.customer.phone}</p>}
-                {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
+              <div className="title">Bill To Entity</div>
+              <p className="matrix-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.phone && (
+                <p>Ph: {invoiceData.customer.phone}</p>
+              )}
+              {invoiceData.customer?.email && (
+                <p>Email: {invoiceData.customer.email}</p>
+              )}
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="matrix-table">
             <thead>
@@ -328,37 +345,37 @@ const MatrixLedgerTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="matrix-totals-table">
-              <div className="row">
-                <div className="label">Subtotal:</div>
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
+              <div className="row" style={{ color: "#c0392b" }}>
+                <div className="label">DISCOUNT APPLIED:</div>
                 <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE (INR):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row" style={{ color: '#c0392b' }}>
-                  <div className="label">DISCOUNT APPLIED:</div>
-                  <div className="amount">
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE (INR):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="matrix-footer">
             <p>E&OE. This transaction record is digitally generated.</p>

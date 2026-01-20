@@ -1,89 +1,93 @@
-"use client"
-import React, { useState } from 'react';
-import { 
-  Accordion, 
-  Alert, 
-  AnimatedBackground, 
-  Badge, 
-  Button, 
-  Card, 
-  Checkbox, 
-  Divider, 
-  Dropdown, 
-  FileUpload, 
-  Input, 
-  Loading, 
-  Modal, 
-  MultiSelect, 
-  Pagination, 
-  RichTextEditor, 
-  Select, 
-  StepProgress, 
-  SVGBackground, 
-  Tabs, 
-  TagInput, 
-  Textarea, 
-  SettingsPanel, 
-  Toggle 
-} from '@/components/ui';
+"use client";
+import React, { useState } from "react";
+import {
+  Accordion,
+  Alert,
+  AnimatedBackground,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Divider,
+  Dropdown,
+  FileUpload,
+  Input,
+  Loading,
+  Modal,
+  MultiSelect,
+  Pagination,
+  RichTextEditor,
+  Select,
+  StepProgress,
+  SVGBackground,
+  Tabs,
+  TagInput,
+  Textarea,
+  SettingsPanel,
+  Toggle,
+} from "@/components/ui";
 
 const UIDemoPage = () => {
   const [showModal, setShowModal] = useState(false);
-  const [tabsValue, setTabsValue] = useState('tab1');
-  const [tags, setTags] = useState(['React', 'Next.js']);
-  const [richTextValue, setRichTextValue] = useState('<p>Hello <strong>World</strong>!</p>');
+  const [tabsValue, setTabsValue] = useState("tab1");
+  const [tags, setTags] = useState(["React", "Next.js"]);
+  const [richTextValue, setRichTextValue] = useState(
+    "<p>Hello <strong>World</strong>!</p>",
+  );
   const [fileUploadValue, setFileUploadValue] = useState([]);
 
   const dropdownOptions = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' }
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" },
+    { value: "option3", label: "Option 3" },
   ];
 
   const multiSelectOptions = [
-    { value: 'react', label: 'React' },
-    { value: 'vue', label: 'Vue' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'svelte', label: 'Svelte' }
+    { value: "react", label: "React" },
+    { value: "vue", label: "Vue" },
+    { value: "angular", label: "Angular" },
+    { value: "svelte", label: "Svelte" },
   ];
 
   const selectOptions = [
-    { value: 'india', label: 'India' },
-    { value: 'usa', label: 'USA' },
-    { value: 'uk', label: 'UK' }
+    { value: "india", label: "India" },
+    { value: "usa", label: "USA" },
+    { value: "uk", label: "UK" },
   ];
 
   const stepProgressSteps = [
-    { title: 'Step 1', description: 'Basic Information', completed: true },
-    { title: 'Step 2', description: 'Contact Details', completed: true },
-    { title: 'Step 3', description: 'Preferences', completed: false },
-    { title: 'Step 4', description: 'Review', completed: false }
+    { title: "Step 1", description: "Basic Information", completed: true },
+    { title: "Step 2", description: "Contact Details", completed: true },
+    { title: "Step 3", description: "Preferences", completed: false },
+    { title: "Step 4", description: "Review", completed: false },
   ];
 
   const accordionItems = [
     {
-      id: 'react',
-      title: 'What is React?',
-      content: 'React is a JavaScript library for building user interfaces, particularly web applications.'
+      id: "react",
+      title: "What is React?",
+      content:
+        "React is a JavaScript library for building user interfaces, particularly web applications.",
     },
     {
-      id: 'nextjs',
-      title: 'What is Next.js?',
-      content: 'Next.js is a React framework that provides additional features like server-side rendering and static site generation.'
-    }
+      id: "nextjs",
+      title: "What is Next.js?",
+      content:
+        "Next.js is a React framework that provides additional features like server-side rendering and static site generation.",
+    },
   ];
 
   const tabItems = [
-    { value: 'tab1', label: 'Tab 1', content: 'Content for Tab 1' },
-    { value: 'tab2', label: 'Tab 2', content: 'Content for Tab 2' },
-    { value: 'tab3', label: 'Tab 3', content: 'Content for Tab 3' }
+    { value: "tab1", label: "Tab 1", content: "Content for Tab 1" },
+    { value: "tab2", label: "Tab 2", content: "Content for Tab 2" },
+    { value: "tab3", label: "Tab 3", content: "Content for Tab 3" },
   ];
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))] relative">
       <AnimatedBackground variant="default" />
       <SVGBackground />
-      
+
       <div className="container mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
@@ -105,7 +109,7 @@ const UIDemoPage = () => {
               <Accordion
                 items={accordionItems}
                 allowMultiple={true}
-                defaultOpenItems={['react']}
+                defaultOpenItems={["react"]}
               />
             </Card>
 
@@ -188,7 +192,7 @@ const UIDemoPage = () => {
               </h3>
               <MultiSelect
                 options={multiSelectOptions}
-                value={['react', 'vue']}
+                value={["react", "vue"]}
                 placeholder="Select frameworks..."
                 label="Frameworks"
                 searchable={true}
@@ -213,10 +217,7 @@ const UIDemoPage = () => {
               <h3 className="text-xl font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
                 Modal Component
               </h3>
-              <Button
-                variant="primary"
-                onClick={() => setShowModal(true)}
-              >
+              <Button variant="primary" onClick={() => setShowModal(true)}>
                 Open Modal
               </Button>
             </Card>
@@ -231,10 +232,26 @@ const UIDemoPage = () => {
               Alert Variants
             </h3>
             <div className="space-y-3">
-              <Alert variant="success" title="Success!" message="Operation completed successfully." />
-              <Alert variant="warning" title="Warning!" message="Please check your input." />
-              <Alert variant="error" title="Error!" message="Something went wrong." />
-              <Alert variant="info" title="Info" message="Here's some useful information." />
+              <Alert
+                variant="success"
+                title="Success!"
+                message="Operation completed successfully."
+              />
+              <Alert
+                variant="warning"
+                title="Warning!"
+                message="Please check your input."
+              />
+              <Alert
+                variant="error"
+                title="Error!"
+                message="Something went wrong."
+              />
+              <Alert
+                variant="info"
+                title="Info"
+                message="Here's some useful information."
+              />
             </div>
           </Card>
 
@@ -259,11 +276,15 @@ const UIDemoPage = () => {
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--color-text-primary))]">Enable Notifications</span>
+                <span className="text-[rgb(var(--color-text-primary))]">
+                  Enable Notifications
+                </span>
                 <Toggle checked={true} onChange={() => {}} />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--color-text-primary))]">Dark Mode</span>
+                <span className="text-[rgb(var(--color-text-primary))]">
+                  Dark Mode
+                </span>
                 <Toggle checked={false} onChange={() => {}} />
               </div>
             </div>
@@ -272,11 +293,7 @@ const UIDemoPage = () => {
       </div>
 
       {/* Modal */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        size="md"
-      >
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
         <div className="p-6">
           <h3 className="text-xl font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
             Modal Demo
@@ -285,16 +302,10 @@ const UIDemoPage = () => {
             This is a demo modal to test the Modal component functionality.
           </p>
           <div className="flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => setShowModal(false)}
-            >
+            <Button variant="primary" onClick={() => setShowModal(false)}>
               Confirm
             </Button>
           </div>

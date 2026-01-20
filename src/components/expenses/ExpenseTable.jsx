@@ -1,6 +1,6 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Badge } from '@/components/ui';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Badge } from "@/components/ui";
 import {
   Calendar,
   IndianRupee,
@@ -9,17 +9,17 @@ import {
   MoreVertical,
   Edit,
   Trash2,
-  Eye
-} from 'lucide-react';
-import { getStatusBadge, renderStatusBadge } from '@/utils/statusBadge';
+  Eye,
+} from "lucide-react";
+import { getStatusBadge, renderStatusBadge } from "@/utils/statusBadge";
 import {
   getCategoryLabel,
   getPaymentMethodLabel,
   getPaymentMethodIcon,
   getStatusLabel,
-  getStatusColor
-} from '@/data/constants/expenses';
-import { useTranslation } from '@/hooks/useTranslation';
+  getStatusColor,
+} from "@/data/constants/expenses";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ExpenseTable = ({
   expenses = [],
@@ -33,26 +33,30 @@ const ExpenseTable = ({
   onDuplicate,
   loading = false,
   emptyMessage,
-  className = '',
+  className = "",
 }) => {
   const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
-  
-  const defaultEmptyMessage = emptyMessage || t('expenses.noExpenses');
+
+  const defaultEmptyMessage = emptyMessage || t("expenses.noExpenses");
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+      if (
+        openMenuId &&
+        menuRefs.current[openMenuId] &&
+        !menuRefs.current[openMenuId].contains(event.target)
+      ) {
         setOpenMenuId(null);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openMenuId]);
 
@@ -60,18 +64,17 @@ const ExpenseTable = ({
     setOpenMenuId(openMenuId === expenseId ? null : expenseId);
   };
 
-
   const handleMenuAction = (expenseId, action) => {
     setOpenMenuId(null);
-    const expense = expenses.find(e => e.id === expenseId);
+    const expense = expenses.find((e) => e.id === expenseId);
     switch (action) {
-      case 'view':
+      case "view":
         onView?.(expense);
         break;
-      case 'edit':
+      case "edit":
         onEdit?.(expense);
         break;
-      case 'delete':
+      case "delete":
         onDelete?.(expense);
         break;
       default:
@@ -80,40 +83,44 @@ const ExpenseTable = ({
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
   const getStatusBadgeColor = (status) => {
-    const config = getStatusBadge(status, 'general');
+    const config = getStatusBadge(status, "general");
     // Map variant to color name for Badge component
     const colorMap = {
-      'success': 'green',
-      'warning': 'yellow',
-      'danger': 'red',
-      'secondary': 'gray',
-      'primary': 'blue'
+      success: "green",
+      warning: "yellow",
+      danger: "red",
+      secondary: "gray",
+      primary: "blue",
     };
-    return colorMap[config.variant] || 'gray';
+    return colorMap[config.variant] || "gray";
   };
 
-  
   if (isLoading || loading) {
     return (
-      <div className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}>
+      <div
+        className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}
+      >
         <div className="animate-pulse">
           <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-20 border-b border-[rgb(var(--color-border-primary))]">
+            <div
+              key={index}
+              className="h-20 border-b border-[rgb(var(--color-border-primary))]"
+            >
               <div className="flex items-center h-full px-6">
                 <div className="flex-1 space-y-2">
                   <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
@@ -129,7 +136,7 @@ const ExpenseTable = ({
       </div>
     );
   }
-  
+
   if (expenses.length === 0) {
     return (
       <div className={`${className}`}>
@@ -140,7 +147,7 @@ const ExpenseTable = ({
               {defaultEmptyMessage}
             </h3>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              {t('expenses.startAddingExpense')}
+              {t("expenses.startAddingExpense")}
             </p>
           </div>
         </div>
@@ -157,33 +164,33 @@ const ExpenseTable = ({
             <tr>
               <th className="px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  {t('expenses.expenseTitle')}
+                  {t("expenses.expenseTitle")}
                 </span>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('common.date')}
+                {t("common.date")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('expenses.category')}
+                {t("expenses.category")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('common.amount')}
+                {t("common.amount")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('expenses.paymentMethod')}
+                {t("expenses.paymentMethod")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('expenses.vendor')}
+                {t("expenses.vendor")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('common.status')}
+                {t("common.status")}
               </th>
               <th className="w-24 px-6 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
           </thead>
-          
+
           {/* Table Body */}
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
             {expenses.map((expense, index) => {
@@ -191,7 +198,9 @@ const ExpenseTable = ({
                 <tr
                   key={expense.id}
                   className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index ? 'bg-[rgb(var(--color-bg-tertiary))]' : ''
+                    hoveredRow === index
+                      ? "bg-[rgb(var(--color-bg-tertiary))]"
+                      : ""
                   }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
@@ -203,12 +212,12 @@ const ExpenseTable = ({
                           {expense.title}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                          {expense.billNumber || t('expenses.noBillNumber')}
+                          {expense.billNumber || t("expenses.noBillNumber")}
                         </div>
                       </div>
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-[rgb(var(--color-text-tertiary))]" />
@@ -217,72 +226,85 @@ const ExpenseTable = ({
                       </span>
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                      {getCategoryLabel(expense.category?.name || expense.category)}
+                      {getCategoryLabel(
+                        expense.category?.name || expense.category,
+                      )}
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="font-semibold text-[rgb(var(--color-text-primary))]">
                       ₹{formatCurrency(expense.amount)}
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">{getPaymentMethodIcon(expense.paymentMethod)}</span>
+                      <span className="text-sm">
+                        {getPaymentMethodIcon(expense.paymentMethod)}
+                      </span>
                       <span className="text-sm text-[rgb(var(--color-text-primary))]">
                         {getPaymentMethodLabel(expense.paymentMethod)}
                       </span>
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                      {expense.vendor?.name || expense.vendor || '-'}
+                      {expense.vendor?.name || expense.vendor || "-"}
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
-                    {renderStatusBadge(expense.status, 'general')}
+                    {renderStatusBadge(expense.status, "general")}
                   </td>
-                  
+
                   <td className="w-24 px-6 py-4 text-center">
-                    <div className="relative inline-block" ref={(el) => menuRefs.current[expense.id] = el}>
+                    <div
+                      className="relative inline-block"
+                      ref={(el) => (menuRefs.current[expense.id] = el)}
+                    >
                       <button
-                        onClick={() => setOpenMenuId(openMenuId === expense.id ? null : expense.id)}
+                        onClick={() =>
+                          setOpenMenuId(
+                            openMenuId === expense.id ? null : expense.id,
+                          )
+                        }
                         className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title={t('common.actions')}
+                        title={t("common.actions")}
                       >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                       </button>
-                      
+
                       {/* Popup Menu */}
                       {openMenuId === expense.id && (
                         <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                           <button
-                            onClick={() => handleMenuAction(expense.id, 'view')}
+                            onClick={() => handleMenuAction(expense.id, "view")}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t('common.viewDetails')}
+                            {t("common.viewDetails")}
                           </button>
                           <button
-                            onClick={() => handleMenuAction(expense.id, 'edit')}
+                            onClick={() => handleMenuAction(expense.id, "edit")}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t('common.edit')}
+                            {t("common.edit")}
                           </button>
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
-                            onClick={() => handleMenuAction(expense.id, 'delete')}
+                            onClick={() =>
+                              handleMenuAction(expense.id, "delete")
+                            }
                             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
-                            {t('common.delete')}
+                            {t("common.delete")}
                           </button>
                         </div>
                       )}

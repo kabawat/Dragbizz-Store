@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
-import { AnimatedBackground } from '../ui';
-import { cookieManager } from '@/utils/cookieManager';
-import { useTheme } from '@/contexts/ThemeContext';
-import confetti from 'canvas-confetti';
+import React, { useEffect, useState } from "react";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { AnimatedBackground } from "../ui";
+import { cookieManager } from "@/utils/cookieManager";
+import { useTheme } from "@/contexts/ThemeContext";
+import confetti from "canvas-confetti";
 
 const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   const [countdown, setCountdown] = useState(5);
@@ -18,7 +18,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     "#22c55e",
     themeConfig.primary,
     "#8b5cf6",
-    "#ec4899"
+    "#ec4899",
   ];
 
   // Confetti state
@@ -26,7 +26,9 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
   let endAt = 0;
 
   // Reduced motion fallback
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Single burst with fade effect
   const createSingleBurst = () => {
@@ -40,7 +42,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       gravity: 1,
       ticks: 400,
       scalar: 1,
-      shapes: ['square', 'circle'],
+      shapes: ["square", "circle"],
     });
 
     // Additional scattered bursts for full coverage
@@ -174,7 +176,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
         cookieManager.setAuthToken(authToken);
       }
       // Redirect to agency creation instead of dashboard
-      window.location.href = '/onboarding/agency';
+      window.location.href = "/onboarding/agency";
     }
   }, [countdown, authToken]);
 
@@ -183,16 +185,15 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       <AnimatedBackground variant="success" />
 
       <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto text-center">
-
         {/* Success Message */}
         <h1 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
           You're all set, {firstName}!
         </h1>
-        
+
         <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-2">
           Welcome aboard
         </p>
-        
+
         <p className="text-sm sm:text-base font-semibold gradient-text mb-6">
           Account created successfully! 👋
         </p>
@@ -204,11 +205,17 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
             <span className="text-sm">Account verified & secured</span>
           </div>
           <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
-            <div className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mr-3 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+            <div
+              className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mr-3 animate-pulse"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
             <span className="text-sm">Profile setup complete</span>
           </div>
           <div className="flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
-            <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            <div
+              className="w-2 h-2 bg-purple-500 rounded-full mr-3 animate-pulse"
+              style={{ animationDelay: "0.4s" }}
+            ></div>
             <span className="text-sm">Ready to explore</span>
           </div>
         </div>
@@ -234,7 +241,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
               cookieManager.setAuthToken(authToken);
             }
             // Redirect to agency creation instead of dashboard
-            window.location.href = '/onboarding/agency';
+            window.location.href = "/onboarding/agency";
           }}
           className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out flex items-center justify-center mb-4"
         >

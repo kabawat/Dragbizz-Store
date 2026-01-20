@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { purchaseOrderService } from '@/service/retailer';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { purchaseOrderService } from "@/service/retailer";
 
 export const getPurchaseOrders = createAsyncThunk(
-  'purchaseOrders/getPurchaseOrders',
+  "purchaseOrders/getPurchaseOrders",
   async (params, { rejectWithValue }) => {
     try {
       const result = await purchaseOrderService.getPurchaseOrders(params);
@@ -12,48 +12,54 @@ export const getPurchaseOrders = createAsyncThunk(
           pagination: result.data?.pagination || {},
         };
       }
-      return rejectWithValue(result?.message || 'Failed to fetch purchase orders');
+      return rejectWithValue(
+        result?.message || "Failed to fetch purchase orders",
+      );
     } catch (e) {
-      return rejectWithValue('Failed to fetch purchase orders');
+      return rejectWithValue("Failed to fetch purchase orders");
     }
-  }
+  },
 );
 
 export const updatePurchaseOrder = createAsyncThunk(
-  'purchaseOrders/updatePurchaseOrder',
+  "purchaseOrders/updatePurchaseOrder",
   async ({ id, updateData, store }, { rejectWithValue }) => {
     try {
-      const result = await purchaseOrderService.updatePurchaseOrder(id, updateData, store);
+      const result = await purchaseOrderService.updatePurchaseOrder(
+        id,
+        updateData,
+        store,
+      );
       if (result?.success) {
         return result.data;
       }
-      return rejectWithValue(result?.message || 'Failed to update');
+      return rejectWithValue(result?.message || "Failed to update");
     } catch (e) {
-      return rejectWithValue('Failed to update');
+      return rejectWithValue("Failed to update");
     }
-  }
+  },
 );
 
 export const deletePurchaseOrder = createAsyncThunk(
-  'purchaseOrders/deletePurchaseOrder',
+  "purchaseOrders/deletePurchaseOrder",
   async ({ id, store }, { rejectWithValue }) => {
     try {
       const result = await purchaseOrderService.deletePurchaseOrder(id, store);
       if (result?.success) {
         const payload = result?.data || {};
-        return { 
-          id, 
-          jobId: payload.jobId, 
-          poNumber: payload.poNumber, 
-          status: payload.status, 
-          message: result?.message 
+        return {
+          id,
+          jobId: payload.jobId,
+          poNumber: payload.poNumber,
+          status: payload.status,
+          message: result?.message,
         };
       }
-      return rejectWithValue(result?.message || 'Failed to delete');
+      return rejectWithValue(result?.message || "Failed to delete");
     } catch (e) {
-      return rejectWithValue('Failed to delete');
+      return rejectWithValue("Failed to delete");
     }
-  }
+  },
 );
 
 const initialState = {
@@ -64,7 +70,7 @@ const initialState = {
 };
 
 const purchaseOrdersSlice = createSlice({
-  name: 'purchaseOrders',
+  name: "purchaseOrders",
   initialState,
   reducers: {
     addMorePurchaseOrders(state, action) {
@@ -74,7 +80,7 @@ const purchaseOrdersSlice = createSlice({
       state.list = [];
       state.pagination = { hasNextPage: false, nextCursor: null };
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -86,24 +92,30 @@ const purchaseOrdersSlice = createSlice({
         state.isLoading = false;
         state.list = action.payload.data;
         const page = action.payload.pagination || {};
-        state.pagination = { hasNextPage: !!page.hasNextPage, nextCursor: page.nextCursor || null };
+        state.pagination = {
+          hasNextPage: !!page.hasNextPage,
+          nextCursor: page.nextCursor || null,
+        };
       })
       .addCase(getPurchaseOrders.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || 'Failed to fetch purchase orders';
+        state.error = action.payload || "Failed to fetch purchase orders";
       })
       .addCase(updatePurchaseOrder.fulfilled, (state, action) => {
         const updated = action.payload;
-        state.list = state.list.map((po) => (po.id === updated.id || po._id === updated._id) ? { ...po, ...updated } : po);
+        state.list = state.list.map((po) =>
+          po.id === updated.id || po._id === updated._id
+            ? { ...po, ...updated }
+            : po,
+        );
       })
       .addCase(deletePurchaseOrder.fulfilled, (state, action) => {
         const { id } = action.payload;
         state.list = state.list.filter((po) => (po.id || po._id) !== id);
       });
-  }
+  },
 });
 
-export const { addMorePurchaseOrders, resetPurchaseOrders } = purchaseOrdersSlice.actions;
+export const { addMorePurchaseOrders, resetPurchaseOrders } =
+  purchaseOrdersSlice.actions;
 export default purchaseOrdersSlice.reducer;
-
-

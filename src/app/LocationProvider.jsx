@@ -1,13 +1,13 @@
-"use client"
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUserLocationWithDetails } from '@/utils/locationUtils';
+"use client";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { getUserLocationWithDetails } from "@/utils/locationUtils";
 
 // Create Location Context
 const LocationContext = createContext();
 
 // Location Provider Component
 export const LocationProvider = ({ children }) => {
-  const [userLocation, setUserLocation] = useState('0,0');
+  const [userLocation, setUserLocation] = useState("0,0");
   const [locationLoading, setLocationLoading] = useState(true);
   const [locationError, setLocationError] = useState(null);
 
@@ -15,14 +15,14 @@ export const LocationProvider = ({ children }) => {
     const requestLocation = async () => {
       setLocationLoading(true);
       setLocationError(null);
-      
+
       const result = await getUserLocationWithDetails();
       setUserLocation(result.location);
-      
+
       if (!result.success && result.error) {
         setLocationError(result.error.message);
       }
-      
+
       setLocationLoading(false);
     };
 
@@ -33,7 +33,7 @@ export const LocationProvider = ({ children }) => {
     userLocation,
     locationLoading,
     locationError,
-    setUserLocation
+    setUserLocation,
   };
 
   return (
@@ -47,7 +47,7 @@ export const LocationProvider = ({ children }) => {
 export const useLocation = () => {
   const context = useContext(LocationContext);
   if (!context) {
-    throw new Error('useLocation must be used within a LocationProvider');
+    throw new Error("useLocation must be used within a LocationProvider");
   }
   return context;
 };

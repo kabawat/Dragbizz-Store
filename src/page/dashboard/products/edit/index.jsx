@@ -1,16 +1,20 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Loader2, Info } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Save, ArrowLeft, Loader2, Info } from "lucide-react";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { ProductForm, ProductAddSuccessModal, ProductInfoModal } from '@/components/product';
-import { productService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
-import { useTranslation } from '@/hooks/useTranslation';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import {
+  ProductForm,
+  ProductAddSuccessModal,
+  ProductInfoModal,
+} from "@/components/product";
+import { productService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -22,44 +26,44 @@ const UpdateProductPage = ({ productId }) => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [updatedProductName, setUpdatedProductName] = useState('');
+  const [updatedProductName, setUpdatedProductName] = useState("");
   const [productNotFound, setProductNotFound] = useState(false);
 
   // Initial form data
   const getInitialFormData = () => ({
     store: storeId,
-    name: '',
-    brand: '',
-    category: '',
-    basePrice: '',
-    mrp: '',
-    sellingPrice: '',
-    discount: '',
-    currency: '',
-    uom: '',
-    status: '',
-    visibility: '',
+    name: "",
+    brand: "",
+    category: "",
+    basePrice: "",
+    mrp: "",
+    sellingPrice: "",
+    discount: "",
+    currency: "",
+    uom: "",
+    status: "",
+    visibility: "",
     featured: false,
     bestSeller: false,
     newArrival: false,
     openingStock: {
       openingQuantity: 0,
-      openingPurchasePrice: 0
+      openingPurchasePrice: 0,
     },
     stockQuantity: 0,
     gstInfo: {
       isGstApplicable: false,
-      gstRate: '',
-      gstType: 'CGST_SGST',
-      hsnCode: ''
+      gstRate: "",
+      gstType: "CGST_SGST",
+      hsnCode: "",
     },
     content: {
-      shortDescription: '',
-      longDescription: '',
+      shortDescription: "",
+      longDescription: "",
       tags: [],
       specifications: [],
-      features: []
-    }
+      features: [],
+    },
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -72,7 +76,7 @@ const UpdateProductPage = ({ productId }) => {
         setInitialLoading(true);
         const params = {
           store: storeId,
-          id: productId
+          id: productId,
         };
         const result = await productService.getProducts(params);
 
@@ -82,48 +86,52 @@ const UpdateProductPage = ({ productId }) => {
           // Transform API data to form data structure based on the actual response format
           const transformedData = {
             store: storeId,
-            name: product.name || '',
-            brand: product.brand || '',
-            category: product.category?._id || product.category?.id || product.category || '',
-            barcode: product.barcode || '',
-            sku: product.sku || '',
+            name: product.name || "",
+            brand: product.brand || "",
+            category:
+              product.category?._id ||
+              product.category?.id ||
+              product.category ||
+              "",
+            barcode: product.barcode || "",
+            sku: product.sku || "",
             // Pricing data - directly from API response
-            basePrice: product.basePrice || '',
-            mrp: product.mrp || '',
-            sellingPrice: product.sellingPrice || '',
-            discount: product.discount || '',
-            currency: product.currency || '',
-            uom: product.uom || '',
+            basePrice: product.basePrice || "",
+            mrp: product.mrp || "",
+            sellingPrice: product.sellingPrice || "",
+            discount: product.discount || "",
+            currency: product.currency || "",
+            uom: product.uom || "",
             // Status and visibility
-            status: product.status || '',
-            visibility: product.visibility || '',
+            status: product.status || "",
+            visibility: product.visibility || "",
             featured: product.featured || false,
             bestSeller: product.bestSeller || false,
             newArrival: product.newArrival || false,
             // Stock data
             openingStock: {
               openingQuantity: product.openingStock?.openingQuantity || 0,
-              openingPurchasePrice: product.openingStock?.openingPurchasePrice || 0
+              openingPurchasePrice:
+                product.openingStock?.openingPurchasePrice || 0,
             },
             stockQuantity: product.stockQuantity || 0,
             // GST info from nested gstInfo object
             gstInfo: {
               isGstApplicable: product.gstInfo?.isGstApplicable || false,
-              gstRate: product.gstInfo?.gstRate || '',
-              gstType: product.gstInfo?.gstType || 'CGST_SGST',
-              hsnCode: product.gstInfo?.hsnCode || '',
-              isGstIncluded: product.gstInfo?.isGstIncluded || false
+              gstRate: product.gstInfo?.gstRate || "",
+              gstType: product.gstInfo?.gstType || "CGST_SGST",
+              hsnCode: product.gstInfo?.hsnCode || "",
+              isGstIncluded: product.gstInfo?.isGstIncluded || false,
             },
             // Content data from nested content object
             content: {
-              shortDescription: product.content?.shortDescription || '',
-              longDescription: product.content?.longDescription || '',
+              shortDescription: product.content?.shortDescription || "",
+              longDescription: product.content?.longDescription || "",
               tags: product.content?.tags || [],
               specifications: product.content?.specifications || [],
-              features: product.features || []
+              features: product.features || [],
             },
           };
-
 
           setFormData(transformedData);
         } else {
@@ -143,9 +151,9 @@ const UpdateProductPage = ({ productId }) => {
   // Update store ID when selectedStore changes
   useEffect(() => {
     if (storeId) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        store: storeId
+        store: storeId,
       }));
     }
   }, [storeId]);
@@ -153,30 +161,30 @@ const UpdateProductPage = ({ productId }) => {
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
-    if (typeof fieldName !== 'string') {
+    if (typeof fieldName !== "string") {
       return;
     }
 
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
       });
     }
 
-    setFormData(prevData => {
+    setFormData((prevData) => {
       const newData = { ...prevData };
 
-      if (fieldName.includes('.')) {
-        const [parent, child] = fieldName.split('.');
+      if (fieldName.includes(".")) {
+        const [parent, child] = fieldName.split(".");
         if (!newData[parent]) {
           newData[parent] = {};
         }
         newData[parent] = {
           ...newData[parent],
-          [child]: value
+          [child]: value,
         };
       } else {
         // Handle top-level fields
@@ -196,10 +204,12 @@ const UpdateProductPage = ({ productId }) => {
       // Calculate discount percentage based on MRP and sellingPrice
       const mrp = parseFloat(formData.mrp) || 0;
       const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-      let discountPercentage = '0';
-      
+      let discountPercentage = "0";
+
       if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-        discountPercentage = String(Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100); // Round to 2 decimal places
+        discountPercentage = String(
+          Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100,
+        ); // Round to 2 decimal places
       }
 
       const updateData = {
@@ -210,29 +220,31 @@ const UpdateProductPage = ({ productId }) => {
           sellingPrice: formData.sellingPrice,
           discount: discountPercentage,
           currency: formData.currency,
-          uom: formData.uom
-        }
+          uom: formData.uom,
+        },
       };
 
-      const result = await productService.updateProduct(productId, updateData, storeId);
+      const result = await productService.updateProduct(
+        productId,
+        updateData,
+        storeId,
+      );
 
       if (result.success) {
         // Show success modal instead of direct redirect
-        setUpdatedProductName(formData.name || 'Product');
+        setUpdatedProductName(formData.name || "Product");
         setShowSuccessModal(true);
       } else {
         if (result?.error && result?.error?.data) {
           setFieldErrors(result?.error?.data?.fields || {});
         }
       }
-
     } catch (error) {
       // Handle API error response
       if (error.response && error.response.data) {
         const errorData = error.response.data;
         if (errorData.data && errorData.data.fields) {
           setFieldErrors(errorData.data.fields);
-
         }
       }
     } finally {
@@ -242,19 +254,18 @@ const UpdateProductPage = ({ productId }) => {
 
   // Handle cancel
   const handleCancel = () => {
-    router.push('/dashboard/products');
+    router.push("/dashboard/products");
   };
 
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/products');
+    router.push("/dashboard/products");
   };
 
   // Loading state
   if (initialLoading) {
     return (
-
       <div className="flex h-screen relative overflow-hidden">
         <Sidebar />
 
@@ -266,13 +277,14 @@ const UpdateProductPage = ({ productId }) => {
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
                 <div className="flex items-center justify-center">
                   <div className="text-center">
-
                     <Loader2 className="w-16 h-16 text-[rgb(var(--color-primary))] animate-spin mx-auto mb-4" />
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
                       Loading Product...
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.pleaseWaitWhileWeFetch', { item: t('common.product') })}
+                      {t("common.pleaseWaitWhileWeFetch", {
+                        item: t("common.product"),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -284,7 +296,7 @@ const UpdateProductPage = ({ productId }) => {
     );
   }
 
-  // Product not found state                                                                                                                                                  
+  // Product not found state
 
   if (productNotFound) {
     return (
@@ -299,13 +311,17 @@ const UpdateProductPage = ({ productId }) => {
                 <div className="flex items-center justify-center">
                   <div className="text-center">
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.notFound', { item: t('common.product') })}
+                      {t("modals.notFound", { item: t("common.product") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-                      {t('modals.notFound', { item: t('common.product') })}
+                      {t("modals.notFound", { item: t("common.product") })}
                     </p>
-                    <Button variant="outline" onClick={handleCancel} leftIcon={ArrowLeft}>
-                      {t('common.backTo', { item: t('common.products') })}
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      leftIcon={ArrowLeft}
+                    >
+                      {t("common.backTo", { item: t("common.products") })}
                     </Button>
                   </div>
                 </div>
@@ -325,14 +341,20 @@ const UpdateProductPage = ({ productId }) => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header title={t('products.editProduct')} description={t('products.editProductDescription')} />
+        <Header
+          title={t("products.editProduct")}
+          description={t("products.editProductDescription")}
+        />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/products"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Products</span>
               </Link>
@@ -362,7 +384,11 @@ const UpdateProductPage = ({ productId }) => {
                   </Button>
 
                   <div className="flex items-center space-x-3">
-                    <Button variant="outline" onClick={handleCancel} disabled={loading} >
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={loading}
+                    >
                       Cancel
                     </Button>
                     <Button
@@ -388,8 +414,8 @@ const UpdateProductPage = ({ productId }) => {
         onClose={() => setShowSuccessModal(false)}
         onContinue={handleContinue}
         productName={updatedProductName}
-        title={t('products.updateSuccess')}
-        continueText={t('products.backToProducts')}
+        title={t("products.updateSuccess")}
+        continueText={t("products.backToProducts")}
       />
 
       {/* Info Modal */}

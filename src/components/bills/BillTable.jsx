@@ -1,5 +1,5 @@
-"use client"
-import React, { useEffect, useState, useRef } from 'react';
+"use client";
+import React, { useEffect, useState, useRef } from "react";
 import {
   MoreVertical,
   Eye,
@@ -15,10 +15,10 @@ import {
   Copy,
   CheckCircle,
   Clock,
-  AlertTriangle
-} from 'lucide-react';
-import { renderStatusBadge } from '@/utils/statusBadge';
-import { useTranslation } from '@/hooks/useTranslation';
+  AlertTriangle,
+} from "lucide-react";
+import { renderStatusBadge } from "@/utils/statusBadge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const BillTable = ({
   bills,
@@ -37,13 +37,13 @@ const BillTable = ({
   formatCurrency,
   formatDate,
   enableSendMenu = false,
-  getShareUrl
+  getShareUrl,
 }) => {
   const { t } = useTranslation();
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const sendMenuRefs = useRef({});
-  
-  const defaultEmptyMessage = emptyMessage || t('bills.noBills');
+
+  const defaultEmptyMessage = emptyMessage || t("bills.noBills");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,21 +55,24 @@ const BillTable = ({
         setOpenSendMenuId(null);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openSendMenuId]);
 
   const buildShareUrl = (bill) => {
-    if (typeof window === 'undefined') return '';
+    if (typeof window === "undefined") return "";
     const base = window.location.origin;
-    const path = getShareUrl ? getShareUrl(bill) : `/dashboard/bills/${bill._id || bill.id}`;
+    const path = getShareUrl
+      ? getShareUrl(bill)
+      : `/dashboard/bills/${bill._id || bill.id}`;
     return `${base}${path}`;
   };
 
   const handleCopy = async (text) => {
     try {
-      if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(text);
-    } catch { }
+      if (navigator?.clipboard?.writeText)
+        await navigator.clipboard.writeText(text);
+    } catch {}
   };
 
   return (
@@ -81,29 +84,29 @@ const BillTable = ({
             <tr>
               <th className="w-1/6 px-6 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                  {t('bills.title')}
+                  {t("bills.title")}
                 </span>
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('bills.supplier')}
+                {t("bills.supplier")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('common.date')}
+                {t("common.date")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('bills.dueDate')}
+                {t("bills.dueDate")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('invoice.total')}
+                {t("invoice.total")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('bills.paid')}
+                {t("bills.paid")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('bills.due')}
+                {t("bills.due")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t('common.status')}
+                {t("common.status")}
               </th>
               <th className="w-24 px-6 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
@@ -119,17 +122,17 @@ const BillTable = ({
           <tbody className="divide-y divide-gray-100">
             {bills.map((bill, index) => {
               // Determine status for renderStatusBadge
-              let status = bill.paymentStatus || 'UNPAID';
+              let status = bill.paymentStatus || "UNPAID";
               if (new Date(bill.dueDate) < new Date() && bill.dueAmount > 0) {
-                status = 'OVERDUE';
+                status = "OVERDUE";
               }
 
               // Map icons for bills
               const iconMap = {
-                'PAID': CheckCircle,
-                'PARTIAL': Clock,
-                'UNPAID': Clock,
-                'OVERDUE': AlertTriangle
+                PAID: CheckCircle,
+                PARTIAL: Clock,
+                UNPAID: Clock,
+                OVERDUE: AlertTriangle,
               };
               const StatusIcon = iconMap[status] || Clock;
 
@@ -139,30 +142,61 @@ const BillTable = ({
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                 >
                   <td className="w-1/6 px-6 py-4">
-                    <div className="font-medium text-[rgb(var(--color-text-primary))]">{bill.billNumber}</div>
+                    <div className="font-medium text-[rgb(var(--color-text-primary))]">
+                      {bill.billNumber}
+                    </div>
                   </td>
                   <td className="w-1/6 px-6 py-4">
                     <div className="flex items-center">
                       <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2" />
-                      <span className="text-[rgb(var(--color-text-primary))]">{bill.supplier?.name || t('common.notAvailable')}</span>
+                      <span className="text-[rgb(var(--color-text-primary))]">
+                        {bill.supplier?.name || t("common.notAvailable")}
+                      </span>
                     </div>
                   </td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(bill.billDate)}</td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatDate(bill.dueDate)}</td>
-                  <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">{formatCurrency(bill.totalAmount)}</td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.paidAmount || 0)}</td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">{formatCurrency(bill.dueAmount || Math.max((bill.totalAmount || 0) - (bill.paidAmount || 0), 0))}</td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                    {formatDate(bill.billDate)}
+                  </td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                    {formatDate(bill.dueDate)}
+                  </td>
+                  <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">
+                    {formatCurrency(bill.totalAmount)}
+                  </td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                    {formatCurrency(bill.paidAmount || 0)}
+                  </td>
+                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                    {formatCurrency(
+                      bill.dueAmount ||
+                        Math.max(
+                          (bill.totalAmount || 0) - (bill.paidAmount || 0),
+                          0,
+                        ),
+                    )}
+                  </td>
                   <td className="w-1/6 px-6 py-4">
-                    {renderStatusBadge(status, 'bill', StatusIcon)}
+                    {renderStatusBadge(status, "bill", StatusIcon)}
                   </td>
                   <td className="w-32 px-6 py-4 text-center">
                     <div className="relative inline-flex items-center gap-2">
                       {enableSendMenu && (
-                        <div className="relative" ref={(el) => (sendMenuRefs.current[bill._id || bill.id] = el)}>
+                        <div
+                          className="relative"
+                          ref={(el) =>
+                            (sendMenuRefs.current[bill._id || bill.id] = el)
+                          }
+                        >
                           <button
-                            onClick={() => setOpenSendMenuId(openSendMenuId === (bill._id || bill.id) ? null : (bill._id || bill.id))}
+                            onClick={() =>
+                              setOpenSendMenuId(
+                                openSendMenuId === (bill._id || bill.id)
+                                  ? null
+                                  : bill._id || bill.id,
+                              )
+                            }
                             className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 cursor-pointer"
-                            title={t('common.send')}
+                            title={t("common.send")}
                           >
                             <Send className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           </button>
@@ -172,36 +206,51 @@ const BillTable = ({
                               <button
                                 onClick={() => {
                                   const url = buildShareUrl(bill);
-                                  const text = encodeURIComponent(`${bill.billNumber || bill.poNumber || 'Details'}\n${url}`);
-                                  window.open(`https://wa.me/?text=${text}`, '_blank');
+                                  const text = encodeURIComponent(
+                                    `${bill.billNumber || bill.poNumber || "Details"}\n${url}`,
+                                  );
+                                  window.open(
+                                    `https://wa.me/?text=${text}`,
+                                    "_blank",
+                                  );
                                   setOpenSendMenuId(null);
                                 }}
                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
                               >
-                                <MessageCircle className="w-4 h-4" /> {t('common.whatsapp')}
+                                <MessageCircle className="w-4 h-4" />{" "}
+                                {t("common.whatsapp")}
                               </button>
                               <button
                                 onClick={() => {
                                   const url = buildShareUrl(bill);
-                                  const subject = encodeURIComponent(bill.billNumber || bill.poNumber || 'Details');
-                                  const body = encodeURIComponent(`Please review:\n${url}`);
+                                  const subject = encodeURIComponent(
+                                    bill.billNumber ||
+                                      bill.poNumber ||
+                                      "Details",
+                                  );
+                                  const body = encodeURIComponent(
+                                    `Please review:\n${url}`,
+                                  );
                                   window.location.href = `mailto:?subject=${subject}&body=${body}`;
                                   setOpenSendMenuId(null);
                                 }}
                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
                               >
-                                <Mail className="w-4 h-4" /> {t('common.email')}
+                                <Mail className="w-4 h-4" /> {t("common.email")}
                               </button>
                               <button
                                 onClick={() => {
                                   const url = buildShareUrl(bill);
-                                  const body = encodeURIComponent(`${bill.billNumber || bill.poNumber || ''} ${url}`);
+                                  const body = encodeURIComponent(
+                                    `${bill.billNumber || bill.poNumber || ""} ${url}`,
+                                  );
                                   window.location.href = `sms:?&body=${body}`;
                                   setOpenSendMenuId(null);
                                 }}
                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
                               >
-                                <MessageSquare className="w-4 h-4" /> {t('common.message')}
+                                <MessageSquare className="w-4 h-4" />{" "}
+                                {t("common.message")}
                               </button>
                               <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
                               <button
@@ -211,18 +260,24 @@ const BillTable = ({
                                 }}
                                 className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer"
                               >
-                                <Copy className="w-4 h-4" /> {t('common.copyLink')}
+                                <Copy className="w-4 h-4" />{" "}
+                                {t("common.copyLink")}
                               </button>
                             </div>
                           )}
                         </div>
                       )}
 
-                      <div className="relative inline-block" ref={(el) => (menuRefs.current[bill._id || bill.id] = el)}>
+                      <div
+                        className="relative inline-block"
+                        ref={(el) =>
+                          (menuRefs.current[bill._id || bill.id] = el)
+                        }
+                      >
                         <button
                           onClick={() => onMenuToggle(bill._id || bill.id)}
                           className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                          title={t('common.actions')}
+                          title={t("common.actions")}
                         >
                           <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                         </button>
@@ -231,32 +286,40 @@ const BillTable = ({
                         {openMenuId === (bill._id || bill.id) && (
                           <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                             <button
-                              onClick={() => onMenuAction(bill._id || bill.id, 'view')}
+                              onClick={() =>
+                                onMenuAction(bill._id || bill.id, "view")
+                              }
                               className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                             >
                               <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t('common.viewDetails')}
+                              {t("common.viewDetails")}
                             </button>
                             <button
-                              onClick={() => onMenuAction(bill._id || bill.id, 'edit')}
+                              onClick={() =>
+                                onMenuAction(bill._id || bill.id, "edit")
+                              }
                               className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                             >
                               <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t('common.edit')}
+                              {t("common.edit")}
                             </button>
                             <button
-                              onClick={() => onMenuAction(bill._id || bill.id, 'payment')}
+                              onClick={() =>
+                                onMenuAction(bill._id || bill.id, "payment")
+                              }
                               className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                             >
                               <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                              {t('bills.payBill')}
+                              {t("bills.payBill")}
                             </button>
                             <button
-                              onClick={() => onMenuAction(bill._id || bill.id, 'delete')}
+                              onClick={() =>
+                                onMenuAction(bill._id || bill.id, "delete")
+                              }
                               className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                             >
                               <Trash2 className="w-4 h-4 text-red-500" />
-                              {t('common.delete')}
+                              {t("common.delete")}
                             </button>
                           </div>
                         )}
@@ -273,7 +336,9 @@ const BillTable = ({
         {isLoadingMore && (
           <div className="text-center py-4">
             <div className="w-6 h-6 border-2 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('bills.loadingMore')}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {t("bills.loadingMore")}
+            </p>
           </div>
         )}
       </div>

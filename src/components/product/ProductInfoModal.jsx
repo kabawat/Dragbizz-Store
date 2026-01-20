@@ -1,15 +1,15 @@
 "use client";
-import React from 'react';
-import { 
-  Package, 
-  TrendingUp, 
-  Users, 
-  BarChart3, 
-  Star, 
-  ShoppingCart, 
-  X 
-} from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import React from "react";
+import {
+  Package,
+  TrendingUp,
+  Users,
+  BarChart3,
+  Star,
+  ShoppingCart,
+  X,
+} from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ProductInfoModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -24,12 +24,16 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('products.whyAddProductDetails')}</h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('products.completeInfoHelpsSales')}</p>
+              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                {t("products.whyAddProductDetails")}
+              </h3>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                {t("products.completeInfoHelpsSales")}
+              </p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="absolute cursor-pointer top-0 right-0 w-8 h-8 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center transition-colors border border-[rgb(var(--color-border-primary))]"
           >
             <X className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
@@ -43,8 +47,12 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <TrendingUp className="w-4 h-4 text-[rgb(var(--color-success))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.boostSales')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.boostSalesDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.boostSales")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.boostSalesDescription")}
+              </p>
             </div>
           </div>
 
@@ -54,8 +62,12 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <Users className="w-4 h-4 text-[rgb(var(--color-primary))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.betterCustomerExperience')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.betterCustomerExperienceDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.betterCustomerExperience")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.betterCustomerExperienceDescription")}
+              </p>
             </div>
           </div>
 
@@ -65,8 +77,12 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <BarChart3 className="w-4 h-4 text-[rgb(var(--color-warning))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.inventoryTracking')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.inventoryTrackingDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.inventoryTracking")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.inventoryTrackingDescription")}
+              </p>
             </div>
           </div>
 
@@ -76,8 +92,12 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <Star className="w-4 h-4 text-[rgb(var(--color-primary))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.seoOptimization')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.seoOptimizationDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.seoOptimization")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.seoOptimizationDescription")}
+              </p>
             </div>
           </div>
 
@@ -87,8 +107,12 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-secondary))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.orderProcessing')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.orderProcessingDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.orderProcessing")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.orderProcessingDescription")}
+              </p>
             </div>
           </div>
 
@@ -98,68 +122,98 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               <Package className="w-4 h-4 text-[rgb(var(--color-success))]" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('products.businessGrowth')}</h4>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.businessGrowthDescription')}</p>
+              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                {t("products.businessGrowth")}
+              </h4>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.businessGrowthDescription")}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Section Information */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">{t('products.formSectionsGuide')}</h4>
+          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-4">
+            {t("products.formSectionsGuide")}
+          </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Basic Information */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.basicInformation')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.basicInformation")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.basicInformationDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.basicInformationDescription")}
+              </p>
             </div>
 
             {/* Content & SEO */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <Users className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.contentSeo')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.contentSeo")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.contentSeoDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.contentSeoDescription")}
+              </p>
             </div>
 
             {/* GST Information */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.gstInformation')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.gstInformation")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.gstInformationDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.gstInformationDescription")}
+              </p>
             </div>
 
             {/* Pricing Information */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.pricingInformation')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.pricingInformation")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.pricingInformationDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.pricingInformationDescription")}
+              </p>
             </div>
 
             {/* Status & Visibility */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <Star className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.statusVisibility')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.statusVisibility")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.statusVisibilityDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.statusVisibilityDescription")}
+              </p>
             </div>
 
             {/* Additional Details */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{t('products.additionalDetails')}</h5>
+                <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t("products.additionalDetails")}
+                </h5>
               </div>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('products.additionalDetailsDescription')}</p>
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                {t("products.additionalDetailsDescription")}
+              </p>
             </div>
           </div>
         </div>

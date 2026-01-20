@@ -1,29 +1,24 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createPortal } from 'react-dom';
-import { X, Sparkles, ArrowRight, Lock, Check } from 'lucide-react';
-import { Button } from '@/components/ui';
+"use client";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
+import { X, Sparkles, ArrowRight, Lock, Check } from "lucide-react";
+import { Button } from "@/components/ui";
 
-const UpgradeModal = ({ 
-  isOpen, 
-  onClose, 
-  featureName,
-  requiredFeature 
-}) => {
+const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
   const router = useRouter();
 
   const handleUpgrade = () => {
     onClose();
-    router.push('/packages?upgrade=true');
+    router.push("/packages?upgrade=true");
   };
 
   const benefits = [
-    'Access to all premium features',
-    'Unlimited products and inventory',
-    'Advanced analytics and reports',
-    'Priority customer support',
-    'Regular feature updates'
+    "Access to all premium features",
+    "Unlimited products and inventory",
+    "Advanced analytics and reports",
+    "Priority customer support",
+    "Regular feature updates",
   ];
 
   const [mounted, setMounted] = useState(false);
@@ -36,15 +31,15 @@ const UpgradeModal = ({
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center p-4 z-[9999]"
-      style={{ 
+      style={{
         zIndex: 2147483647,
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
-        bottom: 0
+        bottom: 0,
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -52,17 +47,17 @@ const UpgradeModal = ({
         }
       }}
     >
-      <div 
+      <div
         className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-        style={{ 
+        style={{
           zIndex: 2147483647,
-          position: 'relative',
-          backgroundColor: 'rgb(var(--color-bg-primary))',
-          border: '1px solid rgb(var(--color-border-primary))',
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          width: '100%',
-          maxWidth: '42rem'
+          position: "relative",
+          backgroundColor: "rgb(var(--color-bg-primary))",
+          border: "1px solid rgb(var(--color-border-primary))",
+          borderRadius: "12px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          width: "100%",
+          maxWidth: "42rem",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -88,16 +83,18 @@ const UpgradeModal = ({
               <Lock className="w-10 h-10 text-white" />
             </div>
           </div>
-          
+
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             {featureName ? (
               <>
-                The <span className="font-semibold text-[rgb(var(--color-primary))]">{featureName}</span> feature is not available in your current plan.
+                The{" "}
+                <span className="font-semibold text-[rgb(var(--color-primary))]">
+                  {featureName}
+                </span>{" "}
+                feature is not available in your current plan.
               </>
             ) : (
-              <>
-                This feature requires a premium subscription.
-              </>
+              <>This feature requires a premium subscription.</>
             )}
           </p>
 
@@ -124,7 +121,9 @@ const UpgradeModal = ({
                   <div className="w-5 h-5 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                     <Check className="w-3 h-3 text-white" />
                   </div>
-                  <span className="text-[rgb(var(--color-text-secondary))]">{benefit}</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {benefit}
+                  </span>
                 </div>
               ))}
             </div>
@@ -153,7 +152,13 @@ const UpgradeModal = ({
 
           {/* Footer Note */}
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] mt-6">
-            Need help? <a href="/contact" className="text-[rgb(var(--color-primary))] hover:underline">Contact Support</a>
+            Need help?{" "}
+            <a
+              href="/contact"
+              className="text-[rgb(var(--color-primary))] hover:underline"
+            >
+              Contact Support
+            </a>
           </p>
         </div>
       </div>
@@ -165,4 +170,3 @@ const UpgradeModal = ({
 };
 
 export default UpgradeModal;
-

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const PrismTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency, using a monospaced font style
@@ -276,29 +276,39 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="prism-invoice-body">
         <div className="prism-invoice">
-          
           {/* Header Section (Brand Name and 'INVOICE') */}
           <div className="prism-header">
             <div>
-              <h1 style={{ color: 'white' }}>INVOICE</h1>
+              <h1 style={{ color: "white" }}>INVOICE</h1>
             </div>
             <div className="prism-store-details">
-                <h2>{selectedStore?.storeName || "PRISM TECHNOLOGIES"}</h2>
-                <p>{selectedStore?.address || "555 Innovation Park"}</p>
-                <p>{selectedStore?.phone || "+91 9876543210"} | {selectedStore?.email || "billing@prismtech.com"}</p>
+              <h2>{selectedStore?.storeName || "PRISM TECHNOLOGIES"}</h2>
+              <p>{selectedStore?.address || "555 Innovation Park"}</p>
+              <p>
+                {selectedStore?.phone || "+91 9876543210"} |{" "}
+                {selectedStore?.email || "billing@prismtech.com"}
+              </p>
             </div>
           </div>
 
           {/* Info Bar (Invoice Number and Date) */}
           <div className="prism-info-bar">
             <span>
-                Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+              Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
             </span>
             <span>
-                Issue Date: <strong>{moment(invoiceData.createdAt).format("DD-MMM-YYYY")}</strong>
+              Issue Date:{" "}
+              <strong>
+                {moment(invoiceData.createdAt).format("DD-MMM-YYYY")}
+              </strong>
             </span>
             <span>
-                Due Date: <strong>{moment(invoiceData.createdAt).add(30, 'days').format("DD-MMM-YYYY")}</strong>
+              Due Date:{" "}
+              <strong>
+                {moment(invoiceData.createdAt)
+                  .add(30, "days")
+                  .format("DD-MMM-YYYY")}
+              </strong>
             </span>
           </div>
 
@@ -309,8 +319,12 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="prism-details-block">
               <div className="label">Issued By</div>
@@ -327,11 +341,11 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="prism-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => (
               <>
@@ -347,7 +361,7 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
             )}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -370,14 +384,14 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
               {invoiceData.totalDiscount > 0 && (
                 <div className="row">
                   <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#e74c3c' }}>
+                  <div className="amount" style={{ color: "#e74c3c" }}>
                     -{formatCurrency(invoiceData.totalDiscount)}
                   </div>
                 </div>
               )}
             </div>
           </div>
-          
+
           {/* Final Total Block */}
           <div className="prism-final-total-block">
             <span>TOTAL AMOUNT DUE:</span>
@@ -386,10 +400,11 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="prism-footer">
-            <p>Thank you for choosing {selectedStore?.storeName || "Prism Technologies"}.</p>
             <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
+              Thank you for choosing{" "}
+              {selectedStore?.storeName || "Prism Technologies"}.
             </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

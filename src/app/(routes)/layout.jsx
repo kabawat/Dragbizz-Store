@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { cookieManager } from '@/utils/cookieManager';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getRetailerDetails, getAuthProfile } from '@/store/slices/profileSlice';
-import { Button } from '@/components/ui';
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { cookieManager } from "@/utils/cookieManager";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  getRetailerDetails,
+  getAuthProfile,
+} from "@/store/slices/profileSlice";
+import { Button } from "@/components/ui";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 // Prevent duplicate profile API calls (e.g. React Strict Mode double effects in dev)
 let hasFetchedRetailerProfile = false;
@@ -15,10 +18,10 @@ let hasFetchedAuthProfileOnce = false;
 export default function RoutesLayout({ children }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   // Setup inactivity logout (7 days inactivity)
   useInactivityLogout();
-  
+
   // Get auth state from Redux
   const {
     isLoading,
@@ -36,22 +39,32 @@ export default function RoutesLayout({ children }) {
     const checkAuth = async () => {
       const authToken = cookieManager.getAuthToken();
       if (!authToken) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
-      
+
       // If no retailer data and no ongoing/error state, fetch retailer profile
       const hasRetailerData =
         !!user || !!agency || (stores && stores.length > 0);
 
-      if (!hasRetailerData && !isLoading && !error && !hasFetchedRetailerProfile) {
+      if (
+        !hasRetailerData &&
+        !isLoading &&
+        !error &&
+        !hasFetchedRetailerProfile
+      ) {
         hasFetchedRetailerProfile = true;
         await dispatch(getRetailerDetails());
       }
 
       // If no auth-service profile and no ongoing/error state, fetch auth profile
       const hasAuthProfile = !!authProfile;
-      if (!hasAuthProfile && !authProfileLoading && !authProfileError && !hasFetchedAuthProfileOnce) {
+      if (
+        !hasAuthProfile &&
+        !authProfileLoading &&
+        !authProfileError &&
+        !hasFetchedAuthProfileOnce
+      ) {
         hasFetchedAuthProfileOnce = true;
         await dispatch(getAuthProfile());
       }

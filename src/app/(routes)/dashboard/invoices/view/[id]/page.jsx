@@ -1,9 +1,9 @@
-import ViewInvoicePage from '@/page/dashboard/invoices/view/index';
+import ViewInvoicePage from "@/page/dashboard/invoices/view/index";
 
 export const metadata = {
-  title: 'View Invoice - DragBizz Store',
-  description: 'View invoice information and details',
-  keywords: 'view invoice, invoice details, invoice management, DragBizz Store',
+  title: "View Invoice - DragBizz Store",
+  description: "View invoice information and details",
+  keywords: "view invoice, invoice details, invoice management, DragBizz Store",
 };
 
 export default async function ViewInvoicePageRoute({ params }) {

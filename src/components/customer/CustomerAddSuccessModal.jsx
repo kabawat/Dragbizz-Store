@@ -1,30 +1,38 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import { CheckCircle, ArrowRight, Plus, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useEffect, useState } from "react";
+import { CheckCircle, ArrowRight, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const CustomerAddSuccessModal = ({ 
-  isOpen, 
-  onClose, 
-  onContinue, 
+const CustomerAddSuccessModal = ({
+  isOpen,
+  onClose,
+  onContinue,
   onAddMore,
   customerName = "Customer",
   title,
   continueText,
   addMoreText,
   description,
-  isEditMode = false
+  isEditMode = false,
 }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   // Dynamic content based on edit mode
-  const modalTitle = isEditMode ? t('customers.updateSuccess') : (title || t('customers.createSuccess'));
-  const modalDescription = isEditMode ? t('customers.updateSuccessDescription') : (description || t('customers.customerAddedDescription'));
-  const modalContinueText = isEditMode ? t('customers.backToCustomers') : (continueText || t('customers.continueToCustomers'));
-  const modalAddMoreText = isEditMode ? t('customers.editMore') : (addMoreText || t('customers.addMoreCustomers'));
+  const modalTitle = isEditMode
+    ? t("customers.updateSuccess")
+    : title || t("customers.createSuccess");
+  const modalDescription = isEditMode
+    ? t("customers.updateSuccessDescription")
+    : description || t("customers.customerAddedDescription");
+  const modalContinueText = isEditMode
+    ? t("customers.backToCustomers")
+    : continueText || t("customers.continueToCustomers");
+  const modalAddMoreText = isEditMode
+    ? t("customers.editMore")
+    : addMoreText || t("customers.addMoreCustomers");
 
   useEffect(() => {
     if (isOpen) {
@@ -39,12 +47,18 @@ const CustomerAddSuccessModal = ({
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed inset-0 backdrop-blur-[1px] bg-black/10 flex items-start pt-6 justify-center z-[9999] transition-all duration-300 ${
-      isVisible ? 'opacity-100' : 'opacity-0'
-    }`}>
-      <div className={`bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-500 ${
-        showContent ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
-      }`}>
+    <div
+      className={`fixed inset-0 backdrop-blur-[1px] bg-black/10 flex items-start pt-6 justify-center z-[9999] transition-all duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <div
+        className={`bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-500 ${
+          showContent
+            ? "scale-100 opacity-100 translate-y-0"
+            : "scale-95 opacity-0 translate-y-4"
+        }`}
+      >
         {/* Animated Background */}
         <div className="relative overflow-hidden rounded-t-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 opacity-10"></div>
@@ -79,7 +93,11 @@ const CustomerAddSuccessModal = ({
               {modalTitle}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] text-md mb-2">
-              "{customerName}" {isEditMode ? t('customers.hasBeenUpdatedIn') : t('customers.hasBeenAddedTo')} {t('customers.yourCustomerList')}
+              "{customerName}"{" "}
+              {isEditMode
+                ? t("customers.hasBeenUpdatedIn")
+                : t("customers.hasBeenAddedTo")}{" "}
+              {t("customers.yourCustomerList")}
             </p>
             <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
               {modalDescription}
@@ -96,7 +114,7 @@ const CustomerAddSuccessModal = ({
             >
               {modalContinueText}
             </Button>
-            
+
             <Button
               variant="outline"
               onClick={onAddMore}
@@ -111,7 +129,7 @@ const CustomerAddSuccessModal = ({
           <div className="mt-6 text-center">
             <p className="text-xs text-[rgb(var(--color-text-tertiary))] flex items-center justify-center gap-1">
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
-              {t('customers.manageFromDashboard')}
+              {t("customers.manageFromDashboard")}
               <span className="w-1 h-1 bg-[rgb(var(--color-text-tertiary))] rounded-full"></span>
             </p>
           </div>

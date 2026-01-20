@@ -1,12 +1,24 @@
-"use client"
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Bold, Italic, Underline, List, ListOrdered, Link, Image, AlignLeft, AlignCenter, AlignRight, Quote } from 'lucide-react';
-import DOMPurify from 'dompurify';
+"use client";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import {
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  Link,
+  Image,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Quote,
+} from "lucide-react";
+import DOMPurify from "dompurify";
 
 const RichTextEditor = ({
-  value = '',
+  value = "",
   onChange,
-  placeholder = 'Start typing...',
+  placeholder = "Start typing...",
   label,
   error = false,
   errorMessage,
@@ -15,7 +27,7 @@ const RichTextEditor = ({
   required = false,
   maxLength = 5000,
   showCharCount = true,
-  className = '',
+  className = "",
   name,
   id,
   ...props
@@ -23,14 +35,14 @@ const RichTextEditor = ({
   const [isFocused, setIsFocused] = useState(false);
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
-  
+
   // Initialize editor
   useEffect(() => {
     if (editorRef.current && !isReady) {
       setIsReady(true);
     }
   }, [isReady]);
-  
+
   // Handle content change
   const handleInput = () => {
     if (editorRef.current) {
@@ -38,46 +50,46 @@ const RichTextEditor = ({
       onChange?.(content);
     }
   };
-  
+
   // Handle focus
   const handleFocus = () => {
     setIsFocused(true);
   };
-  
+
   // Handle blur
   const handleBlur = () => {
     setIsFocused(false);
   };
-  
+
   // Format text
   const formatText = (command, value = null) => {
     if (disabled) return;
-    
+
     document.execCommand(command, false, value);
     editorRef.current?.focus();
     handleInput();
   };
-  
+
   // Insert link
   const insertLink = () => {
     if (disabled) return;
-    
-    const url = prompt('Enter URL:');
+
+    const url = prompt("Enter URL:");
     if (url) {
-      formatText('createLink', url);
+      formatText("createLink", url);
     }
   };
-  
+
   // Insert image
   const insertImage = () => {
     if (disabled) return;
-    
-    const url = prompt('Enter image URL:');
+
+    const url = prompt("Enter image URL:");
     if (url) {
-      formatText('insertImage', url);
+      formatText("insertImage", url);
     }
   };
-  
+
   // Get current length
   const getCurrentLength = () => {
     if (editorRef.current) {
@@ -85,34 +97,54 @@ const RichTextEditor = ({
     }
     return 0;
   };
-  
+
   const currentLength = getCurrentLength();
   const isNearLimit = maxLength && currentLength > maxLength * 0.8;
   const isAtLimit = maxLength && currentLength >= maxLength;
 
   // Sanitize HTML to prevent XSS attacks
   const sanitizedValue = useMemo(() => {
-    if (!value) return '';
+    if (!value) return "";
     return DOMPurify.sanitize(value, {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'div', 'span'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style'],
-      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+      ALLOWED_TAGS: [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "u",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "img",
+        "blockquote",
+        "div",
+        "span",
+      ],
+      ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "style"],
+      ALLOWED_URI_REGEXP:
+        /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
     });
   }, [value]);
-  
+
   // Toolbar buttons
   const toolbarButtons = [
-    { command: 'bold', icon: Bold, label: 'Bold' },
-    { command: 'italic', icon: Italic, label: 'Italic' },
-    { command: 'underline', icon: Underline, label: 'Underline' },
-    { command: 'insertUnorderedList', icon: List, label: 'Bullet List' },
-    { command: 'insertOrderedList', icon: ListOrdered, label: 'Numbered List' },
-    { command: 'justifyLeft', icon: AlignLeft, label: 'Align Left' },
-    { command: 'justifyCenter', icon: AlignCenter, label: 'Align Center' },
-    { command: 'justifyRight', icon: AlignRight, label: 'Align Right' },
-    { command: 'formatBlock', icon: Quote, label: 'Quote', value: 'blockquote' },
+    { command: "bold", icon: Bold, label: "Bold" },
+    { command: "italic", icon: Italic, label: "Italic" },
+    { command: "underline", icon: Underline, label: "Underline" },
+    { command: "insertUnorderedList", icon: List, label: "Bullet List" },
+    { command: "insertOrderedList", icon: ListOrdered, label: "Numbered List" },
+    { command: "justifyLeft", icon: AlignLeft, label: "Align Left" },
+    { command: "justifyCenter", icon: AlignCenter, label: "Align Center" },
+    { command: "justifyRight", icon: AlignRight, label: "Align Right" },
+    {
+      command: "formatBlock",
+      icon: Quote,
+      label: "Quote",
+      value: "blockquote",
+    },
   ];
-  
+
   return (
     <div className={`w-full ${className}`}>
       {/* Label */}
@@ -122,18 +154,19 @@ const RichTextEditor = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
+
       {/* Editor Container */}
       <div
         className={`
           border-2 rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-[rgb(var(--color-primary))] focus-within:border-[rgb(var(--color-primary))]
-          ${error
-            ? 'border-red-500 focus-within:ring-red-500'
-            : isFocused
-            ? 'border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]'
-            : 'border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]'
+          ${
+            error
+              ? "border-red-500 focus-within:ring-red-500"
+              : isFocused
+                ? "border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]"
+                : "border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]"
           }
-          ${disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed' : 'bg-[rgb(var(--color-bg-primary))]'}
+          ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}
         `}
       >
         {/* Toolbar */}
@@ -151,10 +184,10 @@ const RichTextEditor = ({
                 <button.icon className="w-4 h-4" />
               </button>
             ))}
-            
+
             {/* Separator */}
             <div className="w-px h-6 bg-[rgb(var(--color-border-primary))] mx-1" />
-            
+
             {/* Link Button */}
             <button
               type="button"
@@ -164,7 +197,7 @@ const RichTextEditor = ({
             >
               <Link className="w-4 h-4" />
             </button>
-            
+
             {/* Image Button */}
             <button
               type="button"
@@ -176,7 +209,7 @@ const RichTextEditor = ({
             </button>
           </div>
         )}
-        
+
         {/* Editor Content */}
         <div
           ref={editorRef}
@@ -187,40 +220,46 @@ const RichTextEditor = ({
           dangerouslySetInnerHTML={{ __html: sanitizedValue }}
           className={`
             p-4 min-h-[120px] max-h-[300px] overflow-y-auto
-            ${disabled ? 'cursor-not-allowed' : 'cursor-text'}
+            ${disabled ? "cursor-not-allowed" : "cursor-text"}
             focus:outline-none
           `}
           style={{
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
           }}
           data-placeholder={placeholder}
           suppressContentEditableWarning={true}
           {...props}
         />
-        
+
         {/* Character Count */}
         {showCharCount && maxLength && (
           <div className="px-4 py-2 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] text-right">
-            <span className={`text-xs ${isAtLimit ? 'text-red-500' : isNearLimit ? 'text-yellow-500' : 'text-[rgb(var(--color-text-secondary))]'}`}>
+            <span
+              className={`text-xs ${isAtLimit ? "text-red-500" : isNearLimit ? "text-yellow-500" : "text-[rgb(var(--color-text-secondary))]"}`}
+            >
               {currentLength}/{maxLength} characters
             </span>
           </div>
         )}
       </div>
-      
+
       {/* Helper Text / Error Message */}
       {(helperText || errorMessage) && (
         <div className="mt-2">
           {error && errorMessage && (
-            <p className="text-sm text-red-600 animate-fade-in">{errorMessage}</p>
+            <p className="text-sm text-red-600 animate-fade-in">
+              {errorMessage}
+            </p>
           )}
           {!error && helperText && (
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{helperText}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {helperText}
+            </p>
           )}
         </div>
       )}
-      
+
       {/* CSS for placeholder */}
       <style jsx>{`
         [contenteditable]:empty:before {

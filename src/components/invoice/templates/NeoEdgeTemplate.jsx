@@ -318,8 +318,12 @@ body.print-mode-mini .neoedge-footer::before {
               <p>
                 <b>{invoiceData.customer?.name || "Walk-in Customer"}</b>
               </p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
 
@@ -385,9 +389,7 @@ body.print-mode-mini .neoedge-footer::before {
           {/* Footer */}
           <div className="neoedge-footer">
             <p>Thank you for your business — NeoEdge Billing Systems</p>
-            <p>
-              Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
-            </p>
+            <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
           </div>
         </div>
       </div>

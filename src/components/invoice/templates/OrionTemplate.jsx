@@ -277,7 +277,9 @@ const OrionTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="orion-header">
           <h1>INVOICE</h1>
-          <p>Invoice No: <strong>{invoiceData.invoiceNumber}</strong></p>
+          <p>
+            Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+          </p>
         </div>
 
         <div className="invoice-content">
@@ -296,8 +298,12 @@ const OrionTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="block">
               <div className="label">Date</div>
@@ -369,7 +375,9 @@ const OrionTemplate = ({ invoiceData, selectedStore }) => {
             Generated on{" "}
             {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
           </p>
-          <p>This invoice is system-generated and doesn’t require a signature.</p>
+          <p>
+            This invoice is system-generated and doesn’t require a signature.
+          </p>
         </div>
       </div>
     </>

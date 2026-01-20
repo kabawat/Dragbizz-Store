@@ -1,18 +1,12 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Select,
-  Textarea,
-  Loading,
-  Alert
-} from '@/components/ui';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Input, Select, Textarea, Loading, Alert } from "@/components/ui";
 import {
   EXPENSE_CATEGORIES,
   PAYMENT_METHODS,
-  EXPENSE_STATUS
-} from '@/data/constants/expenses';
-import { useTranslation } from '@/hooks/useTranslation';
+  EXPENSE_STATUS,
+} from "@/data/constants/expenses";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ExpenseForm = ({
   onSubmit = null,
@@ -21,19 +15,19 @@ const ExpenseForm = ({
   error = null,
   expense = null,
   formRef = null,
-  mode = 'page' // 'page' or 'drawer'
+  mode = "page", // 'page' or 'drawer'
 }) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    title: '',
-    billNumber: '',
-    date: new Date().toISOString().split('T')[0],
-    category: 'office-supplies',
-    amount: '',
-    paymentMethod: 'CASH',
-    vendor: '',
-    status: 'PAID',
-    description: ''
+    title: "",
+    billNumber: "",
+    date: new Date().toISOString().split("T")[0],
+    category: "office-supplies",
+    amount: "",
+    paymentMethod: "CASH",
+    vendor: "",
+    status: "PAID",
+    description: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -41,56 +35,58 @@ const ExpenseForm = ({
   useEffect(() => {
     if (expense) {
       setFormData({
-        title: expense.title || '',
-        billNumber: expense.billNumber || '',
-        date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        category: expense.category?.name || expense.category || 'office-supplies',
-        amount: expense.amount || '',
-        paymentMethod: expense.paymentMethod || 'CASH',
-        vendor: expense.vendor?.name || expense.vendor || '',
-        status: expense.status || 'PAID',
-        description: expense.description || ''
+        title: expense.title || "",
+        billNumber: expense.billNumber || "",
+        date: expense.date
+          ? new Date(expense.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+        category:
+          expense.category?.name || expense.category || "office-supplies",
+        amount: expense.amount || "",
+        paymentMethod: expense.paymentMethod || "CASH",
+        vendor: expense.vendor?.name || expense.vendor || "",
+        status: expense.status || "PAID",
+        description: expense.description || "",
       });
     }
   }, [expense]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: "",
       }));
     }
   };
-
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = t('expenses.titleRequired');
+      newErrors.title = t("expenses.titleRequired");
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = t('expenses.amountRequired');
+      newErrors.amount = t("expenses.amountRequired");
     }
 
     if (!formData.date) {
-      newErrors.date = t('expenses.dateRequired');
+      newErrors.date = t("expenses.dateRequired");
     }
 
     if (!formData.category) {
-      newErrors.category = t('expenses.categoryRequired');
+      newErrors.category = t("expenses.categoryRequired");
     }
 
     if (!formData.paymentMethod) {
-      newErrors.paymentMethod = t('expenses.paymentMethodRequired');
+      newErrors.paymentMethod = t("expenses.paymentMethodRequired");
     }
 
     setErrors(newErrors);
@@ -111,49 +107,61 @@ const ExpenseForm = ({
       category: formData.category,
       amount: parseFloat(formData.amount),
       paymentMethod: formData.paymentMethod,
-      vendor: formData.vendor ? {
-        name: formData.vendor
-      } : null,
+      vendor: formData.vendor
+        ? {
+            name: formData.vendor,
+          }
+        : null,
       status: formData.status,
-      description: formData.description
+      description: formData.description,
     };
 
     onSubmit(submitData);
   };
 
   return (
-    <div className={mode === 'drawer' ? '' : 'bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6'}>
+    <div
+      className={
+        mode === "drawer"
+          ? ""
+          : "bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6"
+      }
+    >
       {error && (
         <Alert className="mb-6" variant="error">
           {error}
         </Alert>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="space-y-4 sm:space-y-6"
+      >
         {/* Basic Information */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.expenseTitle')} *
+              {t("expenses.expenseTitle")} *
             </label>
             <Input
               size="sm"
               value={formData.title}
-              onChange={(value) => handleInputChange('title', value)}
-              placeholder={t('expenses.enterExpenseTitle')}
+              onChange={(value) => handleInputChange("title", value)}
+              placeholder={t("expenses.enterExpenseTitle")}
               error={errors.title}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.billNumber')}
+              {t("expenses.billNumber")}
             </label>
             <Input
               size="sm"
               value={formData.billNumber}
-              onChange={(value) => handleInputChange('billNumber', value)}
-              placeholder={t('expenses.enterBillNumber')}
+              onChange={(value) => handleInputChange("billNumber", value)}
+              placeholder={t("expenses.enterBillNumber")}
             />
           </div>
         </div>
@@ -162,28 +170,28 @@ const ExpenseForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.date')} *
+              {t("expenses.date")} *
             </label>
             <Input
               size="sm"
               type="date"
               value={formData.date}
-              onChange={(value) => handleInputChange('date', value)}
+              onChange={(value) => handleInputChange("date", value)}
               error={errors.date}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.category')} *
+              {t("expenses.category")} *
             </label>
             <Select
               size="sm"
               value={formData.category}
-              onChange={(value) => handleInputChange('category', value)}
-              options={EXPENSE_CATEGORIES.map(cat => ({
+              onChange={(value) => handleInputChange("category", value)}
+              options={EXPENSE_CATEGORIES.map((cat) => ({
                 value: cat.value,
-                label: cat.label
+                label: cat.label,
               }))}
               error={errors.category}
             />
@@ -193,7 +201,7 @@ const ExpenseForm = ({
         {/* Amount */}
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            {t('expenses.amount')} *
+            {t("expenses.amount")} *
           </label>
           <Input
             size="sm"
@@ -201,8 +209,8 @@ const ExpenseForm = ({
             step="0.01"
             min="0"
             value={formData.amount}
-            onChange={(value) => handleInputChange('amount', value)}
-            placeholder={t('expenses.enterAmount')}
+            onChange={(value) => handleInputChange("amount", value)}
+            placeholder={t("expenses.enterAmount")}
             error={errors.amount}
           />
         </div>
@@ -211,15 +219,15 @@ const ExpenseForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.paymentMethod')} *
+              {t("expenses.paymentMethod")} *
             </label>
             <Select
               size="sm"
               value={formData.paymentMethod}
-              onChange={(value) => handleInputChange('paymentMethod', value)}
-              options={PAYMENT_METHODS.map(method => ({
+              onChange={(value) => handleInputChange("paymentMethod", value)}
+              options={PAYMENT_METHODS.map((method) => ({
                 value: method.value,
-                label: `${method.icon} ${method.label}`
+                label: `${method.icon} ${method.label}`,
               }))}
               error={errors.paymentMethod}
             />
@@ -227,46 +235,44 @@ const ExpenseForm = ({
 
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.vendor')}
+              {t("expenses.vendor")}
             </label>
             <Input
               size="sm"
               value={formData.vendor}
-              onChange={(value) => handleInputChange('vendor', value)}
-              placeholder={t('expenses.enterVendorName')}
+              onChange={(value) => handleInputChange("vendor", value)}
+              placeholder={t("expenses.enterVendorName")}
             />
           </div>
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.status')}
+              {t("expenses.status")}
             </label>
             <Select
               size="sm"
               value={formData.status}
-              onChange={(value) => handleInputChange('status', value)}
-              options={EXPENSE_STATUS.map(status => ({
+              onChange={(value) => handleInputChange("status", value)}
+              options={EXPENSE_STATUS.map((status) => ({
                 value: status.value,
-                label: status.label
+                label: status.label,
               }))}
             />
           </div>
         </div>
 
-
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-            {t('expenses.description')}
+            {t("expenses.description")}
           </label>
           <Textarea
             value={formData.description}
-            onChange={(value) => handleInputChange('description', value)}
-            placeholder={t('expenses.enterExpenseDescription')}
+            onChange={(value) => handleInputChange("description", value)}
+            placeholder={t("expenses.enterExpenseDescription")}
             rows={3}
           />
         </div>
-
       </form>
     </div>
   );

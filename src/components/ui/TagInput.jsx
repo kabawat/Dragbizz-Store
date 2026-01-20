@@ -1,11 +1,11 @@
-"use client"
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Plus } from "lucide-react";
 
 const TagInput = ({
   value = [],
   onChange,
-  placeholder = 'Add tags...',
+  placeholder = "Add tags...",
   label,
   error = false,
   errorMessage,
@@ -15,71 +15,71 @@ const TagInput = ({
   maxTags = 10,
   maxTagLength = 20,
   allowDuplicates = false,
-  className = '',
+  className = "",
   name,
   id,
   ...props
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
-  
+
   // Handle input change
   const handleInputChange = (e) => {
     const newValue = e.target.value;
-    
+
     // Prevent adding if max tags reached
     if (maxTags && value.length >= maxTags) {
       return;
     }
-    
+
     // Limit tag length
     if (maxTagLength && newValue.length > maxTagLength) {
       return;
     }
-    
+
     setInputValue(newValue);
   };
-  
+
   // Handle key down events
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       addTag();
-    } else if (e.key === 'Backspace' && inputValue === '' && value.length > 0) {
+    } else if (e.key === "Backspace" && inputValue === "" && value.length > 0) {
       // Remove last tag if input is empty and backspace is pressed
       removeTag(value.length - 1);
     }
   };
-  
+
   // Add tag
   const addTag = () => {
     const trimmedValue = inputValue.trim();
-    
+
     if (!trimmedValue) return;
-    
+
     // Check for duplicates
     if (!allowDuplicates && value.includes(trimmedValue)) {
-      setInputValue('');
+      setInputValue("");
       return;
     }
-    
+
     // Check max tags
     if (maxTags && value.length >= maxTags) {
       return;
     }
-    
+
     const newTags = [...value, trimmedValue];
     onChange?.(newTags);
-    setInputValue('');
+    setInputValue("");
   };
-  
+
   // Remove tag
   const removeTag = (index) => {
     const newTags = value.filter((_, i) => i !== index);
     onChange?.(newTags);
   };
-  
+
   // Handle blur
   const handleBlur = () => {
     setIsFocused(false);
@@ -87,17 +87,17 @@ const TagInput = ({
       addTag();
     }
   };
-  
+
   // Handle focus
   const handleFocus = () => {
     setIsFocused(true);
   };
-  
+
   // Clear all tags
   const clearAllTags = () => {
     onChange?.([]);
   };
-  
+
   return (
     <div className={`w-full ${className}`}>
       {/* Label */}
@@ -107,18 +107,19 @@ const TagInput = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
+
       {/* Tag Input Container */}
       <div
         className={`
           relative border border-[rgb(var(--color-border-primary))] rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-[rgb(var(--color-primary))] focus-within:border-[rgb(var(--color-primary))]
-          ${error
-            ? 'border-red-500 focus-within:ring-red-500'
-            : isFocused
-            ? 'border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]'
-            : 'border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]'
+          ${
+            error
+              ? "border-red-500 focus-within:ring-red-500"
+              : isFocused
+                ? "border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]"
+                : "border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]"
           }
-          ${disabled ? 'bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed' : 'bg-[rgb(var(--color-bg-primary))]'}
+          ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}
         `}
         onClick={() => !disabled && inputRef.current?.focus()}
       >
@@ -144,7 +145,7 @@ const TagInput = ({
               )}
             </span>
           ))}
-          
+
           {/* Input Field */}
           <div className="flex-1 min-w-[120px]">
             <input
@@ -155,15 +156,15 @@ const TagInput = ({
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              placeholder={value.length === 0 ? placeholder : ''}
+              placeholder={value.length === 0 ? placeholder : ""}
               disabled={disabled || (maxTags && value.length >= maxTags)}
               className="w-full border-none outline-none bg-transparent text-[rgb(var(--color-text-primary))] placeholder-[rgb(var(--color-text-tertiary))]"
               maxLength={maxTagLength}
               {...props}
-              style={{border: 'none'}}
+              style={{ border: "none" }}
             />
           </div>
-          
+
           {/* Add Button (when input has value) */}
           {inputValue.trim() && !disabled && (
             <button
@@ -175,7 +176,7 @@ const TagInput = ({
             </button>
           )}
         </div>
-        
+
         {/* Clear All Button */}
         {value.length > 0 && !disabled && (
           <button
@@ -187,19 +188,23 @@ const TagInput = ({
           </button>
         )}
       </div>
-      
+
       {/* Helper Text / Error Message */}
       {(helperText || errorMessage) && (
         <div className="mt-2">
           {error && errorMessage && (
-            <p className="text-sm text-red-600 animate-fade-in">{errorMessage}</p>
+            <p className="text-sm text-red-600 animate-fade-in">
+              {errorMessage}
+            </p>
           )}
           {!error && helperText && (
-            <p className="text-sm text-[rgb(var(--color-text-secondary))]">{helperText}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              {helperText}
+            </p>
           )}
         </div>
       )}
-      
+
       {/* Tag Count */}
       {maxTags && (
         <div className="mt-1 text-right">

@@ -1,6 +1,6 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import moment from 'moment';
+"use client";
+import React, { useEffect, useState } from "react";
+import moment from "moment";
 import {
   FileText,
   Building2,
@@ -10,10 +10,10 @@ import {
   CheckCircle,
   Clock,
   Percent,
-  Download
-} from 'lucide-react';
-import { invoiceService } from '@/service/retailer';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+  Download,
+} from "lucide-react";
+import { invoiceService } from "@/service/retailer";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 /**
  * ViewInvoiceStructured
@@ -25,30 +25,30 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
  * Usage: <ViewInvoiceStructured invoiceId={publicId} />
  */
 
-const accentColor = '#2980b9';
+const accentColor = "#2980b9";
 
-const getStatusBadgeCommon = (status, type = 'invoice') => {
+const getStatusBadgeCommon = (status, type = "invoice") => {
   // minimal mapping similar to first component
-  const s = (status || '').toString().toUpperCase();
+  const s = (status || "").toString().toUpperCase();
   const config = {
-    text: status || 'Unknown',
-    variant: 'secondary',
+    text: status || "Unknown",
+    variant: "secondary",
   };
 
-  if (s === 'PAID' || s === 'RELEASED') {
-    config.variant = 'success';
-    config.text = 'Paid';
-  } else if (s === 'UNPAID') {
-    config.variant = 'danger';
-    config.text = 'Unpaid';
-  } else if (s === 'PAY_LATER' || s === 'PAY_LATTER' || s === 'DRAFT') {
-    config.variant = 'warning';
-    config.text = 'Pending';
-  } else if (s === 'CANCELLED') {
-    config.variant = 'danger';
-    config.text = 'Cancelled';
+  if (s === "PAID" || s === "RELEASED") {
+    config.variant = "success";
+    config.text = "Paid";
+  } else if (s === "UNPAID") {
+    config.variant = "danger";
+    config.text = "Unpaid";
+  } else if (s === "PAY_LATER" || s === "PAY_LATTER" || s === "DRAFT") {
+    config.variant = "warning";
+    config.text = "Pending";
+  } else if (s === "CANCELLED") {
+    config.variant = "danger";
+    config.text = "Cancelled";
   } else {
-    config.variant = 'primary';
+    config.variant = "primary";
   }
 
   const colorMap = {
@@ -77,18 +77,22 @@ const getStatusBadgeCommon = (status, type = 'invoice') => {
 };
 
 const formatCurrency = (amount) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount || 0);
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+    amount || 0,
+  );
 
-const formatDate = (d) =>
-  d ? moment(d).format('D MMM, YYYY') : '-';
+const formatDate = (d) => (d ? moment(d).format("D MMM, YYYY") : "-");
 
 const formatAddress = (addr) => {
-  if (!addr) return 'N/A';
-  if (typeof addr === 'string') return addr;
-  const { line1, line2, city, state, pincode, country, location, ...rest } = addr || {};
-  const parts = [line1, line2, city, state, pincode, country, location].filter(Boolean);
+  if (!addr) return "N/A";
+  if (typeof addr === "string") return addr;
+  const { line1, line2, city, state, pincode, country, location, ...rest } =
+    addr || {};
+  const parts = [line1, line2, city, state, pincode, country, location].filter(
+    Boolean,
+  );
   const extra = Object.values(rest || {}).filter(Boolean);
-  return [...parts, ...extra].join(', ') || 'N/A';
+  return [...parts, ...extra].join(", ") || "N/A";
 };
 
 const ViewInvoiceStructured = ({ invoiceId }) => {
@@ -99,7 +103,7 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
   useEffect(() => {
     if (!invoiceId) {
       setLoading(false);
-      setError('Invoice ID is required');
+      setError("Invoice ID is required");
       return;
     }
     let mounted = true;
@@ -112,31 +116,42 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
         if (res?.success && res?.data) {
           setInvoice(res.data);
         } else {
-          setError(res?.message || 'Invoice not found');
+          setError(res?.message || "Invoice not found");
         }
       } catch (e) {
-        console.error('Error fetching invoice:', e);
-        setError('Failed to load invoice');
+        console.error("Error fetching invoice:", e);
+        setError("Failed to load invoice");
       } finally {
         if (mounted) setLoading(false);
       }
     };
     fetchInvoice();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [invoiceId]);
 
   const handleDownload = () => {
-    if (typeof window !== 'undefined') window.print();
+    if (typeof window !== "undefined") window.print();
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(var(--color-bg-primary, 248 249 250))' }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "rgb(var(--color-bg-primary, 248 249 250))" }}
+      >
         <div className="text-center">
-          <div style={{
-            width: 64, height: 64, border: '4px solid rgba(0,0,0,0.08)',
-            borderTopColor: accentColor, borderRadius: '9999px'
-          }} className="animate-spin mx-auto mb-4" />
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              border: "4px solid rgba(0,0,0,0.08)",
+              borderTopColor: accentColor,
+              borderRadius: "9999px",
+            }}
+            className="animate-spin mx-auto mb-4"
+          />
           <h2 style={{ fontSize: 20, fontWeight: 600 }}>Loading Invoice...</h2>
         </div>
       </div>
@@ -145,20 +160,33 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(var(--color-bg-primary, 248 249 250))' }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "rgb(var(--color-bg-primary, 248 249 250))" }}
+      >
         <div className="text-center p-8">
-          <div style={{ width: 64, height: 64, borderRadius: 9999, background: 'rgba(239,68,68,0.08)' }} className="mx-auto mb-4 flex items-center justify-center">
-            <AlertTriangle style={{ color: '#dc2626' }} />
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 9999,
+              background: "rgba(239,68,68,0.08)",
+            }}
+            className="mx-auto mb-4 flex items-center justify-center"
+          >
+            <AlertTriangle style={{ color: "#dc2626" }} />
           </div>
           <h2 style={{ fontSize: 20, fontWeight: 700 }}>Invoice Not Found</h2>
-          <p style={{ color: '#6b7280' }}>{error || 'The invoice you are looking for does not exist.'}</p>
+          <p style={{ color: "#6b7280" }}>
+            {error || "The invoice you are looking for does not exist."}
+          </p>
         </div>
       </div>
     );
   }
 
-  const paymentBadge = getStatusBadgeCommon(invoice.paymentStatus, 'invoice');
-  const invoiceBadge = getStatusBadgeCommon(invoice.invoiceStatus, 'invoice');
+  const paymentBadge = getStatusBadgeCommon(invoice.paymentStatus, "invoice");
+  const invoiceBadge = getStatusBadgeCommon(invoice.invoiceStatus, "invoice");
 
   return (
     <ThemeProvider>
@@ -319,32 +347,55 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
           <div className="modern-header">
             <div className="modern-header-left">
               <div className="brand-circle" aria-hidden>
-                <FileText style={{ color: 'white' }} />
+                <FileText style={{ color: "white" }} />
               </div>
               <div>
                 <h1>INVOICE</h1>
-                <div style={{ color: '#6b7280', marginTop: 6 }}>
+                <div style={{ color: "#6b7280", marginTop: 6 }}>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>
                     #{invoice.invoiceNumber || invoice.publicId || invoiceId}
                   </div>
-                  <div style={{ fontSize: 13 }}>{invoice.store?.name || 'Store'}</div>
+                  <div style={{ fontSize: 13 }}>
+                    {invoice.store?.name || "Store"}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="modern-header-right">
-              <div className="invoice-detail">Invoice #: <span>{invoice.invoiceNumber || invoice.publicId || invoiceId}</span></div>
-              <div className="invoice-detail">Date: <span>{formatDate(invoice.createdAt || invoice.releasedAt)}</span></div>
-              <div className="invoice-detail">Released: <span>{invoice.releasedAt ? formatDate(invoice.releasedAt) : '-'}</span></div>
+              <div className="invoice-detail">
+                Invoice #:{" "}
+                <span>
+                  {invoice.invoiceNumber || invoice.publicId || invoiceId}
+                </span>
+              </div>
+              <div className="invoice-detail">
+                Date:{" "}
+                <span>
+                  {formatDate(invoice.createdAt || invoice.releasedAt)}
+                </span>
+              </div>
+              <div className="invoice-detail">
+                Released:{" "}
+                <span>
+                  {invoice.releasedAt ? formatDate(invoice.releasedAt) : "-"}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="badges-row">
-            <span className="badge" style={{ ...parseStyle(invoiceBadge.style) }}>
+            <span
+              className="badge"
+              style={{ ...parseStyle(invoiceBadge.style) }}
+            >
               <invoiceBadge.Icon style={{ width: 16, height: 16 }} />
               {invoiceBadge.text}
             </span>
-            <span className="badge" style={{ ...parseStyle(paymentBadge.style) }}>
+            <span
+              className="badge"
+              style={{ ...parseStyle(paymentBadge.style) }}
+            >
               <paymentBadge.Icon style={{ width: 16, height: 16 }} />
               {paymentBadge.text}
             </span>
@@ -352,42 +403,107 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
 
           <div className="info-grid">
             <div className="info-card">
-              <h3><Building2 style={{ width: 14, height: 14, marginRight: 8 }} /> Store Information</h3>
-              <p style={{ fontWeight: 700 }}>{invoice.store?.name || 'N/A'}</p>
+              <h3>
+                <Building2 style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
+                Store Information
+              </h3>
+              <p style={{ fontWeight: 700 }}>{invoice.store?.name || "N/A"}</p>
               <p>{formatAddress(invoice.store?.address)}</p>
-              <p>Phone: {invoice.store?.phone || 'N/A'}</p>
-              <p>Email: {invoice.store?.email || 'N/A'}</p>
-              {invoice.store?.gstNumber && <p>GST: {invoice.store.gstNumber}</p>}
+              <p>Phone: {invoice.store?.phone || "N/A"}</p>
+              <p>Email: {invoice.store?.email || "N/A"}</p>
+              {invoice.store?.gstNumber && (
+                <p>GST: {invoice.store.gstNumber}</p>
+              )}
             </div>
 
             <div className="info-card">
-              <h3><User style={{ width: 14, height: 14, marginRight: 8 }} /> Customer Information</h3>
-              <p style={{ fontWeight: 700 }}>{invoice.customer?.name || 'Walk-in Customer'}</p>
+              <h3>
+                <User style={{ width: 14, height: 14, marginRight: 8 }} />{" "}
+                Customer Information
+              </h3>
+              <p style={{ fontWeight: 700 }}>
+                {invoice.customer?.name || "Walk-in Customer"}
+              </p>
               {invoice.customer?.address && <p>{invoice.customer.address}</p>}
-              <p>Phone: {invoice.customer?.phone || 'N/A'}</p>
-              <p>Email: {invoice.customer?.email || 'N/A'}</p>
-              {invoice.releasedAt && <p>Released: {formatDate(invoice.releasedAt)}</p>}
+              <p>Phone: {invoice.customer?.phone || "N/A"}</p>
+              <p>Email: {invoice.customer?.email || "N/A"}</p>
+              {invoice.releasedAt && (
+                <p>Released: {formatDate(invoice.releasedAt)}</p>
+              )}
             </div>
           </div>
 
           <div className="amounts-grid">
             <div className="amount-card">
-              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Subtotal</div>
-              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{formatCurrency(invoice.subtotal)}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                Subtotal
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
+                {formatCurrency(invoice.subtotal)}
+              </div>
             </div>
             <div className="amount-card">
-              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>GST</div>
-              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{formatCurrency(invoice.gstAmount)}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                GST
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
+                {formatCurrency(invoice.gstAmount)}
+              </div>
             </div>
             <div className="amount-card">
-              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Total Amount</div>
-              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 8, color: accentColor }}>{formatCurrency(invoice.totalAmount)}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                Total Amount
+              </div>
+              <div
+                style={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  marginTop: 8,
+                  color: accentColor,
+                }}
+              >
+                {formatCurrency(invoice.totalAmount)}
+              </div>
             </div>
             <div className="amount-card">
-              <div style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Paid / Due</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                Paid / Due
+              </div>
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Paid: {formatCurrency(invoice.paidAmount)}</div>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Due: {formatCurrency(invoice.dueAmount)}</div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>
+                  Paid: {formatCurrency(invoice.paidAmount)}
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>
+                  Due: {formatCurrency(invoice.dueAmount)}
+                </div>
               </div>
             </div>
           </div>
@@ -405,21 +521,38 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(invoice.items) && invoice.items.length > 0 ? invoice.items.map((item, idx) => (
-                  <tr key={idx}>
-                    <td>
-                      <div style={{ fontWeight: 700 }}>{item.name || (item.product?.name) || 'Item'}</div>
-                      {item.barcode && <div style={{ fontSize: 12, color: '#6b7280' }}>Barcode: {item.barcode}</div>}
-                    </td>
-                    <td>{item.quantity || 0}</td>
-                    <td>{formatCurrency(item.price)}</td>
-                    <td>{item.gstRate ? `${item.gstRate}%` : '0%'}</td>
-                    <td>{item.discount ? `${item.discount}%` : '0%'}</td>
-                    <td>{formatCurrency(item.total)}</td>
-                  </tr>
-                )) : (
+                {Array.isArray(invoice.items) && invoice.items.length > 0 ? (
+                  invoice.items.map((item, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        <div style={{ fontWeight: 700 }}>
+                          {item.name || item.product?.name || "Item"}
+                        </div>
+                        {item.barcode && (
+                          <div style={{ fontSize: 12, color: "#6b7280" }}>
+                            Barcode: {item.barcode}
+                          </div>
+                        )}
+                      </td>
+                      <td>{item.quantity || 0}</td>
+                      <td>{formatCurrency(item.price)}</td>
+                      <td>{item.gstRate ? `${item.gstRate}%` : "0%"}</td>
+                      <td>{item.discount ? `${item.discount}%` : "0%"}</td>
+                      <td>{formatCurrency(item.total)}</td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
-                    <td colSpan={6} style={{ padding: 20, textAlign: 'center', color: '#6b7280' }}>No items available</td>
+                    <td
+                      colSpan={6}
+                      style={{
+                        padding: 20,
+                        textAlign: "center",
+                        color: "#6b7280",
+                      }}
+                    >
+                      No items available
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -439,7 +572,9 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
               {invoice.totalDiscount > 0 && (
                 <div className="total-row">
                   <div className="label">Discount</div>
-                  <div style={{ color: '#e11d48' }}>- {formatCurrency(invoice.totalDiscount)}</div>
+                  <div style={{ color: "#e11d48" }}>
+                    - {formatCurrency(invoice.totalDiscount)}
+                  </div>
                 </div>
               )}
               <div className="total-row final">
@@ -451,16 +586,26 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
 
           <div className="modern-footer">
             <div className="terms">
-              <h4 style={{ margin: 0, color: accentColor }}>Payment Terms & Notes</h4>
-              <p style={{ marginTop: 8 }}>Payment due within 7 days of invoice date. Thank you for choosing our services.</p>
-              <p style={{ marginTop: 8, color: '#6b7280' }}>Generated on {moment(invoice.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
+              <h4 style={{ margin: 0, color: accentColor }}>
+                Payment Terms & Notes
+              </h4>
+              <p style={{ marginTop: 8 }}>
+                Payment due within 7 days of invoice date. Thank you for
+                choosing our services.
+              </p>
+              <p style={{ marginTop: 8, color: "#6b7280" }}>
+                Generated on{" "}
+                {moment(invoice.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+              </p>
             </div>
             <div className="signature">Authorized Signature</div>
           </div>
-
         </div>
         <div className="modern-invoice">
-          <div style={{ marginTop: 24, textAlign: 'right' }} className="no-print">
+          <div
+            style={{ marginTop: 24, textAlign: "right" }}
+            className="no-print"
+          >
             <button className="print-btn" onClick={handleDownload}>
               <Download style={{ width: 16, height: 16 }} />
               Print / Download
@@ -473,11 +618,11 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
 };
 
 // Helper to convert inline style string to object used above badges
-function parseStyle(styleStr = '') {
+function parseStyle(styleStr = "") {
   // styleStr like "background:...; color:...; border:..."
   const obj = {};
-  styleStr.split(';').forEach(s => {
-    const [k, v] = s.split(':') || [];
+  styleStr.split(";").forEach((s) => {
+    const [k, v] = s.split(":") || [];
     if (!k || !v) return;
     const key = k.trim().replace(/-([a-z])/g, (m, p1) => p1.toUpperCase());
     obj[key] = v.trim();

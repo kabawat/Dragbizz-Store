@@ -1,7 +1,7 @@
-import { API_CONFIG } from '@/config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
-import { attachQueryParams } from '@/utils/queryParams';
+import { API_CONFIG } from "@/config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
+import { attachQueryParams } from "@/utils/queryParams";
 
 class CustomerService {
   constructor() {
@@ -11,10 +11,13 @@ class CustomerService {
   // Create a new customer
   async createCustomer(customerData) {
     try {
-      const response = await authAxios.post(API_CONFIG?.RETAILER?.CUSTOMER, customerData);
-      return handleApiSuccess(response?.data, 'Customer created successfully');
+      const response = await authAxios.post(
+        API_CONFIG?.RETAILER?.CUSTOMER,
+        customerData,
+      );
+      return handleApiSuccess(response?.data, "Customer created successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'customer-creation');
+      return handleApiErrorResponse(error, "customer-creation");
     }
   }
 
@@ -30,9 +33,9 @@ class CustomerService {
       }
 
       const response = await authAxios.put(url, customerData);
-      return handleApiSuccess(response?.data, 'Customer updated successfully');
+      return handleApiSuccess(response?.data, "Customer updated successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'customer-updation');
+      return handleApiErrorResponse(error, "customer-updation");
     }
   }
 
@@ -42,9 +45,9 @@ class CustomerService {
       // Build URL with query parameters
       const url = attachQueryParams(API_CONFIG?.RETAILER?.CUSTOMER, params);
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Customers fetched successfully');
+      return handleApiSuccess(response?.data, "Customers fetched successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'customers-list');
+      return handleApiErrorResponse(error, "customers-list");
     }
   }
 
@@ -60,9 +63,9 @@ class CustomerService {
       }
 
       const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, 'Customer deleted successfully');
+      return handleApiSuccess(response?.data, "Customer deleted successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'customer-deletion');
+      return handleApiErrorResponse(error, "customer-deletion");
     }
   }
 
@@ -78,9 +81,12 @@ class CustomerService {
 
       url = attachQueryParams(url, params);
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Customers searched successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Customers searched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'customer-search');
+      return handleApiErrorResponse(error, "customer-search");
     }
   }
 
@@ -95,9 +101,12 @@ class CustomerService {
       }
 
       const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, 'Customer statistics fetched successfully');
+      return handleApiSuccess(
+        response?.data,
+        "Customer statistics fetched successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'customer-stats');
+      return handleApiErrorResponse(error, "customer-stats");
     }
   }
 }

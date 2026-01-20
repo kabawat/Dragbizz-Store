@@ -1,14 +1,13 @@
-"use client"
-import React from 'react';
-import { CheckCircle, Store, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui';
+"use client";
+import React from "react";
+import { CheckCircle, Store, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui";
 
 export default function StoreCreationSuccess({ onContinue }) {
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
       <div className="relative w-full max-w-md mx-auto">
         <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-8 shadow-lg backdrop-blur-sm text-center">
-          
           {/* Success Animation */}
           <div className="mb-6">
             <div className="relative inline-block">
@@ -27,9 +26,10 @@ export default function StoreCreationSuccess({ onContinue }) {
               🎉 Store Created Successfully!
             </h1>
             <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-              Your store has been created and is now ready to use. You can start managing your inventory, customers, and sales.
+              Your store has been created and is now ready to use. You can start
+              managing your inventory, customers, and sales.
             </p>
-            
+
             {/* Success Details */}
             <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 mb-6">
               <div className="flex items-center justify-center mb-2">

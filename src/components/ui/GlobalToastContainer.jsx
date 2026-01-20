@@ -1,7 +1,7 @@
-"use client"
-import React from 'react';
-import Toast from './Toast';
-import { useGlobalToast } from '@/contexts/ToastContext';
+"use client";
+import React from "react";
+import Toast from "./Toast";
+import { useGlobalToast } from "@/contexts/ToastContext";
 
 const GlobalToastContainer = () => {
   const { toasts, removeToast } = useGlobalToast();
@@ -14,7 +14,7 @@ const GlobalToastContainer = () => {
           message={toast.message}
           type={toast.type}
           duration={toast.duration}
-          position={toast.position || 'top-right'}
+          position={toast.position || "top-right"}
           onClose={() => removeToast(toast.id)}
         />
       ))}
@@ -23,4 +23,3 @@ const GlobalToastContainer = () => {
 };
 
 export default GlobalToastContainer;
-

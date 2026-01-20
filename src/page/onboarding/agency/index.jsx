@@ -1,26 +1,42 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Building2, ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Users, Shield, Zap } from 'lucide-react';
-import { Input, Button, AnimatedBackground, AnimatedGridPattern } from '@/components/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createAgency, getRetailerDetails } from '@/store/slices/profileSlice';
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Building2,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+  Users,
+  Shield,
+  Zap,
+} from "lucide-react";
+import {
+  Input,
+  Button,
+  AnimatedBackground,
+  AnimatedGridPattern,
+} from "@/components/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { createAgency, getRetailerDetails } from "@/store/slices/profileSlice";
+import { useRouter } from "next/navigation";
 
 export default function AgencyCreation() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isLoading, error, agency, stores } = useAppSelector((state) => state.profile);
+  const { isLoading, error, agency, stores } = useAppSelector(
+    (state) => state.profile,
+  );
   const isCreatingRef = useRef(false);
 
   const [formData, setFormData] = useState({
-    name: ''
+    name: "",
   });
   const [errors, setErrors] = useState({});
 
   const updateFormData = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -28,9 +44,9 @@ export default function AgencyCreation() {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Agency name is required';
+      newErrors.name = "Agency name is required";
     } else if (formData.name.length > 100) {
-      newErrors.name = 'Agency name must be less than 100 characters';
+      newErrors.name = "Agency name must be less than 100 characters";
     }
 
     setErrors(newErrors);
@@ -51,28 +67,32 @@ export default function AgencyCreation() {
         await dispatch(getRetailerDetails({ forceRefresh: true }));
         setTimeout(() => {
           isCreatingRef.current = false;
-          router.push('/onboarding/store');
+          router.push("/onboarding/store");
         }, 200);
       } else if (createAgency.rejected.match(result)) {
         isCreatingRef.current = false;
-        setErrors({ general: result.payload?.message || 'Failed to create agency' });
+        setErrors({
+          general: result.payload?.message || "Failed to create agency",
+        });
       }
     } catch (error) {
       isCreatingRef.current = false;
-      setErrors({ general: 'An error occurred while creating agency. Please try again.' });
+      setErrors({
+        general: "An error occurred while creating agency. Please try again.",
+      });
     }
   };
 
   const handleBack = () => {
-    router.push('/register');
+    router.push("/register");
   };
 
   const handleContinueToStore = () => {
-    router.push('/onboarding/store');
+    router.push("/onboarding/store");
   };
 
   const handleGoToDashboard = () => {
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
 
   // If agency already exists, redirect based on stores
@@ -80,9 +100,9 @@ export default function AgencyCreation() {
   useEffect(() => {
     if (agency && !isLoading && !isCreatingRef.current) {
       if (stores && stores.length > 0) {
-        router.push('/dashboard');
+        router.push("/dashboard");
       } else {
-        router.push('/onboarding/store');
+        router.push("/onboarding/store");
       }
     }
   }, [agency, stores, isLoading, router]);
@@ -93,7 +113,9 @@ export default function AgencyCreation() {
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[rgb(var(--color-text-secondary))]">Redirecting...</p>
+          <p className="text-[rgb(var(--color-text-secondary))]">
+            Redirecting...
+          </p>
         </div>
       </div>
     );
@@ -117,7 +139,8 @@ export default function AgencyCreation() {
                   Create Your Agency 🏢
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  Set up your agency to manage multiple stores under one organization
+                  Set up your agency to manage multiple stores under one
+                  organization
                 </p>
               </div>
 
@@ -128,8 +151,12 @@ export default function AgencyCreation() {
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Centralized Management</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Manage all your stores from one place</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      Centralized Management
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      Manage all your stores from one place
+                    </p>
                   </div>
                 </div>
 
@@ -138,8 +165,12 @@ export default function AgencyCreation() {
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Organized Structure</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Keep your business organized and scalable</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      Organized Structure
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      Keep your business organized and scalable
+                    </p>
                   </div>
                 </div>
 
@@ -148,8 +179,12 @@ export default function AgencyCreation() {
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">Quick Setup</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">Get started in less than a minute</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      Quick Setup
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      Get started in less than a minute
+                    </p>
                   </div>
                 </div>
               </div>
@@ -199,7 +234,9 @@ export default function AgencyCreation() {
                 <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
                   <div className="flex items-center">
                     <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-                    <span className="text-red-700 text-sm">{errors.general || error}</span>
+                    <span className="text-red-700 text-sm">
+                      {errors.general || error}
+                    </span>
                   </div>
                 </div>
               )}
@@ -212,7 +249,7 @@ export default function AgencyCreation() {
                     type="text"
                     placeholder="Enter agency name"
                     value={formData.name}
-                    onChange={(value) => updateFormData('name', value)}
+                    onChange={(value) => updateFormData("name", value)}
                     leftIcon={Building2}
                     error={errors.name}
                     maxLength={100}
@@ -234,7 +271,9 @@ export default function AgencyCreation() {
                         Why create an agency?
                       </p>
                       <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        An agency helps you organize multiple stores under one umbrella. You can manage inventory, staff, and operations centrally.
+                        An agency helps you organize multiple stores under one
+                        umbrella. You can manage inventory, staff, and
+                        operations centrally.
                       </p>
                     </div>
                   </div>
@@ -262,7 +301,7 @@ export default function AgencyCreation() {
                     fullWidth
                     className="sm:w-auto"
                   >
-                    {isLoading ? 'Creating Agency...' : 'Create Agency'}
+                    {isLoading ? "Creating Agency..." : "Create Agency"}
                   </Button>
                 </div>
               </form>

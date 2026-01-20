@@ -1,5 +1,5 @@
-"use client"
-import { Plus } from 'lucide-react';
+"use client";
+import { Plus } from "lucide-react";
 
 const StoreHeader = ({ storesCount = 0, isLoading = false, onAddStore }) => {
   return (
@@ -10,8 +10,8 @@ const StoreHeader = ({ storesCount = 0, isLoading = false, onAddStore }) => {
         </h2>
         <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
           {isLoading
-            ? 'Loading...'
-            : `${storesCount} ${storesCount === 1 ? 'store' : 'stores'} registered`}
+            ? "Loading..."
+            : `${storesCount} ${storesCount === 1 ? "store" : "stores"} registered`}
         </p>
       </div>
       {/* Add New Store button removed as per latest design */}

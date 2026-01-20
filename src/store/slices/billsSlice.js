@@ -1,112 +1,115 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { billService, analyticsService } from '@/service/retailer';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { billService, analyticsService } from "@/service/retailer";
 
 // Async thunk for getting bills
 export const getBills = createAsyncThunk(
-  'bills/getBills',
+  "bills/getBills",
   async (params = {}, { rejectWithValue }) => {
     try {
       const result = await billService.getBills(params);
-      
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch bills'
+          message: result.message || "Failed to fetch bills",
         });
       }
 
       return {
         success: true,
         data: result.data,
-        message: 'Bills fetched successfully'
+        message: "Bills fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch bills. Please try again.'
+        message: "Failed to fetch bills. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Async thunk for getting bill analytics (using /analytics endpoint)
 export const getBillStats = createAsyncThunk(
-  'bills/getBillStats',
+  "bills/getBillStats",
   async (storeId, { rejectWithValue }) => {
     try {
       const result = await billService.getBillAnalytics(storeId);
-      
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch bill analytics'
+          message: result.message || "Failed to fetch bill analytics",
         });
       }
 
       return {
         success: true,
         data: result.data,
-        message: 'Bill analytics fetched successfully'
+        message: "Bill analytics fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch bill analytics. Please try again.'
+        message: "Failed to fetch bill analytics. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Async thunk for getting bill analytics (using analyticsService)
 export const getBillAnalytics = createAsyncThunk(
-  'bills/getBillAnalytics',
+  "bills/getBillAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
       // Use analyticsService for analytics
-      const result = await analyticsService.getBillAnalytics({ store: storeId });
-      
+      const result = await analyticsService.getBillAnalytics({
+        store: storeId,
+      });
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch bill analytics'
+          message: result.message || "Failed to fetch bill analytics",
         });
       }
 
       // Handle null data from backend
-      const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
-      
+      const analyticsData =
+        result.data?.data !== undefined ? result.data.data : result.data;
+
       return {
         success: true,
         data: analyticsData || initialState.analytics,
-        message: 'Bill analytics fetched successfully'
+        message: "Bill analytics fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch bill analytics. Please try again.'
+        message: "Failed to fetch bill analytics. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Async thunk for getting bill reports
 export const getBillReports = createAsyncThunk(
-  'bills/getBillReports',
+  "bills/getBillReports",
   async (params = {}, { rejectWithValue }) => {
     try {
       const result = await billService.getBills(params);
-      
+
       if (!result.success) {
         return rejectWithValue({
-          message: result.message || 'Failed to fetch bill reports'
+          message: result.message || "Failed to fetch bill reports",
         });
       }
 
       return {
         success: true,
         data: result.data,
-        message: 'Bill reports fetched successfully'
+        message: "Bill reports fetched successfully",
       };
     } catch (error) {
       return rejectWithValue({
-        message: 'Failed to fetch bill reports. Please try again.'
+        message: "Failed to fetch bill reports. Please try again.",
       });
     }
-  }
+  },
 );
 
 // Note: CRUD operations (create, update, delete) are handled in separate pages/components
@@ -118,7 +121,7 @@ const initialState = {
     hasNextPage: false,
     nextCursor: null,
     limit: 20,
-    total: 0
+    total: 0,
   },
 
   // Statistics
@@ -128,13 +131,13 @@ const initialState = {
     overdueBills: 0,
     totalAmount: 0,
     paidAmount: 0,
-    dueAmount: 0
+    dueAmount: 0,
   },
 
   // Analytics
   analytics: {
     counts: {},
-    amounts: {}
+    amounts: {},
   },
 
   // Loading states
@@ -144,11 +147,11 @@ const initialState = {
   error: null,
 
   // View settings
-  currentFilter: 'all', // 'all', 'pending', 'overdue'
+  currentFilter: "all", // 'all', 'pending', 'overdue'
 };
 
 const billsSlice = createSlice({
-  name: 'bills',
+  name: "bills",
   initialState,
   reducers: {
     // Set current filter
@@ -172,7 +175,8 @@ const billsSlice = createSlice({
         state.isLoading = false;
         state.error = null;
         state.bills = action.payload.data || [];
-        state.pagination = action.payload.data?.meta?.pagination || initialState.pagination;
+        state.pagination =
+          action.payload.data?.meta?.pagination || initialState.pagination;
       })
       .addCase(getBills.rejected, (state, action) => {
         state.isLoading = false;
@@ -204,7 +208,8 @@ const billsSlice = createSlice({
         state.error = null;
         const responseData = action.payload.data;
         state.bills = responseData?.data || responseData || [];
-        state.pagination = responseData?.meta?.pagination || initialState.pagination;
+        state.pagination =
+          responseData?.meta?.pagination || initialState.pagination;
       })
       .addCase(getBillReports.rejected, (state, action) => {
         state.isLoading = false;
@@ -223,24 +228,17 @@ const billsSlice = createSlice({
       })
       .addCase(getBillAnalytics.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || 'Failed to fetch bill analytics';
+        state.error =
+          action.payload?.message || "Failed to fetch bill analytics";
       });
-  }
+  },
 });
 
 // Export actions
-export const {
-  setCurrentFilter,
-  addMoreBills
-} = billsSlice.actions;
+export const { setCurrentFilter, addMoreBills } = billsSlice.actions;
 
 // Export async thunks
-export {
-  getBills,
-  getBillStats,
-  getBillReports,
-  getBillAnalytics
-};
+export { getBills, getBillStats, getBillReports, getBillAnalytics };
 
 // Export reducer
 export default billsSlice.reducer;

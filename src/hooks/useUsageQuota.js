@@ -1,7 +1,7 @@
-"use client"
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { subscriptionService } from '@/service/subscription';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { subscriptionService } from "@/service/subscription";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 const quotaCache = new Map();
 const quotaCacheTTL = 60 * 1000;
@@ -17,10 +17,10 @@ export function useUsageQuota(featureKey = null) {
   const [summary, setSummary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const subscriptionId = subscription?._id || subscription?.id || null;
-  
+
   const subscriptionRef = useRef(null);
   const hasFetchedRef = useRef(false);
   const lastFeatureKeyRef = useRef(null);
@@ -28,84 +28,68 @@ export function useUsageQuota(featureKey = null) {
   const lastFetchCacheKeyRef = useRef(null);
 
   const getCacheKey = useCallback((sub, fKey) => {
-    const subId = sub?._id || sub?.id || 'no-sub';
+    const subId = sub?._id || sub?.id || "no-sub";
     return fKey ? `quota:${subId}:${fKey}` : `quota:${subId}:all`;
   }, []);
 
-  const fetchQuota = useCallback(async (forceRefresh = false) => {
-    if (subscriptionLoading) {
-      return;
-    }
+  const fetchQuota = useCallback(
+    async (forceRefresh = false) => {
+      if (subscriptionLoading) {
+        return;
+      }
 
-    if (!subscriptionId) {
-      setIsLoading(false);
-      setQuota(null);
-      setSummary([]);
-      subscriptionRef.current = null;
-      hasFetchedRef.current = false;
-      isFetchingRef.current = false;
-      return;
-    }
-
-    if (isFetchingRef.current && !forceRefresh) {
-      return;
-    }
-
-    const subChanged = subscriptionRef.current !== subscriptionId;
-    const featureKeyChanged = lastFeatureKeyRef.current !== featureKey;
-
-    if (subChanged || featureKeyChanged) {
-      subscriptionRef.current = subscriptionId;
-      lastFeatureKeyRef.current = featureKey;
-      hasFetchedRef.current = false;
-    }
-
-    const cacheKey = subscriptionId 
-      ? (featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`)
-      : null;
-    
-    if (!cacheKey) {
-      return;
-    }
-    
-    if (!forceRefresh && !subChanged && !featureKeyChanged) {
-      const cached = quotaCache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL) {
-        if (featureKey) {
-          setQuota(cached.data.quota);
-        } else {
-          setSummary(cached.data.summary || []);
-        }
+      if (!subscriptionId) {
         setIsLoading(false);
-        hasFetchedRef.current = true;
+        setQuota(null);
+        setSummary([]);
+        subscriptionRef.current = null;
+        hasFetchedRef.current = false;
         isFetchingRef.current = false;
         return;
       }
-    }
 
-    const existingRequest = pendingRequests.get(cacheKey);
-    if (existingRequest) {
-      try {
-        const pendingData = await existingRequest;
-        if (featureKey) {
-          setQuota(pendingData.quota);
-        } else {
-          setSummary(pendingData.summary || []);
-        }
-        setIsLoading(false);
-        hasFetchedRef.current = true;
-        isFetchingRef.current = false;
+      if (isFetchingRef.current && !forceRefresh) {
         return;
-      } catch (err) {
-        pendingRequests.delete(cacheKey);
       }
-    }
 
-    if (pendingRequests.has(cacheKey)) {
-      const newRequest = pendingRequests.get(cacheKey);
-      if (newRequest) {
+      const subChanged = subscriptionRef.current !== subscriptionId;
+      const featureKeyChanged = lastFeatureKeyRef.current !== featureKey;
+
+      if (subChanged || featureKeyChanged) {
+        subscriptionRef.current = subscriptionId;
+        lastFeatureKeyRef.current = featureKey;
+        hasFetchedRef.current = false;
+      }
+
+      const cacheKey = subscriptionId
+        ? featureKey
+          ? `quota:${subscriptionId}:${featureKey}`
+          : `quota:${subscriptionId}:all`
+        : null;
+
+      if (!cacheKey) {
+        return;
+      }
+
+      if (!forceRefresh && !subChanged && !featureKeyChanged) {
+        const cached = quotaCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < quotaCacheTTL) {
+          if (featureKey) {
+            setQuota(cached.data.quota);
+          } else {
+            setSummary(cached.data.summary || []);
+          }
+          setIsLoading(false);
+          hasFetchedRef.current = true;
+          isFetchingRef.current = false;
+          return;
+        }
+      }
+
+      const existingRequest = pendingRequests.get(cacheKey);
+      if (existingRequest) {
         try {
-          const pendingData = await newRequest;
+          const pendingData = await existingRequest;
           if (featureKey) {
             setQuota(pendingData.quota);
           } else {
@@ -116,69 +100,93 @@ export function useUsageQuota(featureKey = null) {
           isFetchingRef.current = false;
           return;
         } catch (err) {
-          console.error('[useUsageQuota] Error handling pending request:', err);
           pendingRequests.delete(cacheKey);
         }
       }
-      return;
-    }
 
-    isFetchingRef.current = true;
-    setIsLoading(true);
-    setError(null);
-
-    let requestResolve;
-    let requestReject;
-    const requestPromise = new Promise((resolve, reject) => {
-      requestResolve = resolve;
-      requestReject = reject;
-    });
-
-    pendingRequests.set(cacheKey, requestPromise);
-
-    (async () => {
-      try {
-        const result = await subscriptionService.getQuota(featureKey);
-        
-        if (result.success) {
-          const data = featureKey 
-            ? { quota: result.data.quota }
-            : { summary: result.data.summary || [] };
-          
-          quotaCache.set(cacheKey, {
-            data,
-            timestamp: Date.now()
-          });
-
-          if (featureKey) {
-            setQuota(result.data.quota);
-          } else {
-            setSummary(result.data.summary || []);
+      if (pendingRequests.has(cacheKey)) {
+        const newRequest = pendingRequests.get(cacheKey);
+        if (newRequest) {
+          try {
+            const pendingData = await newRequest;
+            if (featureKey) {
+              setQuota(pendingData.quota);
+            } else {
+              setSummary(pendingData.summary || []);
+            }
+            setIsLoading(false);
+            hasFetchedRef.current = true;
+            isFetchingRef.current = false;
+            return;
+          } catch (err) {
+            console.error(
+              "[useUsageQuota] Error handling pending request:",
+              err,
+            );
+            pendingRequests.delete(cacheKey);
           }
-
-          hasFetchedRef.current = true;
-          isFetchingRef.current = false;
-          requestResolve(data);
-        } else {
-          setError(result.message || 'Failed to fetch quota');
-          isFetchingRef.current = false;
-          const error = new Error(result.message || 'Failed to fetch quota');
-          requestReject(error);
-          throw error;
         }
-      } catch (err) {
-        setError(err.message || 'Error fetching quota');
-        isFetchingRef.current = false;
-        requestReject(err);
-        throw err;
-      } finally {
-        setIsLoading(false);
-        setTimeout(() => {
-          pendingRequests.delete(cacheKey);
-        }, 50);
+        return;
       }
-    })();
-  }, [featureKey, subscriptionId, subscriptionLoading]);
+
+      isFetchingRef.current = true;
+      setIsLoading(true);
+      setError(null);
+
+      let requestResolve;
+      let requestReject;
+      const requestPromise = new Promise((resolve, reject) => {
+        requestResolve = resolve;
+        requestReject = reject;
+      });
+
+      pendingRequests.set(cacheKey, requestPromise);
+
+      (async () => {
+        try {
+          const result = await subscriptionService.getQuota(featureKey);
+
+          if (result.success) {
+            const data = featureKey
+              ? { quota: result.data.quota }
+              : { summary: result.data.summary || [] };
+
+            quotaCache.set(cacheKey, {
+              data,
+              timestamp: Date.now(),
+            });
+
+            if (featureKey) {
+              setQuota(result.data.quota);
+            } else {
+              setSummary(result.data.summary || []);
+            }
+
+            hasFetchedRef.current = true;
+            isFetchingRef.current = false;
+            requestResolve(data);
+          } else {
+            setError(result.message || "Failed to fetch quota");
+            isFetchingRef.current = false;
+            const error = new Error(result.message || "Failed to fetch quota");
+            requestReject(error);
+            throw error;
+          }
+        } catch (err) {
+          setError(err.message || "Error fetching quota");
+          isFetchingRef.current = false;
+          requestReject(err);
+          throw err;
+        } finally {
+          setIsLoading(false);
+          setTimeout(() => {
+            pendingRequests.delete(cacheKey);
+          }, 50);
+        }
+      })();
+    },
+    [featureKey, subscriptionId, subscriptionLoading],
+  );
 
   useEffect(() => {
     if (subscriptionLoading) {
@@ -192,11 +200,13 @@ export function useUsageQuota(featureKey = null) {
 
     const subChanged = subscriptionRef.current !== subscriptionId;
     const featureKeyChanged = lastFeatureKeyRef.current !== featureKey;
-    
-    const cacheKey = subscriptionId 
-      ? (featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`)
+
+    const cacheKey = subscriptionId
+      ? featureKey
+        ? `quota:${subscriptionId}:${featureKey}`
+        : `quota:${subscriptionId}:all`
       : null;
-    
+
     if (!cacheKey) {
       return;
     }
@@ -205,17 +215,19 @@ export function useUsageQuota(featureKey = null) {
     if (isFetchingRef.current && pendingRequests.has(cacheKey)) {
       const existingRequest = pendingRequests.get(cacheKey);
       if (existingRequest) {
-        existingRequest.then((pendingData) => {
-          if (featureKey) {
-            setQuota(pendingData.quota);
-          } else {
-            setSummary(pendingData.summary || []);
-          }
-          setIsLoading(false);
-          hasFetchedRef.current = true;
-        }).catch((err) => {
-          console.error('[useUsageQuota] Error in pending request:', err);
-        });
+        existingRequest
+          .then((pendingData) => {
+            if (featureKey) {
+              setQuota(pendingData.quota);
+            } else {
+              setSummary(pendingData.summary || []);
+            }
+            setIsLoading(false);
+            hasFetchedRef.current = true;
+          })
+          .catch((err) => {
+            console.error("[useUsageQuota] Error in pending request:", err);
+          });
         return;
       }
     }
@@ -223,7 +235,7 @@ export function useUsageQuota(featureKey = null) {
     // Check cache first (only if subscription and featureKey haven't changed)
     if (!subChanged && !featureKeyChanged) {
       const cached = quotaCache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp) < quotaCacheTTL) {
+      if (cached && Date.now() - cached.timestamp < quotaCacheTTL) {
         if (featureKey) {
           setQuota(cached.data.quota);
         } else {
@@ -236,12 +248,12 @@ export function useUsageQuota(featureKey = null) {
         return;
       }
     }
-    
+
     // Prevent duplicate calls if already fetching
     if (isFetchingRef.current) {
       return;
     }
-    
+
     // Update refs if subscription or featureKey changed
     if (subChanged) {
       subscriptionRef.current = subscriptionId;
@@ -253,11 +265,15 @@ export function useUsageQuota(featureKey = null) {
       hasFetchedRef.current = false;
       lastFetchCacheKeyRef.current = null; // Reset cache key ref on featureKey change
     }
-    
+
     // Only fetch if not already fetched for this exact combination
     // Also check if we're not already fetching for the same cache key
     const isSameCacheKey = lastFetchCacheKeyRef.current === cacheKey;
-    if ((!hasFetchedRef.current || subChanged || featureKeyChanged) && !isSameCacheKey && !isFetchingRef.current) {
+    if (
+      (!hasFetchedRef.current || subChanged || featureKeyChanged) &&
+      !isSameCacheKey &&
+      !isFetchingRef.current
+    ) {
       lastFetchCacheKeyRef.current = cacheKey;
       fetchQuota();
     }
@@ -267,7 +283,9 @@ export function useUsageQuota(featureKey = null) {
   useEffect(() => {
     return () => {
       if (subscriptionId) {
-        const cacheKey = featureKey ? `quota:${subscriptionId}:${featureKey}` : `quota:${subscriptionId}:all`;
+        const cacheKey = featureKey
+          ? `quota:${subscriptionId}:${featureKey}`
+          : `quota:${subscriptionId}:all`;
         pendingRequests.delete(cacheKey);
       }
     };
@@ -282,7 +300,7 @@ export function useUsageQuota(featureKey = null) {
     summary,
     isLoading,
     error,
-    refresh
+    refresh,
   };
 }
 
@@ -303,7 +321,7 @@ export function useFeatureUsage(featureKey, quantity = 1) {
     try {
       setIsChecking(true);
       const result = await subscriptionService.checkUsage(featureKey, quantity);
-      
+
       if (result.success) {
         setCanUse(result.data.allowed || false);
         setQuota(result.data.quota || null);
@@ -327,7 +345,6 @@ export function useFeatureUsage(featureKey, quantity = 1) {
     canUse,
     quota,
     isChecking,
-    checkUsage
+    checkUsage,
   };
 }
-

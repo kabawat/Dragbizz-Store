@@ -1,21 +1,21 @@
-"use client"
-import { User } from 'lucide-react';
-import { Input, Select } from '@/components/ui';
+"use client";
+import { User } from "lucide-react";
+import { Input, Select } from "@/components/ui";
 
 const ProfileEditForm = ({ form, onChange }) => {
   // Handle Input component onChange (receives value directly)
   const handleInputChange = (name, value) => {
     const event = {
-      target: { name, value }
+      target: { name, value },
     };
     onChange(event);
   };
 
   const genderOptions = [
-    { value: '', label: 'Select gender' },
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'other', label: 'Other' }
+    { value: "", label: "Select gender" },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
   ];
 
   return (
@@ -25,8 +25,8 @@ const ProfileEditForm = ({ form, onChange }) => {
         label="First Name"
         name="firstName"
         type="text"
-        value={form.firstName || ''}
-        onChange={(value) => handleInputChange('firstName', value)}
+        value={form.firstName || ""}
+        onChange={(value) => handleInputChange("firstName", value)}
         placeholder="Enter your first name"
         leftIcon={User}
         size="md"
@@ -37,8 +37,8 @@ const ProfileEditForm = ({ form, onChange }) => {
         label="Last Name"
         name="lastName"
         type="text"
-        value={form.lastName || ''}
-        onChange={(value) => handleInputChange('lastName', value)}
+        value={form.lastName || ""}
+        onChange={(value) => handleInputChange("lastName", value)}
         placeholder="Enter your last name"
         leftIcon={User}
         size="md"
@@ -49,8 +49,8 @@ const ProfileEditForm = ({ form, onChange }) => {
         label="Date of Birth"
         name="dob"
         type="date"
-        value={form.dob || ''}
-        onChange={(value) => handleInputChange('dob', value)}
+        value={form.dob || ""}
+        onChange={(value) => handleInputChange("dob", value)}
         size="md"
       />
 
@@ -58,8 +58,8 @@ const ProfileEditForm = ({ form, onChange }) => {
       <Select
         label="Gender"
         name="gender"
-        value={form.gender || ''}
-        onChange={(value) => handleInputChange('gender', value)}
+        value={form.gender || ""}
+        onChange={(value) => handleInputChange("gender", value)}
         options={genderOptions}
         placeholder="Select gender"
         size="md"
@@ -70,4 +70,3 @@ const ProfileEditForm = ({ form, onChange }) => {
 };
 
 export default ProfileEditForm;
-

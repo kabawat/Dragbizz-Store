@@ -3,7 +3,6 @@ import React from "react";
 import moment from "moment";
 
 const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
-
   const formatCurrency = (amount) => {
     return `₹${(amount || 0).toLocaleString(undefined, {
       minimumFractionDigits: 2,
@@ -11,9 +10,9 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
     })}`;
   };
 
-  const PRIMARY_COLOR = "#800020"; 
-  const TEXT_COLOR = "#36454F"; 
-  const BORDER_COLOR = "#e0e0e0"; 
+  const PRIMARY_COLOR = "#800020";
+  const TEXT_COLOR = "#36454F";
+  const BORDER_COLOR = "#e0e0e0";
 
   return (
     <>
@@ -265,13 +264,22 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="geometric-invoice-body">
         <div className="geometric-invoice">
-          
           {/* Header Section */}
           <div className="geometric-header">
             <h1>INVOICE</h1>
             <div className="geometric-meta-info">
-                <p>Invoice No: <span className="geometric-value-bold">{invoiceData.invoiceNumber}</span></p>
-                <p>Date: <span className="geometric-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
+              <p>
+                Invoice No:{" "}
+                <span className="geometric-value-bold">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date:{" "}
+                <span className="geometric-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
             </div>
           </div>
 
@@ -279,21 +287,34 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
           <div className="geometric-info-grid">
             {/* Store/Biller Info */}
             <div className="geometric-box">
-                <div className="title">Billed By</div>
-                <p className="geometric-store-name">{selectedStore?.storeName || "Geometric Billing Corp"}</p>
-                <p className="geometric-store-info">{selectedStore?.address || "123 Structure Road, Business Park"}</p>
-                <p className="geometric-store-info">Ph: {selectedStore?.phone || "+91 12345 54321"} | Email: {selectedStore?.email || "billing@geometric.com"}</p>
+              <div className="title">Billed By</div>
+              <p className="geometric-store-name">
+                {selectedStore?.storeName || "Geometric Billing Corp"}
+              </p>
+              <p className="geometric-store-info">
+                {selectedStore?.address || "123 Structure Road, Business Park"}
+              </p>
+              <p className="geometric-store-info">
+                Ph: {selectedStore?.phone || "+91 12345 54321"} | Email:{" "}
+                {selectedStore?.email || "billing@geometric.com"}
+              </p>
             </div>
-            
+
             {/* Customer/Bill To Info */}
             <div className="geometric-box">
-                <div className="title">Bill To</div>
-                <p className="geometric-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <div className="title">Bill To</div>
+              <p className="geometric-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="geometric-table">
             <thead>
@@ -323,45 +344,48 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals Area */}
           <div className="geometric-totals-area">
-              <div className="geometric-totals-table">
-                  <div className="row">
-                    <div className="label">Subtotal:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.subtotal)}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="label">Tax (GST):</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.gstAmount)}
-                    </div>
-                  </div>
-                  {invoiceData.totalDiscount > 0 && (
-                    <div className="row" style={{ borderBottom: '1px dashed #c0392b' }}>
-                      <div className="label">Discount:</div>
-                      <div className="amount" style={{ color: '#c0392b' }}>
-                        -{formatCurrency(invoiceData.totalDiscount)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="row final-row">
-                    <div className="label">TOTAL DUE:</div>
-                    <div className="amount">
-                      {formatCurrency(invoiceData.totalAmount)}
-                    </div>
-                  </div>
+            <div className="geometric-totals-table">
+              <div className="row">
+                <div className="label">Subtotal:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.subtotal)}
+                </div>
               </div>
+              <div className="row">
+                <div className="label">Tax (GST):</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.gstAmount)}
+                </div>
+              </div>
+              {invoiceData.totalDiscount > 0 && (
+                <div
+                  className="row"
+                  style={{ borderBottom: "1px dashed #c0392b" }}
+                >
+                  <div className="label">Discount:</div>
+                  <div className="amount" style={{ color: "#c0392b" }}>
+                    -{formatCurrency(invoiceData.totalDiscount)}
+                  </div>
+                </div>
+              )}
+              <div className="row final-row">
+                <div className="label">TOTAL DUE:</div>
+                <div className="amount">
+                  {formatCurrency(invoiceData.totalAmount)}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Footer & Signature */}
           <div className="geometric-signature-box">
-            <p>Thank you for choosing Geometric Billing. All amounts are in INR.</p>
-            <div className="geometric-signature-line">
-                Authorized Signature
-            </div>
+            <p>
+              Thank you for choosing Geometric Billing. All amounts are in INR.
+            </p>
+            <div className="geometric-signature-line">Authorized Signature</div>
           </div>
         </div>
       </div>

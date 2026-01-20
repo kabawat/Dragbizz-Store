@@ -1,10 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Phone, RefreshCw, Edit3, AlertCircle, CheckCircle, MessageSquare, Shield, Zap, ArrowRight } from 'lucide-react';
-import { authService } from '@/service/auth';
-import { ENV_CONFIG } from '@/config';
-import { AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
-import styles from '../../page/style/Login.module.scss';
-import { useTranslation } from '@/hooks/useTranslation';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Mail,
+  Phone,
+  RefreshCw,
+  Edit3,
+  AlertCircle,
+  CheckCircle,
+  MessageSquare,
+  Shield,
+  Zap,
+  ArrowRight,
+} from "lucide-react";
+import { authService } from "@/service/auth";
+import { ENV_CONFIG } from "@/config";
+import { AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
+import styles from "../../page/style/Login.module.scss";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const VerificationStep = ({
   contactType,
@@ -14,14 +25,14 @@ const VerificationStep = ({
   onChangeContact,
   registrationToken,
   registrationData,
-  onTokenUpdate
+  onTokenUpdate,
 }) => {
   const { t } = useTranslation();
-  const [otp, setOtp] = useState(['', '', '', '', '']);
+  const [otp, setOtp] = useState(["", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [attempts, setAttempts] = useState(0);
   const inputRefs = useRef([]);
 
@@ -41,11 +52,11 @@ const VerificationStep = ({
 
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    setError('');
+    setError("");
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -53,58 +64,61 @@ const VerificationStep = ({
     }
 
     // Auto-submit when all fields are filled
-    if (newOtp.every(digit => digit !== '')) {
-      handleVerification(newOtp.join(''));
+    if (newOtp.every((digit) => digit !== "")) {
+      handleVerification(newOtp.join(""));
     }
   };
 
   const handleManualSubmit = () => {
-    const otpCode = otp.join('');
+    const otpCode = otp.join("");
     if (otpCode.length === 5 && !isVerifying) {
       handleVerification(otpCode);
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleVerification = async (code) => {
     setIsVerifying(true);
-    setError('');
+    setError("");
 
     try {
-      const result = await authService.verifyRegistrationOTP(code, registrationToken);
+      const result = await authService.verifyRegistrationOTP(
+        code,
+        registrationToken,
+      );
 
       if (result.success) {
         // OTP verified, pass the token to success screen
         onVerificationComplete(result.token);
       } else {
         // OTP verification failed
-        setAttempts(prev => prev + 1);
+        setAttempts((prev) => prev + 1);
         if (attempts >= 10) {
-          setError(t('auth.tooManyFailedAttempts'));
-          setOtp(['', '', '', '', '']);
+          setError(t("auth.tooManyFailedAttempts"));
+          setOtp(["", "", "", "", ""]);
           setCanResend(true);
           setTimeLeft(0);
         } else {
-          setError(result.message || t('auth.invalidOtpTryAgain'));
-          setOtp(['', '', '', '', '']);
+          setError(result.message || t("auth.invalidOtpTryAgain"));
+          setOtp(["", "", "", "", ""]);
           inputRefs.current[0]?.focus();
         }
       }
     } catch (error) {
-      setAttempts(prev => prev + 1);
+      setAttempts((prev) => prev + 1);
       if (attempts >= 10) {
-        setError(t('auth.tooManyFailedAttempts'));
-        setOtp(['', '', '', '', '']);
+        setError(t("auth.tooManyFailedAttempts"));
+        setOtp(["", "", "", "", ""]);
         setCanResend(true);
         setTimeLeft(0);
       } else {
-        setError(t('auth.errorOccurredTryAgain'));
-        setOtp(['', '', '', '', '']);
+        setError(t("auth.errorOccurredTryAgain"));
+        setOtp(["", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } finally {
@@ -114,44 +128,44 @@ const VerificationStep = ({
 
   const handleResendCode = async () => {
     if (!canResend) return;
-    
+
     setIsVerifying(true);
-    setError('');
-    
+    setError("");
+
     try {
       // Prepare registration data in the correct format
       const resendData = {
         firstName: registrationData.firstName,
         lastName: registrationData.lastName,
         identifier: registrationData.contact, // Map contact to identifier
-        pwds: registrationData.password // Map password to pwds
+        pwds: registrationData.password, // Map password to pwds
       };
-      
+
       // Call the registration API again to resend OTP
       const result = await authService.resendRegistrationOTP(resendData);
-      
+
       if (result.success) {
         // Update the token with the new one
         onTokenUpdate(result.token);
         setCanResend(false);
         setTimeLeft(60);
-        setOtp(['', '', '', '', '']);
-        setError('');
+        setOtp(["", "", "", "", ""]);
+        setError("");
         setAttempts(0);
         inputRefs.current[0]?.focus();
       } else {
-        setError(result.message || t('auth.failedToResendOtpTryAgain'));
+        setError(result.message || t("auth.failedToResendOtpTryAgain"));
       }
     } catch (error) {
-      setError(t('auth.errorResendingOtp'));
+      setError(t("auth.errorResendingOtp"));
     } finally {
       setIsVerifying(false);
     }
   };
 
   const formatContact = (contact, type) => {
-    if (type === 'email') {
-      const [username, domain] = contact.split('@');
+    if (type === "email") {
+      const [username, domain] = contact.split("@");
       if (username.length <= 3) return contact;
       return `${username.slice(0, 2)}***@${domain}`;
     } else {
@@ -165,7 +179,7 @@ const VerificationStep = ({
       {/* Animated Background */}
       <AnimatedBackground variant="register" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
-      
+
       {/* Full width wrapper */}
       <div className="w-full min-h-screen flex relative z-10">
         {/* Left Side - Welcome Content */}
@@ -179,10 +193,10 @@ const VerificationStep = ({
                   <MessageSquare className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  {t('auth.almostThere')}
+                  {t("auth.almostThere")}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  {t('auth.verifyAccountWithCode')}
+                  {t("auth.verifyAccountWithCode")}
                 </p>
               </div>
 
@@ -193,8 +207,12 @@ const VerificationStep = ({
                     <Mail className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureVerification')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.digitCodeSentTo', { type: contactType })}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.secureVerification")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.digitCodeSentTo", { type: contactType })}
+                    </p>
                   </div>
                 </div>
 
@@ -203,8 +221,12 @@ const VerificationStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickProcess')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.autoSubmitsWhenFilled')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.quickProcess")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.autoSubmitsWhenFilled")}
+                    </p>
                   </div>
                 </div>
 
@@ -213,8 +235,12 @@ const VerificationStep = ({
                     <Shield className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.safeAndSecure')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.verificationCodeExpires')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.safeAndSecure")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.verificationCodeExpires")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -222,7 +248,7 @@ const VerificationStep = ({
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  {t('auth.copyright')}
+                  {t("auth.copyright")}
                 </p>
               </div>
             </div>
@@ -240,7 +266,7 @@ const VerificationStep = ({
                   <MessageSquare className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('auth.dragBizzStore')}
+                  {t("auth.dragBizzStore")}
                 </h1>
               </div>
 
@@ -248,7 +274,7 @@ const VerificationStep = ({
               <div className={styles.otpSection}>
                 <div className={styles.otpHeader}>
                   <div className={styles.otpHeaderIcon}>
-                    {contactType === 'email' ? (
+                    {contactType === "email" ? (
                       <Mail className="w-8 h-8 text-blue-500" />
                     ) : (
                       <Phone className="w-8 h-8 text-blue-500" />
@@ -256,26 +282,28 @@ const VerificationStep = ({
                   </div>
 
                   <h2 className={styles.otpTitle}>
-                    {t('auth.almostThereFirstName', { firstName })}
+                    {t("auth.almostThereFirstName", { firstName })}
                   </h2>
 
                   <p className={styles.otpDescription}>
-                    {t('auth.sentCodeTo')}
+                    {t("auth.sentCodeTo")}
                   </p>
 
                   <div className={styles.otpContactInfo}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className={`${styles.otpContactBadge} ${contactType === 'email' ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}>
-                          {contactType === 'email' ? (
+                        <div
+                          className={`${styles.otpContactBadge} ${contactType === "email" ? styles.otpContactBadgeEmail : styles.otpContactBadgePhone}`}
+                        >
+                          {contactType === "email" ? (
                             <>
                               <Mail className="w-3 h-3 mr-1" />
-                              {t('auth.email')}
+                              {t("auth.email")}
                             </>
                           ) : (
                             <>
                               <Phone className="w-3 h-3 mr-1" />
-                              {t('auth.phone')}
+                              {t("auth.phone")}
                             </>
                           )}
                         </div>
@@ -286,7 +314,7 @@ const VerificationStep = ({
                       <button
                         onClick={onChangeContact}
                         className="text-blue-500 hover:text-blue-600 transition-colors duration-200 p-1 cursor-pointer"
-                        title={t('auth.changeContact')}
+                        title={t("auth.changeContact")}
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
@@ -308,13 +336,15 @@ const VerificationStep = ({
                     3
                   </div>
                 </div>
-                <p className="text-xs text-center text-[rgb(var(--color-text-secondary))] mb-6">{t('auth.step3Of3')}</p>
+                <p className="text-xs text-center text-[rgb(var(--color-text-secondary))] mb-6">
+                  {t("auth.step3Of3")}
+                </p>
 
                 <div className={styles.otpInputSection}>
                   {/* OTP Input */}
                   <div>
                     <label className={styles.otpLabel}>
-                      {t('auth.enterVerificationCode')}
+                      {t("auth.enterVerificationCode")}
                     </label>
                     <div className={styles.otpInputs}>
                       {otp.map((digit, index) => (
@@ -327,9 +357,11 @@ const VerificationStep = ({
                           inputMode="numeric"
                           maxLength={1}
                           value={digit}
-                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleOtpChange(index, e.target.value)
+                          }
                           onKeyDown={(e) => handleKeyDown(index, e)}
-                          className={`${styles.otpInput} ${error ? styles.otpInputError : ''}`}
+                          className={`${styles.otpInput} ${error ? styles.otpInputError : ""}`}
                           autoFocus={index === 0}
                         />
                       ))}
@@ -347,7 +379,9 @@ const VerificationStep = ({
                     {isVerifying && (
                       <div className={styles.otpLoading}>
                         <div className={styles.otpLoadingSpinner}></div>
-                        <span className={styles.otpLoadingText}>{t('auth.verifying')}</span>
+                        <span className={styles.otpLoadingText}>
+                          {t("auth.verifying")}
+                        </span>
                       </div>
                     )}
 
@@ -356,14 +390,16 @@ const VerificationStep = ({
                       <Button
                         type="button"
                         onClick={handleManualSubmit}
-                        disabled={otp.join('').length !== 5 || isVerifying}
+                        disabled={otp.join("").length !== 5 || isVerifying}
                         loading={isVerifying}
                         variant="primary"
                         size="lg"
                         rightIcon={!isVerifying ? ArrowRight : undefined}
                         className="w-[14.5rem]"
                       >
-                        {isVerifying ? t('auth.verifying') : t('auth.verifyCode')}
+                        {isVerifying
+                          ? t("auth.verifying")
+                          : t("auth.verifyCode")}
                       </Button>
                     </div>
                   </div>
@@ -371,7 +407,7 @@ const VerificationStep = ({
                   {/* Resend Section */}
                   <div className={styles.resendSection}>
                     <p className={styles.resendText}>
-                      {t('auth.didntReceiveCode')}
+                      {t("auth.didntReceiveCode")}
                     </p>
 
                     {canResend ? (
@@ -381,11 +417,11 @@ const VerificationStep = ({
                         className={styles.resendButton}
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        {t('auth.resendCode')}
+                        {t("auth.resendCode")}
                       </button>
                     ) : (
                       <p className={styles.resendTimer}>
-                        {t('auth.resendIn', { time: timeLeft })}
+                        {t("auth.resendIn", { time: timeLeft })}
                       </p>
                     )}
                   </div>

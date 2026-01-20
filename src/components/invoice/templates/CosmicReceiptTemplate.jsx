@@ -13,7 +13,7 @@ const CosmicReceiptTemplate = ({ invoiceData, selectedStore }) => {
   };
 
   const BACKGROUND_COLOR = "#1c1c1c"; // Deep Dark Gray
-  const TEXT_COLOR = "white"; 
+  const TEXT_COLOR = "white";
   const ACCENT_COLOR = "#00e676"; // Electric Green
 
   return (
@@ -251,36 +251,54 @@ const CosmicReceiptTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="cosmic-invoice-body">
         <div className="cosmic-invoice">
-          
           {/* Header Section */}
           <div className="cosmic-header">
             <h1>RECEIPT</h1>
             <div className="cosmic-store-info">
-                <p>
-                    <span className="cosmic-store-name">{selectedStore?.storeName || "Cosmic Systems Ltd."}</span> 
-                </p>
-                <p>
-                    {selectedStore?.address || "Unit 404, Cyber Tower"} | Ph: {selectedStore?.phone || "+91 0101010101"}
-                </p>
+              <p>
+                <span className="cosmic-store-name">
+                  {selectedStore?.storeName || "Cosmic Systems Ltd."}
+                </span>
+              </p>
+              <p>
+                {selectedStore?.address || "Unit 404, Cyber Tower"} | Ph:{" "}
+                {selectedStore?.phone || "+91 0101010101"}
+              </p>
             </div>
           </div>
-          
+
           {/* Info Section */}
           <div className="cosmic-info-section">
             <div className="cosmic-block">
-                <div className="title">Transaction Meta</div>
-                <p>Invoice #: <span className="cosmic-value-bold">{invoiceData.invoiceNumber}</span></p>
-                <p>Date: <span className="cosmic-value-bold">{moment(invoiceData.createdAt).format("YYYY-MM-DD")}</span></p>
+              <div className="title">Transaction Meta</div>
+              <p>
+                Invoice #:{" "}
+                <span className="cosmic-value-bold">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date:{" "}
+                <span className="cosmic-value-bold">
+                  {moment(invoiceData.createdAt).format("YYYY-MM-DD")}
+                </span>
+              </p>
             </div>
-            
-            <div className="cosmic-block" style={{ textAlign: 'right' }}>
-                <div className="title">Billed To</div>
-                <p className="cosmic-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-                {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+
+            <div className="cosmic-block" style={{ textAlign: "right" }}>
+              <div className="title">Billed To</div>
+              <p className="cosmic-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
-          
+
           {/* Table */}
           <table className="cosmic-table">
             <thead>
@@ -315,43 +333,41 @@ const CosmicReceiptTemplate = ({ invoiceData, selectedStore }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Totals */}
           <div className="cosmic-totals-table">
+            <div className="row">
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.subtotal)}
+              </div>
+            </div>
+            <div className="row">
+              <div className="label">Tax (GST):</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.gstAmount)}
+              </div>
+            </div>
+            {invoiceData.totalDiscount > 0 && (
               <div className="row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.subtotal)}
+                <div className="label">Discount:</div>
+                <div className="amount" style={{ color: "#ff5252" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
-              <div className="row">
-                <div className="label">Tax (GST):</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.gstAmount)}
-                </div>
+            )}
+            <div className="row final-row">
+              <div className="label">AMOUNT DUE:</div>
+              <div className="amount">
+                {formatCurrency(invoiceData.totalAmount)}
               </div>
-              {invoiceData.totalDiscount > 0 && (
-                <div className="row">
-                  <div className="label">Discount:</div>
-                  <div className="amount" style={{ color: '#ff5252' }}>
-                    -{formatCurrency(invoiceData.totalDiscount)}
-                  </div>
-                </div>
-              )}
-              <div className="row final-row">
-                <div className="label">AMOUNT DUE:</div>
-                <div className="amount">
-                  {formatCurrency(invoiceData.totalAmount)}
-                </div>
-              </div>
+            </div>
           </div>
-          
+
           {/* Footer */}
           <div className="cosmic-footer">
             <p>Processing complete. Data stream verified.</p>
-            <p>
-              Thank you for your transaction.
-            </p>
+            <p>Thank you for your transaction.</p>
           </div>
         </div>
       </div>

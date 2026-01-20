@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const ZenithTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -293,7 +293,8 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
 
           <div>
             <p style={{ fontSize: "11px", opacity: 0.9, marginTop: "40px" }}>
-              © {moment().format("YYYY")} {selectedStore?.storeName || "Your Store"}
+              © {moment().format("YYYY")}{" "}
+              {selectedStore?.storeName || "Your Store"}
             </p>
           </div>
         </div>
@@ -303,8 +304,12 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
           <div className="zenith-header">
             <h1>INVOICE</h1>
             <div className="right">
-              <p>Invoice No: <strong>{invoiceData.invoiceNumber}</strong></p>
-              <p>Date: {moment(invoiceData.createdAt).format("MMM DD, YYYY")}</p>
+              <p>
+                Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+              </p>
+              <p>
+                Date: {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+              </p>
             </div>
           </div>
 
@@ -312,8 +317,12 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
             <div className="zenith-card">
               <h4>Bill To</h4>
               <p>{invoiceData.customer?.name || "Walk-in Customer"}</p>
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
             </div>
 
             <div className="zenith-card">
@@ -327,17 +336,19 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
           <InvoiceItemsTable
             items={invoiceData.items}
             columnWidths={{
-              product: '40%',
-              quantity: '15%',
-              unitPrice: '20%',
-              gst: '10%',
-              total: '15%'
+              product: "40%",
+              quantity: "15%",
+              unitPrice: "20%",
+              gst: "10%",
+              total: "15%",
             }}
             renderProductCell={(item) => (
               <>
                 <div className="product-name">{item.product?.name}</div>
                 {item.product?.sku && (
-                  <small style={{ color: "#9ca3af" }}>SKU: {item.product.sku}</small>
+                  <small style={{ color: "#9ca3af" }}>
+                    SKU: {item.product.sku}
+                  </small>
                 )}
               </>
             )}
@@ -347,11 +358,15 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
             <div className="totals-box">
               <div className="totals-row">
                 <span className="totals-label">Subtotal:</span>
-                <span className="totals-value">₹{invoiceData.subtotal?.toLocaleString()}</span>
+                <span className="totals-value">
+                  ₹{invoiceData.subtotal?.toLocaleString()}
+                </span>
               </div>
               <div className="totals-row">
                 <span className="totals-label">GST:</span>
-                <span className="totals-value">₹{invoiceData.gstAmount?.toLocaleString() || "0"}</span>
+                <span className="totals-value">
+                  ₹{invoiceData.gstAmount?.toLocaleString() || "0"}
+                </span>
               </div>
               {invoiceData.totalDiscount > 0 && (
                 <div className="totals-row">
@@ -373,9 +388,12 @@ const ZenithTemplate = ({ invoiceData, selectedStore }) => {
           <div className="footer">
             <p>Thank you for choosing us!</p>
             <p>
-              Generated on {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+              Generated on{" "}
+              {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
             </p>
-            <p>This invoice is system-generated and does not require a signature.</p>
+            <p>
+              This invoice is system-generated and does not require a signature.
+            </p>
           </div>
         </div>
       </div>

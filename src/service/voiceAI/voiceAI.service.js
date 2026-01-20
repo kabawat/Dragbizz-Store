@@ -1,6 +1,6 @@
-import { API_CONFIG } from '@/config';
-import { handleApiSuccess, handleApiErrorResponse } from '@/utils/errorHandler';
-import { authAxios } from '@/service/config/axiosConfig';
+import { API_CONFIG } from "@/config";
+import { handleApiSuccess, handleApiErrorResponse } from "@/utils/errorHandler";
+import { authAxios } from "@/service/config/axiosConfig";
 
 class VoiceAIService {
   // Chat with Voice AI for customer creation
@@ -14,12 +14,12 @@ class VoiceAIService {
 
       const response = await authAxios.post(
         API_CONFIG.VOICE_AI.CUSTOMER_CHAT,
-        payload
+        payload,
       );
-      
-      return handleApiSuccess(response?.data, 'Chat processed successfully');
+
+      return handleApiSuccess(response?.data, "Chat processed successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'voice-ai-chat');
+      return handleApiErrorResponse(error, "voice-ai-chat");
     }
   }
 
@@ -34,12 +34,12 @@ class VoiceAIService {
 
       const response = await authAxios.post(
         API_CONFIG.VOICE_AI.SUPPLIER_CHAT,
-        payload
+        payload,
       );
-      
-      return handleApiSuccess(response?.data, 'Chat processed successfully');
+
+      return handleApiSuccess(response?.data, "Chat processed successfully");
     } catch (error) {
-      return handleApiErrorResponse(error, 'voice-ai-chat');
+      return handleApiErrorResponse(error, "voice-ai-chat");
     }
   }
 
@@ -47,21 +47,24 @@ class VoiceAIService {
   async extractProductFromImage(imageFile) {
     try {
       const formData = new FormData();
-      formData.append('image', imageFile);
+      formData.append("image", imageFile);
 
       const response = await authAxios.post(
         API_CONFIG.VOICE_AI.PRODUCT_EXTRACT,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
-      
-      return handleApiSuccess(response?.data, 'Product data extracted successfully');
+
+      return handleApiSuccess(
+        response?.data,
+        "Product data extracted successfully",
+      );
     } catch (error) {
-      return handleApiErrorResponse(error, 'product-extract');
+      return handleApiErrorResponse(error, "product-extract");
     }
   }
 }
@@ -69,4 +72,3 @@ class VoiceAIService {
 // Create and export a singleton instance
 const voiceAIService = new VoiceAIService();
 export default voiceAIService;
-

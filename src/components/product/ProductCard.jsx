@@ -1,10 +1,20 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreVertical, Edit, Copy, Trash2, Eye, Package, Tag, Calendar, ArrowDownToLine } from 'lucide-react';
-import Image from 'next/image';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Card, Badge, Button, Dropdown } from "../ui";
+import {
+  MoreVertical,
+  Edit,
+  Copy,
+  Trash2,
+  Eye,
+  Package,
+  Tag,
+  Calendar,
+  ArrowDownToLine,
+} from "lucide-react";
+import Image from "next/image";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ProductCard = ({
   product,
@@ -13,14 +23,14 @@ const ProductCard = ({
   onDuplicate,
   onViewDetails,
   onStockIn,
-  className = '',
+  className = "",
   ...props
 }) => {
   const [imageError, setImageError] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
   const { currentVariant, themeConfig } = useTheme();
-  
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,115 +38,119 @@ const ProductCard = ({
         setOpenMenuId(null);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
-  
+
   const { t } = useTranslation();
   const getStockBadge = (stock) => {
     if (stock === 0) {
-      return <Badge variant="danger">{t('products.outOfStock')}</Badge>;
+      return <Badge variant="danger">{t("products.outOfStock")}</Badge>;
     } else if (stock < 10) {
-      return <Badge variant="warning">{t('products.lowStock')}</Badge>;
+      return <Badge variant="warning">{t("products.lowStock")}</Badge>;
     } else {
-      return <Badge variant="success">{stock} {t('products.inStock')}</Badge>;
+      return (
+        <Badge variant="success">
+          {stock} {t("products.inStock")}
+        </Badge>
+      );
     }
   };
-  
+
   const calculateDiscount = (sellingPrice, mrp) => {
     if (!mrp || mrp <= sellingPrice) return 0;
     return Math.round(((mrp - sellingPrice) / mrp) * 100);
   };
-  
+
   const discount = calculateDiscount(product.sellingPrice, product.mrp);
-  
+
   const getCategoryBadgeStyle = (color) => {
-    if (currentVariant === 'dark') {
+    if (currentVariant === "dark") {
       return {
         backgroundColor: `${color}20`,
         color: `${color}CC`,
-        border: `1px solid ${color}50`
+        border: `1px solid ${color}50`,
       };
     } else {
       return {
         backgroundColor: `${color}20`,
-        color: `${color}CC`
+        color: `${color}CC`,
       };
     }
   };
-  
+
   const actionMenuItems = [
     {
-      value: 'view',
-      label: t('common.viewDetails'),
+      value: "view",
+      label: t("common.viewDetails"),
       icon: Eye,
-      onClick: () => onViewDetails?.(product.id)
+      onClick: () => onViewDetails?.(product.id),
     },
     {
-      value: 'stock-in',
-      label: t('products.stockIn'),
+      value: "stock-in",
+      label: t("products.stockIn"),
       icon: ArrowDownToLine,
       onClick: () => onStockIn?.(product.id),
-      className: 'text-green-600 hover:text-green-700'
+      className: "text-green-600 hover:text-green-700",
     },
     {
-      value: 'edit',
-      label: t('common.edit'),
+      value: "edit",
+      label: t("common.edit"),
       icon: Edit,
-      onClick: () => onEdit?.(product.id)
+      onClick: () => onEdit?.(product.id),
     },
     {
-      value: 'duplicate',
-      label: t('common.duplicate'),
+      value: "duplicate",
+      label: t("common.duplicate"),
       icon: Copy,
-      onClick: () => onDuplicate?.(product.id)
+      onClick: () => onDuplicate?.(product.id),
     },
     {
-      value: 'delete',
-      label: t('common.delete'),
+      value: "delete",
+      label: t("common.delete"),
       icon: Trash2,
-      onClick: () => onDelete?.(product.id)
-    }
+      onClick: () => onDelete?.(product.id),
+    },
   ];
-  
+
   const handleMenuToggle = (productId) => {
     setOpenMenuId(openMenuId === productId ? null : productId);
   };
-  
+
   const handleMenuAction = (productId, action) => {
     setOpenMenuId(null);
     switch (action) {
-      case 'view':
+      case "view":
         onViewDetails?.(productId);
         break;
-      case 'stock-in':
+      case "stock-in":
         onStockIn?.(productId);
         break;
-      case 'edit':
+      case "edit":
         onEdit?.(productId);
         break;
-      case 'duplicate':
+      case "duplicate":
         onDuplicate?.(productId);
         break;
-      case 'delete':
+      case "delete":
         onDelete?.(productId);
         break;
       default:
         break;
     }
   };
-  
+
   // Grid view - Modern Card Design
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`} {...props}>
-      
+    <div
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`}
+      {...props}
+    >
       {/* Product Image with Gradient Overlay */}
-      <div 
-        className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
+      <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
         <div className="w-full h-full overflow-hidden rounded-t-xl">
           {product.image && !imageError ? (
             <Image
@@ -147,121 +161,132 @@ const ProductCard = ({
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ color: themeConfig.textSecondary }}>
-              <Package className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" style={{ color: themeConfig.textSecondary }} />
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              <Package
+                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                style={{ color: themeConfig.textSecondary }}
+              />
             </div>
           )}
         </div>
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl"></div>
-        
+
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
-            <button 
+            <button
               onClick={() => handleMenuToggle(product.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t('common.actions')}
+              title={t("common.actions")}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
-            
+
             {/* Popup Menu */}
             {openMenuId === product.id && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-[9999]">
                 <button
-                  onClick={() => handleMenuAction(product.id, 'view')}
+                  onClick={() => handleMenuAction(product.id, "view")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.viewDetails')}
+                  {t("common.viewDetails")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(product.id, 'stock-in')}
+                  onClick={() => handleMenuAction(product.id, "stock-in")}
                   className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
                 >
                   <ArrowDownToLine className="w-4 h-4 text-green-500" />
-                  {t('products.stockIn')}
+                  {t("products.stockIn")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(product.id, 'edit')}
+                  onClick={() => handleMenuAction(product.id, "edit")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.edit')}
+                  {t("common.edit")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(product.id, 'duplicate')}
+                  onClick={() => handleMenuAction(product.id, "duplicate")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.duplicate')}
+                  {t("common.duplicate")}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
-                  onClick={() => handleMenuAction(product.id, 'delete')}
+                  onClick={() => handleMenuAction(product.id, "delete")}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  {t('common.delete')}
+                  {t("common.delete")}
                 </button>
               </div>
             )}
           </div>
         </div>
-        
       </div>
-      
+
       {/* Product Info */}
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Product Name */}
         <div>
-          <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
+          <h3
+            className="font-bold text-md sm:text-xl mb-1"
+            style={{ color: themeConfig.text }}
+          >
             {product.name}
           </h3>
-          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
+          <p
+            className="text-xs sm:text-sm font-medium"
+            style={{ color: themeConfig.textSecondary }}
+          >
             {product.brand}
           </p>
         </div>
-        
+
         {/* Category Tags */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
           {(() => {
             let categoryParts = [];
             const rawCategory = product.category;
-            
+
             if (Array.isArray(rawCategory)) {
               categoryParts = rawCategory.filter(Boolean);
-            } else if (typeof rawCategory === 'string' && rawCategory.trim()) {
-              categoryParts = rawCategory.split(' > ').filter(Boolean);
+            } else if (typeof rawCategory === "string" && rawCategory.trim()) {
+              categoryParts = rawCategory.split(" > ").filter(Boolean);
             } else if (rawCategory) {
               categoryParts = [String(rawCategory)];
             }
-            
+
             if (categoryParts.length === 0) {
               return (
-                <span 
+                <span
                   className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                  style={getCategoryBadgeStyle('#6b7280')}
+                  style={getCategoryBadgeStyle("#6b7280")}
                 >
-                  {t('products.uncategorized')}
+                  {t("products.uncategorized")}
                 </span>
               );
             }
-            
+
             return (
               <>
-                <span 
+                <span
                   className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                  style={getCategoryBadgeStyle('#8b5cf6')}
+                  style={getCategoryBadgeStyle("#8b5cf6")}
                 >
                   {categoryParts[0]}
                 </span>
                 {categoryParts[1] && (
-                  <span 
+                  <span
                     className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium"
-                    style={getCategoryBadgeStyle('#3b82f6')}
+                    style={getCategoryBadgeStyle("#3b82f6")}
                   >
                     {categoryParts[1]}
                   </span>
@@ -270,52 +295,78 @@ const ProductCard = ({
             );
           })()}
         </div>
-        
+
         {/* Stock Info */}
         <div className="flex items-center justify-between">
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('products.stock')}:</span> {product.stock} {t('products.units')}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">{t("products.stock")}:</span>{" "}
+            {product.stock} {t("products.units")}
           </div>
-          <div className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>
-            <span className="font-medium">{t('products.sku')}:</span> {product.sku}
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            <span className="font-medium">{t("products.sku")}:</span>{" "}
+            {product.sku}
           </div>
         </div>
-        
+
         {/* Pricing Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.sellingPrice')}</span>
-            <span className="text-sm sm:text-base md:text-lg font-bold" style={{ color: themeConfig.text }}>
+            <span
+              className="text-xs sm:text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              {t("products.sellingPrice")}
+            </span>
+            <span
+              className="text-sm sm:text-base md:text-lg font-bold"
+              style={{ color: themeConfig.text }}
+            >
               ₹{product.sellingPrice.toLocaleString()}
             </span>
           </div>
           {product.mrp > product.sellingPrice && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm" style={{ color: themeConfig.textSecondary }}>{t('products.mrp')}</span>
-              <span className="text-xs sm:text-sm line-through" style={{ color: themeConfig.textSecondary }}>
+              <span
+                className="text-xs sm:text-sm"
+                style={{ color: themeConfig.textSecondary }}
+              >
+                {t("products.mrp")}
+              </span>
+              <span
+                className="text-xs sm:text-sm line-through"
+                style={{ color: themeConfig.textSecondary }}
+              >
                 ₹{product.mrp.toLocaleString()}
               </span>
             </div>
           )}
           {discount > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-green-500 font-medium">{t('products.discount')}</span>
+              <span className="text-xs sm:text-sm text-green-500 font-medium">
+                {t("products.discount")}
+              </span>
               <span className="text-xs sm:text-sm text-green-500 font-medium">
                 {discount}% off
               </span>
             </div>
           )}
         </div>
-        
+
         {/* Last Updated */}
-        <div 
-          className="text-xs text-center pt-1.5 border-t" 
-          style={{ 
+        <div
+          className="text-xs text-center pt-1.5 border-t"
+          style={{
             color: themeConfig.textSecondary,
-            borderColor: themeConfig.border
+            borderColor: themeConfig.border,
           }}
         >
-          {t('common.lastUpdated')}: {product.lastUpdated}
+          {t("common.lastUpdated")}: {product.lastUpdated}
         </div>
       </div>
     </div>

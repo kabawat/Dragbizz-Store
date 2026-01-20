@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 const PersonalInfoCard = ({ icon: Icon, label, value }) => {
   const getValueClasses = () => {
-    const base = 'text-sm font-medium text-[rgb(var(--color-text-primary))]';
-    if (label === 'Email') return `${base} break-all`;
-    if (label === 'Gender') return `${base} capitalize`;
+    const base = "text-sm font-medium text-[rgb(var(--color-text-primary))]";
+    if (label === "Email") return `${base} break-all`;
+    if (label === "Gender") return `${base} capitalize`;
     return base;
   };
 
@@ -20,12 +20,9 @@ const PersonalInfoCard = ({ icon: Icon, label, value }) => {
           {label}
         </p>
       </div>
-      <p className={getValueClasses()}>
-        {value || '-'}
-      </p>
+      <p className={getValueClasses()}>{value || "-"}</p>
     </div>
   );
 };
 
 export default PersonalInfoCard;
-

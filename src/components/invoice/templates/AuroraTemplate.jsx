@@ -247,7 +247,9 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
             <p>{selectedStore?.storeName || "Your Store"}</p>
           </div>
           <div className="right">
-            <p>Invoice No: <strong>{invoiceData.invoiceNumber}</strong></p>
+            <p>
+              Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+            </p>
             <p>Date: {moment(invoiceData.createdAt).format("MMM DD, YYYY")}</p>
           </div>
         </div>
@@ -258,8 +260,12 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
             <div className="info-box">
               <h4>Bill To</h4>
               <p>{invoiceData.customer?.name || "Walk-in Customer"}</p>
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
             </div>
 
             <div className="info-box">
@@ -285,7 +291,9 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
                   <td>
                     <div className="product-name">{item.product?.name}</div>
                     {item.product?.sku && (
-                      <small style={{ color: "#9ca3af" }}>SKU: {item.product.sku}</small>
+                      <small style={{ color: "#9ca3af" }}>
+                        SKU: {item.product.sku}
+                      </small>
                     )}
                   </td>
                   <td>{item.quantity}</td>
@@ -301,7 +309,9 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
               <tbody>
                 <tr>
                   <td className="label">Subtotal:</td>
-                  <td className="amount">₹{invoiceData.subtotal?.toLocaleString()}</td>
+                  <td className="amount">
+                    ₹{invoiceData.subtotal?.toLocaleString()}
+                  </td>
                 </tr>
                 <tr>
                   <td className="label">GST:</td>
@@ -332,7 +342,8 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
         <div className="footer">
           <p>Thank you for your purchase!</p>
           <p>
-            Generated on {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+            Generated on{" "}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
           </p>
         </div>
       </div>

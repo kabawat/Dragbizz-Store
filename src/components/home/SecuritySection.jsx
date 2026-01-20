@@ -1,74 +1,77 @@
-"use client"
-import React from 'react';
-import { Card } from '@/components/ui';
-import { SectionHeader } from '@/components/common';
-import { 
-  Shield, 
-  Lock, 
-  CheckCircle, 
+"use client";
+import React from "react";
+import { Card } from "@/components/ui";
+import { SectionHeader } from "@/components/common";
+import {
+  Shield,
+  Lock,
+  CheckCircle,
   Award,
   FileCheck,
-  Server
-} from 'lucide-react';
+  Server,
+} from "lucide-react";
 
 const SecuritySection = () => {
   const securityFeatures = [
     {
       icon: Shield,
-      title: 'SOC 2 Compliant',
-      description: 'Certified for security, availability, and confidentiality',
-      badge: 'CERTIFIED'
+      title: "SOC 2 Compliant",
+      description: "Certified for security, availability, and confidentiality",
+      badge: "CERTIFIED",
     },
     {
       icon: Lock,
-      title: 'PCI DSS Level 1',
-      description: 'Highest level of payment security compliance',
-      badge: 'LEVEL 1'
+      title: "PCI DSS Level 1",
+      description: "Highest level of payment security compliance",
+      badge: "LEVEL 1",
     },
     {
       icon: FileCheck,
-      title: 'GDPR Compliant',
-      description: 'Full compliance with EU data protection regulations',
-      badge: 'EU'
+      title: "GDPR Compliant",
+      description: "Full compliance with EU data protection regulations",
+      badge: "EU",
     },
     {
       icon: Server,
-      title: 'End-to-End Encryption',
-      description: '256-bit SSL encryption for all data in transit and at rest',
-      badge: '256-BIT'
+      title: "End-to-End Encryption",
+      description: "256-bit SSL encryption for all data in transit and at rest",
+      badge: "256-BIT",
     },
     {
       icon: CheckCircle,
-      title: 'Regular Security Audits',
-      description: 'Third-party security audits and penetration testing',
-      badge: 'AUDITED'
+      title: "Regular Security Audits",
+      description: "Third-party security audits and penetration testing",
+      badge: "AUDITED",
     },
     {
       icon: Award,
-      title: 'ISO 27001 Certified',
-      description: 'International standard for information security management',
-      badge: 'ISO'
-    }
+      title: "ISO 27001 Certified",
+      description: "International standard for information security management",
+      badge: "ISO",
+    },
   ];
 
   const trustBadges = [
-    'SSL Secured',
-    'Bank-Level Security',
-    '99.99% Uptime',
-    '24/7 Monitoring',
-    'Data Backup',
-    'Disaster Recovery'
+    "SSL Secured",
+    "Bank-Level Security",
+    "99.99% Uptime",
+    "24/7 Monitoring",
+    "Data Backup",
+    "Disaster Recovery",
   ];
 
   return (
-    <section id="security" className="relative py-12 sm:py-16 md:py-20 lg:py-24 bg-[rgb(var(--color-bg-secondary))]">
+    <section
+      id="security"
+      className="relative py-12 sm:py-16 md:py-20 lg:py-24 bg-[rgb(var(--color-bg-secondary))]"
+    >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
-        <SectionHeader 
+        <SectionHeader
           badge="Security & Compliance"
           title="Enterprise-Grade Security"
           description="Your data is protected with military-grade security and compliance"
         />
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10 md:mb-12">
           {securityFeatures.map((feature, index) => {
             const Icon = feature.icon;
@@ -126,4 +129,3 @@ const SecuritySection = () => {
 };
 
 export default SecuritySection;
-

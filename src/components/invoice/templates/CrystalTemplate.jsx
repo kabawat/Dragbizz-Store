@@ -1,12 +1,12 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
+import React from "react";
+import moment from "moment";
 
 const CrystalTemplate = ({ invoiceData, selectedStore }) => {
   // Utility function for currency formatting (assuming '₹' for Indian Rupee and 'en-IN' locale)
   const formatCurrency = (amount) => {
-    if (amount === null || amount === undefined) return '₹0.00';
-    return `₹${Number(amount).toLocaleString('en-IN', {
+    if (amount === null || amount === undefined) return "₹0.00";
+    return `₹${Number(amount).toLocaleString("en-IN", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -259,9 +259,12 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="crystal-header">
           <div className="store-details">
-            <div className="store-name">{selectedStore?.storeName || "CRYSTAL VENTURES"}</div>
+            <div className="store-name">
+              {selectedStore?.storeName || "CRYSTAL VENTURES"}
+            </div>
             <p>
-              {selectedStore?.address || "900 Prism Tower, Azure City 67890"} <br />
+              {selectedStore?.address || "900 Prism Tower, Azure City 67890"}{" "}
+              <br />
               {selectedStore?.phone && `Tel: ${selectedStore.phone}`} <br />
               {selectedStore?.email && `Contact: ${selectedStore.email}`}
             </p>
@@ -277,20 +280,34 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
         <div className="crystal-info">
           <div className="info-box">
             <h3>Billed To</h3>
-            <p><strong>{invoiceData.customer?.name || "Customer Name"}</strong></p>
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
+            <p>
+              <strong>{invoiceData.customer?.name || "Customer Name"}</strong>
+            </p>
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
             {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
           </div>
           <div className="info-box">
             <h3>Ship To</h3>
-            <p><strong>{invoiceData.customer?.name || "Customer Name"}</strong></p>
+            <p>
+              <strong>{invoiceData.customer?.name || "Customer Name"}</strong>
+            </p>
             <p>Same as Billing Address</p>
           </div>
           <div className="info-box">
             <h3>Invoice Details</h3>
-            <p><strong>Payment Mode:</strong> {invoiceData.paymentMode || "Bank Transfer"}</p>
-            <p><strong>Invoice Status:</strong> {invoiceData.status || "Approved"}</p>
-            <p><strong>Terms:</strong> Net 30 Days</p>
+            <p>
+              <strong>Payment Mode:</strong>{" "}
+              {invoiceData.paymentMode || "Bank Transfer"}
+            </p>
+            <p>
+              <strong>Invoice Status:</strong>{" "}
+              {invoiceData.status || "Approved"}
+            </p>
+            <p>
+              <strong>Terms:</strong> Net 30 Days
+            </p>
           </div>
         </div>
 
@@ -308,10 +325,14 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.items?.map((item, index) => (
               <tr key={index}>
                 <td>
-                  <span className="product-name">{item.product?.name || "Crystal Product"}</span>
+                  <span className="product-name">
+                    {item.product?.name || "Crystal Product"}
+                  </span>
                 </td>
                 <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                <td style={{ textAlign: "right" }}>{formatCurrency(item.price)}</td>
+                <td style={{ textAlign: "right" }}>
+                  {formatCurrency(item.price)}
+                </td>
                 <td style={{ textAlign: "right" }}>
                   {formatCurrency(item.quantity * item.price)}
                 </td>
@@ -330,7 +351,9 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.totalDiscount > 0 && (
               <div className="total-row">
                 <span>Discount:</span>
-                <span style={{ color: '#ef4444' }}>-{formatCurrency(invoiceData.totalDiscount)}</span>
+                <span style={{ color: "#ef4444" }}>
+                  -{formatCurrency(invoiceData.totalDiscount)}
+                </span>
               </div>
             )}
             <div className="total-row">
@@ -347,7 +370,10 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
 
         {/* Footer */}
         <div className="crystal-footer">
-          <p>We appreciate your valuable business. All sales are final after 30 days.</p>
+          <p>
+            We appreciate your valuable business. All sales are final after 30
+            days.
+          </p>
           <p>System Generated on {moment().format("HH:mm:ss, DD/MM/YYYY")}</p>
         </div>
       </div>

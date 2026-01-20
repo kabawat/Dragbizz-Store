@@ -323,17 +323,22 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
 
       <div className="elitepaper-invoice-body">
         <div className="elitepaper-invoice">
-
           {/* Header Section */}
           <div className="elitepaper-header">
             <h1>INVOICE</h1>
-            <div className="elitepaper-store-tagline">ElitePaper Billing Solutions</div>
+            <div className="elitepaper-store-tagline">
+              ElitePaper Billing Solutions
+            </div>
             <div className="elitepaper-store-info">
               <p>
-                <span className="elitepaper-value-bold">{selectedStore?.storeName || "ElitePaper Global"}</span> | {selectedStore?.address || "789 Corporate Blvd"}
+                <span className="elitepaper-value-bold">
+                  {selectedStore?.storeName || "ElitePaper Global"}
+                </span>{" "}
+                | {selectedStore?.address || "789 Corporate Blvd"}
               </p>
               <p>
-                Ph: {selectedStore?.phone || "+91 1234567890"} | Email: {selectedStore?.email || "billing@elitepaper.com"}
+                Ph: {selectedStore?.phone || "+91 1234567890"} | Email:{" "}
+                {selectedStore?.email || "billing@elitepaper.com"}
               </p>
             </div>
           </div>
@@ -342,16 +347,34 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
           <div className="elitepaper-info-bar">
             <div className="elitepaper-block elitepaper-invoice-meta">
               <div className="title">Invoice Details</div>
-              <p>Invoice #: <span className="elitepaper-value-bold">{invoiceData.invoiceNumber}</span></p>
-              <p>Date Issued: <span className="elitepaper-value-bold">{moment(invoiceData.createdAt).format("MMM DD, YYYY")}</span></p>
-              <p>Due Date: <span className="elitepaper-value-bold">N/A</span></p>
+              <p>
+                Invoice #:{" "}
+                <span className="elitepaper-value-bold">
+                  {invoiceData.invoiceNumber}
+                </span>
+              </p>
+              <p>
+                Date Issued:{" "}
+                <span className="elitepaper-value-bold">
+                  {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                </span>
+              </p>
+              <p>
+                Due Date: <span className="elitepaper-value-bold">N/A</span>
+              </p>
             </div>
 
             <div className="elitepaper-block elitepaper-customer-info">
               <div className="title">Bill To</div>
-              <p className="elitepaper-value-bold">{invoiceData.customer?.name || "Walk-in Customer"}</p>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              <p className="elitepaper-value-bold">
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </p>
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
           </div>
 
@@ -407,7 +430,7 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.totalDiscount > 0 && (
               <div className="row">
                 <div className="label">Discount:</div>
-                <div className="amount" style={{ color: '#c0392b' }}>
+                <div className="amount" style={{ color: "#c0392b" }}>
                   -{formatCurrency(invoiceData.totalDiscount)}
                 </div>
               </div>
@@ -422,9 +445,13 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="elitepaper-footer">
-            <p>Thank you for choosing ElitePaper. All prices are inclusive of applicable taxes.</p>
             <p>
-              Generated at {moment().format("HH:mm:ss")} on {moment().format("YYYY-MM-DD")}
+              Thank you for choosing ElitePaper. All prices are inclusive of
+              applicable taxes.
+            </p>
+            <p>
+              Generated at {moment().format("HH:mm:ss")} on{" "}
+              {moment().format("YYYY-MM-DD")}
             </p>
           </div>
         </div>

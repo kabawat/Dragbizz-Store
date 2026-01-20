@@ -252,7 +252,9 @@ const EclipseTemplate = ({ invoiceData, selectedStore }) => {
 
           <div className="block" style={{ textAlign: "right" }}>
             <div className="label">From</div>
-            <div className="value">{selectedStore?.storeName || "Your Store"}</div>
+            <div className="value">
+              {selectedStore?.storeName || "Your Store"}
+            </div>
             <p>{selectedStore?.email || "info@yourstore.com"}</p>
             <p>{selectedStore?.phone || "+91 9876543210"}</p>
           </div>
@@ -295,11 +297,15 @@ const EclipseTemplate = ({ invoiceData, selectedStore }) => {
         <div className="totals">
           <div className="totals-row">
             <span className="totals-label">Subtotal:</span>
-            <span className="totals-value">₹{invoiceData.subtotal?.toLocaleString()}</span>
+            <span className="totals-value">
+              ₹{invoiceData.subtotal?.toLocaleString()}
+            </span>
           </div>
           <div className="totals-row">
             <span className="totals-label">GST:</span>
-            <span className="totals-value">₹{invoiceData.gstAmount?.toLocaleString() || "0"}</span>
+            <span className="totals-value">
+              ₹{invoiceData.gstAmount?.toLocaleString() || "0"}
+            </span>
           </div>
           {invoiceData.totalDiscount > 0 && (
             <div className="totals-row">
@@ -321,9 +327,12 @@ const EclipseTemplate = ({ invoiceData, selectedStore }) => {
         <div className="footer">
           <p>Thank you for your business!</p>
           <p>
-            Generated on {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+            Generated on{" "}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
           </p>
-          <p>This invoice was auto-generated and does not require a signature.</p>
+          <p>
+            This invoice was auto-generated and does not require a signature.
+          </p>
         </div>
       </div>
     </>

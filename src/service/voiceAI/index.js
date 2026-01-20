@@ -1,2 +1,1 @@
-export { default as voiceAIService } from './voiceAI.service';
-
+export { default as voiceAIService } from "./voiceAI.service";

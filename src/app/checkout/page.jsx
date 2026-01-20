@@ -1,11 +1,11 @@
-"use client"
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button, Card, Input, Loading, Select } from '@/components/ui';
-import { packageService, checkoutService } from '@/service';
-import { cookieManager } from '@/utils/cookieManager';
-import { getCurrencySymbol } from '@/data/constants/currencies';
-import { useAppSelector } from '@/store/hooks';
+"use client";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button, Card, Input, Loading, Select } from "@/components/ui";
+import { packageService, checkoutService } from "@/service";
+import { cookieManager } from "@/utils/cookieManager";
+import { getCurrencySymbol } from "@/data/constants/currencies";
+import { useAppSelector } from "@/store/hooks";
 import {
   CheckCircle,
   CreditCard,
@@ -17,67 +17,70 @@ import {
   Sparkles,
   Star,
   Package,
-  Users
-} from 'lucide-react';
-import ProductHeader from '@/components/layout/ProductHeader';
+  Users,
+} from "lucide-react";
+import ProductHeader from "@/components/layout/ProductHeader";
 
-  const CheckoutContent = () => {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const packageId = searchParams.get('packageId');
-    const { authProfile, selectedStore, user } = useAppSelector((state) => state.profile);
+const CheckoutContent = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const packageId = searchParams.get("packageId");
+  const { authProfile, selectedStore, user } = useAppSelector(
+    (state) => state.profile,
+  );
 
-    const [packageData, setPackageData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [processing, setProcessing] = useState(false);
-    const [error, setError] = useState(null);
-    const [formData, setFormData] = useState({
-      months: 1,
-      couponCode: ''
-    });
-    const [orderData, setOrderData] = useState(null);
-    const [showRazorpay, setShowRazorpay] = useState(false);
+  const [packageData, setPackageData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    months: 1,
+    couponCode: "",
+  });
+  const [orderData, setOrderData] = useState(null);
+  const [showRazorpay, setShowRazorpay] = useState(false);
 
-    // Get email and phone from authProfile first, then from store/user
-    const getUserContactInfo = () => {
-      let email = '';
-      let phone = '';
-      let name = '';
+  // Get email and phone from authProfile first, then from store/user
+  const getUserContactInfo = () => {
+    let email = "";
+    let phone = "";
+    let name = "";
 
-      // First check authProfile
-      if (authProfile) {
-        email = authProfile.email || '';
-        phone = authProfile.phone || '';
-        name = authProfile.firstName && authProfile.lastName 
+    // First check authProfile
+    if (authProfile) {
+      email = authProfile.email || "";
+      phone = authProfile.phone || "";
+      name =
+        authProfile.firstName && authProfile.lastName
           ? `${authProfile.firstName} ${authProfile.lastName}`
-          : authProfile.name || '';
-      }
+          : authProfile.name || "";
+    }
 
-      // If not found in authProfile, check store
-      if (!email && selectedStore?.email) {
-        email = selectedStore.email;
-      }
-      if (!phone && selectedStore?.phone) {
-        phone = selectedStore.phone;
-      }
+    // If not found in authProfile, check store
+    if (!email && selectedStore?.email) {
+      email = selectedStore.email;
+    }
+    if (!phone && selectedStore?.phone) {
+      phone = selectedStore.phone;
+    }
 
-      // If still not found, check user from retailer service
-      if (!email && user?.email) {
-        email = user.email;
-      }
-      if (!phone && user?.phone) {
-        phone = user.phone;
-      }
+    // If still not found, check user from retailer service
+    if (!email && user?.email) {
+      email = user.email;
+    }
+    if (!phone && user?.phone) {
+      phone = user.phone;
+    }
 
-      return { email, phone, name };
-    };
+    return { email, phone, name };
+  };
 
   const getDurationOptions = () => {
     if (!packageData?.pricing?.durationPricing) {
       return [];
     }
 
-    const currency = packageData.pricing.currency || 'INR';
+    const currency = packageData.pricing.currency || "INR";
     const currencySymbol = getCurrencySymbol(currency);
 
     return packageData.pricing.durationPricing
@@ -87,7 +90,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
         const price = dp.discountedPrice || dp.price;
         const discount = dp.discount || 0;
 
-        let label = `${months} ${months === 1 ? 'Month' : 'Months'}`;
+        let label = `${months} ${months === 1 ? "Month" : "Months"}`;
 
         if (discount > 0) {
           const originalPrice = dp.price;
@@ -98,7 +101,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
 
         return {
           value: months,
-          label: label
+          label: label,
         };
       });
   };
@@ -107,7 +110,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
     if (packageId) {
       fetchPackage();
     } else {
-      setError('Package ID is required');
+      setError("Package ID is required");
       setLoading(false);
     }
   }, [packageId]);
@@ -120,30 +123,37 @@ import ProductHeader from '@/components/layout/ProductHeader';
         setPackageData(response.data);
         const durationPricing = response.data.pricing?.durationPricing || [];
         if (durationPricing.length > 0) {
-          const sortedDurations = [...durationPricing].sort((a, b) => a.months - b.months);
+          const sortedDurations = [...durationPricing].sort(
+            (a, b) => a.months - b.months,
+          );
           const firstDuration = sortedDurations[0];
           const currentMonths = formData.months;
-          const isValidDuration = durationPricing.some(dp => dp.months === currentMonths);
+          const isValidDuration = durationPricing.some(
+            (dp) => dp.months === currentMonths,
+          );
 
           if (!isValidDuration) {
-            setFormData(prev => ({ ...prev, months: firstDuration.months }));
+            setFormData((prev) => ({ ...prev, months: firstDuration.months }));
           }
         }
       } else {
-        setError('Package not found');
+        setError("Package not found");
       }
     } catch (err) {
-      setError('Failed to load package');
+      setError("Failed to load package");
     } finally {
       setLoading(false);
     }
   };
 
   const calculatePrice = () => {
-    if (!packageData) return { base: 0, discount: 0, gst: 0, final: 0, months: 0 };
+    if (!packageData)
+      return { base: 0, discount: 0, gst: 0, final: 0, months: 0 };
 
     const months = formData.months || 1;
-    const durationPricing = packageData.pricing?.durationPricing?.find(dp => dp.months === months);
+    const durationPricing = packageData.pricing?.durationPricing?.find(
+      (dp) => dp.months === months,
+    );
 
     if (!durationPricing) {
       return { base: 0, discount: 0, gst: 0, final: 0, months: months };
@@ -162,13 +172,13 @@ import ProductHeader from '@/components/layout/ProductHeader';
       gstPercentage: gstPercentage,
       final: finalAmount,
       discountPercent: durationPricing.discount || 0,
-      months: months
+      months: months,
     };
   };
 
   const handleCreateOrder = async () => {
     if (!packageId || !formData.months) {
-      setError('Please select number of months');
+      setError("Please select number of months");
       return;
     }
 
@@ -190,7 +200,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
         months: formData.months,
         ...(formData.couponCode && { couponCode: formData.couponCode }),
         ...(email && { email }),
-        ...(phone && { phone })
+        ...(phone && { phone }),
       };
 
       const response = await checkoutService.createPaymentOrder(orderPayload);
@@ -199,19 +209,19 @@ import ProductHeader from '@/components/layout/ProductHeader';
         setOrderData(response.data);
         initializeRazorpay(response.data);
       } else {
-        setError(response.message || 'Failed to create order');
+        setError(response.message || "Failed to create order");
       }
     } catch (err) {
-      setError('Failed to create payment order. Please try again.');
+      setError("Failed to create payment order. Please try again.");
     } finally {
       setProcessing(false);
     }
   };
 
   const initializeRazorpay = (order) => {
-    if (typeof window === 'undefined' || !window.Razorpay) {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    if (typeof window === "undefined" || !window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => {
         openRazorpay(order);
       };
@@ -228,25 +238,25 @@ import ProductHeader from '@/components/layout/ProductHeader';
       key: order.keyId,
       amount: order.amount * 100,
       currency: order.currency,
-      name: 'DragBizz',
-      description: `Payment for ${packageData?.name || 'Package'}`,
+      name: "DragBizz",
+      description: `Payment for ${packageData?.name || "Package"}`,
       order_id: order.razorpayOrderId,
       handler: async (response) => {
         await handlePaymentSuccess(response, order);
       },
       prefill: {
-        name: name || '',
-        email: email || '',
-        contact: phone || ''
+        name: name || "",
+        email: email || "",
+        contact: phone || "",
       },
       theme: {
-        color: '#6366f1'
+        color: "#6366f1",
       },
       modal: {
         ondismiss: () => {
           setProcessing(false);
-        }
-      }
+        },
+      },
     };
 
     const razorpay = new window.Razorpay(options);
@@ -262,7 +272,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
         orderId: order.orderId,
         razorpayOrderId: razorpayResponse.razorpay_order_id,
         razorpayPaymentId: razorpayResponse.razorpay_payment_id,
-        razorpaySignature: razorpayResponse.razorpay_signature
+        razorpaySignature: razorpayResponse.razorpay_signature,
       };
 
       const response = await checkoutService.verifyPayment(verifyPayload);
@@ -270,10 +280,10 @@ import ProductHeader from '@/components/layout/ProductHeader';
       if (response.success) {
         router.push(`/checkout/success?orderId=${order.orderId}`);
       } else {
-        setError(response.message || 'Payment verification failed');
+        setError(response.message || "Payment verification failed");
       }
     } catch (err) {
-      setError('Payment verification failed. Please contact support.');
+      setError("Payment verification failed. Please contact support.");
     } finally {
       setProcessing(false);
     }
@@ -297,7 +307,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
         <div className="flex items-center justify-center min-h-[60vh]">
           <Card className="p-8 text-center max-w-md">
             <p className="text-red-500 mb-4">{error}</p>
-            <Button onClick={() => router.push('/')}>Go Back Home</Button>
+            <Button onClick={() => router.push("/")}>Go Back Home</Button>
           </Card>
         </div>
       </div>
@@ -305,7 +315,7 @@ import ProductHeader from '@/components/layout/ProductHeader';
   }
 
   const pricing = calculatePrice();
-  const currency = packageData?.pricing?.currency || 'INR';
+  const currency = packageData?.pricing?.currency || "INR";
   const currencySymbol = getCurrencySymbol(currency);
   const durationOptions = getDurationOptions();
 
@@ -376,54 +386,63 @@ import ProductHeader from '@/components/layout/ProductHeader';
                     </div>
 
                     {/* Price Display */}
-                    
                   </div>
 
                   {/* Features Section */}
-                  {packageData.featureUsageLimits && packageData.featureUsageLimits.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                        What's Included
-                      </h3>
+                  {packageData.featureUsageLimits &&
+                    packageData.featureUsageLimits.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                          What's Included
+                        </h3>
                         <div className="space-y-2">
-                        {packageData.featureUsageLimits
-                          .filter(feature => feature.enabled !== false && feature.highlight)
-                          .map((feature, index) => (
-                            <div
-                              key={index}
-                              className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
-                              <p className="text-sm text-[rgb(var(--color-text-primary))]">
-                                {feature.highlight}
+                          {packageData.featureUsageLimits
+                            .filter(
+                              (feature) =>
+                                feature.enabled !== false && feature.highlight,
+                            )
+                            .map((feature, index) => (
+                              <div
+                                key={index}
+                                className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
+                              >
+                                <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-[rgb(var(--color-text-primary))]">
+                                  {feature.highlight}
+                                </p>
+                              </div>
+                            ))}
+                          {packageData.featureUsageLimits.filter(
+                            (feature) =>
+                              feature.enabled !== false && feature.highlight,
+                          ).length === 0 && (
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
+                              No highlights available
+                            </p>
+                          )}
+                        </div>
+                        {packageData.maxSubscribers && (
+                          <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
+                            <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">
+                              <Users className="w-4 h-4" />
+                              Limited to{" "}
+                              {packageData.maxSubscribers.toLocaleString()}{" "}
+                              subscribers
+                            </p>
+                          </div>
+                        )}
+                        {packageData.trialPeriod?.enabled &&
+                          packageData.trialPeriod?.days && (
+                            <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/20">
+                              <p className="text-sm text-[rgb(var(--color-success))] flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4" />
+                                {packageData.trialPeriod.days} Days Free Trial
                               </p>
                             </div>
-                          ))}
-                        {packageData.featureUsageLimits.filter(feature => feature.enabled !== false && feature.highlight).length === 0 && (
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
-                            No highlights available
-                          </p>
-                        )}
+                          )}
                       </div>
-                      {packageData.maxSubscribers && (
-                        <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
-                          <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            Limited to {packageData.maxSubscribers.toLocaleString()} subscribers
-                          </p>
-                        </div>
-                      )}
-                      {packageData.trialPeriod?.enabled && packageData.trialPeriod?.days && (
-                        <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/20">
-                          <p className="text-sm text-[rgb(var(--color-success))] flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4" />
-                            {packageData.trialPeriod.days} Days Free Trial
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    )}
 
                   {/* Trust Indicators */}
                   <div className="pt-6 border-t border-[rgb(var(--color-border-primary))]">
@@ -433,8 +452,12 @@ import ProductHeader from '@/components/layout/ProductHeader';
                           <Shield className="w-5 h-5 text-[rgb(var(--color-success))]" />
                         </div>
                         <div>
-                          <div className="text-xs text-[rgb(var(--color-success))] font-medium">Secure</div>
-                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Payment</div>
+                          <div className="text-xs text-[rgb(var(--color-success))] font-medium">
+                            Secure
+                          </div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                            Payment
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
@@ -442,8 +465,12 @@ import ProductHeader from '@/components/layout/ProductHeader';
                           <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <div className="text-xs text-[rgb(var(--color-primary))] font-medium">Instant</div>
-                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Activation</div>
+                          <div className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                            Instant
+                          </div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                            Activation
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
@@ -451,8 +478,12 @@ import ProductHeader from '@/components/layout/ProductHeader';
                           <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">Cancel</div>
-                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Anytime</div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                            Cancel
+                          </div>
+                          <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                            Anytime
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -474,7 +505,9 @@ import ProductHeader from '@/components/layout/ProductHeader';
                     label="Select Duration"
                     options={durationOptions}
                     value={formData.months}
-                    onChange={(value) => setFormData({ ...formData, months: parseInt(value) })}
+                    onChange={(value) =>
+                      setFormData({ ...formData, months: parseInt(value) })
+                    }
                     placeholder="Select duration"
                     required
                     disabled={!durationOptions.length}
@@ -489,7 +522,9 @@ import ProductHeader from '@/components/layout/ProductHeader';
                     <Input
                       placeholder="Enter coupon code"
                       value={formData.couponCode}
-                      onChange={(e) => setFormData({ ...formData, couponCode: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, couponCode: e.target.value })
+                      }
                       leftIcon={Tag}
                       className="flex-1"
                     />
@@ -505,23 +540,32 @@ import ProductHeader from '@/components/layout/ProductHeader';
                   </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[rgb(var(--color-text-secondary))]">Price</span>
+                      <span className="text-[rgb(var(--color-text-secondary))]">
+                        Price
+                      </span>
                       <span className="text-[rgb(var(--color-text-primary))]">
-                        {currencySymbol}{pricing.base.toFixed(2)}
+                        {currencySymbol}
+                        {pricing.base.toFixed(2)}
                       </span>
                     </div>
                     {pricing.gst > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[rgb(var(--color-text-secondary))]">GST ({pricing.gstPercentage}%)</span>
+                        <span className="text-[rgb(var(--color-text-secondary))]">
+                          GST ({pricing.gstPercentage}%)
+                        </span>
                         <span className="text-[rgb(var(--color-text-primary))]">
-                          {currencySymbol}{pricing.gst.toFixed(2)}
+                          {currencySymbol}
+                          {pricing.gst.toFixed(2)}
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between text-lg font-bold pt-2 border-t border-[rgb(var(--color-border-primary))]">
-                      <span className="text-[rgb(var(--color-text-primary))]">Total Amount</span>
+                      <span className="text-[rgb(var(--color-text-primary))]">
+                        Total Amount
+                      </span>
                       <span className="text-[rgb(var(--color-primary))]">
-                        {currencySymbol}{pricing.final.toFixed(2)}
+                        {currencySymbol}
+                        {pricing.final.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -538,11 +582,13 @@ import ProductHeader from '@/components/layout/ProductHeader';
                     rightIcon={CreditCard}
                     className="text-lg py-4"
                   >
-                    {processing ? 'Processing...' : 'Proceed to Payment'}
+                    {processing ? "Processing..." : "Proceed to Payment"}
                   </Button>
 
                   {error && (
-                    <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
+                    <p className="text-red-500 text-sm mt-3 text-center">
+                      {error}
+                    </p>
                   )}
 
                   <div className="flex items-center justify-center gap-2 mt-4 text-sm text-[rgb(var(--color-text-secondary))]">
@@ -561,18 +607,19 @@ import ProductHeader from '@/components/layout/ProductHeader';
 
 const CheckoutPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
-        <ProductHeader />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loading />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
+          <ProductHeader />
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Loading />
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   );
 };
 
 export default CheckoutPage;
-

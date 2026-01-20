@@ -1,10 +1,10 @@
-"use client"
-import React from 'react';
-import moment from 'moment';
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+"use client";
+import React from "react";
+import moment from "moment";
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const StructuredTemplate = ({ invoiceData, selectedStore }) => {
-  const accentColor = '#2980b9'; // Deep Blue for modern touch
+  const accentColor = "#2980b9"; // Deep Blue for modern touch
 
   return (
     <>
@@ -241,10 +241,18 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
               Invoice \#: <span>{invoiceData.invoiceNumber}</span>
             </div>
             <div className="invoice-detail">
-              Date: <span>{moment(invoiceData.createdAt).format('MMMM DD, YYYY')}</span>
+              Date:{" "}
+              <span>
+                {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
+              </span>
             </div>
             <div className="invoice-detail">
-              Due: <span>{moment(invoiceData.createdAt).add(7, 'days').format('MMMM DD, YYYY')}</span>
+              Due:{" "}
+              <span>
+                {moment(invoiceData.createdAt)
+                  .add(7, "days")
+                  .format("MMMM DD, YYYY")}
+              </span>
             </div>
           </div>
         </div>
@@ -254,22 +262,28 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
           <div className="modern-address-block">
             <h3>Billed From</h3>
             <p style={{ fontWeight: 600 }}>
-              {selectedStore?.storeName || 'Your Premium Store'}
+              {selectedStore?.storeName || "Your Premium Store"}
             </p>
-            <p>{selectedStore?.address || '456 Modern Avenue'}</p>
+            <p>{selectedStore?.address || "456 Modern Avenue"}</p>
             <p>City, State 67890</p>
-            <p>Phone: {selectedStore?.phone || '+91 9876543210'}</p>
-            <p>Email: {selectedStore?.email || 'sales@modernstore.com'}</p>
+            <p>Phone: {selectedStore?.phone || "+91 9876543210"}</p>
+            <p>Email: {selectedStore?.email || "sales@modernstore.com"}</p>
           </div>
 
           <div className="modern-address-block">
             <h3>Billed To</h3>
             <p style={{ fontWeight: 600 }}>
-              {invoiceData.customer?.name || 'Walk-in Customer'}
+              {invoiceData.customer?.name || "Walk-in Customer"}
             </p>
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
-            {invoiceData.customer?.phone && <p>Phone: {invoiceData.customer.phone}</p>}
-            {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
+            {invoiceData.customer?.phone && (
+              <p>Phone: {invoiceData.customer.phone}</p>
+            )}
+            {invoiceData.customer?.email && (
+              <p>Email: {invoiceData.customer.email}</p>
+            )}
           </div>
         </div>
 
@@ -278,21 +292,19 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
           items={invoiceData.items}
           className="modern-table"
           columnWidths={{
-            product: '40%',
-            quantity: '12%',
-            unitPrice: '18%',
-            gst: '12%',
-            total: '18%'
+            product: "40%",
+            quantity: "12%",
+            unitPrice: "18%",
+            gst: "12%",
+            total: "18%",
           }}
           renderProductCell={(item) => (
             <>
               <span className="product-detail">
-                {item.product?.name || 'Unknown Product'}
+                {item.product?.name || "Unknown Product"}
               </span>
               {item.product?.sku && (
-                <span className="product-sku">
-                  SKU: {item.product.sku}
-                </span>
+                <span className="product-sku">SKU: {item.product.sku}</span>
               )}
             </>
           )}
@@ -300,39 +312,50 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
 
         {/* Totals */}
         <div className="modern-totals-summary">
-            <div className="modern-totals">
+          <div className="modern-totals">
             <div className="total-row">
-                <div className="label">Subtotal:</div>
-                <div className="amount">₹{invoiceData.subtotal?.toLocaleString()}</div>
+              <div className="label">Subtotal:</div>
+              <div className="amount">
+                ₹{invoiceData.subtotal?.toLocaleString()}
+              </div>
             </div>
             <div className="total-row">
-                <div className="label">GST:</div>
-                <div className="amount">₹{invoiceData.gstAmount?.toLocaleString() || '0'}</div>
+              <div className="label">GST:</div>
+              <div className="amount">
+                ₹{invoiceData.gstAmount?.toLocaleString() || "0"}
+              </div>
             </div>
             {invoiceData.totalDiscount > 0 && (
-                <div className="total-row">
+              <div className="total-row">
                 <div className="label">Discount:</div>
-                <div className="amount" style={{ color: '#e74c3c' }}>-₹{invoiceData.totalDiscount?.toLocaleString()}</div>
+                <div className="amount" style={{ color: "#e74c3c" }}>
+                  -₹{invoiceData.totalDiscount?.toLocaleString()}
                 </div>
+              </div>
             )}
             <div className="total-row final">
-                <div className="label">Grand Total:</div>
-                <div className="amount">₹{invoiceData.totalAmount?.toLocaleString()}</div>
+              <div className="label">Grand Total:</div>
+              <div className="amount">
+                ₹{invoiceData.totalAmount?.toLocaleString()}
+              </div>
             </div>
-            </div>
+          </div>
         </div>
-
 
         {/* Footer */}
         <div className="modern-footer">
-            <div className="terms-notes">
-                <h4>Payment Terms & Notes</h4>
-                <p>Payment is due within 7 days of the invoice date. Thank you for choosing our services!</p>
-                <p style={{marginTop: '10px'}}>Generated on {moment(invoiceData.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
-            </div>
-            <div className="signature">
-                Authorized Signature
-            </div>
+          <div className="terms-notes">
+            <h4>Payment Terms & Notes</h4>
+            <p>
+              Payment is due within 7 days of the invoice date. Thank you for
+              choosing our services!
+            </p>
+            <p style={{ marginTop: "10px" }}>
+              Generated on{" "}
+              {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+            </p>
+          </div>
+          <div className="signature">Authorized Signature</div>
         </div>
       </div>
     </>

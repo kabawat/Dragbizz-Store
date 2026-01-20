@@ -1,10 +1,20 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, Badge, Button, Dropdown } from '../ui';
-import { MoreVertical, Edit, Copy, Trash2, Eye, Building, Phone, Mail, Calendar } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { getStatusBadge as getCommonStatusBadge } from '@/utils/statusBadge';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Card, Badge, Button, Dropdown } from "../ui";
+import {
+  MoreVertical,
+  Edit,
+  Copy,
+  Trash2,
+  Eye,
+  Building,
+  Phone,
+  Mail,
+  Calendar,
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SupplierCard = ({
   supplier,
@@ -14,7 +24,7 @@ const SupplierCard = ({
   onViewDetails,
   onSelect,
   selected = false,
-  className = '',
+  className = "",
   ...props
 }) => {
   const { t } = useTranslation();
@@ -30,36 +40,36 @@ const SupplierCard = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const getStatusBadge = (status) => {
-    const config = getCommonStatusBadge(status, 'general');
+    const config = getCommonStatusBadge(status, "general");
     return <Badge variant={config.variant}>{config.text}</Badge>;
   };
 
   const actionMenuItems = [
     {
-      value: 'view',
-      label: t('common.viewDetails'),
+      value: "view",
+      label: t("common.viewDetails"),
       icon: Eye,
-      onClick: () => onViewDetails?.(supplier.id)
+      onClick: () => onViewDetails?.(supplier.id),
     },
     {
-      value: 'edit',
-      label: t('common.edit'),
+      value: "edit",
+      label: t("common.edit"),
       icon: Edit,
-      onClick: () => onEdit?.(supplier.id)
+      onClick: () => onEdit?.(supplier.id),
     },
     {
-      value: 'delete',
-      label: t('common.delete'),
+      value: "delete",
+      label: t("common.delete"),
       icon: Trash2,
-      onClick: () => onDelete?.(supplier.id)
-    }
+      onClick: () => onDelete?.(supplier.id),
+    },
   ];
 
   const handleMenuToggle = (supplierId) => {
@@ -69,13 +79,13 @@ const SupplierCard = ({
   const handleMenuAction = (supplierId, action) => {
     setOpenMenuId(null);
     switch (action) {
-      case 'view':
+      case "view":
         onViewDetails?.(supplierId);
         break;
-      case 'edit':
+      case "edit":
         onEdit?.(supplierId);
         break;
-      case 'delete':
+      case "delete":
         onDelete?.(supplierId);
         break;
       default:
@@ -85,7 +95,10 @@ const SupplierCard = ({
 
   // Grid view - Modern Card Design
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? 'ring-2 ring-blue-500' : ''} ${className}`} {...props}>
+    <div
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? "ring-2 ring-blue-500" : ""} ${className}`}
+      {...props}
+    >
       {/* Checkbox */}
       {onSelect && (
         <div className="absolute top-4 left-4 z-10">
@@ -97,15 +110,14 @@ const SupplierCard = ({
             style={{
               color: themeConfig.primary,
               borderColor: themeConfig.border,
-              backgroundColor: themeConfig.background
+              backgroundColor: themeConfig.background,
             }}
           />
         </div>
       )}
 
       {/* Supplier Avatar Section with Gradient Background */}
-      <div 
-        className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
+      <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br relative">
         <div className="w-full h-full overflow-hidden rounded-t-xl">
           {/* Supplier Avatar */}
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))]">
@@ -124,7 +136,7 @@ const SupplierCard = ({
             <button
               onClick={() => handleMenuToggle(supplier.id)}
               className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t('common.actions')}
+              title={t("common.actions")}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
             </button>
@@ -133,26 +145,26 @@ const SupplierCard = ({
             {openMenuId === supplier.id && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                 <button
-                  onClick={() => handleMenuAction(supplier.id, 'view')}
+                  onClick={() => handleMenuAction(supplier.id, "view")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.viewDetails')}
+                  {t("common.viewDetails")}
                 </button>
                 <button
-                  onClick={() => handleMenuAction(supplier.id, 'edit')}
+                  onClick={() => handleMenuAction(supplier.id, "edit")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t('common.edit')}
+                  {t("common.edit")}
                 </button>
                 <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                 <button
-                  onClick={() => handleMenuAction(supplier.id, 'delete')}
+                  onClick={() => handleMenuAction(supplier.id, "delete")}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  {t('common.delete')}
+                  {t("common.delete")}
                 </button>
               </div>
             )}
@@ -171,11 +183,18 @@ const SupplierCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Supplier Name */}
         <div>
-          <h3 className="font-bold text-md sm:text-xl mb-1" style={{ color: themeConfig.text }}>
-            {supplier.name || t('common.notAvailable')}
+          <h3
+            className="font-bold text-md sm:text-xl mb-1"
+            style={{ color: themeConfig.text }}
+          >
+            {supplier.name || t("common.notAvailable")}
           </h3>
-          <p className="text-xs sm:text-sm font-medium" style={{ color: themeConfig.textSecondary }}>
-            {t('suppliers.gstin')}: {supplier.gstNumber || t('common.notAvailable')}
+          <p
+            className="text-xs sm:text-sm font-medium"
+            style={{ color: themeConfig.textSecondary }}
+          >
+            {t("suppliers.gstin")}:{" "}
+            {supplier.gstNumber || t("common.notAvailable")}
           </p>
         </div>
 
@@ -187,11 +206,17 @@ const SupplierCard = ({
               <Phone className="w-4 h-4 text-blue-500" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.phone || t('common.notAvailable')}
+              <p
+                className="text-sm font-medium"
+                style={{ color: themeConfig.text }}
+              >
+                {supplier.phone || t("common.notAvailable")}
               </p>
-              <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                {t('common.phone')}
+              <p
+                className="text-xs"
+                style={{ color: themeConfig.textSecondary }}
+              >
+                {t("common.phone")}
               </p>
             </div>
           </div>
@@ -202,11 +227,17 @@ const SupplierCard = ({
               <Mail className="w-4 h-4 text-green-500" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.email || t('common.notAvailable')}
+              <p
+                className="text-sm font-medium"
+                style={{ color: themeConfig.text }}
+              >
+                {supplier.email || t("common.notAvailable")}
               </p>
-              <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                {t('common.email')}
+              <p
+                className="text-xs"
+                style={{ color: themeConfig.textSecondary }}
+              >
+                {t("common.email")}
               </p>
             </div>
           </div>
@@ -217,11 +248,17 @@ const SupplierCard = ({
               <Building className="w-4 h-4 text-purple-500" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: themeConfig.text }}>
-                {supplier.agency || t('common.notAvailable')}
+              <p
+                className="text-sm font-medium"
+                style={{ color: themeConfig.text }}
+              >
+                {supplier.agency || t("common.notAvailable")}
               </p>
-              <p className="text-xs" style={{ color: themeConfig.textSecondary }}>
-                {t('suppliers.agencyName')}
+              <p
+                className="text-xs"
+                style={{ color: themeConfig.textSecondary }}
+              >
+                {t("suppliers.agencyName")}
               </p>
             </div>
           </div>
@@ -230,33 +267,61 @@ const SupplierCard = ({
         {/* Supplier Stats Section */}
         <div className="rounded-lg p-4 space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>{t('common.status')}</span>
+            <span
+              className="text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              {t("common.status")}
+            </span>
             <span className="text-sm font-medium text-green-600">
-              {t('suppliers.activeSupplier')}
+              {t("suppliers.activeSupplier")}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: themeConfig.textSecondary }}>{t('suppliers.memberSince')}</span>
-            <span className="text-sm font-medium" style={{ color: themeConfig.text }}>
+            <span
+              className="text-sm"
+              style={{ color: themeConfig.textSecondary }}
+            >
+              {t("suppliers.memberSince")}
+            </span>
+            <span
+              className="text-sm font-medium"
+              style={{ color: themeConfig.text }}
+            >
               {new Date(supplier.createdAt || Date.now()).toLocaleDateString()}
             </span>
           </div>
-          
+
           {/* Account Summary */}
           {supplier.account && (
             <>
               <div className="border-t border-[rgb(var(--color-border-primary))] pt-2 mt-2"></div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>{t('suppliers.totalPaid')}</span>
+                  <span
+                    className="text-xs"
+                    style={{ color: themeConfig.textSecondary }}
+                  >
+                    {t("suppliers.totalPaid")}
+                  </span>
                   <span className="text-sm font-semibold text-green-600">
                     ₹{(supplier.account?.totalPaid || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: themeConfig.textSecondary }}>{t('suppliers.totalDue')}</span>
+                  <span
+                    className="text-xs"
+                    style={{ color: themeConfig.textSecondary }}
+                  >
+                    {t("suppliers.totalDue")}
+                  </span>
                   <span className="text-sm font-semibold text-red-600">
-                    ₹{(supplier.account?.totalDue || supplier.account?.dueAmount || 0).toLocaleString()}
+                    ₹
+                    {(
+                      supplier.account?.totalDue ||
+                      supplier.account?.dueAmount ||
+                      0
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -265,14 +330,15 @@ const SupplierCard = ({
         </div>
 
         {/* Last Updated */}
-        <div 
-          className="text-xs text-center pt-1.5 border-t" 
-          style={{ 
+        <div
+          className="text-xs text-center pt-1.5 border-t"
+          style={{
             color: themeConfig.textSecondary,
-            borderColor: themeConfig.border
+            borderColor: themeConfig.border,
           }}
         >
-          {t('common.lastUpdated')}: {new Date(supplier.updatedAt || Date.now()).toLocaleDateString()}
+          {t("common.lastUpdated")}:{" "}
+          {new Date(supplier.updatedAt || Date.now()).toLocaleDateString()}
         </div>
       </div>
     </div>

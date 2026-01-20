@@ -1,10 +1,10 @@
-"use client"
-import React from 'react';
+"use client";
+import React from "react";
 
-const Table = ({ children, className = '', ...props }) => {
+const Table = ({ children, className = "", ...props }) => {
   return (
     <div className="overflow-x-auto">
-      <table 
+      <table
         className={`min-w-full divide-y divide-[rgb(var(--color-border-primary))] ${className}`}
         {...props}
       >
@@ -14,25 +14,31 @@ const Table = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableHeader = ({ children, className = '', ...props }) => {
+const TableHeader = ({ children, className = "", ...props }) => {
   return (
-    <thead className={`bg-[rgb(var(--color-bg-secondary))] ${className}`} {...props}>
+    <thead
+      className={`bg-[rgb(var(--color-bg-secondary))] ${className}`}
+      {...props}
+    >
       {children}
     </thead>
   );
 };
 
-const TableBody = ({ children, className = '', ...props }) => {
+const TableBody = ({ children, className = "", ...props }) => {
   return (
-    <tbody className={`bg-[rgb(var(--color-bg-primary))] divide-y divide-[rgb(var(--color-border-primary))] ${className}`} {...props}>
+    <tbody
+      className={`bg-[rgb(var(--color-bg-primary))] divide-y divide-[rgb(var(--color-border-primary))] ${className}`}
+      {...props}
+    >
       {children}
     </tbody>
   );
 };
 
-const TableRow = ({ children, className = '', ...props }) => {
+const TableRow = ({ children, className = "", ...props }) => {
   return (
-    <tr 
+    <tr
       className={`hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${className}`}
       {...props}
     >
@@ -41,9 +47,9 @@ const TableRow = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableHead = ({ children, className = '', ...props }) => {
+const TableHead = ({ children, className = "", ...props }) => {
   return (
-    <th 
+    <th
       className={`px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider ${className}`}
       {...props}
     >
@@ -52,9 +58,9 @@ const TableHead = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableCell = ({ children, className = '', ...props }) => {
+const TableCell = ({ children, className = "", ...props }) => {
   return (
-    <td 
+    <td
       className={`px-6 py-4 whitespace-nowrap text-sm text-[rgb(var(--color-text-primary))] ${className}`}
       {...props}
     >

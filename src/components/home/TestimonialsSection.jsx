@@ -1,18 +1,18 @@
-"use client"
-import React from 'react';
-import { Card } from '@/components/ui';
-import { SectionHeader } from '@/components/common';
-import { Star } from 'lucide-react';
+"use client";
+import React from "react";
+import { Card } from "@/components/ui";
+import { SectionHeader } from "@/components/common";
+import { Star } from "lucide-react";
 
 const TestimonialsSection = ({
   testimonials,
-  badge = 'Testimonials',
+  badge = "Testimonials",
   title = (
     <>
       Trusted by <span className="gradient-text">Retailers Worldwide</span>
     </>
   ),
-  description = 'See what our customers have to say about their experience'
+  description = "See what our customers have to say about their experience",
 }) => {
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-[rgb(var(--color-bg-secondary))]">
@@ -28,7 +28,10 @@ const TestimonialsSection = ({
               <div className="p-4 sm:p-5 md:p-6">
                 <div className="flex gap-0.5 sm:gap-1 mb-3 sm:mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
                 <p className="text-xs sm:text-sm md:text-base text-[rgb(var(--color-text-secondary))] mb-4 sm:mb-5 md:mb-6 italic leading-relaxed">
@@ -57,4 +60,3 @@ const TestimonialsSection = ({
 };
 
 export default TestimonialsSection;
-

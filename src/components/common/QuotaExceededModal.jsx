@@ -1,16 +1,16 @@
-"use client"
-import React from 'react';
-import { AlertTriangle, X, TrendingUp, Clock } from 'lucide-react';
-import { Button } from '@/components/ui';
-import Link from 'next/link';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { AlertTriangle, X, TrendingUp, Clock } from "lucide-react";
+import { Button } from "@/components/ui";
+import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * Common QuotaExceededModal Component
- * 
+ *
  * A standardized modal component for displaying quota exceeded messages
  * across all features (products, customers, invoices, etc.)
- * 
+ *
  * @param {boolean} isOpen - Controls modal visibility
  * @param {function} onClose - Callback when modal is closed
  * @param {string} message - Custom message to display
@@ -18,26 +18,27 @@ import { useTranslation } from '@/hooks/useTranslation';
  * @param {string} resetTime - When the quota will reset (e.g., "in 2 hours")
  * @param {boolean} canUpgrade - Whether user can upgrade their plan
  */
-const QuotaExceededModal = ({ 
-  isOpen, 
-  onClose, 
+const QuotaExceededModal = ({
+  isOpen,
+  onClose,
   message,
   quota = null,
   resetTime = null,
-  canUpgrade = false
+  canUpgrade = false,
 }) => {
   const { t } = useTranslation();
   if (!isOpen) return null;
 
   const getUsageInfo = () => {
     if (!quota) return null;
-    
+
     return {
       used: quota.used || 0,
       limit: quota.limit || 0,
       remaining: quota.remaining || 0,
-      usageType: quota.usageType || 'UNKNOWN',
-      percentage: quota.limit > 0 ? Math.round((quota.used / quota.limit) * 100) : 0
+      usageType: quota.usageType || "UNKNOWN",
+      percentage:
+        quota.limit > 0 ? Math.round((quota.used / quota.limit) * 100) : 0,
     };
   };
 
@@ -55,10 +56,10 @@ const QuotaExceededModal = ({
               </div>
               <div>
                 <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                  {t('quota.quotaExceeded')}
+                  {t("quota.quotaExceeded")}
                 </h2>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  {t('quota.dailyLimitReached')}
+                  {t("quota.dailyLimitReached")}
                 </p>
               </div>
             </div>
@@ -77,7 +78,7 @@ const QuotaExceededModal = ({
           {/* Message */}
           <div className="mb-6">
             <p className="text-[rgb(var(--color-text-primary))] mb-4 text-base">
-              {message || t('invoice.quotaExceededMessage')}
+              {message || t("invoice.quotaExceededMessage")}
             </p>
 
             {/* Usage Stats */}
@@ -85,24 +86,28 @@ const QuotaExceededModal = ({
               <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))] mb-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                    {t('quota.usageToday')}
+                    {t("quota.usageToday")}
                   </span>
                   <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                     {usageInfo.used} / {usageInfo.limit}
                   </span>
                 </div>
-                
+
                 {/* Progress Bar */}
                 <div className="w-full bg-[rgb(var(--color-bg-primary))] rounded-full h-2.5 mb-3">
-                  <div 
-                    className="bg-orange-500 h-2.5 rounded-full transition-all duration-300" 
-                    style={{ width: `${Math.min(usageInfo.percentage, 100)}%` }} 
+                  <div
+                    className="bg-orange-500 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(usageInfo.percentage, 100)}%` }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-[rgb(var(--color-text-secondary))]">
-                  <span>{t('quota.remaining')}: {usageInfo.remaining}</span>
-                  <span>{usageInfo.percentage}% {t('quota.used')}</span>
+                  <span>
+                    {t("quota.remaining")}: {usageInfo.remaining}
+                  </span>
+                  <span>
+                    {usageInfo.percentage}% {t("quota.used")}
+                  </span>
                 </div>
               </div>
             )}
@@ -111,7 +116,7 @@ const QuotaExceededModal = ({
             {resetTime && (
               <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))] mb-4">
                 <Clock className="w-4 h-4" />
-                <span>{t('quota.limitWillReset', { time: resetTime })}</span>
+                <span>{t("quota.limitWillReset", { time: resetTime })}</span>
               </div>
             )}
           </div>
@@ -119,13 +124,16 @@ const QuotaExceededModal = ({
           {/* Action Buttons */}
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} className="flex-1">
-              {t('common.close')}
+              {t("common.close")}
             </Button>
             {canUpgrade && (
               <Link href="/dashboard/subscription" className="flex-1">
-                <Button variant="primary" className="w-full flex items-center justify-center gap-2">
+                <Button
+                  variant="primary"
+                  className="w-full flex items-center justify-center gap-2"
+                >
                   <TrendingUp className="w-4 h-4" />
-                  {t('quota.upgradePlan')}
+                  {t("quota.upgradePlan")}
                 </Button>
               </Link>
             )}
@@ -135,7 +143,7 @@ const QuotaExceededModal = ({
         {/* Footer */}
         <div className="px-6 py-3 bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] rounded-b-2xl">
           <p className="text-xs text-[rgb(var(--color-text-tertiary))] text-center">
-            {t('quota.upgradeMessage')}
+            {t("quota.upgradeMessage")}
           </p>
         </div>
       </div>
@@ -144,4 +152,3 @@ const QuotaExceededModal = ({
 };
 
 export default QuotaExceededModal;
-

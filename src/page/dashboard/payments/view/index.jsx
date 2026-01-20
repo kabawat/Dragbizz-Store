@@ -1,22 +1,36 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslation } from '@/hooks/useTranslation';
-import { ArrowLeft, CreditCard, Building2, FileText, Edit, IndianRupee, Calendar, CheckCircle, Wallet, Hash, Banknote, Smartphone } from 'lucide-react';
-import moment from 'moment';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  ArrowLeft,
+  CreditCard,
+  Building2,
+  FileText,
+  Edit,
+  IndianRupee,
+  Calendar,
+  CheckCircle,
+  Wallet,
+  Hash,
+  Banknote,
+  Smartphone,
+} from "lucide-react";
+import moment from "moment";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { paymentService } from '@/service/retailer';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { paymentService } from "@/service/retailer";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
 
 const ViewPaymentPage = ({ paymentId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -35,17 +49,24 @@ const ViewPaymentPage = ({ paymentId }) => {
 
         const params = {
           store: storeId,
-          id: paymentId
+          id: paymentId,
         };
         const result = await paymentService.getPayments(params);
 
         if (result.success && result.data) {
           setPaymentData(result.data);
         } else {
-          setError(result.message || t('errors.failedToFetchData', { item: t('payments.payment') }));
+          setError(
+            result.message ||
+              t("errors.failedToFetchData", { item: t("payments.payment") }),
+          );
         }
       } catch (error) {
-        setError(t('errors.failedToFetchDataTryAgain', { item: t('payments.payment') }));
+        setError(
+          t("errors.failedToFetchDataTryAgain", {
+            item: t("payments.payment"),
+          }),
+        );
       } finally {
         setFetching(false);
       }
@@ -62,23 +83,23 @@ const ViewPaymentPage = ({ paymentId }) => {
   // Get payment method label
   const getPaymentMethodLabel = (method) => {
     const methodMap = {
-      'CASH': 'Cash',
-      'UPI': 'UPI',
-      'BANK_TRANSFER': 'Bank Transfer',
-      'CHEQUE': 'Cheque',
-      'CREDIT': 'Credit'
+      CASH: "Cash",
+      UPI: "UPI",
+      BANK_TRANSFER: "Bank Transfer",
+      CHEQUE: "Cheque",
+      CREDIT: "Credit",
     };
-    return methodMap[method] || method || t('common.na');
+    return methodMap[method] || method || t("common.na");
   };
 
   // Get payment type label
   const getPaymentTypeLabel = (type) => {
     const typeMap = {
-      'BILL_PAYMENT': 'Bill Payment',
-      'ADVANCE': 'Advance Payment',
-      'OTHER': 'Other'
+      BILL_PAYMENT: "Bill Payment",
+      ADVANCE: "Advance Payment",
+      OTHER: "Other",
     };
-    return typeMap[type] || type || t('common.na');
+    return typeMap[type] || type || t("common.na");
   };
 
   // Loading state
@@ -88,7 +109,10 @@ const ViewPaymentPage = ({ paymentId }) => {
         <Sidebar />
 
         <div className="min-h-screen w-full flex flex-col">
-          <Header title={t('payments.viewPayment')} description={t('payments.paymentInformationAndDetails')} />
+          <Header
+            title={t("payments.viewPayment")}
+            description={t("payments.paymentInformationAndDetails")}
+          />
 
           <div className="flex-1 p-6">
             <div className="max-w-8xl mx-auto w-full">
@@ -97,10 +121,12 @@ const ViewPaymentPage = ({ paymentId }) => {
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t('modals.loadingData', { item: t('payments.payment') })}
+                      {t("modals.loadingData", { item: t("payments.payment") })}
                     </h2>
                     <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t('common.pleaseWaitWhileWeFetch', { item: t('payments.payment') })}
+                      {t("common.pleaseWaitWhileWeFetch", {
+                        item: t("payments.payment"),
+                      })}
                       Please wait while we fetch the payment information
                     </p>
                   </div>
@@ -131,7 +157,10 @@ const ViewPaymentPage = ({ paymentId }) => {
           <div className="">
             {/* Back Button */}
             <div className="mb-6">
-              <Link href="/dashboard/payments" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/payments"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Payments</span>
               </Link>
@@ -150,12 +179,13 @@ const ViewPaymentPage = ({ paymentId }) => {
                         Payment Not Found
                       </h2>
                       <p className="text-[rgb(var(--color-text-secondary))] mb-8 leading-relaxed">
-                        The payment you're looking for doesn't exist or has been removed. Please check the payment ID and try again.
+                        The payment you're looking for doesn't exist or has been
+                        removed. Please check the payment ID and try again.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
                           variant="outline"
-                          onClick={() => router.push('/dashboard/payments')}
+                          onClick={() => router.push("/dashboard/payments")}
                           className="px-6 py-3"
                         >
                           Back to Payments
@@ -176,11 +206,19 @@ const ViewPaymentPage = ({ paymentId }) => {
 
             {/* Payment Details - Only show when no error */}
             {!error && paymentData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: 'calc(100vh - 300px)' }}>
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{ height: "calc(100vh - 300px)" }}
+              >
                 {/* Left Side - Payment Info */}
                 <div className="lg:col-span-2 flex flex-col h-full">
-                  <div className="overflow-y-auto pe-3 space-y-6" style={{ height: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
-                    
+                  <div
+                    className="overflow-y-auto pe-3 space-y-6"
+                    style={{
+                      height: "calc(100vh - 200px)",
+                      maxHeight: "calc(100vh - 200px)",
+                    }}
+                  >
                     {/* Payment Summary Card */}
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                       <div className="flex items-center space-x-3 mb-6">
@@ -188,8 +226,12 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <CreditCard className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Payment Summary</h2>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">Payment overview</p>
+                          <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                            Payment Summary
+                          </h2>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Payment overview
+                          </p>
                         </div>
                       </div>
 
@@ -199,9 +241,11 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/15 to-[rgb(var(--color-primary))]/10 dark:from-[rgb(var(--color-primary))]/5 dark:to-[rgb(var(--color-primary))]/3 rounded-lg overflow-hidden">
                             <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-[rgb(var(--color-primary))]/35 dark:!text-[rgb(var(--color-primary))] dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Payment Number</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Payment Number
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                {paymentData.paymentNumber || 'N/A'}
+                                {paymentData.paymentNumber || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -211,9 +255,15 @@ const ViewPaymentPage = ({ paymentId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                           <IndianRupee className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Total Amount</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Total Amount
+                            </p>
                             <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                              ₹{paymentData.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
+                              ₹
+                              {paymentData.totalAmount?.toLocaleString(
+                                "en-IN",
+                                { maximumFractionDigits: 2 },
+                              ) || "0.00"}
                             </p>
                           </div>
                         </div>
@@ -222,7 +272,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                         <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                           <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                           <div className="relative z-10">
-                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Payment Type</p>
+                            <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                              Payment Type
+                            </p>
                             <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                               {getPaymentTypeLabel(paymentData.paymentType)}
                             </p>
@@ -234,9 +286,13 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                             <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Payment Date</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Payment Date
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {moment(paymentData.paymentDate).format('DD MMM YYYY')}
+                                {moment(paymentData.paymentDate).format(
+                                  "DD MMM YYYY",
+                                )}
                               </p>
                             </div>
                           </div>
@@ -252,8 +308,12 @@ const ViewPaymentPage = ({ paymentId }) => {
                             <Building2 className="w-6 h-6 text-blue-500" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Supplier Information</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Supplier details</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              Supplier Information
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Supplier details
+                            </p>
                           </div>
                         </div>
 
@@ -262,9 +322,11 @@ const ViewPaymentPage = ({ paymentId }) => {
                           <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
                             <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                             <div className="relative z-10">
-                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Supplier Name</p>
+                              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                Supplier Name
+                              </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {paymentData.supplier?.name || 'N/A'}
+                                {paymentData.supplier?.name || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -274,7 +336,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                             <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
                               <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
                               <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Phone</p>
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                  Phone
+                                </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
                                   {paymentData.supplier.phone}
                                 </p>
@@ -287,7 +351,9 @@ const ViewPaymentPage = ({ paymentId }) => {
                             <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                               <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                               <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">Email</p>
+                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                  Email
+                                </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] break-all">
                                   {paymentData.supplier.email}
                                 </p>
@@ -299,46 +365,70 @@ const ViewPaymentPage = ({ paymentId }) => {
                     )}
 
                     {/* Payment Methods Card */}
-                    {paymentData.paymentMethods && paymentData.paymentMethods.length > 0 && (
-                      <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
-                        <div className="flex items-center space-x-3 mb-6">
-                          <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
-                            <Wallet className="w-6 h-6 text-green-500" />
+                    {paymentData.paymentMethods &&
+                      paymentData.paymentMethods.length > 0 && (
+                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
+                          <div className="flex items-center space-x-3 mb-6">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full flex items-center justify-center">
+                              <Wallet className="w-6 h-6 text-green-500" />
+                            </div>
+                            <div>
+                              <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                Payment Methods
+                              </h2>
+                              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                Payment method details
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Payment Methods</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Payment method details</p>
-                          </div>
-                        </div>
 
-                        <div className="space-y-4">
-                          {paymentData.paymentMethods.map((method, index) => (
-                            <div key={index} className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]">
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                  {method.method === 'CASH' && <Banknote className="w-5 h-5 text-green-500" />}
-                                  {method.method === 'UPI' && <Smartphone className="w-5 h-5 text-blue-500" />}
-                                  {method.method === 'BANK_TRANSFER' && <CreditCard className="w-5 h-5 text-purple-500" />}
-                                  {method.method === 'CHEQUE' && <FileText className="w-5 h-5 text-orange-500" />}
-                                  {method.method === 'CREDIT' && <CreditCard className="w-5 h-5 text-indigo-500" />}
-                                  <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                                    {getPaymentMethodLabel(method.method)}
+                          <div className="space-y-4">
+                            {paymentData.paymentMethods.map((method, index) => (
+                              <div
+                                key={index}
+                                className="p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg border border-[rgb(var(--color-border-primary))]"
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-3">
+                                    {method.method === "CASH" && (
+                                      <Banknote className="w-5 h-5 text-green-500" />
+                                    )}
+                                    {method.method === "UPI" && (
+                                      <Smartphone className="w-5 h-5 text-blue-500" />
+                                    )}
+                                    {method.method === "BANK_TRANSFER" && (
+                                      <CreditCard className="w-5 h-5 text-purple-500" />
+                                    )}
+                                    {method.method === "CHEQUE" && (
+                                      <FileText className="w-5 h-5 text-orange-500" />
+                                    )}
+                                    {method.method === "CREDIT" && (
+                                      <CreditCard className="w-5 h-5 text-indigo-500" />
+                                    )}
+                                    <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                                      {getPaymentMethodLabel(method.method)}
+                                    </span>
+                                  </div>
+                                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                    ₹
+                                    {method.amount?.toLocaleString("en-IN", {
+                                      maximumFractionDigits: 2,
+                                    }) || "0.00"}
                                   </span>
                                 </div>
-                                <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                  ₹{method.amount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                                </span>
+                                {method.reference && (
+                                  <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                                    Reference:{" "}
+                                    <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                      {method.reference}
+                                    </span>
+                                  </p>
+                                )}
                               </div>
-                              {method.reference && (
-                                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                  Reference: <span className="font-medium text-[rgb(var(--color-text-primary))]">{method.reference}</span>
-                                </p>
-                              )}
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Notes Card */}
                     {paymentData.notes && (
@@ -348,8 +438,12 @@ const ViewPaymentPage = ({ paymentId }) => {
                             <FileText className="w-6 h-6 text-gray-500" />
                           </div>
                           <div>
-                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Notes</h2>
-                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">Additional information</p>
+                            <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                              Notes
+                            </h2>
+                            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                              Additional information
+                            </p>
                           </div>
                         </div>
                         <p className="text-[rgb(var(--color-text-primary))] leading-relaxed">
@@ -357,7 +451,6 @@ const ViewPaymentPage = ({ paymentId }) => {
                         </p>
                       </div>
                     )}
-
                   </div>
                 </div>
 
@@ -365,53 +458,71 @@ const ViewPaymentPage = ({ paymentId }) => {
                 <div className="lg:col-span-1">
                   <div className="sticky top-6">
                     <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">Quick Actions</h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">Manage this payment</p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button
-                        variant="primary"
-                        className="flex-1"
-                        onClick={handleEditPayment}
-                        leftIcon={Edit}
-                      >
-                        Edit Payment
-                      </Button>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Quick Stats</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Total Amount:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            ₹{paymentData.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0.00'}
-                          </span>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                          <CreditCard className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">Payment Methods:</span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            {paymentData.paymentMethods?.length || 0}
-                          </span>
+                        <div>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                            Quick Actions
+                          </h3>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            Manage this payment
+                          </p>
                         </div>
-                        {paymentData.paymentDate && (
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="primary"
+                          className="flex-1"
+                          onClick={handleEditPayment}
+                          leftIcon={Edit}
+                        >
+                          Edit Payment
+                        </Button>
+                      </div>
+
+                      {/* Quick Stats */}
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                          Quick Stats
+                        </h4>
+                        <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-secondary))]">Payment Date:</span>
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Total Amount:
+                            </span>
                             <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                              {moment(paymentData.paymentDate).format('DD MMM YYYY')}
+                              ₹
+                              {paymentData.totalAmount?.toLocaleString(
+                                "en-IN",
+                                { maximumFractionDigits: 2 },
+                              ) || "0.00"}
                             </span>
                           </div>
-                        )}
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Payment Methods:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {paymentData.paymentMethods?.length || 0}
+                            </span>
+                          </div>
+                          {paymentData.paymentDate && (
+                            <div className="flex justify-between">
+                              <span className="text-[rgb(var(--color-text-secondary))]">
+                                Payment Date:
+                              </span>
+                              <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                {moment(paymentData.paymentDate).format(
+                                  "DD MMM YYYY",
+                                )}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </div>

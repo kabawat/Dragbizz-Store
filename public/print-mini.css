@@ -1,6 +1,5 @@
 /* FINAL FIX — EXACT THERMAL WIDTH */
 @media print {
-
   /* Force strict thermal width */
   body.print-mode-mini #invoice-area,
   body.print-mode-mini .vintage-invoice,

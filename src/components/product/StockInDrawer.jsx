@@ -1,30 +1,25 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { X, Package, Plus, Minus, ArrowUp } from 'lucide-react';
-import { Button, Input, Select } from '@/components/ui';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useAppSelector } from '@/store/hooks';
-import { stockService, supplierService } from '@/service/retailer';
-import { useFeatureAccess } from '@/hooks/useFeatureAccess';
-import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
-import UpgradeModal from '@/components/ui/UpgradeModal';
-import { useGlobalToast } from '@/contexts/ToastContext';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect } from "react";
+import { X, Package, Plus, Minus, ArrowUp } from "lucide-react";
+import { Button, Input, Select } from "@/components/ui";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAppSelector } from "@/store/hooks";
+import { stockService, supplierService } from "@/service/retailer";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
+import UpgradeModal from "@/components/ui/UpgradeModal";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const StockInDrawer = ({
-  isOpen,
-  onClose,
-  product,
-  onSuccess
-}) => {
+const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   const { t } = useTranslation();
   const { themeConfig } = useTheme();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
   const [formData, setFormData] = useState({
-    quantity: '',
-    purchasePrice: '',
-    supplier: ''
+    quantity: "",
+    purchasePrice: "",
+    supplier: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -34,15 +29,17 @@ const StockInDrawer = ({
 
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(FEATURES.SUPPLIER_MANAGEMENT);
+  const hasSupplierManagement = checkFeatureAccess(
+    FEATURES.SUPPLIER_MANAGEMENT,
+  );
 
   // Reset form when drawer opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        quantity: '',
-        purchasePrice: '',
-        supplier: ''
+        quantity: "",
+        purchasePrice: "",
+        supplier: "",
       });
       setErrors({});
       if (hasSupplierManagement) {
@@ -53,7 +50,8 @@ const StockInDrawer = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId || !hasSupplierManagement) return;
 
     try {
@@ -61,7 +59,7 @@ const StockInDrawer = ({
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
@@ -73,16 +71,16 @@ const StockInDrawer = ({
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: "",
       }));
     }
   };
@@ -91,11 +89,11 @@ const StockInDrawer = ({
     const newErrors = {};
 
     if (!formData.quantity || formData.quantity <= 0) {
-      newErrors.quantity = 'Quantity must be greater than 0';
+      newErrors.quantity = "Quantity must be greater than 0";
     }
 
     if (!formData.purchasePrice || formData.purchasePrice <= 0) {
-      newErrors.purchasePrice = 'Purchase price must be greater than 0';
+      newErrors.purchasePrice = "Purchase price must be greater than 0";
     }
 
     setErrors(newErrors);
@@ -111,10 +109,11 @@ const StockInDrawer = ({
 
     setIsLoading(true);
     try {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
       if (!storeId) {
-        throw new Error('Store not selected');
+        throw new Error("Store not selected");
       }
 
       const apiPayload = {
@@ -123,22 +122,20 @@ const StockInDrawer = ({
         batchData: {
           quantity: parseInt(formData.quantity),
           purchasePrice: parseFloat(formData.purchasePrice),
-          supplier: formData.supplier
-        }
+          supplier: formData.supplier,
+        },
       };
 
       const response = await stockService.addStock(apiPayload);
 
       if (response.success) {
         onClose();
-        onSuccess?.('Stock added successfully!');
-
+        onSuccess?.("Stock added successfully!");
       } else {
-        throw new Error(response.message || 'Failed to add stock');
+        throw new Error(response.message || "Failed to add stock");
       }
-
     } catch (error) {
-      showError(`Error adding stock: ${error.message || 'Please try again.'}`);
+      showError(`Error adding stock: ${error.message || "Please try again."}`);
     } finally {
       setIsLoading(false);
     }
@@ -146,8 +143,11 @@ const StockInDrawer = ({
 
   const handleQuantityChange = (type) => {
     const currentQuantity = parseInt(formData.quantity) || 0;
-    const newQuantity = type === 'increment' ? currentQuantity + 1 : Math.max(0, currentQuantity - 1);
-    handleInputChange('quantity', newQuantity.toString());
+    const newQuantity =
+      type === "increment"
+        ? currentQuantity + 1
+        : Math.max(0, currentQuantity - 1);
+    handleInputChange("quantity", newQuantity.toString());
   };
 
   const handleSupplierChange = (value) => {
@@ -156,13 +156,13 @@ const StockInDrawer = ({
       setShowUpgradeModal(true);
       return;
     }
-    handleInputChange('supplier', value);
+    handleInputChange("supplier", value);
   };
 
   // Format suppliers for Select component
-  const formattedSuppliers = suppliers.map(supplier => ({
+  const formattedSuppliers = suppliers.map((supplier) => ({
     value: supplier._id,
-    label: supplier.name
+    label: supplier.name,
   }));
 
   if (!isOpen) return null;
@@ -170,7 +170,10 @@ const StockInDrawer = ({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/20 z-[9998] transition-opacity duration-300" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/20 z-[9998] transition-opacity duration-300"
+        onClick={onClose}
+      />
 
       {/* Drawer */}
       <div className="fixed right-0 top-0 h-full w-[42rem] bg-[rgb(var(--color-bg-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col">
@@ -189,7 +192,10 @@ const StockInDrawer = ({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors cursor-pointer" >
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors cursor-pointer"
+          >
             <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
           </button>
         </div>
@@ -219,13 +225,13 @@ const StockInDrawer = ({
               {/* Quantity */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('inventory.quantity')} *
+                  {t("inventory.quantity")} *
                 </label>
                 <Input
                   type="number"
                   value={formData.quantity}
-                  onChange={(value) => handleInputChange('quantity', value)}
-                  placeholder={t('inventory.enterQuantity')}
+                  onChange={(value) => handleInputChange("quantity", value)}
+                  placeholder={t("inventory.enterQuantity")}
                   error={errors.quantity}
                 />
                 {errors.quantity && (
@@ -236,18 +242,22 @@ const StockInDrawer = ({
               {/* Purchase Price */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('inventory.purchasePricePerUnit')} *
+                  {t("inventory.purchasePricePerUnit")} *
                 </label>
                 <Input
                   type="number"
                   step="0.01"
                   value={formData.purchasePrice}
-                  onChange={(value) => handleInputChange('purchasePrice', value)}
-                  placeholder={t('inventory.enterPurchasePricePerUnit')}
+                  onChange={(value) =>
+                    handleInputChange("purchasePrice", value)
+                  }
+                  placeholder={t("inventory.enterPurchasePricePerUnit")}
                   error={errors.purchasePrice}
                 />
                 {errors.purchasePrice && (
-                  <p className="text-sm text-red-500 mt-1">{errors.purchasePrice}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.purchasePrice}
+                  </p>
                 )}
               </div>
             </div>
@@ -255,24 +265,26 @@ const StockInDrawer = ({
             {/* Supplier */}
             <div className="relative">
               <Select
-                label={t('inventory.supplierOptional')}
+                label={t("inventory.supplierOptional")}
                 placeholder={
                   !hasSupplierManagement
-                    ? t('inventory.enableSupplierManagementToSelect')
-                    : t('inventory.searchAndSelectSupplierOptional')
+                    ? t("inventory.enableSupplierManagementToSelect")
+                    : t("inventory.searchAndSelectSupplierOptional")
                 }
-                value={formData.supplier || ''}
+                value={formData.supplier || ""}
                 onChange={handleSupplierChange}
                 error={errors.supplier}
                 errorMessage={errors.supplier}
                 searchable={true}
                 options={hasSupplierManagement ? formattedSuppliers : []}
                 loading={suppliersLoading}
-                disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
+                disabled={
+                  !hasSupplierManagement || suppliersLoading || featuresLoading
+                }
                 helperText={
                   !hasSupplierManagement
-                    ? t('inventory.enableSupplierManagementFeature')
-                    : t('inventory.optionalTypeToSearchSuppliers')
+                    ? t("inventory.enableSupplierManagementFeature")
+                    : t("inventory.optionalTypeToSearchSuppliers")
                 }
               />
 
@@ -285,10 +297,10 @@ const StockInDrawer = ({
                     setShowUpgradeModal(true);
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                  title={t('inventory.upgradeToEnableSupplierManagement')}
+                  title={t("inventory.upgradeToEnableSupplierManagement")}
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
-                  <span>{t('common.upgrade')}</span>
+                  <span>{t("common.upgrade")}</span>
                 </button>
               )}
             </div>
@@ -296,31 +308,44 @@ const StockInDrawer = ({
             {/* Summary */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-lg p-4 border border-[rgb(var(--color-border-primary))]">
               <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                {t('inventory.stockAdditionSummary')}
+                {t("inventory.stockAdditionSummary")}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Quantity:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    Quantity:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     {formData.quantity || 0} units
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.purchasePrice')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("inventory.purchasePrice")}:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                    ₹{formData.purchasePrice || '0.00'}
+                    ₹{formData.purchasePrice || "0.00"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.totalValue')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("inventory.totalValue")}:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                    ₹{((parseFloat(formData.quantity) || 0) * (parseFloat(formData.purchasePrice) || 0)).toFixed(2)}
+                    ₹
+                    {(
+                      (parseFloat(formData.quantity) || 0) *
+                      (parseFloat(formData.purchasePrice) || 0)
+                    ).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">{t('inventory.newStock')}:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    {t("inventory.newStock")}:
+                  </span>
                   <span className="text-green-500 font-medium">
-                    {(product?.stock || 0) + (parseInt(formData.quantity) || 0)} units
+                    {(product?.stock || 0) + (parseInt(formData.quantity) || 0)}{" "}
+                    units
                   </span>
                 </div>
               </div>
@@ -357,7 +382,10 @@ const StockInDrawer = ({
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         featureName="Supplier Management"
-        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+        requiredFeature={
+          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
+          "Supplier Management"
+        }
       />
     </>
   );

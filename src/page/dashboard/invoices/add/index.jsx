@@ -1,20 +1,39 @@
-"use client"
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAppSelector } from '@/store/hooks';
-import { productService, customerService, invoiceService } from '@/service';
-import { Button, Card, Input, Select, Badge, ToastContainer, ErrorModal, SideDrawer } from '@/components/ui';
-import { Plus, Minus, ShoppingCart, User, Calculator, ArrowLeft, Package, IndianRupee, Trash2 } from 'lucide-react';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import QuotaProgressBar from '@/components/product/QuotaProgressBar';
-import { QuotaExceededModal } from '@/components/common';
-import { useUsageQuota } from '@/hooks/useUsageQuota';
-import { useToast } from '@/hooks/useToast';
-import { extractFieldErrors } from '@/utils/validationErrorHandler';
-import { CreateCustomer } from '@/components/customer';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { productService, customerService, invoiceService } from "@/service";
+import {
+  Button,
+  Card,
+  Input,
+  Select,
+  Badge,
+  ToastContainer,
+  ErrorModal,
+  SideDrawer,
+} from "@/components/ui";
+import {
+  Plus,
+  Minus,
+  ShoppingCart,
+  User,
+  Calculator,
+  ArrowLeft,
+  Package,
+  IndianRupee,
+  Trash2,
+} from "lucide-react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import QuotaProgressBar from "@/components/product/QuotaProgressBar";
+import { QuotaExceededModal } from "@/components/common";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useToast } from "@/hooks/useToast";
+import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import { CreateCustomer } from "@/components/customer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CreateInvoicePage = () => {
   const router = useRouter();
@@ -23,14 +42,15 @@ const CreateInvoicePage = () => {
   const quotaRefreshRef = useRef(null);
 
   // Get quota information for frontend validation
-  const { quota, isLoading: quotaLoading } = useUsageQuota('invoice_management');
+  const { quota, isLoading: quotaLoading } =
+    useUsageQuota("invoice_management");
 
   // Local loading state for invoice creation
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [quotaError, setQuotaError] = useState(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const { toasts, showSuccess, showError, removeToast } = useToast();
 
@@ -54,19 +74,20 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // Get stable storeId
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   // Customer drawer state
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
 
   const [formData, setFormData] = useState({
-    customer: '',
+    customer: "",
     totalDiscount: 0,
-    items: []
+    items: [],
   });
 
   // State for adding new items
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   // Fetch products from API
@@ -74,7 +95,10 @@ const CreateInvoicePage = () => {
     if (!storeId) return;
 
     // Prevent duplicate calls for the same store
-    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
+    if (
+      productsFetchedRef.current.storeId === storeId &&
+      productsFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -85,7 +109,7 @@ const CreateInvoicePage = () => {
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         setProducts(result?.data || []);
@@ -102,7 +126,10 @@ const CreateInvoicePage = () => {
     if (!storeId) return;
 
     // Prevent duplicate calls for the same store
-    if (customersFetchedRef.current.storeId === storeId && customersFetchedRef.current.fetched) {
+    if (
+      customersFetchedRef.current.storeId === storeId &&
+      customersFetchedRef.current.fetched
+    ) {
       return;
     }
 
@@ -113,18 +140,22 @@ const CreateInvoicePage = () => {
       const params = {
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       };
 
       const result = await customerService.getCustomers(params);
       if (result.success) {
         const serializedOptions = [
-          { value: '', label: t('invoice.walkInCustomer') },
-          ...((result.data || []).map((customer) => ({
+          { value: "", label: t("invoice.walkInCustomer") },
+          ...(result.data || []).map((customer) => ({
             value: customer._id,
-            label: `${customer.name || t('errors.unknown')} - ${customer.phone || t('errors.noPhone')}${customer.email ? ` - ${customer.email}` : ''}`
-          }))),
-          { value: 'add-new-customer', label: t('invoice.addNewCustomer'), isAddOption: true }
+            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+          })),
+          {
+            value: "add-new-customer",
+            label: t("invoice.addNewCustomer"),
+            isAddOption: true,
+          },
         ];
         setCustomers(serializedOptions);
       }
@@ -137,10 +168,11 @@ const CreateInvoicePage = () => {
 
   // Reset refs when storeId changes
   useEffect(() => {
-    if (storeId && (
-      productsFetchedRef.current.storeId !== storeId ||
-      customersFetchedRef.current.storeId !== storeId
-    )) {
+    if (
+      storeId &&
+      (productsFetchedRef.current.storeId !== storeId ||
+        customersFetchedRef.current.storeId !== storeId)
+    ) {
       productsFetchedRef.current = { storeId: null, fetched: false };
       customersFetchedRef.current = { storeId: null, fetched: false };
     }
@@ -154,10 +186,9 @@ const CreateInvoicePage = () => {
     fetchCustomers();
   }, [storeId, fetchProducts, fetchCustomers]);
 
-
   // Handle customer select change
   const handleCustomerChange = (value) => {
-    if (value === 'add-new-customer') {
+    if (value === "add-new-customer") {
       setShowCustomerDrawer(true);
     } else {
       setFormData({ ...formData, customer: value });
@@ -169,26 +200,26 @@ const CreateInvoicePage = () => {
     // Refresh customers list
     customersFetchedRef.current = { storeId: null, fetched: false };
     await fetchCustomers();
-    
+
     // Auto-select the newly created customer
     const newCustomerId = customerData?.id || customerData?._id;
     if (newCustomerId) {
       setFormData({ ...formData, customer: newCustomerId });
     }
-    
+
     // Close drawer
     setShowCustomerDrawer(false);
   };
 
   const handleAddItem = () => {
     if (!selectedProduct) {
-      showError(t('invoice.pleaseSelectProduct'));
+      showError(t("invoice.pleaseSelectProduct"));
       return;
     }
 
-    const product = products.find(p => p._id === selectedProduct);
+    const product = products.find((p) => p._id === selectedProduct);
     if (!product) {
-      showError(t('invoice.productNotFound'));
+      showError(t("invoice.productNotFound"));
       return;
     }
 
@@ -196,7 +227,9 @@ const CreateInvoicePage = () => {
     const quantityToAdd = parseInt(selectedQuantity) || 1;
 
     // Check if product already exists in items
-    const existingItemIndex = formData.items.findIndex(item => item.product === selectedProduct);
+    const existingItemIndex = formData.items.findIndex(
+      (item) => item.product === selectedProduct,
+    );
 
     if (existingItemIndex !== -1) {
       // Product already exists, increment quantity
@@ -208,12 +241,12 @@ const CreateInvoicePage = () => {
       updatedItems[existingItemIndex] = {
         ...existingItem,
         quantity: newQuantity,
-        total: newTotal
+        total: newTotal,
       };
 
       setFormData({
         ...formData,
-        items: updatedItems
+        items: updatedItems,
       });
     } else {
       // Product doesn't exist, add as new item
@@ -221,20 +254,20 @@ const CreateInvoicePage = () => {
 
       const newItem = {
         product: selectedProduct,
-        productName: product.name || '',
+        productName: product.name || "",
         quantity: quantityToAdd,
         price: productPrice,
-        total: total
+        total: total,
       };
 
       setFormData({
         ...formData,
-        items: [...formData.items, newItem]
+        items: [...formData.items, newItem],
       });
     }
 
     // Reset selection
-    setSelectedProduct('');
+    setSelectedProduct("");
     setSelectedQuantity(1);
   };
 
@@ -248,8 +281,10 @@ const CreateInvoicePage = () => {
     updatedItems[index][field] = value;
 
     // Calculate total when quantity or price changes
-    if (field === 'quantity' || field === 'price') {
-      const product = products.find(p => p._id === updatedItems[index].product);
+    if (field === "quantity" || field === "price") {
+      const product = products.find(
+        (p) => p._id === updatedItems[index].product,
+      );
       const price = product?.price || product?.sellingPrice || 0;
       const quantity = updatedItems[index].quantity || 1;
       updatedItems[index].total = price * quantity;
@@ -269,15 +304,16 @@ const CreateInvoicePage = () => {
     return Math.max(0, subtotal - (formData.totalDiscount || 0));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Filter out empty items
-    const validItems = formData.items.filter(item => item.product && item.quantity > 0);
+    const validItems = formData.items.filter(
+      (item) => item.product && item.quantity > 0,
+    );
 
     if (validItems.length === 0) {
-      showError(t('invoice.addAtLeastOneItem'));
+      showError(t("invoice.addAtLeastOneItem"));
       return;
     }
 
@@ -286,16 +322,18 @@ const CreateInvoicePage = () => {
       // Show quota exceeded modal
       const quotaData = quota || {};
       setQuotaError({
-        message: quota.remaining === 0
-          ? t('invoice.dailyLimitReached', { limit: quota.limit })
-          : t('invoice.quotaExceededMessage'),
+        message:
+          quota.remaining === 0
+            ? t("invoice.dailyLimitReached", { limit: quota.limit })
+            : t("invoice.quotaExceededMessage"),
         quota: quotaData,
-        resetTime: quota.usageType === 'DAILY_FIXED'
-          ? 'tomorrow'
-          : quota.usageType === 'MONTHLY_TOTAL'
-            ? 'next month'
-            : null,
-        canUpgrade: true
+        resetTime:
+          quota.usageType === "DAILY_FIXED"
+            ? "tomorrow"
+            : quota.usageType === "MONTHLY_TOTAL"
+              ? "next month"
+              : null,
+        canUpgrade: true,
       });
       setShowQuotaModal(true);
       return; // Prevent API call
@@ -303,12 +341,12 @@ const CreateInvoicePage = () => {
 
     const invoiceData = {
       customer: formData.customer || null,
-      items: validItems.map(item => ({
+      items: validItems.map((item) => ({
         product: item.product,
-        quantity: item.quantity
+        quantity: item.quantity,
       })),
       store: selectedStore?.storeId,
-      totalDiscount: formData.totalDiscount || 0
+      totalDiscount: formData.totalDiscount || 0,
     };
 
     try {
@@ -323,7 +361,7 @@ const CreateInvoicePage = () => {
           quotaRefreshRef.current();
         }
         // Show success toast
-        showSuccess(t('invoice.invoiceCreatedSuccess'));
+        showSuccess(t("invoice.invoiceCreatedSuccess"));
         // Redirect to the created invoice view page
         setTimeout(() => {
           const invoiceId = result.data?.id || result.data?._id;
@@ -331,7 +369,7 @@ const CreateInvoicePage = () => {
             router.push(`/dashboard/invoices/view/${invoiceId}`);
           } else {
             // Fallback to invoices list if ID not available
-            router.push('/dashboard/invoices');
+            router.push("/dashboard/invoices");
           }
         }, 1500);
       } else {
@@ -339,20 +377,20 @@ const CreateInvoicePage = () => {
         const errorData = result?.error || {};
         const isQuotaError =
           result?.statusCode === 403 ||
-          errorData.error === 'Quota Exceeded' ||
-          errorData.error === 'Forbidden' ||
-          result.message?.includes('Quota exceeded') ||
-          result.message?.includes('limit reached') ||
-          result.message?.includes('Quota Exceeded');
+          errorData.error === "Quota Exceeded" ||
+          errorData.error === "Forbidden" ||
+          result.message?.includes("Quota exceeded") ||
+          result.message?.includes("limit reached") ||
+          result.message?.includes("Quota Exceeded");
 
         if (isQuotaError) {
           // Extract quota data from backend response structure
           const quotaData = errorData.data || errorData || {};
           setQuotaError({
-            message: result.message || errorData.message || 'Quota exceeded',
+            message: result.message || errorData.message || "Quota exceeded",
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false
+            canUpgrade: quotaData.canUpgrade !== false,
           });
           setShowQuotaModal(true);
         } else {
@@ -362,7 +400,9 @@ const CreateInvoicePage = () => {
             setFieldErrors(fieldErrors);
           } else {
             // Show error modal for general errors
-            setErrorMessage(result.message || t('invoice.failedToCreateInvoice'));
+            setErrorMessage(
+              result.message || t("invoice.failedToCreateInvoice"),
+            );
             setShowErrorModal(true);
           }
         }
@@ -373,13 +413,17 @@ const CreateInvoicePage = () => {
         const errorData = error.response.data;
 
         // Check for quota exceeded error (403)
-        if (error.response.status === 403 && (errorData.error === 'Quota Exceeded' || errorData.error === 'Forbidden')) {
+        if (
+          error.response.status === 403 &&
+          (errorData.error === "Quota Exceeded" ||
+            errorData.error === "Forbidden")
+        ) {
           const quotaData = errorData.data || {};
           setQuotaError({
-            message: errorData.message || 'Quota exceeded',
+            message: errorData.message || "Quota exceeded",
             quota: quotaData.quota || quotaData,
             resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false
+            canUpgrade: quotaData.canUpgrade !== false,
           });
           setShowQuotaModal(true);
         } else {
@@ -389,13 +433,13 @@ const CreateInvoicePage = () => {
             setFieldErrors(fieldErrors);
           } else {
             // Show error modal for general errors
-            setErrorMessage(errorData.message || t('invoice.anErrorOccurred'));
+            setErrorMessage(errorData.message || t("invoice.anErrorOccurred"));
             setShowErrorModal(true);
           }
         }
       } else {
         // Handle other types of errors
-        setErrorMessage(t('invoice.unexpectedError'));
+        setErrorMessage(t("invoice.unexpectedError"));
         setShowErrorModal(true);
       }
     } finally {
@@ -412,10 +456,10 @@ const CreateInvoicePage = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t('invoice.loadingStoreData')}
+              {t("invoice.loadingStoreData")}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              {t('invoice.pleaseWaitStoreInfo')}
+              {t("invoice.pleaseWaitStoreInfo")}
             </p>
           </div>
         </div>
@@ -428,15 +472,23 @@ const CreateInvoicePage = () => {
       <Sidebar />
 
       <div className="min-h-screen w-full flex flex-col">
-        <Header title={t('invoice.createInvoice')} description={t('invoice.createInvoiceDescription')} />
+        <Header
+          title={t("invoice.createInvoice")}
+          description={t("invoice.createInvoiceDescription")}
+        />
 
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
             {/* Back Button with Quota Progress Bar */}
             <div className="mb-4 flex items-center justify-between">
-              <Link href="/dashboard/invoices" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+              <Link
+                href="/dashboard/invoices"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('invoice.backToInvoices')}</span>
+                <span className="text-sm font-medium">
+                  {t("invoice.backToInvoices")}
+                </span>
               </Link>
               <QuotaProgressBar
                 featureKey="invoice_management"
@@ -447,8 +499,10 @@ const CreateInvoicePage = () => {
             </div>
 
             {/* Form Container - Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 150px)' }}>
-
+            <div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              style={{ height: "calc(100vh - 150px)" }}
+            >
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 pe-3 h-full">
                   <form onSubmit={handleSubmit} className="h-full">
@@ -456,12 +510,11 @@ const CreateInvoicePage = () => {
                     <Card className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
                       <div className="p-4 flex flex-col h-full overflow-hidden">
                         <div className="mb-4 flex-shrink-0">
-                         
                           {/* Add Item Section */}
                           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                             <div className="md:col-span-6">
                               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                {t('invoice.selectProduct')} *
+                                {t("invoice.selectProduct")} *
                               </label>
                               <Select
                                 size="sm"
@@ -469,11 +522,18 @@ const CreateInvoicePage = () => {
                                 value={selectedProduct}
                                 onChange={(value) => setSelectedProduct(value)}
                                 options={[
-                                  { value: '', label: t('invoice.selectProductPlaceholder') },
-                                  ...products.filter(product => product._id).map(product => ({
-                                    value: product._id,
-                                    label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`
-                                  }))
+                                  {
+                                    value: "",
+                                    label: t(
+                                      "invoice.selectProductPlaceholder",
+                                    ),
+                                  },
+                                  ...products
+                                    .filter((product) => product._id)
+                                    .map((product) => ({
+                                      value: product._id,
+                                      label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`,
+                                    })),
                                 ]}
                                 leftIcon={Package}
                                 size="sm"
@@ -482,7 +542,7 @@ const CreateInvoicePage = () => {
 
                             <div className="md:col-span-3">
                               <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                {t('invoice.quantity')} *
+                                {t("invoice.quantity")} *
                               </label>
                               <Input
                                 type="number"
@@ -504,7 +564,7 @@ const CreateInvoicePage = () => {
                                 // className="w-full"
                                 disabled={!selectedProduct}
                               >
-                                {t('invoice.addItem')}
+                                {t("invoice.addItem")}
                               </Button>
                             </div>
                           </div>
@@ -516,27 +576,38 @@ const CreateInvoicePage = () => {
                             {/* Items List - Scrollable */}
                             <div className="flex-1 flex flex-col min-h-0">
                               <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex-shrink-0">
-                                {t('invoice.addedItems')} ({formData.items.length})
+                                {t("invoice.addedItems")} (
+                                {formData.items.length})
                               </h4>
-                              <div className="overflow-y-auto overflow-x-hidden space-y-3 pr-2" style={{ maxHeight: 'calc(100vh - 450px)' }}>
+                              <div
+                                className="overflow-y-auto overflow-x-hidden space-y-3 pr-2"
+                                style={{ maxHeight: "calc(100vh - 450px)" }}
+                              >
                                 {formData.items.map((item, index) => {
-                                  const product = products.find(p => p._id === item.product);
+                                  const product = products.find(
+                                    (p) => p._id === item.product,
+                                  );
                                   return (
-                                    <div key={index} className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0">
+                                    <div
+                                      key={index}
+                                      className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0"
+                                    >
                                       <div className="flex items-center justify-between">
                                         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t('invoice.product')}
+                                              {t("invoice.product")}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              {item.productName || product?.name || 'N/A'}
+                                              {item.productName ||
+                                                product?.name ||
+                                                "N/A"}
                                             </p>
                                           </div>
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t('invoice.quantity')}
+                                              {t("invoice.quantity")}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                               {item.quantity}
@@ -545,28 +616,32 @@ const CreateInvoicePage = () => {
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t('invoice.price')}
+                                              {t("invoice.price")}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              ₹{item.price?.toFixed(2) || '0.00'}
+                                              ₹
+                                              {item.price?.toFixed(2) || "0.00"}
                                             </p>
                                           </div>
 
                                           <div>
                                             <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t('invoice.total')}
+                                              {t("invoice.total")}
                                             </label>
                                             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              ₹{item.total?.toFixed(2) || '0.00'}
+                                              ₹
+                                              {item.total?.toFixed(2) || "0.00"}
                                             </p>
                                           </div>
                                         </div>
 
                                         <button
                                           type="button"
-                                          onClick={() => handleRemoveItem(index)}
+                                          onClick={() =>
+                                            handleRemoveItem(index)
+                                          }
                                           className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
-                                          title={t('invoice.removeItem')}
+                                          title={t("invoice.removeItem")}
                                         >
                                           <Trash2 className="w-4 h-4" />
                                         </button>
@@ -581,13 +656,20 @@ const CreateInvoicePage = () => {
                             <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
                               <div className="w-full md:w-80">
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
-                                  {t('invoice.totalDiscount')} (₹)
-                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')})</span>
+                                  {t("invoice.totalDiscount")} (₹)
+                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                    ({t("common.optional")})
+                                  </span>
                                 </label>
                                 <Input
                                   type="number"
                                   value={formData.totalDiscount}
-                                  onChange={(value) => setFormData({ ...formData, totalDiscount: value })}
+                                  onChange={(value) =>
+                                    setFormData({
+                                      ...formData,
+                                      totalDiscount: value,
+                                    })
+                                  }
                                   min="0"
                                   step="0.01"
                                   leftIcon={Calculator}
@@ -601,7 +683,9 @@ const CreateInvoicePage = () => {
                           <div className="flex-1 flex items-center justify-center">
                             <div className="text-center text-[rgb(var(--color-text-secondary))]">
                               <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                              <p className="text-sm">{t('invoice.noItemsAdded')}</p>
+                              <p className="text-sm">
+                                {t("invoice.noItemsAdded")}
+                              </p>
                             </div>
                           </div>
                         )}
@@ -619,44 +703,63 @@ const CreateInvoicePage = () => {
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                       <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                         <User className="w-4 h-4 mr-2" />
-                        {t('invoice.customerInformation')}
+                        {t("invoice.customerInformation")}
                       </h4>
                       <div>
                         <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                          {t('invoice.customer')}
-                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">({t('common.optional')} - defaults to walk-in)</span>
+                          {t("invoice.customer")}
+                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                            ({t("common.optional")} - defaults to walk-in)
+                          </span>
                         </label>
                         <Select
                           value={formData.customer}
                           onChange={handleCustomerChange}
-                          options={customersLoading ? [{ value: '', label: t('invoice.loadingCustomers') }] : customers}
+                          options={
+                            customersLoading
+                              ? [
+                                  {
+                                    value: "",
+                                    label: t("invoice.loadingCustomers"),
+                                  },
+                                ]
+                              : customers
+                          }
                           disabled={customersLoading}
                           leftIcon={User}
                           size="sm"
                           searchable={true}
-                          placeholder={t('invoice.searchCustomers')}
+                          placeholder={t("invoice.searchCustomers")}
                         />
                       </div>
                     </div>
 
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('invoice.invoiceSummary')}</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        {t("invoice.invoiceSummary")}
+                      </h4>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">{t('invoice.subtotal')}:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">
+                            {t("invoice.subtotal")}:
+                          </span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{calculateSubtotal().toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">{t('invoice.discount')}:</span>
+                          <span className="text-[rgb(var(--color-text-secondary))]">
+                            {t("invoice.discount")}:
+                          </span>
                           <span className="font-medium text-[rgb(var(--color-text-primary))]">
                             ₹{formData.totalDiscount || "0"}
                           </span>
                         </div>
                         <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
                           <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">{t('invoice.total')}:</span>
+                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                              {t("invoice.total")}:
+                            </span>
                             <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
                               ₹{calculateTotal().toFixed(2)}
                             </span>
@@ -666,13 +769,17 @@ const CreateInvoicePage = () => {
                     </div>
 
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">{t('invoice.itemCount')}</h4>
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        {t("invoice.itemCount")}
+                      </h4>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
                           {formData.items.length}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                          {formData.items.length === 1 ? t('invoice.item') : t('invoice.items')}
+                          {formData.items.length === 1
+                            ? t("invoice.item")
+                            : t("invoice.items")}
                         </div>
                       </div>
                     </div>
@@ -681,7 +788,7 @@ const CreateInvoicePage = () => {
                     {quotaExceeded && !quotaLoading && (
                       <div className="mb-3">
                         <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
-                          ⚠️ {t('invoice.quotaExceeded')}
+                          ⚠️ {t("invoice.quotaExceeded")}
                         </p>
                       </div>
                     )}
@@ -693,19 +800,25 @@ const CreateInvoicePage = () => {
                         onClick={handleSubmit}
                         loading={invoiceLoading}
                         leftIcon={Plus}
-                        disabled={formData.items.length === 0 || quotaExceeded || quotaLoading}
-                        title={quotaExceeded ? t('invoice.quotaExceededMessage') : ''}
+                        disabled={
+                          formData.items.length === 0 ||
+                          quotaExceeded ||
+                          quotaLoading
+                        }
+                        title={
+                          quotaExceeded ? t("invoice.quotaExceededMessage") : ""
+                        }
                       >
-                        {t('invoice.createInvoiceButton')}
+                        {t("invoice.createInvoiceButton")}
                       </Button>
 
                       <Button
                         variant="outline"
                         className="w-full md:flex-1"
-                        onClick={() => router.push('/dashboard/invoices')}
+                        onClick={() => router.push("/dashboard/invoices")}
                         disabled={invoiceLoading}
                       >
-                        {t('common.cancel')}
+                        {t("common.cancel")}
                       </Button>
                     </div>
                   </div>
@@ -723,7 +836,7 @@ const CreateInvoicePage = () => {
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
-        title={t('common.error')}
+        title={t("common.error")}
         message={errorMessage}
       />
 
@@ -733,12 +846,17 @@ const CreateInvoicePage = () => {
         onClose={() => {
           setShowCustomerDrawer(false);
         }}
-        title={t('invoice.addNewCustomer')}
+        title={t("invoice.addNewCustomer")}
         width="w-full md:w-2/3 lg:w-1/2"
       >
         <div className="p-6 h-full">
           <CreateCustomer
-            storeId={selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ''}
+            storeId={
+              selectedStore?.storeId ||
+              selectedStore?._id ||
+              selectedStore?.id ||
+              ""
+            }
             onSuccess={handleCustomerSuccess}
             onCancel={() => setShowCustomerDrawer(false)}
             showCancelButton={true}
@@ -755,7 +873,7 @@ const CreateInvoicePage = () => {
           setShowQuotaModal(false);
           setQuotaError(null);
         }}
-        message={quotaError?.message || t('invoice.quotaExceededMessage')}
+        message={quotaError?.message || t("invoice.quotaExceededMessage")}
         quota={quotaError?.quota || null}
         resetTime={quotaError?.resetTime || null}
         canUpgrade={quotaError?.canUpgrade !== false}

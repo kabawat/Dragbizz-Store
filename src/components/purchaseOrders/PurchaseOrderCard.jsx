@@ -1,14 +1,8 @@
-"use client"
-import React from 'react';
-import {
-  FileText,
-  Calendar,
-  Building2,
-  Phone,
-  Mail
-} from 'lucide-react';
-import { SendMenu, ActionMenu } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React from "react";
+import { FileText, Calendar, Building2, Phone, Mail } from "lucide-react";
+import { SendMenu, ActionMenu } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const PurchaseOrderCard = ({
   purchaseOrder,
@@ -23,38 +17,45 @@ const PurchaseOrderCard = ({
   formatCurrency,
   formatDate,
   enableSendMenu = true,
-  getShareUrl
+  getShareUrl,
 }) => {
   const { t } = useTranslation();
   const statusBadge = getStatusBadge(purchaseOrder);
   const StatusIcon = statusBadge.icon;
-  const poStatus = (purchaseOrder.status || '').toUpperCase();
-  const isDeleted = poStatus === 'DELETED';
-  
+  const poStatus = (purchaseOrder.status || "").toUpperCase();
+  const isDeleted = poStatus === "DELETED";
+
   // Check if advance payment has been made
   const advanceAmount = purchaseOrder.advanceAmount ?? 0;
   const hasAdvancePayments = (purchaseOrder.payments || []).some(
-    payment => payment.paymentType === 'ADVANCE_PAYMENT'
+    (payment) => payment.paymentType === "ADVANCE_PAYMENT",
   );
   const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
-  const totalQuantity = purchaseOrder.totalQuantity ?? (purchaseOrder.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
-  const receivedQuantity = purchaseOrder.receivedQuantity ?? (purchaseOrder.items || []).reduce((sum, item) => sum + (item.receivedQuantity || 0), 0);
-  
+  const totalQuantity =
+    purchaseOrder.totalQuantity ??
+    (purchaseOrder.items || []).reduce(
+      (sum, item) => sum + (item.quantity || 0),
+      0,
+    );
+  const receivedQuantity =
+    purchaseOrder.receivedQuantity ??
+    (purchaseOrder.items || []).reduce(
+      (sum, item) => sum + (item.receivedQuantity || 0),
+      0,
+    );
+
   // Build actions array conditionally
-  const actions = ['view'];
+  const actions = ["view"];
   if (!hasAdvancePayment && !isDeleted) {
-    actions.push('advancePayment');
+    actions.push("advancePayment");
   }
   if (!isDeleted) {
-    actions.push('createBill', 'edit');
+    actions.push("createBill", "edit");
   }
-  actions.push('delete');
+  actions.push("delete");
 
   return (
-    <div
-      className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden"
-    >
-
+    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden">
       {/* PO Header with Gradient Background */}
       <div className="w-full h-32 sm:h-36 md:h-40 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 relative">
         <div className="w-full h-full flex items-center justify-center">
@@ -72,7 +73,9 @@ const PurchaseOrderCard = ({
             menuId={purchaseOrder._id || purchaseOrder.id}
             isOpen={openMenuId === (purchaseOrder._id || purchaseOrder.id)}
             onToggle={onMenuToggle}
-            menuRef={(el) => menuRefs.current[purchaseOrder._id || purchaseOrder.id] = el}
+            menuRef={(el) =>
+              (menuRefs.current[purchaseOrder._id || purchaseOrder.id] = el)
+            }
             actions={actions}
             buttonClassName="bg-white/90 hover:bg-white shadow-sm"
           />
@@ -83,8 +86,7 @@ const PurchaseOrderCard = ({
           <div className="absolute top-4 right-16 z-10">
             <SendMenu
               item={purchaseOrder}
-              onShare={(type, item) => {
-              }}
+              onShare={(type, item) => {}}
               getShareUrl={getShareUrl}
               formatCurrency={formatCurrency}
               formatDate={formatDate}
@@ -105,19 +107,24 @@ const PurchaseOrderCard = ({
             <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2 mt-0.5" />
             <div>
               <p className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                {purchaseOrder.supplier?.name || 'N/A'}
+                {purchaseOrder.supplier?.name || "N/A"}
               </p>
-              {(purchaseOrder.supplier?.phone || purchaseOrder.supplier?.email) && (
+              {(purchaseOrder.supplier?.phone ||
+                purchaseOrder.supplier?.email) && (
                 <div className="text-xs mt-0.5 flex items-center gap-1.5">
                   {purchaseOrder.supplier?.phone ? (
                     <>
                       <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
-                      <span className="text-[rgb(var(--color-text-secondary))]">{purchaseOrder.supplier.phone}</span>
+                      <span className="text-[rgb(var(--color-text-secondary))]">
+                        {purchaseOrder.supplier.phone}
+                      </span>
                     </>
                   ) : (
                     <>
                       <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
-                      <span className="text-[rgb(var(--color-text-secondary))]">{purchaseOrder.supplier?.email}</span>
+                      <span className="text-[rgb(var(--color-text-secondary))]">
+                        {purchaseOrder.supplier?.email}
+                      </span>
                     </>
                   )}
                 </div>
@@ -128,7 +135,9 @@ const PurchaseOrderCard = ({
 
         {/* Status Badge */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}
+          >
             <StatusIcon className="w-3 h-3 mr-1 currentColor" />
             {statusBadge.text}
           </span>
@@ -138,11 +147,16 @@ const PurchaseOrderCard = ({
         <div className="space-y-2">
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
-            <span>{t('purchaseOrders.poDate')}: {formatDate(purchaseOrder.billDate)}</span>
+            <span>
+              {t("purchaseOrders.poDate")}: {formatDate(purchaseOrder.billDate)}
+            </span>
           </div>
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
-            <span>{t('purchaseOrders.expectedDelivery')}: {formatDate(purchaseOrder.dueDate)}</span>
+            <span>
+              {t("purchaseOrders.expectedDelivery")}:{" "}
+              {formatDate(purchaseOrder.dueDate)}
+            </span>
           </div>
         </div>
 
@@ -150,7 +164,9 @@ const PurchaseOrderCard = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-              <span className="font-medium">{t('purchaseOrders.advancePaid')}:</span>
+              <span className="font-medium">
+                {t("purchaseOrders.advancePaid")}:
+              </span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
               {formatCurrency(advanceAmount)}
@@ -158,7 +174,9 @@ const PurchaseOrderCard = ({
           </div>
           <div className="flex items-center justify-between">
             <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-              <span className="font-medium">{t('purchaseOrders.itemsReceived')}:</span>
+              <span className="font-medium">
+                {t("purchaseOrders.itemsReceived")}:
+              </span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
               {receivedQuantity}/{totalQuantity}

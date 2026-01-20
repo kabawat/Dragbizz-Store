@@ -1,11 +1,12 @@
 "use client";
-import React from 'react';
-import moment from 'moment';
+import React from "react";
+import moment from "moment";
 
 const VintageTemplate = ({ invoiceData, selectedStore }) => {
   return (
     <>
-      <style jsx global>{`
+      <style jsx global>
+        {`
         @media print {
           body {
             background: white !important;
@@ -271,7 +272,9 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="vintage-header">
           <div className="store-details">
-            <div className="store-name">{selectedStore?.storeName || "Your Store"}</div>
+            <div className="store-name">
+              {selectedStore?.storeName || "Your Store"}
+            </div>
             <p>
               {selectedStore?.address || "123 Market Road, City 12345"} <br />
               {selectedStore?.phone && `Phone: ${selectedStore.phone}`} <br />
@@ -289,16 +292,31 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
         <div className="vintage-info">
           <div className="info-box">
             <h3>Bill To</h3>
-            <p><strong>{invoiceData.customer?.name || "Walk-in Customer"}</strong></p>
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
+            <p>
+              <strong>
+                {invoiceData.customer?.name || "Walk-in Customer"}
+              </strong>
+            </p>
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
             {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-            {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
+            {invoiceData.customer?.email && (
+              <p>Email: {invoiceData.customer.email}</p>
+            )}
           </div>
           <div className="info-box">
             <h3>Payment Info</h3>
-            <p><strong>Payment Mode:</strong> {invoiceData.paymentMode || "Cash"}</p>
-            <p><strong>Invoice Date:</strong> {moment(invoiceData.createdAt).format("DD MMM YYYY")}</p>
-            <p><strong>Status:</strong> {invoiceData.status || "Paid"}</p>
+            <p>
+              <strong>Payment Mode:</strong> {invoiceData.paymentMode || "Cash"}
+            </p>
+            <p>
+              <strong>Invoice Date:</strong>{" "}
+              {moment(invoiceData.createdAt).format("DD MMM YYYY")}
+            </p>
+            <p>
+              <strong>Status:</strong> {invoiceData.status || "Paid"}
+            </p>
           </div>
         </div>
 
@@ -316,10 +334,14 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
             {invoiceData.items?.map((item, index) => (
               <tr key={index}>
                 <td>
-                  <span className="product-name">{item.product?.name || "Product"}</span>
+                  <span className="product-name">
+                    {item.product?.name || "Product"}
+                  </span>
                 </td>
                 <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                <td style={{ textAlign: "right" }}>₹{item.price?.toLocaleString()}</td>
+                <td style={{ textAlign: "right" }}>
+                  ₹{item.price?.toLocaleString()}
+                </td>
                 <td style={{ textAlign: "right" }}>
                   ₹{(item.quantity * item.price)?.toLocaleString()}
                 </td>
@@ -355,7 +377,10 @@ const VintageTemplate = ({ invoiceData, selectedStore }) => {
         {/* Footer */}
         <div className="vintage-footer">
           <p>Thank you for your business!</p>
-          <p>This is a system-generated invoice. Generated on {moment(invoiceData.createdAt).format("MM/DD/YYYY")}</p>
+          <p>
+            This is a system-generated invoice. Generated on{" "}
+            {moment(invoiceData.createdAt).format("MM/DD/YYYY")}
+          </p>
         </div>
       </div>
     </>

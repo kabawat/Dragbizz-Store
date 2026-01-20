@@ -1,4 +1,4 @@
-import ViewExpensePage from '@/page/dashboard/expenses/view/';
+import ViewExpensePage from "@/page/dashboard/expenses/view/";
 
 export default async function ViewExpenseRoute({ params }) {
   const { id } = await params;

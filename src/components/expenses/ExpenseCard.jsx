@@ -1,33 +1,40 @@
-"use client"
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Badge, Button } from '@/components/ui';
-import { 
-  Calendar, 
-  IndianRupee, 
-  CreditCard, 
-  Building, 
-  FileText, 
+"use client";
+import React from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Badge,
+  Button,
+} from "@/components/ui";
+import {
+  Calendar,
+  IndianRupee,
+  CreditCard,
+  Building,
+  FileText,
   MoreVertical,
   Edit,
   Trash2,
-  Eye
-} from 'lucide-react';
-import { 
-  getCategoryLabel, 
-  getPaymentMethodLabel, 
-  getPaymentMethodIcon, 
-  getStatusLabel, 
-  getStatusColor 
-} from '@/data/constants/expenses';
-import { getStatusBadge } from '@/utils/statusBadge';
+  Eye,
+} from "lucide-react";
+import {
+  getCategoryLabel,
+  getPaymentMethodLabel,
+  getPaymentMethodIcon,
+  getStatusLabel,
+  getStatusColor,
+} from "@/data/constants/expenses";
+import { getStatusBadge } from "@/utils/statusBadge";
 
-const ExpenseCard = ({ 
-  expense, 
-  onEdit, 
-  onDelete, 
-  onView, 
+const ExpenseCard = ({
+  expense,
+  onEdit,
+  onDelete,
+  onView,
   isSelected = false,
-  onSelect 
+  onSelect,
 }) => {
   const {
     id,
@@ -40,40 +47,42 @@ const ExpenseCard = ({
     netAmount,
     paymentMethod,
     vendor,
-    status
+    status,
   } = expense;
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
   const getStatusBadgeColor = (status) => {
-    const config = getStatusBadge(status, 'general');
+    const config = getStatusBadge(status, "general");
     // Map variant to color name for Badge component
     const colorMap = {
-      'success': 'green',
-      'warning': 'yellow',
-      'danger': 'red',
-      'secondary': 'gray',
-      'primary': 'blue'
+      success: "green",
+      warning: "yellow",
+      danger: "red",
+      secondary: "gray",
+      primary: "blue",
     };
-    return colorMap[config.variant] || 'gray';
+    return colorMap[config.variant] || "gray";
   };
 
   return (
-    <Card 
+    <Card
       className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-        isSelected ? 'ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5' : ''
+        isSelected
+          ? "ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5"
+          : ""
       }`}
       onClick={() => onSelect && onSelect(id)}
     >
@@ -89,15 +98,12 @@ const ExpenseCard = ({
               </p>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-2">
-            <Badge 
-              color={getStatusBadgeColor(status)}
-              size="sm"
-            >
+            <Badge color={getStatusBadgeColor(status)} size="sm">
               {getStatusLabel(status)}
             </Badge>
-            
+
             <div className="relative">
               <Button
                 variant="ghost"
@@ -121,7 +127,9 @@ const ExpenseCard = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <IndianRupee className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Amount</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                Amount
+              </span>
             </div>
             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
               ₹{formatCurrency(netAmount || amount)}
@@ -132,7 +140,9 @@ const ExpenseCard = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Date</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                Date
+              </span>
             </div>
             <span className="text-sm text-[rgb(var(--color-text-primary))]">
               {formatDate(date)}
@@ -143,7 +153,9 @@ const ExpenseCard = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Category</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                Category
+              </span>
             </div>
             <span className="text-sm text-[rgb(var(--color-text-primary))]">
               {getCategoryLabel(category?.name || category)}
@@ -154,10 +166,14 @@ const ExpenseCard = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <CreditCard className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">Payment</span>
+              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                Payment
+              </span>
             </div>
             <div className="flex items-center space-x-1">
-              <span className="text-sm">{getPaymentMethodIcon(paymentMethod)}</span>
+              <span className="text-sm">
+                {getPaymentMethodIcon(paymentMethod)}
+              </span>
               <span className="text-sm text-[rgb(var(--color-text-primary))]">
                 {getPaymentMethodLabel(paymentMethod)}
               </span>
@@ -169,7 +185,9 @@ const ExpenseCard = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Building className="h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
-                <span className="text-sm text-[rgb(var(--color-text-secondary))]">Vendor</span>
+                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  Vendor
+                </span>
               </div>
               <span className="text-sm text-[rgb(var(--color-text-primary))] truncate max-w-32">
                 {vendor.name || vendor}
@@ -181,7 +199,9 @@ const ExpenseCard = ({
           {gst && gst.amount > 0 && (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-[rgb(var(--color-text-secondary))]">GST ({gst.percentage}%)</span>
+                <span className="text-xs text-[rgb(var(--color-text-secondary))]">
+                  GST ({gst.percentage}%)
+                </span>
               </div>
               <span className="text-xs text-[rgb(var(--color-text-primary))]">
                 {formatCurrency(gst.amount)}
@@ -204,7 +224,7 @@ const ExpenseCard = ({
             <Eye className="h-3 w-3 mr-1" />
             View
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -217,7 +237,7 @@ const ExpenseCard = ({
             <Edit className="h-3 w-3 mr-1" />
             Edit
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"

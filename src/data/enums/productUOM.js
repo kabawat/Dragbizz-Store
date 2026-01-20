@@ -7,7 +7,7 @@ export const PRODUCT_UOM = [
   "PAIR",
   "SET",
   "DOZEN",
-  "GROSS",     // 144 pcs
+  "GROSS", // 144 pcs
   "BUNDLE",
   "PACK",
   "BOX",
@@ -26,7 +26,7 @@ export const PRODUCT_UOM = [
   // 🧪 Volume
   "ML",
   "LITER",
-  "KL",        // kiloliter
+  "KL", // kiloliter
   "CUBIC_CM",
   "CUBIC_METER",
   "CUBIC_FEET",
@@ -122,142 +122,142 @@ export const PRODUCT_UOM = [
   "LOAD",
   "TRUCK",
   "CONTAINER",
-  "PALLET"
+  "PALLET",
 ];
 
 /**
  * UOM Options for Select Component
  * Formatted for dropdown usage with labels and descriptions
  */
-export const UOM_OPTIONS = PRODUCT_UOM.map(uom => {
+export const UOM_OPTIONS = PRODUCT_UOM.map((uom) => {
   const descriptions = {
     // General / Retail
-    'PCS': 'Pieces',
-    'UNIT': 'Unit',
-    'PAIR': 'Pair',
-    'SET': 'Set',
-    'DOZEN': 'Dozen',
-    'GROSS': 'Gross (144 pcs)',
-    'BUNDLE': 'Bundle',
-    'PACK': 'Pack',
-    'BOX': 'Box',
-    'CARTON': 'Carton',
-    'CASE': 'Case',
-    'SACK': 'Sack',
-    'BAG': 'Bag',
-    
+    PCS: "Pieces",
+    UNIT: "Unit",
+    PAIR: "Pair",
+    SET: "Set",
+    DOZEN: "Dozen",
+    GROSS: "Gross (144 pcs)",
+    BUNDLE: "Bundle",
+    PACK: "Pack",
+    BOX: "Box",
+    CARTON: "Carton",
+    CASE: "Case",
+    SACK: "Sack",
+    BAG: "Bag",
+
     // Weight
-    'MG': 'Milligram',
-    'GRAM': 'Gram',
-    'KG': 'Kilogram',
-    'QUINTAL': 'Quintal',
-    'TON': 'Ton',
-    
+    MG: "Milligram",
+    GRAM: "Gram",
+    KG: "Kilogram",
+    QUINTAL: "Quintal",
+    TON: "Ton",
+
     // Volume
-    'ML': 'Milliliter',
-    'LITER': 'Liter',
-    'KL': 'Kiloliter',
-    'CUBIC_CM': 'Cubic Centimeter',
-    'CUBIC_METER': 'Cubic Meter',
-    'CUBIC_FEET': 'Cubic Feet',
-    'GALLON': 'Gallon',
-    'PINT': 'Pint',
-    'BARREL': 'Barrel',
-    
+    ML: "Milliliter",
+    LITER: "Liter",
+    KL: "Kiloliter",
+    CUBIC_CM: "Cubic Centimeter",
+    CUBIC_METER: "Cubic Meter",
+    CUBIC_FEET: "Cubic Feet",
+    GALLON: "Gallon",
+    PINT: "Pint",
+    BARREL: "Barrel",
+
     // Length
-    'MM': 'Millimeter',
-    'CM': 'Centimeter',
-    'METER': 'Meter',
-    'KM': 'Kilometer',
-    'INCH': 'Inch',
-    'FEET': 'Feet',
-    'YARD': 'Yard',
-    'MILE': 'Mile',
-    
+    MM: "Millimeter",
+    CM: "Centimeter",
+    METER: "Meter",
+    KM: "Kilometer",
+    INCH: "Inch",
+    FEET: "Feet",
+    YARD: "Yard",
+    MILE: "Mile",
+
     // Area
-    'SQMM': 'Square Millimeter',
-    'SQCM': 'Square Centimeter',
-    'SQM': 'Square Meter',
-    'SQFT': 'Square Feet',
-    'SQYARD': 'Square Yard',
-    'ACRE': 'Acre',
-    'HECTARE': 'Hectare',
-    
+    SQMM: "Square Millimeter",
+    SQCM: "Square Centimeter",
+    SQM: "Square Meter",
+    SQFT: "Square Feet",
+    SQYARD: "Square Yard",
+    ACRE: "Acre",
+    HECTARE: "Hectare",
+
     // Construction / Hardware
-    'ROD': 'Rod',
-    'COIL': 'Coil',
-    'ROLL': 'Roll',
-    'SHEET': 'Sheet',
-    'PIPE': 'Pipe',
-    'LENGTH': 'Length',
-    'BAR': 'Bar',
-    
+    ROD: "Rod",
+    COIL: "Coil",
+    ROLL: "Roll",
+    SHEET: "Sheet",
+    PIPE: "Pipe",
+    LENGTH: "Length",
+    BAR: "Bar",
+
     // Pharmacy / Medical
-    'STRIP': 'Strip',
-    'TABLET': 'Tablet',
-    'CAPSULE': 'Capsule',
-    'SYRINGE': 'Syringe',
-    'BOTTLE': 'Bottle',
-    'VIAL': 'Vial',
-    'AMPULE': 'Ampule',
-    'TUBE': 'Tube',
-    'DROPS': 'Drops',
-    'INHALER': 'Inhaler',
-    
+    STRIP: "Strip",
+    TABLET: "Tablet",
+    CAPSULE: "Capsule",
+    SYRINGE: "Syringe",
+    BOTTLE: "Bottle",
+    VIAL: "Vial",
+    AMPULE: "Ampule",
+    TUBE: "Tube",
+    DROPS: "Drops",
+    INHALER: "Inhaler",
+
     // Food / Beverages
-    'PIECE': 'Piece',
-    'SLICE': 'Slice',
-    'LOAF': 'Loaf',
-    'CUP': 'Cup',
-    'GLASS': 'Glass',
-    'JAR': 'Jar',
-    'TIN': 'Tin',
-    'CAN': 'Can',
-    'PACKET': 'Packet',
-    'TRAY': 'Tray',
-    'BOWL': 'Bowl',
-    'PLATE': 'Plate',
-    
+    PIECE: "Piece",
+    SLICE: "Slice",
+    LOAF: "Loaf",
+    CUP: "Cup",
+    GLASS: "Glass",
+    JAR: "Jar",
+    TIN: "Tin",
+    CAN: "Can",
+    PACKET: "Packet",
+    TRAY: "Tray",
+    BOWL: "Bowl",
+    PLATE: "Plate",
+
     // Garments / Textile
-    'SUIT': 'Suit',
-    
+    SUIT: "Suit",
+
     // Services / Time Based
-    'HOUR': 'Hour',
-    'DAY': 'Day',
-    'MONTH': 'Month',
-    'YEAR': 'Year',
-    'SERVICE': 'Service',
-    'SESSION': 'Session',
-    'VISIT': 'Visit',
-    'JOB': 'Job',
-    
+    HOUR: "Hour",
+    DAY: "Day",
+    MONTH: "Month",
+    YEAR: "Year",
+    SERVICE: "Service",
+    SESSION: "Session",
+    VISIT: "Visit",
+    JOB: "Job",
+
     // Digital Goods / IT
-    'KB': 'Kilobyte',
-    'MB': 'Megabyte',
-    'GB': 'Gigabyte',
-    'TB': 'Terabyte',
-    'LICENSE': 'License',
-    'USER': 'User',
-    'SUBSCRIPTION': 'Subscription',
-    
+    KB: "Kilobyte",
+    MB: "Megabyte",
+    GB: "Gigabyte",
+    TB: "Terabyte",
+    LICENSE: "License",
+    USER: "User",
+    SUBSCRIPTION: "Subscription",
+
     // Auto / Machinery
-    'LITRE': 'Litre',
-    'TYRE': 'Tyre',
-    'ENGINE': 'Engine',
-    'MACHINE': 'Machine',
-    'VEHICLE': 'Vehicle',
-    
+    LITRE: "Litre",
+    TYRE: "Tyre",
+    ENGINE: "Engine",
+    MACHINE: "Machine",
+    VEHICLE: "Vehicle",
+
     // Special Bulk / Others
-    'LOT': 'Lot',
-    'LOAD': 'Load',
-    'TRUCK': 'Truck',
-    'CONTAINER': 'Container',
-    'PALLET': 'Pallet'
+    LOT: "Lot",
+    LOAD: "Load",
+    TRUCK: "Truck",
+    CONTAINER: "Container",
+    PALLET: "Pallet",
   };
 
   return {
     value: uom,
-    label: `${uom} - ${descriptions[uom] || uom}`
+    label: `${uom} - ${descriptions[uom] || uom}`,
   };
 });
 

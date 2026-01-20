@@ -1,26 +1,58 @@
-"use client"
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Package, Eye, IndianRupee, GripVertical, Info, X } from 'lucide-react';
+"use client";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Package, Eye, IndianRupee, GripVertical, Info, X } from "lucide-react";
 
 // Import drag and drop
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, } from '@dnd-kit/sortable';
-import { useSortable, } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Import sections
-import BasicInfoSection from './BasicInfoSection';
-import AdditionalDetailsSection from './AdditionalDetailsSection';
-import PricingGSTSection from './PricingGSTSection';
-import OpeningQuantitySection from './OpeningQuantitySection';
+import BasicInfoSection from "./BasicInfoSection";
+import AdditionalDetailsSection from "./AdditionalDetailsSection";
+import PricingGSTSection from "./PricingGSTSection";
+import OpeningQuantitySection from "./OpeningQuantitySection";
 
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Button, Textarea, Select, TagInput, FileUpload } from '@/components/ui';
-import { useTheme } from '@/contexts/ThemeContext';
-import { categoryService } from '@/service/retailer';
-import { useTranslation } from '@/hooks/useTranslation';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Input,
+  Button,
+  Textarea,
+  Select,
+  TagInput,
+  FileUpload,
+} from "@/components/ui";
+import { useTheme } from "@/contexts/ThemeContext";
+import { categoryService } from "@/service/retailer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Sortable Section Component
-const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClick, t }) => {
+const SortableSection = ({
+  id,
+  title,
+  subtitle,
+  icon: Icon,
+  children,
+  onInfoClick,
+  t,
+}) => {
   const { themeConfig, currentVariant } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const {
@@ -40,7 +72,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
 
   // Theme-aware glass effect styles
   const getGlassStyles = () => {
-    const isDark = currentVariant === 'dark';
+    const isDark = currentVariant === "dark";
 
     if (isDark) {
       return {
@@ -50,7 +82,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm  border-[${themeConfig.primary}]/10`,
         dragHandle: `backdrop-blur-sm bg-black/10 hover:bg-black/20`,
         title: `text-white`,
-        description: `text-gray-300`
+        description: `text-gray-300`,
       };
     } else {
       return {
@@ -60,7 +92,7 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
         icon: `bg-[${themeConfig.primary}]/20 backdrop-blur-sm border border-gray-200/60`,
         dragHandle: `backdrop-blur-sm bg-white/10 hover:bg-white/20`,
         title: `text-gray-800`,
-        description: `text-gray-600`
+        description: `text-gray-600`,
       };
     }
   };
@@ -79,34 +111,38 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
         <div
           {...attributes}
           {...listeners}
-          className={`absolute top-2 right-2 p-2 cursor-grab active:cursor-grabbing text-gray-600 z-50 ${glassStyles.dragHandle} ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute top-2 right-2 p-2 cursor-grab active:cursor-grabbing text-gray-600 z-50 ${glassStyles.dragHandle} ${isHovered ? "opacity-100" : "opacity-0"}`}
         >
           <GripVertical className="w-4 h-4" />
         </div>
 
         <CardHeader className={`${glassStyles.header} pr-20`}>
           <div className="flex items-center space-x-3">
-            <div className={`p-2 backdrop-blur-sm rounded-lg ${glassStyles.icon}`}>
+            <div
+              className={`p-2 backdrop-blur-sm rounded-lg ${glassStyles.icon}`}
+            >
               <Icon className="w-5 h-5 text-[rgb(var(--color-primary))]" />
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <CardTitle className={`text-lg ${glassStyles.title}`}>{title}</CardTitle>
+                <CardTitle className={`text-lg ${glassStyles.title}`}>
+                  {title}
+                </CardTitle>
                 <button
                   onClick={() => onInfoClick(id)}
                   className="p-1 hover:bg-[rgb(var(--color-bg-secondary))] rounded-full transition-colors duration-200 group/info cursor-pointer"
-                  title={t('products.sectionInformation')}
+                  title={t("products.sectionInformation")}
                 >
                   <Info className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] group-hover/info:text-[rgb(var(--color-primary))]" />
                 </button>
               </div>
-              <CardDescription className={glassStyles.description}>{subtitle}</CardDescription>
+              <CardDescription className={glassStyles.description}>
+                {subtitle}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardBody className={glassStyles.body}>
-          {children}
-        </CardBody>
+        <CardBody className={glassStyles.body}>{children}</CardBody>
       </Card>
     </div>
   );
@@ -114,10 +150,10 @@ const SortableSection = ({ id, title, subtitle, icon: Icon, children, onInfoClic
 
 const ProductForm = ({
   formData = {},
-  onChange = () => { },
+  onChange = () => {},
   fieldErrors = {},
   storeId = null,
-  className = '',
+  className = "",
 }) => {
   const { t } = useTranslation();
   const { themeConfig, currentVariant } = useTheme();
@@ -126,41 +162,41 @@ const ProductForm = ({
 
   // Theme-aware drawer styles
   const getDrawerStyles = () => {
-    const isDark = currentVariant === 'dark';
+    const isDark = currentVariant === "dark";
 
     if (isDark) {
       return {
-        backdrop: 'backdrop-blur-[1px]',
-        drawer: 'bg-gray-900 border-l border-gray-700',
-        header: 'bg-gray-800 border-b border-gray-700',
-        content: 'bg-gray-900',
-        footer: 'bg-gray-800 border-t border-gray-700',
+        backdrop: "backdrop-blur-[1px]",
+        drawer: "bg-gray-900 border-l border-gray-700",
+        header: "bg-gray-800 border-b border-gray-700",
+        content: "bg-gray-900",
+        footer: "bg-gray-800 border-t border-gray-700",
         text: {
-          primary: 'text-white',
-          secondary: 'text-gray-300',
-          tertiary: 'text-gray-400'
+          primary: "text-white",
+          secondary: "text-gray-300",
+          tertiary: "text-gray-400",
         },
         button: {
-          hover: 'hover:bg-gray-700',
-          outline: 'border-gray-600 text-gray-300 hover:bg-gray-700'
-        }
+          hover: "hover:bg-gray-700",
+          outline: "border-gray-600 text-gray-300 hover:bg-gray-700",
+        },
       };
     } else {
       return {
-        backdrop: 'backdrop-blur-[1px]',
-        drawer: 'bg-white border-l border-gray-200',
-        header: 'bg-gray-50 border-b border-gray-200',
-        content: 'bg-white',
-        footer: 'bg-gray-50 border-t border-gray-200',
+        backdrop: "backdrop-blur-[1px]",
+        drawer: "bg-white border-l border-gray-200",
+        header: "bg-gray-50 border-b border-gray-200",
+        content: "bg-white",
+        footer: "bg-gray-50 border-t border-gray-200",
         text: {
-          primary: 'text-gray-900',
-          secondary: 'text-gray-600',
-          tertiary: 'text-gray-500'
+          primary: "text-gray-900",
+          secondary: "text-gray-600",
+          tertiary: "text-gray-500",
         },
         button: {
-          hover: 'hover:bg-gray-100',
-          outline: 'border-gray-300 text-gray-700 hover:bg-gray-100'
-        }
+          hover: "hover:bg-gray-100",
+          outline: "border-gray-300 text-gray-700 hover:bg-gray-100",
+        },
       };
     }
   };
@@ -170,12 +206,12 @@ const ProductForm = ({
   // Category drawer state
   const [showAddCategoryDrawer, setShowAddCategoryDrawer] = useState(false);
   const [newCategoryData, setNewCategoryData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     metadata: {
       icon: null,
-      tags: []
-    }
+      tags: [],
+    },
   });
   const [apiCategories, setApiCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -184,72 +220,96 @@ const ProductForm = ({
   const hasFetchedCategories = useRef(false);
 
   const [sections, setSections] = useState([
-    { id: 'basic', title: t('products.basicInformation'), subtitle: t('products.basicInformationSubtitle'), icon: Package, component: BasicInfoSection },
-    { id: 'pricing-gst', title: t('products.pricingInformation'), subtitle: t('products.pricingInformationSubtitle'), icon: IndianRupee, component: PricingGSTSection },
-    { id: 'opening-quantity', title: t('products.openingStock'), subtitle: t('products.openingStockSubtitle'), icon: Package, component: OpeningQuantitySection },
-    { id: 'content', title: t('products.contentSeo'), subtitle: t('products.contentSeoSubtitle'), icon: Eye, component: AdditionalDetailsSection },
+    {
+      id: "basic",
+      title: t("products.basicInformation"),
+      subtitle: t("products.basicInformationSubtitle"),
+      icon: Package,
+      component: BasicInfoSection,
+    },
+    {
+      id: "pricing-gst",
+      title: t("products.pricingInformation"),
+      subtitle: t("products.pricingInformationSubtitle"),
+      icon: IndianRupee,
+      component: PricingGSTSection,
+    },
+    {
+      id: "opening-quantity",
+      title: t("products.openingStock"),
+      subtitle: t("products.openingStockSubtitle"),
+      icon: Package,
+      component: OpeningQuantitySection,
+    },
+    {
+      id: "content",
+      title: t("products.contentSeo"),
+      subtitle: t("products.contentSeoSubtitle"),
+      icon: Eye,
+      component: AdditionalDetailsSection,
+    },
   ]);
 
   // Section information data
   const sectionInfo = {
-    'basic': {
-      title: t('products.basicInformation'),
-      description: t('products.basicInformationDescription'),
+    basic: {
+      title: t("products.basicInformation"),
+      description: t("products.basicInformationDescription"),
       details: [
-        'Product Name: The main title of your product',
-        'Brand: Manufacturer or brand name',
-        'Category: Product category for better organization',
-        'Barcode: Optional product identification code'
+        "Product Name: The main title of your product",
+        "Brand: Manufacturer or brand name",
+        "Category: Product category for better organization",
+        "Barcode: Optional product identification code",
       ],
-      tips: 'These fields are mandatory and help customers identify your product easily.'
+      tips: "These fields are mandatory and help customers identify your product easily.",
     },
-    'pricing-gst': {
-      title: t('products.pricingInformation'),
-      description: t('products.pricingInformationDescription'),
+    "pricing-gst": {
+      title: t("products.pricingInformation"),
+      description: t("products.pricingInformationDescription"),
       details: [
-        'MRP: Maximum Retail Price as per regulations',
-        'Selling Price: Actual price customers will pay',
-        'Currency: Currency for pricing (default: INR)',
-        'Unit of Measure: How the product is sold (PCS, KG, etc.)',
-        'GST: Tax settings if applicable'
+        "MRP: Maximum Retail Price as per regulations",
+        "Selling Price: Actual price customers will pay",
+        "Currency: Currency for pricing (default: INR)",
+        "Unit of Measure: How the product is sold (PCS, KG, etc.)",
+        "GST: Tax settings if applicable",
       ],
-      tips: 'Ensure pricing is competitive and GST compliance is maintained.'
+      tips: "Ensure pricing is competitive and GST compliance is maintained.",
     },
-    'content': {
-      title: 'Content & SEO',
-      description: 'Detailed product information and marketing content',
+    content: {
+      title: "Content & SEO",
+      description: "Detailed product information and marketing content",
       details: [
-        'Short Description: Brief product summary (max 200 chars)',
-        'Long Description: Detailed product information (max 2000 chars)',
-        'Features: Key product features and benefits',
-        'Tags: Searchable keywords for better discoverability',
-        'Specifications: Technical details and specifications'
+        "Short Description: Brief product summary (max 200 chars)",
+        "Long Description: Detailed product information (max 2000 chars)",
+        "Features: Key product features and benefits",
+        "Tags: Searchable keywords for better discoverability",
+        "Specifications: Technical details and specifications",
       ],
-      tips: 'Rich content helps customers make informed decisions and improves SEO.'
+      tips: "Rich content helps customers make informed decisions and improves SEO.",
     },
-    'status': {
-      title: 'Status & Visibility',
-      description: 'Product status and visibility settings',
+    status: {
+      title: "Status & Visibility",
+      description: "Product status and visibility settings",
       details: [
-        'Product Status: Draft, Active, Inactive, etc.',
-        'Visibility: Public, Private, or Hidden',
-        'Featured: Highlight on homepage',
-        'Best Seller: Mark as popular product',
-        'New Arrival: Mark as recently added'
+        "Product Status: Draft, Active, Inactive, etc.",
+        "Visibility: Public, Private, or Hidden",
+        "Featured: Highlight on homepage",
+        "Best Seller: Mark as popular product",
+        "New Arrival: Mark as recently added",
       ],
-      tips: 'Configure these settings to control how your product appears to customers.'
+      tips: "Configure these settings to control how your product appears to customers.",
     },
-    'opening-quantity': {
-      title: t('products.openingStock'),
-      description: t('products.openingStockDescription'),
+    "opening-quantity": {
+      title: t("products.openingStock"),
+      description: t("products.openingStockDescription"),
       details: [
-        t('products.openingStockDetail1'),
-        t('products.openingStockDetail2'),
-        t('products.openingStockDetail3'),
-        t('products.openingStockDetail4')
+        t("products.openingStockDetail1"),
+        t("products.openingStockDetail2"),
+        t("products.openingStockDetail3"),
+        t("products.openingStockDetail4"),
       ],
-      tips: t('products.openingStockTips')
-    }
+      tips: t("products.openingStockTips"),
+    },
   };
 
   // Handle info button click
@@ -268,13 +328,13 @@ const ProductForm = ({
       const response = await categoryService.getCategories({
         limit: 100,
         store: storeId,
-        lightweight: true
+        lightweight: true,
       });
       if (response.success) {
         const categories = response.data?.data || response.data || [];
-        const formattedCategories = categories.map(category => ({
+        const formattedCategories = categories.map((category) => ({
           value: category.id || category._id,
-          label: category.name
+          label: category.name,
         }));
         setApiCategories(formattedCategories);
       }
@@ -300,12 +360,12 @@ const ProductForm = ({
   // Reset category data to initial state
   const resetCategoryData = () => {
     setNewCategoryData({
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       metadata: {
         icon: null,
-        tags: []
-      }
+        tags: [],
+      },
     });
   };
 
@@ -322,17 +382,22 @@ const ProductForm = ({
         const apiPayload = {
           name: newCategoryData.name.trim(),
           description: newCategoryData.description.trim(),
-          metadata: null
+          metadata: null,
         };
 
         // Call the category service
-        const response = await categoryService.createCategory(apiPayload, storeId);
+        const response = await categoryService.createCategory(
+          apiPayload,
+          storeId,
+        );
 
         if (response.success) {
           // Create dropdown option for immediate use
           const newCategory = {
-            value: response.data.id || `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, '-')}`,
-            label: newCategoryData.name.trim()
+            value:
+              response.data.id ||
+              `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, "-")}`,
+            label: newCategoryData.name.trim(),
           };
 
           // Refresh categories list from API
@@ -340,37 +405,36 @@ const ProductForm = ({
           await fetchCategories();
 
           // Set as selected category
-          onChange('category', newCategory.value);
+          onChange("category", newCategory.value);
 
           // Reset form and close drawer
           resetCategoryData();
           setShowAddCategoryDrawer(false);
         } else {
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   };
 
   // Close drawer on escape key and prevent body scroll
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && showAddCategoryDrawer) {
+      if (e.key === "Escape" && showAddCategoryDrawer) {
         handleCloseCategoryDrawer();
       }
     };
 
     if (showAddCategoryDrawer) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       // Prevent body scroll when drawer is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [showAddCategoryDrawer]);
 
@@ -379,7 +443,7 @@ const ProductForm = ({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Handle form data changes
@@ -410,7 +474,10 @@ const ProductForm = ({
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={sections.map(section => section.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={sections.map((section) => section.id)}
+          strategy={verticalListSortingStrategy}
+        >
           <div className="columns-1 lg:columns-2 gap-6 space-y-6">
             {sections.map((section) => {
               const SectionComponent = section.component;
@@ -425,7 +492,7 @@ const ProductForm = ({
                   onInfoClick={handleInfoClick}
                   t={t}
                 >
-                  {section.id === 'basic' ? (
+                  {section.id === "basic" ? (
                     <SectionComponent
                       formData={formData}
                       onChange={handleFormDataChange}
@@ -434,7 +501,7 @@ const ProductForm = ({
                       apiCategories={apiCategories}
                       categoriesLoading={categoriesLoading}
                     />
-                  ) : section.id === 'opening-quantity' ? (
+                  ) : section.id === "opening-quantity" ? (
                     <SectionComponent
                       formData={formData}
                       onChange={handleFormDataChange}
@@ -442,7 +509,11 @@ const ProductForm = ({
                       storeId={storeId}
                     />
                   ) : (
-                    <SectionComponent formData={formData} onChange={handleFormDataChange} errors={fieldErrors} />
+                    <SectionComponent
+                      formData={formData}
+                      onChange={handleFormDataChange}
+                      errors={fieldErrors}
+                    />
                   )}
                 </SortableSection>
               );
@@ -464,8 +535,18 @@ const ProductForm = ({
                   onClick={() => setShowInfoModal(false)}
                   className="p-2  cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
                 >
-                  <svg className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-[rgb(var(--color-text-secondary))]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -477,11 +558,14 @@ const ProductForm = ({
 
                 <div>
                   <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                    {t('products.fieldsInThisSection')}
+                    {t("products.fieldsInThisSection")}
                   </h4>
                   <ul className="space-y-1">
                     {currentInfoSection.details.map((detail, index) => (
-                      <li key={index} className="text-sm text-[rgb(var(--color-text-secondary))] flex items-start">
+                      <li
+                        key={index}
+                        className="text-sm text-[rgb(var(--color-text-secondary))] flex items-start"
+                      >
                         <span className="w-2 h-2 bg-[rgb(var(--color-primary))] rounded-full mt-2 mr-2 flex-shrink-0"></span>
                         {detail}
                       </li>
@@ -510,12 +594,18 @@ const ProductForm = ({
           />
 
           {/* Full Page Drawer - slides from right edge of viewport */}
-          <div className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}>
+          <div
+            className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}
+          >
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className={`flex items-center justify-between p-4 ${drawerStyles.header}`}>
-                <h2 className={`text-base font-semibold ${drawerStyles.text.primary}`}>
-                  {t('products.addNewCategory')}
+              <div
+                className={`flex items-center justify-between p-4 ${drawerStyles.header}`}
+              >
+                <h2
+                  className={`text-base font-semibold ${drawerStyles.text.primary}`}
+                >
+                  {t("products.addNewCategory")}
                 </h2>
                 <button
                   onClick={handleCloseCategoryDrawer}
@@ -526,85 +616,118 @@ const ProductForm = ({
               </div>
 
               {/* Content */}
-              <div className={`flex-1 p-6 overflow-y-auto ${drawerStyles.content}`}>
+              <div
+                className={`flex-1 p-6 overflow-y-auto ${drawerStyles.content}`}
+              >
                 <div className="space-y-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>{t('products.basicInformation')}</h3>
+                    <h3
+                      className={`text-lg font-medium ${drawerStyles.text.primary}`}
+                    >
+                      {t("products.basicInformation")}
+                    </h3>
 
                     <Input
-                      label={t('products.categoryName')}
-                      placeholder={t('products.enterCategoryName')}
+                      label={t("products.categoryName")}
+                      placeholder={t("products.enterCategoryName")}
                       value={newCategoryData.name}
-                      onChange={(value) => setNewCategoryData(prev => ({ ...prev, name: value }))}
+                      onChange={(value) =>
+                        setNewCategoryData((prev) => ({ ...prev, name: value }))
+                      }
                       required
                     />
 
                     <Textarea
-                      label={t('common.description')}
-                      placeholder={t('products.enterCategoryDescription')}
+                      label={t("common.description")}
+                      placeholder={t("products.enterCategoryDescription")}
                       value={newCategoryData.description}
-                      onChange={(value) => setNewCategoryData(prev => ({ ...prev, description: value }))}
+                      onChange={(value) =>
+                        setNewCategoryData((prev) => ({
+                          ...prev,
+                          description: value,
+                        }))
+                      }
                       rows={3}
                     />
                   </div>
 
                   {/* Metadata */}
                   <div className="space-y-4">
-                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>{t('products.categorySettings')}</h3>
+                    <h3
+                      className={`text-lg font-medium ${drawerStyles.text.primary}`}
+                    >
+                      {t("products.categorySettings")}
+                    </h3>
 
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <FileUpload
-                          label={t('products.categoryIcon')}
+                          label={t("products.categoryIcon")}
                           accept="image/*"
                           multiple={false}
-                          value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
+                          value={
+                            newCategoryData.metadata.icon
+                              ? [newCategoryData.metadata.icon]
+                              : []
+                          }
                           onChange={(files) => {
                             if (files && files.length > 0) {
-                              setNewCategoryData(prev => ({
+                              setNewCategoryData((prev) => ({
                                 ...prev,
-                                metadata: { ...prev.metadata, icon: files[0] }
+                                metadata: { ...prev.metadata, icon: files[0] },
                               }));
                             } else {
-                              setNewCategoryData(prev => ({
+                              setNewCategoryData((prev) => ({
                                 ...prev,
-                                metadata: { ...prev.metadata, icon: null }
+                                metadata: { ...prev.metadata, icon: null },
                               }));
                             }
                           }}
-                          helperText={t('products.categoryIconHelperText')}
+                          helperText={t("products.categoryIconHelperText")}
                           maxSize={2 * 1024 * 1024} // 2MB limit for icons
                         />
                       </div>
                     </div>
 
                     <TagInput
-                      label={t('products.tags')}
-                      placeholder={t('products.addTagsExample')}
+                      label={t("products.tags")}
+                      placeholder={t("products.addTagsExample")}
                       value={newCategoryData.metadata.tags}
-                      onChange={(value) => setNewCategoryData(prev => ({
-                        ...prev,
-                        metadata: { ...prev.metadata, tags: value }
-                      }))}
+                      onChange={(value) =>
+                        setNewCategoryData((prev) => ({
+                          ...prev,
+                          metadata: { ...prev.metadata, tags: value },
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                    <h3 className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}>
-                      {t('products.aboutCategories')}
+                  <div
+                    className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
+                  >
+                    <h3
+                      className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}
+                    >
+                      {t("products.aboutCategories")}
                     </h3>
                     <p className={`text-sm ${drawerStyles.text.secondary}`}>
-                      {t('products.aboutCategoriesDescription')}
+                      {t("products.aboutCategoriesDescription")}
                     </p>
                   </div>
 
-                  <div className={`rounded-lg p-4 ${currentVariant === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
-                    <h3 className={`text-sm font-medium ${currentVariant === 'dark' ? 'text-blue-300' : 'text-blue-700'} mb-2`}>
-                      💡 {t('products.tip')}
+                  <div
+                    className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-blue-900/20" : "bg-blue-50"}`}
+                  >
+                    <h3
+                      className={`text-sm font-medium ${currentVariant === "dark" ? "text-blue-300" : "text-blue-700"} mb-2`}
+                    >
+                      💡 {t("products.tip")}
                     </h3>
-                    <p className={`text-sm ${currentVariant === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
-                      {t('products.categoryTip')}
+                    <p
+                      className={`text-sm ${currentVariant === "dark" ? "text-blue-400" : "text-blue-600"}`}
+                    >
+                      {t("products.categoryTip")}
                     </p>
                   </div>
                 </div>
@@ -613,8 +736,12 @@ const ProductForm = ({
               {/* Footer */}
               <div className={`p-4 ${drawerStyles.footer}`}>
                 <div className="flex gap-3">
-                  <Button type="button" onClick={handleAddCategory} disabled={!newCategoryData.name.trim()} >
-                    {t('products.addCategory')}
+                  <Button
+                    type="button"
+                    onClick={handleAddCategory}
+                    disabled={!newCategoryData.name.trim()}
+                  >
+                    {t("products.addCategory")}
                   </Button>
                   <Button
                     type="button"
@@ -622,7 +749,7 @@ const ProductForm = ({
                     className={drawerStyles.button.outline}
                     onClick={handleCloseCategoryDrawer}
                   >
-                    {t('common.cancel')}
+                    {t("common.cancel")}
                   </Button>
                 </div>
               </div>

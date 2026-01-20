@@ -1,17 +1,17 @@
-"use client"
-import { useEffect, useState, useCallback } from 'react';
-import { useAppSelector } from '@/store/hooks';
+"use client";
+import { useEffect, useState, useCallback } from "react";
+import { useAppSelector } from "@/store/hooks";
 
 const formatDate = (date) => {
-  if (!date) return '';
+  if (!date) return "";
   return String(date).slice(0, 10);
 };
 
 const resetForm = (source) => ({
-  firstName: source?.firstName || '',
-  lastName: source?.lastName || '',
+  firstName: source?.firstName || "",
+  lastName: source?.lastName || "",
   dob: formatDate(source?.dob),
-  gender: source?.gender || '',
+  gender: source?.gender || "",
 });
 
 export const useProfileData = (initialUser) => {
@@ -34,7 +34,7 @@ export const useProfileData = (initialUser) => {
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleOpenEdit = useCallback(() => {
@@ -62,4 +62,3 @@ export const useProfileData = (initialUser) => {
     handleCancel,
   };
 };
-

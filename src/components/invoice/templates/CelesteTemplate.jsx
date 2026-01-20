@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import moment from "moment";
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const CelesteTemplate = ({ invoiceData, selectedStore }) => {
   // A helper function to safely format currency
@@ -262,8 +262,12 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="celeste-info-block">
               <div className="label">Issued By</div>
@@ -283,11 +287,11 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
             items={invoiceData.items}
             className="celeste-table"
             columnWidths={{
-              product: '40%',
-              quantity: '12%',
-              unitPrice: '18%',
-              gst: '12%',
-              total: '18%'
+              product: "40%",
+              quantity: "12%",
+              unitPrice: "18%",
+              gst: "12%",
+              total: "18%",
             }}
             renderProductCell={(item) => (
               <>
@@ -303,7 +307,7 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
             )}
             renderUnitPriceCell={(item) => formatCurrency(item.price)}
             renderTotalCell={(item) => {
-              const total = item.calculatedTotal || (item.quantity * item.price);
+              const total = item.calculatedTotal || item.quantity * item.price;
               return formatCurrency(total);
             }}
           />
@@ -342,10 +346,14 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="celeste-footer">
-            <p>Thank you for choosing {selectedStore?.storeName || "Our Store"}!</p>
+            <p>
+              Thank you for choosing {selectedStore?.storeName || "Our Store"}!
+            </p>
             <p>
               Generated on{" "}
-              {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] h:mm A")}
+              {moment(invoiceData.createdAt).format(
+                "MMMM DD, YYYY [at] h:mm A",
+              )}
             </p>
           </div>
         </div>

@@ -2,14 +2,14 @@
 // Main configuration file - combines ENV and API config modules
 
 // Import config modules
-import ENV_CONFIG from './env.config';
-import API_CONFIG from './api.config';
+import ENV_CONFIG from "./env.config";
+import API_CONFIG from "./api.config";
 
 // Combined configuration object
 const CONFIG = {
   // Environment configuration
   ENV: ENV_CONFIG,
-  
+
   // API configuration
   API: API_CONFIG,
 };

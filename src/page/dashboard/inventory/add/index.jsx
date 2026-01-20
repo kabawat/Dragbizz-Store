@@ -1,41 +1,54 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Save, Plus, ArrowLeft, Info, Warehouse, TrendingUp, Users, BarChart3, Star, ShoppingCart, Package } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Save,
+  Plus,
+  ArrowLeft,
+  Info,
+  Warehouse,
+  TrendingUp,
+  Users,
+  BarChart3,
+  Star,
+  ShoppingCart,
+  Package,
+} from "lucide-react";
 
 // Import components
-import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
-import { useAppSelector } from '@/store/hooks';
-import Link from 'next/link';
-import InventoryForm from '@/components/inventory/InventoryForm';
-import { Button } from '@/components/ui';
-import { useTranslation } from '@/hooks/useTranslation';
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
+import InventoryForm from "@/components/inventory/InventoryForm";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const AddInventoryPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || '';
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [addedInventoryName, setAddedInventoryName] = useState('');
+  const [addedInventoryName, setAddedInventoryName] = useState("");
 
   // Initial form data - Only required fields
   const getInitialFormData = () => ({
-    productId: '',
+    productId: "",
     batchData: {
-      quantity: '',
-      purchasePrice: '',
-      supplier: '',
-      expiryDate: '',
-      paymentStatus: 'UNPAID',
-      paymentMethod: 'CASH',
+      quantity: "",
+      purchasePrice: "",
+      supplier: "",
+      expiryDate: "",
+      paymentStatus: "UNPAID",
+      paymentMethod: "CASH",
       paidAmount: 0,
       discount: 0,
-    }
+    },
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -44,9 +57,9 @@ const AddInventoryPage = () => {
   // Update store ID when selectedStore changes
   useEffect(() => {
     if (storeId) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        store: storeId
+        store: storeId,
       }));
     }
   }, [storeId]);
@@ -54,31 +67,31 @@ const AddInventoryPage = () => {
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
     // Ensure fieldName is a string
-    if (typeof fieldName !== 'string') {
+    if (typeof fieldName !== "string") {
       return;
     }
 
     // Clear error for this field when user starts typing
     if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
       });
     }
 
-    setFormData(prevData => {
+    setFormData((prevData) => {
       const newData = { ...prevData };
 
       // Handle nested fields (e.g., 'batchData.batchNo', 'batchData.quantity')
-      if (fieldName.includes('.')) {
-        const [parent, child] = fieldName.split('.');
+      if (fieldName.includes(".")) {
+        const [parent, child] = fieldName.split(".");
         if (!newData[parent]) {
           newData[parent] = {};
         }
         newData[parent] = {
           ...newData[parent],
-          [child]: value
+          [child]: value,
         };
       } else {
         // Handle top-level fields
@@ -92,21 +105,26 @@ const AddInventoryPage = () => {
   // Validate form data
   const validateFormData = () => {
     const errors = {};
-    
+
     if (!formData.productId) {
-      errors.productId = t('inventory.productSelectionRequired');
+      errors.productId = t("inventory.productSelectionRequired");
     }
-    
+
     if (!formData.batchData?.quantity || formData.batchData?.quantity <= 0) {
-      errors['batchData.quantity'] = t('inventory.validQuantityRequired');
+      errors["batchData.quantity"] = t("inventory.validQuantityRequired");
     }
-    
-    if (!formData.batchData?.purchasePrice || formData.batchData?.purchasePrice <= 0) {
-      errors['batchData.purchasePrice'] = t('inventory.validPurchasePriceRequired');
+
+    if (
+      !formData.batchData?.purchasePrice ||
+      formData.batchData?.purchasePrice <= 0
+    ) {
+      errors["batchData.purchasePrice"] = t(
+        "inventory.validPurchasePriceRequired",
+      );
     }
-    
+
     // Supplier is optional - no validation needed
-    
+
     return errors;
   };
 
@@ -115,14 +133,14 @@ const AddInventoryPage = () => {
     try {
       setLoading(true);
       setFieldErrors({});
-      
+
       // Validate form data
       const validationErrors = validateFormData();
       if (Object.keys(validationErrors).length > 0) {
         setFieldErrors(validationErrors);
         return;
       }
-      
+
       // Prepare data for API
       const apiData = {
         productId: formData.productId,
@@ -136,11 +154,10 @@ const AddInventoryPage = () => {
           paymentMethod: formData.batchData.paymentMethod,
           paidAmount: Number(formData.batchData.paidAmount || 0),
           discount: Number(formData.batchData.discount || 0),
-        }
+        },
       };
-      setAddedInventoryName(t('inventory.inventoryItem'));
+      setAddedInventoryName(t("inventory.inventoryItem"));
       setShowSuccessModal(true);
-
     } catch (error) {
       // Handle API error response
       if (error.response && error.response.data) {
@@ -156,13 +173,13 @@ const AddInventoryPage = () => {
 
   // Handle cancel
   const handleCancel = () => {
-    router.push('/dashboard/inventory');
+    router.push("/dashboard/inventory");
   };
 
   // Success modal handlers
   const handleContinue = () => {
     setShowSuccessModal(false);
-    router.push('/dashboard/inventory');
+    router.push("/dashboard/inventory");
   };
 
   const handleAddMore = () => {
@@ -182,8 +199,8 @@ const AddInventoryPage = () => {
         <div className="flex-1 min-h-screen flex flex-col">
           {/* Header */}
           <Header
-            title={t('inventory.addNewInventory')}
-            description={t('inventory.addNewInventoryDescription')}
+            title={t("inventory.addNewInventory")}
+            description={t("inventory.addNewInventoryDescription")}
           />
 
           {/* Main Content */}
@@ -191,14 +208,22 @@ const AddInventoryPage = () => {
             <div className="max-w-8xl mx-auto">
               {/* Back Button */}
               <div className="mb-4">
-                <Link href="/dashboard/inventory" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
+                <Link
+                  href="/dashboard/inventory"
+                  className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('inventory.backToInventory')}</span>
+                  <span className="text-sm font-medium">
+                    {t("inventory.backToInventory")}
+                  </span>
                 </Link>
               </div>
 
               {/* Form Container - Two Column Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: 'calc(100vh - 88px)' }}>
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                style={{ height: "calc(100vh - 88px)" }}
+              >
                 {/* Main Form - Left Side */}
                 <div className="lg:col-span-2 flex flex-col h-full">
                   <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
@@ -211,8 +236,12 @@ const AddInventoryPage = () => {
 
                   {/* Action Buttons - Fixed Bottom */}
                   <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
-                    <Button variant="outline" onClick={handleCancel} disabled={loading}>
-                      {t('inventory.cancel')}
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={loading}
+                    >
+                      {t("inventory.cancel")}
                     </Button>
                     <Button
                       variant="success"
@@ -221,7 +250,7 @@ const AddInventoryPage = () => {
                       loading={loading}
                       leftIcon={Save}
                     >
-                      {t('inventory.saveAndPublish')}
+                      {t("inventory.saveAndPublish")}
                     </Button>
                   </div>
                 </div>
@@ -235,8 +264,12 @@ const AddInventoryPage = () => {
                           <Package className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t('inventory.whyAddInventoryDetails')}</h3>
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t('inventory.completeInformationHelps')}</p>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                            {t("inventory.whyAddInventoryDetails")}
+                          </h3>
+                          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                            {t("inventory.completeInformationHelps")}
+                          </p>
                         </div>
                       </div>
 
@@ -246,8 +279,12 @@ const AddInventoryPage = () => {
                             <TrendingUp className="w-4 h-4 text-green-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.accurateStockLevels')}</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.maintainPreciseCounts')}</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              {t("inventory.accurateStockLevels")}
+                            </h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {t("inventory.maintainPreciseCounts")}
+                            </p>
                           </div>
                         </div>
 
@@ -256,8 +293,12 @@ const AddInventoryPage = () => {
                             <Users className="w-4 h-4 text-blue-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.efficientFulfillment')}</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.streamlineOrderProcessing')}</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              {t("inventory.efficientFulfillment")}
+                            </h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {t("inventory.streamlineOrderProcessing")}
+                            </p>
                           </div>
                         </div>
 
@@ -266,8 +307,12 @@ const AddInventoryPage = () => {
                             <BarChart3 className="w-4 h-4 text-purple-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.financialTracking')}</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.trackCostsAndProfits')}</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              {t("inventory.financialTracking")}
+                            </h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {t("inventory.trackCostsAndProfits")}
+                            </p>
                           </div>
                         </div>
 
@@ -276,27 +321,34 @@ const AddInventoryPage = () => {
                             <Star className="w-4 h-4 text-yellow-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">{t('inventory.optimizedPurchasing')}</h4>
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{t('inventory.makeInformedReorderDecisions')}</p>
+                            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                              {t("inventory.optimizedPurchasing")}
+                            </h4>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {t("inventory.makeInformedReorderDecisions")}
+                            </p>
                           </div>
                         </div>
                       </div>
 
                       <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">{t('inventory.proTips')}</h4>
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                          {t("inventory.proTips")}
+                        </h4>
                         <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-                          <li>{t('inventory.keepBatchNumbersUpdated')}</li>
-                          <li>{t('inventory.setRealisticMinimumStock')}</li>
-                          <li>{t('inventory.regularlyReconcilePhysicalStock')}</li>
-                          <li>{t('inventory.monitorExpiryDates')}</li>
-                          <li>{t('inventory.implementQualityControl')}</li>
+                          <li>{t("inventory.keepBatchNumbersUpdated")}</li>
+                          <li>{t("inventory.setRealisticMinimumStock")}</li>
+                          <li>
+                            {t("inventory.regularlyReconcilePhysicalStock")}
+                          </li>
+                          <li>{t("inventory.monitorExpiryDates")}</li>
+                          <li>{t("inventory.implementQualityControl")}</li>
                         </ul>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -311,17 +363,25 @@ const AddInventoryPage = () => {
                 <Package className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t('inventory.inventoryAddedSuccessfully')}
+                {t("inventory.inventoryAddedSuccessfully")}
               </h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-                "{addedInventoryName}" {t('inventory.hasBeenAddedToInventory')}
+                "{addedInventoryName}" {t("inventory.hasBeenAddedToInventory")}
               </p>
               <div className="flex space-x-3">
-                <Button variant="outline" onClick={handleAddMore} className="flex-1">
-                  {t('inventory.addMore')}
+                <Button
+                  variant="outline"
+                  onClick={handleAddMore}
+                  className="flex-1"
+                >
+                  {t("inventory.addMore")}
                 </Button>
-                <Button variant="primary" onClick={handleContinue} className="flex-1">
-                  {t('inventory.continue')}
+                <Button
+                  variant="primary"
+                  onClick={handleContinue}
+                  className="flex-1"
+                >
+                  {t("inventory.continue")}
                 </Button>
               </div>
             </div>

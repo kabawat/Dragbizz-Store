@@ -1,8 +1,19 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, Shield, Zap, Users } from 'lucide-react';
-import { Input, AnimatedBackground, AnimatedGridPattern, Button } from '../ui';
-import { useTranslation } from '@/hooks/useTranslation';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  AlertCircle,
+  CheckCircle,
+  ArrowLeft,
+  ArrowRight,
+  Shield,
+  Zap,
+  Users,
+} from "lucide-react";
+import { Input, AnimatedBackground, AnimatedGridPattern, Button } from "../ui";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const BasicInfoStep = ({
   firstName,
@@ -12,31 +23,31 @@ const BasicInfoStep = ({
   onUpdate,
   onNext,
   onBack,
-  errors
+  errors,
 }) => {
   const { t } = useTranslation();
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState('idle');
+  const [validationStatus, setValidationStatus] = useState("idle");
 
   // Smart contact detection
   const detectContactType = (value) => {
-    const cleanValue = value.replace(/\s+/g, '');
+    const cleanValue = value.replace(/\s+/g, "");
 
     // Check for email pattern
-    if (value.includes('@') && value.includes('.')) {
-      onUpdate('contactType', 'email');
+    if (value.includes("@") && value.includes(".")) {
+      onUpdate("contactType", "email");
     }
     // Check for phone pattern (digits, +, -, spaces, parentheses)
     else if (/^[\+]?[\d\s\-\(\)]+$/.test(value) && cleanValue.length >= 10) {
-      onUpdate('contactType', 'phone');
+      onUpdate("contactType", "phone");
     }
     // If user starts typing numbers, assume phone
     else if (/^\d/.test(cleanValue)) {
-      onUpdate('contactType', 'phone');
+      onUpdate("contactType", "phone");
     }
     // If user starts typing letters or @, assume email
     else if (/^[a-zA-Z@]/.test(cleanValue)) {
-      onUpdate('contactType', 'email');
+      onUpdate("contactType", "email");
     }
   };
 
@@ -44,34 +55,41 @@ const BasicInfoStep = ({
   useEffect(() => {
     if (contact && contact.length > 3) {
       setIsValidating(true);
-      setValidationStatus('checking');
+      setValidationStatus("checking");
 
       const timer = setTimeout(() => {
         // Simulate API call - always available for demo
         const isAvailable = true; // Always available for demo purposes
-        setValidationStatus(isAvailable ? 'available' : 'taken');
+        setValidationStatus(isAvailable ? "available" : "taken");
         setIsValidating(false);
       }, 1000);
 
       return () => clearTimeout(timer);
     } else {
-      setValidationStatus('idle');
+      setValidationStatus("idle");
     }
   }, [contact]);
 
   const handleContactChange = (value) => {
-    onUpdate('contact', value);
+    onUpdate("contact", value);
     detectContactType(value);
   };
 
-  const isFormValid = firstName.trim() && lastName.trim() && contact.trim() && !errors.firstName && !errors.lastName && !errors.contact && validationStatus === 'available';
+  const isFormValid =
+    firstName.trim() &&
+    lastName.trim() &&
+    contact.trim() &&
+    !errors.firstName &&
+    !errors.lastName &&
+    !errors.contact &&
+    validationStatus === "available";
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant="register" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
-      
+
       {/* Full width wrapper */}
       <div className="w-full min-h-screen flex relative z-10">
         {/* Left Side - Welcome Content */}
@@ -85,10 +103,10 @@ const BasicInfoStep = ({
                   <Shield className="w-8 h-8 text-indigo-700" />
                 </div>
                 <h1 className="text-4xl xl:text-5xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-                  {t('auth.letsGetStarted')}
+                  {t("auth.letsGetStarted")}
                 </h1>
                 <p className="text-xl text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                  {t('auth.fewDetailsToCreateAccount')}
+                  {t("auth.fewDetailsToCreateAccount")}
                 </p>
               </div>
 
@@ -99,8 +117,12 @@ const BasicInfoStep = ({
                     <User className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.quickSetup')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.justNameAndContact')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.quickSetup")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.justNameAndContact")}
+                    </p>
                   </div>
                 </div>
 
@@ -109,8 +131,12 @@ const BasicInfoStep = ({
                     <Zap className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.smartDetection')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.autoDetectEmailOrPhone')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.smartDetection")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.autoDetectEmailOrPhone")}
+                    </p>
                   </div>
                 </div>
 
@@ -119,8 +145,12 @@ const BasicInfoStep = ({
                     <Users className="w-6 h-6 text-indigo-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">{t('auth.secureAndPrivate')}</h3>
-                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">{t('auth.informationAlwaysProtected')}</p>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                      {t("auth.secureAndPrivate")}
+                    </h3>
+                    <p className="text-[rgb(var(--color-text-secondary))] text-sm">
+                      {t("auth.informationAlwaysProtected")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -128,7 +158,7 @@ const BasicInfoStep = ({
               {/* Bottom Text */}
               <div className="mt-auto pt-8">
                 <p className="text-[rgb(var(--color-text-secondary))] text-sm">
-                  {t('auth.copyright')}
+                  {t("auth.copyright")}
                 </p>
               </div>
             </div>
@@ -146,7 +176,7 @@ const BasicInfoStep = ({
                   <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('auth.dragBizzStore')}
+                  {t("auth.dragBizzStore")}
                 </h1>
               </div>
 
@@ -156,12 +186,12 @@ const BasicInfoStep = ({
                   <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-1 sm:mb-2">
-                  {t('auth.niceToMeetYou')}
+                  {t("auth.niceToMeetYou")}
                 </h1>
                 <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))]">
-                  {t('auth.startWithBasicInfo')}
+                  {t("auth.startWithBasicInfo")}
                 </p>
-                
+
                 {/* Progress Indicator */}
                 <div className="mt-4 flex items-center justify-center gap-2">
                   <div className="w-6 h-6 bg-[rgb(var(--color-primary))] text-white rounded-full flex items-center justify-center text-xs font-semibold">
@@ -176,18 +206,26 @@ const BasicInfoStep = ({
                     3
                   </div>
                 </div>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">{t('auth.step1Of3')}</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
+                  {t("auth.step1Of3")}
+                </p>
               </div>
 
               {/* Form */}
-              <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="space-y-3 sm:space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onNext();
+                }}
+                className="space-y-3 sm:space-y-4"
+              >
                 {/* First Name */}
                 <div>
                   <Input
                     type="text"
-                    placeholder={t('auth.firstName')}
+                    placeholder={t("auth.firstName")}
                     value={firstName}
-                    onChange={(value) => onUpdate('firstName', value)}
+                    onChange={(value) => onUpdate("firstName", value)}
                     leftIcon={User}
                     error={errors.firstName}
                     autoFocus
@@ -204,9 +242,9 @@ const BasicInfoStep = ({
                 <div>
                   <Input
                     type="text"
-                    placeholder={t('auth.lastName')}
+                    placeholder={t("auth.lastName")}
                     value={lastName}
-                    onChange={(value) => onUpdate('lastName', value)}
+                    onChange={(value) => onUpdate("lastName", value)}
                     leftIcon={User}
                     error={errors.lastName}
                   />
@@ -224,19 +262,22 @@ const BasicInfoStep = ({
                   {contact && (
                     <div className="mb-2">
                       <div className="flex items-center justify-start">
-                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${contactType === 'email'
-                          ? 'bg-blue-600 text-white dark:bg-blue-600 dark:text-white'
-                          : 'bg-green-600 text-white dark:bg-green-600 dark:text-white'
-                          }`}>
-                          {contactType === 'email' ? (
+                        <div
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            contactType === "email"
+                              ? "bg-blue-600 text-white dark:bg-blue-600 dark:text-white"
+                              : "bg-green-600 text-white dark:bg-green-600 dark:text-white"
+                          }`}
+                        >
+                          {contactType === "email" ? (
                             <>
                               <Mail className="w-3 h-3 mr-1" />
-                              {t('auth.email')}
+                              {t("auth.email")}
                             </>
                           ) : (
                             <>
                               <Phone className="w-3 h-3 mr-1" />
-                              {t('auth.phone')}
+                              {t("auth.phone")}
                             </>
                           )}
                         </div>
@@ -245,49 +286,55 @@ const BasicInfoStep = ({
                   )}
 
                   <Input
-                    type={contactType === 'email' ? 'email' : 'tel'}
-                    placeholder={contactType === 'email' ? t('auth.emailPlaceholder') : t('auth.phonePlaceholder')}
+                    type={contactType === "email" ? "email" : "tel"}
+                    placeholder={
+                      contactType === "email"
+                        ? t("auth.emailPlaceholder")
+                        : t("auth.phonePlaceholder")
+                    }
                     value={contact}
                     onChange={handleContactChange}
-                    leftIcon={contactType === 'email' ? Mail : Phone}
+                    leftIcon={contactType === "email" ? Mail : Phone}
                     error={errors.contact}
                     rightElement={
                       <div>
                         {isValidating && (
                           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         )}
-                        {validationStatus === 'available' && (
+                        {validationStatus === "available" && (
                           <CheckCircle className="w-5 h-5 text-green-500" />
                         )}
-                        {validationStatus === 'taken' && (
+                        {validationStatus === "taken" && (
                           <AlertCircle className="w-5 h-5 text-red-500" />
                         )}
                       </div>
                     }
                     className={
-                      validationStatus === 'available' ? 'border-green-500 bg-green-50' :
-                        validationStatus === 'taken' ? 'border-red-500 bg-red-50' :
-                          ''
+                      validationStatus === "available"
+                        ? "border-green-500 bg-green-50"
+                        : validationStatus === "taken"
+                          ? "border-red-500 bg-red-50"
+                          : ""
                     }
                   />
 
                   {/* Helper Text */}
                   <div className="mt-2">
-                    {validationStatus === 'available' && (
+                    {validationStatus === "available" && (
                       <p className="text-green-600 dark:text-green-400 text-sm flex items-center">
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('auth.greatThisAvailable', { type: contactType })}
+                        {t("auth.greatThisAvailable", { type: contactType })}
                       </p>
                     )}
-                    {validationStatus === 'taken' && (
+                    {validationStatus === "taken" && (
                       <p className="text-red-500 dark:text-red-400 text-sm flex items-center">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {t('auth.thisAlreadyRegistered', { type: contactType })}
+                        {t("auth.thisAlreadyRegistered", { type: contactType })}
                       </p>
                     )}
-                    {validationStatus === 'idle' && (
+                    {validationStatus === "idle" && (
                       <p className="text-[rgb(var(--color-text-secondary))] text-sm text-left">
-                        {t('auth.enterEmailOrPhoneAutoDetect')}
+                        {t("auth.enterEmailOrPhoneAutoDetect")}
                       </p>
                     )}
                     {errors.contact && (
@@ -310,7 +357,7 @@ const BasicInfoStep = ({
                     fullWidth
                     className="sm:w-auto"
                   >
-                    {t('auth.back')}
+                    {t("auth.back")}
                   </Button>
 
                   <Button
@@ -322,7 +369,7 @@ const BasicInfoStep = ({
                     fullWidth
                     className="sm:w-auto shadow-md hover:shadow-lg"
                   >
-                    {t('auth.continue')}
+                    {t("auth.continue")}
                   </Button>
                 </div>
               </form>

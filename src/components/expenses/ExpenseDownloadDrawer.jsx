@@ -1,212 +1,227 @@
-"use client"
-import React, { useState } from 'react';
-import { Download, Calendar } from 'lucide-react';
-import { SideDrawer, Select, Button, Checkbox } from '@/components/ui';
-import { useGlobalToast } from '@/contexts/ToastContext';
-import { expenseService } from '@/service';
-import { useAppSelector } from '@/store/hooks';
-import { useTranslation } from '@/hooks/useTranslation';
-import { exportData } from '@/utils/exportUtils';
+"use client";
+import React, { useState } from "react";
+import { Download, Calendar } from "lucide-react";
+import { SideDrawer, Select, Button, Checkbox } from "@/components/ui";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { expenseService } from "@/service";
+import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/useTranslation";
+import { exportData } from "@/utils/exportUtils";
 
 const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [isDownloading, setIsDownloading] = useState(false);
-  
-  const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState('');
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
-  const [downloadFormat, setDownloadFormat] = useState('xlsx');
-  const [sortOrder, setSortOrder] = useState('dateDesc');
-  
+
+  const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [downloadFormat, setDownloadFormat] = useState("xlsx");
+  const [sortOrder, setSortOrder] = useState("dateDesc");
+
   const availableFields = [
-    { key: 'storeName', label: t('expenses.fieldStoreName'), default: true },
-    { key: 'title', label: t('expenses.fieldTitle'), default: true },
-    { key: 'billNumber', label: t('expenses.fieldBillNumber'), default: true },
-    { key: 'date', label: t('expenses.fieldDate'), default: true },
-    { key: 'category', label: t('expenses.fieldCategory'), default: true },
-    { key: 'amount', label: t('expenses.fieldAmount'), default: true },
-    { key: 'gst', label: t('expenses.fieldGst'), default: false },
-    { key: 'netAmount', label: t('expenses.fieldNetAmount'), default: false },
-    { key: 'paymentMethod', label: t('expenses.fieldPaymentMethod'), default: true },
-    { key: 'vendor', label: t('expenses.fieldVendor'), default: true },
-    { key: 'status', label: t('expenses.fieldStatus'), default: true },
-    { key: 'description', label: t('expenses.fieldDescription'), default: false },
-    { key: 'createdAt', label: t('expenses.fieldCreatedAt'), default: false },
-    { key: 'updatedAt', label: t('expenses.fieldUpdatedAt'), default: false }
+    { key: "storeName", label: t("expenses.fieldStoreName"), default: true },
+    { key: "title", label: t("expenses.fieldTitle"), default: true },
+    { key: "billNumber", label: t("expenses.fieldBillNumber"), default: true },
+    { key: "date", label: t("expenses.fieldDate"), default: true },
+    { key: "category", label: t("expenses.fieldCategory"), default: true },
+    { key: "amount", label: t("expenses.fieldAmount"), default: true },
+    { key: "gst", label: t("expenses.fieldGst"), default: false },
+    { key: "netAmount", label: t("expenses.fieldNetAmount"), default: false },
+    {
+      key: "paymentMethod",
+      label: t("expenses.fieldPaymentMethod"),
+      default: true,
+    },
+    { key: "vendor", label: t("expenses.fieldVendor"), default: true },
+    { key: "status", label: t("expenses.fieldStatus"), default: true },
+    {
+      key: "description",
+      label: t("expenses.fieldDescription"),
+      default: false,
+    },
+    { key: "createdAt", label: t("expenses.fieldCreatedAt"), default: false },
+    { key: "updatedAt", label: t("expenses.fieldUpdatedAt"), default: false },
   ];
-  
+
   const [selectedFields, setSelectedFields] = useState(
-    availableFields.filter(field => field.default).map(field => field.key)
+    availableFields.filter((field) => field.default).map((field) => field.key),
   );
-  
+
   const handleFieldToggle = (fieldKey) => {
-    setSelectedFields(prev => {
+    setSelectedFields((prev) => {
       if (prev.includes(fieldKey)) {
         if (prev.length === 1) {
-          showError(t('expenses.atLeastOneFieldRequired'));
+          showError(t("expenses.atLeastOneFieldRequired"));
           return prev;
         }
-        return prev.filter(key => key !== fieldKey);
+        return prev.filter((key) => key !== fieldKey);
       } else {
         return [...prev, fieldKey];
       }
     });
   };
-  
+
   const handleSelectAll = () => {
-    setSelectedFields(availableFields.map(field => field.key));
+    setSelectedFields(availableFields.map((field) => field.key));
   };
-  
+
   const handleDeselectAll = () => {
     setSelectedFields([availableFields[0].key]);
   };
 
   const handleDownloadPeriodChange = (value) => {
     setSelectedDownloadPeriod(value);
-    
-    if (value !== 'custom') {
-      setCustomStartDate('');
-      setCustomEndDate('');
+
+    if (value !== "custom") {
+      setCustomStartDate("");
+      setCustomEndDate("");
     }
   };
 
   const getCustomDateRangePreview = () => {
     if (!customStartDate || !customEndDate) return null;
-    
+
     const formatDate = (dateString) => {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+      return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       });
     };
-    
+
     return {
       start: formatDate(customStartDate),
       end: formatDate(customEndDate),
       startDate: customStartDate,
-      endDate: customEndDate
+      endDate: customEndDate,
     };
   };
 
   const getDateRangePreview = (period) => {
-    if (!period || period === 'custom') return null;
-    
+    if (!period || period === "custom") return null;
+
     const today = new Date();
     const endDate = new Date(today);
     endDate.setHours(23, 59, 59, 999);
-    
+
     let startDate = new Date(today);
-    
+
     switch (period) {
-      case '1month':
+      case "1month":
         startDate.setMonth(today.getMonth() - 1);
         break;
-      case '3months':
+      case "3months":
         startDate.setMonth(today.getMonth() - 3);
         break;
-      case '6months':
+      case "6months":
         startDate.setMonth(today.getMonth() - 6);
         break;
-      case '12months':
+      case "12months":
         startDate.setMonth(today.getMonth() - 12);
         break;
       default:
         return null;
     }
-    
+
     startDate.setHours(0, 0, 0, 0);
-    
+
     const formatDate = (date) => {
-      return date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+      return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       });
     };
-    
+
     return {
       start: formatDate(startDate),
       end: formatDate(endDate),
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
     };
   };
 
   const buildDownloadParams = (storeId, startDate, endDate) => {
     const fieldMapping = {
-      'storeName': 'storeName',
-      'title': 'title',
-      'billNumber': 'billNumber',
-      'date': 'date',
-      'category': 'category',
-      'amount': 'amount',
-      'gst': 'gst',
-      'netAmount': 'netAmount',
-      'paymentMethod': 'paymentMethod',
-      'vendor': 'vendor',
-      'status': 'status',
-      'description': 'description',
-      'createdAt': 'createdAt',
-      'updatedAt': 'updatedAt'
+      storeName: "storeName",
+      title: "title",
+      billNumber: "billNumber",
+      date: "date",
+      category: "category",
+      amount: "amount",
+      gst: "gst",
+      netAmount: "netAmount",
+      paymentMethod: "paymentMethod",
+      vendor: "vendor",
+      status: "status",
+      description: "description",
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
     };
-    
-    const backendFields = selectedFields.map(fieldKey => fieldMapping[fieldKey] || fieldKey).join(',');
-    
+
+    const backendFields = selectedFields
+      .map((fieldKey) => fieldMapping[fieldKey] || fieldKey)
+      .join(",");
+
     return {
       store: storeId,
       startDate: startDate,
       endDate: endDate,
       downloadAll: true,
       limit: 10000,
-      fields: backendFields
+      fields: backendFields,
     };
   };
 
   const handlePredefinedDownload = async () => {
     if (!selectedDownloadPeriod) {
-      showError(t('expenses.pleaseSelectTimePeriod'));
+      showError(t("expenses.pleaseSelectTimePeriod"));
       return;
     }
-    
+
     const dateRange = getDateRangePreview(selectedDownloadPeriod);
     if (!dateRange) {
-      showError(t('expenses.invalidDateRange'));
+      showError(t("expenses.invalidDateRange"));
       return;
     }
-    
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError(t('expenses.storeIdMissing'));
+      showError(t("expenses.storeIdMissing"));
       return;
     }
-    
+
     setIsDownloading(true);
     try {
-      const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
-      
+      const params = buildDownloadParams(
+        storeId,
+        dateRange.startDate,
+        dateRange.endDate,
+      );
+
       const result = await expenseService.getExpenses(params);
-      
+
       if (result.success && result.data) {
         const expensesData = result.data || [];
-        
+
         if (expensesData.length === 0) {
-          showError(t('expenses.noExpensesFoundToDownload'));
+          showError(t("expenses.noExpensesFoundToDownload"));
           setIsDownloading(false);
           return;
         }
-        
+
         await downloadExpensesFile(expensesData);
-        showSuccess(t('expenses.expensesDownloadedSuccessfully'));
+        showSuccess(t("expenses.expensesDownloadedSuccessfully"));
       } else {
-        showError(result.message || t('expenses.failedToDownloadExpenses'));
+        showError(result.message || t("expenses.failedToDownloadExpenses"));
       }
     } catch (error) {
-      console.error('Download expenses error:', error);
-      showError(t('expenses.errorDownloadingExpenses'));
+      console.error("Download expenses error:", error);
+      showError(t("expenses.errorDownloadingExpenses"));
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -215,50 +230,55 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 
   const handleCustomRangeDownload = async () => {
     if (!customStartDate || !customEndDate) {
-      showError(t('expenses.pleaseSelectBothDates'));
+      showError(t("expenses.pleaseSelectBothDates"));
       return;
     }
-    
+
     if (new Date(customEndDate) < new Date(customStartDate)) {
-      showError(t('expenses.endDateMustBeAfterStart'));
+      showError(t("expenses.endDateMustBeAfterStart"));
       return;
     }
-    
+
     const dateRange = getCustomDateRangePreview();
     if (!dateRange) {
-      showError(t('expenses.invalidDateRange'));
+      showError(t("expenses.invalidDateRange"));
       return;
     }
-    
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId) {
-      showError(t('expenses.storeIdMissing'));
+      showError(t("expenses.storeIdMissing"));
       return;
     }
-    
+
     setIsDownloading(true);
     try {
-      const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
-      
+      const params = buildDownloadParams(
+        storeId,
+        dateRange.startDate,
+        dateRange.endDate,
+      );
+
       const result = await expenseService.getExpenses(params);
-      
+
       if (result.success && result.data) {
         const expensesData = result.data || [];
-        
+
         if (expensesData.length === 0) {
-          showError(t('expenses.noExpensesFoundToDownload'));
+          showError(t("expenses.noExpensesFoundToDownload"));
           setIsDownloading(false);
           return;
         }
-        
+
         await downloadExpensesFile(expensesData);
-        showSuccess(t('expenses.expensesDownloadedSuccessfully'));
+        showSuccess(t("expenses.expensesDownloadedSuccessfully"));
       } else {
-        showError(result.message || t('expenses.failedToDownloadExpenses'));
+        showError(result.message || t("expenses.failedToDownloadExpenses"));
       }
     } catch (error) {
-      console.error('Download expenses error:', error);
-      showError(t('expenses.errorDownloadingExpenses'));
+      console.error("Download expenses error:", error);
+      showError(t("expenses.errorDownloadingExpenses"));
     } finally {
       setIsDownloading(false);
       handleClose();
@@ -267,41 +287,41 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 
   const sortExpenses = (expenses) => {
     if (!expenses || !Array.isArray(expenses)) return expenses;
-    
+
     const sortedExpenses = [...expenses];
-    
+
     switch (sortOrder) {
-      case 'titleAsc':
+      case "titleAsc":
         return sortedExpenses.sort((a, b) => {
-          const titleA = (a.title || '').toLowerCase();
-          const titleB = (b.title || '').toLowerCase();
+          const titleA = (a.title || "").toLowerCase();
+          const titleB = (b.title || "").toLowerCase();
           return titleA.localeCompare(titleB);
         });
-      case 'titleDesc':
+      case "titleDesc":
         return sortedExpenses.sort((a, b) => {
-          const titleA = (a.title || '').toLowerCase();
-          const titleB = (b.title || '').toLowerCase();
+          const titleA = (a.title || "").toLowerCase();
+          const titleB = (b.title || "").toLowerCase();
           return titleB.localeCompare(titleA);
         });
-      case 'dateAsc':
+      case "dateAsc":
         return sortedExpenses.sort((a, b) => {
           const dateA = a.date ? new Date(a.date).getTime() : 0;
           const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateA - dateB;
         });
-      case 'dateDesc':
+      case "dateDesc":
         return sortedExpenses.sort((a, b) => {
           const dateA = a.date ? new Date(a.date).getTime() : 0;
           const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateB - dateA;
         });
-      case 'amountAsc':
+      case "amountAsc":
         return sortedExpenses.sort((a, b) => {
           const amountA = a.amount || 0;
           const amountB = b.amount || 0;
           return amountA - amountB;
         });
-      case 'amountDesc':
+      case "amountDesc":
         return sortedExpenses.sort((a, b) => {
           const amountA = a.amount || 0;
           const amountB = b.amount || 0;
@@ -314,44 +334,73 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 
   const transformExpenseData = (expenses) => {
     if (!expenses || !Array.isArray(expenses)) return [];
-    
+
     const sortedExpenses = sortExpenses(expenses);
-    
-    const storeName = selectedStore?.storeName || selectedStore?.name || 'N/A';
-    
+
+    const storeName = selectedStore?.storeName || selectedStore?.name || "N/A";
+
     const fieldMap = {
-      'storeName': (expense) => ({ 'Store Name': storeName }),
-      'title': (expense) => ({ 'Title': expense.title || t('common.na') }),
-      'billNumber': (expense) => ({ 'Bill Number': expense.billNumber || t('common.na') }),
-      'date': (expense) => ({ 'Date': expense.date ? new Date(expense.date).toLocaleDateString('en-IN') : t('common.na') }),
-      'category': (expense) => ({ 'Category': expense.category?.name || expense.category || t('common.na') }),
-      'amount': (expense) => ({ 'Amount': `₹${expense.amount || 0}` }),
-      'gst': (expense) => {
+      storeName: (expense) => ({ "Store Name": storeName }),
+      title: (expense) => ({ Title: expense.title || t("common.na") }),
+      billNumber: (expense) => ({
+        "Bill Number": expense.billNumber || t("common.na"),
+      }),
+      date: (expense) => ({
+        Date: expense.date
+          ? new Date(expense.date).toLocaleDateString("en-IN")
+          : t("common.na"),
+      }),
+      category: (expense) => ({
+        Category: expense.category?.name || expense.category || t("common.na"),
+      }),
+      amount: (expense) => ({ Amount: `₹${expense.amount || 0}` }),
+      gst: (expense) => {
         // Handle GST as object { percentage, amount } or as number
         let gstAmount = 0;
         let gstPercentage = 0;
-        
-        if (expense.gst && typeof expense.gst === 'object') {
+
+        if (expense.gst && typeof expense.gst === "object") {
           gstAmount = expense.gst.amount ?? 0;
           gstPercentage = expense.gst.percentage ?? 0;
-        } else if (typeof expense.gst === 'number') {
+        } else if (typeof expense.gst === "number") {
           gstAmount = expense.gst;
         }
-        
-        return { 'GST': gstPercentage > 0 ? `${gstPercentage}% (₹${gstAmount})` : `₹${gstAmount}` };
+
+        return {
+          GST:
+            gstPercentage > 0
+              ? `${gstPercentage}% (₹${gstAmount})`
+              : `₹${gstAmount}`,
+        };
       },
-      'netAmount': (expense) => ({ 'Net Amount': `₹${expense.netAmount || expense.amount || 0}` }),
-      'paymentMethod': (expense) => ({ 'Payment Method': expense.paymentMethod || t('common.na') }),
-      'vendor': (expense) => ({ 'Vendor': expense.vendor?.name || expense.vendor || t('common.na') }),
-      'status': (expense) => ({ 'Status': expense.status || t('common.na') }),
-      'description': (expense) => ({ 'Description': expense.description || t('common.na') }),
-      'createdAt': (expense) => ({ 'Created At': expense.createdAt ? new Date(expense.createdAt).toLocaleDateString('en-IN') : t('common.na') }),
-      'updatedAt': (expense) => ({ 'Updated At': expense.updatedAt ? new Date(expense.updatedAt).toLocaleDateString('en-IN') : t('common.na') })
+      netAmount: (expense) => ({
+        "Net Amount": `₹${expense.netAmount || expense.amount || 0}`,
+      }),
+      paymentMethod: (expense) => ({
+        "Payment Method": expense.paymentMethod || t("common.na"),
+      }),
+      vendor: (expense) => ({
+        Vendor: expense.vendor?.name || expense.vendor || t("common.na"),
+      }),
+      status: (expense) => ({ Status: expense.status || t("common.na") }),
+      description: (expense) => ({
+        Description: expense.description || t("common.na"),
+      }),
+      createdAt: (expense) => ({
+        "Created At": expense.createdAt
+          ? new Date(expense.createdAt).toLocaleDateString("en-IN")
+          : t("common.na"),
+      }),
+      updatedAt: (expense) => ({
+        "Updated At": expense.updatedAt
+          ? new Date(expense.updatedAt).toLocaleDateString("en-IN")
+          : t("common.na"),
+      }),
     };
-    
+
     return sortedExpenses.map((expense) => {
       const row = {};
-      selectedFields.forEach(fieldKey => {
+      selectedFields.forEach((fieldKey) => {
         if (fieldMap[fieldKey]) {
           Object.assign(row, fieldMap[fieldKey](expense));
         }
@@ -362,58 +411,62 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 
   const downloadExpensesFile = async (expenses) => {
     if (!expenses || expenses.length === 0) {
-      showError(t('expenses.noExpensesToDownload'));
+      showError(t("expenses.noExpensesToDownload"));
       return;
     }
 
     const transformedData = transformExpenseData(expenses);
-    const timestamp = new Date().toISOString().split('T')[0];
+    const timestamp = new Date().toISOString().split("T")[0];
     const filename = `expenses_${timestamp}`;
-    
+
     const storeName = selectedStore?.storeName || selectedStore?.name;
     let dateRange = null;
-    if (selectedDownloadPeriod === 'custom') {
+    if (selectedDownloadPeriod === "custom") {
       dateRange = getCustomDateRangePreview();
     } else {
       dateRange = getDateRangePreview(selectedDownloadPeriod);
     }
-    
+
     const metadata = [];
     if (storeName) {
-      metadata.push({ label: t('common.store'), value: storeName });
+      metadata.push({ label: t("common.store"), value: storeName });
     }
     if (dateRange) {
-      metadata.push({ 
-        label: t('expenses.dateRange'), 
-        value: `${dateRange.start} - ${dateRange.end}` 
+      metadata.push({
+        label: t("expenses.dateRange"),
+        value: `${dateRange.start} - ${dateRange.end}`,
       });
     }
-    
+
     await exportData(transformedData, downloadFormat, filename, {
-      sheetName: t('expenses.expenses'),
-      title: t('expenses.expenses'),
+      sheetName: t("expenses.expenses"),
+      title: t("expenses.expenses"),
       metadata: metadata,
       onError: (errorMsg) => {
-        if (errorMsg === 'No data to export') {
-          showError(t('expenses.noDataToExport'));
-        } else if (errorMsg.includes('XLSX')) {
-          showError(t('expenses.failedToExportAsXlsx'));
-        } else if (errorMsg.includes('PDF')) {
-          showError(t('expenses.failedToExportAsPdf'));
+        if (errorMsg === "No data to export") {
+          showError(t("expenses.noDataToExport"));
+        } else if (errorMsg.includes("XLSX")) {
+          showError(t("expenses.failedToExportAsXlsx"));
+        } else if (errorMsg.includes("PDF")) {
+          showError(t("expenses.failedToExportAsPdf"));
         } else {
-          showError(errorMsg || t('expenses.errorDownloadingExpenses'));
+          showError(errorMsg || t("expenses.errorDownloadingExpenses"));
         }
       },
-      t: t
+      t: t,
     });
   };
 
   const handleClose = () => {
-    setSelectedDownloadPeriod('');
-    setCustomStartDate('');
-    setCustomEndDate('');
-    setSortOrder('dateDesc');
-    setSelectedFields(availableFields.filter(field => field.default).map(field => field.key));
+    setSelectedDownloadPeriod("");
+    setCustomStartDate("");
+    setCustomEndDate("");
+    setSortOrder("dateDesc");
+    setSelectedFields(
+      availableFields
+        .filter((field) => field.default)
+        .map((field) => field.key),
+    );
     onClose();
   };
 
@@ -421,25 +474,25 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('expenses.downloadExpenses')}
+      title={t("expenses.downloadExpenses")}
       icon={Download}
-      description={t('expenses.selectTimePeriodToDownload')}
+      description={t("expenses.selectTimePeriodToDownload")}
       width="w-full md:w-[500px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t('expenses.selectTimePeriod')}
+              {t("expenses.selectTimePeriod")}
             </label>
             <Select
-              placeholder={t('expenses.selectATimePeriod')}
+              placeholder={t("expenses.selectATimePeriod")}
               options={[
-                { label: t('expenses.last1Month'), value: '1month' },
-                { label: t('expenses.last3Months'), value: '3months' },
-                { label: t('expenses.last6Months'), value: '6months' },
-                { label: t('expenses.last12Months'), value: '12months' },
-                { label: t('expenses.customRange'), value: 'custom' }
+                { label: t("expenses.last1Month"), value: "1month" },
+                { label: t("expenses.last3Months"), value: "3months" },
+                { label: t("expenses.last6Months"), value: "6months" },
+                { label: t("expenses.last12Months"), value: "12months" },
+                { label: t("expenses.customRange"), value: "custom" },
               ]}
               value={selectedDownloadPeriod}
               onChange={handleDownloadPeriodChange}
@@ -450,14 +503,14 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('expenses.downloadFormat')}
+                {t("expenses.downloadFormat")}
               </label>
               <Select
-                placeholder={t('expenses.selectFormat')}
+                placeholder={t("expenses.selectFormat")}
                 options={[
-                  { label: t('expenses.csv'), value: 'csv' },
-                  { label: t('expenses.excelXlsx'), value: 'xlsx' },
-                  { label: t('expenses.pdf'), value: 'pdf' }
+                  { label: t("expenses.csv"), value: "csv" },
+                  { label: t("expenses.excelXlsx"), value: "xlsx" },
+                  { label: t("expenses.pdf"), value: "pdf" },
                 ]}
                 value={downloadFormat}
                 onChange={setDownloadFormat}
@@ -469,17 +522,20 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                {t('expenses.sortOrder')}
+                {t("expenses.sortOrder")}
               </label>
               <Select
-                placeholder={t('expenses.selectSortOrder')}
+                placeholder={t("expenses.selectSortOrder")}
                 options={[
-                  { label: t('expenses.titleAscending'), value: 'titleAsc' },
-                  { label: t('expenses.titleDescending'), value: 'titleDesc' },
-                  { label: t('expenses.dateAscending'), value: 'dateAsc' },
-                  { label: t('expenses.dateDescending'), value: 'dateDesc' },
-                  { label: t('expenses.amountAscending'), value: 'amountAsc' },
-                  { label: t('expenses.amountDescending'), value: 'amountDesc' }
+                  { label: t("expenses.titleAscending"), value: "titleAsc" },
+                  { label: t("expenses.titleDescending"), value: "titleDesc" },
+                  { label: t("expenses.dateAscending"), value: "dateAsc" },
+                  { label: t("expenses.dateDescending"), value: "dateDesc" },
+                  { label: t("expenses.amountAscending"), value: "amountAsc" },
+                  {
+                    label: t("expenses.amountDescending"),
+                    value: "amountDesc",
+                  },
                 ]}
                 value={sortOrder}
                 onChange={setSortOrder}
@@ -492,7 +548,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t('expenses.selectFields')}
+                  {t("expenses.selectFields")}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -500,15 +556,17 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
                     onClick={handleSelectAll}
                     className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
                   >
-                    {t('expenses.selectAll')}
+                    {t("expenses.selectAll")}
                   </button>
-                  <span className="text-[rgb(var(--color-text-secondary))] text-xs">|</span>
+                  <span className="text-[rgb(var(--color-text-secondary))] text-xs">
+                    |
+                  </span>
                   <button
                     type="button"
                     onClick={handleDeselectAll}
                     className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
                   >
-                    {t('expenses.deselectAll')}
+                    {t("expenses.deselectAll")}
                   </button>
                 </div>
               </div>
@@ -527,7 +585,11 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
                             onChange={() => handleFieldToggle(field.key)}
                             label={field.label}
                             id={`field-${field.key}`}
-                            className={isChecked ? '[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium' : ''}
+                            className={
+                              isChecked
+                                ? "[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium"
+                                : ""
+                            }
                           />
                         </div>
                       </div>
@@ -537,22 +599,24 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
               </div>
               <div className="flex items-center justify-between mt-2">
                 <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                  {t('expenses.selectedFieldsCount', { count: selectedFields.length })}
+                  {t("expenses.selectedFieldsCount", {
+                    count: selectedFields.length,
+                  })}
                 </p>
                 {selectedFields.length === availableFields.length && (
                   <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
-                    {t('expenses.allFieldsSelected')}
+                    {t("expenses.allFieldsSelected")}
                   </span>
                 )}
               </div>
             </div>
           )}
-          
-          {selectedDownloadPeriod === 'custom' && (
+
+          {selectedDownloadPeriod === "custom" && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('expenses.startDate')}
+                  {t("expenses.startDate")}
                 </label>
                 <input
                   type="date"
@@ -564,7 +628,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t('expenses.endDate')}
+                  {t("expenses.endDate")}
                 </label>
                 <input
                   type="date"
@@ -576,64 +640,69 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
               </div>
             </div>
           )}
-          
-          {selectedDownloadPeriod && (() => {
-            let dateRange = null;
-            if (selectedDownloadPeriod === 'custom') {
-              dateRange = getCustomDateRangePreview();
-            } else {
-              dateRange = getDateRangePreview(selectedDownloadPeriod);
-            }
-            
-            return dateRange ? (
-              <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
-                    {t('expenses.dateRange')}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      {t('expenses.from')}
+
+          {selectedDownloadPeriod &&
+            (() => {
+              let dateRange = null;
+              if (selectedDownloadPeriod === "custom") {
+                dateRange = getCustomDateRangePreview();
+              } else {
+                dateRange = getDateRangePreview(selectedDownloadPeriod);
+              }
+
+              return dateRange ? (
+                <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Calendar className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                    <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
+                      {t("expenses.dateRange")}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                        {t("expenses.from")}
+                      </div>
+                      <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        {dateRange.start}
+                      </div>
                     </div>
-                    <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                      {dateRange.start}
+                    <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
+                      <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                        {t("expenses.to")}
+                      </div>
+                      <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        {dateRange.end}
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-1 border-l border-[rgb(var(--color-border-primary))] pl-4">
-                    <div className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                      {t('expenses.to')}
-                    </div>
-                    <div className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                      {dateRange.end}
-                    </div>
-                  </div>
                 </div>
-              </div>
-            ) : null;
-          })()}
-          
+              ) : null;
+            })()}
+
           {selectedDownloadPeriod && (
             <div className="pt-2 flex justify-start">
-              {selectedDownloadPeriod === 'custom' ? (
+              {selectedDownloadPeriod === "custom" ? (
                 <Button
                   variant="primary"
                   onClick={handleCustomRangeDownload}
                   disabled={!customStartDate || !customEndDate || isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? t('expenses.downloading') : t('expenses.downloadButton')}
+                  {isDownloading
+                    ? t("expenses.downloading")
+                    : t("expenses.downloadButton")}
                 </Button>
               ) : (
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   onClick={handlePredefinedDownload}
                   disabled={isDownloading}
                   loading={isDownloading}
                 >
-                  {isDownloading ? t('expenses.downloading') : t('expenses.downloadButton')}
+                  {isDownloading
+                    ? t("expenses.downloading")
+                    : t("expenses.downloadButton")}
                 </Button>
               )}
             </div>
@@ -645,4 +714,3 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
 };
 
 export default ExpenseDownloadDrawer;
-

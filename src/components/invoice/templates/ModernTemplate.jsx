@@ -1,7 +1,7 @@
-"use client"
-import React from 'react';
-import moment from 'moment';
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+"use client";
+import React from "react";
+import moment from "moment";
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const ModernTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -334,16 +334,14 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
         <div className="modern-header">
           <div className="left">
             <h1>INVOICE</h1>
-            <div style={{ color: '#666', fontSize: '14px' }}>
+            <div style={{ color: "#666", fontSize: "14px" }}>
               Professional Business Invoice
             </div>
           </div>
           <div className="right">
-            <div className="invoice-number">
-              {invoiceData.invoiceNumber}
-            </div>
+            <div className="invoice-number">{invoiceData.invoiceNumber}</div>
             <div className="date">
-              {moment(invoiceData.createdAt).format('MMMM DD, YYYY')}
+              {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
             </div>
           </div>
         </div>
@@ -353,51 +351,57 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
           <div className="section">
             <h3>From</h3>
             <div className="company-name">
-              {selectedStore?.storeName || 'Your Store'}
+              {selectedStore?.storeName || "Your Store"}
             </div>
-            <p>{selectedStore?.address || '123 Business Street'}</p>
+            <p>{selectedStore?.address || "123 Business Street"}</p>
             <p>City, State 12345</p>
-            <p>Phone: {selectedStore?.phone || '+91 9876543210'}</p>
-            <p>Email: {selectedStore?.email || 'info@yourstore.com'}</p>
+            <p>Phone: {selectedStore?.phone || "+91 9876543210"}</p>
+            <p>Email: {selectedStore?.email || "info@yourstore.com"}</p>
           </div>
-
 
           <div className="section">
             <h3>Bill To</h3>
             <div className="customer-name">
-              {invoiceData.customer?.name || 'Walk-in Customer'}
+              {invoiceData.customer?.name || "Walk-in Customer"}
             </div>
-            {invoiceData.customer?.email && <p>Email: {invoiceData.customer.email}</p>}
-            {invoiceData.customer?.phone && <p>Phone: {invoiceData.customer.phone}</p>}
-            {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
+            {invoiceData.customer?.email && (
+              <p>Email: {invoiceData.customer.email}</p>
+            )}
+            {invoiceData.customer?.phone && (
+              <p>Phone: {invoiceData.customer.phone}</p>
+            )}
+            {invoiceData.customer?.address && (
+              <p>{invoiceData.customer.address}</p>
+            )}
           </div>
         </div>
 
         {/* Items Table */}
         <InvoiceItemsTable
-            items={invoiceData.items}
-            className="modern-table"
-            renderProductCell={(item) => (
-                <>
-                    <div className="product-name">
-                        {item.product?.name || 'Unknown Product'}
-                    </div>
-                    {item.product?.sku && (
-                        <div className="product-sku">
-                            SKU: {item.product.sku}
-                        </div>
-                    )}
-                    {item.gstRate && item.gstRate > 0 && (
-                        <div className="product-sku" style={{ fontSize: '10px', color: '#666' }}>
-                            GST: {item.gstRate}%
-                        </div>
-                    )}
-                </>
-            )}
-            renderTotalCell={(item) => {
-                const total = item.calculatedTotal || (item.quantity * item.price);
-                return `₹${total.toLocaleString()}`;
-            }}
+          items={invoiceData.items}
+          className="modern-table"
+          renderProductCell={(item) => (
+            <>
+              <div className="product-name">
+                {item.product?.name || "Unknown Product"}
+              </div>
+              {item.product?.sku && (
+                <div className="product-sku">SKU: {item.product.sku}</div>
+              )}
+              {item.gstRate && item.gstRate > 0 && (
+                <div
+                  className="product-sku"
+                  style={{ fontSize: "10px", color: "#666" }}
+                >
+                  GST: {item.gstRate}%
+                </div>
+              )}
+            </>
+          )}
+          renderTotalCell={(item) => {
+            const total = item.calculatedTotal || item.quantity * item.price;
+            return `₹${total.toLocaleString()}`;
+          }}
         />
 
         {/* Totals */}
@@ -409,7 +413,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
             </div>
             <div className="total-row">
               <span>GST:</span>
-              <span>₹{invoiceData.gstAmount?.toLocaleString() || '0'}</span>
+              <span>₹{invoiceData.gstAmount?.toLocaleString() || "0"}</span>
             </div>
             {invoiceData.totalDiscount > 0 && (
               <div className="total-row">
@@ -427,8 +431,14 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
         {/* Footer */}
         <div className="modern-footer">
           <p>Thank you for your business!</p>
-          <p>This is a computer-generated invoice and does not require a signature.</p>
-          <p>Generated on {moment(invoiceData.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
+          <p>
+            This is a computer-generated invoice and does not require a
+            signature.
+          </p>
+          <p>
+            Generated on{" "}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+          </p>
         </div>
       </div>
     </>

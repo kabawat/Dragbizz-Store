@@ -1,7 +1,7 @@
-"use client"
-import React from 'react';
-import moment from 'moment';
-import InvoiceItemsTable from '@/components/invoice/InvoiceItemsTable';
+"use client";
+import React from "react";
+import moment from "moment";
+import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 
 const MinimalTemplate = ({ invoiceData, selectedStore }) => {
   return (
@@ -204,11 +204,9 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
         {/* Header */}
         <div className="minimal-header">
           <h1>INVOICE</h1>
-          <div className="invoice-number">
-            {invoiceData.invoiceNumber}
-          </div>
+          <div className="invoice-number">{invoiceData.invoiceNumber}</div>
           <div className="date">
-            {moment(invoiceData.createdAt).format('MMMM DD, YYYY')}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
           </div>
         </div>
 
@@ -218,22 +216,28 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
             <div className="section">
               <div className="label">From</div>
               <div className="company-name">
-                {selectedStore?.storeName || 'Your Store'}
+                {selectedStore?.storeName || "Your Store"}
               </div>
-              <p>{selectedStore?.address || '123 Business Street'}</p>
+              <p>{selectedStore?.address || "123 Business Street"}</p>
               <p>City, State 12345</p>
-              <p>{selectedStore?.phone || '+91 9876543210'}</p>
-              <p>{selectedStore?.email || 'info@yourstore.com'}</p>
+              <p>{selectedStore?.phone || "+91 9876543210"}</p>
+              <p>{selectedStore?.email || "info@yourstore.com"}</p>
             </div>
 
             <div className="section">
               <div className="label">Bill To</div>
               <div className="customer-name">
-                {invoiceData.customer?.name || 'Walk-in Customer'}
+                {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-              {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
+              {invoiceData.customer?.address && (
+                <p>{invoiceData.customer.address}</p>
+              )}
             </div>
           </div>
         </div>
@@ -243,21 +247,19 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
           items={invoiceData.items}
           className="minimal-table"
           columnWidths={{
-            product: '40%',
-            quantity: '12%',
-            unitPrice: '18%',
-            gst: '12%',
-            total: '18%'
+            product: "40%",
+            quantity: "12%",
+            unitPrice: "18%",
+            gst: "12%",
+            total: "18%",
           }}
           renderProductCell={(item) => (
             <>
               <div className="product-name">
-                {item.product?.name || 'Unknown Product'}
+                {item.product?.name || "Unknown Product"}
               </div>
               {item.product?.sku && (
-                <div className="product-sku">
-                  SKU: {item.product.sku}
-                </div>
+                <div className="product-sku">SKU: {item.product.sku}</div>
               )}
             </>
           )}
@@ -267,29 +269,43 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
         <div className="minimal-totals">
           <div className="total-row">
             <div className="label">Subtotal:</div>
-            <div className="amount">₹{invoiceData.subtotal?.toLocaleString()}</div>
+            <div className="amount">
+              ₹{invoiceData.subtotal?.toLocaleString()}
+            </div>
           </div>
           <div className="total-row">
             <div className="label">GST:</div>
-            <div className="amount">₹{invoiceData.gstAmount?.toLocaleString() || '0'}</div>
+            <div className="amount">
+              ₹{invoiceData.gstAmount?.toLocaleString() || "0"}
+            </div>
           </div>
           {invoiceData.totalDiscount > 0 && (
             <div className="total-row">
               <div className="label">Discount:</div>
-              <div className="amount">-₹{invoiceData.totalDiscount?.toLocaleString()}</div>
+              <div className="amount">
+                -₹{invoiceData.totalDiscount?.toLocaleString()}
+              </div>
             </div>
           )}
           <div className="total-row final">
             <div className="label">Total:</div>
-            <div className="amount">₹{invoiceData.totalAmount?.toLocaleString()}</div>
+            <div className="amount">
+              ₹{invoiceData.totalAmount?.toLocaleString()}
+            </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="minimal-footer">
           <p>Thank you for your business</p>
-          <p>This is a computer-generated invoice and does not require a signature</p>
-          <p>Generated on {moment(invoiceData.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
+          <p>
+            This is a computer-generated invoice and does not require a
+            signature
+          </p>
+          <p>
+            Generated on{" "}
+            {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+          </p>
         </div>
       </div>
     </>

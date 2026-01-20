@@ -1,26 +1,26 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { X, Package, ArrowUp } from 'lucide-react';
-import { Button, Input, Select } from '@/components/ui';
-import { useAppSelector } from '@/store/hooks';
-import { stockService, supplierService } from '@/service/retailer';
-import { useFeatureAccess } from '@/hooks/useFeatureAccess';
-import { FEATURES, FEATURE_DISPLAY_NAMES } from '@/constants/features';
-import UpgradeModal from '@/components/ui/UpgradeModal';
-import { useGlobalToast } from '@/contexts/ToastContext';
+"use client";
+import React, { useState, useEffect } from "react";
+import { X, Package, ArrowUp } from "lucide-react";
+import { Button, Input, Select } from "@/components/ui";
+import { useAppSelector } from "@/store/hooks";
+import { stockService, supplierService } from "@/service/retailer";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { FEATURES, FEATURE_DISPLAY_NAMES } from "@/constants/features";
+import UpgradeModal from "@/components/ui/UpgradeModal";
+import { useGlobalToast } from "@/contexts/ToastContext";
 
 const StockInDrawer = ({
   isOpen,
   onClose,
   item,
   onSuccess,
-  type = 'product'
+  type = "product",
 }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const [formData, setFormData] = useState({
-    quantity: '',
-    purchasePrice: '',
-    supplier: ''
+    quantity: "",
+    purchasePrice: "",
+    supplier: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +30,18 @@ const StockInDrawer = ({
 
   // Check if supplier_management feature is available
   const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(FEATURES.SUPPLIER_MANAGEMENT);
+  const hasSupplierManagement = checkFeatureAccess(
+    FEATURES.SUPPLIER_MANAGEMENT,
+  );
   const { showError } = useGlobalToast();
 
   // Reset form when drawer opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        quantity: '',
-        purchasePrice: '',
-        supplier: ''
+        quantity: "",
+        purchasePrice: "",
+        supplier: "",
       });
       setErrors({});
       if (hasSupplierManagement) {
@@ -50,7 +52,8 @@ const StockInDrawer = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId || !hasSupplierManagement) return;
 
     try {
@@ -58,7 +61,7 @@ const StockInDrawer = ({
       const result = await supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: storeId
+        store: storeId,
       });
       if (result.success) {
         setSuppliers(result.data?.data || result.data || []);
@@ -70,16 +73,16 @@ const StockInDrawer = ({
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: "",
       }));
     }
   };
@@ -88,11 +91,11 @@ const StockInDrawer = ({
     const newErrors = {};
 
     if (!formData.quantity || formData.quantity <= 0) {
-      newErrors.quantity = 'Quantity must be greater than 0';
+      newErrors.quantity = "Quantity must be greater than 0";
     }
 
     if (!formData.purchasePrice || formData.purchasePrice <= 0) {
-      newErrors.purchasePrice = 'Purchase price must be greater than 0';
+      newErrors.purchasePrice = "Purchase price must be greater than 0";
     }
 
     setErrors(newErrors);
@@ -108,16 +111,15 @@ const StockInDrawer = ({
 
     setIsLoading(true);
     try {
-      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
       if (!storeId) {
-        throw new Error('Store not selected');
+        throw new Error("Store not selected");
       }
 
       // Determine product ID based on type
-      const productId = type === 'product'
-        ? item?.id
-        : item?.product?.id;
+      const productId = type === "product" ? item?.id : item?.product?.id;
 
       const apiPayload = {
         productId: productId,
@@ -125,22 +127,20 @@ const StockInDrawer = ({
         batchData: {
           quantity: parseInt(formData.quantity),
           purchasePrice: parseFloat(formData.purchasePrice),
-          supplier: formData.supplier
-        }
+          supplier: formData.supplier,
+        },
       };
 
       const response = await stockService.addStock(apiPayload);
 
       if (response.success) {
         onClose();
-        onSuccess?.('Stock added successfully!');
-
+        onSuccess?.("Stock added successfully!");
       } else {
-        throw new Error(response.message || 'Failed to add stock');
+        throw new Error(response.message || "Failed to add stock");
       }
-
     } catch (error) {
-      showError(`Error adding stock: ${error.message || 'Please try again.'}`);
+      showError(`Error adding stock: ${error.message || "Please try again."}`);
     } finally {
       setIsLoading(false);
     }
@@ -152,28 +152,28 @@ const StockInDrawer = ({
       setShowUpgradeModal(true);
       return;
     }
-    handleInputChange('supplier', value);
+    handleInputChange("supplier", value);
   };
 
   // Format suppliers for Select component
-  const formattedSuppliers = suppliers.map(supplier => ({
+  const formattedSuppliers = suppliers.map((supplier) => ({
     value: supplier.id || supplier._id,
-    label: supplier.name || supplier.companyName || 'Unknown Supplier'
+    label: supplier.name || supplier.companyName || "Unknown Supplier",
   }));
 
   // Get product information based on type
   const getProductInfo = () => {
-    if (type === 'product') {
+    if (type === "product") {
       return {
-        name: item?.name || 'Unknown Product',
-        brand: item?.brand || 'Unknown Brand',
-        currentStock: item?.stock || 0
+        name: item?.name || "Unknown Product",
+        brand: item?.brand || "Unknown Brand",
+        currentStock: item?.stock || 0,
       };
     } else {
       return {
-        name: item?.product?.name || 'Unknown Product',
-        brand: item?.product?.brand || 'Unknown Brand',
-        currentStock: item?.stockSummary?.totalQuantity || 0
+        name: item?.product?.name || "Unknown Product",
+        brand: item?.product?.brand || "Unknown Brand",
+        currentStock: item?.stockSummary?.totalQuantity || 0,
       };
     }
   };
@@ -218,19 +218,25 @@ const StockInDrawer = ({
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Name:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    Name:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     {productInfo.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Brand:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    Brand:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     {productInfo.brand}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Current Stock:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">
+                    Current Stock:
+                  </span>
                   <span className="text-[rgb(var(--color-text-primary))] font-medium">
                     {productInfo.currentStock} units
                   </span>
@@ -248,7 +254,7 @@ const StockInDrawer = ({
                 <Input
                   type="number"
                   value={formData.quantity}
-                  onChange={(value) => handleInputChange('quantity', value)}
+                  onChange={(value) => handleInputChange("quantity", value)}
                   placeholder="Enter quantity"
                   error={errors.quantity}
                 />
@@ -257,13 +263,16 @@ const StockInDrawer = ({
               {/* Purchase Price */}
               <div>
                 <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  Purchase Price (per unit) <span className="text-red-500">*</span>
+                  Purchase Price (per unit){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="number"
                   step="0.01"
                   value={formData.purchasePrice}
-                  onChange={(value) => handleInputChange('purchasePrice', value)}
+                  onChange={(value) =>
+                    handleInputChange("purchasePrice", value)
+                  }
                   placeholder="Enter purchase price per unit"
                   error={errors.purchasePrice}
                 />
@@ -286,7 +295,9 @@ const StockInDrawer = ({
                 }
                 error={errors.supplier}
                 loading={suppliersLoading}
-                disabled={!hasSupplierManagement || suppliersLoading || featuresLoading}
+                disabled={
+                  !hasSupplierManagement || suppliersLoading || featuresLoading
+                }
                 helperText={
                   !hasSupplierManagement
                     ? "Enable supplier management feature in your subscription to use this field"
@@ -315,9 +326,15 @@ const StockInDrawer = ({
             {formData.quantity && formData.purchasePrice && (
               <div className="bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/30 rounded-lg p-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-[rgb(var(--color-success))]">Total Value:</span>
+                  <span className="text-sm font-medium text-[rgb(var(--color-success))]">
+                    Total Value:
+                  </span>
                   <span className="text-lg font-bold text-[rgb(var(--color-success))]">
-                    ₹{(parseInt(formData.quantity) * parseFloat(formData.purchasePrice)).toLocaleString()}
+                    ₹
+                    {(
+                      parseInt(formData.quantity) *
+                      parseFloat(formData.purchasePrice)
+                    ).toLocaleString()}
                   </span>
                 </div>
                 <div className="text-xs text-[rgb(var(--color-success))]/80 mt-1">
@@ -332,9 +349,14 @@ const StockInDrawer = ({
         <div className="flex-shrink-0 p-4 border-t border-[rgb(var(--color-border-primary))]">
           <div className="flex space-x-3">
             <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? 'Adding Stock...' : 'Add Stock'}
+              {isLoading ? "Adding Stock..." : "Add Stock"}
             </Button>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
           </div>
@@ -346,7 +368,10 @@ const StockInDrawer = ({
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         featureName="Supplier Management"
-        requiredFeature={FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] || 'Supplier Management'}
+        requiredFeature={
+          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
+          "Supplier Management"
+        }
       />
     </div>
   );

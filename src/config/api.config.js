@@ -4,77 +4,77 @@
 const API_CONFIG = {
   // Base API Configuration
   BASE: {
-    URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost',
+    URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
-    VERSION: process.env.NEXT_PUBLIC_API_VERSION || 'v1',
+    VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
   },
-  
+
   // Authentication Endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    LOGIN_VERIFY: '/auth/login',
-    REFRESH: '/auth/login/refresh',
-    REGISTER: '/auth/register',
-    VERIFY_OTP: '/auth/register',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
-    VERIFY_EMAIL: '/auth/verify-email',
-    RESEND_VERIFICATION: '/auth/resend-verification',
-    PROFILE: '/auth/profile',
+    LOGIN: "/auth/login",
+    LOGIN_VERIFY: "/auth/login",
+    REFRESH: "/auth/login/refresh",
+    REGISTER: "/auth/register",
+    VERIFY_OTP: "/auth/register",
+    FORGOT_PASSWORD: "/auth/forgot-password",
+    RESET_PASSWORD: "/auth/reset-password",
+    VERIFY_EMAIL: "/auth/verify-email",
+    RESEND_VERIFICATION: "/auth/resend-verification",
+    PROFILE: "/auth/profile",
   },
   RETAILER: {
-    INVENTORY: '/retailer/inventory',
-    CUSTOMER: '/retailer/customer',
-    SUPPLIER: '/retailer/supplier',
-    CATEGORY: '/retailer/category',
-    PRODUCT: '/retailer/product',
-    ACCOUNT: '/retailer/account',
-    PROFILE: '/retailer/profile',
-    AGENCY: '/retailer/agencies',
-    STORE: '/retailer/store',
-    STOCK: '/retailer/stock',
+    INVENTORY: "/retailer/inventory",
+    CUSTOMER: "/retailer/customer",
+    SUPPLIER: "/retailer/supplier",
+    CATEGORY: "/retailer/category",
+    PRODUCT: "/retailer/product",
+    ACCOUNT: "/retailer/account",
+    PROFILE: "/retailer/profile",
+    AGENCY: "/retailer/agencies",
+    STORE: "/retailer/store",
+    STOCK: "/retailer/stock",
 
-    PURCHASE_ORDER: '/retailer/purchase-order',
-    PAYMENT: '/retailer/supplier-account/payments',
-    BILL: '/retailer/supplier-account/bills',
-    INVOICE: '/retailer/invoices',
-    EXPENSE: '/retailer/expense',
-    DASHBOARD: '/retailer/dashboard',
-    ANALYTICS: '/retailer/analytics',
+    PURCHASE_ORDER: "/retailer/purchase-order",
+    PAYMENT: "/retailer/supplier-account/payments",
+    BILL: "/retailer/supplier-account/bills",
+    INVOICE: "/retailer/invoices",
+    EXPENSE: "/retailer/expense",
+    DASHBOARD: "/retailer/dashboard",
+    ANALYTICS: "/retailer/analytics",
   },
-  
+
   // Voice AI Service Endpoints
   VOICE_AI: {
-    CUSTOMER_CHAT: '/voice-ai/api/v1/customer/chat',
-    SUPPLIER_CHAT: '/voice-ai/api/v1/supplier/chat',
-    PRODUCT_EXTRACT: '/voice-ai/api/v1/product/extract-from-image',
+    CUSTOMER_CHAT: "/voice-ai/api/v1/customer/chat",
+    SUPPLIER_CHAT: "/voice-ai/api/v1/supplier/chat",
+    PRODUCT_EXTRACT: "/voice-ai/api/v1/product/extract-from-image",
   },
-  
+
   // Subscription Service Endpoints
   SUBSCRIPTION: {
-    PACKAGES: '/plans/packages',
-    SUBSCRIPTIONS: '/plans/subscriptions',
-    CHECKOUT: '/plans/checkout',
-    PAYMENT: '/plans/payment',
-    WEBHOOKS: '/plans/webhooks',
-    USAGE: '/plans/usage',
+    PACKAGES: "/plans/packages",
+    SUBSCRIPTIONS: "/plans/subscriptions",
+    CHECKOUT: "/plans/checkout",
+    PAYMENT: "/plans/payment",
+    WEBHOOKS: "/plans/webhooks",
+    USAGE: "/plans/usage",
   },
-    
+
   // External Services
   EXTERNAL: {
-    GOOGLE_MAPS: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API || '',
-    STRIPE: process.env.NEXT_PUBLIC_STRIPE_API || '',
-    PAYPAL: process.env.NEXT_PUBLIC_PAYPAL_API || '',
-    TWILIO: process.env.NEXT_PUBLIC_TWILIO_API || '',
+    GOOGLE_MAPS: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API || "",
+    STRIPE: process.env.NEXT_PUBLIC_STRIPE_API || "",
+    PAYPAL: process.env.NEXT_PUBLIC_PAYPAL_API || "",
+    TWILIO: process.env.NEXT_PUBLIC_TWILIO_API || "",
   },
-  
+
   // Request Configuration
   REQUEST: {
     RETRY_ATTEMPTS: process.env.NEXT_PUBLIC_API_RETRY_ATTEMPTS || 3,
     RETRY_DELAY: process.env.NEXT_PUBLIC_API_RETRY_DELAY || 1000,
     CACHE_DURATION: process.env.NEXT_PUBLIC_API_CACHE_DURATION || 300000, // 5 minutes
   },
-  
+
   // Response Configuration
   RESPONSE: {
     SUCCESS_CODES: [200, 201, 202],

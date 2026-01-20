@@ -264,19 +264,28 @@ const TerraTemplate = ({ invoiceData, selectedStore }) => {
       `}</style>
       <div className="terra-invoice-body">
         <div className="terra-invoice">
-          
           {/* Header */}
           <div className="terra-header">
             <div className="terra-store-block">
               <h2>{selectedStore?.storeName || "ECO RETAIL"}</h2>
               <p>{selectedStore?.address || "456 Green Boulevard, City"}</p>
-              <p>{selectedStore?.phone || "+91 9876543210"} | {selectedStore?.email || "hello@ecoretail.com"}</p>
+              <p>
+                {selectedStore?.phone || "+91 9876543210"} |{" "}
+                {selectedStore?.email || "hello@ecoretail.com"}
+              </p>
             </div>
             <div className="terra-title-block">
-                <h1>INVOICE</h1>
-                <p style={{ fontSize: "12px", color: SECONDARY_COLOR, marginTop: "10px" }}>
-                    Date: **{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}**
-                </p>
+              <h1>INVOICE</h1>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: SECONDARY_COLOR,
+                  marginTop: "10px",
+                }}
+              >
+                Date: **{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}
+                **
+              </p>
             </div>
           </div>
 
@@ -287,14 +296,24 @@ const TerraTemplate = ({ invoiceData, selectedStore }) => {
               <div className="value">
                 {invoiceData.customer?.name || "Walk-in Customer"}
               </div>
-              {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
-              {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+              {invoiceData.customer?.email && (
+                <p>{invoiceData.customer.email}</p>
+              )}
+              {invoiceData.customer?.phone && (
+                <p>{invoiceData.customer.phone}</p>
+              )}
             </div>
             <div className="terra-detail-box">
               <div className="label">Invoice Reference</div>
               <div className="value">{invoiceData.invoiceNumber}</div>
               <p>Issued By: {selectedStore?.storeName || "ECO RETAIL"}</p>
-              <p>Due Date: **{moment(invoiceData.createdAt).add(7, 'days').format("MMMM DD, YYYY")}**</p>
+              <p>
+                Due Date: **
+                {moment(invoiceData.createdAt)
+                  .add(7, "days")
+                  .format("MMMM DD, YYYY")}
+                **
+              </p>
             </div>
           </div>
 
@@ -367,9 +386,13 @@ const TerraTemplate = ({ invoiceData, selectedStore }) => {
 
           {/* Footer */}
           <div className="terra-footer">
-            <p>Thank you for supporting {selectedStore?.storeName || "our business"}!</p>
             <p>
-              Generated on {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+              Thank you for supporting{" "}
+              {selectedStore?.storeName || "our business"}!
+            </p>
+            <p>
+              Generated on{" "}
+              {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
             </p>
           </div>
         </div>
