@@ -6,8 +6,8 @@ export const metadata = {
     description: 'View shared purchase order details.'
 };
 
-export default function PublicPurchaseOrderView({ params }) {
-    const publicId = params?.publicId;
+export default async function PublicPurchaseOrderView({ params }) {
+    const { publicId } = await params;
 
     return <ViewPurchaseOrderPage purchaseOrderId={publicId} />;
 }

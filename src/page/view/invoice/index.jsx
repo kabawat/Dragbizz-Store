@@ -97,19 +97,25 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!invoiceId) return;
+    if (!invoiceId) {
+      setLoading(false);
+      setError('Invoice ID is required');
+      return;
+    }
     let mounted = true;
     const fetchInvoice = async () => {
       try {
         setLoading(true);
+        setError(null);
         const res = await invoiceService.getPublicInvoice(invoiceId);
         if (!mounted) return;
         if (res?.success && res?.data) {
           setInvoice(res.data);
         } else {
-          setError('Invoice not found');
+          setError(res?.message || 'Invoice not found');
         }
       } catch (e) {
+        console.error('Error fetching invoice:', e);
         setError('Failed to load invoice');
       } finally {
         if (mounted) setLoading(false);
@@ -178,10 +184,11 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
             width: 100%;
             max-width: 900px;
             margin: 32px auto;
-            background: white;
             padding: 36px;
             border-radius: 12px;
-            box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+          }
+          .bg-white { background: white !important;
+          box-shadow: 0 6px 30px rgba(16,24,40,0.06);
           }
 
           .modern-header {
@@ -308,7 +315,7 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
           .print-btn { display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:8px; background:${accentColor}; color:white; font-weight:700; border:none; cursor:pointer; }
         `}</style>
 
-        <div className="modern-invoice">
+        <div className="modern-invoice bg-white">
           <div className="modern-header">
             <div className="modern-header-left">
               <div className="brand-circle" aria-hidden>
@@ -329,13 +336,6 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
               <div className="invoice-detail">Invoice #: <span>{invoice.invoiceNumber || invoice.publicId || invoiceId}</span></div>
               <div className="invoice-detail">Date: <span>{formatDate(invoice.createdAt || invoice.releasedAt)}</span></div>
               <div className="invoice-detail">Released: <span>{invoice.releasedAt ? formatDate(invoice.releasedAt) : '-'}</span></div>
-
-              <div style={{ marginTop: 12 }}>
-                <button className="print-btn no-print" onClick={handleDownload}>
-                  <Download style={{ width: 16, height: 16 }} />
-                  Print / Download
-                </button>
-              </div>
             </div>
           </div>
 
@@ -456,6 +456,15 @@ const ViewInvoiceStructured = ({ invoiceId }) => {
               <p style={{ marginTop: 8, color: '#6b7280' }}>Generated on {moment(invoice.createdAt).format('MMMM DD, YYYY [at] HH:mm')}</p>
             </div>
             <div className="signature">Authorized Signature</div>
+          </div>
+
+        </div>
+        <div className="modern-invoice">
+          <div style={{ marginTop: 24, textAlign: 'right' }} className="no-print">
+            <button className="print-btn" onClick={handleDownload}>
+              <Download style={{ width: 16, height: 16 }} />
+              Print / Download
+            </button>
           </div>
         </div>
       </>

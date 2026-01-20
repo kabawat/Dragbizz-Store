@@ -5,7 +5,7 @@ export const metadata = {
   description: 'View shared invoice details.',
 };
 
-export default function PublicInvoiceView({ params }) {
-  const publicId = params?.publicId;
+export default async function PublicInvoiceView({ params }) {
+  const { publicId } = await params;
   return <ViewInvoicePublic invoiceId={publicId} />;
 }

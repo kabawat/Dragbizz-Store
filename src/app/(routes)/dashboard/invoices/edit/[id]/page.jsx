@@ -6,7 +6,7 @@ export const metadata = {
   keywords: 'edit invoice, update invoice, draft invoice, DragBizz Store',
 };
 
-export default function EditInvoicePageRoute({ params }) {
-  const { id } = params;
+export default async function EditInvoicePageRoute({ params }) {
+  const { id } = await params;
   return <EditInvoicePage invoiceId={id} />;
 }
