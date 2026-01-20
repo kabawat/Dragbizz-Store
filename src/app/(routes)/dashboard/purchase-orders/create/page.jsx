@@ -1,11 +1,16 @@
-import CreatePurchaseOrder from "@/page/dashboard/purchase-orders/create";
+"use client";
+import dynamic from 'next/dynamic';
 
-export const metadata = {
-  title: "Create Purchase Order - DragBizz Store",
-  description: "Create a new purchase order",
-  keywords: "purchase order, create, DragBizz Store",
-};
+const CreatePurchaseOrderPage = dynamic(() => import('@/page/dashboard/purchase-orders/create'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-[rgb(var(--color-text-secondary))]">Loading...</p>
+      </div>
+    </div>
+  ),
+});
 
-export default function CreatePurchaseOrderPage() {
-  return <CreatePurchaseOrder />;
-}
+export default CreatePurchaseOrderPage;

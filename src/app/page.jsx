@@ -1,21 +1,59 @@
 "use client";
-import React from "react";
-import ProductHeader from "@/components/layout/ProductHeader";
+import React, { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Footer } from "@/components/common";
-import {
-  HeroSection,
-  FeaturesSection,
-  AdvancedFeaturesSection,
-  BenefitsSection,
-  TestimonialsSection,
-  PricingSection,
-  ComparisonSection,
-  IntegrationsSection,
-  SecuritySection,
-  UseCasesSection,
-  FAQSection,
-  CTASection,
-} from "@/components/home";
+
+const ProductHeader = dynamic(() => import("@/components/layout/ProductHeader"), {
+  ssr: true,
+});
+
+const HeroSection = dynamic(() => import("@/components/home/HeroSection"), {
+  ssr: true,
+});
+
+const FeaturesSection = dynamic(() => import("@/components/home/FeaturesSection"), {
+  ssr: true,
+});
+
+const AdvancedFeaturesSection = dynamic(() => import("@/components/home/AdvancedFeaturesSection"), {
+  ssr: true,
+});
+
+const BenefitsSection = dynamic(() => import("@/components/home/BenefitsSection"), {
+  ssr: true,
+});
+
+const TestimonialsSection = dynamic(() => import("@/components/home/TestimonialsSection"), {
+  ssr: true,
+});
+
+const PricingSection = dynamic(() => import("@/components/home/PricingSection"), {
+  ssr: true,
+});
+
+const ComparisonSection = dynamic(() => import("@/components/home/ComparisonSection"), {
+  ssr: true,
+});
+
+const IntegrationsSection = dynamic(() => import("@/components/home/IntegrationsSection"), {
+  ssr: true,
+});
+
+const SecuritySection = dynamic(() => import("@/components/home/SecuritySection"), {
+  ssr: true,
+});
+
+const UseCasesSection = dynamic(() => import("@/components/home/UseCasesSection"), {
+  ssr: true,
+});
+
+const FAQSection = dynamic(() => import("@/components/home/FAQSection"), {
+  ssr: true,
+});
+
+const CTASection = dynamic(() => import("@/components/home/CTASection"), {
+  ssr: true,
+});
 import {
   ShoppingBag,
   Zap,
