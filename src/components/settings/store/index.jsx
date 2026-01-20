@@ -3,8 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
 import storeService from "@/service/retailer/store.service";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
 import StoreAddDrawer from "./StoreAddDrawer";
@@ -20,7 +19,7 @@ const StoreSettings = () => {
   } = useAppSelector((state) => state.profile);
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toasts, showError, showSuccess, removeToast } = useToast();
+  const { showError, showSuccess } = useErrorHandling();
 
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
@@ -187,7 +186,6 @@ const StoreSettings = () => {
         onError={showError}
       />
 
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

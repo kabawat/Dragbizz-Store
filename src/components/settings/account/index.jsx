@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { Save, Settings } from "lucide-react";
 import { FormDrawer } from "@/components/common";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/ui";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useAccountData } from "./useAccountData";
 import AccountPreferencesSection from "./AccountPreferencesSection";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,7 +14,7 @@ const AccountSettings = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const { showSuccess, showError } = useErrorHandling();
 
   const handleOpenEdit = () => {
     setIsEditing(true);
@@ -88,7 +87,6 @@ const AccountSettings = () => {
       </FormDrawer>
 
       {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };
