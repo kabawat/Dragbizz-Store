@@ -2,12 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { supplierService } from "@/service";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import {
   SideDrawer,
-  ToastContainer,
-  ErrorModal,
   Button,
 } from "@/components/ui";
 import { SupplierForm } from "@/components/supplier";
@@ -21,9 +18,15 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
     selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
   const [loading, setLoading] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors,
+    setFieldErrors,
+    QuotaModal,
+    showSuccess,
+    clearFieldErrors,
+  } = useErrorHandling();
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -36,15 +39,14 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [fieldErrors, setFieldErrors] = useState({});
 
   // Reset form when drawer opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData(getInitialFormData());
-      setFieldErrors({});
+      clearFieldErrors();
     }
-  }, [isOpen, storeId]);
+  }, [isOpen, storeId, clearFieldErrors]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -81,9 +83,8 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const handleSaveAndPublish = async () => {
     try {
       setLoading(true);
-      setFieldErrors({});
+      clearFieldErrors();
 
-      // Client-side validation: At least one contact method required
       if (!formData.phone && !formData.email) {
         const errorMsg = t("suppliers.phoneOrEmailRequired");
         setFieldErrors({
@@ -94,94 +95,23 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
-      // Call supplier service to create supplier
       const result = await supplierService.createSupplier(formData);
+      const handled = handleApiResult(
+        result,
+        t("suppliers.addSuccess"),
+        "supplier-creation"
+      );
 
-      if (result.success) {
-        // Show success toast
-        showSuccess(t("suppliers.addSuccess"));
-        // Reset form
+      if (handled.type === "success") {
         setFormData(getInitialFormData());
-        setFieldErrors({});
-        // Close drawer
+        clearFieldErrors();
         onClose();
-        // Call onSuccess callback if provided
         if (onSuccess) {
           onSuccess(result.data);
         }
-      } else {
-        // Handle validation errors
-        const errorData = result?.error || result;
-        const fieldErrors = extractFieldErrors(errorData);
-
-        // Extract general errors from validationErrors array
-        const generalErrors = [];
-        const validationErrors =
-          errorData?.data?.validationErrors ||
-          errorData?.validationErrors ||
-          [];
-        if (Array.isArray(validationErrors)) {
-          validationErrors.forEach((error) => {
-            if (error.field === "general" && error.message) {
-              generalErrors.push(error.message);
-            }
-          });
-        }
-
-        // Set field-specific errors
-        if (Object.keys(fieldErrors).length > 0) {
-          setFieldErrors(fieldErrors);
-        }
-
-        // Show general errors in toast
-        if (generalErrors.length > 0) {
-          generalErrors.forEach((errorMsg) => {
-            showError(errorMsg);
-          });
-        } else if (Object.keys(fieldErrors).length === 0) {
-          // If no field errors and no general errors, show message in toast
-          showError(
-            result.message || "Failed to create supplier. Please try again.",
-          );
-        }
       }
     } catch (error) {
-      // Handle validation errors
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-        const fieldErrors = extractFieldErrors(errorData);
-
-        // Extract general errors from validationErrors array
-        const generalErrors = [];
-        const validationErrors = errorData?.validationErrors || [];
-        if (Array.isArray(validationErrors)) {
-          validationErrors.forEach((error) => {
-            if (error.field === "general" && error.message) {
-              generalErrors.push(error.message);
-            }
-          });
-        }
-
-        // Set field-specific errors
-        if (Object.keys(fieldErrors).length > 0) {
-          setFieldErrors(fieldErrors);
-        }
-
-        // Show general errors in toast
-        if (generalErrors.length > 0) {
-          generalErrors.forEach((errorMsg) => {
-            showError(errorMsg);
-          });
-        } else if (Object.keys(fieldErrors).length === 0) {
-          // If no field errors and no general errors, show message in toast
-          showError(
-            errorData.message ||
-              "An error occurred while creating the supplier. Please try again.",
-          );
-        }
-      } else {
-        showError("An unexpected error occurred. Please try again.");
-      }
+      handleApiError(error, "supplier-creation");
     } finally {
       setLoading(false);
     }
@@ -242,16 +172,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </SideDrawer>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={t("common.error")}
-        message={errorMessage}
-      />
+      {QuotaModal}
     </>
   );
 };

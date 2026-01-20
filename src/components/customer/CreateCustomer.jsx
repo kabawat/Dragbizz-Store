@@ -3,11 +3,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Save, Plus } from "lucide-react";
 import { Button, ToastContainer, ErrorModal } from "@/components/ui";
 import { CustomerForm } from "@/components/customer";
-import { QuotaExceededModal } from "@/components/common";
 import { customerService } from "@/service";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const CreateCustomer = ({
@@ -29,11 +27,16 @@ const CreateCustomer = ({
   } = useUsageQuota("customer_management");
 
   const [loading, setLoading] = useState(false);
-  const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [quotaError, setQuotaError] = useState(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const { toasts, showSuccess, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors,
+    setFieldErrors,
+    QuotaModal,
+    showSuccess,
+    clearFieldErrors,
+    setQuotaErrorManually,
+  } = useErrorHandling();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -69,7 +72,6 @@ const CreateCustomer = ({
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [fieldErrors, setFieldErrors] = useState({});
 
   // Update store ID when storeId prop changes
   useEffect(() => {
@@ -164,9 +166,7 @@ const CreateCustomer = ({
 
     try {
       setLoading(true);
-      setFieldErrors({});
-      setQuotaError(null);
-      setShowQuotaModal(false);
+      clearFieldErrors();
 
       // Prepare payload: make companyDetails optional (omit when empty)
       const payload = (() => {
@@ -180,93 +180,25 @@ const CreateCustomer = ({
         return data;
       })();
 
-      // Call customer service to create customer
       const result = await customerService.createCustomer(payload);
+      const handled = handleApiResult(
+        result,
+        t("customers.createSuccess"),
+        "customer-creation"
+      );
 
-      if (result.success) {
-        // Refresh quota after successful customer creation
+      if (handled.type === "success") {
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
-
-        // Show success toast
-        showSuccess(t("customers.createSuccess"));
-
-        // Call onSuccess callback with customer data
         if (onSuccess) {
           onSuccess(result.data);
         }
-
-        // Reset form
         setFormData(getInitialFormData());
-        setFieldErrors({});
-      } else {
-        // Check if it's a quota exceeded error (403)
-        const errorData = result?.error || {};
-        const isQuotaError =
-          result?.statusCode === 403 ||
-          errorData.error === "Quota Exceeded" ||
-          errorData.error === "Forbidden" ||
-          result.message?.includes("Quota exceeded") ||
-          result.message?.includes("limit reached") ||
-          result.message?.includes("Quota Exceeded");
-
-        if (isQuotaError) {
-          const quotaData = errorData.data || errorData || {};
-          setQuotaError({
-            message:
-              result.message || errorData.message || t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(result?.error || result);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-          } else {
-            setErrorMessage(result.message || t("customers.createError"));
-            setShowErrorModal(true);
-          }
-        }
+        clearFieldErrors();
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-
-        // Check if it's a quota exceeded error (403)
-        const isQuotaError =
-          error.response.status === 403 ||
-          errorData.error === "Quota Exceeded" ||
-          errorData.error === "Forbidden" ||
-          errorData.message?.includes("Quota exceeded") ||
-          errorData.message?.includes("limit reached");
-
-        if (isQuotaError) {
-          const quotaData = errorData.data || errorData || {};
-          setQuotaError({
-            message: errorData.message || t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(errorData);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-          } else {
-            setErrorMessage(errorData.message || t("customers.createError"));
-            setShowErrorModal(true);
-          }
-        }
-      } else {
-        setErrorMessage(t("common.error"));
-        setShowErrorModal(true);
-      }
+      handleApiError(error, "customer-creation");
     } finally {
       setLoading(false);
     }
@@ -275,7 +207,7 @@ const CreateCustomer = ({
   // Reset form
   const resetForm = () => {
     setFormData(getInitialFormData());
-    setFieldErrors({});
+    clearFieldErrors();
   };
 
   return (

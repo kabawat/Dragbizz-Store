@@ -3,15 +3,11 @@ import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { createExpense } from "@/store/slices/expensesSlice";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import {
   SideDrawer,
-  ToastContainer,
-  ErrorModal,
   Button,
 } from "@/components/ui";
-import { QuotaExceededModal } from "@/components/common";
 import { ExpenseForm } from "@/components/expenses";
 import { Save, Receipt } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -25,11 +21,13 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
   );
 
   const [loading, setLoading] = useState(false);
-  const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [quotaError, setQuotaError] = useState(null);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const { toasts, showSuccess, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    QuotaModal,
+    showSuccess,
+    setQuotaErrorManually,
+  } = useErrorHandling();
 
   // Get quota information (for validation only, not displayed)
   const { quota, isLoading: quotaLoading } =
@@ -45,7 +43,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
   const handleExpenseSubmit = async (formData) => {
     if (!isQuotaAvailable()) {
       const quotaData = quota || {};
-      setQuotaError({
+      setQuotaErrorManually({
         message:
           quota.remaining === 0
             ? t("expenses.dailyLimitReached", { limit: quota.limit })
@@ -59,103 +57,31 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
               : null,
         canUpgrade: true,
       });
-      setShowQuotaModal(true);
       return;
     }
 
     try {
       setLoading(true);
-      setQuotaError(null);
-      setShowQuotaModal(false);
-
       const expenseData = {
         ...formData,
         store: selectedStore?.storeId,
       };
 
       const result = await dispatch(createExpense(expenseData));
+      const handled = handleApiResult(
+        result.payload || result,
+        t("expenses.createSuccess"),
+        "expense-creation"
+      );
 
-      if (result.payload?.success) {
-        // Show success toast
-        showSuccess(t("expenses.createSuccess"));
-        // Close drawer
+      if (handled.type === "success") {
         onClose();
-        // Call onSuccess callback if provided
         if (onSuccess) {
-          onSuccess(result.payload.data);
-        }
-      } else {
-        // Check if it's a quota exceeded error (403)
-        const errorData = result.payload?.error || {};
-        const isQuotaError =
-          result?.statusCode === 403 ||
-          errorData.error === "Quota Exceeded" ||
-          errorData.error === "Forbidden" ||
-          result.payload?.message?.includes("Quota exceeded") ||
-          result.payload?.message?.includes("limit reached") ||
-          result.payload?.message?.includes("Quota Exceeded");
-
-        if (isQuotaError) {
-          const quotaData = errorData.data || errorData || {};
-          setQuotaError({
-            message:
-              result.payload?.message ||
-              errorData.message ||
-              t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(
-            result.payload?.error || result.payload,
-          );
-          if (Object.keys(fieldErrors).length > 0) {
-            // Field errors will be handled by the form component
-          } else {
-            setErrorMessage(
-              result.payload?.message || t("expenses.createError"),
-            );
-            setShowErrorModal(true);
-          }
+          onSuccess(result.payload?.data || result.data);
         }
       }
     } catch (error) {
-      // Handle API error response
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-
-        // Check for quota exceeded error (403)
-        if (
-          error.response.status === 403 &&
-          (errorData.error === "Quota Exceeded" ||
-            errorData.error === "Forbidden")
-        ) {
-          const quotaData = errorData.data || {};
-          setQuotaError({
-            message: errorData.message || t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(errorData);
-          if (Object.keys(fieldErrors).length > 0) {
-            // Field errors will be handled by the form component
-          } else {
-            setErrorMessage(errorData.message || t("expenses.createError"));
-            setShowErrorModal(true);
-          }
-        }
-      } else {
-        // Handle other types of errors
-        setErrorMessage(t("common.error"));
-        setShowErrorModal(true);
-      }
+      handleApiError(error, "expense-creation");
     } finally {
       setLoading(false);
     }
@@ -163,7 +89,6 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   const handleClose = () => {
     onClose();
-    setQuotaError(null);
   };
 
   return (
@@ -219,29 +144,7 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </SideDrawer>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title={t("common.error")}
-        message={errorMessage}
-      />
-
-      {/* Quota Exceeded Modal */}
-      <QuotaExceededModal
-        isOpen={showQuotaModal}
-        onClose={() => {
-          setShowQuotaModal(false);
-          setQuotaError(null);
-        }}
-        message={quotaError?.message || t("quota.quotaExceeded")}
-        quota={quotaError?.quota || null}
-        resetTime={quotaError?.resetTime || null}
-        canUpgrade={quotaError?.canUpgrade !== false}
-      />
+      {QuotaModal}
     </>
   );
 };

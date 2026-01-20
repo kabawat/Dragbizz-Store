@@ -28,12 +28,9 @@ import {
   Textarea,
   Card,
   Modal,
-  ToastContainer,
-  ErrorModal,
   Button,
 } from "@/components/ui";
-import { useToast } from "@/hooks/useToast";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -79,10 +76,13 @@ const CreatePayment = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { toasts, showSuccess, removeToast } = useToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    QuotaModal,
+    showSuccess,
+  } = useErrorHandling();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -482,13 +482,14 @@ const CreatePayment = () => {
         store: selectedStore?.storeId,
       };
 
-      // Call payment service directly
       const result = await paymentService.createPayment(paymentData);
+      const handled = handleApiResult(
+        result,
+        t("payments.paymentCreatedSuccess"),
+        "payment-creation"
+      );
 
-      if (result.success) {
-        // Show success toast
-        showSuccess(t("payments.paymentCreatedSuccess"));
-        // Redirect after a short delay
+      if (handled.type === "success") {
         setTimeout(() => {
           if (billId) {
             router.push(`/dashboard/bills/${billId}`);
@@ -496,34 +497,13 @@ const CreatePayment = () => {
             router.push("/dashboard/payments");
           }
         }, 1500);
-      } else {
-        // Handle validation errors
-        const fieldErrors = extractFieldErrors(result?.error || result);
-        if (Object.keys(fieldErrors).length > 0) {
-          setErrors(fieldErrors);
-        } else {
-          // Show error modal for general errors
-          setErrorMessage(
-            result.message || t("payments.failedToCreatePayment"),
-          );
-          setShowErrorModal(true);
-        }
+      } else if (handled.type === "field") {
+        setErrors(handled.fieldErrors);
       }
     } catch (error) {
-      // Handle validation errors
-      if (error.response && error.response.data) {
-        const fieldErrors = extractFieldErrors(error.response.data);
-        if (Object.keys(fieldErrors).length > 0) {
-          setErrors(fieldErrors);
-        } else {
-          setErrorMessage(
-            error.response.data.message || t("payments.errorCreatingPayment"),
-          );
-          setShowErrorModal(true);
-        }
-      } else {
-        setErrorMessage(t("payments.unexpectedErrorCreatingPayment"));
-        setShowErrorModal(true);
+      const handled = handleApiError(error, "payment-creation");
+      if (handled.type === "field") {
+        setErrors(handled.fieldErrors);
       }
     } finally {
       setLoading(false);
@@ -1283,16 +1263,7 @@ const CreatePayment = () => {
         </div>
       </div>
 
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title="Error"
-        message={errorMessage}
-      />
+      {QuotaModal}
     </div>
   );
 };

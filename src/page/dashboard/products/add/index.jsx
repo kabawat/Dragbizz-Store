@@ -8,14 +8,12 @@ import { Save, ArrowLeft } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { ProductForm, AIProductExtract } from "@/components/product";
-import { QuotaExceededModal } from "@/components/common";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
 import { Button, AIButton } from "@/components/ui";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import Link from "next/link";
 import { useRef } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -33,10 +31,18 @@ const AddProductPage = () => {
     useUsageQuota("product_management");
 
   const [loading, setLoading] = useState(false);
-  const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [quotaError, setQuotaError] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
-  const { showSuccess, showError } = useGlobalToast();
+  const {
+    handleApiError,
+    handleApiResult,
+    fieldErrors,
+    setFieldErrors,
+    QuotaModal,
+    showSuccess,
+    clearFieldErrors,
+    setShowQuotaModal,
+    setQuotaErrorManually,
+  } = useErrorHandling();
 
   // Check if quota is available
   const isQuotaAvailable = () => {
@@ -133,31 +139,13 @@ const AddProductPage = () => {
   const handleSaveAndPublish = async () => {
     // Frontend validation: Check quota before making API call
     if (!isQuotaAvailable()) {
-      // Show quota exceeded modal
-      const quotaData = quota || {};
-      setQuotaError({
-        message:
-          quota.remaining === 0
-            ? t("products.dailyLimitReached", { limit: quota.limit })
-            : t("quota.quotaExceeded"),
-        quota: quotaData,
-        resetTime:
-          quota.usageType === "DAILY_FIXED"
-            ? "tomorrow"
-            : quota.usageType === "MONTHLY_TOTAL"
-              ? "next month"
-              : null,
-        canUpgrade: true,
-      });
       setShowQuotaModal(true);
-      return; // Prevent API call
+      return;
     }
 
     try {
       setLoading(true);
-      setFieldErrors({});
-      setQuotaError(null);
-      setShowQuotaModal(false);
+      clearFieldErrors();
 
       // Calculate discount percentage based on MRP and sellingPrice
       const payload = { ...formData };
@@ -178,87 +166,24 @@ const AddProductPage = () => {
       }
 
       const result = await productService.createProduct(payload);
+      const handled = handleApiResult(
+        result,
+        t("products.createSuccess"),
+        "product-creation"
+      );
 
-      if (result.success) {
-        // Refresh quota after successful product creation
+      if (handled.type === "success") {
         if (quotaRefreshRef.current) {
           quotaRefreshRef.current();
         }
-        // Show success toast
-        showSuccess(t("products.createSuccess"));
-        // Reset form and redirect after a short delay
         setTimeout(() => {
           setFormData(getInitialFormData());
-          setFieldErrors({});
+          clearFieldErrors();
           router.push("/dashboard/products");
         }, 1500);
-      } else {
-        // Check if it's a quota exceeded error (403)
-        const errorData = result?.error || {};
-        const isQuotaError =
-          result?.statusCode === 403 ||
-          errorData.error === "Quota Exceeded" ||
-          errorData.error === "Forbidden" ||
-          result.message?.includes("Quota exceeded") ||
-          result.message?.includes("limit reached") ||
-          result.message?.includes("Quota Exceeded");
-
-        if (isQuotaError) {
-          const quotaData = errorData.data || errorData || {};
-          setQuotaError({
-            message:
-              result.message || errorData.message || t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(result?.error || result);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-            showError(t("validation.fixErrors"));
-          } else {
-            // Show error toast for general errors
-            showError(result.message || t("products.createError"));
-          }
-        }
       }
     } catch (error) {
-      // Handle API error response
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-
-        // Check for quota exceeded error (403)
-        if (
-          error.response.status === 403 &&
-          (errorData.error === "Quota Exceeded" ||
-            errorData.error === "Forbidden")
-        ) {
-          const quotaData = errorData.data || {};
-          setQuotaError({
-            message: errorData.message || t("quota.quotaExceeded"),
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-        } else {
-          // Handle validation errors
-          const fieldErrors = extractFieldErrors(errorData);
-          if (Object.keys(fieldErrors).length > 0) {
-            setFieldErrors(fieldErrors);
-            showError(t("validation.fixErrors"));
-          } else {
-            // Show error toast for general errors
-            showError(errorData.message || t("products.createError"));
-          }
-        }
-      } else {
-        // Handle other types of errors
-        showError(t("common.error"));
-      }
+      handleApiError(error, "product-creation");
     } finally {
       setLoading(false);
     }
@@ -484,17 +409,7 @@ const AddProductPage = () => {
       </div>
 
       {/* Quota Exceeded Modal */}
-      <QuotaExceededModal
-        isOpen={showQuotaModal}
-        onClose={() => {
-          setShowQuotaModal(false);
-          setQuotaError(null);
-        }}
-        message={quotaError?.message || t("quota.quotaExceeded")}
-        quota={quotaError?.quota || null}
-        resetTime={quotaError?.resetTime || null}
-        canUpgrade={quotaError?.canUpgrade !== false}
-      />
+      {QuotaModal}
 
       {/* AI Product Extract Modal */}
       {showAIModal && (
