@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { Download, Calendar } from 'lucide-react';
-import { SideDrawer, Select, Button } from '@/components/ui';
+import { SideDrawer, Select, Button, Checkbox } from '@/components/ui';
 import { useGlobalToast } from '@/contexts/ToastContext';
 import { customerService } from '@/service';
 import { useAppSelector } from '@/store/hooks';
@@ -17,10 +17,45 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState('');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
-  const [downloadFormat, setDownloadFormat] = useState('xlsx'); // 'xlsx', 'csv', or 'pdf'
-  const [sortOrder, setSortOrder] = useState('nameAsc'); // Sort order option
+  const [downloadFormat, setDownloadFormat] = useState('xlsx');
+  const [sortOrder, setSortOrder] = useState('nameAsc');
+  
+  const availableFields = [
+    { key: 'storeName', label: t('customers.fieldStoreName'), default: true },
+    { key: 'customerName', label: t('customers.fieldCustomerName'), default: true },
+    { key: 'phone', label: t('customers.fieldPhone'), default: true },
+    { key: 'email', label: t('customers.fieldEmail'), default: true },
+    { key: 'address', label: t('customers.fieldAddress'), default: true },
+    { key: 'createdAt', label: t('customers.fieldCreatedAt'), default: true },
+    { key: 'updatedAt', label: t('customers.fieldUpdatedAt'), default: false }
+  ];
+  
+  const [selectedFields, setSelectedFields] = useState(
+    availableFields.filter(field => field.default).map(field => field.key)
+  );
+  
+  const handleFieldToggle = (fieldKey) => {
+    setSelectedFields(prev => {
+      if (prev.includes(fieldKey)) {
+        if (prev.length === 1) {
+          showError(t('customers.atLeastOneFieldRequired'));
+          return prev;
+        }
+        return prev.filter(key => key !== fieldKey);
+      } else {
+        return [...prev, fieldKey];
+      }
+    });
+  };
+  
+  const handleSelectAll = () => {
+    setSelectedFields(availableFields.map(field => field.key));
+  };
+  
+  const handleDeselectAll = () => {
+    setSelectedFields([availableFields[0].key]);
+  };
 
-  // Handle download period selection
   const handleDownloadPeriodChange = (value) => {
     setSelectedDownloadPeriod(value);
     
@@ -30,7 +65,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
   };
 
-  // Calculate date range for custom dates
   const getCustomDateRangePreview = () => {
     if (!customStartDate || !customEndDate) return null;
     
@@ -51,13 +85,12 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     };
   };
 
-  // Calculate date range for selected period
   const getDateRangePreview = (period) => {
     if (!period || period === 'custom') return null;
     
     const today = new Date();
     const endDate = new Date(today);
-    endDate.setHours(23, 59, 59, 999); // End of today
+    endDate.setHours(23, 59, 59, 999);
     
     let startDate = new Date(today);
     
@@ -78,7 +111,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         return null;
     }
     
-    startDate.setHours(0, 0, 0, 0); // Start of day
+    startDate.setHours(0, 0, 0, 0);
     
     const formatDate = (date) => {
       return date.toLocaleDateString('en-IN', {
@@ -96,7 +129,28 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     };
   };
 
-  // Handle download for predefined periods
+  const buildDownloadParams = (storeId, startDate, endDate) => {
+    const fieldMapping = {
+        'storeName': 'storeName',
+      'customerName': 'customerName',
+      'phone': 'phone',
+      'email': 'email',
+      'address': 'address',
+      'createdAt': 'createdAt',
+      'updatedAt': 'updatedAt'
+    };
+    
+    const backendFields = selectedFields.map(fieldKey => fieldMapping[fieldKey] || fieldKey).join(',');
+    
+    return {
+      store: storeId,
+      startDate: startDate,
+      endDate: endDate,
+      limit: 10000,
+      fields: backendFields
+    };
+  };
+
   const handlePredefinedDownload = async () => {
     if (!selectedDownloadPeriod) {
       showError(t('customers.pleaseSelectTimePeriod'));
@@ -117,12 +171,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     
     setIsDownloading(true);
     try {
-      const params = {
-        store: storeId,
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-        limit: 10000
-      };
+      const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
       
       const result = await customerService.getCustomers(params);
       
@@ -154,7 +203,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
   };
 
-  // Handle custom range download
   const handleCustomRangeDownload = async () => {
     if (!customStartDate || !customEndDate) {
       showError(t('customers.pleaseSelectBothDates'));
@@ -180,12 +228,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     
     setIsDownloading(true);
     try {
-      const params = {
-        store: storeId,
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-        limit: 10000
-      };
+      const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
       
       const result = await customerService.getCustomers(params);
       
@@ -217,7 +260,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
   };
 
-  // Sort customers based on selected sort order
   const sortCustomers = (customers) => {
     if (!customers || !Array.isArray(customers)) return customers;
     
@@ -253,30 +295,34 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
   };
 
-  // Transform customer data for export
   const transformCustomerData = (customers) => {
     if (!customers || !Array.isArray(customers)) return [];
     
-    // Sort customers before transforming
     const sortedCustomers = sortCustomers(customers);
     
     const storeName = selectedStore?.storeName || selectedStore?.name || 'N/A';
     
+    const fieldMap = {
+      'storeName': (customer) => ({ 'Store Name': storeName }),
+      'customerName': (customer) => ({ 'Customer Name': customer.name || t('common.na') }),
+      'phone': (customer) => ({ 'Phone': customer.phone || t('common.na') }),
+      'email': (customer) => ({ 'Email': customer.email || t('common.na') }),
+      'address': (customer) => ({ 'Address': customer.address || t('common.na') }),
+      'createdAt': (customer) => ({ 'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : t('common.na') }),
+      'updatedAt': (customer) => ({ 'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : t('common.na') })
+    };
+    
     return sortedCustomers.map((customer) => {
-      return {
-        'Store Name': storeName,
-        'Customer Name': customer.name || t('common.na'),
-        'Phone': customer.phone || t('common.na'),
-        'Email': customer.email || t('common.na'),
-        'Address': customer.address || t('common.na'),
-        'Created At': customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-IN') : t('common.na'),
-        'Updated At': customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString('en-IN') : t('common.na')
-      };
+      const row = {};
+      selectedFields.forEach(fieldKey => {
+        if (fieldMap[fieldKey]) {
+          Object.assign(row, fieldMap[fieldKey](customer));
+        }
+      });
+      return row;
     });
   };
 
-
-  // Handle file download
   const downloadCustomersFile = async (customers) => {
     if (!customers || customers.length === 0) {
       showError(t('customers.noCustomersToDownload'));
@@ -287,7 +333,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     const timestamp = new Date().toISOString().split('T')[0];
     const filename = `customers_${timestamp}`;
     
-    // Prepare PDF metadata
     const storeName = selectedStore?.storeName || selectedStore?.name;
     let dateRange = null;
     if (selectedDownloadPeriod === 'custom') {
@@ -307,7 +352,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       });
     }
     
-    // Use reusable export utility
     await exportData(transformedData, downloadFormat, filename, {
       sheetName: t('customers.customers'),
       title: t('customers.customers'),
@@ -322,17 +366,16 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         } else {
           showError(errorMsg || t('customers.errorDownloadingCustomers'));
         }
-      },
-      onFallback: true // Enable CSV fallback for XLSX errors
+      }
     });
   };
 
-  // Handle close
   const handleClose = () => {
     setSelectedDownloadPeriod('');
     setCustomStartDate('');
     setCustomEndDate('');
     setSortOrder('nameAsc');
+    setSelectedFields(availableFields.filter(field => field.default).map(field => field.key));
     onClose();
   };
 
@@ -366,7 +409,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Download Format Selection */}
           {selectedDownloadPeriod && (
             <div>
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
@@ -404,6 +446,68 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
                 onChange={setSortOrder}
                 clearable={false}
               />
+            </div>
+          )}
+
+          {/* Field Selection */}
+          {selectedDownloadPeriod && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                  {t('customers.selectFields')}
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSelectAll}
+                    className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
+                  >
+                    {t('customers.selectAll')}
+                  </button>
+                  <span className="text-[rgb(var(--color-text-secondary))] text-xs">|</span>
+                  <button
+                    type="button"
+                    onClick={handleDeselectAll}
+                    className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
+                  >
+                    {t('customers.deselectAll')}
+                  </button>
+                </div>
+              </div>
+              <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-lg p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-2">
+                  {availableFields.map((field) => {
+                    const isChecked = selectedFields.includes(field.key);
+                    return (
+                      <div
+                        key={field.key}
+                        className={`rounded-lg transition-all duration-200 `}
+                      >
+                        <div className="[&>div]:!items-center [&>div]:!space-x-2.5">
+                          <Checkbox
+                            checked={isChecked}
+                            onChange={() => handleFieldToggle(field.key)}
+                            label={field.label}
+                            id={`field-${field.key}`}
+                            // size="sm"
+                            className={isChecked ? '[&_label]:!text-[rgb(var(--color-primary))] [&_label]:!font-medium' : ''}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                  {t('customers.selectedFieldsCount', { count: selectedFields.length })}
+                </p>
+                {selectedFields.length === availableFields.length && (
+                  <span className="text-xs text-[rgb(var(--color-primary))] font-medium">
+                    {t('customers.allFieldsSelected')}
+                  </span>
+                )}
+              </div>
             </div>
           )}
           

@@ -625,7 +625,20 @@
     "nameAscending": "Name (A-Z)",
     "nameDescending": "Name (Z-A)",
     "dateAscending": "Date Created (Oldest First)",
-    "dateDescending": "Date Created (Newest First)"
+    "dateDescending": "Date Created (Newest First)",
+    "selectFields": "Select Fields",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selectedFieldsCount": "{count} field(s) selected",
+    "atLeastOneFieldRequired": "At least one field must be selected",
+    "allFieldsSelected": "All fields selected",
+    "fieldStoreName": "Store Name",
+    "fieldCustomerName": "Customer Name",
+    "fieldPhone": "Phone",
+    "fieldEmail": "Email",
+    "fieldAddress": "Address",
+    "fieldCreatedAt": "Created At",
+    "fieldUpdatedAt": "Updated At"
   },
   "suppliers": {
     "viewSupplier": "View Supplier",
