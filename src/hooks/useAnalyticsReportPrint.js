@@ -72,7 +72,34 @@ export const useAnalyticsReportPrint = (fetching, analyticsData, reportId, repor
             return;
         }
 
+        // Save current theme variant (outside try block for error handling)
+        const root = document.documentElement;
+        const originalVariant = root.getAttribute('data-variant') || 'light';
+        const originalTheme = root.getAttribute('data-theme') || 'default';
+
         try {
+
+            // Temporarily force light mode for PDF generation
+            root.setAttribute('data-variant', 'light');
+            root.setAttribute('data-theme', 'default');
+
+            // Add temporary style to ensure white background
+            const tempStyle = document.createElement('style');
+            tempStyle.id = 'pdf-generation-style';
+            tempStyle.textContent = `
+                #${reportId} {
+                    background: #ffffff !important;
+                    color: #333333 !important;
+                }
+                #${reportId} * {
+                    background-color: transparent !important;
+                }
+            `;
+            document.head.appendChild(tempStyle);
+
+            // Wait for styles to apply
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             const { default: html2canvas } = await import('html2canvas');
             const { default: jsPDF } = await import('jspdf');
 
@@ -80,7 +107,18 @@ export const useAnalyticsReportPrint = (fetching, analyticsData, reportId, repor
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
+                backgroundColor: '#ffffff',
             });
+
+            // Remove temporary style
+            const tempStyleEl = document.getElementById('pdf-generation-style');
+            if (tempStyleEl) {
+                tempStyleEl.remove();
+            }
+
+            // Restore original theme variant
+            root.setAttribute('data-variant', originalVariant);
+            root.setAttribute('data-theme', originalTheme);
 
             const imgData = canvas.toDataURL("image/jpeg", 0.7);
             const pdf = new jsPDF("p", "mm", "a4");
@@ -91,6 +129,14 @@ export const useAnalyticsReportPrint = (fetching, analyticsData, reportId, repor
             pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
             pdf.save(`${reportName}-${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {
+            // Restore original theme variant in case of error
+            const tempStyleEl = document.getElementById('pdf-generation-style');
+            if (tempStyleEl) {
+                tempStyleEl.remove();
+            }
+            root.setAttribute('data-variant', originalVariant);
+            root.setAttribute('data-theme', originalTheme);
+            
             showError('Failed to download PDF. Please try again.');
         }
     };
