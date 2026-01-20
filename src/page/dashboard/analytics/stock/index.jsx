@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getStockAnalytics } from '@/store/slices/productsSlice';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Warehouse, Package, AlertTriangle, XCircle, IndianRupee, Download } from 'lucide-react';
+import { Warehouse, Package, AlertTriangle, XCircle, IndianRupee, Download, FileSpreadsheet, ChevronDown, FileText } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
@@ -59,7 +59,9 @@ const StockAnalytics = () => {
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
   const formatCurrency = (amount) => `₹${(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const { handleDownloadPDF } = useAnalyticsReportPrint(isLoading, analytics, 'stock-report-area', 'stock-analytics-report');
+  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(isLoading, analytics, 'stock-report-area', 'stock-analytics-report');
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -203,6 +205,57 @@ const StockAnalytics = () => {
     }
   };
 
+  // Handle click outside export menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showExportMenu]);
+
+  const getStockXLSXConfig = () => {
+    return {
+      title: 'STOCK ANALYTICS REPORT',
+      columns: 2,
+      sections: [
+        {
+          title: 'SUMMARY',
+          headers: ['Metric', 'Value'],
+          columns: 2,
+          data: [
+            ['Total SKUs', formatNumber(totals.totalSkus)],
+            ['Total Quantity', formatNumber(totals.totalQuantity)],
+            ['Low Stock Items', formatNumber(totals.lowStockItems)],
+            ['Out of Stock', formatNumber(totals.outOfStockItems)]
+          ]
+        },
+        {
+          title: 'STOCK BREAKDOWN',
+          headers: ['Category', 'Value'],
+          columns: 2,
+          data: [
+            ['Total SKUs', formatNumber(totals.totalSkus)],
+            ['Total Quantity', formatNumber(totals.totalQuantity)],
+            ['Available Quantity', formatNumber(totals.availableQuantity)],
+            ['Reserved Quantity', formatNumber(totals.reservedQuantity)],
+            ['Sold Quantity', formatNumber(totals.soldQuantity)],
+            ['Total Stock Value', formatCurrency(valueSummary.totalStockValue)],
+            ['Average Cost', formatCurrency(valueSummary.averageCost)]
+          ],
+          amountColumns: [1]
+        }
+      ]
+    };
+  };
+
   return (
     <>
       <style jsx global>{`
@@ -333,15 +386,43 @@ const StockAnalytics = () => {
         </div>
       </div>
 
-      <div className="no-print fixed bottom-6 right-6 z-50">
-        <Button
-          variant="primary"
-          leftIcon={Download}
-          onClick={() => handleDownloadPDF(analytics)}
-          disabled={isLoading || !analytics}
-        >
-          Download Report
-        </Button>
+      <div className="no-print fixed bottom-6 right-6 z-50" ref={exportMenuRef}>
+        <div className="relative">
+          <Button
+            variant="primary"
+            leftIcon={Download}
+            rightIcon={ChevronDown}
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            disabled={isLoading || !analytics}
+          >
+            Download Report
+          </Button>
+          
+          {showExportMenu && (
+            <div className="absolute bottom-full right-0 mb-2 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+              <button
+                onClick={() => {
+                  handleDownloadPDF(analytics);
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileText className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as PDF
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadXLSX(analytics, selectedStore, 'stock-analytics-report', getStockXLSXConfig());
+                  setShowExportMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                Download as XLSX
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
     </>
