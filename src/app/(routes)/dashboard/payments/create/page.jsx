@@ -1,11 +1,16 @@
-import CreatePayment from "@/page/dashboard/payments/create";
+"use client";
+import dynamic from 'next/dynamic';
 
-export const metadata = {
-  title: "Create Payment - DragBizz Store",
-  description: "Create a new supplier payment",
-  keywords: "create payment, supplier payment, new payment, DragBizz Store",
-};
+const CreatePaymentPage = dynamic(() => import('@/page/dashboard/payments/create'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-[rgb(var(--color-text-secondary))]">Loading...</p>
+      </div>
+    </div>
+  ),
+});
 
-export default function CreatePaymentPage() {
-  return <CreatePayment />;
-}
+export default CreatePaymentPage;

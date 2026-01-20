@@ -2,6 +2,8 @@
 
 Hey there! This folder handles all the communication between our frontend and backend. Think of it as the "messenger" that sends requests to our server and brings back responses.
 
+> **📚 For detailed service patterns and architecture, see [SERVICE_PATTERNS.md](./SERVICE_PATTERNS.md)**
+
 ## What's This For?
 
 The service layer is responsible for:

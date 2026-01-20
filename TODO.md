@@ -28,27 +28,6 @@
     - [ ] Invoice generation
   - [ ] Set up test coverage reporting
 
-
-### Code Refactoring
-- [ ] Remove duplicate code
-  - [ ] Create shared date formatting utility
-  - [ ] Create shared currency formatting utility
-  - [ ] Consolidate duplicate validation logic
-  - [ ] Extract common API call patterns
-
-### Architecture Cleanup
-- [ ] Resolve duplicate page structure
-  - [ ] Decide: Use `app/` directory (App Router) OR `page/` directory (Pages Router)
-  - [ ] Migrate all pages to chosen approach
-  - [ ] Remove unused directory structure
-  - [ ] Update routing configuration
-
-- [ ] Standardize service layer
-  - [ ] Review all service files
-  - [ ] Choose: Class-based OR Function-based services
-  - [ ] Refactor all services to use chosen pattern
-  - [ ] Document service layer patterns
-
 ---
 
 ## 🟡 MEDIUM PRIORITY (Important Improvements)

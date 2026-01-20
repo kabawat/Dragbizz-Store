@@ -20,6 +20,8 @@ import {
 import { renderStatusBadge } from "@/utils/statusBadge";
 import { AddActionButton } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
+import { formatDateLong as formatDate } from "@/utils/dateFormatter";
 
 const InvoicesListTable = ({
   invoices = [],
@@ -67,12 +69,6 @@ const InvoicesListTable = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openMenuId]);
-
-  import { formatCurrencySimple } from '@/utils/currencyFormatter';
-  import { formatDateLong } from '@/utils/dateFormatter';
-  
-  const formatCurrency = formatCurrencySimple;
-  const formatDate = formatDateLong;
 
   const buildShareUrl = (row) => {
     if (typeof window === "undefined") return "";

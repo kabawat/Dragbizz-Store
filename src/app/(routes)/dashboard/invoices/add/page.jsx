@@ -1,11 +1,16 @@
-import CreateInvoicePage from "@/page/dashboard/invoices/add";
+"use client";
+import dynamic from 'next/dynamic';
 
-export const metadata = {
-  title: "Create Invoice - DragBizz Store",
-  description: "Create a new customer invoice",
-  keywords: "create invoice, new invoice, customer invoice, DragBizz Store",
-};
+const AddInvoicePage = dynamic(() => import('@/page/dashboard/invoices/add'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-[rgb(var(--color-text-secondary))]">Loading...</p>
+      </div>
+    </div>
+  ),
+});
 
-export default function CreateInvoicePageRoute() {
-  return <CreateInvoicePage />;
-}
+export default AddInvoicePage;
