@@ -299,6 +299,17 @@ const SalesAnalytics = () => {
           </div>
         </div>
       </div>
+
+      <div className="no-print fixed bottom-6 right-6 z-50">
+        <Button
+          variant="primary"
+          leftIcon={Download}
+          onClick={() => handleDownloadPDF()}
+          disabled={isLoading || !analytics}
+        >
+          Download Report
+        </Button>
+      </div>
     </>
   );
 };
