@@ -5,10 +5,12 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useAppSelector } from '@/store/hooks';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Package, CheckCircle, XCircle } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Package, CheckCircle, XCircle, Download } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SortableMetricCard, SortableCard } from '@/components/analytics/SortableComponents';
+import ProductsReportTemplate from '@/components/analytics/products/ProductsReportTemplate';
+import { useAnalyticsReportPrint } from '@/hooks/useAnalyticsReportPrint';
 
 const ProductAnalytics = () => {
   const { t } = useTranslation();
@@ -24,6 +26,8 @@ const ProductAnalytics = () => {
   }), []);
 
   const formatNumber = (num) => (num || 0).toLocaleString('en-IN');
+  
+  const { handleDownloadPDF } = useAnalyticsReportPrint(false, analytics, 'products-report-area', 'products-analytics-report');
   
   const [metrics, setMetrics] = useState([
     { 
@@ -100,16 +104,52 @@ const ProductAnalytics = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
-      <Sidebar />
+    <>
+      <style jsx global>{`
+        @media print {
+          .no-print,
+          nav,
+          header,
+          .sidebar,
+          .header,
+          button,
+          .btn,
+          .action-buttons {
+            display: none !important;
+          }
+          
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          @page {
+            margin: 1cm;
+            size: A4;
+          }
+        }
+      `}</style>
 
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        <Header
-          title={t('dashboard.productAnalytics') || 'Product Analytics'}
-          description="View detailed product analytics and insights"
-        />
+      <div id="products-report-area" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '850px' }}>
+        {analytics && (
+          <ProductsReportTemplate 
+            analyticsData={analytics} 
+            selectedStore={selectedStore} 
+          />
+        )}
+      </div>
 
-        <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
+        <Sidebar />
+
+        <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+          <Header
+            title={t('dashboard.productAnalytics') || 'Product Analytics'}
+            description="View detailed product analytics and insights"
+          />
+
+          <div className="flex-1 p-6 overflow-y-auto">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -175,7 +215,19 @@ const ProductAnalytics = () => {
           </DndContext>
         </div>
       </div>
+
+      <div className="no-print fixed bottom-6 right-6 z-50">
+        <Button
+          variant="primary"
+          leftIcon={Download}
+          onClick={() => handleDownloadPDF(analytics)}
+          disabled={!analytics}
+        >
+          Download Report
+        </Button>
+      </div>
     </div>
+    </>
   );
 };
 
