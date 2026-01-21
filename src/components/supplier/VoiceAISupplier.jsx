@@ -27,7 +27,6 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-  const [_isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const messagesEndRef = useRef(null);
@@ -114,7 +113,6 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
         timestamp: new Date(),
       },
     ]);
-    setIsReady(true);
   }, []);
 
   const handleSend = async () => {

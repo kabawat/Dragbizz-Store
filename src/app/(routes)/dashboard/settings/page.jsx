@@ -31,7 +31,7 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { user, selectedStore } = useAppSelector((state) => state.profile);
-  const { toggleVariant, currentVariant } = useTheme();
+  const { toggleVariant } = useTheme();
   const [activeTab, setActiveTab] = useState("appearance");
   const [animationKey, setAnimationKey] = useState(0);
 

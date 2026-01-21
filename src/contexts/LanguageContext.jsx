@@ -1,6 +1,12 @@
 "use client";
 import Cookies from "js-cookie";
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { defaultLocale, locales } from "@/i18n/config";
 import logger from "@/utils/logger";
 

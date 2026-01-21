@@ -1,8 +1,59 @@
 import logger from "./logger";
 import { extractFieldErrors } from "./validationErrorHandler";
 
-export const getErrorMessage = (error, _context = "general") => {
-  if (!error) return "An error occurred. Please try again.";
+const ERROR_MESSAGES = {
+  general: "An error occurred. Please try again.",
+  network: "Network error. Please check your internet connection.",
+  server: "Server error. Please try again later.",
+  unauthorized: "Invalid credentials. Please check your information.",
+  forbidden: "Access denied. Please check your subscription plan.",
+  quotaExceeded: "Quota exceeded",
+  tooManyRequests: "Too many requests. Please try again later.",
+  invalidRequest: "Invalid request. Please check your input.",
+  formErrors: "Please fix the errors in the form",
+  unexpected: "An unexpected error occurred. Please try again.",
+  login: {
+    unauthorized:
+      "Invalid email/phone or password. Please check your credentials.",
+    tooManyRequests: "Too many login attempts. Please try again later.",
+    default: "An error occurred during login. Please try again.",
+  },
+  otp: {
+    unauthorized: "Invalid or expired OTP. Please request a new code.",
+    tooManyRequests: "Too many verification attempts. Please try again later.",
+    default: "An error occurred during verification. Please try again.",
+  },
+  otpSend: {
+    unauthorized: "Invalid email/phone number. Please check your credentials.",
+    tooManyRequests: "Too many OTP requests. Please try again later.",
+    default: "An error occurred while sending OTP. Please try again.",
+  },
+  otpResend: {
+    unauthorized: "Session expired. Please start login again.",
+    tooManyRequests:
+      "Too many resend requests. Please wait before trying again.",
+    default: "An error occurred while resending OTP. Please try again.",
+  },
+  register: {
+    unauthorized: "Invalid registration data. Please check your information.",
+    default: "An error occurred during registration. Please try again.",
+  },
+  retailerAuth: {
+    unauthorized:
+      "Invalid or missing authentication token. Please login again.",
+    default:
+      "An error occurred during retailer authentication. Please try again.",
+  },
+  agencyCreation: {
+    default: "An error occurred while creating agency. Please try again.",
+  },
+  storeCreation: {
+    default: "An error occurred while creating store. Please try again.",
+  },
+};
+
+export const getErrorMessage = (error, context = "general") => {
+  if (!error) return ERROR_MESSAGES.general;
 
   const errorData = error.response?.data || error.error || error;
 
@@ -26,7 +77,68 @@ export const getErrorMessage = (error, _context = "general") => {
     return error.message;
   }
 
-  return "An error occurred. Please try again.";
+  const contextMessages = ERROR_MESSAGES[context];
+  if (contextMessages && typeof contextMessages === "object") {
+    return contextMessages.default || ERROR_MESSAGES.general;
+  }
+
+  return ERROR_MESSAGES.general;
+};
+
+export const getContextualErrorMessage = (error, context = "general") => {
+  if (!error) {
+    const contextMessages = ERROR_MESSAGES[context];
+    if (contextMessages && typeof contextMessages === "object") {
+      return contextMessages.default || ERROR_MESSAGES.general;
+    }
+    return ERROR_MESSAGES.general;
+  }
+
+  const statusCode = error.response?.status;
+  const contextMessages = ERROR_MESSAGES[context];
+
+  if (statusCode === 401 && contextMessages?.unauthorized) {
+    return contextMessages.unauthorized;
+  }
+
+  if (statusCode === 429 && contextMessages?.tooManyRequests) {
+    return contextMessages.tooManyRequests;
+  }
+
+  if (statusCode === 400) {
+    return error.response?.data?.message || ERROR_MESSAGES.invalidRequest;
+  }
+
+  if (statusCode === 403) {
+    const errorData = error.response?.data;
+    const quota = errorData?.fields?.quota || errorData?.data?.quota || {};
+    if (quota.hasAccess === false) {
+      return "Voice AI feature aapke current subscription plan mein available nahi hai. Kripya apna plan upgrade karein.";
+    }
+    if (errorData?.message) {
+      return errorData.message;
+    }
+    return ERROR_MESSAGES.forbidden;
+  }
+
+  if (statusCode >= 500) {
+    return ERROR_MESSAGES.server;
+  }
+
+  if (isNetworkError(error)) {
+    return ERROR_MESSAGES.network;
+  }
+
+  const message = getErrorMessage(error, context);
+  if (message !== ERROR_MESSAGES.general) {
+    return message;
+  }
+
+  if (contextMessages && typeof contextMessages === "object") {
+    return contextMessages.default || ERROR_MESSAGES.general;
+  }
+
+  return ERROR_MESSAGES.general;
 };
 
 export const isQuotaError = (error) => {
@@ -44,7 +156,7 @@ export const getQuotaData = (error) => {
   const quotaData = errorData.data || {};
 
   return {
-    message: errorData.message || "Quota exceeded",
+    message: errorData.message || ERROR_MESSAGES.quotaExceeded,
     quota: quotaData.quota || quotaData,
     resetTime: quotaData.resetTime || null,
     canUpgrade: quotaData.canUpgrade !== false,
@@ -116,12 +228,12 @@ export const handleError = (error, options = {}) => {
     const fieldErrors = getFieldErrors(error);
     if (setFieldErrors) setFieldErrors(fieldErrors);
     if (showToast) {
-      showToast("Please fix the errors in the form", "error");
+      showToast(ERROR_MESSAGES.formErrors, "error");
     }
     return { type: "field", handled: true, fieldErrors };
   }
 
-  const message = getErrorMessage(error, context);
+  const message = getContextualErrorMessage(error, context);
   if (showToast) {
     showToast(message, "error");
   }
@@ -140,9 +252,12 @@ export const handleServiceResult = (result, options = {}) => {
   } = options;
 
   if (!result) {
-    const message = "An unexpected error occurred. Please try again.";
-    if (showToast) showToast(message, "error");
-    return { handled: true, type: "general", message };
+    if (showToast) showToast(ERROR_MESSAGES.unexpected, "error");
+    return {
+      handled: true,
+      type: "general",
+      message: ERROR_MESSAGES.unexpected,
+    };
   }
 
   if (result.success) {
@@ -154,7 +269,7 @@ export const handleServiceResult = (result, options = {}) => {
 
   if (result.statusCode === 403 && result.error) {
     const quotaData = {
-      message: result.message || "Quota exceeded",
+      message: result.message || ERROR_MESSAGES.quotaExceeded,
       quota: result.error?.data?.quota || result.error?.quota || {},
       resetTime: result.error?.data?.resetTime || null,
       canUpgrade: result.error?.data?.canUpgrade !== false,
@@ -169,13 +284,13 @@ export const handleServiceResult = (result, options = {}) => {
     if (Object.keys(fieldErrors).length > 0) {
       if (setFieldErrors) setFieldErrors(fieldErrors);
       if (showToast) {
-        showToast("Please fix the errors in the form", "error");
+        showToast(ERROR_MESSAGES.formErrors, "error");
       }
       return { type: "field", handled: true, fieldErrors };
     }
   }
 
-  const message = result.message || "An error occurred. Please try again.";
+  const message = result.message || getContextualErrorMessage(result, context);
   if (showToast) showToast(message, "error");
 
   return { type: "general", handled: true, message };
@@ -183,6 +298,7 @@ export const handleServiceResult = (result, options = {}) => {
 
 export default {
   getErrorMessage,
+  getContextualErrorMessage,
   isQuotaError,
   getQuotaData,
   hasFieldErrors,
@@ -190,4 +306,5 @@ export default {
   isNetworkError,
   handleError,
   handleServiceResult,
+  ERROR_MESSAGES,
 };

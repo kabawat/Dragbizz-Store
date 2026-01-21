@@ -1,13 +1,11 @@
-import confetti from "canvas-confetti";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cookieManager } from "@/utils/cookieManager";
 import { AnimatedBackground } from "../ui";
 
-const SuccessScreen = ({ firstName, onContinue, authToken }) => {
+const SuccessScreen = ({ firstName, authToken }) => {
   const [countdown, setCountdown] = useState(5);
-  const [_showConfetti, setShowConfetti] = useState(true);
   const { themeConfig } = useTheme();
 
   // Rainbow palette using theme colors
@@ -21,19 +19,15 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     "#ec4899",
   ];
 
-  // Confetti state
-  let rafId = null;
-  const endAt = 0;
-
   // Reduced motion fallback
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Single burst with fade effect
-  const createSingleBurst = () => {
-    // Main burst from center
-    confetti({
+  const createSingleBurst = async (confettiLib) => {
+    if (!confettiLib) return;
+
+    confettiLib({
       particleCount: 80,
       spread: 120,
       origin: { x: 0.5, y: 0.3 },
@@ -45,9 +39,8 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       shapes: ["square", "circle"],
     });
 
-    // Additional scattered bursts for full coverage
     setTimeout(() => {
-      confetti({
+      confettiLib({
         particleCount: 40,
         spread: 100,
         origin: { x: 0.2, y: 0.2 },
@@ -60,7 +53,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     }, 50);
 
     setTimeout(() => {
-      confetti({
+      confettiLib({
         particleCount: 40,
         spread: 100,
         origin: { x: 0.8, y: 0.2 },
@@ -72,10 +65,8 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
       });
     }, 100);
 
-    // Random opacity fade effects
     setTimeout(() => {
-      // First fade effect
-      confetti({
+      confettiLib({
         particleCount: 20,
         spread: 60,
         origin: { x: Math.random(), y: Math.random() * 0.3 },
@@ -89,8 +80,7 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     }, 300);
 
     setTimeout(() => {
-      // Second fade effect
-      confetti({
+      confettiLib({
         particleCount: 15,
         spread: 50,
         origin: { x: Math.random(), y: Math.random() * 0.3 },
@@ -104,43 +94,28 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     }, 600);
   };
 
-  // Loop with cancel
-  const _loop = () => {
-    const now = Date.now();
-    if (now >= endAt) {
-      stopRain(true);
-      return;
-    }
-    const intensity = 3; // Reduced intensity for fewer particles
-    rainFrame(intensity);
-    rafId = requestAnimationFrame(_loop);
-  };
+  const startRain = async () => {
+    if (typeof window === "undefined") return;
 
-  const startRain = () => {
-    if (rafId !== null) return; // already running
+    try {
+      const confettiLib = (await import("canvas-confetti")).default;
 
-    // Reduced motion: single gentle burst
-    if (prefersReducedMotion) {
-      confetti({
-        particleCount: 60,
-        spread: 80,
-        origin: { x: 0.5, y: 0.2 },
-        colors: RAINBOW,
-        startVelocity: 25,
-        gravity: 0.8,
-        ticks: 300,
-      });
-      return;
-    }
+      if (prefersReducedMotion) {
+        confettiLib({
+          particleCount: 60,
+          spread: 80,
+          origin: { x: 0.5, y: 0.2 },
+          colors: RAINBOW,
+          startVelocity: 25,
+          gravity: 0.8,
+          ticks: 300,
+        });
+        return;
+      }
 
-    // Single burst with fade effects
-    createSingleBurst();
-  };
-
-  const stopRain = (_fromLoop = false) => {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
+      await createSingleBurst(confettiLib);
+    } catch (error) {
+      console.error("Failed to load confetti:", error);
     }
   };
 
@@ -157,14 +132,8 @@ const SuccessScreen = ({ firstName, onContinue, authToken }) => {
     // Start single confetti burst immediately
     startRain();
 
-    // Hide confetti after animation completes
-    const confettiTimer = setTimeout(() => {
-      setShowConfetti(false);
-    }, 2000); // Shorter duration since it's a single burst
-
     return () => {
       clearInterval(timer);
-      clearTimeout(confettiTimer);
     };
   }, [
     // Start single confetti burst immediately

@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useState } from "react";
-import { extractFieldErrors } from "@/utils/validationErrorHandler";
+import { handleError, handleServiceResult } from "@/utils/errorHandling";
 
 export const useErrorHandler = () => {
   const [quotaError, setQuotaError] = useState(null);
@@ -15,47 +15,24 @@ export const useErrorHandler = () => {
       setFieldErrorsFn,
       defaultMessage = "An error occurred. Please try again."
     ) => {
-      if (error.response?.data) {
-        const errorData = error.response.data;
+      const result = handleError(error, {
+        setFieldErrors: setFieldErrorsFn || setFieldErrors,
+        setQuotaError,
+        setShowQuotaModal,
+        context: "general",
+      });
 
-        if (
-          error.response.status === 403 &&
-          (errorData.error === "Quota Exceeded" ||
-            errorData.error === "Forbidden")
-        ) {
-          const quotaData = errorData.data || {};
-          setQuotaError({
-            message: errorData.message || "Quota exceeded",
-            quota: quotaData.quota || quotaData,
-            resetTime: quotaData.resetTime || null,
-            canUpgrade: quotaData.canUpgrade !== false,
-          });
-          setShowQuotaModal(true);
-          return { handled: true, type: "quota" };
-        }
-
-        const extractedFieldErrors = extractFieldErrors(errorData);
-        if (Object.keys(extractedFieldErrors).length > 0) {
-          if (setFieldErrorsFn) {
-            setFieldErrorsFn(extractedFieldErrors);
-          } else {
-            setFieldErrors(extractedFieldErrors);
-          }
-          return { handled: true, type: "field", errors: extractedFieldErrors };
-        }
-
-        setErrorMessage(errorData.message || defaultMessage);
-        setShowErrorModal(true);
-        return {
-          handled: true,
-          type: "general",
-          message: errorData.message || defaultMessage,
-        };
-      } else {
-        setErrorMessage(defaultMessage);
-        setShowErrorModal(true);
-        return { handled: true, type: "general", message: defaultMessage };
+      if (result.type === "quota" || result.type === "field") {
+        return result;
       }
+
+      setErrorMessage(result.message || defaultMessage);
+      setShowErrorModal(true);
+      return {
+        handled: true,
+        type: "general",
+        message: result.message || defaultMessage,
+      };
     },
     []
   );
@@ -67,28 +44,23 @@ export const useErrorHandler = () => {
       defaultMessage = "An error occurred. Please try again."
     ) => {
       if (!result.success) {
-        if (result.error?.fields) {
-          const extractedFieldErrors = extractFieldErrors(result.error);
-          if (Object.keys(extractedFieldErrors).length > 0) {
-            if (setFieldErrorsFn) {
-              setFieldErrorsFn(extractedFieldErrors);
-            } else {
-              setFieldErrors(extractedFieldErrors);
-            }
-            return {
-              handled: true,
-              type: "field",
-              errors: extractedFieldErrors,
-            };
-          }
+        const handledResult = handleServiceResult(result, {
+          setFieldErrors: setFieldErrorsFn || setFieldErrors,
+          setQuotaError,
+          setShowQuotaModal,
+          context: "general",
+        });
+
+        if (handledResult.type === "quota" || handledResult.type === "field") {
+          return handledResult;
         }
 
-        setErrorMessage(result.message || defaultMessage);
+        setErrorMessage(handledResult.message || defaultMessage);
         setShowErrorModal(true);
         return {
           handled: true,
           type: "general",
-          message: result.message || defaultMessage,
+          message: handledResult.message || defaultMessage,
         };
       }
 

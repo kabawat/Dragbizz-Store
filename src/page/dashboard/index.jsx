@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { lazy, Suspense, useEffect, useState, useCallback } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { dashboardService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
@@ -153,42 +153,6 @@ const SortableMetricCard = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-            {title}
-          </p>
-          <p className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
-            {value}
-          </p>
-          <div className={`flex items-center mt-2 ${changeColor}`}>
-            <ChangeIcon className="w-4 h-4 mr-1" />
-            <span className="text-sm font-medium">{change}</span>
-          </div>
-        </div>
-        <div
-          className={`w-12 h-12 rounded-lg flex items-center justify-center ${iconColor}`}
-        >
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const _MetricCard = ({
-  title,
-  value,
-  change,
-  changeType,
-  icon: Icon,
-  iconColor,
-}) => {
-  const ChangeIcon = changeType === "up" ? TrendingUp : TrendingDown;
-  const changeColor = changeType === "up" ? "text-green-600" : "text-red-600";
-
-  return (
-    <div className="bg-[rgb(var(--color-bg-primary))]/20 backdrop-blur-md rounded-lg border border-[rgb(var(--color-border-primary))]/50 p-6 hover:shadow-lg transition-all duration-300 hover:bg-[rgb(var(--color-bg-primary))]/30">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
@@ -458,7 +422,6 @@ const BillAnalytics = ({ t }) => (
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const [_selectedStore, setSelectedStore] = useState(null);
   const router = useRouter();
   const { selectedStore: storeFromRedux } = useAppSelector(
     (state) => state.profile
@@ -521,55 +484,60 @@ export default function Dashboard() {
     })
   );
 
-  const loadDashboardMetrics = useCallback(async (storeId) => {
-    const response = await dashboardService.getDashboard({
-      period: 30,
-      storeId,
-    });
+  const loadDashboardMetrics = useCallback(
+    async (storeId) => {
+      const response = await dashboardService.getDashboard({
+        period: 30,
+        storeId,
+      });
 
-    if (response.success && response.data) {
-      const dashboardData = response.data;
-      const updatedMetrics = [
-        {
-          id: "revenue",
-          title: t("dashboard.totalRevenue"),
-          value: `₹${dashboardData.metrics.revenue.value.toLocaleString("en-IN")}`,
-          change: formatPercentChange(dashboardData.metrics.revenue.change),
-          changeType: dashboardData.metrics.revenue.changeType,
-          icon: IndianRupee,
-          iconColor: "bg-green-500",
-        },
-        {
-          id: "customers",
-          title: t("dashboard.totalCustomers"),
-          value: dashboardData.metrics.customers.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.customers.change),
-          changeType: dashboardData.metrics.customers.changeType,
-          icon: Users,
-          iconColor: "bg-blue-500",
-        },
-        {
-          id: "products",
-          title: t("dashboard.productsInStock"),
-          value: dashboardData.metrics.products.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.products.change),
-          changeType: dashboardData.metrics.products.changeType,
-          icon: Package,
-          iconColor: "bg-purple-500",
-        },
-        {
-          id: "suppliers",
-          title: t("dashboard.suppliers"),
-          value: dashboardData.metrics.suppliers.value.toLocaleString("en-IN"),
-          change: formatPercentChange(dashboardData.metrics.suppliers.change),
-          changeType: dashboardData.metrics.suppliers.changeType,
-          icon: Building2,
-          iconColor: "bg-orange-500",
-        },
-      ];
-      setMetrics(updatedMetrics);
-    }
-  }, [t]);
+      if (response.success && response.data) {
+        const dashboardData = response.data;
+        const updatedMetrics = [
+          {
+            id: "revenue",
+            title: t("dashboard.totalRevenue"),
+            value: `₹${dashboardData.metrics.revenue.value.toLocaleString("en-IN")}`,
+            change: formatPercentChange(dashboardData.metrics.revenue.change),
+            changeType: dashboardData.metrics.revenue.changeType,
+            icon: IndianRupee,
+            iconColor: "bg-green-500",
+          },
+          {
+            id: "customers",
+            title: t("dashboard.totalCustomers"),
+            value:
+              dashboardData.metrics.customers.value.toLocaleString("en-IN"),
+            change: formatPercentChange(dashboardData.metrics.customers.change),
+            changeType: dashboardData.metrics.customers.changeType,
+            icon: Users,
+            iconColor: "bg-blue-500",
+          },
+          {
+            id: "products",
+            title: t("dashboard.productsInStock"),
+            value: dashboardData.metrics.products.value.toLocaleString("en-IN"),
+            change: formatPercentChange(dashboardData.metrics.products.change),
+            changeType: dashboardData.metrics.products.changeType,
+            icon: Package,
+            iconColor: "bg-purple-500",
+          },
+          {
+            id: "suppliers",
+            title: t("dashboard.suppliers"),
+            value:
+              dashboardData.metrics.suppliers.value.toLocaleString("en-IN"),
+            change: formatPercentChange(dashboardData.metrics.suppliers.change),
+            changeType: dashboardData.metrics.suppliers.changeType,
+            icon: Building2,
+            iconColor: "bg-orange-500",
+          },
+        ];
+        setMetrics(updatedMetrics);
+      }
+    },
+    [t]
+  );
 
   // Fetch dashboard data
   useEffect(() => {
@@ -695,8 +663,9 @@ export default function Dashboard() {
     }
   };
 
-  const handleStoreChange = (storeObject) => {
-    setSelectedStore(storeObject);
+  const handleStoreChange = (_storeObject) => {
+    // Store change is handled by Redux in Sidebar component
+    // This handler is kept for API compatibility with Sidebar
   };
 
   const handleRedirect = (path) => {
