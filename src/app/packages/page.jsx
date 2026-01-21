@@ -16,7 +16,7 @@ import ProductHeader from "@/components/layout/ProductHeader";
 import { Button, Card, Loading } from "@/components/ui";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
 import { getCurrencySymbol } from "@/data/constants/currencies";
-import { packageService } from "@/service";
+import { packageService, subscriptionService } from "@/service";
 
 // Helper functions for package display
 const planTypeColors = {
@@ -74,6 +74,21 @@ const PackagesContent = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPackageId, setCurrentPackageId] = useState(null);
+
+  const fetchCurrentSubscription = useCallback(async () => {
+    try {
+      const response = await subscriptionService.getActiveSubscription();
+      if (response.success && response.data?.packageId) {
+        const packageId = response.data.packageId._id 
+          ? response.data.packageId._id.toString() 
+          : response.data.packageId.toString();
+        setCurrentPackageId(packageId);
+      }
+    } catch (err) {
+      console.error("Failed to fetch current subscription:", err);
+    }
+  }, []);
 
   const fetchPackages = useCallback(async () => {
     try {
@@ -103,7 +118,8 @@ const PackagesContent = () => {
 
   useEffect(() => {
     fetchPackages();
-  }, [fetchPackages]);
+    fetchCurrentSubscription();
+  }, [fetchPackages, fetchCurrentSubscription]);
 
   const handleSelectPackage = (packageId) => {
     router.push(`/checkout?packageId=${packageId}`);
@@ -273,16 +289,30 @@ const PackagesContent = () => {
               const colorClasses = getColorClasses(color);
               const lowestPrice = getLowestPrice(pkg);
               const currencySymbol = getCurrencySymbol(lowestPrice.currency);
+              const packageId = pkg.id || pkg._id;
+              const isCurrentPlan = currentPackageId && (
+                packageId === currentPackageId || 
+                packageId.toString() === currentPackageId
+              );
 
               // Get features for FeatureDisplay component
               const features = pkg.featureUsageLimits || [];
 
               return (
                 <Card
-                  key={pkg.id || pkg._id}
-                  className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : "border-[rgb(var(--color-border-primary))]"} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible`}
+                  key={packageId}
+                  className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : isCurrentPlan ? "border-[rgb(var(--color-success))]" : "border-[rgb(var(--color-border-primary))]"} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible ${isCurrentPlan ? "ring-2 ring-[rgb(var(--color-success))]/20" : ""}`}
                 >
-                  {pkg.isPopular && (
+                  {isCurrentPlan && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                      <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" />
+                        CURRENT PLAN
+                      </span>
+                    </div>
+                  )}
+
+                  {pkg.isPopular && !isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className="bg-[rgb(var(--color-primary))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
                         MOST POPULAR
@@ -290,7 +320,7 @@ const PackagesContent = () => {
                     </div>
                   )}
 
-                  {pkg.isRecommended && !pkg.isPopular && (
+                  {pkg.isRecommended && !pkg.isPopular && !isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
                         RECOMMENDED
@@ -384,13 +414,18 @@ const PackagesContent = () => {
 
                     {/* CTA Button */}
                     <Button
-                      variant="primary"
+                      variant={isCurrentPlan ? "outline" : "primary"}
                       size="md"
                       fullWidth
-                      onClick={() => handleSelectPackage(pkg.id || pkg._id)}
-                      className={pkg.isPopular ? colorClasses.button : ""}
+                      onClick={() => handleSelectPackage(packageId)}
+                      className={pkg.isPopular && !isCurrentPlan ? colorClasses.button : ""}
+                      disabled={isCurrentPlan}
                     >
-                      {upgrade ? "Upgrade Now" : "Select Plan"}
+                      {isCurrentPlan 
+                        ? "Current Plan" 
+                        : upgrade 
+                        ? "Upgrade Now" 
+                        : "Select Plan"}
                     </Button>
                   </div>
                 </Card>

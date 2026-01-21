@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PackageCard from "@/components/package/PackageCard";
 import { Loading } from "@/components/ui";
 import { packageService } from "@/service";
@@ -9,15 +9,29 @@ const PricingSection = ({
   description = "Select the perfect plan for your business needs",
   packages: defaultPackages = [],
 }) => {
+  const hasDefaultPackages = defaultPackages.length > 0;
   const [packages, setPackages] = useState(defaultPackages);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasDefaultPackages);
   const [_error, setError] = useState(null);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
+    if (hasDefaultPackages && !hasFetchedRef.current) {
+      setPackages(defaultPackages);
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasFetchedRef.current || hasDefaultPackages) {
+      return;
+    }
+
     const fetchPackages = async () => {
       try {
         setLoading(true);
         setError(null);
+        hasFetchedRef.current = true;
 
         const response = await packageService.getPackages({
           status: "ACTIVE",
@@ -34,27 +48,18 @@ const PricingSection = ({
 
           if (packagesData.length > 0) {
             setPackages(packagesData);
-          } else {
-            setPackages(defaultPackages);
           }
-        } else {
-          setPackages(defaultPackages);
         }
       } catch (err) {
         setError(err.message);
-        setPackages(defaultPackages);
       } finally {
         setLoading(false);
       }
     };
 
-    // Only fetch if no default packages provided
-    if (defaultPackages.length === 0) {
-      fetchPackages();
-    } else {
-      setLoading(false);
-    }
-  }, [defaultPackages.length, defaultPackages]);
+    fetchPackages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   if (loading) {
     return (

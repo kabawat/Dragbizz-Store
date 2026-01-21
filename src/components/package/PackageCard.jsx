@@ -8,6 +8,7 @@ const PackageCard = ({
   onSelect,
   buttonText = "Select Plan",
   showBadge = true,
+  isCurrentPlan = false,
 }) => {
   const planTypeColors = {
     BASIC: "blue",
@@ -77,9 +78,18 @@ const PackageCard = ({
 
   return (
     <Card
-      className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : "border-[rgb(var(--color-border-primary))]"} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible`}
+      className={`relative bg-[rgb(var(--color-bg-primary))] border-2 ${pkg.isPopular ? colorClasses.border : isCurrentPlan ? "border-[rgb(var(--color-success))]" : "border-[rgb(var(--color-border-primary))]"} rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-visible ${isCurrentPlan ? "ring-2 ring-[rgb(var(--color-success))]/20" : ""}`}
     >
-      {showBadge && pkg.isPopular && (
+      {showBadge && isCurrentPlan && (
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+          <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+            <CheckCircle className="w-3 h-3" />
+            CURRENT PLAN
+          </span>
+        </div>
+      )}
+
+      {showBadge && pkg.isPopular && !isCurrentPlan && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
           <span className="bg-[rgb(var(--color-primary))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
             MOST POPULAR
@@ -87,7 +97,7 @@ const PackageCard = ({
         </div>
       )}
 
-      {showBadge && pkg.isRecommended && !pkg.isPopular && (
+      {showBadge && pkg.isRecommended && !pkg.isPopular && !isCurrentPlan && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
           <span className="bg-[rgb(var(--color-success))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
             RECOMMENDED
@@ -173,13 +183,14 @@ const PackageCard = ({
 
         {/* CTA Button */}
         <Button
-          variant="primary"
+          variant={isCurrentPlan ? "outline" : "primary"}
           size="md"
           fullWidth
           onClick={handleSelect}
-          className={pkg.isPopular ? colorClasses.button : ""}
+          className={pkg.isPopular && !isCurrentPlan ? colorClasses.button : ""}
+          disabled={isCurrentPlan}
         >
-          {buttonText}
+          {isCurrentPlan ? "Current Plan" : buttonText}
         </Button>
       </div>
     </Card>
