@@ -11,7 +11,7 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
 import { Button, Card, Loading } from "@/components/ui";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
@@ -75,11 +75,7 @@ const PackagesContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchPackages();
-  }, [fetchPackages]);
-
-  const fetchPackages = async () => {
+  const fetchPackages = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -103,7 +99,11 @@ const PackagesContent = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPackages();
+  }, [fetchPackages]);
 
   const handleSelectPackage = (packageId) => {
     router.push(`/checkout?packageId=${packageId}`);

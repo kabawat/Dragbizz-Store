@@ -1,87 +1,119 @@
 "use client";
-import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle,
-  CreditCard,
-  Lock,
-  Package,
-  Shield,
-  Sparkles,
-  Star,
-  Tag,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle, CreditCard, Lock, Package, Shield, Sparkles, Star, Tag, Users, } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
 import { Button, Card, Input, Loading, Select } from "@/components/ui";
 import { getCurrencySymbol } from "@/data/constants/currencies";
 import { checkoutService, packageService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { cookieManager } from "@/utils/cookieManager";
+
+// Constants
+const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+const RAZORPAY_THEME_COLOR = "#6366f1";
+const DEFAULT_CURRENCY = "INR";
+const DEFAULT_MONTHS = 1;
+
+// Helper Functions
+const getUserContactInfo = (authProfile, retailerUser = null) => {
+  console.log("authProfile", authProfile);
+  let email = "";
+  let phone = "";
+  let name = "";
+
+  // First check authProfile
+  if (authProfile) {
+    email = authProfile.email || "";
+    phone = authProfile.phone || "";
+    name =
+      authProfile.firstName && authProfile.lastName
+        ? `${authProfile.firstName} ${authProfile.lastName}`
+        : authProfile.name || "";
+  }
+
+  // Fallback to retailer user if not found in authProfile
+  if (!email && retailerUser?.email) {
+    email = retailerUser.email;
+  }
+  if (!phone && retailerUser?.phone) {
+    phone = retailerUser.phone;
+  }
+
+  return { email, phone, name };
+};
+
+const cleanPhoneNumber = (phone) => {
+  return phone?.replace(/[\s\-\(\)]/g, "") || "";
+};
+
+const formatPrice = (amount, currencySymbol) => {
+  return `${currencySymbol}${amount.toFixed(2)}`;
+};
 
 const CheckoutContent = () => {
+  // Hooks
   const searchParams = useSearchParams();
   const router = useRouter();
   const packageId = searchParams.get("packageId");
-  const { authProfile, selectedStore, user } = useAppSelector(
+
+  // Redux State
+  const { authProfile, authProfileLoading, user } = useAppSelector(
     (state) => state.profile
   );
 
+  // Local State
   const [packageData, setPackageData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    months: 1,
+    months: DEFAULT_MONTHS,
     couponCode: "",
   });
-  const [_orderData, setOrderData] = useState(null);
-  const [_showRazorpay, setShowRazorpay] = useState(false);
 
-  // Get email and phone from authProfile first, then from store/user
-  const getUserContactInfo = () => {
-    let email = "";
-    let phone = "";
-    let name = "";
+  // Memoized Values
+  const userContactInfo = useMemo(
+    () => getUserContactInfo(authProfile, user),
+    [authProfile, user]
+  );
 
-    // First check authProfile
-    if (authProfile) {
-      email = authProfile.email || "";
-      phone = authProfile.phone || "";
-      name =
-        authProfile.firstName && authProfile.lastName
-          ? `${authProfile.firstName} ${authProfile.lastName}`
-          : authProfile.name || "";
-    }
-
-    // If not found in authProfile, check store
-    if (!email && selectedStore?.email) {
-      email = selectedStore.email;
-    }
-    if (!phone && selectedStore?.phone) {
-      phone = selectedStore.phone;
-    }
-
-    // If still not found, check user from retailer service
-    if (!email && user?.email) {
-      email = user.email;
-    }
-    if (!phone && user?.phone) {
-      phone = user.phone;
-    }
-
-    return { email, phone, name };
-  };
-
-  const getDurationOptions = () => {
+  const pricing = useMemo(() => {
     if (!packageData?.pricing?.durationPricing) {
-      return [];
+      return { base: 0, discount: 0, gst: 0, final: 0, months: 0 };
     }
 
-    const currency = packageData.pricing.currency || "INR";
-    const currencySymbol = getCurrencySymbol(currency);
+    const durationPricing = packageData.pricing.durationPricing.find(
+      (dp) => dp.months === formData.months
+    );
+
+    if (!durationPricing) {
+      return { base: 0, discount: 0, gst: 0, final: 0, months: formData.months };
+    }
+
+    const baseAmount = durationPricing.discountedPrice || durationPricing.price;
+    const gstPercentage = packageData.pricing?.gstPercentage || 0;
+    const gstAmount = (baseAmount * gstPercentage) / 100;
+    const finalAmount = baseAmount + gstAmount;
+
+    return {
+      base: baseAmount,
+      discount: 0,
+      gst: gstAmount,
+      gstPercentage,
+      final: finalAmount,
+      discountPercent: durationPricing.discount || 0,
+      months: formData.months,
+    };
+  }, [packageData, formData.months]);
+
+  const currency = packageData?.pricing?.currency || DEFAULT_CURRENCY;
+  const currencySymbol = useMemo(
+    () => getCurrencySymbol(currency),
+    [currency]
+  );
+
+  const durationOptions = useMemo(() => {
+    if (!packageData?.pricing?.durationPricing) return [];
 
     return packageData.pricing.durationPricing
       .sort((a, b) => a.months - b.months)
@@ -89,22 +121,62 @@ const CheckoutContent = () => {
         const months = dp.months;
         const price = dp.discountedPrice || dp.price;
         const discount = dp.discount || 0;
+        const priceLabel = formatPrice(price, currencySymbol);
 
         let label = `${months} ${months === 1 ? "Month" : "Months"}`;
-
         if (discount > 0) {
-          const _originalPrice = dp.price;
-          label += ` - ${currencySymbol}${price.toFixed(2)} (${discount}% off)`;
+          label += ` - ${priceLabel} (${discount}% off)`;
         } else {
-          label += ` - ${currencySymbol}${price.toFixed(2)}`;
+          label += ` - ${priceLabel}`;
         }
 
-        return {
-          value: months,
-          label: label,
-        };
+        return { value: months, label };
       });
-  };
+  }, [packageData, currencySymbol]);
+
+  // Note: getAuthProfile is called in layout.js when user has token
+
+  const fetchPackage = useCallback(async () => {
+    if (!packageId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await packageService.getPackages({ id: packageId });
+
+      if (!response.success || !response.data) {
+        setError("Package not found");
+        return;
+      }
+
+      setPackageData(response.data);
+
+      const durationPricing = response.data.pricing?.durationPricing || [];
+      if (durationPricing.length > 0) {
+        const sortedDurations = [...durationPricing].sort(
+          (a, b) => a.months - b.months
+        );
+        const firstDuration = sortedDurations[0];
+
+        setFormData((prev) => {
+          const isValidDuration = durationPricing.some(
+            (dp) => dp.months === prev.months
+          );
+
+          if (!isValidDuration) {
+            return { ...prev, months: firstDuration.months };
+          }
+          return prev;
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch package:", err);
+      setError("Failed to load package. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [packageId]);
 
   useEffect(() => {
     if (packageId) {
@@ -115,77 +187,35 @@ const CheckoutContent = () => {
     }
   }, [packageId, fetchPackage]);
 
-  const fetchPackage = async () => {
-    try {
-      setLoading(true);
-      const response = await packageService.getPackages({ id: packageId });
-      if (response.success && response.data) {
-        setPackageData(response.data);
-        const durationPricing = response.data.pricing?.durationPricing || [];
-        if (durationPricing.length > 0) {
-          const sortedDurations = [...durationPricing].sort(
-            (a, b) => a.months - b.months
-          );
-          const firstDuration = sortedDurations[0];
-          const currentMonths = formData.months;
-          const isValidDuration = durationPricing.some(
-            (dp) => dp.months === currentMonths
-          );
-
-          if (!isValidDuration) {
-            setFormData((prev) => ({ ...prev, months: firstDuration.months }));
-          }
-        }
-      } else {
-        setError("Package not found");
-      }
-    } catch (_err) {
-      setError("Failed to load package");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculatePrice = () => {
-    if (!packageData)
-      return { base: 0, discount: 0, gst: 0, final: 0, months: 0 };
-
-    const months = formData.months || 1;
-    const durationPricing = packageData.pricing?.durationPricing?.find(
-      (dp) => dp.months === months
-    );
-
-    if (!durationPricing) {
-      return { base: 0, discount: 0, gst: 0, final: 0, months: months };
-    }
-
-    const baseAmount = durationPricing.discountedPrice || durationPricing.price;
-    const gstPercentage = packageData.pricing?.gstPercentage || 0;
-
-    const gstAmount = (baseAmount * gstPercentage) / 100;
-    const finalAmount = baseAmount + gstAmount;
-
-    return {
-      base: baseAmount,
-      discount: 0,
-      gst: gstAmount,
-      gstPercentage: gstPercentage,
-      final: finalAmount,
-      discountPercent: durationPricing.discount || 0,
-      months: months,
-    };
-  };
-
+  // Handlers
   const handleCreateOrder = async () => {
     if (!packageId || !formData.months) {
       setError("Please select number of months");
       return;
     }
 
-    const authToken = cookieManager.getAuthToken();
-    if (!authToken) {
+    // Wait for auth profile to load if still loading
+    if (authProfileLoading) {
+      setError("Please wait while we load your profile...");
+      return;
+    }
+
+    // Check if user is authenticated and has required profile data
+    if (!authProfile) {
       const currentUrl = window.location.href;
       router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
+    // Get contact info using helper function (checks both authProfile and retailer user)
+    const { email, phone } = getUserContactInfo(authProfile, user);
+    console.log("email", email);
+    console.log("phone", phone);
+
+    if (!email && !phone) {
+      setError(
+        "Email and phone number are required. Please update your profile."
+      );
       return;
     }
 
@@ -193,25 +223,23 @@ const CheckoutContent = () => {
       setProcessing(true);
       setError(null);
 
-      const { email, phone } = getUserContactInfo();
-
       const orderPayload = {
         packageId,
         months: formData.months,
+        email: email,
+        phone: cleanPhoneNumber(phone),
         ...(formData.couponCode && { couponCode: formData.couponCode }),
-        ...(email && { email }),
-        ...(phone && { phone }),
       };
 
       const response = await checkoutService.createPaymentOrder(orderPayload);
 
       if (response.success && response.data) {
-        setOrderData(response.data);
         initializeRazorpay(response.data);
       } else {
         setError(response.message || "Failed to create order");
       }
-    } catch (_err) {
+    } catch (err) {
+      console.error("Failed to create payment order:", err);
       setError("Failed to create payment order. Please try again.");
     } finally {
       setProcessing(false);
@@ -219,20 +247,31 @@ const CheckoutContent = () => {
   };
 
   const initializeRazorpay = (order) => {
-    if (typeof window === "undefined" || !window.Razorpay) {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => {
-        openRazorpay(order);
-      };
-      document.body.appendChild(script);
-    } else {
+    if (typeof window === "undefined") return;
+
+    if (window.Razorpay) {
       openRazorpay(order);
+      return;
     }
+
+    const script = document.createElement("script");
+    script.src = RAZORPAY_SCRIPT_URL;
+    script.onload = () => openRazorpay(order);
+    script.onerror = () => {
+      setError("Failed to load payment gateway. Please refresh the page.");
+      setProcessing(false);
+    };
+    document.body.appendChild(script);
   };
 
   const openRazorpay = (order) => {
-    const { email, phone, name } = getUserContactInfo();
+    if (!window.Razorpay) {
+      setError("Payment gateway not available. Please refresh the page.");
+      setProcessing(false);
+      return;
+    }
+
+    const { email, phone, name } = userContactInfo;
 
     const options = {
       key: order.keyId,
@@ -250,7 +289,7 @@ const CheckoutContent = () => {
         contact: phone || "",
       },
       theme: {
-        color: "#6366f1",
+        color: RAZORPAY_THEME_COLOR,
       },
       modal: {
         ondismiss: () => {
@@ -259,14 +298,20 @@ const CheckoutContent = () => {
       },
     };
 
-    const razorpay = new window.Razorpay(options);
-    razorpay.open();
-    setShowRazorpay(true);
+    try {
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (err) {
+      console.error("Failed to open Razorpay:", err);
+      setError("Failed to initialize payment. Please try again.");
+      setProcessing(false);
+    }
   };
 
   const handlePaymentSuccess = async (razorpayResponse, order) => {
     try {
       setProcessing(true);
+      setError(null);
 
       const verifyPayload = {
         orderId: order.orderId,
@@ -282,13 +327,23 @@ const CheckoutContent = () => {
       } else {
         setError(response.message || "Payment verification failed");
       }
-    } catch (_err) {
+    } catch (err) {
+      console.error("Payment verification failed:", err);
       setError("Payment verification failed. Please contact support.");
     } finally {
       setProcessing(false);
     }
   };
 
+  const handleDurationChange = (value) => {
+    setFormData((prev) => ({ ...prev, months: parseInt(value, 10) }));
+  };
+
+  const handleCouponChange = (e) => {
+    setFormData((prev) => ({ ...prev, couponCode: e.target.value }));
+  };
+
+  // Loading State
   if (loading) {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
@@ -300,6 +355,7 @@ const CheckoutContent = () => {
     );
   }
 
+  // Error State (No Package Data)
   if (error && !packageData) {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))]">
@@ -314,10 +370,11 @@ const CheckoutContent = () => {
     );
   }
 
-  const pricing = calculatePrice();
-  const currency = packageData?.pricing?.currency || "INR";
-  const currencySymbol = getCurrencySymbol(currency);
-  const durationOptions = getDurationOptions();
+  // Main Render
+  const highlightedFeatures =
+    packageData?.featureUsageLimits?.filter(
+      (feature) => feature.enabled !== false && feature.highlight
+    ) || [];
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] pt-20 md:pt-24">
@@ -334,9 +391,10 @@ const CheckoutContent = () => {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Package Details Section */}
           <div className="lg:col-span-2">
             <Card className="p-6 md:p-8 relative overflow-visible">
-              {/* Popular/Recommended Badge */}
+              {/* Badge */}
               {packageData?.isPopular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                   <span className="bg-[rgb(var(--color-primary))] text-white px-4 py-1 rounded-full text-xs font-semibold shadow-lg">
@@ -384,65 +442,51 @@ const CheckoutContent = () => {
                         )}
                       </div>
                     </div>
-
-                    {/* Price Display */}
                   </div>
 
                   {/* Features Section */}
-                  {packageData.featureUsageLimits &&
-                    packageData.featureUsageLimits.length > 0 && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                          What's Included
-                        </h3>
-                        <div className="space-y-2">
-                          {packageData.featureUsageLimits
-                            .filter(
-                              (feature) =>
-                                feature.enabled !== false && feature.highlight
-                            )
-                            .map((feature, index) => (
-                              <div
-                                key={index}
-                                className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
-                              >
-                                <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
-                                <p className="text-sm text-[rgb(var(--color-text-primary))]">
-                                  {feature.highlight}
-                                </p>
-                              </div>
-                            ))}
-                          {packageData.featureUsageLimits.filter(
-                            (feature) =>
-                              feature.enabled !== false && feature.highlight
-                          ).length === 0 && (
-                            <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
-                              No highlights available
+                  {highlightedFeatures.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                        What's Included
+                      </h3>
+                      <div className="space-y-2">
+                        {highlightedFeatures.map((feature, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
+                          >
+                            <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-[rgb(var(--color-text-primary))]">
+                              {feature.highlight}
                             </p>
-                          )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {packageData.maxSubscribers && (
+                        <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
+                          <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            Limited to{" "}
+                            {packageData.maxSubscribers.toLocaleString()}{" "}
+                            subscribers
+                          </p>
                         </div>
-                        {packageData.maxSubscribers && (
-                          <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-primary))]/20">
-                            <p className="text-sm text-[rgb(var(--color-primary))] flex items-center gap-2">
-                              <Users className="w-4 h-4" />
-                              Limited to{" "}
-                              {packageData.maxSubscribers.toLocaleString()}{" "}
-                              subscribers
+                      )}
+
+                      {packageData.trialPeriod?.enabled &&
+                        packageData.trialPeriod?.days && (
+                          <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/20">
+                            <p className="text-sm text-[rgb(var(--color-success))] flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4" />
+                              {packageData.trialPeriod.days} Days Free Trial
                             </p>
                           </div>
                         )}
-                        {packageData.trialPeriod?.enabled &&
-                          packageData.trialPeriod?.days && (
-                            <div className="mt-3 p-3 rounded-lg bg-[rgb(var(--color-success))]/10 border border-[rgb(var(--color-success))]/20">
-                              <p className="text-sm text-[rgb(var(--color-success))] flex items-center gap-2">
-                                <CheckCircle className="w-4 h-4" />
-                                {packageData.trialPeriod.days} Days Free Trial
-                              </p>
-                            </div>
-                          )}
-                      </div>
-                    )}
+                    </div>
+                  )}
 
                   {/* Trust Indicators */}
                   <div className="pt-6 border-t border-[rgb(var(--color-border-primary))]">
@@ -493,6 +537,7 @@ const CheckoutContent = () => {
             </Card>
           </div>
 
+          {/* Payment Details Section */}
           <div className="lg:col-span-1">
             <Card className="p-6 sticky top-8">
               <h2 className="text-xl font-bold mb-6 text-[rgb(var(--color-text-primary))]">
@@ -500,20 +545,20 @@ const CheckoutContent = () => {
               </h2>
 
               <div className="space-y-6">
+                {/* Duration Select */}
                 <div>
                   <Select
                     label="Select Duration"
                     options={durationOptions}
                     value={formData.months}
-                    onChange={(value) =>
-                      setFormData({ ...formData, months: parseInt(value, 10) })
-                    }
+                    onChange={handleDurationChange}
                     placeholder="Select duration"
                     required
                     disabled={!durationOptions.length}
                   />
                 </div>
 
+                {/* Coupon Code */}
                 <div>
                   <label className="block text-sm font-medium mb-2 text-[rgb(var(--color-text-primary))]">
                     Coupon Code (Optional)
@@ -522,9 +567,7 @@ const CheckoutContent = () => {
                     <Input
                       placeholder="Enter coupon code"
                       value={formData.couponCode}
-                      onChange={(e) =>
-                        setFormData({ ...formData, couponCode: e.target.value })
-                      }
+                      onChange={handleCouponChange}
                       leftIcon={Tag}
                       className="flex-1"
                     />
@@ -534,6 +577,7 @@ const CheckoutContent = () => {
                   </div>
                 </div>
 
+                {/* Order Summary */}
                 <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]">
                   <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))]">
                     Order Summary
@@ -544,8 +588,7 @@ const CheckoutContent = () => {
                         Price
                       </span>
                       <span className="text-[rgb(var(--color-text-primary))]">
-                        {currencySymbol}
-                        {pricing.base.toFixed(2)}
+                        {formatPrice(pricing.base, currencySymbol)}
                       </span>
                     </div>
                     {pricing.gst > 0 && (
@@ -554,8 +597,7 @@ const CheckoutContent = () => {
                           GST ({pricing.gstPercentage}%)
                         </span>
                         <span className="text-[rgb(var(--color-text-primary))]">
-                          {currencySymbol}
-                          {pricing.gst.toFixed(2)}
+                          {formatPrice(pricing.gst, currencySymbol)}
                         </span>
                       </div>
                     )}
@@ -564,13 +606,13 @@ const CheckoutContent = () => {
                         Total Amount
                       </span>
                       <span className="text-[rgb(var(--color-primary))]">
-                        {currencySymbol}
-                        {pricing.final.toFixed(2)}
+                        {formatPrice(pricing.final, currencySymbol)}
                       </span>
                     </div>
                   </div>
                 </div>
 
+                {/* Payment Button */}
                 <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]">
                   <Button
                     variant="primary"

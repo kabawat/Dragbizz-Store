@@ -8,7 +8,7 @@ import {
   Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import {
@@ -80,7 +80,7 @@ const ExpensesPage = () => {
     }
   }, [dispatch]);
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!storeId) return;
 
     const params = {
@@ -92,7 +92,7 @@ const ExpensesPage = () => {
     };
 
     await dispatch(getExpenses(params));
-  };
+  }, [storeId, currentFilter, sortBy, sortOrder, dispatch]);
 
   // Reset refs when storeId changes
   useEffect(() => {

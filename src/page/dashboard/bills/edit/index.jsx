@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
@@ -197,7 +197,7 @@ const EditBill = ({ billId }) => {
   }, [billId, selectedStore, t]);
 
   // Fetch suppliers from API
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     if (!selectedStore?.storeId) return;
     try {
       setSuppliersLoading(true);
@@ -215,10 +215,10 @@ const EditBill = ({ billId }) => {
     } finally {
       setSuppliersLoading(false);
     }
-  };
+  }, [selectedStore?.storeId]);
 
   // Fetch products from API
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!selectedStore?.storeId) return;
     try {
       setProductsLoading(true);
@@ -236,7 +236,7 @@ const EditBill = ({ billId }) => {
     } finally {
       setProductsLoading(false);
     }
-  };
+  }, [selectedStore?.storeId]);
 
   // Load suppliers and products on component mount
   useEffect(() => {
