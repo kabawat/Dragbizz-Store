@@ -5,6 +5,7 @@ import {
   Calendar,
   CheckCircle,
   CreditCard,
+  Download,
   Edit,
   FileText,
   Hash,
@@ -15,8 +16,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/Header";
-// Import components
 import Sidebar from "@/components/dashboard/Sidebar";
+import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
 import {
   getCategoryLabel,
@@ -27,6 +28,7 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import { expenseService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -42,6 +44,11 @@ const ViewExpensePage = ({ expenseId }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedExpenseName, setDeletedExpenseName] = useState("");
+
+  const { handleDownloadPDF } = useExpenseDetailsPrint(
+    fetching,
+    expenseData
+  );
 
   // Fetch expense data on component mount
   useEffect(() => {
@@ -242,11 +249,24 @@ const ViewExpensePage = ({ expenseId }) => {
 
             {/* Expense Details - Only show when no error */}
             {!error && expenseData && (
-              <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                style={{ height: "calc(100vh - 300px)" }}
-              >
-                {/* Left Side - Expense Info */}
+              <>
+                <div
+                  id="expense-details-report-area"
+                  className="hidden"
+                  data-variant="light"
+                  data-theme="default"
+                >
+                  <ExpenseDetailsTemplate
+                    expenseData={expenseData}
+                    selectedStore={selectedStore}
+                  />
+                </div>
+
+                <div
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                  style={{ height: "calc(100vh - 300px)" }}
+                >
+                  {/* Left Side - Expense Info */}
                 <div className="lg:col-span-2 flex flex-col h-full">
                   <div
                     className="overflow-y-auto pe-3 space-y-6"
@@ -488,6 +508,16 @@ const ViewExpensePage = ({ expenseId }) => {
                       >
                         Delete
                       </Button>
+
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleDownloadPDF(expenseData)}
+                        leftIcon={Download}
+                      >
+                        <span className="hidden sm:inline">Download</span>
+                        <span className="sm:hidden">Download</span>
+                      </Button>
                     </div>
 
                     {/* Expense Summary */}
@@ -534,6 +564,7 @@ const ViewExpensePage = ({ expenseId }) => {
                   </div>
                 </div>
               </div>
+              </>
             )}
           </div>
         </div>
