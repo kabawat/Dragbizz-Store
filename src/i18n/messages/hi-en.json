@@ -119,7 +119,12 @@
     "added": "Add ho gaya",
     "quickExamples": "Quick Examples",
     "enterQuantity": "Quantity enter karo",
-    "quantityPlaceholder": "0"
+    "quantityPlaceholder": "0",
+    "reportNotFound": "Report nahi mili!",
+    "failedToDownloadPDF": "PDF download karne mein fail. Please try again.",
+    "printingFailed": "Printing fail.",
+    "automatedReportGenerated": "Yeh DragBizz dwara generate ki gayi ek automated {reportType} report hai.",
+    "reportGeneratedOn": "Report Generated on"
   },
   "invoice": {
     "createInvoice": "Invoice create karo",

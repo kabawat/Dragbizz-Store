@@ -7,6 +7,7 @@ import {
   CheckCircle,
   CheckCircle2,
   Clock,
+  Download,
   Edit,
   Eye,
   FileText,
@@ -30,13 +31,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
-// Import components
 import Sidebar from "@/components/dashboard/Sidebar";
+import ProductDetailsTemplate from "@/components/templates/product/ProductDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useProductDetailsPrint } from "./hooks/useProductDetailsPrint";
 
 const ViewProductPage = ({ productId }) => {
   const { t } = useTranslation();
@@ -53,6 +55,11 @@ const ViewProductPage = ({ productId }) => {
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedProductName, setDeletedProductName] = useState("");
   const hasFetched = useRef(false);
+
+  const { handleDownloadPDF } = useProductDetailsPrint(
+    fetching,
+    productData
+  );
 
   // Fetch product data on component mount
   useEffect(() => {
@@ -290,12 +297,25 @@ const ViewProductPage = ({ productId }) => {
 
             {/* Product Details - Only show when no error */}
             {!error && productData && (
-              <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                style={{ height: "calc(100vh - 300px)" }}
-              >
-                {/* Left Side - Product Info */}
-                <div className="lg:col-span-2 flex flex-col h-full">
+              <>
+                <div
+                  id="product-details-report-area"
+                  className="hidden"
+                  data-variant="light"
+                  data-theme="default"
+                >
+                  <ProductDetailsTemplate
+                    productData={productData}
+                    selectedStore={selectedStore}
+                  />
+                </div>
+
+                <div
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                  style={{ height: "calc(100vh - 300px)" }}
+                >
+                  {/* Left Side - Product Info */}
+                  <div className="lg:col-span-2 flex flex-col h-full">
                   <div
                     className="overflow-y-auto pe-3 space-y-6"
                     style={{
@@ -791,6 +811,16 @@ const ViewProductPage = ({ productId }) => {
                         >
                           Delete
                         </Button>
+
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleDownloadPDF(productData)}
+                          leftIcon={Download}
+                        >
+                          <span className="hidden sm:inline">Download</span>
+                          <span className="sm:hidden">Download</span>
+                        </Button>
                       </div>
 
                       {/* Product Stats */}
@@ -841,6 +871,7 @@ const ViewProductPage = ({ productId }) => {
                   </div>
                 </div>
               </div>
+              </>
             )}
           </div>
         </div>

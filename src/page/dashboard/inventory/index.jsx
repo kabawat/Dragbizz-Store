@@ -164,6 +164,14 @@ const InventoryPage = () => {
     fetchInventories(1, false);
   }, [storeId, searchValue, fetchInventories]);
 
+  // Load more function
+  const handleLoadMore = useCallback(async () => {
+    if (hasMore && !isLoadingMore && !isFetchingRef.current) {
+      const nextPage = Math.floor(inventories.length / 20) + 1;
+      await fetchInventories(nextPage, true);
+    }
+  }, [hasMore, isLoadingMore, inventories.length, fetchInventories]);
+
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -183,14 +191,6 @@ const InventoryPage = () => {
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, [isLoadingMore, hasMore, handleLoadMore]);
-
-  // Load more function
-  const handleLoadMore = async () => {
-    if (hasMore && !isLoadingMore && !isFetchingRef.current) {
-      const nextPage = Math.floor(inventories.length / 20) + 1;
-      await fetchInventories(nextPage, true);
-    }
-  };
 
   // Search
   const handleSearch = (value) => {

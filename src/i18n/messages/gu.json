@@ -119,7 +119,12 @@
     "added": "ઉમેર્યું",
     "quickExamples": "ઝડપી ઉદાહરણો",
     "enterQuantity": "માત્રા દાખલ કરો",
-    "quantityPlaceholder": "0"
+    "quantityPlaceholder": "0",
+    "reportNotFound": "રિપોર્ટ મળી નથી!",
+    "failedToDownloadPDF": "PDF ડાઉનલોડ કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "printingFailed": "પ્રિન્ટિંગ નિષ્ફળ.",
+    "automatedReportGenerated": "આ DragBizz દ્વારા જનરેટ કરેલી એક સ્વચાલિત {reportType} રિપોર્ટ છે.",
+    "reportGeneratedOn": "રિપોર્ટ જનરેટ કરવામાં આવી"
   },
   "invoice": {
     "createInvoice": "ઇન્વૉઇસ બનાવો",

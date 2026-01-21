@@ -117,7 +117,14 @@
     "total": "कुल",
     "duplicate": "डुप्लिकेट",
     "added": "जोड़ा गया",
-    "quickExamples": "त्वरित उदाहरण"
+    "quickExamples": "त्वरित उदाहरण",
+    "enterQuantity": "मात्रा दर्ज करें",
+    "quantityPlaceholder": "0",
+    "reportNotFound": "रिपोर्ट नहीं मिली!",
+    "failedToDownloadPDF": "PDF डाउनलोड करने में विफल। कृपया पुनः प्रयास करें।",
+    "printingFailed": "प्रिंटिंग विफल।",
+    "automatedReportGenerated": "यह DragBizz द्वारा उत्पन्न एक स्वचालित {reportType} रिपोर्ट है।",
+    "reportGeneratedOn": "रिपोर्ट उत्पन्न की गई"
   },
   "invoice": {
     "createInvoice": "चालान बनाएं",
