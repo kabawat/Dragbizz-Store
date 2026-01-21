@@ -3,7 +3,7 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import logger from "@/utils/logger";
 
-export const useExpenseDetailsPrint = (fetching, expenseData) => {
+export const useProductDetailsPrint = (fetching, productData) => {
   const { showError } = useGlobalToast();
   const { t } = useTranslation();
   const [showPrintMenu, setShowPrintMenu] = useState(false);
@@ -27,12 +27,12 @@ export const useExpenseDetailsPrint = (fetching, expenseData) => {
     const urlParams = new URLSearchParams(window.location.search);
     const shouldPrint = urlParams.get("print") === "true";
 
-    if (shouldPrint && !fetching && expenseData) {
+    if (shouldPrint && !fetching && productData) {
       setTimeout(() => {
         window.print();
       }, 500);
     }
-  }, [fetching, expenseData]);
+  }, [fetching, productData]);
 
   const handlePrint = (mode = "standard") => {
     try {
@@ -71,8 +71,8 @@ export const useExpenseDetailsPrint = (fetching, expenseData) => {
     }
   };
 
-  const handleDownloadPDF = async (_expenseData) => {
-    const report = document.getElementById("expense-details-report-area");
+  const handleDownloadPDF = async (_productData) => {
+    const report = document.getElementById("product-details-report-area");
     if (!report) {
       showError(t("common.reportNotFound"));
       return;
@@ -97,17 +97,17 @@ export const useExpenseDetailsPrint = (fetching, expenseData) => {
       tempStyleEl = document.createElement("style");
       tempStyleEl.id = "pdf-generation-style";
       tempStyleEl.textContent = `
-                #expense-details-report-area {
+                #product-details-report-area {
                     background: #ffffff !important;
                     color: #333333 !important;
                     width: 210mm !important;
                     max-width: 210mm !important;
                 }
-                #expense-details-report-area * {
+                #product-details-report-area * {
                     background-color: transparent !important;
                     color: #333333 !important;
                 }
-                #expense-details-report-area h1, #expense-details-report-area h2, #expense-details-report-area h3 {
+                #product-details-report-area h1, #product-details-report-area h2, #product-details-report-area h3 {
                     color: #111827 !important;
                 }
             `;
@@ -195,7 +195,7 @@ export const useExpenseDetailsPrint = (fetching, expenseData) => {
       }
 
       pdf.save(
-        `expense-details-${expenseData?.title?.replace(/\s+/g, "-") || expenseData?.billNumber?.replace(/\s+/g, "-") || "report"}-${new Date().toISOString().split("T")[0]}.pdf`
+        `product-details-${productData?.name?.replace(/\s+/g, "-") || productData?.sku?.replace(/\s+/g, "-") || "report"}-${new Date().toISOString().split("T")[0]}.pdf`
       );
     } catch (error) {
       logger.error("PDF generation error:", error);

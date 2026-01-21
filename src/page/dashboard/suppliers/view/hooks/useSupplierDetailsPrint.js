@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import logger from "@/utils/logger";
 
 export const useSupplierDetailsPrint = (fetching, supplierData) => {
   const { showError } = useGlobalToast();
+  const { t } = useTranslation();
   const [showPrintMenu, setShowPrintMenu] = useState(false);
 
   useEffect(() => {
@@ -65,14 +67,14 @@ export const useSupplierDetailsPrint = (fetching, supplierData) => {
       setTimeout(cleanup, 8000);
       setShowPrintMenu(false);
     } catch (_e) {
-      showError("Printing failed.");
+      showError(t("common.printingFailed"));
     }
   };
 
   const handleDownloadPDF = async (_supplierData) => {
     const report = document.getElementById("supplier-details-report-area");
     if (!report) {
-      showError("Report not found!");
+      showError(t("common.reportNotFound"));
       return;
     }
 
@@ -197,7 +199,7 @@ export const useSupplierDetailsPrint = (fetching, supplierData) => {
       );
     } catch (error) {
       logger.error("PDF generation error:", error);
-      showError("Failed to download PDF. Please try again.");
+      showError(t("common.failedToDownloadPDF"));
     } finally {
       if (tempStyleEl?.parentNode) {
         tempStyleEl.remove();
