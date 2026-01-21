@@ -12,11 +12,7 @@ export default function DashboardLayout({ children }) {
     useAppSelector((state) => state.profile);
 
   // Get subscription from context (no duplicate API call)
-  const {
-    subscription,
-    isLoading: subscriptionLoading,
-    hasSubscription,
-  } = useSubscription();
+  const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
 
   // Handle redirects and missing data checks
   useEffect(() => {

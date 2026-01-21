@@ -1,4 +1,3 @@
-import confetti from "canvas-confetti";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -7,7 +6,6 @@ import { AnimatedBackground } from "../ui";
 
 const LoginSuccessScreen = ({
   firstName,
-  onContinue,
   authToken,
   refreshToken,
   redirectUrl = "/dashboard",
@@ -28,18 +26,17 @@ const LoginSuccessScreen = ({
   ];
 
   // Confetti state
-  let rafId = null;
-  const _endAt = 0;
+  const _rafId = null;
 
   // Reduced motion fallback
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Single burst with fade effect
-  const createSingleBurst = () => {
-    // Main burst from center
-    confetti({
+  const createSingleBurst = async (confettiLib) => {
+    if (!confettiLib) return;
+
+    confettiLib({
       particleCount: 60,
       spread: 100,
       origin: { x: 0.5, y: 0.3 },
@@ -51,9 +48,8 @@ const LoginSuccessScreen = ({
       shapes: ["square", "circle"],
     });
 
-    // Additional scattered bursts for full coverage
     setTimeout(() => {
-      confetti({
+      confettiLib({
         particleCount: 30,
         spread: 80,
         origin: { x: 0.2, y: 0.2 },
@@ -66,7 +62,7 @@ const LoginSuccessScreen = ({
     }, 50);
 
     setTimeout(() => {
-      confetti({
+      confettiLib({
         particleCount: 30,
         spread: 80,
         origin: { x: 0.8, y: 0.2 },
@@ -79,31 +75,28 @@ const LoginSuccessScreen = ({
     }, 100);
   };
 
-  const startRain = () => {
-    if (rafId !== null) return; // already running
+  const startRain = async () => {
+    if (typeof window === "undefined") return;
 
-    // Reduced motion: single gentle burst
-    if (prefersReducedMotion) {
-      confetti({
-        particleCount: 40,
-        spread: 60,
-        origin: { x: 0.5, y: 0.2 },
-        colors: RAINBOW,
-        startVelocity: 20,
-        gravity: 0.8,
-        ticks: 200,
-      });
-      return;
-    }
+    try {
+      const confettiLib = (await import("canvas-confetti")).default;
 
-    // Single burst with fade effects
-    createSingleBurst();
-  };
+      if (prefersReducedMotion) {
+        confettiLib({
+          particleCount: 40,
+          spread: 60,
+          origin: { x: 0.5, y: 0.2 },
+          colors: RAINBOW,
+          startVelocity: 20,
+          gravity: 0.8,
+          ticks: 200,
+        });
+        return;
+      }
 
-  const _stopRain = (_fromLoop = false) => {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
+      await createSingleBurst(confettiLib);
+    } catch (error) {
+      console.error("Failed to load confetti:", error);
     }
   };
 

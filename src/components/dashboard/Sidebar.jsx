@@ -22,7 +22,7 @@ import {
   Warehouse,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
@@ -33,7 +33,6 @@ import { setSelectedStore } from "@/store/slices/profileSlice";
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const _router = useRouter();
   const dispatch = useAppDispatch();
   const {
     agency,

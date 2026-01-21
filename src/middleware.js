@@ -31,11 +31,8 @@ export function middleware(request) {
   // Check if the current path is an auth route
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  // Get both tokens from cookies
+  // Get auth token from cookies
   const authToken = request.cookies.get(ENV_CONFIG.AUTH.AUTH_TOKEN_KEY)?.value;
-  const _retailerToken = request.cookies.get(
-    ENV_CONFIG.AUTH.RETAILER_TOKEN_KEY
-  )?.value;
 
   // For protected routes, we need at least the auth token
   // Retailer token is optional and can be refreshed later

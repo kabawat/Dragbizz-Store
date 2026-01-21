@@ -26,7 +26,6 @@ export default function RoutesLayout({ children }) {
   // Get auth state from Redux
   const {
     isLoading,
-    isAuthenticated,
     error,
     agency,
     stores,

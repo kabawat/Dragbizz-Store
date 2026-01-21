@@ -1,9 +1,9 @@
 "use client";
 import { ArrowLeft, CheckCircle, Settings } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Header from "@/components/dashboard/Header";
-// Import components
 import Sidebar from "@/components/dashboard/Sidebar";
 import { TEMPLATE_OPTIONS } from "@/components/invoice/templates";
 import { AnimatedBackground } from "@/components/ui";
@@ -122,12 +122,13 @@ const InvoiceTemplateSettingsContent = () => {
                         </div>
                       )}
                       <div className="relative">
-                        <img
+                        <Image
                           src={template.preview}
                           alt={template.label}
+                          width={400}
+                          height={160}
                           className="w-full h-40 object-cover rounded-md"
                           onError={(e) => {
-                            // Fallback if image doesn't load
                             e.target.style.display = "none";
                             e.target.nextElementSibling.style.display = "flex";
                           }}

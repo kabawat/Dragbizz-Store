@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const LoadingFallback = ({ children }) => (
+const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-[200px]">
     <div className="w-8 h-8 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
   </div>
@@ -88,4 +88,24 @@ export const LazyPricingGSTSection = createLazyComponent(
 export const LazyProductHeader = createLazyComponent(
   () => import("@/components/layout/ProductHeader"),
   { ssr: true }
+);
+
+export const LazyUpgradeModal = createLazyComponent(
+  () => import("@/components/ui/UpgradeModal"),
+  { ssr: false }
+);
+
+export const LazyQuotaExceededModal = createLazyComponent(
+  () => import("@/components/common/QuotaExceededModal"),
+  { ssr: false }
+);
+
+export const LazyRichTextEditor = createLazyComponent(
+  () => import("@/components/ui/RichTextEditor"),
+  { ssr: false }
+);
+
+export const LazyAnimatedBackground = createLazyComponent(
+  () => import("@/components/ui/AnimatedBackground"),
+  { ssr: false }
 );

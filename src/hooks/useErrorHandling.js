@@ -4,7 +4,7 @@ import { QuotaExceededModal } from "@/components/common";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { handleError, handleServiceResult } from "@/utils/errorHandling";
 
-export const useErrorHandling = (_options = {}) => {
+export const useErrorHandling = () => {
   const { showError, showSuccess } = useGlobalToast();
   const [quotaError, setQuotaError] = useState(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
