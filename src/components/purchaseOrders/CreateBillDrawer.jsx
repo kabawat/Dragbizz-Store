@@ -9,7 +9,7 @@ import {
   Receipt,
   Save,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AddActionButton,
   Button,
@@ -43,6 +43,36 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Fetch products
+  const fetchProducts = useCallback(async () => {
+    try {
+      setProductsLoading(true);
+      const result = await productService.getProducts({
+        limit: 100,
+        lightweight: true,
+        store: storeId,
+      });
+      if (result.success) {
+        const productsData = result.data || [];
+        setProducts(productsData);
+
+        // Update product names in form data
+        setFormData((prev) => ({
+          ...prev,
+          items: prev.items.map((item) => ({
+            ...item,
+            productName:
+              productsData.find((p) => (p.id || p._id) === item.product)
+                ?.name || "",
+          })),
+        }));
+      }
+    } catch (_error) {
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [storeId]);
+
   // Initialize form data when purchase order changes
   useEffect(() => {
     if (purchaseOrder && isOpen) {
@@ -74,35 +104,6 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
       fetchProducts();
     }
   }, [isOpen, storeId, fetchProducts]);
-
-  const fetchProducts = async () => {
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        const productsData = result.data || [];
-        setProducts(productsData);
-
-        // Update product names in form data
-        setFormData((prev) => ({
-          ...prev,
-          items: prev.items.map((item) => ({
-            ...item,
-            productName:
-              productsData.find((p) => (p.id || p._id) === item.product)
-                ?.name || "",
-          })),
-        }));
-      }
-    } catch (_error) {
-    } finally {
-      setProductsLoading(false);
-    }
-  };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import BillDetailsTemplate from "@/components/templates/bill/BillDetailsTemplate";
 import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
@@ -19,6 +20,7 @@ import DeleteModal from "./components/DeleteModal";
 import DeleteSuccessModal from "./components/DeleteSuccessModal";
 import ErrorState from "./components/ErrorState";
 import LoadingState from "./components/LoadingState";
+import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 
 const ViewBillPage = ({ billId }) => {
   const router = useRouter();
@@ -34,6 +36,8 @@ const ViewBillPage = ({ billId }) => {
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
   const hasFetched = useRef(false);
+
+  const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
 
   useEffect(() => {
     const fetchBillData = async () => {
@@ -68,10 +72,6 @@ const ViewBillPage = ({ billId }) => {
   const handleEditBill = () => {
     router.push(`/dashboard/bills/${billId}/edit`);
   };
-
-  const handleMakePayment = () => {};
-
-  const handlePaymentCompleted = () => {};
 
   const handleDeleteBill = () => {
     setShowDeleteModal(true);
@@ -133,8 +133,21 @@ const ViewBillPage = ({ billId }) => {
             {error && <ErrorState error={error} />}
 
             {!error && billData && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 flex flex-col space-y-6">
+              <>
+                <div
+                  id="bill-details-report-area"
+                  className="hidden"
+                  data-variant="light"
+                  data-theme="default"
+                >
+                  <BillDetailsTemplate
+                    billData={billData}
+                    selectedStore={selectedStore}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 flex flex-col space-y-6">
                   <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                     <BillHeader billData={billData} formatDate={formatDate} />
                     <BillSupplierInfo supplier={billData.supplier} />
@@ -156,15 +169,15 @@ const ViewBillPage = ({ billId }) => {
 
                 <BillActions
                   billData={billData}
-                  onMakePayment={handleMakePayment}
-                  onPaymentCompleted={handlePaymentCompleted}
                   onEditBill={handleEditBill}
                   onDeleteBill={handleDeleteBill}
+                  onDownloadPDF={handleDownloadPDF}
                   formatCurrency={formatCurrency}
                   formatDate={formatDate}
                   formatDateTime={formatDateTime}
                 />
               </div>
+              </>
             )}
           </div>
         </div>

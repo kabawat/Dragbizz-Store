@@ -5,6 +5,7 @@ import {
   BarChart3,
   Building2,
   CheckCircle,
+  Download,
   Edit,
   FileText,
   Hash,
@@ -20,13 +21,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/Header";
-// Import components
 import Sidebar from "@/components/dashboard/Sidebar";
+import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
-// Import services
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
+import { useInventoryDetailsPrint } from "./hooks/useInventoryDetailsPrint";
 
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
@@ -37,6 +38,8 @@ const ViewInventoryPage = ({ inventoryId }) => {
   const [inventory, setInventory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { handleDownloadPDF } = useInventoryDetailsPrint(loading, inventory);
 
   // Fetch inventory details
   useEffect(() => {
@@ -186,6 +189,19 @@ const ViewInventoryPage = ({ inventoryId }) => {
 
             {/* Stock Details - Only show when no error */}
             {!error && inventory && (
+              <>
+                <div
+                  id="inventory-details-report-area"
+                  className="hidden"
+                  data-variant="light"
+                  data-theme="default"
+                >
+                  <InventoryDetailsTemplate
+                    inventoryData={inventory}
+                    selectedStore={selectedStore}
+                  />
+                </div>
+
               <div
                 className="grid grid-cols-1 lg:grid-cols-3 gap-8"
                 style={{ height: "calc(100vh - 300px)" }}
@@ -722,6 +738,16 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         >
                           Add Stock
                         </Button>
+
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleDownloadPDF(inventory)}
+                          leftIcon={Download}
+                        >
+                          <span className="hidden sm:inline">Download</span>
+                          <span className="sm:hidden">Download</span>
+                        </Button>
                       </div>
 
                       {/* Quick Stats */}
@@ -775,6 +801,7 @@ const ViewInventoryPage = ({ inventoryId }) => {
                   </div>
                 </div>
               </div>
+              </>
             )}
           </div>
         </div>

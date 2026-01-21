@@ -16,7 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button, Input } from "@/components/ui";
@@ -145,6 +145,33 @@ const Payments = () => {
     setSearchTerm(value);
   };
 
+  // Handle load more
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !pagination?.hasNextPage) return;
+
+    setIsLoadingMore(true);
+    try {
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      await dispatch(
+        getPayments({
+          store: storeId,
+          limit: 20,
+          page: pagination?.page ? pagination.page + 1 : 2,
+        })
+      );
+    } catch (_error) {
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [
+    isLoadingMore,
+    pagination?.hasNextPage,
+    pagination?.page,
+    selectedStore,
+    dispatch,
+  ]);
+
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -165,27 +192,6 @@ const Payments = () => {
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, [isLoadingMore, pagination?.hasNextPage, handleLoadMore]);
-
-  // Handle load more
-  const handleLoadMore = async () => {
-    if (isLoadingMore || !pagination?.hasNextPage) return;
-
-    setIsLoadingMore(true);
-    try {
-      const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-      await dispatch(
-        getPayments({
-          store: storeId,
-          limit: 20,
-          page: pagination?.page ? pagination.page + 1 : 2,
-        })
-      );
-    } catch (_error) {
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
 
   // Handle filter changes
   const _handleFilterChange = (filterType, value) => {
