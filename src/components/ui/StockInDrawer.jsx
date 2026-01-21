@@ -1,6 +1,6 @@
 "use client";
 import { ArrowUp, Package, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
@@ -35,23 +35,8 @@ const StockInDrawer = ({
   );
   const { showError } = useGlobalToast();
 
-  // Reset form when drawer opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        quantity: "",
-        purchasePrice: "",
-        supplier: "",
-      });
-      setErrors({});
-      if (hasSupplierManagement) {
-        fetchSuppliers();
-      }
-    }
-  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
-
   // Fetch suppliers from API
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     const storeId =
       selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
     if (!storeId || !hasSupplierManagement) return;
@@ -70,7 +55,22 @@ const StockInDrawer = ({
     } finally {
       setSuppliersLoading(false);
     }
-  };
+  }, [selectedStore, hasSupplierManagement]);
+
+  // Reset form when drawer opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        quantity: "",
+        purchasePrice: "",
+        supplier: "",
+      });
+      setErrors({});
+      if (hasSupplierManagement) {
+        fetchSuppliers();
+      }
+    }
+  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
