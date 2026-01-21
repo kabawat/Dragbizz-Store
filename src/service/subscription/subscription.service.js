@@ -10,13 +10,19 @@ class SubscriptionService {
 
   async getActiveSubscription(userId = null) {
     try {
-      const params = userId ? { userId } : {};
+      const params = {
+        ...(userId && { userId }),
+        populatePackage: false,
+        fields: "_id,status,startDate,endDate,features,packageId",
+      };
+      
       const response = await authAxios.get(
         `${API_CONFIG.SUBSCRIPTION.SUBSCRIPTIONS}/active`,
         {
           params,
         }
       );
+
       return handleApiSuccess(
         response.data,
         "Active subscription fetched successfully"
@@ -56,7 +62,6 @@ class SubscriptionService {
     }
   }
 
-  // Get remaining quota for a feature or all features
   async getQuota(featureKey = null) {
     try {
       const url = featureKey
@@ -69,7 +74,6 @@ class SubscriptionService {
     }
   }
 
-  // Check if user can use a feature
   async checkUsage(featureKey, quantity = 1) {
     try {
       const response = await authAxios.post(

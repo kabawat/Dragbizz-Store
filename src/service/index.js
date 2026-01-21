@@ -9,7 +9,7 @@ export {
   storeService,
   supplierService,
 } from "./retailer";
-export { checkoutService, packageService } from "./subscription";
+export { checkoutService, packageService, subscriptionService } from "./subscription";
 export { voiceAIService } from "./voiceAI";
 
 // Default export

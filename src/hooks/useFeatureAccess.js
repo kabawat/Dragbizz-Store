@@ -28,7 +28,8 @@ export function useFeatureAccess() {
       return;
     }
 
-    // Extract features from subscription snapshot and package defaults
+    // Extract features from subscription (source of truth)
+    // subscription.features contains all active features with usage limits
     const collected = new Set();
 
     if (subscription.features && Array.isArray(subscription.features)) {
@@ -44,7 +45,10 @@ export function useFeatureAccess() {
         });
     }
 
+    // Fallback to packageId.featureUsageLimits only if features array is not available
+    // This ensures backward compatibility
     if (
+      collected.size === 0 &&
       subscription.packageId &&
       Array.isArray(subscription.packageId.featureUsageLimits)
     ) {
