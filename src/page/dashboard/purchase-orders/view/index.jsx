@@ -3,6 +3,8 @@ import {
   ArrowLeft,
   Calendar,
   CheckCircle,
+  Download,
+  Edit,
   FileText,
   Package,
 } from "lucide-react";
@@ -12,10 +14,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import PurchaseOrderDetailsTemplate from "@/components/templates/purchaseOrder/PurchaseOrderDetailsTemplate";
 import { Button, Card, Loading } from "@/components/ui";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
+import { usePurchaseOrderDetailsPrint } from "./hooks/usePurchaseOrderDetailsPrint";
 
 export default function ViewPurchaseOrderPage() {
   const router = useRouter();
@@ -26,6 +30,8 @@ export default function ViewPurchaseOrderPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [po, setPo] = useState(null);
+
+  const { handleDownloadPDF } = usePurchaseOrderDetailsPrint(loading, po);
 
   // Helpers
   const formatCurrency = (amount) =>
@@ -137,6 +143,19 @@ export default function ViewPurchaseOrderPage() {
             )}
 
             {!loading && po && (
+              <>
+                <div
+                  id="purchase-order-details-report-area"
+                  className="hidden"
+                  data-variant="light"
+                  data-theme="default"
+                >
+                  <PurchaseOrderDetailsTemplate
+                    purchaseOrderData={po}
+                    selectedStore={selectedStore}
+                  />
+                </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
                   <Card>
@@ -345,91 +364,177 @@ export default function ViewPurchaseOrderPage() {
                   </Card>
                 </div>
 
-                <div className="space-y-6">
-                  <Card>
-                    <div className="p-5">
-                      <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                        Meta
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">
-                            Created
-                          </span>
-                          <span className="text-[rgb(var(--color-text-primary))]">
-                            {formatDateTime(po.createdAt)}
-                          </span>
+                {/* Right Side - Quick Actions */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-6">
+                    <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">
-                            Updated
-                          </span>
-                          <span className="text-[rgb(var(--color-text-primary))]">
-                            {formatDateTime(po.updatedAt)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">
-                            Completion
-                          </span>
-                          <span className="text-[rgb(var(--color-text-primary))]">
-                            {po.completionPercentage}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
-                  {po.notes || po.internalNotes || po.supplierNotes ? (
-                    <Card>
-                      <div className="p-5">
-                        <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">
-                          Notes
+                        <div>
+                          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                            Quick Actions
                         </h3>
-                        {po.notes && (
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-2">
-                            {po.notes}
-                          </p>
-                        )}
-                        {po.internalNotes && (
-                          <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-2">
-                            Internal: {po.internalNotes}
-                          </p>
-                        )}
-                        {po.supplierNotes && (
                           <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                            Supplier: {po.supplierNotes}
+                            Manage this purchase order
                           </p>
-                        )}
+                        </div>
                       </div>
-                    </Card>
-                  ) : null}
 
-                  <Card>
-                    <div className="p-5">
-                      <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">
-                        Actions
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <Button
-                          variant="outline"
+                          variant="primary"
+                          className="flex-1"
                           onClick={() =>
                             router.push(
                               `/dashboard/purchase-orders/${po.id || po._id}/edit`
                             )
                           }
-                          className="w-full"
+                          leftIcon={Edit}
                         >
                           Edit
                         </Button>
-                        <Button variant="danger" className="w-full">
+
+                        <Button variant="danger" className="flex-1">
                           Delete
                         </Button>
+
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleDownloadPDF(po)}
+                          leftIcon={Download}
+                        >
+                          <span className="hidden sm:inline">Download</span>
+                          <span className="sm:hidden">Download</span>
+                        </Button>
                       </div>
+
+                      {/* Purchase Order Stats */}
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                          Quick Stats
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Total Items:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {(po.items || []).reduce(
+                                (sum, item) => sum + (item.quantity || 0),
+                                0
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Items Received:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {(po.items || []).reduce(
+                                (sum, item) =>
+                                  sum + (item.receivedQuantity || 0),
+                                0
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Pending Items:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {Math.max(
+                                (po.items || []).reduce(
+                                  (sum, item) => sum + (item.quantity || 0),
+                                  0
+                                ) -
+                                  (po.items || []).reduce(
+                                    (sum, item) =>
+                                      sum + (item.receivedQuantity || 0),
+                                    0
+                                  ),
+                                0
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Completion:
+                            </span>
+                            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                              {po.completionPercentage || 0}%
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-[rgb(var(--color-border-primary))] pt-2 mt-2">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Advance Paid:
+                            </span>
+                            <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                              {formatCurrency(po.advanceAmount)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Meta Information */}
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                          Meta Information
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Created:
+                            </span>
+                            <span className="text-[rgb(var(--color-text-primary))]">
+                              {formatDateTime(po.createdAt)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[rgb(var(--color-text-secondary))]">
+                              Updated:
+                            </span>
+                            <span className="text-[rgb(var(--color-text-primary))]">
+                              {formatDateTime(po.updatedAt)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Notes */}
+                      {(po.notes || po.internalNotes || po.supplierNotes) && (
+                        <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                            Notes
+                          </h4>
+                          <div className="space-y-2 text-sm">
+                            {po.notes && (
+                              <p className="text-[rgb(var(--color-text-secondary))]">
+                                {po.notes}
+                              </p>
+                            )}
+                            {po.internalNotes && (
+                              <p className="text-[rgb(var(--color-text-secondary))]">
+                                <span className="font-medium">Internal:</span>{" "}
+                                {po.internalNotes}
+                              </p>
+                            )}
+                            {po.supplierNotes && (
+                              <p className="text-[rgb(var(--color-text-secondary))]">
+                                <span className="font-medium">Supplier:</span>{" "}
+                                {po.supplierNotes}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </Card>
+                  </div>
                 </div>
               </div>
+              </>
             )}
           </div>
         </div>

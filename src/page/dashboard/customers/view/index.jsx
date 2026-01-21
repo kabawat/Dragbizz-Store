@@ -161,37 +161,37 @@ const ViewCustomerPage = ({ customerId }) => {
                   />
                 </div>
 
-                <div
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                  style={{ height: "calc(100vh - 300px)" }}
-                >
-                  <div className="lg:col-span-2 flex flex-col h-full">
-                    <div
-                      className="overflow-y-auto pe-3 space-y-6"
-                      style={{
-                        height: "calc(100vh - 200px)",
-                        maxHeight: "calc(100vh - 200px)",
-                      }}
-                    >
-                      <CustomerBasicInfo customerData={customerData} />
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{ height: "calc(100vh - 300px)" }}
+              >
+                <div className="lg:col-span-2 flex flex-col h-full">
+                  <div
+                    className="overflow-y-auto pe-3 space-y-6"
+                    style={{
+                      height: "calc(100vh - 200px)",
+                      maxHeight: "calc(100vh - 200px)",
+                    }}
+                  >
+                    <CustomerBasicInfo customerData={customerData} />
 
-                      <CompanyDetails
-                        companyDetails={customerData.companyDetails}
-                      />
+                    <CompanyDetails
+                      companyDetails={customerData.companyDetails}
+                    />
 
-                      <AccountDetails account={customerData.account} />
+                    <AccountDetails account={customerData.account} />
 
-                      <Addresses addresses={customerData.addresses} />
-                    </div>
+                    <Addresses addresses={customerData.addresses} />
                   </div>
-
-                  <CustomerActions
-                    customerData={customerData}
-                    onEdit={handleEditCustomer}
-                    onDelete={handleDeleteCustomer}
-                    onDownloadPDF={handleDownloadPDF}
-                  />
                 </div>
+
+                <CustomerActions
+                  customerData={customerData}
+                  onEdit={handleEditCustomer}
+                  onDelete={handleDeleteCustomer}
+                    onDownloadPDF={handleDownloadPDF}
+                />
+              </div>
               </>
             )}
           </div>

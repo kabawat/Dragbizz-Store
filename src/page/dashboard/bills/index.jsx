@@ -10,7 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   BillDeleteConfirmModal,
   BillGrid,
@@ -168,29 +168,8 @@ const Bills = () => {
     fetchBills();
   }, [dispatch, selectedStore, searchTerm]);
 
-  // Infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage)
-        return;
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      const threshold = 100;
-
-      if (scrollTop + clientHeight >= scrollHeight - threshold) {
-        handleLoadMore();
-      }
-    };
-
-    const scrollElement = scrollRef.current;
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-      return () => scrollElement.removeEventListener("scroll", handleScroll);
-    }
-  }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
-
   // Handle load more
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination.hasNextPage) return;
 
     setIsLoadingMore(true);
@@ -213,7 +192,35 @@ const Bills = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, [
+    isLoadingMore,
+    pagination.hasNextPage,
+    pagination.nextCursor,
+    selectedStore,
+    searchTerm,
+    dispatch,
+  ]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage)
+        return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const threshold = 100;
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
+    }
+  }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
   const getFilteredBills = () => {
     let filteredBills = [...bills];
 

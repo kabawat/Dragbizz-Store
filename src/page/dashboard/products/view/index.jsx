@@ -310,12 +310,12 @@ const ViewProductPage = ({ productId }) => {
                   />
                 </div>
 
-                <div
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                  style={{ height: "calc(100vh - 300px)" }}
-                >
-                  {/* Left Side - Product Info */}
-                  <div className="lg:col-span-2 flex flex-col h-full">
+              <div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{ height: "calc(100vh - 300px)" }}
+              >
+                {/* Left Side - Product Info */}
+                <div className="lg:col-span-2 flex flex-col h-full">
                   <div
                     className="overflow-y-auto pe-3 space-y-6"
                     style={{
