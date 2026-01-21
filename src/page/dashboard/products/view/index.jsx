@@ -773,14 +773,14 @@ const ViewProductPage = ({ productId }) => {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           variant="primary"
                           className="flex-1"
                           onClick={handleEditProduct}
                           leftIcon={Edit}
                         >
-                          Edit Product
+                          Edit
                         </Button>
 
                         <Button
@@ -789,7 +789,7 @@ const ViewProductPage = ({ productId }) => {
                           onClick={handleDeleteProduct}
                           leftIcon={Trash2}
                         >
-                          Delete Product
+                          Delete
                         </Button>
                       </div>
 

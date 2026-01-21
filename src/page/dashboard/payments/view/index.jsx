@@ -471,14 +471,14 @@ const ViewPaymentPage = ({ paymentId }) => {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           variant="primary"
                           className="flex-1"
                           onClick={handleEditPayment}
                           leftIcon={Edit}
                         >
-                          Edit Payment
+                          Edit
                         </Button>
                       </div>
 
