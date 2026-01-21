@@ -704,14 +704,14 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           variant="primary"
                           className="flex-1"
                           onClick={handleEdit}
                           leftIcon={Edit}
                         >
-                          Edit Stock
+                          Edit
                         </Button>
 
                         <Button

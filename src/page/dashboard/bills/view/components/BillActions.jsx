@@ -29,11 +29,11 @@ const BillActions = ({
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {billData.dueAmount > 0 ? (
             <Button
               variant="primary"
-              className="w-full"
+              className="flex-1"
               onClick={onMakePayment}
               leftIcon={CreditCard}
             >
@@ -42,7 +42,7 @@ const BillActions = ({
           ) : (
             <Button
               variant="success"
-              className="w-full"
+              className="flex-1"
               onClick={onPaymentCompleted}
               leftIcon={CheckCircle}
             >
@@ -50,25 +50,23 @@ const BillActions = ({
             </Button>
           )}
 
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={onEditBill}
-              leftIcon={Edit}
-            >
-              Edit
-            </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={onEditBill}
+            leftIcon={Edit}
+          >
+            Edit
+          </Button>
 
-            <Button
-              variant="danger"
-              className="w-full"
-              onClick={onDeleteBill}
-              leftIcon={Trash2}
-            >
-              Delete
-            </Button>
-          </div>
+          <Button
+            variant="danger"
+            className="flex-1"
+            onClick={onDeleteBill}
+            leftIcon={Trash2}
+          >
+            Delete
+          </Button>
         </div>
 
         <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">

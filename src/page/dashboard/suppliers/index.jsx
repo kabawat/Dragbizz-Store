@@ -9,7 +9,7 @@ import {
   Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import {
@@ -157,6 +157,43 @@ const SuppliersPage = () => {
     dispatch,
   ]);
 
+  // Infinite scroll logic - load more suppliers
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !pagination.hasNextPage) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const storeId =
+        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      const params = {
+        store: storeId,
+        search: debouncedSearch,
+        limit: 10,
+        nextCursor: pagination.nextCursor,
+        isFreshLoad: false,
+        accountStatus: accountStatus || undefined,
+        riskLevel: riskLevel || undefined,
+        isActive: isActive === "" ? undefined : isActive,
+      };
+
+      await dispatch(getSuppliers(params));
+    } catch (_error) {
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [
+    isLoadingMore,
+    pagination.hasNextPage,
+    pagination.nextCursor,
+    selectedStore,
+    debouncedSearch,
+    accountStatus,
+    riskLevel,
+    isActive,
+    dispatch,
+  ]);
+
   // Infinite scroll detection
   useEffect(() => {
     const handleScroll = () => {
@@ -273,32 +310,6 @@ const SuppliersPage = () => {
   const handleViewModeChange = (mode) => {
     dispatch(setViewMode(mode));
     localStorage.setItem("suppliers-view-mode", mode);
-  };
-
-  // Infinite scroll logic - load more suppliers
-  const handleLoadMore = async () => {
-    if (isLoadingMore || !pagination.hasNextPage) return;
-
-    setIsLoadingMore(true);
-
-    try {
-      const params = {
-        store:
-          selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
-        search: debouncedSearch,
-        limit: 10,
-        nextCursor: pagination.nextCursor,
-        isFreshLoad: false,
-        accountStatus: accountStatus || undefined,
-        riskLevel: riskLevel || undefined,
-        isActive: isActive === "" ? undefined : isActive,
-      };
-
-      await dispatch(getSuppliers(params));
-    } catch (_error) {
-    } finally {
-      setIsLoadingMore(false);
-    }
   };
 
   return (

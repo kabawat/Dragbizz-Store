@@ -470,14 +470,14 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
                     </div>
 
-                    <div className="flex gap-3 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         variant="primary"
                         className="flex-1"
                         onClick={handleEditExpense}
                         leftIcon={Edit}
                       >
-                        Edit Expense
+                        Edit
                       </Button>
 
                       <Button
@@ -486,7 +486,7 @@ const ViewExpensePage = ({ expenseId }) => {
                         onClick={handleDeleteExpense}
                         leftIcon={Trash2}
                       >
-                        Delete Expense
+                        Delete
                       </Button>
                     </div>
 
