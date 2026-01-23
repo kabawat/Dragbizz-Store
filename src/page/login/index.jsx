@@ -9,6 +9,8 @@ import { AnimatedBackground, AnimatedGridPattern } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { authService } from "@/service/auth";
 import { handleApiError } from "@/utils/errorHandler";
+import { useAppDispatch } from "@/store/hooks";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
 import ContactInput from "./components/ContactInput";
 import LoginMethodToggle from "./components/LoginMethodToggle";
 import LoginWelcomeSection from "./components/LoginWelcomeSection";
@@ -17,9 +19,11 @@ import PasswordInput from "./components/PasswordInput";
 import { detectContactType, formatContact, validateForm } from "./utils";
 
 export default function Login() {
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams?.get("redirect") || "/dashboard";
+  const defaultRedirectUrl = searchParams?.get("redirect") || "/dashboard";
+  const [computedRedirectUrl, setComputedRedirectUrl] = useState(defaultRedirectUrl);
   const { userLocation } = useLocation();
 
   const [formData, setFormData] = useState({
@@ -37,7 +41,7 @@ export default function Login() {
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [loginToken, setLoginToken] = useState(null);
+
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({
@@ -127,14 +131,54 @@ export default function Login() {
       const result = await authService.login(loginData);
 
       if (result.success) {
-        if (result.data.token) {
-          setSuccessData({
-            firstName: result.data.user?.firstName || "User",
-            authToken: result.data.token,
-            refreshToken: result.data.refreshToken || null,
-          });
-          setShowSuccessScreen(true);
+        // Fetch retailer details to get subdomain/agency info for redirection
+        const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
+        const retailerData = actionResult.payload?.data;
+
+        let finalRedirectUrl = defaultRedirectUrl;
+
+        if (retailerData?.agency?.subdomain) {
+          const protocol = window.location.protocol;
+          const hostname = window.location.hostname;
+          // Check if we are already on the correct subdomain
+          const currentSubdomain = hostname.split('.')[0];
+
+          // Only redirect if we are NOT already on the correct subdomain
+          // Special case for localhost which might not have a subdomain yet
+          if (currentSubdomain !== retailerData.agency.subdomain) {
+            let newHostname;
+            if (hostname === "localhost" || hostname === "127.0.0.1") {
+              newHostname = `${retailerData.agency.subdomain}.localhost`;
+            } else {
+              const parts = hostname.split('.');
+              if (parts.length === 2) {
+                newHostname = `${retailerData.agency.subdomain}.${hostname}`;
+              } else if (parts.length >= 3) {
+                parts[0] = retailerData.agency.subdomain;
+                newHostname = parts.join('.');
+              } else {
+                newHostname = `${retailerData.agency.subdomain}.${hostname}`;
+              }
+            }
+
+            const port = window.location.port ? `:${window.location.port}` : "";
+
+            // If we are on localhost/dev and shifting domains, use sync API to carry over tokens
+            if ((hostname === "localhost" || hostname === "127.0.0.1") && result.data?.tokens) {
+              const { accessToken, refreshToken } = result.data.tokens;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${defaultRedirectUrl}`;
+            } else {
+              finalRedirectUrl = `${protocol}//${newHostname}${port}${defaultRedirectUrl}`;
+            }
+          }
         }
+
+        setComputedRedirectUrl(finalRedirectUrl);
+
+        setSuccessData({
+          firstName: result.data?.user?.firstName || result.data?.firstName || "User",
+        });
+        setShowSuccessScreen(true);
       } else {
         setErrors({ general: result.message || t("auth.loginFailed") });
       }
@@ -168,18 +212,6 @@ export default function Login() {
       const result = await authService.sendOTP(loginData);
 
       if (result.success) {
-        const token =
-          result.data?.token ||
-          result.token ||
-          result.data?.data?.token ||
-          result.data?.otpToken;
-
-        if (token) {
-          setLoginToken(token);
-        } else {
-          setLoginToken(formData.contact);
-        }
-
         setOtpSent(true);
         setTimeLeft(60);
         setCanResend(false);
@@ -246,13 +278,6 @@ export default function Login() {
       return;
     }
 
-    if (!loginToken) {
-      setErrors((prev) => ({ ...prev, otp: t("auth.otpSessionExpired") }));
-      setOtpSent(false);
-      setOtpDigits(["", "", "", "", ""]);
-      return;
-    }
-
     isVerifyingRef.current = true;
     setIsLoading(true);
     setErrors((prev) => ({ ...prev, otp: "" }));
@@ -260,7 +285,6 @@ export default function Login() {
     try {
       const verifyData = {
         code: code,
-        token: loginToken,
         deviceId: `web_device_${Date.now()}`,
         platform: "web",
         deviceToken: "",
@@ -269,21 +293,51 @@ export default function Login() {
 
       const result = await authService.verifyLoginOTP(verifyData);
       if (result.success) {
-        if (result.data.token) {
-          setSuccessData({
-            firstName: result.data.user?.firstName || "User",
-            authToken: result.data.token,
-            refreshToken: result.data.refreshToken || null,
-          });
-          setShowSuccessScreen(true);
-        } else {
-          setErrors((prev) => ({
-            ...prev,
-            otp: t("auth.loginSuccessfulButTokenNotReceived"),
-          }));
-          setOtpDigits(["", "", "", "", ""]);
-          inputRefs.current[0]?.focus();
+        // Fetch retailer details to get subdomain/agency info for redirection
+        const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
+        const retailerData = actionResult.payload?.data;
+
+        let finalRedirectUrl = defaultRedirectUrl;
+
+        if (retailerData?.agency?.subdomain) {
+          const protocol = window.location.protocol;
+          const hostname = window.location.hostname;
+          const currentSubdomain = hostname.split('.')[0];
+
+          if (currentSubdomain !== retailerData.agency.subdomain) {
+            let newHostname;
+            if (hostname === "localhost" || hostname === "127.0.0.1") {
+              newHostname = `${retailerData.agency.subdomain}.localhost`;
+            } else {
+              const parts = hostname.split('.');
+              if (parts.length === 2) {
+                newHostname = `${retailerData.agency.subdomain}.${hostname}`;
+              } else if (parts.length >= 3) {
+                parts[0] = retailerData.agency.subdomain;
+                newHostname = parts.join('.');
+              } else {
+                newHostname = `${retailerData.agency.subdomain}.${hostname}`;
+              }
+            }
+
+            const port = window.location.port ? `:${window.location.port}` : "";
+
+            // If we are on localhost/dev and shifting domains, use sync API to carry over tokens
+            if ((hostname === "localhost" || hostname === "127.0.0.1") && result.data?.tokens) {
+              const { accessToken, refreshToken } = result.data.tokens;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${defaultRedirectUrl}`;
+            } else {
+              finalRedirectUrl = `${protocol}//${newHostname}${port}${defaultRedirectUrl}`;
+            }
+          }
         }
+
+        setComputedRedirectUrl(finalRedirectUrl);
+
+        setSuccessData({
+          firstName: result.data?.user?.firstName || result.data?.firstName || "User",
+        });
+        setShowSuccessScreen(true);
       } else {
         setErrors((prev) => ({
           ...prev,
@@ -305,7 +359,7 @@ export default function Login() {
   const handleChangeContact = () => {
     setOtpSent(false);
     setOtpDigits(["", "", "", "", ""]);
-    setLoginToken(null);
+
     setTimeLeft(60);
     setCanResend(false);
     setErrors({ contact: "", password: "", otp: "", general: "" });
@@ -331,15 +385,7 @@ export default function Login() {
       const result = await authService.sendOTP(loginData);
 
       if (result.success) {
-        const token = result.data?.token;
-        if (!token) {
-          setErrors((prev) => ({
-            ...prev,
-            otp: t("auth.failedToReceiveVerificationToken"),
-          }));
-          return;
-        }
-        setLoginToken(token);
+
         setCanResend(false);
         setTimeLeft(60);
         setOtpDigits(["", "", "", "", ""]);
@@ -381,9 +427,7 @@ export default function Login() {
     return (
       <LoginSuccessScreen
         firstName={successData.firstName}
-        authToken={successData.authToken}
-        refreshToken={successData.refreshToken}
-        redirectUrl={redirectUrl}
+        redirectUrl={computedRedirectUrl}
       />
     );
   }
@@ -456,11 +500,10 @@ export default function Login() {
                     type="button"
                     onClick={handleSendOTP}
                     disabled={isLoading || !formData.contact.trim()}
-                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${
-                      isLoading || !formData.contact.trim()
-                        ? "opacity-70 cursor-not-allowed"
-                        : "hover:opacity-90 cursor-pointer"
-                    }`}
+                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center bg-[rgb(var(--color-primary))] text-white ${isLoading || !formData.contact.trim()
+                      ? "opacity-70 cursor-not-allowed"
+                      : "hover:opacity-90 cursor-pointer"
+                      }`}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -509,11 +552,10 @@ export default function Login() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${
-                      isLoading
-                        ? "opacity-70 cursor-not-allowed"
-                        : "hover:opacity-90 cursor-pointer"
-                    }`}
+                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white ${isLoading
+                      ? "opacity-70 cursor-not-allowed"
+                      : "hover:opacity-90 cursor-pointer"
+                      }`}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">

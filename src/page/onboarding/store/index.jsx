@@ -26,9 +26,9 @@ import {
 } from "@/components/ui";
 import { STORE_CATEGORIES } from "@/data";
 import storeService from "@/service/retailer/store.service";
-import { cookieManager } from "@/utils/cookieManager";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
+import { authService } from "@/service";
 
 export default function StoreCreation() {
   const router = useRouter();
@@ -73,8 +73,6 @@ export default function StoreCreation() {
     if (agency && agencyId) {
       setFormData((prev) => ({ ...prev, agency: agencyId }));
     } else if (agency === null && !profileLoading) {
-      // Only redirect if agency is explicitly null and not loading
-      // This prevents redirect loop when agency is being fetched
       router.push("/onboarding/agency");
     }
   }, [agency, profileLoading, router]);
@@ -222,33 +220,14 @@ export default function StoreCreation() {
 
       // Use existing store service
       const result = await storeService.createStore(storeData);
-      console.log("result ----> ", result)
       if (result?.success) {
-        // Refresh retailer profile to get updated details
-        const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
-        console.log("actionResult ----> ", actionResult.payload)
+        const userProfile = await authService.refreshToken();
+        const subdomain = userProfile.data?.tenant;
 
-        if (getRetailerDetails.fulfilled.match(actionResult)) {
-          const agency = actionResult.payload.data?.agency;
-
-          if (agency?.subdomain) {
-            // Redirect to subdomain
-            const protocol = window.location.protocol;
-            const hostname = window.location.hostname;
-
-            let newHostname; a
-            if (hostname === "localhost" || hostname === "127.0.0.1") {
-              newHostname = `${agency.subdomain}.localhost`;
-            } else {
-              newHostname = `${agency.subdomain}.${hostname}`;
-            }
-
-            // Full page refresh redirect
-            const token = cookieManager.getAuthToken();
-            const redirectParams = token ? `?token=${token}` : "";
-            window.location.href = `${protocol}//${newHostname}/dashboard${redirectParams}`;
-            return;
-          }
+        if (subdomain) {
+          const { host, protocol } = window.location
+          window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
+          return;
         }
 
         // Fallback if subdomain not found

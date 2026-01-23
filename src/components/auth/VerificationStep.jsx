@@ -21,9 +21,7 @@ const VerificationStep = ({
   firstName,
   onVerificationComplete,
   onChangeContact,
-  registrationToken,
   registrationData,
-  onTokenUpdate,
 }) => {
   const { t } = useTranslation();
   const [otp, setOtp] = useState(["", "", "", "", ""]);
@@ -86,13 +84,12 @@ const VerificationStep = ({
 
     try {
       const result = await authService.verifyRegistrationOTP(
-        code,
-        registrationToken
+        code
       );
 
       if (result.success) {
         // OTP verified, pass the token to success screen
-        onVerificationComplete(result.token);
+        onVerificationComplete();
       } else {
         // OTP verification failed
         setAttempts((prev) => prev + 1);
@@ -143,8 +140,7 @@ const VerificationStep = ({
       const result = await authService.resendRegistrationOTP(resendData);
 
       if (result.success) {
-        // Update the token with the new one
-        onTokenUpdate(result.token);
+
         setCanResend(false);
         setTimeLeft(60);
         setOtp(["", "", "", "", ""]);

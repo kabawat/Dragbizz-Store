@@ -1,10 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { cookieManager } from "@/utils/cookieManager";
 import { AnimatedBackground } from "../ui";
 
-const SuccessScreen = ({ firstName, authToken }) => {
+const SuccessScreen = ({ firstName }) => {
   const [countdown, setCountdown] = useState(5);
   const { themeConfig } = useTheme();
 
@@ -143,14 +142,10 @@ const SuccessScreen = ({ firstName, authToken }) => {
   // Handle countdown completion
   useEffect(() => {
     if (countdown === 0) {
-      // Save authentication token before redirecting
-      if (authToken) {
-        cookieManager.setAuthToken(authToken);
-      }
       // Redirect to agency creation instead of dashboard
       window.location.href = "/onboarding/agency";
     }
-  }, [countdown, authToken]);
+  }, [countdown]);
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
@@ -208,10 +203,6 @@ const SuccessScreen = ({ firstName, authToken }) => {
         {/* Manual Continue Button */}
         <button
           onClick={() => {
-            // Save authentication token before redirecting
-            if (authToken) {
-              cookieManager.setAuthToken(authToken);
-            }
             // Redirect to agency creation instead of dashboard
             window.location.href = "/onboarding/agency";
           }}

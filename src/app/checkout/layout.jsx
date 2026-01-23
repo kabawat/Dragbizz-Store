@@ -5,7 +5,6 @@ import {
   getAuthProfile,
   getRetailerDetails,
 } from "@/store/slices/profileSlice";
-import { cookieManager } from "@/utils/cookieManager";
 
 export default function CheckoutLayout({ children }) {
   const dispatch = useAppDispatch();
@@ -14,14 +13,8 @@ export default function CheckoutLayout({ children }) {
 
   const { authProfile, authProfileLoading, authProfileError, user, agency, stores, isLoading, error, } = useAppSelector((state) => state.profile);
 
-  // Fetch profiles if user has token
+  // Fetch profiles
   useEffect(() => {
-    const authToken = cookieManager.getAuthToken();
-
-    if (!authToken) {
-      return;
-    }
-
     // Fetch retailer profile if not available
     const hasRetailerData = !!user || !!agency || (stores && stores.length > 0);
     if (
