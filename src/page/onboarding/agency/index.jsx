@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Building2,
   CheckCircle,
+  Globe,
   Shield,
   Users,
   Zap,
@@ -18,7 +19,8 @@ import {
   Input,
 } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { createAgency, getRetailerDetails } from "@/store/slices/profileSlice";
+import { getRetailerDetails } from "@/store/slices/profileSlice";
+import storeService from "@/service/retailer/store.service";
 
 export default function AgencyCreation() {
   const router = useRouter();
@@ -30,6 +32,7 @@ export default function AgencyCreation() {
 
   const [formData, setFormData] = useState({
     name: "",
+    subdomain: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -49,6 +52,16 @@ export default function AgencyCreation() {
       newErrors.name = "Agency name must be less than 100 characters";
     }
 
+    if (!formData.subdomain.trim()) {
+      newErrors.subdomain = "Subdomain is required";
+    } else if (formData.subdomain.length > 63) {
+      newErrors.subdomain = "Subdomain must be less than 63 characters";
+    } else if (!/^[a-z0-9-]+$/.test(formData.subdomain)) {
+      newErrors.subdomain = "Subdomain can only contain lowercase letters, numbers, and hyphens";
+    } else if (formData.subdomain.startsWith('-') || formData.subdomain.endsWith('-')) {
+      newErrors.subdomain = "Subdomain cannot start or end with a hyphen";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -61,24 +74,26 @@ export default function AgencyCreation() {
     isCreatingRef.current = true;
 
     try {
-      const result = await dispatch(createAgency(formData));
-
-      if (createAgency.fulfilled.match(result)) {
+      // Call API directly instead of Redux thunk
+      const result = await storeService.createAgency(formData);
+      console.log("resultresult", result)
+      if (result.success) {
+        // Refresh global state
         await dispatch(getRetailerDetails({ forceRefresh: true }));
         setTimeout(() => {
           isCreatingRef.current = false;
           router.push("/onboarding/store");
         }, 200);
-      } else if (createAgency.rejected.match(result)) {
+      } else {
         isCreatingRef.current = false;
         setErrors({
-          general: result.payload?.message || "Failed to create agency",
+          general: result.message || "Failed to create agency",
         });
       }
     } catch (_error) {
       isCreatingRef.current = false;
       setErrors({
-        general: "An error occurred while creating agency. Please try again.",
+        general: _error.message || "An error occurred while creating agency. Please try again.",
       });
     }
   };
@@ -245,6 +260,9 @@ export default function AgencyCreation() {
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Agency Name */}
                 <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                    Agency Name <span className="text-red-500">*</span>
+                  </label>
                   <Input
                     type="text"
                     placeholder="Enter agency name"
@@ -258,6 +276,33 @@ export default function AgencyCreation() {
                     <p className="text-red-500 text-sm flex items-center mt-2">
                       <AlertCircle className="w-4 h-4 mr-1" />
                       {errors.name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Subdomain */}
+                <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                    Subdomain <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Enter subdomain (e.g., mystore)"
+                    value={formData.subdomain}
+                    onChange={(value) => updateFormData("subdomain", value.toLowerCase())}
+                    leftIcon={Globe}
+                    error={errors.subdomain}
+                    maxLength={63}
+                  />
+                  {errors.subdomain && (
+                    <p className="text-red-500 text-sm flex items-center mt-2">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.subdomain}
+                    </p>
+                  )}
+                  {formData.subdomain && !errors.subdomain && (
+                    <p className="text-[rgb(var(--color-text-secondary))] text-xs mt-2">
+                      Your agency will be accessible at: <span className="font-semibold text-[rgb(var(--color-primary))]">{formData.subdomain}.dragbizz.com</span>
                     </p>
                   )}
                 </div>
@@ -295,7 +340,7 @@ export default function AgencyCreation() {
                   <Button
                     type="submit"
                     variant="primary"
-                    disabled={isLoading || !formData.name.trim()}
+                    disabled={isLoading || !formData.name.trim() || !formData.subdomain.trim()}
                     rightIcon={ArrowRight}
                     loading={isLoading}
                     fullWidth

@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -H 0.0.0.0",
+    "dev:wildcard": "HOSTNAME=0.0.0.0 next dev --turbopack -H 0.0.0.0",
+    "dev:localhost": "next dev --turbopack",
     "build": "next build --turbopack",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",

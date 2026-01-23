@@ -4,32 +4,7 @@ import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
 import { cookieManager } from "@/utils/cookieManager";
 
-// Async thunk for creating agency
-export const createAgency = createAsyncThunk(
-  "profile/createAgency",
-  async (agencyData, { rejectWithValue }) => {
-    try {
-      const result = await storeService.createAgency(agencyData);
 
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to create agency",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        redirectTo: "/onboarding/store",
-        message: "Agency created successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to create agency. Please try again.",
-      });
-    }
-  }
-);
 
 // Async thunk for getting retailer details
 // options: { forceRefresh?: boolean } - when true, always hit API instead of using cached Redux data
@@ -203,25 +178,7 @@ const profileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Create agency
-      .addCase(createAgency.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(createAgency.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        if (action.payload.data) {
-          state.agency = action.payload.data;
-        }
-        if (action.payload.redirectTo) {
-          state.redirectTo = action.payload.redirectTo;
-        }
-      })
-      .addCase(createAgency.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload?.message || "Failed to create agency";
-      })
+
 
       // Get retailer details
       .addCase(getRetailerDetails.pending, (state) => {
@@ -313,6 +270,6 @@ const profileSlice = createSlice({
 });
 
 export const { clearAuth, setSelectedStore } = profileSlice.actions;
-export { createAgency, getAuthProfile };
+export { getAuthProfile };
 
 export default profileSlice.reducer;

@@ -29,6 +29,7 @@ export const cookieManager = {
       expires: expiresInDays,
       secure: false,
       sameSite: "lax",
+      domain: ".localhost",
       path: "/",
       httpOnly: false,
     };
@@ -50,6 +51,7 @@ export const cookieManager = {
       expires: expiresInDays,
       secure: false,
       sameSite: "lax",
+      domain: ".localhost",
       path: "/",
       httpOnly: false,
     };

@@ -1,8 +1,10 @@
-import "./globals.scss";
+import "@/app/globals.scss";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
 import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
 import ToastInitializer from "@/components/ToastInitializer";
+import { Suspense } from "react";
+import AuthSync from "@/components/auth/AuthSync";
 import { SettingsPanel } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -27,6 +29,9 @@ export default function RootLayout({ children }) {
               <ToastProvider>
                 <NetworkErrorProvider>
                   <ErrorBoundary>
+                    <Suspense fallback={null}>
+                      <AuthSync />
+                    </Suspense>
                     <ToastInitializer />
                     <NetworkErrorInitializer />
                     <LocationProvider>
