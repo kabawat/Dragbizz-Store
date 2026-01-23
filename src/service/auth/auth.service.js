@@ -71,21 +71,13 @@ class AuthService {
   // verify otp
   async verifyLoginOTP(otpData) {
     try {
-      const { code, token } = otpData;
+      const { code } = otpData;
 
       if (!code) {
         return {
           success: false,
           message: "Verification code is required",
           error: "Missing OTP code",
-        };
-      }
-
-      if (!token) {
-        return {
-          success: false,
-          message: "OTP token is required",
-          error: "Missing OTP token",
         };
       }
 
@@ -107,6 +99,7 @@ class AuthService {
         }
       }
 
+      // No need to manually pass token in headers, backend handles via session/temp cookies
       const response = await unauthAxios.put(
         API_CONFIG.AUTH.LOGIN_VERIFY,
         {
@@ -115,11 +108,6 @@ class AuthService {
           platform: otpData.platform || "web",
           deviceToken: otpData.deviceToken || "",
           location: locationData,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -190,21 +178,17 @@ class AuthService {
     }
   }
 
-  async verifyRegistrationOTP(otp, token) {
+  async verifyRegistrationOTP(otp) {
     try {
       // Get user's current location
       const location = await getUserLocation();
 
+      // No need to manually pass token in headers
       const response = await unauthAxios.put(
         API_CONFIG.AUTH.VERIFY_OTP,
         {
           otp: otp,
           location: location,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -232,13 +216,10 @@ class AuthService {
     }
   }
 
-  async createAgency(agencyData, token) {
+  async createAgency(agencyData) {
     try {
-      const response = await unauthAxios.post("/agencies/", agencyData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Use authAxios which handles cookies automatically
+      const response = await authAxios.post("/agencies/", agencyData);
 
       return handleApiSuccess(response, "Agency created successfully");
     } catch (error) {
@@ -246,13 +227,10 @@ class AuthService {
     }
   }
 
-  async createStore(storeData, token) {
+  async createStore(storeData) {
     try {
-      const response = await unauthAxios.post("/store/", storeData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Use authAxios which handles cookies automatically
+      const response = await authAxios.post("/store/", storeData);
 
       return handleApiSuccess(response, "Store created successfully");
     } catch (error) {
@@ -260,14 +238,10 @@ class AuthService {
     }
   }
 
-  // Refresh Access Token using Refresh Token
-  async refreshToken(refreshToken) {
+  // Refresh Access Token using Refresh Token (via cookies)
+  async refreshToken() {
     try {
-      const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH, null, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
+      const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH);
 
       return handleApiSuccess(response, "Token refreshed successfully");
     } catch (error) {
@@ -295,6 +269,16 @@ class AuthService {
       return handleApiSuccess(response, "Profile updated successfully");
     } catch (error) {
       return handleApiErrorResponse(error, "update-profile");
+    }
+  }
+
+  // Logout method
+  async logout() {
+    try {
+      const response = await authAxios.post(API_CONFIG.AUTH.LOGOUT || "/auth/logout");
+      return handleApiSuccess(response, "Logged out successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "logout");
     }
   }
 }

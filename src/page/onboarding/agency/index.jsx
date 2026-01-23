@@ -21,6 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
 import storeService from "@/service/retailer/store.service";
+import { authService } from "@/service";
 
 export default function AgencyCreation() {
   const router = useRouter();
@@ -76,20 +77,10 @@ export default function AgencyCreation() {
     try {
       // Call API directly instead of Redux thunk
       const result = await storeService.createAgency(formData);
-      console.log("resultresult", result)
-      if (result.success) {
-        // Refresh global state
-        await dispatch(getRetailerDetails({ forceRefresh: true }));
-        setTimeout(() => {
-          isCreatingRef.current = false;
-          router.push("/onboarding/store");
-        }, 200);
-      } else {
-        isCreatingRef.current = false;
-        setErrors({
-          general: result.message || "Failed to create agency",
-        });
-      }
+      console.log("result : ---->  ", result)
+      await authService.updateProfile({ tenant: result?.data?.subdomain || result?.subdomain })
+      window.location.href = "/onboarding/store";
+      isCreatingRef.current = false;
     } catch (_error) {
       isCreatingRef.current = false;
       setErrors({

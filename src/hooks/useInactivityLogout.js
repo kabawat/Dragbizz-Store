@@ -1,8 +1,8 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
-import { cookieManager } from "@/utils/cookieManager";
+import authService from "@/service/auth/auth.service";
 
 // Constants
 const INACTIVITY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -12,6 +12,7 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check every hour
 // Hook to handle auto logout after 7 days of inactivity
 export function useInactivityLogout() {
   const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.profile);
   const checkIntervalRef = useRef(null);
   const activityHandlersRef = useRef([]);
 
@@ -24,12 +25,11 @@ export function useInactivityLogout() {
   }, []);
 
   // Check if user should be logged out due to inactivity
-  const checkInactivity = useCallback(() => {
+  const checkInactivity = useCallback(async () => {
     if (typeof window === "undefined") return;
 
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (!lastActivity) {
-      // No activity recorded, set current time
       updateLastActivity();
       return;
     }
@@ -40,17 +40,23 @@ export function useInactivityLogout() {
 
     // If inactive for more than 7 days, logout
     if (timeSinceLastActivity >= INACTIVITY_THRESHOLD_MS) {
-      // Clear auth
-      dispatch(clearAuth());
-      cookieManager.clearAuth();
+      try {
+        // 1. Call backend logout
+        await authService.logout();
+      } catch (_err) {
+        // Ignore error
+      }
 
-      // Clear sessionStorage
+      // 2. Clear Redux store
+      dispatch(clearAuth());
+
+      // 3. Clear local session data
       if (typeof window !== "undefined") {
         sessionStorage.clear();
         localStorage.removeItem(LAST_ACTIVITY_KEY);
       }
 
-      // Redirect to login
+      // 4. Redirect to login
       window.location.href = "/login";
     }
   }, [dispatch, updateLastActivity]);
@@ -59,10 +65,8 @@ export function useInactivityLogout() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Check if user is authenticated
-    const authToken = cookieManager.getAuthToken();
-    if (!authToken) {
-      // Not authenticated, clear activity tracking
+    // Only track activity if authenticated
+    if (!isAuthenticated) {
       localStorage.removeItem(LAST_ACTIVITY_KEY);
       return;
     }
@@ -112,27 +116,24 @@ export function useInactivityLogout() {
 
     // Cleanup function
     return () => {
-      // Clear interval
       if (checkIntervalRef.current) {
         clearInterval(checkIntervalRef.current);
         checkIntervalRef.current = null;
       }
 
-      // Remove event listeners
       activityHandlersRef.current.forEach(({ event, handler }) => {
         window.removeEventListener(event, handler);
       });
       activityHandlersRef.current = [];
     };
-  }, [checkInactivity, updateLastActivity]);
+  }, [isAuthenticated, checkInactivity, updateLastActivity]);
 
-  // Update activity on mount (user is active)
+  // Update activity on mount if authenticated
   useEffect(() => {
-    const authToken = cookieManager.getAuthToken();
-    if (authToken) {
+    if (isAuthenticated) {
       updateLastActivity();
     }
-  }, [updateLastActivity]);
+  }, [isAuthenticated, updateLastActivity]);
 }
 
 export default useInactivityLogout;

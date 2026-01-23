@@ -1,13 +1,10 @@
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { cookieManager } from "@/utils/cookieManager";
 import { AnimatedBackground } from "../ui";
 
 const LoginSuccessScreen = ({
   firstName,
-  authToken,
-  refreshToken,
   redirectUrl = "/dashboard",
 }) => {
   const [countdown, setCountdown] = useState(4);
@@ -20,7 +17,6 @@ const LoginSuccessScreen = ({
     themeConfig.secondary,
     "#facc15",
     "#22c55e",
-    themeConfig.primary,
     "#8b5cf6",
     "#ec4899",
   ];
@@ -122,21 +118,11 @@ const LoginSuccessScreen = ({
       clearInterval(timer);
       clearTimeout(confettiTimer);
     };
-  }, [
-    // Start single confetti burst immediately
-    startRain,
-  ]);
+  }, [startRain]);
 
   // Handle countdown completion
   useEffect(() => {
     if (countdown === 0) {
-      // Save authentication tokens before redirecting
-      if (authToken) {
-        cookieManager.setAuthToken(authToken);
-      }
-      if (refreshToken) {
-        cookieManager.setRefreshToken(refreshToken);
-      }
       // Set last activity timestamp for inactivity tracking
       if (typeof window !== "undefined") {
         localStorage.setItem("dragbizz_last_activity", Date.now().toString());
@@ -144,7 +130,7 @@ const LoginSuccessScreen = ({
       // Redirect to the original page or dashboard
       window.location.href = redirectUrl;
     }
-  }, [countdown, authToken, refreshToken, redirectUrl]);
+  }, [countdown, redirectUrl]);
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
@@ -206,14 +192,6 @@ const LoginSuccessScreen = ({
         {/* Manual Continue Button */}
         <button
           onClick={() => {
-            if (authToken) {
-              cookieManager.setAuthToken(authToken);
-            }
-
-            if (refreshToken) {
-              cookieManager.setRefreshToken(refreshToken);
-            }
-
             if (typeof window !== "undefined") {
               localStorage.setItem(
                 "dragbizz_last_activity",

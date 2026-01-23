@@ -17,7 +17,6 @@ import LogoutModal from "@/components/ui/LogoutModal";
 import { useLogout } from "@/hooks/useLogout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
-import { cookieManager } from "@/utils/cookieManager";
 import logger from "@/utils/logger";
 
 const ProductHeader = () => {
@@ -45,24 +44,20 @@ const ProductHeader = () => {
 
   // Check if user is logged in
   useEffect(() => {
-    const checkAuth = async () => {
-      const authToken = cookieManager.getAuthToken();
-      if (authToken) {
+    const checkAuthStatus = async () => {
+      // If we have user data, we are logged in
+      if (user) {
         setIsLoggedIn(true);
-        // Fetch profile if not already in Redux
-        if (!user) {
-          try {
-            await dispatch(getRetailerDetails()).unwrap();
-          } catch (error) {
-            logger.error("Failed to fetch retailer details:", error);
-          }
-        }
       } else {
+        // If no user data, we might still be logged in (but profile not fetched)
+        // or we might be logged out.
+        // ProductHeader is used on landing pages, so we don't force a fetch here
+        // usually, but we check if user object exists in Redux.
         setIsLoggedIn(false);
       }
     };
-    checkAuth();
-  }, [dispatch, user]);
+    checkAuthStatus();
+  }, [user]);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -108,11 +103,10 @@ const ProductHeader = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-md shadow-lg border-b border-[rgb(var(--color-border-primary))]"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? "bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-md shadow-lg border-b border-[rgb(var(--color-border-primary))]"
+        : "bg-transparent"
+        }`}
     >
       <nav className="container mx-auto px-3 sm:px-4 md:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
@@ -218,9 +212,8 @@ const ProductHeader = () => {
 
                   {/* Dropdown Arrow */}
                   <ChevronDown
-                    className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${
-                      isProfileDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-3 h-3 text-[rgb(var(--color-text-tertiary))] transition-transform ${isProfileDropdownOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 

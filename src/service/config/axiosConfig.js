@@ -1,7 +1,6 @@
 // src/service/config/axiosConfig.js
 import axios from "axios";
 import API_CONFIG from "@/config/api.config";
-import { cookieManager } from "@/utils/cookieManager";
 import { generateCacheKey, setCachedResponse } from "@/utils/requestCache";
 import {
   createCancelToken,
@@ -31,6 +30,7 @@ const BASE_URL = API_CONFIG.BASE.URL;
 // Common configuration for all axios instances
 const commonConfig = {
   timeout: parseInt(API_CONFIG.BASE.TIMEOUT, 10),
+  withCredentials: true, // Crucial for sending cookies
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
@@ -41,18 +41,12 @@ const commonConfig = {
 export const unauthAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
-  headers: {
-    "ngrok-skip-browser-warning": "69420",
-  },
 });
 
 // Authenticated axios instance (for auth service)
 export const authAxios = axios.create({
   ...commonConfig,
   baseURL: BASE_URL,
-  headers: {
-    "ngrok-skip-browser-warning": "69420",
-  },
 });
 
 // Flag to prevent multiple refresh attempts
@@ -74,10 +68,7 @@ const processQueue = (error, token = null) => {
 // Request interceptor for authenticated requests (auth service)
 authAxios.interceptors.request.use(
   (config) => {
-    const token = cookieManager.getAuthToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // No need to manually attach token, cookies are handled by browser
 
     const method = config.method?.toUpperCase() || "GET";
     const url = config.url || "";
@@ -183,8 +174,7 @@ authAxios.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+          .then(() => {
             return authAxios(originalRequest);
           })
           .catch((err) => {
@@ -195,51 +185,19 @@ authAxios.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = cookieManager.getRefreshToken();
-
-      // If no refresh token, logout
-      if (!refreshToken) {
-        isRefreshing = false;
-        processQueue(error, null);
-        cookieManager.clearAuth();
-
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        return Promise.reject(error);
-      }
-
       try {
-        // Import authService dynamically to avoid circular dependency
+        // Call refresh token endpoint (browser will automatically send the rt cookie)
         const { default: authService } = await import(
           "@/service/auth/auth.service"
         );
 
-        // Call refresh token endpoint
-        const refreshResponse = await authService.refreshToken(refreshToken);
+        const refreshResponse = await authService.refreshToken();
 
-        if (refreshResponse.success && refreshResponse.data) {
-          // Handle nested data structure
-          const responseData =
-            refreshResponse.data.data || refreshResponse.data;
-          const { token: newAccessToken, refreshToken: newRefreshToken } =
-            responseData;
-
-          // Save new tokens
-          if (newAccessToken) {
-            cookieManager.setAuthToken(newAccessToken);
-          }
-          if (newRefreshToken) {
-            cookieManager.setRefreshToken(newRefreshToken);
-          }
-
-          // Update original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
+        if (refreshResponse.success) {
           isRefreshing = false;
-          processQueue(null, newAccessToken);
+          processQueue(null);
 
-          // Retry original request
+          // Retry original request (browser will now have the new at cookie)
           return authAxios(originalRequest);
         } else {
           throw new Error("Token refresh failed");
@@ -247,8 +205,7 @@ authAxios.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, logout user
         isRefreshing = false;
-        processQueue(refreshError, null);
-        cookieManager.clearAuth();
+        processQueue(refreshError);
 
         if (typeof window !== "undefined") {
           window.location.href = "/login";

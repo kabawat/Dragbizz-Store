@@ -25,8 +25,7 @@ export default function Register() {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [registrationToken, setRegistrationToken] = useState(null);
-  const [authToken, setAuthToken] = useState(null);
+
 
   const updateFormData = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -97,7 +96,7 @@ export default function Register() {
       const result = await authService.register(registrationData);
 
       if (result.success) {
-        setRegistrationToken(result.token);
+
         setCurrentState("verification");
       } else {
         setErrors({
@@ -113,8 +112,7 @@ export default function Register() {
     }
   };
 
-  const handleVerificationComplete = (token) => {
-    setAuthToken(token);
+  const handleVerificationComplete = () => {
     setCurrentState("success");
   };
 
@@ -144,7 +142,6 @@ export default function Register() {
       <SuccessScreen
         firstName={formData.firstName}
         onContinue={handleSuccessContinue}
-        authToken={authToken}
       />
     );
   }
@@ -214,9 +211,7 @@ export default function Register() {
           firstName={formData.firstName}
           onVerificationComplete={handleVerificationComplete}
           onChangeContact={handleChangeContact}
-          registrationToken={registrationToken}
           registrationData={formData}
-          onTokenUpdate={setRegistrationToken}
         />
       )}
     </div>

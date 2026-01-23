@@ -4,7 +4,7 @@
 const API_CONFIG = {
   // Base API Configuration
   BASE: {
-    URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost",
+    URL: process.env.NEXT_PUBLIC_API_URL || "",
     TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT || 10000,
     VERSION: process.env.NEXT_PUBLIC_API_VERSION || "v1",
   },
@@ -13,7 +13,8 @@ const API_CONFIG = {
   AUTH: {
     LOGIN: "/auth/login",
     LOGIN_VERIFY: "/auth/login",
-    REFRESH: "/auth/login/refresh",
+    REFRESH: "/auth/refresh",
+    LOGOUT: "/auth/logout",
     REGISTER: "/auth/register",
     VERIFY_OTP: "/auth/register",
     FORGOT_PASSWORD: "/auth/forgot-password",

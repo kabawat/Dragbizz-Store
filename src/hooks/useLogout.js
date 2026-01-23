@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppDispatch } from "../store/hooks";
 import { clearAuth } from "../store/slices/profileSlice";
-import { cookieManager } from "../utils/cookieManager";
+import authService from "@/service/auth/auth.service";
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,19 +15,22 @@ export function useLogout() {
     setIsModalOpen(false);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     try {
-      // Clear Redux store
+      // 1. Call backend logout (deletes HttpOnly cookies)
+      await authService.logout();
+
+      // 2. Clear Redux store
       dispatch(clearAuth());
 
-      // Clear cookies
-      cookieManager.clearAuth();
-
-      // Clear sessionStorage
+      // 3. Clear local session data
       sessionStorage.clear();
 
+      // 4. Redirect to home
       window.location.href = "/";
     } catch (_error) {
+      // Even if API fails, clear local state and redirect
+      dispatch(clearAuth());
       window.location.href = "/";
     }
   };

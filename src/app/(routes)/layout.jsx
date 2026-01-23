@@ -1,6 +1,7 @@
+// src/app/(routes)/layout.jsx
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
@@ -9,7 +10,6 @@ import {
   getAuthProfile,
   getRetailerDetails,
 } from "@/store/slices/profileSlice";
-import { cookieManager } from "@/utils/cookieManager";
 
 export default function RoutesLayout({ children }) {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function RoutesLayout({ children }) {
   const hasFetchedAuthProfileRef = useRef(false);
   const isCheckingAuthRef = useRef(false);
 
-  // Setup inactivity logout (7 days inactivity)
+  // Setup inactivity logout
   useInactivityLogout();
 
   // Get auth state from Redux
@@ -36,7 +36,7 @@ export default function RoutesLayout({ children }) {
     redirectTo,
   } = useAppSelector((state) => state.profile);
 
-  // Check auth and fetch profiles - only run once or when auth token changes
+  // Check auth and fetch profiles
   useEffect(() => {
     // Prevent concurrent executions
     if (isCheckingAuthRef.current) {
@@ -47,63 +47,67 @@ export default function RoutesLayout({ children }) {
       isCheckingAuthRef.current = true;
 
       try {
-        const authToken = cookieManager.getAuthToken();
         const currentPath =
           typeof window !== "undefined" ? window.location.pathname : "";
 
-        // Don't redirect if already on login page to prevent loops
-        if (!authToken && currentPath !== "/login") {
-          router.push("/login");
-          return;
-        }
-
-        // If no auth token, don't proceed with fetching
-        if (!authToken) {
-          return;
-        }
-
-        // Reset flags if auth token was cleared and re-added
+        // 1. Fetch/Verify Auth Profile (The "Source of Truth" for Auth)
+        // This will send cookies automatically via authAxios
+        let currentAuthProfile = authProfile;
         if (
-          !authToken &&
-          (hasFetchedRetailerProfileRef.current ||
-            hasFetchedAuthProfileRef.current)
-        ) {
-          hasFetchedRetailerProfileRef.current = false;
-          hasFetchedAuthProfileRef.current = false;
-        }
-
-        // If no retailer data and no ongoing/error state, fetch retailer profile
-        const hasRetailerData =
-          !!user || !!agency || (stores && stores.length > 0);
-
-        if (
-          !hasRetailerData &&
-          !isLoading &&
-          !error &&
-          !hasFetchedRetailerProfileRef.current
-        ) {
-          hasFetchedRetailerProfileRef.current = true;
-          await dispatch(getRetailerDetails());
-        }
-
-        // If no auth-service profile and no ongoing/error state, fetch auth profile
-        const hasAuthProfile = !!authProfile;
-        if (
-          !hasAuthProfile &&
+          !currentAuthProfile &&
           !authProfileLoading &&
           !authProfileError &&
           !hasFetchedAuthProfileRef.current
         ) {
           hasFetchedAuthProfileRef.current = true;
-          await dispatch(getAuthProfile());
+          try {
+            const result = await dispatch(getAuthProfile()).unwrap();
+            currentAuthProfile = result.data;
+          } catch (err) {
+            console.error("Auth profile fetch failed:", err);
+            if (currentPath !== "/login") {
+              router.push("/login");
+              return;
+            }
+          }
         }
+
+        // 2. If API verification fails, redirect to login
+        if (
+          !currentAuthProfile &&
+          !authProfileLoading &&
+          hasFetchedAuthProfileRef.current &&
+          !authProfileError
+        ) {
+          if (currentPath !== "/login") {
+            router.push("/login");
+            return;
+          }
+        }
+
+        // 3. Fetch Retailer Details if verified
+        if (currentAuthProfile) {
+          const hasRetailerData =
+            !!user || !!agency || (stores && stores.length > 0);
+
+          if (
+            !hasRetailerData &&
+            !isLoading &&
+            !error &&
+            !hasFetchedRetailerProfileRef.current
+          ) {
+            hasFetchedRetailerProfileRef.current = true;
+            await dispatch(getRetailerDetails());
+          }
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
       } finally {
         isCheckingAuthRef.current = false;
       }
     };
 
     checkAuth();
-    // Only depend on loading states and auth token presence, not on data that changes after fetch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isLoading,
@@ -118,12 +122,10 @@ export default function RoutesLayout({ children }) {
     user,
   ]);
 
-  // Handle redirectTo from profile state (for onboarding flow)
+  // Handle redirectTo from profile state
   useEffect(() => {
     if (redirectTo && !isLoading) {
       const currentPath = window.location.pathname;
-      // Only redirect if not already on the target path or a subpath
-      // Use exact match or check if we're not already there
       if (
         currentPath !== redirectTo &&
         !currentPath.startsWith(`${redirectTo}/`)
@@ -133,23 +135,29 @@ export default function RoutesLayout({ children }) {
     }
   }, [redirectTo, isLoading, router]);
 
-  // Show loading screen while profile is being fetched
-  if (isLoading) {
+  // Show loading screen while auth or profile is being verified/fetched
+  const isVerifyingAuth = authProfileLoading || (!authProfile && !authProfileError && !hasFetchedAuthProfileRef.current);
+  const isDataLoading = isLoading && !user && !agency && !error;
+
+  if (isVerifyingAuth || isDataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            Loading Profile...
+            {isVerifyingAuth ? "Verifying Session..." : "Loading Profile..."}
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">
-            Please wait while we fetch your retailer information
+            {isVerifyingAuth
+              ? "Please wait while we verify your authentication"
+              : "Please wait while we fetch your retailer information"}
           </p>
         </div>
       </div>
     );
   }
-  // Render routes with profile data available
+
+  // Render routes
   return (
     <ErrorBoundary>
       <SubscriptionProvider>

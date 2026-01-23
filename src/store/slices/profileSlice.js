@@ -2,9 +2,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
-import { cookieManager } from "@/utils/cookieManager";
-
-
 
 // Async thunk for getting retailer details
 // options: { forceRefresh?: boolean } - when true, always hit API instead of using cached Redux data
@@ -13,14 +10,6 @@ export const getRetailerDetails = createAsyncThunk(
   async (options = {}, { rejectWithValue, getState }) => {
     try {
       const { forceRefresh = false } = options || {};
-      const authToken = cookieManager.getAuthToken();
-
-      if (!authToken) {
-        return rejectWithValue({
-          message: "No auth service token found. Please login again.",
-          redirectTo: "/login",
-        });
-      }
 
       // Check if agency already exists in Redux state (and we are not forcing refresh)
       const currentState = getState();
@@ -58,6 +47,7 @@ export const getRetailerDetails = createAsyncThunk(
       }
 
       // Get retailer data using store service
+      // No token check here, authAxios will return 401 if not authenticated
       const profileResult = await storeService.getRetailerProfile();
       if (!profileResult.success) {
         return rejectWithValue({
@@ -90,9 +80,9 @@ export const getRetailerDetails = createAsyncThunk(
       if (agency && (!stores || stores.length === 0)) {
         return {
           success: true,
-          data: combinedData, // ← Agency data भी include करें
+          data: combinedData,
           message: "Agency found, store details required",
-          redirectTo: "/onboarding/store", // ← Redirect info के साथ success return
+          redirectTo: "/onboarding/store",
         };
       }
 
@@ -178,8 +168,6 @@ const profileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
-
       // Get retailer details
       .addCase(getRetailerDetails.pending, (state) => {
         state.isLoading = true;
@@ -201,20 +189,14 @@ const profileSlice = createSlice({
         }
 
         if (data.stores) {
-          // Keep track of previous selected store ID (if any)
           const prevSelectedId =
             state.selectedStore?._id ||
             state.selectedStore?.id ||
             state.selectedStore?.storeId ||
             null;
 
-          // Replace stores with latest list from API
           state.stores = data.stores;
 
-          // Decide new selectedStore:
-          // 1) If previous selection still exists in new list, keep it
-          // 2) Else, fall back to first store if available
-          // 3) Else, clear selection
           if (data.stores.length > 0) {
             if (prevSelectedId) {
               const matchingStore =
