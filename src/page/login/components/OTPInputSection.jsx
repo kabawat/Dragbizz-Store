@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, Edit3, Mail, Phone, RefreshCw } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import styles from "../style/Login.module.scss";
+import styles from "@/page/style/Login.module.scss";
 
 const OTPInputSection = ({
   otpDigits,

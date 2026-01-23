@@ -102,9 +102,13 @@ const RichTextEditor = ({
   const isNearLimit = maxLength && currentLength > maxLength * 0.8;
   const isAtLimit = maxLength && currentLength >= maxLength;
 
-  // Sanitize HTML to prevent XSS attacks
+  // Sanitize HTML to prevent XSS attacks (only on client-side)
   const sanitizedValue = useMemo(() => {
     if (!value) return "";
+    // DOMPurify only works in browser, skip sanitization during SSR
+    if (typeof window === "undefined" || !DOMPurify || typeof DOMPurify.sanitize !== "function") {
+      return value;
+    }
     return DOMPurify.sanitize(value, {
       ALLOWED_TAGS: [
         "p",

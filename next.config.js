@@ -4,7 +4,6 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compiler: {
     removeConsole:
       process.env.NODE_ENV === "production"
@@ -25,6 +24,57 @@ const nextConfig = {
       "@dnd-kit/sortable",
       "@dnd-kit/utilities",
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/_next/webpack-hmr",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "*",
+          },
+        ],
+      },
+      {
+        source: "/_next/webpack-hmr/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "*",
+          },
+        ],
+      },
+    ];
+  },
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+      // Allow connections from any host for wildcard DNS
+      if (config.devServer) {
+        config.devServer.allowedHosts = "all";
+      }
+    }
+    return config;
   },
 };
 

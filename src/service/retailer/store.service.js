@@ -28,6 +28,7 @@ class StoreService {
     try {
       const payload = {
         name: agencyData.name,
+        subdomain: agencyData.subdomain,
       };
 
       const response = await authAxios.post(

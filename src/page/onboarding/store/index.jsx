@@ -26,6 +26,7 @@ import {
 } from "@/components/ui";
 import { STORE_CATEGORIES } from "@/data";
 import storeService from "@/service/retailer/store.service";
+import { cookieManager } from "@/utils/cookieManager";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
 
@@ -221,10 +222,36 @@ export default function StoreCreation() {
 
       // Use existing store service
       const result = await storeService.createStore(storeData);
-
+      console.log("result ----> ", result)
       if (result?.success) {
-        // Refresh retailer profile to get updated stores list
-        await dispatch(getRetailerDetails({ forceRefresh: true }));
+        // Refresh retailer profile to get updated details
+        const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
+        console.log("actionResult ----> ", actionResult.payload)
+
+        if (getRetailerDetails.fulfilled.match(actionResult)) {
+          const agency = actionResult.payload.data?.agency;
+
+          if (agency?.subdomain) {
+            // Redirect to subdomain
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+
+            let newHostname; a
+            if (hostname === "localhost" || hostname === "127.0.0.1") {
+              newHostname = `${agency.subdomain}.localhost`;
+            } else {
+              newHostname = `${agency.subdomain}.${hostname}`;
+            }
+
+            // Full page refresh redirect
+            const token = cookieManager.getAuthToken();
+            const redirectParams = token ? `?token=${token}` : "";
+            window.location.href = `${protocol}//${newHostname}/dashboard${redirectParams}`;
+            return;
+          }
+        }
+
+        // Fallback if subdomain not found
         setShowSuccessScreen(true);
       } else {
         if (result?.error?.data) {
@@ -379,51 +406,46 @@ export default function StoreCreation() {
                   <div className="flex items-center">
                     {/* Step 1 */}
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                        currentStep > 1
-                          ? "bg-green-500 text-white"
-                          : currentStep === 1
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${currentStep > 1
+                        ? "bg-green-500 text-white"
+                        : currentStep === 1
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
+                        }`}
                     >
                       {currentStep > 1 ? "✓" : "1"}
                     </div>
                     <div
-                      className={`w-12 h-1 mx-1 transition-all ${
-                        currentStep > 1
-                          ? "bg-green-500"
-                          : "bg-[rgb(var(--color-border-primary))]"
-                      }`}
+                      className={`w-12 h-1 mx-1 transition-all ${currentStep > 1
+                        ? "bg-green-500"
+                        : "bg-[rgb(var(--color-border-primary))]"
+                        }`}
                     ></div>
 
                     {/* Step 2 */}
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                        currentStep > 2
-                          ? "bg-green-500 text-white"
-                          : currentStep === 2
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${currentStep > 2
+                        ? "bg-green-500 text-white"
+                        : currentStep === 2
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
+                        }`}
                     >
                       {currentStep > 2 ? "✓" : "2"}
                     </div>
                     <div
-                      className={`w-12 h-1 mx-1 transition-all ${
-                        currentStep > 2
-                          ? "bg-green-500"
-                          : "bg-[rgb(var(--color-border-primary))]"
-                      }`}
+                      className={`w-12 h-1 mx-1 transition-all ${currentStep > 2
+                        ? "bg-green-500"
+                        : "bg-[rgb(var(--color-border-primary))]"
+                        }`}
                     ></div>
 
                     {/* Step 3 */}
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                        currentStep === 3
-                          ? "bg-[rgb(var(--color-primary))] text-white"
-                          : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${currentStep === 3
+                        ? "bg-[rgb(var(--color-primary))] text-white"
+                        : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] border-2 border-[rgb(var(--color-border-primary))]"
+                        }`}
                     >
                       3
                     </div>
@@ -582,12 +604,12 @@ export default function StoreCreation() {
                         />
                         {(fieldErrors["address.city"] ||
                           errors["address.city"]) && (
-                          <p className="text-red-500 text-sm flex items-center mt-2">
-                            <AlertCircle className="w-4 h-4 mr-1" />
-                            {fieldErrors["address.city"] ||
-                              errors["address.city"]}
-                          </p>
-                        )}
+                            <p className="text-red-500 text-sm flex items-center mt-2">
+                              <AlertCircle className="w-4 h-4 mr-1" />
+                              {fieldErrors["address.city"] ||
+                                errors["address.city"]}
+                            </p>
+                          )}
                       </div>
 
                       <div>
