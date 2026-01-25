@@ -1,5 +1,6 @@
 "use client";
 import { AlertCircle, Lock, MessageSquare, Shield } from "lucide-react";
+import Cookies from "js-cookie";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -138,9 +139,19 @@ export default function Login() {
         let finalRedirectUrl = defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
-          const protocol = window.location.protocol;
+          const subdomain = retailerData.agency.subdomain;
           const hostname = window.location.hostname;
-          // Check if we are already on the correct subdomain
+          const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+
+          Cookies.set("tenant", subdomain, {
+            expires: 30,
+            path: "/",
+            // On localhost, don't set domain (defaults to current host)
+            // On production, set it to the base domain (e.g. .dragbizz.store) to share across subdomains
+            domain: isLocalhost ? undefined : `.${hostname.split('.').slice(-2).join('.')}`
+          });
+
+          const protocol = window.location.protocol;
           const currentSubdomain = hostname.split('.')[0];
 
           // Only redirect if we are NOT already on the correct subdomain
@@ -300,8 +311,17 @@ export default function Login() {
         let finalRedirectUrl = defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
-          const protocol = window.location.protocol;
+          const subdomain = retailerData.agency.subdomain;
           const hostname = window.location.hostname;
+          const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+
+          Cookies.set("tenant", subdomain, {
+            expires: 30,
+            path: "/",
+            domain: isLocalhost ? undefined : `.${hostname.split('.').slice(-2).join('.')}`
+          });
+
+          const protocol = window.location.protocol;
           const currentSubdomain = hostname.split('.')[0];
 
           if (currentSubdomain !== retailerData.agency.subdomain) {

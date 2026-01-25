@@ -3,13 +3,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
+import { authService } from "@/service";
+import updateSubdomain from "@/utils/helper/domain";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   // Get profile state from Redux
-  const { redirectTo, agency, stores, isLoading, isAuthenticated } =
-    useAppSelector((state) => state.profile);
+  const { redirectTo, agency, stores, isLoading, isAuthenticated } = useAppSelector((state) => state.profile);
 
   // Get subscription from context (no duplicate API call)
   const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
@@ -48,16 +49,25 @@ export default function DashboardLayout({ children }) {
       router.push("/onboarding/store");
       return;
     }
-  }, [
-    redirectTo,
-    agency,
-    stores,
-    isLoading,
-    isAuthenticated,
-    hasSubscription,
-    subscriptionLoading,
-    router,
-  ]);
+  }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isLoading, agency, stores, router]);
+
+
+  useEffect(() => {
+    const handleRedirect = async () => {
+      try {
+        const res = await authService.refreshToken()
+        console.log("res -----> ",)
+        const domain = updateSubdomain(window.location.href, res.data.tenant)
+        if (!domain?.hasSubdomain) {
+          window.location.replace(domain.url)
+        }
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    handleRedirect()
+  }, [])
 
   // Show loading while checking data
   if (isLoading || subscriptionLoading) {
@@ -81,12 +91,7 @@ export default function DashboardLayout({ children }) {
   }
 
   // Don't render children if redirecting or no subscription
-  if (
-    !hasSubscription ||
-    redirectTo ||
-    !agency ||
-    (agency && (!stores || stores.length === 0))
-  ) {
+  if (!hasSubscription || redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
