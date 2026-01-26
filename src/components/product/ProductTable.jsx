@@ -53,45 +53,20 @@ const ProductTable = ({
     };
   }, [openMenuId]);
 
-  const getVisibilityBadge = (visibility) => {
-    const visibilityConfig = {
-      VISIBLE: {
-        variant: "success",
-        text: "Visible",
-        color:
-          "bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30",
-      },
-      HIDDEN: {
-        variant: "secondary",
-        text: "Hidden",
-        color:
-          "bg-gray-500/10 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/20 dark:border-gray-500/30",
-      },
-      PRIVATE: {
-        variant: "warning",
-        text: "Private",
-        color:
-          "bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 dark:border-yellow-500/30",
-      },
-      PUBLIC: {
-        variant: "success",
-        text: "Public",
-        color:
-          "bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/20 dark:border-blue-500/30",
-      },
-    };
+  const getVisibilityBadge = (product) => {
+    const isInCatalog = product.showInCatalog !== false;
 
-    const config = visibilityConfig[visibility] || {
-      variant: "secondary",
-      text: visibility,
-      color:
-        "bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))] border-[rgb(var(--color-border-primary))]",
-    };
+    if (isInCatalog) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30">
+          In Catalog
+        </span>
+      );
+    }
+
     return (
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.color}`}
-      >
-        {config.text}
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-500/10 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/20 dark:border-gray-500/30">
+        Hidden
       </span>
     );
   };
@@ -228,11 +203,10 @@ const ProductTable = ({
               return (
                 <tr
                   key={product.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index
-                      ? "bg-[rgb(var(--color-bg-tertiary))]"
-                      : ""
-                  }`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${hoveredRow === index
+                    ? "bg-[rgb(var(--color-bg-tertiary))]"
+                    : ""
+                    }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
@@ -279,7 +253,7 @@ const ProductTable = ({
 
                   {/* Visibility Column */}
                   <td className="px-6 py-4">
-                    {getVisibilityBadge(product.visibility)}
+                    {getVisibilityBadge(product)}
                   </td>
 
                   {/* Categories Column */}

@@ -174,6 +174,15 @@ const ProductCard = ({
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl"></div>
 
+        {/* Catalog Status Badge */}
+        <div className="absolute top-4 left-4 z-10">
+          {product.showInCatalog !== false ? (
+            <Badge variant="success" className="shadow-sm">In Catalog</Badge>
+          ) : (
+            <Badge variant="secondary" className="shadow-sm">Hidden</Badge>
+          )}
+        </div>
+
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>

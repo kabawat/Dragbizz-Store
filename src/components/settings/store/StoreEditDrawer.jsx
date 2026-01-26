@@ -11,6 +11,7 @@ const StoreEditDrawer = ({
   onClose,
   onSuccess,
   onError,
+  showSuccess,
 }) => {
   const [form, setForm] = useState({
     name: "",
@@ -27,6 +28,7 @@ const StoreEditDrawer = ({
     category: "",
     gst: "",
     pan: "",
+    catalogId: "",
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -63,6 +65,7 @@ const StoreEditDrawer = ({
               category: storeData.category || "",
               gst: storeData.gst || "",
               pan: storeData.pan || "",
+              catalogId: storeData.catalogId || "",
             });
           } else {
             onError?.(result?.message || "Failed to fetch store details");
@@ -190,6 +193,7 @@ const StoreEditDrawer = ({
         category: form.category || "",
         gst: form.gst?.trim() || "",
         pan: form.pan?.trim() || "",
+        catalogId: form.catalogId?.trim() || null,
       };
 
       const result = await storeService.updateStore(editingStoreId, payload);
@@ -223,6 +227,30 @@ const StoreEditDrawer = ({
     }
   };
 
+  // Handle generate catalog ID
+  const handleGenerateCatalogId = async () => {
+    if (!editingStoreId) return;
+
+    try {
+      setIsSaving(true);
+      const result = await storeService.generateCatalogId(editingStoreId);
+
+      if (result?.success) {
+        setForm((prev) => ({
+          ...prev,
+          catalogId: result.data.catalogId,
+        }));
+        showSuccess?.("Catalog ID generated successfully!");
+      } else {
+        onError?.(result?.message || "Failed to generate Catalog ID");
+      }
+    } catch (error) {
+      onError?.("An error occurred while generating Catalog ID");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Handle cancel
   const handleCancel = () => {
     setForm({
@@ -240,6 +268,7 @@ const StoreEditDrawer = ({
       category: "",
       gst: "",
       pan: "",
+      catalogId: "",
     });
     setErrors({});
     onClose?.();
@@ -272,7 +301,12 @@ const StoreEditDrawer = ({
           </div>
         </div>
       ) : (
-        <StoreEditForm form={form} onChange={handleChange} errors={errors} />
+        <StoreEditForm
+          form={form}
+          onChange={handleChange}
+          errors={errors}
+          onGenerateCatalog={handleGenerateCatalogId}
+        />
       )}
     </FormDrawer>
   );

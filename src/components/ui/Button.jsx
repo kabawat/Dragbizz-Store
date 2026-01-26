@@ -13,8 +13,12 @@ const Button = ({
   type = "button",
   className = "",
   fullWidth = false,
+  isLoading,
   ...props
 }) => {
+  // Determine loading state from either prop
+  const isLoadingState = loading || isLoading;
+
   // Base classes
   const baseClasses =
     "inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none btn-ripple cursor-pointer";
@@ -56,18 +60,18 @@ const Button = ({
   return (
     <button
       type={type}
-      disabled={disabled || loading}
+      disabled={disabled || isLoadingState}
       onClick={onClick}
       className={buttonClasses}
       {...props}
     >
-      {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+      {isLoadingState && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
 
-      {!loading && LeftIcon && <LeftIcon className="w-4 h-4 mr-2" />}
+      {!isLoadingState && LeftIcon && <LeftIcon className="w-4 h-4 mr-2" />}
 
       {children}
 
-      {!loading && RightIcon && <RightIcon className="w-4 h-4 ml-2" />}
+      {!isLoadingState && RightIcon && <RightIcon className="w-4 h-4 ml-2" />}
     </button>
   );
 };

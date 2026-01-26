@@ -148,7 +148,7 @@ const SortableSection = ({
 
 const ProductForm = ({
   formData = {},
-  onChange = () => {},
+  onChange = () => { },
   fieldErrors = {},
   storeId = null,
   className = "",
@@ -635,7 +635,7 @@ const ProductForm = ({
 
                     <Input
                       label={t("products.categoryName")}
-                      placeholder={t("products.enterCategoryName")}
+                      placeholder={t("products.categoryNamePlaceholder")}
                       value={newCategoryData.name}
                       onChange={(value) =>
                         setNewCategoryData((prev) => ({ ...prev, name: value }))
@@ -689,6 +689,8 @@ const ProductForm = ({
                               }));
                             }
                           }}
+                          dropZoneLabel={t("products.clickToUpload")}
+                          sizeLimitLabel={t("products.imagesUpTo2MB")}
                           helperText={t("products.categoryIconHelperText")}
                           maxSize={2 * 1024 * 1024} // 2MB limit for icons
                         />
@@ -697,7 +699,8 @@ const ProductForm = ({
 
                     <TagInput
                       label={t("products.tags")}
-                      placeholder={t("products.addTagsExample")}
+                      placeholder={t("products.addTagsPlaceholder")}
+                      countLabel={t("products.tagCount")}
                       value={newCategoryData.metadata.tags}
                       onChange={(value) =>
                         setNewCategoryData((prev) => ({

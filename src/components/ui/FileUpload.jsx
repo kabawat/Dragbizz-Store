@@ -14,6 +14,8 @@ const FileUpload = ({
   error = false,
   errorMessage,
   helperText,
+  dropZoneLabel,
+  sizeLimitLabel,
   disabled = false,
   required = false,
   className = "",
@@ -154,10 +156,9 @@ const FileUpload = ({
         <div
           className={`
             relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-            ${
-              isDragOver
-                ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
-                : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+            ${isDragOver
+              ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
+              : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
             }
             ${error ? "border-red-500" : ""}
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
@@ -174,12 +175,16 @@ const FileUpload = ({
             <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
               {isDragOver
                 ? "Drop files here"
-                : "Click to upload or drag and drop"}
+                : dropZoneLabel || "Click to upload or drag and drop"}
             </p>
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              {accept.includes("image") ? "Images" : "Files"} up to{" "}
-              {maxSize / (1024 * 1024)}MB
-              {multiple && ` (max ${maxFiles} files)`}
+              {sizeLimitLabel || (
+                <>
+                  {accept.includes("image") ? "Images" : "Files"} up to{" "}
+                  {maxSize / (1024 * 1024)}MB
+                  {multiple && ` (max ${maxFiles} files)`}
+                </>
+              )}
             </p>
           </div>
 
@@ -242,11 +247,10 @@ const FileUpload = ({
                   e.stopPropagation();
                   removeFile(index);
                 }}
-                className={`ml-2 p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 ${
-                  currentVariant === "dark"
-                    ? "hover:bg-red-900/20"
-                    : "hover:bg-red-500/20"
-                }`}
+                className={`ml-2 p-2 cursor-pointer text-gray-500 hover:text-red-500 rounded-lg transition-colors duration-200 ${currentVariant === "dark"
+                  ? "hover:bg-red-900/20"
+                  : "hover:bg-red-500/20"
+                  }`}
                 disabled={disabled}
                 title="Remove image"
               >

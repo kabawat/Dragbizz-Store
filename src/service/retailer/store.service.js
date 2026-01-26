@@ -148,6 +148,18 @@ class StoreService {
       return handleApiErrorResponse(error, "store-delete-verify");
     }
   }
+
+  // Generate Catalog ID
+  async generateCatalogId(storeId) {
+    try {
+      const response = await authAxios.post(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/generate-catalog-id`
+      );
+      return handleApiSuccess(response?.data, "Catalog ID generated successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "store-generate-catalog-id");
+    }
+  }
 }
 
 // Create and export a singleton instance

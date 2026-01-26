@@ -80,6 +80,7 @@ const AddProductPage = () => {
       supplier: "",
       expiryDate: "",
     },
+    showInCatalog: true,
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
@@ -246,7 +247,7 @@ const AddProductPage = () => {
               : updatedFormData.gstInfo.isGstApplicable,
           gstRate:
             extractedData.gstInfo.gstRate !== undefined &&
-            extractedData.gstInfo.gstRate !== null
+              extractedData.gstInfo.gstRate !== null
               ? String(extractedData.gstInfo.gstRate)
               : updatedFormData.gstInfo.gstRate,
           gstType:
@@ -257,7 +258,7 @@ const AddProductPage = () => {
             extractedData.gstInfo.sacCode || updatedFormData.gstInfo.sacCode,
           cessRate:
             extractedData.gstInfo.cessRate !== undefined &&
-            extractedData.gstInfo.cessRate !== null
+              extractedData.gstInfo.cessRate !== null
               ? String(extractedData.gstInfo.cessRate)
               : updatedFormData.gstInfo.cessRate,
         };
@@ -278,29 +279,29 @@ const AddProductPage = () => {
             updatedFormData.content.longDescription,
           tags:
             extractedData.content.tags &&
-            Array.isArray(extractedData.content.tags)
+              Array.isArray(extractedData.content.tags)
               ? [
-                  ...(updatedFormData.content.tags || []),
-                  ...extractedData.content.tags,
-                ].filter((tag, index, self) => self.indexOf(tag) === index)
+                ...(updatedFormData.content.tags || []),
+                ...extractedData.content.tags,
+              ].filter((tag, index, self) => self.indexOf(tag) === index)
               : updatedFormData.content.tags,
           features:
             extractedData.content.features &&
-            Array.isArray(extractedData.content.features)
+              Array.isArray(extractedData.content.features)
               ? [
-                  ...(updatedFormData.content.features || []),
-                  ...extractedData.content.features,
-                ].filter(
-                  (feature, index, self) => self.indexOf(feature) === index
-                )
+                ...(updatedFormData.content.features || []),
+                ...extractedData.content.features,
+              ].filter(
+                (feature, index, self) => self.indexOf(feature) === index
+              )
               : updatedFormData.content.features,
           specifications:
             extractedData.content.specifications &&
-            Array.isArray(extractedData.content.specifications)
+              Array.isArray(extractedData.content.specifications)
               ? [
-                  ...(updatedFormData.content.specifications || []),
-                  ...extractedData.content.specifications,
-                ]
+                ...(updatedFormData.content.specifications || []),
+                ...extractedData.content.specifications,
+              ]
               : updatedFormData.content.specifications,
         };
       }

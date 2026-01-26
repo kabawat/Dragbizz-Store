@@ -1,19 +1,14 @@
-// Who can see the product
+// Product Visibility in Catalog
 export const PRODUCT_VISIBILITY_OPTIONS = [
   {
-    value: "PUBLIC",
-    label: "Public - Visible to everyone",
-    description: "Visible to all customers",
+    value: "true",
+    label: "Show in Catalog",
+    description: "Visible to customers in public QR catalog",
   },
   {
-    value: "PRIVATE",
-    label: "Private - Hidden from public",
-    description: "Only visible to admin",
-  },
-  {
-    value: "CATALOG",
-    label: "Catalog - Visible in catalog only",
-    description: "Visible in catalog but not in search",
+    value: "false",
+    label: "Hidden",
+    description: "Hidden from public QR catalog",
   },
 ];
 

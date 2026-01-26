@@ -41,7 +41,7 @@ const UpdateProductPage = ({ productId }) => {
     currency: "",
     uom: "",
     status: "",
-    visibility: "",
+    showInCatalog: true,
     featured: false,
     bestSeller: false,
     newArrival: false,
@@ -101,9 +101,9 @@ const UpdateProductPage = ({ productId }) => {
             discount: product.discount || "",
             currency: product.currency || "",
             uom: product.uom || "",
-            // Status and visibility
+            // Status and catalog
             status: product.status || "",
-            visibility: product.visibility || "",
+            showInCatalog: product.showInCatalog !== false, // Default to true if not specified
             featured: product.featured || false,
             bestSeller: product.bestSeller || false,
             newArrival: product.newArrival || false,
