@@ -27,9 +27,9 @@ const transformProductData = (apiProduct) => {
       apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
     isGstApplicable: apiProduct.gstInfo?.isGstApplicable === true,
 
-    // Status and visibility
+    // Status and catalog
     status: apiProduct.status || "DRAFT",
-    visibility: apiProduct.visibility || "VISIBLE",
+    showInCatalog: apiProduct.showInCatalog !== false, // Default to true if not specified
     featured: apiProduct.featured || false,
     bestSeller: apiProduct.bestSeller || false,
     newArrival: apiProduct.newArrival || false,

@@ -15,6 +15,7 @@ const TagInput = ({
   maxTags = 10,
   maxTagLength = 20,
   allowDuplicates = false,
+  countLabel,
   className = "",
   name,
   id,
@@ -112,12 +113,11 @@ const TagInput = ({
       <div
         className={`
           relative border border-[rgb(var(--color-border-primary))] rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-[rgb(var(--color-primary))] focus-within:border-[rgb(var(--color-primary))]
-          ${
-            error
-              ? "border-red-500 focus-within:ring-red-500"
-              : isFocused
-                ? "border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]"
-                : "border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]"
+          ${error
+            ? "border-red-500 focus-within:ring-red-500"
+            : isFocused
+              ? "border-[rgb(var(--color-primary))] focus-within:ring-[rgb(var(--color-primary))]"
+              : "border-[rgb(var(--color-border-primary))] focus-within:ring-[rgb(var(--color-primary))]"
           }
           ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}
         `}
@@ -209,7 +209,9 @@ const TagInput = ({
       {maxTags && (
         <div className="mt-1 text-right">
           <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-            {value.length}/{maxTags} tags
+            {countLabel
+              ? countLabel.replace("{count}", value.length).replace("{max}", maxTags)
+              : `${value.length}/${maxTags} tags`}
           </span>
         </div>
       )}

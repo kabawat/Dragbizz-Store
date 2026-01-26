@@ -21,6 +21,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
     category: "",
     gst: "",
     pan: "",
+    catalogId: "",
   });
   const [errors, setErrors] = useState({});
   const [isCreating, setIsCreating] = useState(false);
@@ -131,6 +132,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
         category: form.category || "",
         gst: form.gst?.trim() || "",
         pan: form.pan?.trim() || "",
+        catalogId: form.catalogId?.trim() || null,
         agency: agency.agencyId,
       };
 
@@ -182,6 +184,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
       category: "",
       gst: "",
       pan: "",
+      catalogId: "",
     });
     setErrors({});
     onClose?.();

@@ -172,6 +172,7 @@ const StoreSettings = () => {
         }}
         onSuccess={handleEditSuccess}
         onError={showError}
+        showSuccess={showSuccess}
       />
 
       <StoreDeleteModal

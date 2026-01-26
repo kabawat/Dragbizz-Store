@@ -35,19 +35,13 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
       {/* Status Fields - Only show if enabled */}
       {formData.statusInfo?.isEnabled && (
         <>
-          {/* Visibility */}
+          {/* Catalog Visibility */}
           <div className="mb-6">
-            <Select
-              label={t("products.visibilityLabel")}
-              options={visibilityOptions}
-              value={formData.visibility || "PUBLIC"}
-              onChange={(value) => handleFieldChange("visibility", value)}
-              error={errors.visibility}
-              errorMessage={errors.visibility}
-              required
-              helperText={t("products.whoCanSeeProduct")}
-              searchable
-              placeholder={t("products.selectVisibility")}
+            <Toggle
+              label={t("products.showInCatalogLabel")}
+              checked={formData.showInCatalog !== false}
+              onChange={(checked) => handleFieldChange("showInCatalog", checked)}
+              helperText={t("products.catalogVisibilityDescription")}
             />
           </div>
 
@@ -89,12 +83,10 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[rgb(var(--color-text-secondary))]">
-                  {t("products.visibilityLabel")}:
+                  {t("products.showInCatalogLabel")}:
                 </span>
                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {visibilityOptions.find(
-                    (v) => v.value === formData.visibility
-                  )?.label || formData.visibility}
+                  {formData.showInCatalog !== false ? "Show" : "Hidden"}
                 </span>
               </div>
 

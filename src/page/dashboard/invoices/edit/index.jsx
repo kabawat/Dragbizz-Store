@@ -56,6 +56,7 @@ const EditInvoicePage = ({ invoiceId }) => {
         total: 0,
       },
     ],
+    orderSource: "POS",
   });
 
   // Fetch products from API
@@ -139,24 +140,25 @@ const EditInvoicePage = ({ invoiceId }) => {
           price: item.price || item.product?.sellingPrice || 0,
           total: item.total || 0,
         })) || [
-          {
-            product: "",
-            productName: "",
-            quantity: 1,
-            price: 0,
-            total: 0,
-          },
-        ];
+            {
+              product: "",
+              productName: "",
+              quantity: 1,
+              price: 0,
+              total: 0,
+            },
+          ];
 
         setFormData({
           customer: inv.customer?.id || inv.customer?._id || "",
           totalDiscount: inv.totalDiscount || 0,
           items: transformedItems,
+          orderSource: inv.orderSource || "POS",
         });
       } else {
         setError(
           result.message ||
-            t("errors.failedToFetchData", { item: t("common.invoice") })
+          t("errors.failedToFetchData", { item: t("common.invoice") })
         );
       }
     } catch (_err) {
@@ -245,6 +247,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       })),
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
+      orderSource: formData.orderSource || "POS",
     };
 
     try {
@@ -399,11 +402,11 @@ const EditInvoicePage = ({ invoiceId }) => {
                               options={
                                 customersLoading
                                   ? [
-                                      {
-                                        value: "",
-                                        label: t("errors.loadingCustomers"),
-                                      },
-                                    ]
+                                    {
+                                      value: "",
+                                      label: t("errors.loadingCustomers"),
+                                    },
+                                  ]
                                   : customers
                               }
                               disabled={customersLoading}
@@ -675,7 +678,7 @@ const EditInvoicePage = ({ invoiceId }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

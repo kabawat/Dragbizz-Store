@@ -16,11 +16,10 @@ import {
 } from "@/store/slices/productsSlice";
 import { transformProductsArray } from "@/utils/productUtils";
 
-const getVisibilityOptions = (t) => [
+const getCatalogOptions = (t) => [
   { value: "", label: t("products.allVisibility") },
-  { value: "PUBLIC", label: t("products.public") },
-  { value: "PRIVATE", label: t("products.private") },
-  { value: "CATALOG", label: t("products.catalog") },
+  { value: "true", label: t("products.showInCatalog") },
+  { value: "false", label: t("products.hidden") },
 ];
 
 const getSortOptions = (t) => [
@@ -59,7 +58,7 @@ const ProductsPage = () => {
   // Local state
   const [searchValue, setSearchValue] = useState("");
   const [sortBy, setSortBy] = useState("");
-  const [visibility, setVisibility] = useState("");
+  const [showInCatalog, setShowInCatalog] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -120,7 +119,7 @@ const ProductsPage = () => {
     storeId: null,
     searchValue: null,
     sortBy: null,
-    visibility: null,
+    showInCatalog: null,
     category: null,
     fetched: false,
   });
@@ -134,7 +133,7 @@ const ProductsPage = () => {
       storeId: null,
       searchValue: null,
       sortBy: null,
-      visibility: null,
+      showInCatalog: null,
       category: null,
       fetched: false,
     };
@@ -200,9 +199,9 @@ const ProductsPage = () => {
       params.sortBy = sortBy;
     }
 
-    // Add visibility filter if provided
-    if (visibility) {
-      params.visibility = visibility;
+    // Add showInCatalog filter if provided
+    if (showInCatalog) {
+      params.showInCatalog = showInCatalog;
     }
 
     // Add category filter if provided
@@ -211,7 +210,7 @@ const ProductsPage = () => {
     }
 
     // Create a unique key for this fetch
-    const fetchKey = `${storeId}-${searchValue}-${sortBy}-${visibility}-${category}`;
+    const fetchKey = `${storeId}-${searchValue}-${sortBy}-${showInCatalog}-${category}`;
 
     // Prevent duplicate calls with same parameters
     if (lastFetchRef.current === fetchKey) {
@@ -225,7 +224,7 @@ const ProductsPage = () => {
       lastFetched.storeId === storeId &&
       lastFetched.searchValue === searchValue &&
       lastFetched.sortBy === sortBy &&
-      lastFetched.visibility === visibility &&
+      lastFetched.showInCatalog === showInCatalog &&
       lastFetched.category === category
     ) {
       return;
@@ -241,7 +240,7 @@ const ProductsPage = () => {
         storeId,
         searchValue,
         sortBy,
-        visibility,
+        showInCatalog,
         category,
         fetched: true,
       };
@@ -249,7 +248,7 @@ const ProductsPage = () => {
       // Reset on error so it can retry
       lastFetchRef.current = null;
     }
-  }, [dispatch, storeId, searchValue, sortBy, visibility, category]);
+  }, [dispatch, storeId, searchValue, sortBy, showInCatalog, category]);
 
   // Fetch products on mount and when dependencies change (debounced)
   useEffect(() => {
@@ -262,7 +261,7 @@ const ProductsPage = () => {
           lastFetched.storeId === storeId &&
           lastFetched.searchValue === searchValue &&
           lastFetched.sortBy === sortBy &&
-          lastFetched.visibility === visibility &&
+          lastFetched.showInCatalog === showInCatalog &&
           lastFetched.category === category) ||
         isLoading
       );
@@ -279,7 +278,7 @@ const ProductsPage = () => {
     storeId,
     searchValue,
     sortBy,
-    visibility,
+    showInCatalog,
     category,
     isLoading,
     fetchProducts,
@@ -304,9 +303,9 @@ const ProductsPage = () => {
         params.sortBy = sortBy;
       }
 
-      // Add visibility filter if provided
-      if (visibility) {
-        params.visibility = visibility;
+      // Add showInCatalog filter if provided
+      if (showInCatalog) {
+        params.showInCatalog = showInCatalog;
       }
 
       // Add category filter if provided
@@ -330,7 +329,7 @@ const ProductsPage = () => {
     storeId,
     searchValue,
     sortBy,
-    visibility,
+    showInCatalog,
     category,
     dispatch,
   ]);
@@ -380,9 +379,9 @@ const ProductsPage = () => {
     setSortBy(value);
   };
 
-  // Visibility filter
-  const handleVisibilityChange = (value) => {
-    setVisibility(value);
+  // Catalog filter
+  const handleCatalogChange = (value) => {
+    setShowInCatalog(value);
   };
 
   // Category filter
@@ -537,9 +536,9 @@ const ProductsPage = () => {
                     <div className="min-w-[150px]">
                       <Select
                         placeholder={t("products.visibility")}
-                        value={visibility}
-                        onChange={handleVisibilityChange}
-                        options={getVisibilityOptions(t)}
+                        value={showInCatalog}
+                        onChange={handleCatalogChange}
+                        options={getCatalogOptions(t)}
                         searchable={false}
                       />
                     </div>
@@ -570,11 +569,10 @@ const ProductsPage = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}

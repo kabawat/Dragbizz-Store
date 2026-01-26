@@ -1,6 +1,7 @@
 "use client";
-import { Building2, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
+import { Building2, Copy, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { copyToClipboard } from "@/utils/clipboard";
 
 const StoreList = ({
   stores = [],
@@ -141,7 +142,7 @@ const StoreList = ({
             </div>
 
             {/* Contact Information */}
-            <div className="space-y-1">
+            <div className="space-y-1 mb-4">
               {store.phone && (
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                   <span className="font-medium text-[rgb(var(--color-text-primary))]">
@@ -160,10 +161,42 @@ const StoreList = ({
               )}
             </div>
 
+            {/* Public Catalog Link */}
+            {store.catalogId && (
+              <div className="mt-auto pt-4 border-t border-[rgb(var(--color-border-primary))]/40">
+                <div className="bg-[rgb(var(--color-primary))]/5 px-3 py-2 rounded-lg border border-[rgb(var(--color-primary))]/10">
+                  <div className="flex items-center justify-between gap-2 overflow-hidden">
+                    <div className="flex flex-col truncate">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-[rgb(var(--color-primary))] mb-0.5">
+                        {t("settings.publicCatalog")}
+                      </span>
+                      <code className="text-xs text-[rgb(var(--color-primary))] truncate">
+                        {window.location.host}/c/{store.catalogId}
+                      </code>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const success = await copyToClipboard(`${window.location.origin}/c/${store.catalogId}`);
+                        if (success) {
+                          alert(t("settings.linkCopied"));
+                        }
+                      }}
+                      className="flex-shrink-0 p-1.5 bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white rounded-md transition-all cursor-pointer"
+                      title={t("common.copyLink")}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Current Store Badge */}
             {isCurrent && (
-              <div className="mt-auto pt-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700">
+              <div className={store.catalogId ? "pt-3 text-right" : "mt-auto pt-4 text-right"}>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-600 border border-green-500/20">
                   {t("settings.currentStore")}
                 </span>
               </div>

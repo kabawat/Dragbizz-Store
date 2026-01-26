@@ -74,6 +74,7 @@ const CreateInvoicePage = () => {
     customer: "",
     totalDiscount: 0,
     items: [],
+    orderSource: "POS",
   });
 
   // State for adding new items
@@ -334,6 +335,7 @@ const CreateInvoicePage = () => {
       })),
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
+      orderSource: formData.orderSource || "POS",
     };
 
     try {
@@ -636,11 +638,11 @@ const CreateInvoicePage = () => {
                           options={
                             customersLoading
                               ? [
-                                  {
-                                    value: "",
-                                    label: t("invoice.loadingCustomers"),
-                                  },
-                                ]
+                                {
+                                  value: "",
+                                  label: t("invoice.loadingCustomers"),
+                                },
+                              ]
                               : customers
                           }
                           disabled={customersLoading}
