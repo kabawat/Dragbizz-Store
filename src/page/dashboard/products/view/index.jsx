@@ -78,7 +78,25 @@ const ViewProductPage = ({ productId }) => {
         const result = await productService.getProducts(params);
 
         if (result.success && result.data) {
-          setProductData(result.data);
+          // Handle various response structures:
+          let product = null;
+          if (Array.isArray(result.data.data)) {
+            product = result.data.data[0];
+          } else if (Array.isArray(result.data)) {
+            product = result.data[0];
+          } else if (result.data.data) {
+            product = result.data.data;
+          } else {
+            product = result.data;
+          }
+
+          if (product) {
+            setProductData(product);
+          } else {
+            setError(
+              t("errors.failedToFetchData", { item: t("common.product") })
+            );
+          }
         } else {
           setError(
             result.message ||
