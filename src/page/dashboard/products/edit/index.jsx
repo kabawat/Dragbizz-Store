@@ -11,6 +11,7 @@ import {
   ProductForm,
   ProductInfoModal,
 } from "@/components/product";
+import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
@@ -19,7 +20,8 @@ const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId;
+  const storeId =
+    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -78,65 +80,61 @@ const UpdateProductPage = ({ productId }) => {
           id: productId,
         };
         const result = await productService.getProducts(params);
+        const product = result.data;
+        console.log("product : ", product);
+        // Transform API data to form data structure based on the actual response format
+        const transformedData = {
+          store: storeId,
+          name: product?.name || "",
+          brand: product?.brand || "",
+          category:
+            product?.category?._id ||
+            product?.category?.id ||
+            product?.category ||
+            "",
+          barcode: product?.barcode || "",
+          sku: product?.sku || "",
+          // Pricing data - directly from API response
+          basePrice: product?.basePrice || "",
+          mrp: product?.mrp || "",
+          sellingPrice: product?.sellingPrice || "",
+          discount: product?.discount || "",
+          currency: product?.currency || "",
+          uom: product?.uom || "",
+          // Status and catalog
+          status: product?.status || "",
+          showInCatalog: product?.showInCatalog !== false,
+          featured: product?.featured || false,
+          bestSeller: product?.bestSeller || false,
+          newArrival: product?.newArrival || false,
+          // Stock data
+          openingStock: {
+            openingQuantity: product?.openingStock?.openingQuantity || 0,
+            openingPurchasePrice:
+              product?.openingStock?.openingPurchasePrice || 0,
+          },
+          stockQuantity: product?.stockQuantity || 0,
+          // GST info from nested gstInfo object
+          gstInfo: {
+            isGstApplicable: product?.gstInfo?.isGstApplicable || false,
+            gstRate: product?.gstInfo?.gstRate || "",
+            gstType: product?.gstInfo?.gstType || "CGST_SGST",
+            hsnCode: product?.gstInfo?.hsnCode || "",
+            isGstIncluded: product?.gstInfo?.isGstIncluded || false,
+          },
+          // Content data from nested content object
+          content: {
+            shortDescription: product?.content?.shortDescription || "",
+            longDescription: product?.content?.longDescription || "",
+            tags: product?.content?.tags || [],
+            specifications: product?.content?.specifications || [],
+            features: product?.features || [],
+          },
+        };
 
-        if (result.success && result.data) {
-          const product = result.data;
-
-          // Transform API data to form data structure based on the actual response format
-          const transformedData = {
-            store: storeId,
-            name: product.name || "",
-            brand: product.brand || "",
-            category:
-              product.category?._id ||
-              product.category?.id ||
-              product.category ||
-              "",
-            barcode: product.barcode || "",
-            sku: product.sku || "",
-            // Pricing data - directly from API response
-            basePrice: product.basePrice || "",
-            mrp: product.mrp || "",
-            sellingPrice: product.sellingPrice || "",
-            discount: product.discount || "",
-            currency: product.currency || "",
-            uom: product.uom || "",
-            // Status and catalog
-            status: product.status || "",
-            showInCatalog: product.showInCatalog !== false, // Default to true if not specified
-            featured: product.featured || false,
-            bestSeller: product.bestSeller || false,
-            newArrival: product.newArrival || false,
-            // Stock data
-            openingStock: {
-              openingQuantity: product.openingStock?.openingQuantity || 0,
-              openingPurchasePrice:
-                product.openingStock?.openingPurchasePrice || 0,
-            },
-            stockQuantity: product.stockQuantity || 0,
-            // GST info from nested gstInfo object
-            gstInfo: {
-              isGstApplicable: product.gstInfo?.isGstApplicable || false,
-              gstRate: product.gstInfo?.gstRate || "",
-              gstType: product.gstInfo?.gstType || "CGST_SGST",
-              hsnCode: product.gstInfo?.hsnCode || "",
-              isGstIncluded: product.gstInfo?.isGstIncluded || false,
-            },
-            // Content data from nested content object
-            content: {
-              shortDescription: product.content?.shortDescription || "",
-              longDescription: product.content?.longDescription || "",
-              tags: product.content?.tags || [],
-              specifications: product.content?.specifications || [],
-              features: product.features || [],
-            },
-          };
-
-          setFormData(transformedData);
-        } else {
-          setProductNotFound(true);
-        }
+        setFormData(transformedData);
       } catch (_error) {
+        console.log("_error : ", _error);
         setProductNotFound(true);
       } finally {
         setInitialLoading(false);
@@ -149,13 +147,15 @@ const UpdateProductPage = ({ productId }) => {
 
   // Update store ID when selectedStore changes
   useEffect(() => {
-    if (storeId) {
+    const currentStoreId =
+      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    if (currentStoreId) {
       setFormData((prevData) => ({
         ...prevData,
-        store: storeId,
+        store: currentStoreId,
       }));
     }
-  }, [storeId]);
+  }, [selectedStore]);
 
   // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
