@@ -8,16 +8,12 @@ class PublicSalesOrderService extends BaseService {
     }
 
     async createOrder(orderData) {
-        return this.unauthPost(`${this.endpoint}/create`, orderData, {}, "create-order");
+        return this.unauthPost(this.endpoint, orderData, {}, "create-order");
     }
 
-    async verifyOtp(verificationData, token) {
-        return this.handleRequest(
-            () => this.unauthAxios.put(`${this.endpoint}/verify`, verificationData, {
-                headers: { Authorization: `Bearer ${token}` }
-            }),
-            "verify-otp"
-        );
+    async verifyOtp(verificationData) {
+        // verificationData should contain { secret, otp }
+        return this.unauthPut(this.endpoint, verificationData, {}, "verify-otp");
     }
 
     async getOrder(publicId) {

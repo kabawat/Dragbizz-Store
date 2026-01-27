@@ -74,7 +74,7 @@ const Sidebar = ({ onStoreChange }) => {
     {
       name: t("sidebar.sellOrders") || "Sell Orders",
       icon: ShoppingBag,
-      href: "/dashboard/sales-orders",
+      href: "/dashboard/sales-order",
     },
   ];
 

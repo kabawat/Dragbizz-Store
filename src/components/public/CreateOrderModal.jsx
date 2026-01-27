@@ -20,12 +20,19 @@ const CreateOrderModal = ({
     const [formData, setFormData] = useState({
         customerName: "",
         customerPhone: "",
-        quantity: 1
+        customerEmail: "",
+        quantity: 1,
+        deliveryAddress: {
+            line1: "",
+            city: "",
+            state: "",
+            pincode: ""
+        }
     });
 
     // OTP State
     const [otp, setOtp] = useState("");
-    const [token, setToken] = useState(null);
+    const [secret, setSecret] = useState(null);
     const [orderResult, setOrderResult] = useState(null);
 
     const calculateTotal = () => {
@@ -44,22 +51,23 @@ const CreateOrderModal = ({
             setError(null);
 
             const payload = {
-                store: storeId,
-                publicId: catalogId,
+                store_catalog_id: catalogId,
+                customerName: formData.customerName,
+                customerPhone: formData.customerPhone,
+                customerEmail: formData.customerEmail,
                 items: [{
                     product: product._id,
                     quantity: parseInt(formData.quantity)
                 }],
-                customerName: formData.customerName,
-                customerPhone: formData.customerPhone,
+                deliveryAddress: formData.deliveryAddress,
                 orderSource
             };
 
             const response = await publicSalesOrderService.createOrder(payload);
 
             if (response.success) {
-                const orderToken = response.data?.token;
-                setToken(orderToken);
+                const sessionSecret = response.data?.secret;
+                setSecret(sessionSecret);
                 setStep(2);
             } else {
                 setError(response.message || "Failed to initiate order");
@@ -74,8 +82,8 @@ const CreateOrderModal = ({
 
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        if (!otp || otp.length < 6) {
-            setError("Please enter a valid 6-digit OTP");
+        if (!otp || otp.length < 5) {
+            setError("Please enter a valid 5-digit OTP");
             return;
         }
 
@@ -83,7 +91,10 @@ const CreateOrderModal = ({
             setLoading(true);
             setError(null);
 
-            const response = await publicSalesOrderService.verifyOtp({ otp }, token);
+            const response = await publicSalesOrderService.verifyOtp({
+                secret,
+                otp
+            });
 
             if (response.success) {
                 setOrderResult(response.data);
@@ -100,9 +111,20 @@ const CreateOrderModal = ({
 
     const resetAndClose = () => {
         setStep(1);
-        setFormData({ customerName: "", customerPhone: "", quantity: 1 });
+        setFormData({
+            customerName: "",
+            customerPhone: "",
+            customerEmail: "",
+            quantity: 1,
+            deliveryAddress: {
+                line1: "",
+                city: "",
+                state: "",
+                pincode: ""
+            }
+        });
         setOtp("");
-        setToken(null);
+        setSecret(null);
         setOrderResult(null);
         setError(null);
         onClose();
@@ -181,19 +203,62 @@ const CreateOrderModal = ({
                             </div>
                         </div>
 
-                        <div>
-                            <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Phone Number</label>
-                            <Input
-                                placeholder="Enter 10-digit number"
-                                value={formData.customerPhone}
-                                onChange={(val) => setFormData(prev => ({ ...prev, customerPhone: val.replace(/\D/g, '').slice(0, 10) }))}
-                                required
-                                type="tel"
-                            />
-                            <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1">
-                                We'll send an OTP to verify this number.
-                            </p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Phone Number</label>
+                                <Input
+                                    placeholder="Enter 10-digit number"
+                                    value={formData.customerPhone}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, customerPhone: val.replace(/\D/g, '').slice(0, 10) }))}
+                                    required
+                                    type="tel"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Email Address</label>
+                                <Input
+                                    placeholder="john@example.com"
+                                    value={formData.customerEmail}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, customerEmail: val }))}
+                                    required
+                                    type="email"
+                                />
+                            </div>
                         </div>
+
+                        <div className="space-y-3">
+                            <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase block -mb-1">Delivery Address</label>
+                            <Input
+                                placeholder="Street Address / Line 1"
+                                value={formData.deliveryAddress.line1}
+                                onChange={(val) => setFormData(prev => ({ ...prev, deliveryAddress: { ...prev.deliveryAddress, line1: val } }))}
+                                required
+                            />
+                            <div className="grid grid-cols-2 gap-3">
+                                <Input
+                                    placeholder="City"
+                                    value={formData.deliveryAddress.city}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, deliveryAddress: { ...prev.deliveryAddress, city: val } }))}
+                                    required
+                                />
+                                <Input
+                                    placeholder="State"
+                                    value={formData.deliveryAddress.state}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, deliveryAddress: { ...prev.deliveryAddress, state: val } }))}
+                                    required
+                                />
+                            </div>
+                            <Input
+                                placeholder="Pincode"
+                                value={formData.deliveryAddress.pincode}
+                                onChange={(val) => setFormData(prev => ({ ...prev, deliveryAddress: { ...prev.deliveryAddress, pincode: val } }))}
+                                required
+                            />
+                        </div>
+
+                        <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1">
+                            We'll send an OTP to verify your contact details.
+                        </p>
 
                         {error && <p className="text-xs text-red-500 font-medium bg-red-50 p-2 rounded-lg">{error}</p>}
 
@@ -214,17 +279,17 @@ const CreateOrderModal = ({
                     <form onSubmit={handleVerifyOtp} className="space-y-4">
                         <div className="text-center mb-6">
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                Enter the 6-digit code sent to <span className="font-bold text-[rgb(var(--color-text-primary))]">{formData.customerPhone}</span>
+                                Enter the 5-digit code sent to <span className="font-bold text-[rgb(var(--color-text-primary))]">{formData.customerPhone}</span>
                             </p>
                         </div>
 
                         <div className="flex justify-center">
                             <Input
                                 value={otp}
-                                onChange={(val) => setOtp(val.replace(/\D/g, '').slice(0, 6))}
-                                className="text-center font-mono text-2xl tracking-[0.5em] w-48 font-bold"
-                                placeholder="000000"
-                                maxLength={6}
+                                onChange={(val) => setOtp(val.replace(/\D/g, '').slice(0, 5))}
+                                className="text-center font-mono text-2xl tracking-[0.5em] w-40 font-bold"
+                                placeholder="00000"
+                                maxLength={5}
                                 required
                             />
                         </div>

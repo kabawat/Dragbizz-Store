@@ -56,7 +56,6 @@ export default function DashboardLayout({ children }) {
     const handleRedirect = async () => {
       try {
         const res = await authService.refreshToken()
-        console.log("res -----> ",)
         const domain = updateSubdomain(window.location.href, res.data.tenant)
         if (!domain?.hasSubdomain) {
           window.location.replace(domain.url)
