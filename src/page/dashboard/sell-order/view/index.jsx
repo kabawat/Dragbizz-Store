@@ -1,27 +1,15 @@
 "use client";
-import React, { useState } from "react";
-import {
-    ArrowLeft,
-    Printer,
-    Download,
-    Edit,
-    Trash2,
-    MoreVertical,
-    Share2,
-    CheckCircle,
-    XCircle,
-    Package,
-    Clock,
-    User,
-    Truck,
-    CheckSquare,
-    RefreshCw
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Printer, Download, Edit, Trash2, MoreVertical, Share2, CheckCircle, XCircle, Package, Clock, User, Truck, CheckSquare, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button, Badge, Card, CardBody } from "@/components/ui";
+import { salesOrderService } from "@/service/retailer";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useAppSelector } from "@/store/hooks";
+import moment from "moment";
 
 const SALES_ORDER_STATUSES = Object.freeze({
     DRAFT: 'DRAFT',
@@ -34,57 +22,61 @@ const SALES_ORDER_STATUSES = Object.freeze({
     RETURNED: 'RETURNED'
 });
 
-const mockOrder = {
-    orderNumber: "ORD-2024-001",
-    customer: {
-        name: "Rahul Sharma",
-        phone: "+91 98765 43210",
-        email: "rahul@example.com",
-        address: {
-            line1: "123, Main Street",
-            city: "Mumbai",
-            state: "Maharashtra",
-            pincode: "400001"
-        }
-    },
-    items: [
-        { name: "Premium Cotton Shirt", quantity: 2, price: 1299, total: 2598 },
-        { name: "Denim Jeans", quantity: 1, price: 2499, total: 2499 },
-        { name: "Sneakers", quantity: 1, price: 3999, total: 3999 }
-    ],
-    subtotal: 9096,
-    tax: 1637.28,
-    discount: 500,
-    total: 10233,
-    status: SALES_ORDER_STATUSES.PENDING,
-    paymentStatus: "PAID",
-    date: "2024-01-26",
-    paymentMethod: "UPI",
-    activityLog: [
-        {
-            title: "Order Placed",
-            description: "New order received from Rahul Sharma",
-            date: "Jan 26, 2024 • 10:30 AM",
-            type: "SUCCESS" // Used for styling
-        },
-        {
-            title: "Payment Verified",
-            description: "UPI payment of ₹10,233 confirmed",
-            date: "Jan 26, 2024 • 10:32 AM",
-            type: "INFO"
-        },
-        {
-            title: "System Processing",
-            description: "Order sent to warehouse for picking",
-            date: "Jan 26, 2024 • 11:00 AM",
-            type: "PENDING"
-        }
-    ]
-};
 
 const ViewSellOrderPage = ({ orderId }) => {
     const router = useRouter();
-    const [order] = useState(mockOrder); // Using mock data directly
+    const { showError } = useGlobalToast();
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
+    const [order, setOrder] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchOrder = async () => {
+            if (!orderId || !storeId) return;
+            setLoading(true);
+            try {
+                const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
+                setOrder(result.data)
+            } catch (error) {
+                console.error("Fetch order error:", error);
+                showError("An unexpected error occurred");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrder();
+    }, [orderId, storeId, showError]);
+
+    if (loading) {
+        return (
+            <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
+                <Sidebar />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">Loading order details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!order) {
+        return (
+            <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
+                <Sidebar />
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+                        <XCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))] mb-2">Order Not Found</h2>
+                    <p className="text-[rgb(var(--color-text-secondary))] mb-6">The order you are looking for does not exist or has been removed.</p>
+                    <Button onClick={() => router.push("/dashboard/sales-order")}>Back to Orders</Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
@@ -110,7 +102,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                         {/* Navigation & Actions Bar */}
                         <div className="mb-6 flex items-center justify-between no-print">
                             <Link
-                                href="/dashboard/sell-order"
+                                href="/dashboard/sales-order"
                                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors border border-transparent hover:border-[rgb(var(--color-border-primary))]"
                             >
                                 <ArrowLeft className="w-4 h-4" />
@@ -119,7 +111,6 @@ const ViewSellOrderPage = ({ orderId }) => {
                             <div className="flex gap-3">
                                 <Button variant="outline" leftIcon={Printer}>Print</Button>
                                 <Button variant="outline" leftIcon={Download}>Download</Button>
-                                <Button variant="primary" leftIcon={Edit}>Edit Order</Button>
                             </div>
                         </div>
 
@@ -143,15 +134,15 @@ const ViewSellOrderPage = ({ orderId }) => {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/5 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Name</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer.name}</p>
+                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer?.name || "N/A"}</p>
                                         </div>
                                         <div className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/5 dark:to-blue-500/2 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Phone</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer.phone}</p>
+                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer?.phone || order.shipping?.address?.phone || "N/A"}</p>
                                         </div>
                                         <div className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 dark:from-purple-500/5 dark:to-purple-500/2 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Email</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] break-all">{order.customer.email}</p>
+                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] break-all">{order.customer?.email || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -170,17 +161,15 @@ const ViewSellOrderPage = ({ orderId }) => {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Order Date</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.date}</p>
+                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{moment(order.orderDate || order.createdAt).format("MMM DD, YYYY")}</p>
                                         </div>
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
-                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Payment Method</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.paymentMethod}</p>
+                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Payment</p>
+                                            <Badge variant={order.paymentStatus === "PAID" ? "success" : "warning"} className="text-[10px] uppercase font-bold px-2 py-0.5">{order.paymentStatus || order.payment?.status || "PENDING"}</Badge>
                                         </div>
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
-                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Payment Status</p>
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${order.paymentStatus === 'PAID' ? 'bg-green-500/10 text-green-600 border-green-500/20' : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'}`}>
-                                                {order.paymentStatus}
-                                            </span>
+                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Method</p>
+                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.payment?.mode || order.paymentMethod || "CASH"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -198,18 +187,21 @@ const ViewSellOrderPage = ({ orderId }) => {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">Billing Address</p>
+                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">Billing & Shipping Address</p>
                                             <div className="text-sm font-medium text-[rgb(var(--color-text-primary))] leading-relaxed">
-                                                <p className="font-semibold">{order.customer.name}</p>
-                                                <p>{order.customer.address.line1}</p>
-                                                <p>{order.customer.address.city}, {order.customer.address.state}</p>
-                                                <p>Pincode: {order.customer.address.pincode}</p>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">Shipping Address</p>
-                                            <div className="text-sm font-medium text-[rgb(var(--color-text-primary))] leading-relaxed italic opacity-60">
-                                                Same as billing address
+                                                <p className="font-semibold">{order.shipping?.address?.name || order.customer?.name}</p>
+                                                {(order.shipping?.address?.line1 || order.customer?.address?.line1) && (
+                                                    <p>{order.shipping?.address?.line1 || order.customer?.address?.line1}</p>
+                                                )}
+                                                <p>
+                                                    {order.shipping?.address?.city || order.customer?.address?.city ? `${order.shipping?.address?.city || order.customer?.address?.city}` : ""}
+                                                    {order.shipping?.address?.state || order.customer?.address?.state ? `, ${order.shipping?.address?.state || order.customer?.address?.state}` : ""}
+                                                    {order.shipping?.address?.pincode || order.customer?.address?.pincode ? ` - ${order.shipping?.address?.pincode || order.customer?.address?.pincode}` : ""}
+                                                </p>
+                                                <p className="mt-1 flex items-center gap-1.5 text-[rgb(var(--color-text-secondary))]">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider">Phone:</span>
+                                                    {order.shipping?.address?.phone || order.customer?.phone || "N/A"}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -232,9 +224,16 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-                                                {order.items.map((item, idx) => (
+                                                {(order.items || []).map((item, idx) => (
                                                     <tr key={idx} className="group hover:bg-[rgb(var(--color-bg-secondary))]/50 transition-colors">
-                                                        <td className="px-6 py-4 text-sm font-semibold text-[rgb(var(--color-text-primary))]">{item.name}</td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{item.product?.name || item.name}</span>
+                                                                {item.product?.sku && (
+                                                                    <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight mt-0.5">SKU: {item.product.sku}</span>
+                                                                )}
+                                                            </div>
+                                                        </td>
                                                         <td className="px-6 py-4 text-center text-sm font-medium text-[rgb(var(--color-text-secondary))]">{item.quantity}</td>
                                                         <td className="px-6 py-4 text-right text-sm font-medium text-[rgb(var(--color-text-secondary))]">₹{item.price.toLocaleString()}</td>
                                                         <td className="px-6 py-4 text-right text-sm font-bold text-[rgb(var(--color-text-primary))]">₹{item.total.toLocaleString()}</td>
@@ -247,19 +246,23 @@ const ViewSellOrderPage = ({ orderId }) => {
                                         <div className="w-full md:w-80 space-y-3">
                                             <div className="flex justify-between text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
                                                 <span>Subtotal</span>
-                                                <span className="text-[rgb(var(--color-text-primary))]">₹{order.subtotal.toLocaleString()}</span>
+                                                <span className="text-[rgb(var(--color-text-primary))]">₹{order.financials?.subtotal?.toLocaleString() || order.subtotal?.toLocaleString()}</span>
                                             </div>
-                                            <div className="flex justify-between text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
-                                                <span>Tax (18%)</span>
-                                                <span className="text-[rgb(var(--color-text-primary))]">₹{order.tax.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex justify-between text-xs font-semibold text-green-600/80">
-                                                <span>Discount</span>
-                                                <span>-₹{order.discount.toLocaleString()}</span>
-                                            </div>
+                                            {order.financials?.totalDiscount > 0 && (
+                                                <div className="flex justify-between text-xs font-semibold text-green-600/80">
+                                                    <span>Discount</span>
+                                                    <span>-₹{order.financials.totalDiscount.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {order.financials?.gstAmount > 0 && (
+                                                <div className="flex justify-between text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
+                                                    <span>Tax (GST)</span>
+                                                    <span className="text-[rgb(var(--color-text-primary))]">₹{order.financials.gstAmount.toLocaleString()}</span>
+                                                </div>
+                                            )}
                                             <div className="border-t border-[rgb(var(--color-border-primary))] pt-3 flex justify-between items-center">
                                                 <span className="font-bold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Net Amount</span>
-                                                <span className="font-bold text-[rgb(var(--color-primary))] text-2xl">₹{order.total.toLocaleString()}</span>
+                                                <span className="font-bold text-[rgb(var(--color-primary))] text-2xl">₹{order.financials?.totalAmount?.toLocaleString() || order.total?.toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -364,39 +367,55 @@ const ViewSellOrderPage = ({ orderId }) => {
                                     {/* Stats & Info Cards */}
                                     <div className="space-y-4">
                                         {/* Activity History */}
-                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-5 shadow-sm">
+                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-5">
                                             <h4 className="text-xs font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-6">Activity History</h4>
 
                                             <div className="space-y-8 relative ml-2">
                                                 {/* Vertical Timeline Line */}
                                                 <div className="absolute left-0 top-1 bottom-1 w-[1.5px] bg-gradient-to-b from-[rgb(var(--color-primary))]/50 via-[rgb(var(--color-border-primary))] to-transparent"></div>
 
-                                                {(order?.activityLog || []).slice().reverse().map((activity, idx) => (
-                                                    <div key={idx} className="relative pl-7 group">
-                                                        {/* Activity Dot */}
-                                                        <div className={`absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full transition-all duration-300 ring-4 ring-[rgb(var(--color-bg-primary))] 
-                                                            ${idx === 0 ? 'bg-[rgb(var(--color-primary))] scale-125 shadow-[0_0_10px_rgba(var(--color-primary),0.5)]' : 'bg-[rgb(var(--color-border-primary))] group-hover:bg-[rgb(var(--color-text-tertiary))]'} 
-                                                        `}></div>
+                                                {(order.shipping?.tracking?.history || []).length > 0 ? (
+                                                    (order.shipping?.tracking?.history || []).slice().reverse().map((activity, idx) => (
+                                                        <div key={idx} className="relative pl-7 group">
+                                                            {/* Activity Dot */}
+                                                            <div className={`absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full transition-all duration-300 ring-4 ring-[rgb(var(--color-bg-primary))] 
+                                                                ${idx === 0 ? 'bg-[rgb(var(--color-primary))] scale-125' : 'bg-[rgb(var(--color-border-primary))] group-hover:bg-[rgb(var(--color-text-tertiary))]'} 
+                                                            `}></div>
 
-                                                        {/* Activity Content */}
-                                                        <div className="space-y-1">
-                                                            <div className="flex justify-between items-start">
-                                                                <p className={`text-sm font-semibold ${idx === 0 ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-secondary))]'} transition-colors`}>
-                                                                    {activity.title}
+                                                            {/* Activity Content */}
+                                                            <div className="space-y-1">
+                                                                <div className="flex justify-between items-start">
+                                                                    <p className={`text-sm font-semibold ${idx === 0 ? 'text-[rgb(var(--color-text-primary))]' : 'text-[rgb(var(--color-text-secondary))]'} transition-colors`}>
+                                                                        {activity.status}
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">
+                                                                    {activity.message}
                                                                 </p>
+                                                                <div className="flex items-center gap-1.5 mt-1">
+                                                                    <Clock className="w-3 h-3 text-[rgb(var(--color-text-tertiary))] opacity-60" />
+                                                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
+                                                                        {moment(activity.timestamp).format("MMM DD, YYYY • h:mm A")}
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                            <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">
-                                                                {activity.description}
-                                                            </p>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="relative pl-7 group">
+                                                        <div className="absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[rgb(var(--color-primary))] ring-4 ring-[rgb(var(--color-bg-primary))]"></div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] transition-colors">Order Placed</p>
+                                                            <p className="text-[11px] text-[rgb(var(--color-text-tertiary))] leading-relaxed font-medium">The order was created successfully.</p>
                                                             <div className="flex items-center gap-1.5 mt-1">
                                                                 <Clock className="w-3 h-3 text-[rgb(var(--color-text-tertiary))] opacity-60" />
                                                                 <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-bold uppercase tracking-tight">
-                                                                    {activity.date}
+                                                                    {moment(order.createdAt).format("MMM DD, YYYY • h:mm A")}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                ))}
+                                                )}
                                             </div>
                                         </div>
 
@@ -419,24 +438,6 @@ const ViewSellOrderPage = ({ orderId }) => {
                     </div>
                 </div>
             </div>
-
-            <style jsx global>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background-color: rgba(0, 0, 0, 0.1);
-                    border-radius: 20px;
-                }
-                @media print {
-                    .no-print { display: none !important; }
-                    body { background: white; }
-                    .main-content { margin: 0; padding: 0; overflow: visible; }
-                }
-            `}</style>
         </div>
     );
 };
