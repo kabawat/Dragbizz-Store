@@ -1463,7 +1463,8 @@
     "collapseSidebar": "Sidebar collapse karo",
     "selectStore": "Store select karo",
     "premiumFeature": "Premium Feature",
-    "lowStockAlerts": "Low Stock Alerts"
+    "lowStockAlerts": "Low Stock Alerts",
+    "sellOrders": "Sales Orders"
   },
   "auth": {
     "welcomeToDragBizz": "Welcome to DragBizz Store",

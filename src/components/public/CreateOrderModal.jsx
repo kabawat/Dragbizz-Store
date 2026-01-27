@@ -9,6 +9,7 @@ const CreateOrderModal = ({
     onClose,
     product,
     storeId,
+    catalogId,
     orderSource = "ONLINE"
 }) => {
     const [step, setStep] = useState(1); // 1: Details, 2: OTP, 3: Success
@@ -44,6 +45,7 @@ const CreateOrderModal = ({
 
             const payload = {
                 store: storeId,
+                publicId: catalogId,
                 items: [{
                     product: product._id,
                     quantity: parseInt(formData.quantity)
@@ -56,7 +58,8 @@ const CreateOrderModal = ({
             const response = await publicSalesOrderService.createOrder(payload);
 
             if (response.success) {
-                setToken(response.data.token);
+                const orderToken = response.data?.token;
+                setToken(orderToken);
                 setStep(2);
             } else {
                 setError(response.message || "Failed to initiate order");

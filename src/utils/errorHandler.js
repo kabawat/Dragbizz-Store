@@ -10,9 +10,10 @@ export const handleApiSuccess = (
 ) => {
   const result = {
     success: true,
-    data: response.data?.data || response.data,
+    data: response?.data?.data || response?.data || response,
     token: response?.data?.token,
     message: response?.data?.message || defaultMessage,
+    meta: response?.data?.meta,
   };
 
   if (response?.nextCursor) {
