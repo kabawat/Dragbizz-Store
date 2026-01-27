@@ -33,11 +33,25 @@ export default function CatalogPage({ catalogId }) {
                 setLoading(true);
                 const result = await publicCatalogService.getCatalog(catalogId);
                 if (result?.success) {
-                    setData(result.data);
+                    // Handle both legacy (object) and new (array + meta) response structures
+                    if (Array.isArray(result.data)) {
+                        const uniqueCategories = [...new Set(result.data.map(p =>
+                            (p.category && typeof p.category === 'object') ? p.category?.name : p.category
+                        ).filter(Boolean))];
+
+                        setData({
+                            products: result.data,
+                            store: result.meta?.store || {},
+                            categories: result.meta?.categories || uniqueCategories.map(c => ({ _id: c, name: c }))
+                        });
+                    } else {
+                        setData(result.data);
+                    }
                 } else {
                     setError(result?.message || "Catalog not found");
                 }
             } catch (err) {
+                console.error("Catalog fetch error:", err);
                 setError("An unexpected error occurred while fetching the catalog");
             } finally {
                 setLoading(false);
@@ -211,7 +225,7 @@ export default function CatalogPage({ catalogId }) {
                         </span>
                     </div>
                     <div className="space-y-1">
-                        <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{store.name}</p>
+                        <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{store?.name || "Store"}</p>
                         <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium uppercase tracking-wider">
                             &copy; {new Date().getFullYear()} All Rights Reserved.
                         </p>
@@ -226,6 +240,7 @@ export default function CatalogPage({ catalogId }) {
                     onClose={() => setIsOrderModalOpen(false)}
                     product={selectedProduct}
                     storeId={store?._id || store?.id}
+                    catalogId={catalogId}
                 />
             )}
         </div>

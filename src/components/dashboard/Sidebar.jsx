@@ -18,6 +18,7 @@ import {
   Receipt,
   Settings,
   ShoppingCart,
+  ShoppingBag,
   Users,
   Warehouse,
 } from "lucide-react";
@@ -69,6 +70,11 @@ const Sidebar = ({ onStoreChange }) => {
       name: t("sidebar.expenses"),
       icon: IndianRupee,
       href: "/dashboard/expenses",
+    },
+    {
+      name: t("sidebar.sellOrders") || "Sell Orders",
+      icon: ShoppingBag,
+      href: "/dashboard/sales-orders",
     },
   ];
 
@@ -204,6 +210,7 @@ const Sidebar = ({ onStoreChange }) => {
   const subMenuToFeatureMap = {
     [t("sidebar.customers")]: ["Customer Management", "customer_management"],
     [t("sidebar.invoices")]: ["Invoice Management", "invoice_management"],
+    [t("sidebar.sellOrders") || "Sell Orders"]: ["Invoice Management", "invoice_management"],
     [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
     [t("sidebar.products")]: ["Product Management", "product_management"],
     [t("sidebar.stocks")]: ["Stock Management", "stock_management"],
@@ -304,6 +311,7 @@ const Sidebar = ({ onStoreChange }) => {
       const featureMap = {
         [t("sidebar.customers")]: t("sidebar.customers"),
         [t("sidebar.invoices")]: t("sidebar.invoices"),
+        [t("sidebar.sellOrders") || "Sell Orders"]: t("sidebar.sellOrders") || "Sell Orders",
         [t("sidebar.expenses")]: t("sidebar.expenses"),
         [t("sidebar.products")]: t("sidebar.products"),
         [t("sidebar.stocks")]: t("sidebar.stocks"),
@@ -495,11 +503,10 @@ const Sidebar = ({ onStoreChange }) => {
               return (
                 <div key={item.name} className="relative">
                   <div
-                    className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"} py-2 ${
-                      hasAccess
-                        ? "text-[rgb(var(--color-text-secondary))]"
-                        : "text-[rgb(var(--color-text-tertiary))] opacity-60"
-                    }`}
+                    className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"} py-2 ${hasAccess
+                      ? "text-[rgb(var(--color-text-secondary))]"
+                      : "text-[rgb(var(--color-text-tertiary))] opacity-60"
+                      }`}
                     title={isCollapsed ? item.name : ""}
                   >
                     {!isCollapsed ? (
@@ -540,13 +547,12 @@ const Sidebar = ({ onStoreChange }) => {
                                 e.preventDefault();
                               }
                             }}
-                            className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${
-                              isSubActive
-                                ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
-                                : hasSubAccess
-                                  ? "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                                  : "text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))] cursor-not-allowed"
-                            }`}
+                            className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
+                              ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
+                              : hasSubAccess
+                                ? "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                                : "text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))] cursor-not-allowed"
+                              }`}
                           >
                             <SubIcon
                               className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : hasSubAccess ? "text-[rgb(var(--color-text-tertiary))]" : "text-[rgb(var(--color-text-tertiary))] opacity-60"}`}
@@ -578,23 +584,21 @@ const Sidebar = ({ onStoreChange }) => {
                       e.preventDefault();
                     }
                   }}
-                  className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "space-x-2 px-2"} py-1.5 rounded-lg transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]"
-                      : hasAccess
-                        ? "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        : "text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))]"
-                  }`}
+                  className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "space-x-2 px-2"} py-1.5 rounded-lg transition-all duration-300 cursor-pointer ${isActive
+                    ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]"
+                    : hasAccess
+                      ? "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                      : "text-[rgb(var(--color-text-tertiary))] opacity-60 hover:bg-[rgb(var(--color-bg-secondary))]"
+                    }`}
                   title={isCollapsed ? item.name : ""}
                 >
                   <Icon
-                    className={`w-4 h-4 transition-all duration-300 ${
-                      isActive
-                        ? "text-[rgb(var(--color-primary))]"
-                        : hasAccess
-                          ? "text-[rgb(var(--color-text-tertiary))]"
-                          : "text-[rgb(var(--color-text-tertiary))] opacity-60"
-                    }`}
+                    className={`w-4 h-4 transition-all duration-300 ${isActive
+                      ? "text-[rgb(var(--color-primary))]"
+                      : hasAccess
+                        ? "text-[rgb(var(--color-text-tertiary))]"
+                        : "text-[rgb(var(--color-text-tertiary))] opacity-60"
+                      }`}
                   />
                   {!isCollapsed && (
                     <span
@@ -619,11 +623,10 @@ const Sidebar = ({ onStoreChange }) => {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"} px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer ${
-                isActive
-                  ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
-                  : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-              }`}
+              className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"} px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer ${isActive
+                ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                }`}
               title={isCollapsed ? item.name : ""}
             >
               <Icon className="w-6 h-6 text-[rgb(var(--color-text-tertiary))] transition-all duration-300" />
