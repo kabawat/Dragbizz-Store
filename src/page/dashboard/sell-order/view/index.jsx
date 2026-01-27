@@ -31,24 +31,44 @@ const ViewSellOrderPage = ({ orderId }) => {
 
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [updatingStatus, setUpdatingStatus] = useState(false);
+
+    const fetchOrder = async () => {
+        if (!orderId || !storeId) return;
+        try {
+            const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
+            setOrder(result.data)
+        } catch (error) {
+            console.error("Fetch order error:", error);
+            showError("An unexpected error occurred");
+        }
+    };
+
+    const handleUpdateStatus = async (status, payload = {}) => {
+        if (!orderId || !storeId) return;
+        setUpdatingStatus(true);
+        try {
+            const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
+            if (result.success) {
+                await fetchOrder();
+            } else {
+                showError(result.message || "Failed to update order");
+            }
+        } catch (error) {
+            showError("An unexpected error occurred");
+        } finally {
+            setUpdatingStatus(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchOrder = async () => {
-            if (!orderId || !storeId) return;
+        const initFetch = async () => {
             setLoading(true);
-            try {
-                const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
-                setOrder(result.data)
-            } catch (error) {
-                console.error("Fetch order error:", error);
-                showError("An unexpected error occurred");
-            } finally {
-                setLoading(false);
-            }
+            await fetchOrder();
+            setLoading(false);
         };
-
-        fetchOrder();
-    }, [orderId, storeId, showError]);
+        initFetch();
+    }, [orderId, storeId]);
 
     if (loading) {
         return (
@@ -291,31 +311,37 @@ const ViewSellOrderPage = ({ orderId }) => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-3">
+                                        <div className="flex flex-row flex-wrap gap-3">
                                             {(order.status === SALES_ORDER_STATUSES.PENDING || order.status === SALES_ORDER_STATUSES.DRAFT) && (
-                                                <div className="grid grid-cols-2 gap-3">
+                                                <>
                                                     <Button
                                                         variant="primary"
-                                                        className="w-full justify-center border-none"
+                                                        className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                         leftIcon={CheckCircle}
+                                                        loading={updatingStatus}
+                                                        onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.CONFIRMED, { message: 'Order confirmed' })}
                                                     >
                                                         Confirm
                                                     </Button>
                                                     <Button
                                                         variant="danger"
-                                                        className="w-full justify-center"
+                                                        className="flex-1 justify-center shadow-md hover:shadow-lg transition-all"
                                                         leftIcon={XCircle}
+                                                        loading={updatingStatus}
+                                                        onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.CANCELLED, { message: 'Order declined by store' })}
                                                     >
                                                         Decline
                                                     </Button>
-                                                </div>
+                                                </>
                                             )}
 
                                             {order.status === SALES_ORDER_STATUSES.CONFIRMED && (
                                                 <Button
                                                     variant="primary"
-                                                    className="w-full justify-start border-none"
+                                                    className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                     leftIcon={RefreshCw}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.PROCESSING, { message: 'Order is being processed' })}
                                                 >
                                                     Mark as Processing
                                                 </Button>
@@ -324,8 +350,10 @@ const ViewSellOrderPage = ({ orderId }) => {
                                             {order.status === SALES_ORDER_STATUSES.PROCESSING && (
                                                 <Button
                                                     variant="primary"
-                                                    className="w-full justify-start border-none"
+                                                    className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                     leftIcon={Truck}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.SHIPPED, { message: 'Order has been shipped' })}
                                                 >
                                                     Mark as Shipped
                                                 </Button>
@@ -334,8 +362,10 @@ const ViewSellOrderPage = ({ orderId }) => {
                                             {order.status === SALES_ORDER_STATUSES.SHIPPED && (
                                                 <Button
                                                     variant="primary"
-                                                    className="w-full justify-start border-none"
+                                                    className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                     leftIcon={CheckSquare}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.DELIVERED, { paymentStatus: 'PAID', message: 'Order delivered successfully' })}
                                                 >
                                                     Mark as Delivered
                                                 </Button>
@@ -343,19 +373,19 @@ const ViewSellOrderPage = ({ orderId }) => {
 
                                             {/* Secondary Actions for already confirmed/processing orders */}
                                             {![SALES_ORDER_STATUSES.PENDING, SALES_ORDER_STATUSES.DRAFT, SALES_ORDER_STATUSES.CANCELLED, SALES_ORDER_STATUSES.DELIVERED, SALES_ORDER_STATUSES.RETURNED].includes(order.status) && (
-                                                <div className="pt-2 border-t border-[rgb(var(--color-border-primary))]/30">
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-start font-semibold bg-[rgb(var(--color-bg-primary))]/50 border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-primary))] text-red-500 hover:text-red-600"
-                                                        leftIcon={XCircle}
-                                                    >
-                                                        Cancel Order
-                                                    </Button>
-                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1 justify-center font-semibold bg-red-500/5 border-red-500/20 hover:bg-red-500 hover:text-white text-red-500 transition-all"
+                                                    leftIcon={XCircle}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.CANCELLED, { message: 'Order cancelled by store' })}
+                                                >
+                                                    Cancel Order
+                                                </Button>
                                             )}
 
                                             {[SALES_ORDER_STATUSES.DELIVERED, SALES_ORDER_STATUSES.CANCELLED, SALES_ORDER_STATUSES.RETURNED].includes(order.status) && (
-                                                <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-dashed border-[rgb(var(--color-border-primary))] text-center">
+                                                <div className="w-full p-4 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-dashed border-[rgb(var(--color-border-primary))] text-center">
                                                     <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] italic">
                                                         No further actions available for this {order.status.toLowerCase()} order.
                                                     </p>

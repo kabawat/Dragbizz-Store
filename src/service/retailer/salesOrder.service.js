@@ -27,10 +27,11 @@ class SalesOrderService {
     }
 
     // Update Status
-    async updateStatus(id, status) {
+    async updateStatus(id, payload, params = {}) {
         try {
-            const response = await authAxios.patch(`${API_CONFIG.RETAILER.SALES_ORDER}/${id}/status`, { status });
-            return handleApiSuccess(response.data, "Status updated successfully");
+            const url = attachQueryParams(`${API_CONFIG.RETAILER.SALES_ORDER}/status/${id}`, params);
+            const response = await authAxios.put(url, payload);
+            return handleApiSuccess(response.data, "Order updated successfully");
         } catch (error) {
             return handleApiErrorResponse(error, "sales-order-status-update");
         }
