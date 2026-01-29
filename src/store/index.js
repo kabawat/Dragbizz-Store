@@ -11,6 +11,8 @@ import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
 import suppliersSlice from "./slices/suppliersSlice";
 
+import publicCartSlice from "./slices/publicCartSlice";
+
 export const store = configureStore({
   reducer: {
     profile: profileSlice,
@@ -24,6 +26,7 @@ export const store = configureStore({
     purchaseOrders: purchaseOrdersSlice,
     expenses: expensesSlice,
     analytics: analyticsSlice,
+    publicCart: publicCartSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
