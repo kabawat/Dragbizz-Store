@@ -58,10 +58,19 @@
   /* Shadow Colors */
   --color-shadow: 0 0 0;
 
+  /* Premium Design Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -3px rgba(0, 0, 0, 0.02);
+  --card-shadow-hover: 0 20px 40px -8px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+
   /* Theme Name */
   --theme-name: 'default';
   --theme-variant: 'light';
 }
+
 
 /* Dark Theme Variant */
 [data-theme="default"][data-variant="dark"] {
@@ -88,7 +97,13 @@
 
   --color-shadow: 0 0 0;
   --theme-variant: 'dark';
+
+  /* Premium Design Tokens - Dark */
+  --glass-bg: rgba(17, 24, 39, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
+
 
 /* Ocean Theme */
 [data-theme="ocean"] {

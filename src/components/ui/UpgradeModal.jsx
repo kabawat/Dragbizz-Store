@@ -3,7 +3,7 @@ import { ArrowRight, Check, Lock, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/ui";
+import Button from "./Button";
 
 const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
   const router = useRouter();

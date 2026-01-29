@@ -42,7 +42,7 @@ const API_CONFIG = {
     EXPENSE: "/retailer/expense",
     DASHBOARD: "/retailer/dashboard",
     ANALYTICS: "/retailer/analytics",
-    PUBLIC_CATALOG: "/retailer/public/catalog",
+    PUBLIC_CATALOG: "/retailer/public/products",
     PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
     SALES_ORDER: "/retailer/sales-order",
   },

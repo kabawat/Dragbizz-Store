@@ -1,8 +1,10 @@
 "use client";
 import { ArrowUp, Package, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Button, Input, Select } from "@/components/ui";
-import UpgradeModal from "@/components/ui/UpgradeModal";
+import Button from "./Button";
+import Input from "./Input";
+import Select from "./Select";
+import UpgradeModal from "./UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
