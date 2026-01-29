@@ -142,18 +142,17 @@ const CustomerTable = ({
       </div>
 
       {/* Table Body */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto min-h-[300px]">
         <table className="w-full min-w-[600px] table-fixed">
           <tbody className="divide-y divide-gray-100">
             {customers.map((customer, index) => {
               return (
                 <tr
                   key={customer.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index
-                      ? "bg-[rgb(var(--color-bg-tertiary))]"
-                      : ""
-                  }`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${hoveredRow === index
+                    ? "bg-[rgb(var(--color-bg-tertiary))]"
+                    : ""
+                    }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >

@@ -35,7 +35,15 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoiceAnalytics } from "@/store/slices/invoicesSlice";
 
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+const formatCurrency = (amount) =>
+  `₹${(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const SalesAnalytics = () => {
+
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -94,9 +102,6 @@ const SalesAnalytics = () => {
     [analytics?.today]
   );
 
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-  const formatCurrency = (amount) =>
-    `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -184,7 +189,7 @@ const SalesAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, counts, amounts, formatCurrency, formatNumber]);
+  }, [analytics, counts, amounts]);
 
   const [cards, setCards] = useState([
     { id: "chart1", type: "chart", title: "Sales Trend" },
@@ -241,14 +246,6 @@ const SalesAnalytics = () => {
   }, [showExportMenu]);
 
   const getSalesXLSXConfig = () => {
-    const formatCurrency = (amount) => {
-      if (amount === null || amount === undefined) return "₹0.00";
-      return `₹${Number(amount).toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`;
-    };
-    const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
     return {
       title: "SALES ANALYTICS REPORT",

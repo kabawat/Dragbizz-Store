@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Printer, Download, Edit, Trash2, MoreVertical, Share2, CheckCircle, XCircle, Package, Clock, User, Truck, CheckSquare, RefreshCw } from "lucide-react";
+import { ArrowLeft, Printer, Download, Edit, Trash2, MoreVertical, Share2, CheckCircle, XCircle, Package, Clock, User, Truck, CheckSquare, RefreshCw, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { Button, Badge, Card, CardBody } from "@/components/ui";
+import { Button, Badge, Card, CardBody, Modal } from "@/components/ui";
 import { salesOrderService } from "@/service/retailer";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
@@ -17,6 +17,8 @@ const SALES_ORDER_STATUSES = Object.freeze({
     CONFIRMED: 'CONFIRMED',
     PROCESSING: 'PROCESSING',
     SHIPPED: 'SHIPPED',
+    IN_TRANSIT: 'IN_TRANSIT',
+    OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
     DELIVERED: 'DELIVERED',
     CANCELLED: 'CANCELLED',
     RETURNED: 'RETURNED'
@@ -25,7 +27,7 @@ const SALES_ORDER_STATUSES = Object.freeze({
 
 const ViewSellOrderPage = ({ orderId }) => {
     const router = useRouter();
-    const { showError } = useGlobalToast();
+    const { showError, showSuccess } = useGlobalToast();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
@@ -37,10 +39,10 @@ const ViewSellOrderPage = ({ orderId }) => {
         if (!orderId || !storeId) return;
         try {
             const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
-            setOrder(result.data)
+            setOrder(result.data);
         } catch (error) {
             console.error("Fetch order error:", error);
-            showError("An unexpected error occurred");
+            showError("An unexpected error occurred while fetching order");
         }
     };
 
@@ -50,12 +52,14 @@ const ViewSellOrderPage = ({ orderId }) => {
         try {
             const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
             if (result.success) {
+                showSuccess(result.message || "Order updated successfully");
                 await fetchOrder();
             } else {
                 showError(result.message || "Failed to update order");
             }
         } catch (error) {
-            showError("An unexpected error occurred");
+            console.error("Update status error:", error);
+            showError("An unexpected error occurred while updating status");
         } finally {
             setUpdatingStatus(false);
         }
@@ -106,7 +110,7 @@ const ViewSellOrderPage = ({ orderId }) => {
             </div>
 
             {/* Main Content */}
-            <div className="min-h-screen w-full flex flex-col main-content">
+            <div className="h-full w-full flex flex-col main-content">
                 {/* Header */}
                 <div className="no-print">
                     <Header
@@ -116,14 +120,14 @@ const ViewSellOrderPage = ({ orderId }) => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 p-6 overflow-hidden">
-                    <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
+                <div className="flex-1 p-6 overflow-hidden flex flex-col">
+                    <div className="max-w-8xl mx-auto w-full flex-1 flex flex-col min-h-0">
 
                         {/* Navigation & Actions Bar */}
                         <div className="mb-6 flex items-center justify-between no-print">
                             <Link
                                 href="/dashboard/sales-order"
-                                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors border border-transparent hover:border-[rgb(var(--color-border-primary))]"
+                                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors border border-transparent hover:border-[rgb(var(--color-border-primary)/0.5)]"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 <span className="text-sm font-medium">Back to Orders</span>
@@ -135,13 +139,13 @@ const ViewSellOrderPage = ({ orderId }) => {
                         </div>
 
                         {/* Main Grid Layout */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full overflow-hidden">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0 overflow-hidden">
 
                             {/* Left Column: Order Content View */}
-                            <div className="lg:col-span-2 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2 space-y-6">
+                            <div className="lg:col-span-2 flex flex-col min-h-0 overflow-y-auto pr-2 space-y-6">
 
                                 {/* 1. Customer Details Card */}
-                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-6">
                                     <div className="flex items-center space-x-3 mb-6">
                                         <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center">
                                             <User className="w-6 h-6 text-[rgb(var(--color-primary))]" />
@@ -152,15 +156,15 @@ const ViewSellOrderPage = ({ orderId }) => {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/5 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
+                                        <div className="p-4 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/5 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Name</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer?.name || "N/A"}</p>
                                         </div>
-                                        <div className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/5 dark:to-blue-500/2 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
+                                        <div className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/5 dark:to-blue-500/2 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Phone</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.customer?.phone || order.shipping?.address?.phone || "N/A"}</p>
                                         </div>
-                                        <div className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 dark:from-purple-500/5 dark:to-purple-500/2 rounded-xl border border-[rgb(var(--color-border-primary))]/30">
+                                        <div className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 dark:from-purple-500/5 dark:to-purple-500/2 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/30">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Email</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] break-all">{order.customer?.email || "N/A"}</p>
                                         </div>
@@ -168,7 +172,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                                 </div>
 
                                 {/* 2. Order Summary Details */}
-                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-6">
                                     <div className="flex items-center space-x-3 mb-6">
                                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
                                             <Clock className="w-6 h-6 text-blue-500" />
@@ -179,15 +183,15 @@ const ViewSellOrderPage = ({ orderId }) => {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
+                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Order Date</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{moment(order.orderDate || order.createdAt).format("MMM DD, YYYY")}</p>
                                         </div>
-                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
+                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Payment</p>
-                                            <Badge variant={order.paymentStatus === "PAID" ? "success" : "warning"} className="text-[10px] uppercase font-bold px-2 py-0.5">{order.paymentStatus || order.payment?.status || "PENDING"}</Badge>
+                                            <Badge variant={(order.paymentStatus || order.payment?.status) === "PAID" ? "success" : "warning"} className="text-[10px] uppercase font-bold px-2 py-0.5">{order.paymentStatus || order.payment?.status || "PENDING"}</Badge>
                                         </div>
-                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary))]/40 text-left">
+                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Method</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.payment?.mode || order.paymentMethod || "CASH"}</p>
                                         </div>
@@ -195,7 +199,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                                 </div>
 
                                 {/* 3. Address Information */}
-                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-6">
+                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-6">
                                     <div className="flex items-center space-x-3 mb-6">
                                         <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full flex items-center justify-center">
                                             <Package className="w-6 h-6 text-purple-500" />
@@ -228,8 +232,8 @@ const ViewSellOrderPage = ({ orderId }) => {
                                 </div>
 
                                 {/* 4. Items & Financials Card */}
-                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden flex flex-col">
-                                    <div className="p-6 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]/30 flex justify-between items-center">
+                                <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex flex-col">
+                                    <div className="p-6 border-b border-[rgb(var(--color-border-primary)/0.5)] bg-[rgb(var(--color-bg-secondary))]/30 flex justify-between items-center">
                                         <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Order Items</h2>
                                         <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider">{order.items.length} Items</Badge>
                                     </div>
@@ -280,7 +284,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                     <span className="text-[rgb(var(--color-text-primary))]">₹{order.financials.gstAmount.toLocaleString()}</span>
                                                 </div>
                                             )}
-                                            <div className="border-t border-[rgb(var(--color-border-primary))] pt-3 flex justify-between items-center">
+                                            <div className="border-t border-[rgb(var(--color-border-primary)/0.5)] pt-3 flex justify-between items-center">
                                                 <span className="font-bold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Net Amount</span>
                                                 <span className="font-bold text-[rgb(var(--color-primary))] text-2xl">₹{order.financials?.totalAmount?.toLocaleString() || order.total?.toLocaleString()}</span>
                                             </div>
@@ -289,18 +293,18 @@ const ViewSellOrderPage = ({ orderId }) => {
                                 </div>
 
                                 {/* 5. Additional Info Footer */}
-                                <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-transparent rounded-xl border border-[rgb(var(--color-border-primary))] border-l-[4px] border-l-[rgb(var(--color-primary))]">
+                                <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-transparent rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] border-l-[4px] border-l-[rgb(var(--color-primary))]">
                                     <h4 className="text-[10px] font-bold text-[rgb(var(--color-text-primary))] mb-2 uppercase tracking-[0.2em]">Terms & Conditions</h4>
                                     <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed font-medium">Standard store terms apply. Please contact support for any billing discrepancies.</p>
                                 </div>
                             </div>
 
                             {/* Right Column: Actions & Status */}
-                            <div className="flex flex-col h-full no-print">
-                                <div className="flex-1 overflow-y-auto px-1 space-y-6 custom-scrollbar">
+                            <div className="flex flex-col min-h-0 no-print">
+                                <div className="flex-1 overflow-y-auto px-1 space-y-6">
 
                                     {/* Quick Actions Container */}
-                                    <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-xl border border-[rgb(var(--color-primary))]/20 p-6">
+                                    <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-xl border border-[rgb(var(--color-primary)/0.1)] p-6">
                                         <div className="flex items-center gap-3 mb-6">
                                             <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
                                                 <Clock className="w-5 h-5 text-[rgb(var(--color-primary))]" />
@@ -353,7 +357,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                     className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                     leftIcon={Truck}
                                                     loading={updatingStatus}
-                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.SHIPPED, { message: 'Order has been shipped' })}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.SHIPPED, { message: 'Order marked as shipped' })}
                                                 >
                                                     Mark as Shipped
                                                 </Button>
@@ -363,11 +367,48 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                 <Button
                                                     variant="primary"
                                                     className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
+                                                    leftIcon={Truck}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.IN_TRANSIT, { message: 'Order is in transit' })}
+                                                >
+                                                    Mark as In Transit
+                                                </Button>
+                                            )}
+
+                                            {order.status === SALES_ORDER_STATUSES.IN_TRANSIT && (
+                                                <Button
+                                                    variant="primary"
+                                                    className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
+                                                    leftIcon={Truck}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.OUT_FOR_DELIVERY, { message: 'Order is out for delivery' })}
+                                                >
+                                                    Mark as Out for Delivery
+                                                </Button>
+                                            )}
+
+                                            {order.status === SALES_ORDER_STATUSES.OUT_FOR_DELIVERY && (
+                                                <Button
+                                                    variant="primary"
+                                                    className="flex-1 justify-center border-none shadow-md hover:shadow-lg transition-all"
                                                     leftIcon={CheckSquare}
                                                     loading={updatingStatus}
-                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.DELIVERED, { paymentStatus: 'PAID', message: 'Order delivered successfully' })}
+                                                    onClick={() => handleUpdateStatus(SALES_ORDER_STATUSES.DELIVERED, { message: 'Order delivered successfully' })}
                                                 >
                                                     Mark as Delivered
+                                                </Button>
+                                            )}
+
+                                            {/* Post-shipment Payment Action - Now available for all shipped states */}
+                                            {[SALES_ORDER_STATUSES.SHIPPED, SALES_ORDER_STATUSES.IN_TRANSIT, SALES_ORDER_STATUSES.OUT_FOR_DELIVERY, SALES_ORDER_STATUSES.DELIVERED].includes(order.status) && (order.paymentStatus || order.payment?.status) !== 'PAID' && (
+                                                <Button
+                                                    variant="success"
+                                                    className="flex-1 justify-center shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600 text-white border-none"
+                                                    leftIcon={CheckCircle}
+                                                    loading={updatingStatus}
+                                                    onClick={() => handleUpdateStatus(null, { paymentStatus: 'PAID', message: 'Payment collected and order marked as PAID' })}
+                                                >
+                                                    Mark as Paid
                                                 </Button>
                                             )}
 
@@ -384,20 +425,21 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                 </Button>
                                             )}
 
-                                            {[SALES_ORDER_STATUSES.DELIVERED, SALES_ORDER_STATUSES.CANCELLED, SALES_ORDER_STATUSES.RETURNED].includes(order.status) && (
-                                                <div className="w-full p-4 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-dashed border-[rgb(var(--color-border-primary))] text-center">
-                                                    <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] italic">
-                                                        No further actions available for this {order.status.toLowerCase()} order.
-                                                    </p>
-                                                </div>
-                                            )}
+                                            {([SALES_ORDER_STATUSES.CANCELLED, SALES_ORDER_STATUSES.RETURNED].includes(order.status) ||
+                                                (order.status === SALES_ORDER_STATUSES.DELIVERED && (order.paymentStatus || order.payment?.status) === 'PAID')) && (
+                                                    <div className="w-full p-4 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-dashed border-[rgb(var(--color-border-primary)/0.5)] text-center">
+                                                        <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] italic">
+                                                            No further actions available for this {order.status.toLowerCase()} order.
+                                                        </p>
+                                                    </div>
+                                                )}
                                         </div>
                                     </div>
 
                                     {/* Stats & Info Cards */}
                                     <div className="space-y-4">
                                         {/* Activity History */}
-                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-5">
+                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-5">
                                             <h4 className="text-xs font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-6">Activity History</h4>
 
                                             <div className="space-y-8 relative ml-2">
@@ -450,12 +492,12 @@ const ViewSellOrderPage = ({ orderId }) => {
                                         </div>
 
                                         {/* Notes Section */}
-                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-5 transition-all">
+                                        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] p-5 transition-all">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h4 className="text-xs font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">Order Notes</h4>
                                                 <button className="text-[rgb(var(--color-primary))] text-xs font-bold hover:underline">Add Note</button>
                                             </div>
-                                            <div className="bg-[rgb(var(--color-bg-secondary))]/80 p-3 rounded-lg border border-[rgb(var(--color-border-primary))]/50 text-sm text-[rgb(var(--color-text-secondary))] italic leading-relaxed">
+                                            <div className="bg-[rgb(var(--color-bg-secondary))]/80 p-3 rounded-lg border border-[rgb(var(--color-border-primary)/0.5)]/50 text-sm text-[rgb(var(--color-text-secondary))] italic leading-relaxed">
                                                 "Customer requested delivery before 5 PM."
                                             </div>
                                         </div>

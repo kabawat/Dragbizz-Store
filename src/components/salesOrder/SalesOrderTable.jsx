@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw } from "lucide-react";
+import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -41,7 +41,7 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderTable = ({ orders, onViewDetails, onPrint }) => {
+const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => {
     const { t } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
     const [hoveredRow, setHoveredRow] = useState(null);
@@ -70,6 +70,12 @@ const SalesOrderTable = ({ orders, onViewDetails, onPrint }) => {
                 break;
             case "print":
                 onPrint?.(order);
+                break;
+            case "ship":
+                onUpdateStatus?.(orderId, "SHIPPED", { message: 'Order marked as shipped' });
+                break;
+            case "mark_paid":
+                onUpdateStatus?.(orderId, null, { paymentStatus: "PAID", message: "Payment confirmed and marked as PAID" });
                 break;
             default:
                 break;
@@ -173,19 +179,47 @@ const SalesOrderTable = ({ orders, onViewDetails, onPrint }) => {
                                                 className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
                                                 title={t("common.actions")}
                                             >
-                                                <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                                                < MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
                                             </button>
 
                                             {/* Popup Menu */}
                                             {openMenuId === orderId && (
-                                                <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50 text-left">
+                                                <div className="absolute right-0 top-full mt-1 w-56 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50 text-left">
                                                     <button
-                                                        onClick={() => handleMenuAction(orderId, "view")}
+                                                        onClick={() => handleMenuAction(orderId, "view", order)}
                                                         className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                                                     >
                                                         <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                                                         {t("common.viewDetails")}
                                                     </button>
+
+                                                    {order.status === "PROCESSING" && (
+                                                        <>
+                                                            <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
+                                                            <button
+                                                                onClick={() => handleMenuAction(orderId, "ship", order)}
+                                                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                                                            >
+                                                                <Truck className="w-4 h-4" />
+                                                                Mark as Shipped
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {(order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
+                                                        <>
+                                                            <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
+                                                            <button
+                                                                onClick={() => handleMenuAction(orderId, "mark_paid", order)}
+                                                                className="w-full px-4 py-2 text-left text-sm text-emerald-600 hover:bg-emerald-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                                                            >
+                                                                <CreditCard className="w-4 h-4" />
+                                                                Mark as Paid
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
                                                     <button
                                                         onClick={() => handleMenuAction(orderId, "print", order)}
                                                         className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"

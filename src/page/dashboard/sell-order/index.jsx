@@ -21,12 +21,13 @@ import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
 const SalesOrdersPage = () => {
     const { t } = useTranslation();
     const router = useRouter();
-    const { showError } = useGlobalToast();
+    const { showError, showSuccess } = useGlobalToast();
     const { selectedStore } = useAppSelector((state) => state.profile);
 
     // Local state
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [updatingStatus, setUpdatingStatus] = useState(false);
     const [viewMode, setViewMode] = useState("table");
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -83,7 +84,6 @@ const SalesOrdersPage = () => {
         return () => clearTimeout(timeoutId);
     }, [fetchOrders, storeId, searchTerm, statusFilter]);
 
-
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
         localStorage.setItem("sales-orders-view-mode", mode);
@@ -91,6 +91,26 @@ const SalesOrdersPage = () => {
 
     const handleViewDetails = (id) => {
         router.push(`/dashboard/sales-order/view/${id}`);
+    };
+
+    const handleUpdateStatus = async (orderId, status, payload = {}) => {
+        if (!orderId || !storeId) return;
+
+        setUpdatingStatus(true);
+        try {
+            const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
+            if (result.success) {
+                showSuccess(result.message || "Order updated successfully");
+                fetchOrders();
+            } else {
+                showError(result.message || "Failed to update order");
+            }
+        } catch (error) {
+            console.error("Update status error:", error);
+            showError("An unexpected error occurred while updating status");
+        } finally {
+            setUpdatingStatus(false);
+        }
     };
 
     const handlePrint = (order) => {
@@ -220,6 +240,7 @@ const SalesOrdersPage = () => {
                                         <SalesOrderTable
                                             orders={orders}
                                             onViewDetails={handleViewDetails}
+                                            onUpdateStatus={handleUpdateStatus}
                                             onPrint={handlePrint}
                                         />
                                     ) : (
@@ -229,6 +250,7 @@ const SalesOrdersPage = () => {
                                                     key={order?.id || index}
                                                     order={order}
                                                     onViewDetails={handleViewDetails}
+                                                    onUpdateStatus={handleUpdateStatus}
                                                     onPrint={handlePrint}
                                                 />
                                             ))}
@@ -249,6 +271,7 @@ const SalesOrdersPage = () => {
                     </div>
                 </div>
             </div>
+            {/* Remove ShipmentStatusModal - no longer needed for direct status updates */}
         </div>
     );
 };

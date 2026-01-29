@@ -1,6 +1,7 @@
 "use client";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const Modal = ({
   isOpen = false,
@@ -15,6 +16,12 @@ const Modal = ({
   overlayClassName = "",
   ...props
 }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Handle escape key
   useEffect(() => {
     if (!closeOnEscape || !isOpen) return;
@@ -57,9 +64,9 @@ const Modal = ({
     full: "max-w-full mx-4",
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-[9999] overflow-y-auto">
       {/* Overlay */}
       <div
@@ -101,6 +108,8 @@ const Modal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 // Modal Header Component
