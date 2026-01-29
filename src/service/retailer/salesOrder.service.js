@@ -15,17 +15,6 @@ class SalesOrderService {
         }
     }
 
-    // Get single sales order by ID
-    async getSalesOrder(id, params = {}) {
-        try {
-            const url = attachQueryParams(`${API_CONFIG.RETAILER.SALES_ORDER}/${id}`, params);
-            const response = await authAxios.get(url);
-            return handleApiSuccess(response.data, "Sales order fetched successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "sales-order-details");
-        }
-    }
-
     // Update Status
     async updateStatus(id, payload, params = {}) {
         try {

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw } from "lucide-react";
+import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -41,7 +41,7 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderCard = ({ order, onViewDetails, onPrint }) => {
+const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     const { t } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
     const menuRef = useRef(null);
@@ -62,14 +62,38 @@ const SalesOrderCard = ({ order, onViewDetails, onPrint }) => {
             label: t("common.viewDetails"),
             icon: Eye,
             onClick: () => onViewDetails?.(order.id || order._id),
-        },
-        {
-            value: "print",
-            label: t("common.print"),
-            icon: Printer,
-            onClick: () => onPrint?.(order),
-        },
+        }
     ];
+
+    // Quick Workflow Actions
+    if (order.status === "PROCESSING") {
+        _actionMenuItems.push(
+            {
+                value: "ship",
+                label: "Mark as Shipped",
+                icon: Truck,
+                className: "text-[rgb(var(--color-primary))]",
+                onClick: () => onUpdateStatus?.(order.id || order._id, "SHIPPED", { message: 'Order marked as shipped' }),
+            }
+        );
+    }
+
+    if (["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
+        _actionMenuItems.push({
+            value: "mark_paid",
+            label: "Mark as Paid",
+            icon: CreditCard,
+            className: "text-emerald-600",
+            onClick: () => onUpdateStatus?.(order.id || order._id, null, { paymentStatus: "PAID", message: "Payment confirmed and marked as PAID" }),
+        });
+    }
+
+    _actionMenuItems.push({
+        value: "print",
+        label: t("common.print"),
+        icon: Printer,
+        onClick: () => onPrint?.(order),
+    });
 
     const handleMenuToggle = (orderId) => {
         setOpenMenuId(openMenuId === orderId ? null : orderId);
@@ -110,9 +134,9 @@ const SalesOrderCard = ({ order, onViewDetails, onPrint }) => {
                                 <button
                                     key={item.value}
                                     onClick={() => handleMenuAction(order.id || order._id, item)}
-                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                                    className={`w-full px-4 py-2 text-left text-sm ${item.className || 'text-[rgb(var(--color-text-primary))]'} hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]`}
                                 >
-                                    <item.icon size={14} className="text-[rgb(var(--color-text-secondary))]" />
+                                    <item.icon size={14} className={item.className || "text-[rgb(var(--color-text-secondary))]"} />
                                     {item.label}
                                 </button>
                             ))}

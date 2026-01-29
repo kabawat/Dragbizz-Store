@@ -18,9 +18,9 @@ const CreateOrderModal = ({
 
     // Form State
     const [formData, setFormData] = useState({
-        customerName: "",
-        customerPhone: "",
-        customerEmail: "",
+        name: "",
+        phone: "",
+        email: "",
         quantity: 1,
         deliveryAddress: {
             line1: "",
@@ -41,7 +41,7 @@ const CreateOrderModal = ({
 
     const handleCreateOrder = async (e) => {
         e.preventDefault();
-        if (!formData.customerName || (!formData.customerPhone && !formData.customerEmail)) {
+        if (!formData.name || (!formData.phone && !formData.email)) {
             setError("Please provide your name and contact details (Phone or Email)");
             return;
         }
@@ -52,9 +52,9 @@ const CreateOrderModal = ({
 
             const payload = {
                 store_catalog_id: catalogId,
-                customerName: formData.customerName,
-                customerPhone: formData.customerPhone,
-                customerEmail: formData.customerEmail,
+                name: formData.name,
+                phone: formData.phone,
+                email: formData.email,
                 items: [{
                     product: product._id,
                     quantity: parseInt(formData.quantity)
@@ -112,9 +112,9 @@ const CreateOrderModal = ({
     const resetAndClose = () => {
         setStep(1);
         setFormData({
-            customerName: "",
-            customerPhone: "",
-            customerEmail: "",
+            name: "",
+            phone: "",
+            email: "",
             quantity: 1,
             deliveryAddress: {
                 line1: "",
@@ -185,8 +185,8 @@ const CreateOrderModal = ({
                                 <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Full Name</label>
                                 <Input
                                     placeholder="Enter your name"
-                                    value={formData.customerName}
-                                    onChange={(val) => setFormData(prev => ({ ...prev, customerName: val }))}
+                                    value={formData.name}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, name: val }))}
                                     required
                                 />
                             </div>
@@ -207,8 +207,8 @@ const CreateOrderModal = ({
                                 <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Phone Number</label>
                                 <Input
                                     placeholder="Enter 10-digit number"
-                                    value={formData.customerPhone}
-                                    onChange={(val) => setFormData(prev => ({ ...prev, customerPhone: val.replace(/\D/g, '').slice(0, 10) }))}
+                                    value={formData.phone}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, phone: val.replace(/\D/g, '').slice(0, 10) }))}
                                     type="tel"
                                 />
                             </div>
@@ -216,8 +216,8 @@ const CreateOrderModal = ({
                                 <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase mb-1 block">Email Address</label>
                                 <Input
                                     placeholder="john@example.com"
-                                    value={formData.customerEmail}
-                                    onChange={(val) => setFormData(prev => ({ ...prev, customerEmail: val }))}
+                                    value={formData.email}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, email: val }))}
                                     type="email"
                                 />
                             </div>
@@ -272,7 +272,7 @@ const CreateOrderModal = ({
                     <form onSubmit={handleVerifyOtp} className="space-y-4">
                         <div className="text-center mb-6">
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                Enter the 5-digit code sent to <span className="font-bold text-[rgb(var(--color-text-primary))]">{formData.customerPhone || formData.customerEmail}</span>
+                                Enter the 5-digit code sent to <span className="font-bold text-[rgb(var(--color-text-primary))]">{formData.phone || formData.email}</span>
                             </p>
                         </div>
 
