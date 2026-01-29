@@ -105,7 +105,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     };
 
     return (
-        <div className="w-full rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+        <div className="w-full rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))]">
             {/* Header Section with Gradient */}
             <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative">
                 <div className="w-full h-full flex items-center justify-center">
@@ -123,7 +123,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                 <div className="absolute top-3 right-3" ref={menuRef}>
                     <button
                         onClick={() => handleMenuToggle(order.id || order._id)}
-                        className="p-2 bg-[rgb(var(--color-bg-primary))]/90 hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-all duration-200 group/btn cursor-pointer shadow-sm border border-[rgb(var(--color-border-primary))]"
+                        className="p-2 bg-[rgb(var(--color-bg-primary))]/90 rounded-lg transition-all duration-200 group/btn cursor-pointer"
                         title={t("common.actions")}
                     >
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
@@ -179,7 +179,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                     <div className="flex items-center justify-between">
                         <span className="text-xs text-[rgb(var(--color-text-secondary))]">Total Amount</span>
                         <div className="flex flex-col items-end">
-                            <span className="text-sm font-black text-[rgb(var(--color-primary))]">₹{order.totalAmount?.toLocaleString() || 0}</span>
+                            <span className="text-sm font-black text-[rgb(var(--color-primary))]">₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}</span>
                             <div className="mt-1">
                                 <StatusBadge status={order.paymentStatus} />
                             </div>

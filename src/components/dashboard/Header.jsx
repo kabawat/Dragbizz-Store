@@ -101,9 +101,9 @@ const Header = ({ title, description }) => {
             <h1 className="text-lg font-bold text-[rgb(var(--color-text-primary))] mb-0.5">
               {title || t("dashboard.title")}
             </h1>
-            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
               {description || t("dashboard.description")}
-            </p>
+            </div>
           </div>
 
           {/* Right side - User Actions */}
@@ -136,11 +136,10 @@ const Header = ({ title, description }) => {
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${
-                          notification.unread
+                        className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${notification.unread
                             ? "bg-[rgb(var(--color-primary))]/10"
                             : ""
-                        }`}
+                          }`}
                       >
                         <p
                           className={`text-xs ${notification.unread ? "font-semibold text-[rgb(var(--color-text-primary))]" : "text-[rgb(var(--color-text-secondary))]"}`}

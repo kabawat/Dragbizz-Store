@@ -162,7 +162,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                     <td className="w-1/6 px-6 py-4 text-right">
                                         <div className="flex flex-col items-end">
                                             <span className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
-                                                ₹{order.totalAmount?.toLocaleString() || 0}
+                                                ₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}
                                             </span>
                                         </div>
                                     </td>

@@ -4,7 +4,7 @@ import { Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
-const StoreEditForm = ({ form, onChange, errors = {}, onGenerateCatalog }) => {
+const StoreEditForm = ({ form, onChange, errors = {} }) => {
   const { t } = useTranslation();
   // Handle Input component onChange (receives value directly)
   const handleInputChange = (name, value) => {
@@ -188,64 +188,6 @@ const StoreEditForm = ({ form, onChange, errors = {}, onGenerateCatalog }) => {
         </div>
       </div>
 
-      {/* Public Catalog Settings */}
-      <div className="space-y-4 pt-4 border-t border-[rgb(var(--color-border-primary))]/50">
-        <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
-          <Building2 className="w-4 h-4 mr-2 text-[rgb(var(--color-primary))]" />
-          {t("settings.publicCatalog")}
-        </h3>
-        <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-          {t("settings.catalogIdDescription")}
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-          {!form.catalogId ? (
-            <button
-              type="button"
-              onClick={onGenerateCatalog}
-              className="w-full flex items-center justify-center g    ap-2 px-4 py-3 bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] font-semibold rounded-lg border-2 border-dashed border-[rgb(var(--color-primary))]/30 hover:bg-[rgb(var(--color-primary))]/20 transition-all group"
-            >
-              <Store className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {t("settings.generateCatalogId") || "Generate Catalog Link"}
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-[rgb(var(--color-primary))]/5 p-4 rounded-lg border border-[rgb(var(--color-primary))]/10">
-                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-2">
-                  {t("settings.yourPublicCatalogLink")}
-                </span>
-                <div className="flex items-center justify-between gap-3 overflow-hidden">
-                  <code className="text-sm font-mono text-[rgb(var(--color-primary))] truncate bg-white/50 px-3 py-1.5 rounded border border-[rgb(var(--color-primary))]/20 flex-1">
-                    {''}/c/{form.catalogId}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const success = await copyToClipboard(`${window.location.origin}/c/${form.catalogId}`);
-                      if (success) {
-                        alert(t("settings.linkCopied"));
-                      }
-                    }}
-                    className="flex-shrink-0 px-4 py-1.5 bg-[rgb(var(--color-primary))] text-white text-xs font-semibold rounded hover:bg-[rgb(var(--color-primary))]/90 transition-colors shadow-sm"
-                  >
-                    {t("common.copy") || "Copy"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={onGenerateCatalog}
-                  className="text-xs text-[rgb(var(--color-primary))] hover:underline font-medium"
-                >
-                  {t("settings.regenerateLink") || "Regenerate Link"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 import { Building2, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SupplierForm } from "@/components/supplier";
 import { Button, SideDrawer } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
@@ -26,14 +26,14 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   } = useErrorHandling();
 
   // Initial form data
-  const getInitialFormData = () => ({
+  const getInitialFormData = useCallback(() => ({
     store: storeId,
     name: "",
     agency: "",
     gstNumber: "",
     phone: "",
     email: "",
-  });
+  }), [storeId]);
 
   const [formData, setFormData] = useState(getInitialFormData());
 
