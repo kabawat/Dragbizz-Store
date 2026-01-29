@@ -1,22 +1,17 @@
 "use client";
-import {
-    Download,
-    Grid3X3,
-    List,
-    Search,
-    Package,
-} from "lucide-react";
+import { Download, Grid3X3, List, Search, Package, Copy, ExternalLink, QrCode, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { Button, Input, Select } from "@/components/ui";
+import { Button, Input, Select, Modal } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
 import { salesOrderService } from "@/service/retailer";
 import SalesOrderTable from "@/components/salesOrder/SalesOrderTable";
 import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
+import { CatalogQRModal } from "@/components/common";
 
 const SalesOrdersPage = () => {
     const { t } = useTranslation();
@@ -36,6 +31,7 @@ const SalesOrdersPage = () => {
         pending: 0,
         completed: 0
     });
+    const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
     const scrollRef = useRef(null);
 
@@ -146,6 +142,7 @@ const SalesOrdersPage = () => {
                                 </div>
 
                                 <div className="flex flex-wrap gap-3 items-center">
+
                                     <div className="min-w-[160px]">
                                         <Select
                                             placeholder="All Status"
@@ -185,6 +182,25 @@ const SalesOrdersPage = () => {
                                             </button>
                                         </div>
                                     )}
+                                    {selectedStore?.catalogId && (
+                                        <>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setIsCatalogModalOpen(true)}
+                                                leftIcon={QrCode}
+                                                className="h-9 font-semibold border-[rgb(var(--color-primary))]/20 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5"
+                                            >
+                                                {t("settings.publicCatalog")}
+                                            </Button>
+
+                                            <CatalogQRModal
+                                                isOpen={isCatalogModalOpen}
+                                                onClose={() => setIsCatalogModalOpen(false)}
+                                                store={selectedStore}
+                                            />
+                                        </>
+                                    )}
+
 
                                     <Button
                                         variant="secondary"

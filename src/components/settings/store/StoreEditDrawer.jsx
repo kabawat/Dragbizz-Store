@@ -227,29 +227,7 @@ const StoreEditDrawer = ({
     }
   };
 
-  // Handle generate catalog ID
-  const handleGenerateCatalogId = async () => {
-    if (!editingStoreId) return;
 
-    try {
-      setIsSaving(true);
-      const result = await storeService.generateCatalogId(editingStoreId);
-
-      if (result?.success) {
-        setForm((prev) => ({
-          ...prev,
-          catalogId: result.data.catalogId,
-        }));
-        showSuccess?.("Catalog ID generated successfully!");
-      } else {
-        onError?.(result?.message || "Failed to generate Catalog ID");
-      }
-    } catch (error) {
-      onError?.("An error occurred while generating Catalog ID");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   // Handle cancel
   const handleCancel = () => {
@@ -305,7 +283,6 @@ const StoreEditDrawer = ({
           form={form}
           onChange={handleChange}
           errors={errors}
-          onGenerateCatalog={handleGenerateCatalogId}
         />
       )}
     </FormDrawer>

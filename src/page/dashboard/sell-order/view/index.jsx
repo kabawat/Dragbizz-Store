@@ -1,14 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Printer, Download, Edit, Trash2, MoreVertical, Share2, CheckCircle, XCircle, Package, Clock, User, Truck, CheckSquare, RefreshCw, ChevronDown } from "lucide-react";
+import { ArrowLeft, Printer, Download, Edit, Trash2, MoreVertical, Share2, CheckCircle, XCircle, Package, Clock, User, Truck, CheckSquare, RefreshCw, ChevronDown, Copy, ExternalLink, QrCode, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { Button, Badge, Card, CardBody, Modal } from "@/components/ui";
+import { Button, Badge, Card, CardBody } from "@/components/ui";
+import { CatalogQRModal } from "@/components/common";
 import { salesOrderService } from "@/service/retailer";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/useTranslation";
+import { copyToClipboard } from "@/utils/clipboard";
 import moment from "moment";
 
 const SALES_ORDER_STATUSES = Object.freeze({
@@ -26,6 +29,7 @@ const SALES_ORDER_STATUSES = Object.freeze({
 
 
 const ViewSellOrderPage = ({ orderId }) => {
+    const { t } = useTranslation();
     const router = useRouter();
     const { showError, showSuccess } = useGlobalToast();
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -34,6 +38,7 @@ const ViewSellOrderPage = ({ orderId }) => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [updatingStatus, setUpdatingStatus] = useState(false);
+    const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
     const fetchOrder = async () => {
         if (!orderId || !storeId) return;
@@ -115,7 +120,32 @@ const ViewSellOrderPage = ({ orderId }) => {
                 <div className="no-print">
                     <Header
                         title="View Sell Order"
-                        description={`Order details for #${order.orderNumber}`}
+                        description={
+                            <div className="flex flex-col gap-2">
+                                <span className="inline-flex items-center gap-2">
+                                    <span>Order details for #{order.orderNumber}</span>
+                                </span>
+                                {selectedStore?.catalogId && (
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setIsCatalogModalOpen(true)}
+                                            className="flex items-center gap-2 bg-[rgb(var(--color-primary))]/5 px-3 py-1.5 rounded-lg border border-[rgb(var(--color-primary))]/20 hover:bg-[rgb(var(--color-primary))]/10 transition-colors"
+                                        >
+                                            <QrCode className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
+                                            <span className="text-[11px] font-bold text-[rgb(var(--color-primary))] uppercase tracking-wider">
+                                                {t("settings.publicCatalog")}
+                                            </span>
+                                        </button>
+
+                                        <CatalogQRModal
+                                            isOpen={isCatalogModalOpen}
+                                            onClose={() => setIsCatalogModalOpen(false)}
+                                            store={selectedStore}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        }
                     />
                 </div>
 
@@ -127,7 +157,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                         <div className="mb-6 flex items-center justify-between no-print">
                             <Link
                                 href="/dashboard/sales-order"
-                                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors border border-transparent hover:border-[rgb(var(--color-border-primary)/0.5)]"
+                                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 <span className="text-sm font-medium">Back to Orders</span>
@@ -182,18 +212,27 @@ const ViewSellOrderPage = ({ orderId }) => {
                                             <p className="text-sm text-[rgb(var(--color-text-secondary))] font-medium">Payment and scheduling</p>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Order Date</p>
                                             <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{moment(order.orderDate || order.createdAt).format("MMM DD, YYYY")}</p>
+                                        </div>
+                                        <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
+                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Total Amount</p>
+                                            <p className="text-sm font-bold text-[rgb(var(--color-primary))]">₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}</p>
                                         </div>
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
                                             <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Payment</p>
                                             <Badge variant={(order.paymentStatus || order.payment?.status) === "PAID" ? "success" : "warning"} className="text-[10px] uppercase font-bold px-2 py-0.5">{order.paymentStatus || order.payment?.status || "PENDING"}</Badge>
                                         </div>
                                         <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/80 rounded-xl border border-[rgb(var(--color-border-primary)/0.5)]/40 text-left">
-                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Method</p>
-                                            <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.payment?.mode || order.paymentMethod || "CASH"}</p>
+                                            <p className="text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest mb-1">Method / Source</p>
+                                            <div className="flex flex-col">
+                                                <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{order.payment?.mode || order.paymentMethod || "CASH"}</p>
+                                                {order.orderSource && (
+                                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-bold uppercase">{order.orderSource}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -253,9 +292,14 @@ const ViewSellOrderPage = ({ orderId }) => {
                                                         <td className="px-6 py-4">
                                                             <div className="flex flex-col">
                                                                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">{item.product?.name || item.name}</span>
-                                                                {item.product?.sku && (
-                                                                    <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight mt-0.5">SKU: {item.product.sku}</span>
-                                                                )}
+                                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                                    {item.product?.sku && (
+                                                                        <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">SKU: {item.product.sku}</span>
+                                                                    )}
+                                                                    {item.product?.barcode && (
+                                                                        <span className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-mono uppercase tracking-tight bg-[rgb(var(--color-bg-secondary))] px-1.5 py-0.5 rounded">BC: {item.product.barcode}</span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4 text-center text-sm font-medium text-[rgb(var(--color-text-secondary))]">{item.quantity}</td>

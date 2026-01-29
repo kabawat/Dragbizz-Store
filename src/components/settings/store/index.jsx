@@ -9,6 +9,7 @@ import StoreDeleteModal from "./StoreDeleteModal";
 import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
+import { CatalogQRModal } from "@/components/common";
 
 const StoreSettings = () => {
   const dispatch = useAppDispatch();
@@ -27,6 +28,8 @@ const StoreSettings = () => {
   const [editingStoreId, setEditingStoreId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+  const [activeStore, setActiveStore] = useState(null);
 
   // Refs to prevent duplicate API calls
   const hasFetchedRef = useRef(false);
@@ -113,6 +116,12 @@ const StoreSettings = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // Handle show catalog QR
+  const handleShowCatalog = (store) => {
+    setActiveStore(store);
+    setIsCatalogModalOpen(true);
+  };
+
   // Handle success callbacks
   const handleAddSuccess = (message) => {
     showSuccess(message);
@@ -153,6 +162,7 @@ const StoreSettings = () => {
         onAddStore={handleAddStore}
         onEditStore={handleEditStore}
         onDeleteStore={handleDeleteStore}
+        onShowCatalog={handleShowCatalog}
       />
 
       <StoreAddDrawer
@@ -185,6 +195,15 @@ const StoreSettings = () => {
         }}
         onSuccess={handleDeleteSuccess}
         onError={showError}
+      />
+
+      <CatalogQRModal
+        isOpen={isCatalogModalOpen}
+        onClose={() => {
+          setIsCatalogModalOpen(false);
+          setActiveStore(null);
+        }}
+        store={activeStore}
       />
     </div>
   );

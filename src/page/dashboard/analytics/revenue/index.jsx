@@ -37,6 +37,11 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
 import { useRevenueReportPrint } from "./hooks/useRevenueReportPrint";
 
+const formatCurrency = (amount) =>
+  `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+
 const RevenueAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -105,10 +110,7 @@ const RevenueAnalytics = () => {
     [analytics?.change]
   );
 
-  const formatCurrency = (amount) =>
-    `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-  const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+
 
   const { handlePrint, handleDownloadPDF, handleDownloadXLSX } =
     useRevenueReportPrint(isLoading, analytics);
@@ -196,9 +198,6 @@ const RevenueAnalytics = () => {
     summary,
     change,
     today,
-    formatCurrency,
-    formatNumber,
-    formatPercent,
   ]);
 
   const [cards, setCards] = useState([
