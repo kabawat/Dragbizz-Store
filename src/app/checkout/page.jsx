@@ -16,7 +16,6 @@ const DEFAULT_MONTHS = 1;
 
 // Helper Functions
 const getUserContactInfo = (authProfile, retailerUser = null) => {
-  console.log("authProfile", authProfile);
   let email = "";
   let phone = "";
   let name = "";
@@ -187,15 +186,15 @@ const CheckoutContent = () => {
       const response = await subscriptionService.getActiveSubscription();
       if (response.success && response.data) {
         setExistingSubscription(response.data);
-        
+
         const existingPackageId = response.data.packageId?._id || response.data.packageId;
         const newPackageId = packageData._id || packageData.id;
-        
+
         if (existingPackageId === newPackageId) {
           const endDate = new Date(response.data.endDate);
           const now = new Date();
           const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-          
+
           if (daysRemaining > 30) {
             setWarning({
               type: 'renewal',
@@ -214,7 +213,7 @@ const CheckoutContent = () => {
           const planTypeOrder = { 'BASIC': 1, 'PROFESSIONAL': 2, 'ENTERPRISE': 3, 'CUSTOM': 4 };
           const existingOrder = planTypeOrder[existingPlanType] || 0;
           const newOrder = planTypeOrder[newPlanType] || 0;
-          
+
           if (newOrder < existingOrder) {
             setWarning({
               type: 'downgrade',
@@ -266,7 +265,7 @@ const CheckoutContent = () => {
       const endDate = new Date(existingSubscription.endDate);
       const now = new Date();
       const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-      
+
       if (daysRemaining > 30) {
         setError("You already have an active subscription for this package. Please wait until closer to expiry date to renew.");
         return;
@@ -403,7 +402,7 @@ const CheckoutContent = () => {
         const params = new URLSearchParams({
           orderId: order.orderId
         });
-        
+
         if (subscriptionData?.type) {
           params.append('type', subscriptionData.type);
         }
@@ -413,7 +412,7 @@ const CheckoutContent = () => {
         if (subscriptionData?.proratedCredit) {
           params.append('proratedCredit', subscriptionData.proratedCredit);
         }
-        
+
         router.push(`/checkout/success?${params.toString()}`);
       } else {
         setError(response.message || "Payment verification failed");
@@ -704,20 +703,18 @@ const CheckoutContent = () => {
                 </div>
 
                 {warning && (
-                  <div className={`p-4 rounded-lg border ${
-                    warning.type === 'downgrade' 
+                  <div className={`p-4 rounded-lg border ${warning.type === 'downgrade'
                       ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
                       : warning.type === 'renewal'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                      : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-                  }`}>
-                    <div className={`flex items-start gap-2 ${
-                      warning.type === 'downgrade'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                        : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                    }`}>
+                    <div className={`flex items-start gap-2 ${warning.type === 'downgrade'
                         ? 'text-orange-700 dark:text-orange-400'
                         : warning.type === 'renewal'
-                        ? 'text-blue-700 dark:text-blue-400'
-                        : 'text-yellow-700 dark:text-yellow-400'
-                    }`}>
+                          ? 'text-blue-700 dark:text-blue-400'
+                          : 'text-yellow-700 dark:text-yellow-400'
+                      }`}>
                       <Shield className="w-5 h-5 flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{warning.message}</p>

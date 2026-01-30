@@ -1,4 +1,5 @@
-import { ArrowRight, Button } from "@/components/ui";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui";
 
 export default function StoreFormNavigation({
     currentStep,
