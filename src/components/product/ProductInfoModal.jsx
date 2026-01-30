@@ -150,16 +150,16 @@ const ProductInfoModal = ({ isOpen, onClose }) => {
               </p>
             </div>
 
-            {/* Content & SEO */}
+            {/* Catalog information */}
             <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <div className="flex items-center space-x-2 mb-2">
                 <Users className="w-4 h-4 text-[rgb(var(--color-primary))]" />
                 <h5 className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("products.contentSeo")}
+                  {t("products.catalogInformation")}
                 </h5>
               </div>
               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {t("products.contentSeoDescription")}
+                {t("products.catalogInformationDescription")}
               </p>
             </div>
 

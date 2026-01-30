@@ -836,26 +836,28 @@ const CreateBill = () => {
                                   />
                                 </div>
 
-                                <div>
-                                  <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1 text-xs">
-                                    Expiry Date
-                                  </label>
-                                  <Input
-                                    type="date"
-                                    value={item.expiryDate}
-                                    onChange={(value) =>
-                                      handleItemChange(
-                                        index,
-                                        "expiryDate",
-                                        value
-                                      )
-                                    }
-                                    min={formData.billDate}
-                                    error={errors[`item_${index}_expiryDate`]}
-                                    leftIcon={Clock}
-                                    size="sm"
-                                  />
-                                </div>
+                                {selectedStore?.hasExpiryDate && (
+                                  <div>
+                                    <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1 text-xs">
+                                      Expiry Date
+                                    </label>
+                                    <Input
+                                      type="date"
+                                      value={item.expiryDate}
+                                      onChange={(value) =>
+                                        handleItemChange(
+                                          index,
+                                          "expiryDate",
+                                          value
+                                        )
+                                      }
+                                      min={formData.billDate}
+                                      error={errors[`item_${index}_expiryDate`]}
+                                      leftIcon={Clock}
+                                      size="sm"
+                                    />
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}

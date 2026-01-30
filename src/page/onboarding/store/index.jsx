@@ -49,6 +49,7 @@ export default function StoreCreation() {
       landmark: "",
     },
     category: "",
+    hasExpiryDate: false,
     subCategories: [],
     tags: [],
     gst: "",

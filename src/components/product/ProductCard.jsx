@@ -177,9 +177,9 @@ const ProductCard = ({
         {/* Catalog Status Badge */}
         <div className="absolute top-4 left-4 z-10">
           {product.showInCatalog !== false ? (
-            <Badge variant="success" className="shadow-sm">In Catalog</Badge>
+            <Badge variant="success" className="shadow-sm">{t("products.inCatalog")}</Badge>
           ) : (
-            <Badge variant="secondary" className="shadow-sm">Hidden</Badge>
+            <Badge variant="secondary" className="shadow-sm">{t("products.hidden")}</Badge>
           )}
         </div>
 

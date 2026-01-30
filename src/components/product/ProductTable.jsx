@@ -59,14 +59,14 @@ const ProductTable = ({
     if (isInCatalog) {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30">
-          In Catalog
+          {t("products.inCatalog")}
         </span>
       );
     }
 
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-500/10 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/20 dark:border-gray-500/30">
-        Hidden
+        {t("products.hidden")}
       </span>
     );
   };
@@ -92,19 +92,19 @@ const ProductTable = ({
     },
     {
       value: "edit",
-      label: "Edit",
+      label: t("common.edit"),
       icon: Edit,
       onClick: () => onEdit?.(product.id),
     },
     {
       value: "duplicate",
-      label: "Duplicate",
+      label: t("common.duplicate"),
       icon: Copy,
       onClick: () => onDuplicate?.(product.id),
     },
     {
       value: "delete",
-      label: "Delete",
+      label: t("common.delete"),
       icon: Trash2,
       onClick: () => onDelete?.(product.id),
     },

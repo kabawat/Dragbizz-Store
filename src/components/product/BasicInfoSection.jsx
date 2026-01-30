@@ -106,20 +106,6 @@ const BasicInfoSection = ({
           />
         </div>
       </div>
-
-      {/* Third Section - Visibility & Catalog */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <Toggle
-            label={t("products.showInCatalog")}
-            description={t("products.showInCatalogDescription")}
-            checked={formData.showInCatalog !== false} // Default to true if undefined
-            onChange={(checked) => handleFieldChange("showInCatalog", checked)}
-            error={errors.showInCatalog}
-            errorMessage={errors.showInCatalog}
-          />
-        </div>
-      </div>
     </>
   );
 };

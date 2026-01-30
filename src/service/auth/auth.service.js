@@ -5,6 +5,9 @@ import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { getUserLocation } from "@/utils/locationUtils";
 import { authAxios, unauthAxios } from "../config/axiosConfig";
 
+// Single in-flight refresh promise so /auth/refresh is only called once at a time
+let refreshPromise = null;
+
 class AuthService {
   constructor() {
     this.baseURL = API_CONFIG.BASE.URL;
@@ -238,15 +241,22 @@ class AuthService {
     }
   }
 
-  // Refresh Access Token using Refresh Token (via cookies)
+  // Refresh Access Token using Refresh Token (via cookies). Deduped so only one request at a time.
   async refreshToken() {
-    try {
-      const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH);
-
-      return handleApiSuccess(response, "Token refreshed successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "token-refresh");
+    if (refreshPromise) {
+      return refreshPromise;
     }
+    refreshPromise = (async () => {
+      try {
+        const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH);
+        return handleApiSuccess(response, "Token refreshed successfully");
+      } catch (error) {
+        return handleApiErrorResponse(error, "token-refresh");
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+    return refreshPromise;
   }
 
   // Get authenticated user profile from auth service

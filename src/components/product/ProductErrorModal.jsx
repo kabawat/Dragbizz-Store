@@ -7,7 +7,7 @@ const ProductErrorModal = ({
   isOpen,
   onClose,
   title,
-  message = "Something went wrong",
+  message,
   details = null,
 }) => {
   const { t } = useTranslation();
@@ -45,8 +45,8 @@ const ProductErrorModal = ({
         {/* Content */}
         <div className="px-6 py-4">
           <div className="mb-6">
-            <p className="text-[rgb(var(--color-text-primary))] mb-3">
-              {message}
+<p className="text-[rgb(var(--color-text-primary))] mb-3">
+            {defaultMessage}
             </p>
             {details && (
               <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 border border-[rgb(var(--color-border-primary))]">

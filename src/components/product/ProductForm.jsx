@@ -1,21 +1,8 @@
 "use client";
 
 // Import drag and drop
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
+import { arrayMove,  SortableContext,  sortableKeyboardCoordinates,  useSortable,  verticalListSortingStrategy,  } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Eye, GripVertical, IndianRupee, Info, Package, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,6 +13,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Checkbox,
   FileUpload,
   Input,
   TagInput,
@@ -33,6 +21,7 @@ import {
 } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 import { categoryService } from "@/service/retailer";
 import logger from "@/utils/logger";
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
@@ -155,6 +144,7 @@ const ProductForm = ({
 }) => {
   const { t } = useTranslation();
   const { themeConfig, currentVariant } = useTheme();
+  const { selectedStore } = useAppSelector((state) => state.profile);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [currentInfoSection, setCurrentInfoSection] = useState(null);
 
@@ -206,6 +196,7 @@ const ProductForm = ({
   const [newCategoryData, setNewCategoryData] = useState({
     name: "",
     description: "",
+    hasExpiryDate: false,
     metadata: {
       icon: null,
       tags: [],
@@ -241,8 +232,8 @@ const ProductForm = ({
     },
     {
       id: "content",
-      title: t("products.contentSeo"),
-      subtitle: t("products.contentSeoSubtitle"),
+      title: t("products.catalogInformation"),
+      subtitle: t("products.catalogInformationSubtitle"),
       icon: Eye,
       component: AdditionalDetailsSection,
     },
@@ -254,48 +245,49 @@ const ProductForm = ({
       title: t("products.basicInformation"),
       description: t("products.basicInformationDescription"),
       details: [
-        "Product Name: The main title of your product",
-        "Brand: Manufacturer or brand name",
-        "Category: Product category for better organization",
-        "Barcode: Optional product identification code",
+        t("products.basicInfoDetail1"),
+        t("products.basicInfoDetail2"),
+        t("products.basicInfoDetail3"),
+        t("products.basicInfoDetail4"),
       ],
-      tips: "These fields are mandatory and help customers identify your product easily.",
+      tips: t("products.basicInfoTips"),
     },
     "pricing-gst": {
       title: t("products.pricingInformation"),
       description: t("products.pricingInformationDescription"),
       details: [
-        "MRP: Maximum Retail Price as per regulations",
-        "Selling Price: Actual price customers will pay",
-        "Currency: Currency for pricing (default: INR)",
-        "Unit of Measure: How the product is sold (PCS, KG, etc.)",
-        "GST: Tax settings if applicable",
+        t("products.pricingInfoDetail1"),
+        t("products.pricingInfoDetail2"),
+        t("products.pricingInfoDetail3"),
+        t("products.pricingInfoDetail4"),
+        t("products.pricingInfoDetail5"),
       ],
-      tips: "Ensure pricing is competitive and GST compliance is maintained.",
+      tips: t("products.pricingInfoTips"),
     },
     content: {
-      title: "Content & SEO",
-      description: "Detailed product information and marketing content",
+      title: t("products.catalogInformation"),
+      description: t("products.catalogInformationDescription"),
       details: [
-        "Short Description: Brief product summary (max 200 chars)",
-        "Long Description: Detailed product information (max 2000 chars)",
-        "Features: Key product features and benefits",
-        "Tags: Searchable keywords for better discoverability",
-        "Specifications: Technical details and specifications",
+        t("products.catalogDetailShowInCatalog"),
+        t("products.contentSeoDetail1"),
+        t("products.contentSeoDetail2"),
+        t("products.contentSeoDetail3"),
+        t("products.contentSeoDetail4"),
+        t("products.contentSeoDetail5"),
       ],
-      tips: "Rich content helps customers make informed decisions and improves SEO.",
+      tips: t("products.catalogSectionTips"),
     },
     status: {
-      title: "Status & Visibility",
-      description: "Product status and visibility settings",
+      title: t("products.statusVisibility"),
+      description: t("products.statusVisibilityDescription"),
       details: [
-        "Product Status: Draft, Active, Inactive, etc.",
-        "Visibility: Public, Private, or Hidden",
-        "Featured: Highlight on homepage",
-        "Best Seller: Mark as popular product",
-        "New Arrival: Mark as recently added",
+        t("products.statusDetail1"),
+        t("products.statusDetail2"),
+        t("products.statusDetail3"),
+        t("products.statusDetail4"),
+        t("products.statusDetail5"),
       ],
-      tips: "Configure these settings to control how your product appears to customers.",
+      tips: t("products.statusTips"),
     },
     "opening-quantity": {
       title: t("products.openingStock"),
@@ -333,6 +325,7 @@ const ProductForm = ({
         const formattedCategories = categories.map((category) => ({
           value: category.id || category._id,
           label: category.name,
+          hasExpiryDate: category.hasExpiryDate,
         }));
         setApiCategories(formattedCategories);
       }
@@ -380,6 +373,7 @@ const ProductForm = ({
         const apiPayload = {
           name: newCategoryData.name.trim(),
           description: newCategoryData.description.trim(),
+          hasExpiryDate: newCategoryData.hasExpiryDate === true,
           metadata: null,
         };
 
@@ -512,6 +506,10 @@ const ProductForm = ({
                       onChange={handleFormDataChange}
                       errors={fieldErrors}
                       storeId={storeId}
+                      showExpiryDate={
+                        (apiCategories.find((c) => c.value === formData.category)?.hasExpiryDate ??
+                          selectedStore?.hasExpiryDate) === true
+                      }
                     />
                   ) : (
                     <SectionComponent
@@ -654,6 +652,17 @@ const ProductForm = ({
                         }))
                       }
                       rows={3}
+                    />
+
+                    <Checkbox
+                      label={t("products.categoryRequiresExpiryDate")}
+                      checked={newCategoryData.hasExpiryDate === true}
+                      onChange={(checked) =>
+                        setNewCategoryData((prev) => ({
+                          ...prev,
+                          hasExpiryDate: checked,
+                        }))
+                      }
                     />
                   </div>
 

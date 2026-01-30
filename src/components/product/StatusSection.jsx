@@ -86,7 +86,7 @@ const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {
                   {t("products.showInCatalogLabel")}:
                 </span>
                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {formData.showInCatalog !== false ? "Show" : "Hidden"}
+                  {formData.showInCatalog !== false ? t("products.catalogVisibilityShow") : t("products.hidden")}
                 </span>
               </div>
 

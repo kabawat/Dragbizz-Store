@@ -56,10 +56,23 @@ const AdditionalDetailsSection = ({
 
   return (
     <>
-      {/* Content & SEO Toggle */}
+     
+      {/* Show in Catalog - correct place inside Catalog information section */}
       <div className="mb-6">
         <Toggle
-          label={t("products.addContentSeo")}
+          label={t("products.showInCatalog")}
+          description={t("products.showInCatalogDescription")}
+          checked={formData.showInCatalog !== false}
+          onChange={(checked) => handleFieldChange("showInCatalog", checked)}
+          error={errors.showInCatalog}
+          errorMessage={errors.showInCatalog}
+        />
+      </div>
+
+      {/* Add catalog content (descriptions, features, etc.) */}
+      <div className="mb-6">
+        <Toggle
+          label={t("products.addCatalogContent")}
           checked={formData.content?.isEnabled || false}
           onChange={(checked) => {
             const updatedContent = {
@@ -68,7 +81,7 @@ const AdditionalDetailsSection = ({
             };
             handleFieldChange("content", updatedContent);
           }}
-          helperText={t("products.addContentSeoHelperText")}
+          helperText={t("products.catalogContentHelperText")}
         />
       </div>
 
