@@ -18,6 +18,7 @@ import LoadingSkeleton from "@/components/public/LoadingSkeleton";
 import EmptyState from "@/components/public/EmptyState";
 import CartDrawer from "@/components/public/CartDrawer";
 import { Card, CardBody, Input } from "@/components/ui";
+import useDebounce from "@/hooks/useDebounce";
 // Order Modal State (Removed)
 
 export default function CatalogPage({ catalogId }) {
@@ -25,8 +26,10 @@ export default function CatalogPage({ catalogId }) {
     const dispatch = useDispatch();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [productsLoading, setProductsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const [selectedCategory, setSelectedCategory] = useState("all");
 
     // Redux Cart State
@@ -34,31 +37,40 @@ export default function CatalogPage({ catalogId }) {
 
 
 
-    // Fetch catalog data
+    // Fetch initial catalog and categories
     useEffect(() => {
-        const fetchCatalog = async () => {
+        const fetchInitialData = async () => {
             try {
                 setLoading(true);
-                const result = await publicCatalogService.getCatalog(catalogId);
-                if (result?.success) {
-                    if (Array.isArray(result.data)) {
-                        const uniqueCategories = [...new Set(result.data.map(p =>
-                            (p.category && typeof p.category === 'object') ? p.category?.name : p.category
-                        ).filter(Boolean))];
+                const [catalogResult, categoriesResult] = await Promise.all([
+                    publicCatalogService.getCatalog(catalogId),
+                    publicCatalogService.getCategories(catalogId)
+                ]);
 
-                        setData({
-                            products: result.data,
-                            store: result.meta?.store || {},
-                            categories: result.meta?.categories || uniqueCategories.map(c => ({ _id: c, name: c }))
-                        });
+                if (catalogResult?.success) {
+                    const products = Array.isArray(catalogResult.data) ? catalogResult.data : catalogResult.data?.products || [];
+                    const store = catalogResult.meta?.store || catalogResult.data?.store || {};
+
+                    let categories = [];
+                    if (categoriesResult?.success) {
+                        categories = categoriesResult.data;
                     } else {
-                        setData(result.data);
+                        // Fallback to deriving categories from products if API fails
+                        categories = [...new Set(products.map(p =>
+                            (p.category && typeof p.category === 'object') ? p.category?.name : p.category
+                        ).filter(Boolean))].map(c => ({ _id: c, name: c }));
                     }
+
+                    setData({
+                        products,
+                        store,
+                        categories
+                    });
                 } else {
-                    setError(result?.message || "Catalog not found");
+                    setError(catalogResult?.message || "Catalog not found");
                 }
             } catch (err) {
-                console.error("Catalog fetch error:", err);
+                console.error("Initial fetch error:", err);
                 setError("An unexpected error occurred while fetching the catalog");
             } finally {
                 setLoading(false);
@@ -66,28 +78,44 @@ export default function CatalogPage({ catalogId }) {
         };
 
         if (catalogId) {
-            fetchCatalog();
+            fetchInitialData();
         }
     }, [catalogId]);
 
-    // Filter products based on search and category
-    const filteredProducts = useMemo(() => {
-        if (!data?.products) return [];
+    // Fetch products whenever debouncedSearchQuery or selectedCategory changes
+    useEffect(() => {
+        const fetchFilteredProducts = async () => {
+            if (!data?.store) return;
 
-        return data.products.filter(product => {
-            const productName = product.name || "";
-            const productBrand = product.brand || "";
-            const matchesSearch = productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                productBrand.toLowerCase().includes(searchQuery.toLowerCase());
+            try {
+                setProductsLoading(true);
+                const result = await publicCatalogService.getCatalog(catalogId, {
+                    search: debouncedSearchQuery,
+                    category: selectedCategory
+                });
 
-            const matchesCategory = selectedCategory === "all" ||
-                product.category === selectedCategory ||
-                (product.category && typeof product.category === 'object' && product.category._id === selectedCategory) ||
-                (product.category && typeof product.category === 'object' && product.category.name === selectedCategory);
+                if (result?.success) {
+                    const products = Array.isArray(result.data) ? result.data : result.data?.products || [];
+                    setData(prev => ({
+                        ...prev,
+                        products
+                    }));
+                }
+            } catch (err) {
+                console.error("Filter fetch error:", err);
+                toast.showError("Failed to update product list");
+            } finally {
+                setProductsLoading(false);
+            }
+        };
 
-            return matchesSearch && matchesCategory;
-        });
-    }, [data?.products, searchQuery, selectedCategory]);
+        if (!loading) {
+            fetchFilteredProducts();
+        }
+    }, [debouncedSearchQuery, selectedCategory, catalogId, loading]);
+
+    // Products to display (now directly from state)
+    const filteredProducts = data?.products || [];
 
     // WhatsApp share handler
     const shareOnWhatsApp = useCallback((product) => {
@@ -239,7 +267,9 @@ export default function CatalogPage({ catalogId }) {
 
 
                     {/* Products Grid */}
-                    {filteredProducts.length > 0 ? (
+                    {productsLoading ? (
+                        <LoadingSkeleton type="catalog" count={4} />
+                    ) : filteredProducts.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
                             {filteredProducts.map((product) => (
                                 <ProductCard
