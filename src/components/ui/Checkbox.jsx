@@ -1,6 +1,6 @@
 "use client";
 import { Check } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const Checkbox = ({
@@ -15,13 +15,15 @@ const Checkbox = ({
   size = "md",
   className = "",
   name,
-  id,
+  id: idProp,
   value,
   indeterminate,
   ...props
 }) => {
   const { currentVariant, themeConfig } = useTheme();
   const checkboxRef = useRef(null);
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
 
   // Set indeterminate property on the input element
   useEffect(() => {
@@ -69,6 +71,12 @@ const Checkbox = ({
   // Determine if checkbox should show as filled (checked or indeterminate)
   const isFilled = checked || indeterminate;
 
+  const handleBoxClick = () => {
+    if (!disabled && checkboxRef.current) {
+      checkboxRef.current.click();
+    }
+  };
+
   return (
     <div className="flex items-start space-x-3">
       <div className="relative flex-shrink-0">
@@ -87,6 +95,15 @@ const Checkbox = ({
         />
 
         <div
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          onClick={handleBoxClick}
+          onKeyDown={(e) => {
+            if (!disabled && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              handleBoxClick();
+            }
+          }}
           className={checkboxClasses}
           style={{
             backgroundColor: isFilled

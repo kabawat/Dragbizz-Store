@@ -41,8 +41,8 @@ const StepProgress = ({
       },
       {
         id: "content",
-        title: "Content & SEO",
-        description: "Descriptions, features, and SEO content",
+        title: "Catalog information",
+        description: "Content for your public catalog where customers can shop online",
         fields: [
           {
             name: "shortDescription",

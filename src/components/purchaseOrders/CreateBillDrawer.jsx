@@ -439,17 +439,19 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                           leftIcon={IndianRupee}
                         />
                       </div>
-                      <div className="col-span-3">
-                        <Input
-                          label={t("bills.expiryDate")}
-                          size="sm"
-                          type="date"
-                          value={item.expiryDate}
-                          onChange={(value) =>
-                            handleItemChange(index, "expiryDate", value)
-                          }
-                        />
-                      </div>
+                      {selectedStore?.hasExpiryDate && (
+                        <div className="col-span-3">
+                          <Input
+                            label={t("bills.expiryDate")}
+                            size="sm"
+                            type="date"
+                            value={item.expiryDate}
+                            onChange={(value) =>
+                              handleItemChange(index, "expiryDate", value)
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

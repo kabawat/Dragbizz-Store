@@ -130,12 +130,12 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
 
       if (response.success) {
         onClose();
-        onSuccess?.("Stock added successfully!");
+        onSuccess?.(t("products.stockAddedSuccessfully"));
       } else {
         throw new Error(response.message || "Failed to add stock");
       }
     } catch (error) {
-      showError(`Error adding stock: ${error.message || "Please try again."}`);
+      showError(`${t("products.errorAddingStock")}: ${error.message || t("products.pleaseTryAgain")}`);
     } finally {
       setIsLoading(false);
     }

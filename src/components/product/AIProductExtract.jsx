@@ -164,7 +164,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
           } else {
             // Handle error response
             const errorMessage =
-              result.message || "Failed to extract product data";
+              result.message || t("products.failedToExtractProductData");
             setSelectedImages((prev) =>
               prev.map((img) =>
                 img.id === image.id
@@ -205,7 +205,9 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
       // If we have merged data, call onExtractSuccess
       if (mergedData) {
         showSuccess(
-          `Successfully extracted data from ${results.filter((r) => r.success).length} image(s)`
+          t("products.extractedDataFromImages", {
+            count: results.filter((r) => r.success).length,
+          })
         );
         if (onExtractSuccess) {
           onExtractSuccess(mergedData);
@@ -214,7 +216,7 @@ const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {
         showError("Failed to extract product data from any image");
       }
     } catch (_error) {
-      showError("An error occurred during extraction. Please try again.");
+      showError(t("products.extractionErrorTryAgain"));
     } finally {
       setIsExtracting(false);
       setCurrentExtractingIndex(-1);

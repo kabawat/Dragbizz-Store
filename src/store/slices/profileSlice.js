@@ -241,12 +241,14 @@ const profileSlice = createSlice({
         const { data } = action.payload;
         if (data) {
           state.authProfile = data;
+          state.isAuthenticated = true;
         }
       })
       .addCase(getAuthProfile.rejected, (state, action) => {
         state.authProfileLoading = false;
         state.authProfileError =
           action.payload?.message || "Failed to fetch auth profile";
+        state.isAuthenticated = false;
       });
   },
 });

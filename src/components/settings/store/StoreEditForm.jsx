@@ -1,6 +1,6 @@
 "use client";
 import { Building2, Mail, MapPin, Phone, Store } from "lucide-react";
-import { Input, Select } from "@/components/ui";
+import { Checkbox, Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
@@ -160,6 +160,14 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
           options={storeCategories}
           placeholder={t("settings.selectStoreCategory")}
           searchable={true}
+        />
+
+        {/* Products require expiry date (Grocery / Pharma) */}
+        <Checkbox
+          label={t("settings.productsRequireExpiryDate") || "Products require expiry date (e.g. Grocery, Pharma)"}
+          checked={form.hasExpiryDate === true}
+          onChange={(checked) => handleInputChange("hasExpiryDate", checked)}
+          description={t("settings.productsRequireExpiryDateHint") || "Enable for stores selling perishables or pharma."}
         />
 
         {/* GST & PAN */}

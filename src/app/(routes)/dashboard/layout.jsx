@@ -3,14 +3,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
-import { authService } from "@/service";
 import updateSubdomain from "@/utils/helper/domain";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  // Get profile state from Redux
-  const { redirectTo, agency, stores, isLoading, isAuthenticated } = useAppSelector((state) => state.profile);
+  // Get profile state from Redux (authProfile already has tenant from getAuthProfile - no need to call /auth/refresh again)
+  const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile } = useAppSelector((state) => state.profile);
 
   // Get subscription from context (no duplicate API call)
   const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
@@ -51,22 +50,15 @@ export default function DashboardLayout({ children }) {
     }
   }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isLoading, agency, stores, router]);
 
-
+  // Subdomain redirect: use tenant from authProfile (already loaded by routes layout) so we don't call /auth/refresh again
   useEffect(() => {
-    const handleRedirect = async () => {
-      try {
-        const res = await authService.refreshToken()
-        const domain = updateSubdomain(window.location.href, res.data.tenant)
-        if (!domain?.hasSubdomain) {
-          window.location.replace(domain.url)
-        }
-
-      } catch (error) {
-        console.log(error)
-      }
+    const tenant = authProfile?.tenant;
+    if (!tenant || typeof window === "undefined") return;
+    const domain = updateSubdomain(window.location.href, tenant);
+    if (!domain?.hasSubdomain) {
+      window.location.replace(domain.url);
     }
-    handleRedirect()
-  }, [])
+  }, [authProfile?.tenant]);
 
   // Show loading while checking data
   if (isLoading || subscriptionLoading) {

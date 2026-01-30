@@ -809,27 +809,29 @@ const EditBill = ({ billId }) => {
                                   />
                                 </div>
 
-                                <div>
-                                  <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Expiry Date
-                                    <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                                      (Optional)
-                                    </span>
-                                  </label>
-                                  <Input
-                                    type="date"
-                                    value={item.expiryDate}
-                                    onChange={(value) =>
-                                      handleItemChange(
-                                        index,
-                                        "expiryDate",
-                                        value
-                                      )
-                                    }
-                                    leftIcon={Calendar}
-                                    size="sm"
-                                  />
-                                </div>
+                                {selectedStore?.hasExpiryDate && (
+                                  <div>
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
+                                      Expiry Date
+                                      <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                        (Optional)
+                                      </span>
+                                    </label>
+                                    <Input
+                                      type="date"
+                                      value={item.expiryDate}
+                                      onChange={(value) =>
+                                        handleItemChange(
+                                          index,
+                                          "expiryDate",
+                                          value
+                                        )
+                                      }
+                                      leftIcon={Calendar}
+                                      size="sm"
+                                    />
+                                  </div>
+                                )}
                               </div>
 
                               <div className="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-lg">

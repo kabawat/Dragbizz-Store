@@ -13,6 +13,7 @@ const OpeningQuantitySection = ({
   onChange,
   errors = {},
   storeId = null,
+  showExpiryDate = false,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -180,21 +181,23 @@ const OpeningQuantitySection = ({
           )}
         </div>
 
-        {/* Expiry Date */}
-        <div className="mb-6">
-          <Input
-            label={t("products.expiryDate")}
-            type="date"
-            placeholder="Select expiry date (optional)"
-            value={formData.openingStock?.expiryDate || ""}
-            onChange={(value) =>
-              handleFieldChange("openingStock.expiryDate", value)
-            }
-            error={errors.expiryDate}
-            errorMessage={errors.expiryDate}
-            helperText="Optional: add for medical, food, and perishable items"
-          />
-        </div>
+        {/* Expiry Date - only when store/category has hasExpiryDate */}
+        {showExpiryDate && (
+          <div className="mb-6">
+            <Input
+              label={t("products.expiryDate")}
+              type="date"
+              placeholder="Select expiry date (optional)"
+              value={formData.openingStock?.expiryDate || ""}
+              onChange={(value) =>
+                handleFieldChange("openingStock.expiryDate", value)
+              }
+              error={errors.expiryDate}
+              errorMessage={errors.expiryDate}
+              helperText="Optional: add for medical, food, and perishable items"
+            />
+          </div>
+        )}
 
         {/* Opening Stock Summary */}
         {formData.openingStock?.quantity ||

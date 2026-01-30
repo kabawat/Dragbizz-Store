@@ -44,59 +44,58 @@ const Toggle = ({
     }
   };
 
-  // Checkbox-style toggle
+  // Checkbox-style toggle (switch + label/helperText, vertically align-center)
   if (label !== undefined) {
     return (
-      <div className={`space-y-2 ${className}`}>
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={handleCheckboxToggle}
-            disabled={disabled}
+      <div className={`flex items-center gap-3 ${className}`}>
+        <button
+          type="button"
+          onClick={handleCheckboxToggle}
+          disabled={disabled}
+          className={`
+            relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2
+            ${
+              checked
+                ? "bg-[rgb(var(--color-primary))]"
+                : "bg-[rgb(var(--color-primary))]/30"
+            }
+            ${disabled ? "cursor-not-allowed border border-[rgb(var(--color-border-primary))]" : "cursor-pointer"}
+          `}
+          aria-pressed={checked}
+          aria-label={label}
+          {...props}
+        >
+          <span
             className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:ring-offset-2
-              ${
-                checked
-                  ? "bg-[rgb(var(--color-primary))]"
-                  : "bg-[rgb(var(--color-primary))]/30"
-              }
-              ${disabled ? "cursor-not-allowed border border-[rgb(var(--color-border-primary))]" : "cursor-pointer"}
+              inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out
+              ${checked ? "translate-x-6" : "translate-x-1"}
             `}
-            aria-pressed={checked}
-            aria-label={label}
-            {...props}
-          >
-            <span
-              className={`
-                inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out
-                ${checked ? "translate-x-6" : "translate-x-1"}
-              `}
-            />
-          </button>
+          />
+        </button>
+        <div className="flex flex-col justify-center min-w-0">
           {label && (
             <label
-              className="ml-3 text-sm font-medium text-[rgb(var(--color-text-primary))] cursor-pointer"
+              className="text-sm font-medium text-[rgb(var(--color-text-primary))] cursor-pointer"
               onClick={handleCheckboxToggle}
             >
               {label}
             </label>
           )}
+          {(helperText || errorMessage) && (
+            <>
+              {error && errorMessage && (
+                <p className="text-sm text-[rgb(var(--color-danger))] mt-0.5">
+                  {errorMessage}
+                </p>
+              )}
+              {!error && helperText && (
+                <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-0.5">
+                  {helperText}
+                </p>
+              )}
+            </>
+          )}
         </div>
-
-        {(helperText || errorMessage) && (
-          <div className="ml-14">
-            {error && errorMessage && (
-              <p className="text-sm text-[rgb(var(--color-danger))]">
-                {errorMessage}
-              </p>
-            )}
-            {!error && helperText && (
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {helperText}
-              </p>
-            )}
-          </div>
-        )}
       </div>
     );
   }
