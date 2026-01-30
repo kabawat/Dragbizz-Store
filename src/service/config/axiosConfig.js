@@ -203,12 +203,18 @@ authAxios.interceptors.response.use(
           throw new Error("Token refresh failed");
         }
       } catch (refreshError) {
-        // Refresh failed, logout user
+        // Refresh failed
         isRefreshing = false;
         processQueue(refreshError);
 
+        // Only redirect to login when user is on a protected/dashboard route.
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          const pathname = window.location.pathname || "";
+          const protectedPrefixes = ["/dashboard", "/profile", "/settings", "/admin", "/onboarding"];
+          const isProtectedRoute = protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+          if (isProtectedRoute) {
+            window.location.href = "/login";
+          }
         }
 
         return Promise.reject(refreshError);

@@ -1,5 +1,5 @@
 import { AlertCircle, Building2 } from "lucide-react";
-import { Checkbox, Input, Select } from "@/components/ui";
+import { Input, Select } from "@/components/ui";
 import { STORE_CATEGORIES } from "@/data";
 
 export default function BusinessInfoStep({
@@ -33,16 +33,6 @@ export default function BusinessInfoStep({
                         {errors.category}
                     </p>
                 )}
-            </div>
-
-            {/* Products require expiry date (Grocery / Pharma) */}
-            <div className="pt-1">
-                <Checkbox
-                    label="Products require expiry date (e.g. Grocery, Pharma)"
-                    checked={formData.hasExpiryDate === true}
-                    onChange={(checked) => onUpdate("hasExpiryDate", checked)}
-                    description="Enable for stores selling perishables or pharma."
-                />
             </div>
 
             {/* Row 2: GST & PAN */}

@@ -162,14 +162,6 @@ const StoreEditForm = ({ form, onChange, errors = {} }) => {
           searchable={true}
         />
 
-        {/* Products require expiry date (Grocery / Pharma) */}
-        <Checkbox
-          label={t("settings.productsRequireExpiryDate") || "Products require expiry date (e.g. Grocery, Pharma)"}
-          checked={form.hasExpiryDate === true}
-          onChange={(checked) => handleInputChange("hasExpiryDate", checked)}
-          description={t("settings.productsRequireExpiryDateHint") || "Enable for stores selling perishables or pharma."}
-        />
-
         {/* GST & PAN */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input

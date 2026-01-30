@@ -24,6 +24,7 @@ export default function GlobalProfileLoader() {
   );
 
   const hasRefreshedRef = useRef(false);
+  const refreshSucceededRef = useRef(false);
   const hasFetchedAuthRef = useRef(false);
   const hasFetchedRetailerRef = useRef(false);
 
@@ -35,9 +36,15 @@ export default function GlobalProfileLoader() {
         if (!hasRefreshedRef.current) {
           hasRefreshedRef.current = true;
           try {
-            await authService.refreshToken();
+            const refreshResult = await authService.refreshToken();
+            if (refreshResult?.success === true) {
+              refreshSucceededRef.current = true;
+            }
           } catch (_) {}
         }
+
+        // If first refresh API failed, do not call the 2 profile APIs (getAuthProfile, getRetailerDetails)
+        if (!refreshSucceededRef.current) return;
 
         if (!hasFetchedAuthRef.current) {
           hasFetchedAuthRef.current = true;
