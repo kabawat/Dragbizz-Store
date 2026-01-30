@@ -5,7 +5,12 @@ export const extractFieldErrors = (errorResponse) => {
   // Check various possible locations for field errors
   let errorFields = null;
 
-  if (errorResponse?.data?.fields) {
+  // Backend M2 format: { code, message, details: { fields }, error }
+  if (errorResponse?.data?.details?.fields) {
+    errorFields = errorResponse.data.details.fields;
+  } else if (errorResponse?.details?.fields) {
+    errorFields = errorResponse.details.fields;
+  } else if (errorResponse?.data?.fields) {
     errorFields = errorResponse.data.fields;
   } else if (errorResponse?.data?.data?.fields) {
     errorFields = errorResponse.data.data.fields;
@@ -13,6 +18,8 @@ export const extractFieldErrors = (errorResponse) => {
     errorFields = errorResponse.fields;
   } else if (errorResponse?.error?.data?.fields) {
     errorFields = errorResponse.error.data.fields;
+  } else if (errorResponse?.error?.details?.fields) {
+    errorFields = errorResponse.error.details.fields;
   } else if (errorResponse?.error?.fields) {
     errorFields = errorResponse.error.fields;
   }
