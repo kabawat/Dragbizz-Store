@@ -1,5 +1,6 @@
 "use client";
 import {
+  Check,
   Copy,
   Loader2,
   Pencil,
@@ -8,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button, Input, Modal, SideDrawer } from "@/components/ui";
+import { Button, Input, Modal, MultiSelect, SideDrawer } from "@/components/ui";
 import { UpiQrModal } from "@/components/common";
 import {
   getStoreUpi,
@@ -20,9 +21,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
+const MAX_UPI_PER_AGENCY = 50;
+
 const StoreUpiDrawer = ({
   isOpen,
   store,
+  stores = [],
   onClose,
   onSuccess,
   onError,
@@ -42,7 +46,7 @@ const StoreUpiDrawer = ({
   const storeUpiError = useAppSelector((state) => state.storeUpi?.error);
 
   const [isAdding, setIsAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ upiId: "", label: "" });
+  const [addForm, setAddForm] = useState({ upiId: "", label: "", storeIds: [] });
   const [addErrors, setAddErrors] = useState({});
   const [editingIndex, setEditingIndex] = useState(null);
   const [editForm, setEditForm] = useState({ upiId: "", label: "" });
@@ -51,11 +55,15 @@ const StoreUpiDrawer = ({
   const [deletingIndex, setDeletingIndex] = useState(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
   const [qrModalItem, setQrModalItem] = useState(null);
+  const [copiedUpiId, setCopiedUpiId] = useState(null);
+
+  const COPIED_DURATION_MS = 2500;
 
   useEffect(() => {
     if (isOpen && storeId) {
       dispatch(getStoreUpi({ storeId }));
-      setAddForm({ upiId: "", label: "" });
+      const sid = typeof storeId === "string" ? storeId : storeId?.toString?.() || storeId;
+      setAddForm({ upiId: "", label: "", storeIds: sid ? [sid] : [] });
       setAddErrors({});
       setEditingIndex(null);
     }
@@ -84,18 +92,28 @@ const StoreUpiDrawer = ({
       setAddErrors({ upiId: upiError });
       return;
     }
+    const storeIdsToUse = addForm.storeIds?.length > 0 ? addForm.storeIds : [storeId];
+    if (!storeIdsToUse.length) {
+      setAddErrors({ storeIds: t("settings.upi.storeIdsRequired") });
+      return;
+    }
     setAddErrors({});
     try {
       setIsAdding(true);
       const payload = {
         upiId: addForm.upiId.trim().toLowerCase(),
         label: addForm.label?.trim() || undefined,
+        storeIds: storeIdsToUse.map((id) => (typeof id === "string" ? id : id?.toString?.() || id)),
       };
       const result = await dispatch(
         createStoreUpi({ storeId, payload })
       ).unwrap();
       if (result) {
-        setAddForm({ upiId: "", label: "" });
+        setAddForm({
+          upiId: "",
+          label: "",
+          storeIds: storeId ? [typeof storeId === "string" ? storeId : (storeId?.toString?.() || storeId)] : [],
+        });
         showSuccess?.(t("settings.upi.addedSuccess"));
         onSuccess?.();
       }
@@ -106,8 +124,8 @@ const StoreUpiDrawer = ({
     }
   };
 
-  const handleStartEdit = (item, index) => {
-    setEditingIndex(index);
+  const handleStartEdit = (item) => {
+    setEditingIndex(item.id || item._id || item.index);
     setEditForm({
       upiId: item.upiId || "",
       label: item.label || "",
@@ -127,15 +145,20 @@ const StoreUpiDrawer = ({
       setEditErrors({ upiId: upiError });
       return;
     }
+    const editingItem = upiList.find((u) => u.id === editingIndex || u._id === editingIndex || u.index === editingIndex);
+    const upiDocId = editingItem?.id || editingItem?._id;
+    if (!upiDocId) {
+      onError?.("UPI not found");
+      return;
+    }
     setEditErrors({});
     try {
       setIsSaving(true);
       const payload = {
-        index: editingIndex,
         upiId: editForm.upiId.trim().toLowerCase(),
         label: editForm.label?.trim() || undefined,
       };
-      await dispatch(updateStoreUpi({ storeId, payload })).unwrap();
+      await dispatch(updateStoreUpi({ storeId, upiId: upiDocId, payload })).unwrap();
       setEditingIndex(null);
       showSuccess?.(t("settings.upi.updatedSuccess"));
       onSuccess?.();
@@ -146,8 +169,8 @@ const StoreUpiDrawer = ({
     }
   };
 
-  const handleDeleteClick = (item, index) => {
-    setDeleteConfirmItem({ ...item, index });
+  const handleDeleteClick = (item) => {
+    setDeleteConfirmItem({ ...item, index: item.index, id: item.id || item._id });
   };
 
   const handleDeleteConfirmClose = () => {
@@ -156,7 +179,7 @@ const StoreUpiDrawer = ({
 
   const handleDeleteUpi = async () => {
     if (!deleteConfirmItem) return;
-    const { index } = deleteConfirmItem;
+    const { index } = deleteConfirmItem; // index = agencyIndex from API
     try {
       setDeletingIndex(index);
       await dispatch(deleteStoreUpi({ storeId, payload: { index } })).unwrap();
@@ -216,6 +239,26 @@ const StoreUpiDrawer = ({
                 setAddForm((p) => ({ ...p, label: val ?? "" }))
               }
             />
+            {(stores || []).length > 0 && (
+              <MultiSelect
+                label={t("settings.upi.assignToStores")}
+                placeholder={t("settings.upi.selectStores")}
+                options={(stores || []).map((s) => ({
+                  label: s.name || s._id || s.id || String(s._id || s.id),
+                  value: String(s._id || s.id),
+                }))}
+                value={addForm.storeIds?.map((id) => String(id)) || []}
+                onChange={(vals) =>
+                  setAddForm((p) => ({
+                    ...p,
+                    storeIds: vals || [],
+                  }))
+                }
+                error={!!addErrors.storeIds}
+                errorMessage={addErrors.storeIds}
+                clearable={false}
+              />
+            )}
             <Button
               variant="primary"
               size="sm"
@@ -237,7 +280,7 @@ const StoreUpiDrawer = ({
         {/* UPI list */}
         <div>
           <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-3">
-            {t("settings.upi.savedUpiIds")} ({upiList.length}/10)
+            {t("settings.upi.savedUpiIds")} ({upiList.length}/{MAX_UPI_PER_AGENCY})
           </h4>
 
           {isLoading ? (
@@ -252,10 +295,10 @@ const StoreUpiDrawer = ({
             <div className="space-y-2">
               {upiList.map((item, index) => (
                 <div
-                  key={`${item.upiId}-${index}`}
+                  key={item.id || item._id || `${item.upiId}-${index}`}
                   className="flex items-center gap-2 p-3 rounded-lg border border-[rgb(var(--color-border-primary))]/50 bg-[rgb(var(--color-bg-primary))]/30"
                 >
-                  {editingIndex === index ? (
+                  {editingIndex === (item.index ?? item.id) ? (
                     <div className="flex-1 space-y-2">
                       <Input
                         placeholder="merchant@paytm"
@@ -319,15 +362,23 @@ const StoreUpiDrawer = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleCopyUpi(item.upiId)}
-                          className="p-1.5 rounded hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
-                          title={t("settings.upi.copy")}
+                          onClick={() => handleCopyUpi(item.upiId, item.id || item._id)}
+                          className={`p-1.5 rounded transition-colors cursor-pointer ${
+                            copiedUpiId === (item.id || item._id)
+                              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                              : "hover:bg-[rgb(var(--color-bg-secondary))]"
+                          }`}
+                          title={copiedUpiId === (item.id || item._id) ? t("settings.upi.copied", "Copied") : t("settings.upi.copy")}
                         >
-                          <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                          {copiedUpiId === (item.id || item._id) ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                          )}
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleStartEdit(item, index)}
+                          onClick={() => handleStartEdit(item)}
                           className="p-1.5 rounded hover:bg-[rgb(var(--color-bg-secondary))] transition-colors cursor-pointer"
                           title={t("settings.upi.edit")}
                         >
@@ -335,12 +386,12 @@ const StoreUpiDrawer = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteClick(item, index)}
-                          disabled={deletingIndex === index}
+                          onClick={() => handleDeleteClick(item)}
+                          disabled={deletingIndex === item.index}
                           className="p-1.5 rounded hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer disabled:opacity-50"
                           title={t("settings.upi.delete")}
                         >
-                          {deletingIndex === index ? (
+                          {deletingIndex === (item.index ?? item.id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <Trash2 className="w-4 h-4" />

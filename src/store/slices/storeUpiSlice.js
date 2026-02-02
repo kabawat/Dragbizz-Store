@@ -1,24 +1,31 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import storeService from "@/service/retailer/store.service";
 
-// Fetch store UPI - returns cached data from Redux if available, else fetches from API
+// Fetch store UPI - scope: 'store' (default) or 'agency' (all agency UPIs for management)
 export const getStoreUpi = createAsyncThunk(
   "storeUpi/getStoreUpi",
-  async ({ storeId, forceRefresh = false }, { rejectWithValue, getState }) => {
+  async (
+    { storeId, scope = "store", forceRefresh = false },
+    { rejectWithValue, getState }
+  ) => {
     try {
       const currentState = getState();
-      const cached = currentState.storeUpi?.byStoreId?.[storeId];
+      const cacheKey = scope === "agency" ? `agency_${storeId}` : storeId;
+      const cached = currentState.storeUpi?.byStoreId?.[cacheKey];
 
-      // Use cached data if available and not forcing refresh
       if (cached && !forceRefresh) {
         return {
           success: true,
           data: cached,
+          storeId,
+          scope,
           message: "Store UPI IDs from cache",
         };
       }
 
-      const result = await storeService.getStoreUpi(storeId);
+      const result = await storeService.getStoreUpi(storeId, {
+        scope: scope === "agency" ? "agency" : undefined,
+      });
       if (!result?.success) {
         return rejectWithValue(result?.message || "Failed to fetch UPI IDs");
       }
@@ -33,6 +40,9 @@ export const getStoreUpi = createAsyncThunk(
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
         },
+        storeId,
+        scope,
+        cacheKey,
         message: result.message || "Store UPI IDs fetched successfully",
       };
     } catch (error) {
@@ -57,9 +67,10 @@ export const createStoreUpi = createAsyncThunk(
       return {
         storeId,
         data: {
-          store: data.store,
-          agency: data.agency,
-          upiIds: data.upiIds || [],
+          id: data.id,
+          upiId: data.upiId,
+          label: data.label || null,
+          storeIds: data.storeIds || [],
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
         },
@@ -76,9 +87,9 @@ export const createStoreUpi = createAsyncThunk(
 
 export const updateStoreUpi = createAsyncThunk(
   "storeUpi/updateStoreUpi",
-  async ({ storeId, payload }, { rejectWithValue }) => {
+  async ({ storeId, upiId, payload }, { rejectWithValue }) => {
     try {
-      const result = await storeService.updateStoreUpi(storeId, payload);
+      const result = await storeService.updateStoreUpi(storeId, upiId, payload);
       if (!result?.success) {
         return rejectWithValue(result?.message || "Failed to update UPI");
       }
@@ -86,10 +97,10 @@ export const updateStoreUpi = createAsyncThunk(
       return {
         storeId,
         data: {
-          store: data.store,
-          agency: data.agency,
-          upiIds: data.upiIds || [],
-          createdAt: data.createdAt,
+          id: data.id,
+          upiId: data.upiId,
+          label: data.label || null,
+          storeIds: data.storeIds || [],
           updatedAt: data.updatedAt,
         },
       };
@@ -105,22 +116,17 @@ export const updateStoreUpi = createAsyncThunk(
 
 export const deleteStoreUpi = createAsyncThunk(
   "storeUpi/deleteStoreUpi",
-  async ({ storeId, payload }, { rejectWithValue }) => {
+  async ({ storeId, upiId }, { rejectWithValue }) => {
     try {
-      const result = await storeService.deleteStoreUpi(storeId, payload);
+      const result = await storeService.deleteStoreUpi(storeId, upiId);
       if (!result?.success) {
         return rejectWithValue(result?.message || "Failed to delete UPI");
       }
       const data = result?.data?.data || result?.data || {};
       return {
         storeId,
-        data: {
-          store: data.store,
-          agency: data.agency,
-          upiIds: data.upiIds || [],
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-        },
+        upiId,
+        data: data.id ? { id: data.id } : { id: upiId },
       };
     } catch (error) {
       return rejectWithValue(
@@ -147,6 +153,7 @@ const storeUpiSlice = createSlice({
       const storeId = action.payload;
       if (storeId) {
         delete state.byStoreId[storeId];
+        delete state.byStoreId[`agency_${storeId}`];
       } else {
         state.byStoreId = {};
       }
@@ -155,7 +162,6 @@ const storeUpiSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // getStoreUpi
       .addCase(getStoreUpi.pending, (state, action) => {
         state.isLoading = true;
         state.loadingStoreId = action.meta?.arg?.storeId || null;
@@ -165,10 +171,10 @@ const storeUpiSlice = createSlice({
         state.isLoading = false;
         state.loadingStoreId = null;
         state.error = null;
-        const { data } = action.payload;
-        const storeId = action.meta?.arg?.storeId;
-        if (storeId && data) {
-          state.byStoreId[storeId] = data;
+        const { data, cacheKey, storeId } = action.payload;
+        const key = cacheKey || (action.meta?.arg?.scope === "agency" ? `agency_${storeId}` : storeId);
+        if (key && data) {
+          state.byStoreId[key] = data;
         }
       })
       .addCase(getStoreUpi.rejected, (state, action) => {
@@ -176,27 +182,32 @@ const storeUpiSlice = createSlice({
         state.loadingStoreId = null;
         state.error = action.payload;
       })
-      // createStoreUpi
       .addCase(createStoreUpi.fulfilled, (state, action) => {
         const { storeId, data } = action.payload;
-        if (storeId && data) {
-          state.byStoreId[storeId] = data;
+        const agencyKey = `agency_${storeId}`;
+        if (state.byStoreId[agencyKey]?.upiIds) {
+          state.byStoreId[agencyKey].upiIds = [data, ...state.byStoreId[agencyKey].upiIds];
         }
         state.error = null;
       })
-      // updateStoreUpi
       .addCase(updateStoreUpi.fulfilled, (state, action) => {
         const { storeId, data } = action.payload;
-        if (storeId && data) {
-          state.byStoreId[storeId] = data;
+        const agencyKey = `agency_${storeId}`;
+        if (state.byStoreId[agencyKey]?.upiIds) {
+          const idx = state.byStoreId[agencyKey].upiIds.findIndex((u) => u.id === data.id);
+          if (idx >= 0) {
+            state.byStoreId[agencyKey].upiIds[idx] = { ...state.byStoreId[agencyKey].upiIds[idx], ...data };
+          }
         }
         state.error = null;
       })
-      // deleteStoreUpi
       .addCase(deleteStoreUpi.fulfilled, (state, action) => {
-        const { storeId, data } = action.payload;
-        if (storeId && data) {
-          state.byStoreId[storeId] = data;
+        const { storeId, upiId } = action.payload;
+        const agencyKey = `agency_${storeId}`;
+        if (state.byStoreId[agencyKey]?.upiIds) {
+          state.byStoreId[agencyKey].upiIds = state.byStoreId[agencyKey].upiIds.filter(
+            (u) => u.id !== upiId && u.id?.toString?.() !== upiId
+          );
         }
         state.error = null;
       });

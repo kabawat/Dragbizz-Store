@@ -1,15 +1,28 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 import { Building2, MapPin, Phone, Share2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useSelector, useDispatch } from "react-redux";
 import { setCartOpen } from "@/store/slices/publicCartSlice";
+import { useTranslation } from "@/hooks/useTranslation";
+
+const COPIED_DURATION_MS = 2500;
 
 export default function CatalogHeader({ store, onShare, onCall }) {
     const dispatch = useDispatch();
     const cartCount = useSelector(state => state.publicCart.items.reduce((sum, item) => sum + item.quantity, 0));
+    const [copied, setCopied] = useState(false);
 
     const onCartClick = () => dispatch(setCartOpen(true));
+
+    const handleShareClick = async () => {
+        const result = typeof onShare === "function" ? await Promise.resolve(onShare()) : false;
+        if (result) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), COPIED_DURATION_MS);
+        }
+    };
     return (
         <header className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-b border-[rgb(var(--color-border-primary))]/50 shadow-sm transition-all h-16 sm:h-20">
             <div className="container mx-auto px-6 h-full flex items-center justify-between">
@@ -46,14 +59,18 @@ export default function CatalogHeader({ store, onShare, onCall }) {
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
                     <Button
-                        variant="outline"
+                        variant={copied ? "success" : "outline"}
                         size="md"
-                        className="hidden md:flex gap-2 rounded-xl border border-[rgb(var(--color-border-primary))]/60 hover:bg-[rgb(var(--color-bg-secondary))] transition-all font-bold text-sm h-10 sm:h-11 px-5"
-                        onClick={onShare}
+                        className={`hidden md:flex gap-2 rounded-xl transition-all font-bold text-sm h-10 sm:h-11 px-5 ${
+                            copied
+                                ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400"
+                                : "border border-[rgb(var(--color-border-primary))]/60 hover:bg-[rgb(var(--color-bg-secondary))]"
+                        }`}
+                        onClick={handleShareClick}
                         aria-label="Share catalog"
                     >
                         <Share2 className="w-4 h-4" />
-                        <span>Share</span>
+                        <span>{copied ? t("common.copied") : t("common.share")}</span>
                     </Button>
 
                     {/* Cart Button */}

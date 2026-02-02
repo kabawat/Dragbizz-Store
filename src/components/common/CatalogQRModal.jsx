@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
+import { Check, Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
@@ -50,10 +50,13 @@ const composeQrWithLogo = async (qrImageUrl, logoUrl) => {
     return canvas.toDataURL("image/png");
 };
 
+const COPIED_DURATION_MS = 2500;
+
 const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) => {
     const { t } = useTranslation();
     const { showSuccess, showError } = useGlobalToast();
     const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     const catalogId = store?.catalogId || propCatalogId;
     const catalogUrl = catalogId
@@ -290,10 +293,18 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                             </div>
                             <button
                                 onClick={handleCopy}
-                                className="flex-shrink-0 p-2.5 bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white rounded-lg transition-colors active:scale-95"
-                                title={t("common.copyLink")}
+                                className={`flex-shrink-0 p-2.5 rounded-lg transition-colors active:scale-95 ${
+                                    copied
+                                        ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                        : "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white"
+                                }`}
+                                title={copied ? t("settings.upi.copied", "Copied") : t("common.copyLink")}
                             >
-                                <Copy className="w-4.5 h-4.5" />
+                                {copied ? (
+                                    <Check className="w-4.5 h-4.5" />
+                                ) : (
+                                    <Copy className="w-4.5 h-4.5" />
+                                )}
                             </button>
                         </div>
 
