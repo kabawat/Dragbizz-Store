@@ -9,6 +9,7 @@ import paymentsSlice from "./slices/paymentsSlice";
 import productsSlice from "./slices/productsSlice";
 import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
+import storeUpiSlice from "./slices/storeUpiSlice";
 import suppliersSlice from "./slices/suppliersSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
@@ -16,6 +17,7 @@ import publicCartSlice from "./slices/publicCartSlice";
 export const store = configureStore({
   reducer: {
     profile: profileSlice,
+    storeUpi: storeUpiSlice,
     products: productsSlice,
     customers: customersSlice,
     suppliers: suppliersSlice,

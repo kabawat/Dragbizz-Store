@@ -1,23 +1,87 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
+const CATALOG_LOGO_URL = "/logo/logo.png";
+const QR_SIZE = 500;
+const LOGO_RATIO = 0.22;
+
+const loadImage = (url) =>
+    new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+    });
+
+const composeQrWithLogo = async (qrImageUrl, logoUrl) => {
+    const [qrImg, logoImg] = await Promise.all([
+        loadImage(qrImageUrl),
+        loadImage(logoUrl).catch(() => null),
+    ]);
+
+    const size = QR_SIZE;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(qrImg, 0, 0, size, size);
+
+    if (logoImg) {
+        const logoSize = Math.floor(size * LOGO_RATIO);
+        const padding = Math.floor(size * 0.04);
+        const center = size / 2;
+        const halfLogo = logoSize / 2 + padding;
+        const x = center - halfLogo;
+        const y = center - halfLogo;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x, y, halfLogo * 2, halfLogo * 2);
+
+        ctx.drawImage(logoImg, x + padding, y + padding, logoSize, logoSize);
+    }
+
+    return canvas.toDataURL("image/png");
+};
+
 const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) => {
     const { t } = useTranslation();
     const { showSuccess, showError } = useGlobalToast();
+    const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
 
-    // Prefer catalogId from store object, fallback to prop
     const catalogId = store?.catalogId || propCatalogId;
+    const catalogUrl = catalogId
+        ? `${typeof window !== "undefined" ? window.location.origin : ""}/c/${catalogId}`
+        : "";
+    const displayUrl = catalogId
+        ? `${typeof window !== "undefined" ? window.location.host : ""}/c/${catalogId}`
+        : "";
+    const qrCodeUrl = catalogId
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=${QR_SIZE}x${QR_SIZE}&ecc=H&data=${encodeURIComponent(catalogUrl)}`
+        : "";
+
+    useEffect(() => {
+        if (!catalogId || !qrCodeUrl) return;
+        let cancelled = false;
+        composeQrWithLogo(qrCodeUrl, CATALOG_LOGO_URL)
+            .then((url) => {
+                if (!cancelled) setQrWithLogoUrl(url);
+            })
+            .catch(() => {
+                if (!cancelled) setQrWithLogoUrl(qrCodeUrl);
+            });
+        return () => { cancelled = true; };
+    }, [catalogId, qrCodeUrl]);
+
+    const displayQrUrl = qrWithLogoUrl || qrCodeUrl;
 
     if (!catalogId) return null;
-
-    const catalogUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/c/${catalogId}`;
-    const displayUrl = `${typeof window !== "undefined" ? window.location.host : ""}/c/${catalogId}`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(catalogUrl)}`;
 
     const handleCopy = async () => {
         const success = await copyToClipboard(catalogUrl);
@@ -117,7 +181,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
 
             // QR Code Section
             y += 15;
-            const imgData = await getBase64FromUrl(qrCodeUrl);
+            const imgData = await getBase64FromUrl(displayQrUrl);
             doc.addImage(imgData, 'PNG', 55, y, 100, 100);
 
             // Catalog URL with blue link color
@@ -160,7 +224,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                 <body>
                     <h1>${store?.name || 'Our Product Catalog'}</h1>
                     <div class="marketing">Scan to browse & order products online!</div>
-                    <img src="${qrCodeUrl}" alt="QR Code" />
+                    <img src="${displayQrUrl}" alt="QR Code" />
                     <p>${displayUrl}</p>
                     <script>
                         window.onload = () => {
@@ -186,7 +250,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
                 <div className="bg-[rgb(var(--color-bg-secondary))] p-8 rounded-[1.5rem] border border-[rgb(var(--color-border-primary)/0.2)] flex-shrink-0">
                     <div className="bg-white p-2 rounded-2xl border border-[rgb(var(--color-border-primary))]/50">
                         <img
-                            src={qrCodeUrl}
+                            src={displayQrUrl}
                             alt="QR Code"
                             className="w-50 h-50 block"
                         />

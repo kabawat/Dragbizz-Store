@@ -160,6 +160,58 @@ class StoreService {
       return handleApiErrorResponse(error, "store-generate-catalog-id");
     }
   }
+
+  // Store UPI - Get (store in query params, same as dashboard/customer/product flow)
+  async getStoreUpi(storeId) {
+    try {
+      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.STORE}/upi`, {
+        store: storeId,
+      });
+      const response = await authAxios.get(url);
+      return handleApiSuccess(response?.data, "Store UPI IDs fetched successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "store-upi-get");
+    }
+  }
+
+  // Store UPI - Create (add UPI ID)
+  async createStoreUpi(storeId, payload) {
+    try {
+      const response = await authAxios.post(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi`,
+        payload
+      );
+      return handleApiSuccess(response?.data, "UPI ID added successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "store-upi-create");
+    }
+  }
+
+  // Store UPI - Update
+  async updateStoreUpi(storeId, payload) {
+    try {
+      const response = await authAxios.put(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi`,
+        payload
+      );
+      return handleApiSuccess(response?.data, "UPI ID updated successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "store-upi-update");
+    }
+  }
+
+  // Store UPI - Delete
+  async deleteStoreUpi(storeId, payload) {
+    try {
+      const response = await authAxios.delete(
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi`,
+        { data: payload }
+      );
+      return handleApiSuccess(response?.data, "UPI ID deleted successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "store-upi-delete");
+    }
+  }
 }
 
 // Create and export a singleton instance

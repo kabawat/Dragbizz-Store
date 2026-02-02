@@ -1938,6 +1938,32 @@
       "hindi": "हिंदी",
       "gujarati": "ગુજરાતી",
       "hinglish": "Hinglish"
+    },
+    "upi": {
+      "manageUpi": "UPI ID મેનેજ કરો",
+      "forStore": "સ્ટોર",
+      "addNewUpi": "UPI ID ઉમેરો",
+      "upiId": "UPI ID",
+      "upiIdRequired": "UPI ID જરૂરી છે",
+      "invalidUpiFormat": "અમાન્ય ફોર્મેટ. username@bank ઉપયોગ કરો (જેમ કે merchant@paytm)",
+      "labelOptional": "લેબલ (ઓપ્શનલ)",
+      "addUpi": "UPI ઉમેરો",
+      "savedUpiIds": "સાચવેલા UPI ID",
+      "noUpiAdded": "હજી સુધી કોઈ UPI ID ઉમેરાયું નથી",
+      "copy": "કૉપિ કરો",
+      "edit": "સંપાદિત કરો",
+      "delete": "કાઢી નાખો",
+      "deleteUpiTitle": "UPI ID કાઢી નાખો",
+      "confirmDelete": "શું તમે ખરેખર આ UPI ID કાઢી નાખવા માંગો છો?",
+      "addedSuccess": "UPI ID સફળતાપૂર્વક ઉમેરાયું",
+      "updatedSuccess": "UPI ID સફળતાપૂર્વક અપડેટ થયું",
+      "deletedSuccess": "UPI ID સફળતાપૂર્વક કાઢી નાખ્યું",
+      "maxReached": "દર સ્ટોર પર મહત્તમ 10 UPI ID મંજૂર છે",
+      "showQr": "QR કોડ દર્શાવો",
+      "upiQrCode": "UPI QR કોડ",
+      "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
+      "qrDownloaded": "QR કોડ સફળતાપૂર્વક ડાઉનલોડ થયો",
+      "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ"
     }
   }
 }

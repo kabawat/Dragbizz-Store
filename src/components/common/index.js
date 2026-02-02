@@ -10,3 +10,4 @@ export { default as ScrollIndicator } from "./ScrollIndicator";
 export { default as SectionHeader } from "./SectionHeader";
 export { default as StatsCard } from "./StatsCard";
 export { default as CatalogQRModal } from "./CatalogQRModal";
+export { default as UpiQrModal } from "./UpiQrModal";

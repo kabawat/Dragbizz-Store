@@ -1916,6 +1916,32 @@
       "hindi": "हिंदी",
       "gujarati": "ગુજરાતી",
       "hinglish": "Hinglish"
+    },
+    "upi": {
+      "manageUpi": "Manage UPI IDs",
+      "forStore": "Store",
+      "addNewUpi": "Add UPI ID",
+      "upiId": "UPI ID",
+      "upiIdRequired": "UPI ID required hai",
+      "invalidUpiFormat": "Invalid format. Use username@bank (e.g. merchant@paytm)",
+      "labelOptional": "Label (Optional)",
+      "addUpi": "Add UPI",
+      "savedUpiIds": "Saved UPI IDs",
+      "noUpiAdded": "Abhi tak koi UPI ID add nahi hua",
+      "copy": "Copy",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteUpiTitle": "UPI ID Delete karein",
+      "confirmDelete": "Kya aap is UPI ID ko delete karna chahte hain?",
+      "addedSuccess": "UPI ID successfully add ho gaya",
+      "updatedSuccess": "UPI ID successfully update ho gaya",
+      "deletedSuccess": "UPI ID successfully delete ho gaya",
+      "maxReached": "Per store maximum 10 UPI IDs allowed hain",
+      "showQr": "QR Code dikhao",
+      "upiQrCode": "UPI QR Code",
+      "scanToPay": "UPI se pay karne ke liye scan karein",
+      "qrDownloaded": "QR code successfully download ho gaya",
+      "qrDownloadFailed": "QR code download karne mein fail"
     }
   }
 }
