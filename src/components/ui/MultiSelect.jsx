@@ -19,8 +19,14 @@ const MultiSelect = ({
   className = "",
   name,
   id,
+  size = "sm",
   ...props
 }) => {
+  const sizeClasses = {
+    sm: "py-1.5 px-2.5 min-h-10 text-xs",
+    md: "py-2.5 px-3 min-h-12 text-sm",
+    lg: "py-3 px-4 min-h-14 text-base",
+  };
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -132,9 +138,9 @@ const MultiSelect = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Label */}
+      {/* Label - matches Input/Select */}
       {label && (
-        <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+        <label className="block text-sm text-[rgb(var(--color-text-primary))] mb-2">
           <span className="flex items-center gap-2">
             <span>{label}</span>
             {required && <span className="text-red-500">*</span>}
@@ -142,11 +148,11 @@ const MultiSelect = ({
         </label>
       )}
 
-      {/* Select Container */}
+      {/* Select Container - matches Input/Select height and styling */}
       <div
         ref={selectRef}
         className={`
-          relative cursor-pointer border-2 border-[rgb(var(--color-border-primary))] rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent
+          relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent
           ${
             error
               ? "border-red-500 focus:ring-red-500"
@@ -154,7 +160,7 @@ const MultiSelect = ({
                 ? "border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
                 : "border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]"
           } 
-          ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}
+          ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed opacity-50" : "bg-[rgb(var(--color-bg-primary))]"}
         `}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
@@ -164,14 +170,14 @@ const MultiSelect = ({
         aria-haspopup="listbox"
       >
         {/* Selected Values Display */}
-        <div className="flex items-center justify-between px-4 py-4">
+        <div className={`flex items-center justify-between gap-2 ${sizeClasses[size]}`}>
           <div className="flex-1 min-w-0">
             {selectedOptions.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {selectedOptions.map((option) => (
                   <span
                     key={option.value}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))] border-opacity-20"
+                    className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/30"
                   >
                     {option.label}
                     {!disabled && (
@@ -192,7 +198,7 @@ const MultiSelect = ({
                 )}
               </div>
             ) : (
-              <span className="text-[rgb(var(--color-text-tertiary))]">
+              <span className={`text-[rgb(var(--color-text-tertiary))] ${size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm"}`}>
                 {placeholder}
               </span>
             )}
@@ -204,16 +210,16 @@ const MultiSelect = ({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] transition-colors duration-200"
+                className="p-0.5 rounded text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors duration-200"
                 tabIndex={-1}
               >
-                <X className="w-4 h-4" />
+                <X className={size === "sm" ? "w-3.5 h-3.5" : size === "lg" ? "w-5 h-5" : "w-4 h-4"} />
               </button>
             )}
 
             {/* Dropdown Arrow */}
             <ChevronDown
-              className={`w-5 h-5 text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${
+              className={`${size === "sm" ? "w-4 h-4" : size === "lg" ? "w-5 h-5" : "w-4 h-4"} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 flex-shrink-0 ${
                 isOpen ? "rotate-180" : ""
               }`}
             />
@@ -222,7 +228,7 @@ const MultiSelect = ({
 
         {/* Dropdown Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg max-h-60 overflow-hidden">
             {/* Search Input */}
             {searchable && (
               <div className="p-2 border-b border-[rgb(var(--color-border-primary))]">
@@ -234,7 +240,7 @@ const MultiSelect = ({
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
+                    className="w-full pl-9 pr-2.5 py-1.5 text-xs border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]"
                   />
                 </div>
               </div>
@@ -255,32 +261,27 @@ const MultiSelect = ({
                     <div
                       key={option.value}
                       className={`
-                        px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between
-                        ${isHighlighted ? "bg-[rgb(var(--color-primary))] bg-opacity-10" : "hover:bg-[rgb(var(--color-bg-secondary))]"}
-                        ${isSelected ? "bg-[rgb(var(--color-primary))] bg-opacity-10" : ""}
-                        ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                        px-3 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between text-xs
+                        ${isHighlighted ? "bg-[rgb(var(--color-primary))]/10" : ""}
+                        ${isSelected ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]" : "hover:bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))]"}
+                        ${isDisabled ? "opacity-50 cursor-not-allowed text-[rgb(var(--color-text-tertiary))]" : ""}
                       `}
                       onClick={() => !isDisabled && handleSelect(option)}
                       onMouseEnter={() =>
                         !isDisabled && setHighlightedIndex(index)
                       }
                     >
-                      <span
-                        className={`
-                        ${isSelected ? "font-medium text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"}
-                        ${isDisabled ? "text-[rgb(var(--color-text-tertiary))]" : ""}
-                      `}
-                      >
+                      <span className="truncate">
                         {option.label}
                       </span>
                       {isSelected && (
-                        <Check className="w-4 h-4 text-[rgb(var(--color-primary))]" />
+                        <Check className="w-4 h-4 text-[rgb(var(--color-primary))] flex-shrink-0 ml-2" />
                       )}
                     </div>
                   );
                 })
               ) : (
-                <div className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center">
+                <div className="px-4 py-3 text-xs text-[rgb(var(--color-text-secondary))] text-center">
                   No options found
                 </div>
               )}

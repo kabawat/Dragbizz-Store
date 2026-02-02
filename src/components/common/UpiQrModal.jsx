@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Copy, Download, Printer } from "lucide-react";
+import { Check, Copy, Download, Printer } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
@@ -66,10 +66,13 @@ const loadImage = (url) =>
     img.src = url;
   });
 
+const COPIED_DURATION_MS = 2500;
+
 const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
   const { t } = useTranslation();
   const { showSuccess, showError } = useGlobalToast();
   const [qrWithLogoUrl, setQrWithLogoUrl] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const payeeName = storeName || label || "Merchant";
   const upiUri = upiId ? buildUpiUri(upiId, payeeName) : "";
@@ -97,7 +100,8 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
   const handleCopy = async () => {
     const success = await copyToClipboard(upiId);
     if (success) {
-      showSuccess(t("settings.linkCopied"));
+      setCopied(true);
+      setTimeout(() => setCopied(false), COPIED_DURATION_MS);
     }
   };
 
@@ -240,12 +244,13 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
 
           <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
             <Button
-              variant="outline"
+              variant={copied ? "success" : "outline"}
               size="sm"
               onClick={handleCopy}
-              leftIcon={Copy}
+              leftIcon={copied ? Check : Copy}
+              className={copied ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400" : ""}
             >
-              {t("common.copy")}
+              {copied ? t("settings.upi.copied", "Copied") : t("common.copy")}
             </Button>
             <Button
               variant="outline"

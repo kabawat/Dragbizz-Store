@@ -1,5 +1,5 @@
 "use client";
-import { Building2, Copy, Edit2, Loader2, Plus, QrCode, Trash2, Wallet } from "lucide-react";
+import { Building2, Edit2, Loader2, Plus, QrCode, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
@@ -163,22 +163,9 @@ const StoreList = ({
               )}
             </div>
 
-            {/* UPI & Public Catalog */}
-            <div className="mt-auto pt-4 border-t border-[rgb(var(--color-border-primary))]/40 space-y-2">
-              {/* Manage UPI */}
-              <button
-                type="button"
-                onClick={() => onManageUpi?.(store)}
-                className="w-full bg-[rgb(var(--color-bg-secondary))] px-3 py-2 rounded-lg border border-[rgb(var(--color-border-primary))]/50 hover:bg-[rgb(var(--color-bg-tertiary))] transition-all flex items-center justify-between gap-2 cursor-pointer"
-              >
-                <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                  {t("settings.upi.manageUpi")}
-                </span>
-                <Wallet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-              </button>
-
-              {/* Public Catalog Link */}
+            {/* Public Catalog - only show when catalog exists */}
             {store.catalogId && (
+              <div className="mt-auto pt-4 border-t border-[rgb(var(--color-border-primary))]/40">
                 <button
                   type="button"
                   onClick={() => onShowCatalog?.(store)}
@@ -196,8 +183,8 @@ const StoreList = ({
                     <QrCode className="w-4 h-4" />
                   </div>
                 </button>
+              </div>
             )}
-            </div>
 
             {/* Current Store Badge */}
             {isCurrent && (

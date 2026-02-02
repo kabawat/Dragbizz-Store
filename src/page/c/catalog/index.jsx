@@ -158,13 +158,13 @@ export default function CatalogPage({ catalogId }) {
         }
     }, [cartItems, addToCart, updateCartQuantity]);
 
-    // Share catalog link
+    // Share catalog link - returns success for CatalogHeader to show "Copied" feedback
     const handleShareCatalog = useCallback(async () => {
         try {
-            await copyToClipboard(window.location.href);
-            toast.showSuccess("Catalog link copied!");
+            return await copyToClipboard(window.location.href);
         } catch (err) {
             toast.showError("Failed to copy link");
+            return false;
         }
     }, [toast]);
 

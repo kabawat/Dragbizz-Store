@@ -9,7 +9,6 @@ import StoreDeleteModal from "./StoreDeleteModal";
 import StoreEditDrawer from "./StoreEditDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreList from "./StoreList";
-import StoreUpiDrawer from "./StoreUpiDrawer";
 import { CatalogQRModal } from "@/components/common";
 
 const StoreSettings = () => {
@@ -125,12 +124,6 @@ const StoreSettings = () => {
     setIsCatalogModalOpen(true);
   };
 
-  // Handle manage UPI
-  const handleManageUpi = (store) => {
-    setUpiDrawerStore(store);
-    setIsUpiDrawerOpen(true);
-  };
-
   // Handle success callbacks
   const handleAddSuccess = (message) => {
     showSuccess(message);
@@ -172,7 +165,6 @@ const StoreSettings = () => {
         onEditStore={handleEditStore}
         onDeleteStore={handleDeleteStore}
         onShowCatalog={handleShowCatalog}
-        onManageUpi={handleManageUpi}
       />
 
       <StoreAddDrawer
@@ -214,18 +206,6 @@ const StoreSettings = () => {
           setActiveStore(null);
         }}
         store={activeStore}
-      />
-
-      <StoreUpiDrawer
-        isOpen={isUpiDrawerOpen}
-        store={upiDrawerStore}
-        onClose={() => {
-          setIsUpiDrawerOpen(false);
-          setUpiDrawerStore(null);
-        }}
-        onSuccess={() => {}}
-        onError={showError}
-        showSuccess={showSuccess}
       />
     </div>
   );

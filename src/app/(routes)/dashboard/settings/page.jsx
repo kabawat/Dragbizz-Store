@@ -2,6 +2,7 @@
 import {
   Bell,
   ChevronRight,
+  CreditCard,
   Palette,
   Settings as SettingsIcon,
   Shield,
@@ -15,6 +16,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import {
   AccountSettings,
   AppearanceSettings,
+  ManageUpiSettings,
   NotificationsSettings,
   ProfileSettings,
   SecuritySettings,
@@ -40,6 +42,7 @@ export default function SettingsPage() {
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
     { id: "store", label: t("settings.store"), icon: Store },
+    { id: "payment", label: t("settings.payment"), icon: CreditCard },
     { id: "security", label: t("settings.security"), icon: Shield },
     {
       id: "notifications",
@@ -135,6 +138,8 @@ export default function SettingsPage() {
               {activeTab === "store" && (
                 <StoreSettings selectedStore={selectedStore} />
               )}
+
+              {activeTab === "payment" && <ManageUpiSettings />}
 
               {activeTab === "security" && <SecuritySettings />}
 

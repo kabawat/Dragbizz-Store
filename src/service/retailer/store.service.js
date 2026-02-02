@@ -161,12 +161,12 @@ class StoreService {
     }
   }
 
-  // Store UPI - Get (store in query params, same as dashboard/customer/product flow)
-  async getStoreUpi(storeId) {
+  // Store UPI - Get
+  // scope: 'store' (default) = UPIs for this store | 'agency' = all agency UPIs for management
+  async getStoreUpi(storeId, options = {}) {
     try {
-      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.STORE}/upi`, {
-        store: storeId,
-      });
+      const params = { store: storeId, ...(options.scope && { scope: options.scope }) };
+      const url = attachQueryParams(`${API_CONFIG?.RETAILER?.STORE}/upi`, params);
       const response = await authAxios.get(url);
       return handleApiSuccess(response?.data, "Store UPI IDs fetched successfully");
     } catch (error) {
@@ -174,7 +174,7 @@ class StoreService {
     }
   }
 
-  // Store UPI - Create (add UPI ID)
+  // Store UPI - Create (one doc per UPI)
   async createStoreUpi(storeId, payload) {
     try {
       const response = await authAxios.post(
@@ -187,11 +187,11 @@ class StoreService {
     }
   }
 
-  // Store UPI - Update
-  async updateStoreUpi(storeId, payload) {
+  // Store UPI - Update (by UPI document id)
+  async updateStoreUpi(storeId, upiId, payload) {
     try {
       const response = await authAxios.put(
-        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi`,
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi/${upiId}`,
         payload
       );
       return handleApiSuccess(response?.data, "UPI ID updated successfully");
@@ -200,12 +200,11 @@ class StoreService {
     }
   }
 
-  // Store UPI - Delete
-  async deleteStoreUpi(storeId, payload) {
+  // Store UPI - Delete (by UPI document id)
+  async deleteStoreUpi(storeId, upiId) {
     try {
       const response = await authAxios.delete(
-        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi`,
-        { data: payload }
+        `${API_CONFIG?.RETAILER?.STORE}/${storeId}/upi/${upiId}`
       );
       return handleApiSuccess(response?.data, "UPI ID deleted successfully");
     } catch (error) {
