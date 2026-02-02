@@ -51,14 +51,14 @@ const getQuickActions = (t) => [
   {
     title: t("dashboard.addCustomer"),
     icon: UserPlus,
-    path: "/dashboard/customers/add",
+    path: "/dashboard/customers",
   },
   {
     title: t("dashboard.addProduct"),
     icon: PackagePlus,
     path: "/dashboard/products/add",
   },
-  { title: t("dashboard.newInvoice"), icon: FileText, path: "" },
+  { title: t("dashboard.newInvoice"), icon: FileText, path: "/dashboard/invoices/add" },
   {
     title: t("dashboard.addSupplier"),
     icon: Building,
