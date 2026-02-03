@@ -86,6 +86,7 @@ const SuppliersPage = () => {
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
+  const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -248,6 +249,10 @@ const SuppliersPage = () => {
 
   const handleViewSupplier = (supplierId) => {
     router.push(`/dashboard/suppliers/view/${supplierId}`);
+  };
+
+  const handlePrintSupplier = (supplierId) => {
+    router.push(`/dashboard/suppliers/view/${supplierId}?print=true`);
   };
 
   // Menu action handler
@@ -500,11 +505,15 @@ const SuppliersPage = () => {
                         onEdit={handleEditSupplier}
                         onDelete={handleDeleteSupplier}
                         onViewDetails={handleViewSupplier}
+                        onPrint={handlePrintSupplier}
                         loading={isLoading}
                         emptyMessage={t("suppliers.noSuppliers")}
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
+                        selectable
+                        selectedIds={selectedSupplierIds}
+                        onSelectionChange={setSelectedSupplierIds}
                       />
                     </div>
                   ) : (
@@ -517,6 +526,19 @@ const SuppliersPage = () => {
                             onEdit={handleEditSupplier}
                             onDelete={handleDeleteSupplier}
                             onViewDetails={handleViewSupplier}
+                            onPrint={handlePrintSupplier}
+                            onSelect={(id, checked) => {
+                              if (checked) {
+                                setSelectedSupplierIds((prev) =>
+                                  prev.includes(id) ? prev : [...prev, id]
+                                );
+                              } else {
+                                setSelectedSupplierIds((prev) =>
+                                  prev.filter((x) => x !== id)
+                                );
+                              }
+                            }}
+                            selected={selectedSupplierIds.includes(supplier.id)}
                           />
                         ))}
 
@@ -535,6 +557,22 @@ const SuppliersPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Bulk selection bar */}
+                {selectedSupplierIds.length > 0 && (
+                  <div className="bg-[rgb(var(--color-primary))]/10 border-t border-[rgb(var(--color-border-primary))] px-6 py-3 flex items-center justify-between">
+                    <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                      {selectedSupplierIds.length} {t("common.selected")}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSupplierIds([])}
+                      className="text-sm text-[rgb(var(--color-primary))] hover:underline cursor-pointer"
+                    >
+                      {t("common.deselectAll")}
+                    </button>
+                  </div>
+                )}
 
                 {/* Fixed Footer */}
                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">

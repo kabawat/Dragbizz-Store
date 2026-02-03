@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
+import Cookies from "js-cookie";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
@@ -56,7 +57,17 @@ export function useInactivityLogout() {
         localStorage.removeItem(LAST_ACTIVITY_KEY);
       }
 
-      // 4. Redirect to login
+      // 4. Clear tenant cookie (must match domain/path used when setting)
+      if (typeof window !== "undefined") {
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+        Cookies.remove("tenant", {
+          path: "/",
+          domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+        });
+      }
+
+      // 5. Redirect to login
       window.location.href = "/login";
     }
   }, [dispatch, updateLastActivity]);

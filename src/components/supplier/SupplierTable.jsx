@@ -1,7 +1,8 @@
 "use client";
-import { Building, Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { Building, Edit, Eye, MoreVertical, Printer, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Checkbox } from "@/components/ui";
 
 const SupplierTable = ({
   suppliers = [],
@@ -9,13 +10,16 @@ const SupplierTable = ({
   onDelete,
   onDuplicate,
   onViewDetails,
+  onPrint,
   loading = false,
   emptyMessage,
   className = "",
-  // Infinite scroll props
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
 }) => {
   const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -24,7 +28,6 @@ const SupplierTable = ({
 
   const _defaultEmptyMessage = emptyMessage || t("suppliers.noSuppliers");
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -49,6 +52,16 @@ const SupplierTable = ({
       icon: Eye,
       onClick: () => onViewDetails?.(supplier.id),
     },
+    ...(onPrint
+      ? [
+          {
+            value: "print",
+            label: t("common.print"),
+            icon: Printer,
+            onClick: () => onPrint?.(supplier.id),
+          },
+        ]
+      : []),
     {
       value: "edit",
       label: t("common.edit"),
@@ -63,6 +76,28 @@ const SupplierTable = ({
     },
   ];
 
+  const handleSelectAll = (checked) => {
+    if (!onSelectionChange) return;
+    if (checked) {
+      onSelectionChange(suppliers.map((s) => s.id));
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectRow = (supplierId, checked) => {
+    if (!onSelectionChange) return;
+    if (checked) {
+      onSelectionChange([...selectedIds, supplierId]);
+    } else {
+      onSelectionChange(selectedIds.filter((id) => id !== supplierId));
+    }
+  };
+
+  const isAllSelected =
+    selectable && suppliers.length > 0 && selectedIds.length === suppliers.length;
+  const isSomeSelected = selectable && selectedIds.length > 0;
+
   const handleMenuToggle = (supplierId) => {
     setOpenMenuId(openMenuId === supplierId ? null : supplierId);
   };
@@ -72,6 +107,9 @@ const SupplierTable = ({
     switch (action) {
       case "view":
         onViewDetails?.(supplierId);
+        break;
+      case "print":
+        onPrint?.(supplierId);
         break;
       case "edit":
         onEdit?.(supplierId);
@@ -122,24 +160,34 @@ const SupplierTable = ({
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-4 text-left">
+              {selectable && (
+                <th className="w-12 px-4 py-2 text-left">
+                  <Checkbox
+                    checked={isAllSelected}
+                    indeterminate={isSomeSelected && !isAllSelected}
+                    onChange={(checked) => handleSelectAll(checked)}
+                    aria-label={t("common.selectAll")}
+                  />
+                </th>
+              )}
+              <th className="px-4 py-2 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   Supplier
                 </span>
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Account
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Total Bills
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="w-24 px-6 py-4 text-center">
+              <th className="w-24 px-4 py-2 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
@@ -159,11 +207,22 @@ const SupplierTable = ({
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
+                  {selectable && (
+                    <td className="w-12 px-4 py-2">
+                      <Checkbox
+                        checked={selectedIds.includes(supplier.id)}
+                        onChange={(checked) =>
+                          handleSelectRow(supplier.id, checked)
+                        }
+                        aria-label={t("common.select")}
+                      />
+                    </td>
+                  )}
                   {/* Supplier Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-4">
                       {/* Supplier Avatar */}
-                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
                         <Building className="w-6 h-6 text-[rgb(var(--color-text-tertiary))]" />
                       </div>
 
@@ -188,7 +247,7 @@ const SupplierTable = ({
                   </td>
 
                   {/* Contact Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="space-y-1">
                       <div className="flex items-center">
                         <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
@@ -206,7 +265,7 @@ const SupplierTable = ({
                   </td>
 
                   {/* Account Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="space-y-1">
                       <div className="text-sm font-semibold text-green-600">
                         Paid: ₹
@@ -222,7 +281,7 @@ const SupplierTable = ({
                   </td>
 
                   {/* Total Bills Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="flex items-center">
                       <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                         {supplier.account?.totalBills || "0"}
@@ -231,7 +290,7 @@ const SupplierTable = ({
                   </td>
 
                   {/* Status Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="space-y-1">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -251,7 +310,7 @@ const SupplierTable = ({
                   </td>
 
                   {/* Actions Column */}
-                  <td className="w-24 px-6 py-4 text-center">
+                  <td className="w-24 px-4 py-2 text-center">
                     <div
                       className="relative inline-block"
                       ref={(el) => (menuRefs.current[supplier.id] = el)}
@@ -274,8 +333,19 @@ const SupplierTable = ({
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            View Details
+                            {t("common.viewDetails")}
                           </button>
+                          {onPrint && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(supplier.id, "print")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <Printer className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              {t("common.print")}
+                            </button>
+                          )}
                           <button
                             onClick={() =>
                               handleMenuAction(supplier.id, "edit")
@@ -283,7 +353,7 @@ const SupplierTable = ({
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
+                            {t("common.edit")}
                           </button>
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                           <button
@@ -308,7 +378,7 @@ const SupplierTable = ({
 
       {/* Infinite Scroll Loading */}
       {isLoadingMore && (
-        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
+        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-4 py-2">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>

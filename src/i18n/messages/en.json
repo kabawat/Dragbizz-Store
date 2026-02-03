@@ -58,6 +58,7 @@
     "update": "Update",
     "remove": "Remove",
     "select": "Select",
+    "selected": "selected",
     "all": "All",
     "none": "None",
     "noData": "No data available",

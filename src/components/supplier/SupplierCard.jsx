@@ -6,6 +6,7 @@ import {
   Mail,
   MoreVertical,
   Phone,
+  Printer,
   Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +21,7 @@ const SupplierCard = ({
   onDelete,
   onDuplicate,
   onViewDetails,
+  onPrint,
   onSelect,
   selected = false,
   className = "",
@@ -149,6 +151,15 @@ const SupplierCard = ({
                   <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {t("common.viewDetails")}
                 </button>
+                {onPrint && (
+                  <button
+                    onClick={() => handleMenuAction(supplier.id, "print")}
+                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                  >
+                    <Printer className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                    {t("common.print")}
+                  </button>
+                )}
                 <button
                   onClick={() => handleMenuAction(supplier.id, "edit")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"

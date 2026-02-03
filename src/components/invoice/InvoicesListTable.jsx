@@ -178,25 +178,25 @@ const InvoicesListTable = ({
       <table className="w-full">
         <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.invoiceNumber")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.customer")}
             </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.date")}
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.status")}
             </th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.payment")}
             </th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.actions")}
             </th>
           </tr>
@@ -211,12 +211,12 @@ const InvoicesListTable = ({
                 key={invoiceId}
                 className="hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
               >
-                <td className="px-4 py-3">
+                <td className="px-4 py-2">
                   <div className="font-medium text-[rgb(var(--color-text-primary))]">
                     {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-2">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                     <span className="text-sm text-[rgb(var(--color-text-primary))]">
@@ -224,7 +224,7 @@ const InvoicesListTable = ({
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-2">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                     <span className="text-sm text-[rgb(var(--color-text-secondary))]">
@@ -232,18 +232,18 @@ const InvoicesListTable = ({
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-2 text-right">
                   <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                     {formatCurrency(invoice.totalAmount)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-2 text-center">
                   {renderStatusBadge(invoice.invoiceStatus, "invoice")}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-2 text-center">
                   {renderStatusBadge(invoice.paymentStatus, "invoice")}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-2 text-center">
                   <div className="flex items-center justify-center gap-2">
                     {/* Send / Share menu */}
                     <div

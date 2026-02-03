@@ -111,6 +111,9 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
               clearable={false}
             />
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              Year = FY start (e.g. 2024 = Apr 2024–Mar 2025). Quarters follow Indian FY.
+            </p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
               File will be generated in your browser.
             </p>
           </div>

@@ -43,15 +43,25 @@ export function useLogout() {
       // 3. Clear local session data
       sessionStorage.clear();
 
-      // 4. Clear tenant cookie
-      Cookies.remove("tenant");
+      // 4. Clear tenant cookie (must match domain/path used when setting)
+      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+      Cookies.remove("tenant", {
+        path: "/",
+        domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+      });
 
       // 5. Redirect to main domain (not subdomain)
       redirectToMainDomain();
     } catch (_error) {
       // Even if API fails, clear local state and redirect
       dispatch(clearAuth());
-      Cookies.remove("tenant");
+      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+      Cookies.remove("tenant", {
+        path: "/",
+        domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
+      });
       redirectToMainDomain();
     }
   };
