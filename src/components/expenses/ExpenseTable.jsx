@@ -157,30 +157,30 @@ const ExpenseTable = ({
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-4 text-left">
+              <th className="px-4 py-2 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   {t("expenses.expenseTitle")}
                 </span>
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.date")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.category")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.amount")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.paymentMethod")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.vendor")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.status")}
               </th>
-              <th className="w-24 px-6 py-4 text-center">
+              <th className="w-24 px-4 py-2 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
@@ -200,7 +200,7 @@ const ExpenseTable = ({
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-4">
                       <div>
                         <div className="font-medium text-[rgb(var(--color-text-primary))]">
@@ -213,7 +213,7 @@ const ExpenseTable = ({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-[rgb(var(--color-text-tertiary))]" />
                       <span className="text-sm text-[rgb(var(--color-text-primary))]">
@@ -222,7 +222,7 @@ const ExpenseTable = ({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
                       {getCategoryLabel(
                         expense.category?.name || expense.category
@@ -230,13 +230,13 @@ const ExpenseTable = ({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="font-semibold text-[rgb(var(--color-text-primary))]">
                       ₹{formatCurrency(expense.amount)}
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm">
                         {getPaymentMethodIcon(expense.paymentMethod)}
@@ -247,17 +247,17 @@ const ExpenseTable = ({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     <div className="text-sm text-[rgb(var(--color-text-primary))]">
                       {expense.vendor?.name || expense.vendor || "-"}
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2">
                     {renderStatusBadge(expense.status, "general")}
                   </td>
 
-                  <td className="w-24 px-6 py-4 text-center">
+                  <td className="w-24 px-4 py-2 text-center">
                     <div
                       className="relative inline-block"
                       ref={(el) => (menuRefs.current[expense.id] = el)}

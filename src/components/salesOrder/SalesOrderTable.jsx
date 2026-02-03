@@ -89,15 +89,15 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                 <table className="w-full table-fixed min-w-[900px]">
                     <thead>
                         <tr>
-                            <th className="w-1/4 px-6 py-4 text-left">
+                            <th className="w-1/4 px-4 py-2 text-left">
                                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Order ID</span>
                             </th>
-                            <th className="w-1/5 px-6 py-4 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Customer</th>
-                            <th className="w-1/6 px-6 py-4 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Date</th>
-                            <th className="w-1/6 px-6 py-4 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Delivery</th>
-                            <th className="w-1/6 px-6 py-4 text-right font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Amount</th>
-                            <th className="w-1/6 px-6 py-4 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Payment</th>
-                            <th className="w-24 px-6 py-4 text-center">
+                            <th className="w-1/5 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Customer</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Date</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Delivery</th>
+                            <th className="w-1/6 px-4 py-2 text-right font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Amount</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Payment</th>
+                            <th className="w-24 px-4 py-2 text-center">
                                 <MoreVertical className="w-4 h-4 mx-auto" />
                             </th>
                         </tr>
@@ -119,7 +119,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                     onMouseEnter={() => setHoveredRow(index)}
                                     onMouseLeave={() => setHoveredRow(null)}
                                 >
-                                    <td className="w-1/4 px-6 py-4 relative">
+                                    <td className="w-1/4 px-4 py-2 relative">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
                                                 <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
@@ -136,7 +136,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="w-1/5 px-6 py-4">
+                                    <td className="w-1/5 px-4 py-2">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">
                                                 {order.customer?.name || "Guest"}
@@ -146,7 +146,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="w-1/6 px-6 py-4">
+                                    <td className="w-1/6 px-4 py-2">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                                                 {moment(order.orderDate || order.createdAt).format("MMM DD, YYYY")}
@@ -156,20 +156,20 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="w-1/6 px-6 py-4">
+                                    <td className="w-1/6 px-4 py-2">
                                         <StatusBadge status={order.status} />
                                     </td>
-                                    <td className="w-1/6 px-6 py-4 text-right">
+                                    <td className="w-1/6 px-4 py-2 text-right">
                                         <div className="flex flex-col items-end">
                                             <span className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
                                                 ₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="w-1/6 px-6 py-4">
+                                    <td className="w-1/6 px-4 py-2">
                                         <StatusBadge status={order.paymentStatus} />
                                     </td>
-                                    <td className="w-24 px-6 py-4 text-center">
+                                    <td className="w-24 px-4 py-2 text-center">
                                         <div
                                             className="relative inline-block"
                                             ref={(el) => (menuRefs.current[orderId] = el)}

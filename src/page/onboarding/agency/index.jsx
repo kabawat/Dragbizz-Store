@@ -21,7 +21,6 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
 import storeService from "@/service/retailer/store.service";
-import { authService } from "@/service";
 
 export default function AgencyCreation() {
   const router = useRouter();
@@ -76,9 +75,8 @@ export default function AgencyCreation() {
 
     try {
       // Call API directly instead of Redux thunk
-      const result = await storeService.createAgency(formData);
-      console.log("result : ---->  ", result)
-      await authService.updateProfile({ tenant: result?.data?.subdomain || result?.subdomain })
+      await storeService.createAgency(formData);
+      // tenant + agency_id updated via backend-to-backend gRPC (retailer → auth)
       window.location.href = "/onboarding/store";
       isCreatingRef.current = false;
     } catch (_error) {
@@ -101,7 +99,6 @@ export default function AgencyCreation() {
     router.push("/dashboard");
   };
 
-  // If agency already exists, redirect based on stores
   // Only redirect if we're not currently creating an agency
   useEffect(() => {
     if (agency && !isLoading && !isCreatingRef.current) {
