@@ -4,6 +4,7 @@ import analyticsSlice from "./slices/analyticsSlice";
 import billsSlice from "./slices/billsSlice";
 import customersSlice from "./slices/customersSlice";
 import expensesSlice from "./slices/expensesSlice";
+import gstSlice from "./slices/gstSlice";
 import invoicesSlice from "./slices/invoicesSlice";
 import paymentsSlice from "./slices/paymentsSlice";
 import productsSlice from "./slices/productsSlice";
@@ -27,6 +28,7 @@ export const store = configureStore({
     invoices: invoicesSlice,
     purchaseOrders: purchaseOrdersSlice,
     expenses: expensesSlice,
+    gst: gstSlice,
     analytics: analyticsSlice,
     publicCart: publicCartSlice,
   },

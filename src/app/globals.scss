@@ -965,7 +965,7 @@
 
 /* Ensure all text elements use theme variables */
 /* Exclude status badges to allow inline style colors */
-[data-variant="dark"] *:not(.invoice-status-badge) {
+[data-variant="dark"] *:not(.invoice-status-badge):not(.gst-mismatch-type-badge) {
   color: rgb(var(--color-text-primary)) !important;
 }
 

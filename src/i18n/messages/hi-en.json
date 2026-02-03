@@ -1706,6 +1706,27 @@
     "billAnalytics": "Bill Analytics",
     "expenseAnalytics": "Expense Analytics"
   },
+  "gst": {
+    "gstAnalytics": "GST Analytics",
+    "gstAnalyticsDesc": "GST summary, mismatches aur CA filing ke liye export",
+    "gstSummary": "GST Summary",
+    "gstMismatches": "GST Mismatches",
+    "gstExport": "GST Export",
+    "gstHealthScore": "GST Health Score",
+    "totalGst": "Total GST (Outward)",
+    "cgst": "CGST",
+    "sgst": "SGST",
+    "igst": "IGST",
+    "utgst": "UTGST",
+    "taxableValue": "Taxable Value",
+    "exportForCA": "Export for CA",
+    "selectPeriod": "Select Period",
+    "selectFormat": "Select Format",
+    "healthScore": "Health Score",
+    "hsnCoverage": "HSN Coverage",
+    "mismatchCount": "Mismatch Count",
+    "periodCoverage": "Period Coverage"
+  },
   "modals": {
     "deleteConfirm": "Kya aap sure hain?",
     "deleteConfirmMessage": "Yeh action undo nahi ho sakta.",
