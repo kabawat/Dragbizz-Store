@@ -10,6 +10,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 const COPIED_DURATION_MS = 2500;
 
 export default function CatalogHeader({ store, onShare, onCall }) {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const cartCount = useSelector(state => state.publicCart.items.reduce((sum, item) => sum + item.quantity, 0));
     const [copied, setCopied] = useState(false);

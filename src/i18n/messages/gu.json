@@ -1728,6 +1728,27 @@
     "billAnalytics": "બિલ વિશ્લેષણ",
     "expenseAnalytics": "ખર્ચ વિશ્લેષણ"
   },
+  "gst": {
+    "gstAnalytics": "GST વિશ્લેષણ",
+    "gstAnalyticsDesc": "GST સારાંશ, અસંગતતાઓ અને CA ફાઇલિંગ માટે નિકાસ",
+    "gstSummary": "GST સારાંશ",
+    "gstMismatches": "GST અસંગતતાઓ",
+    "gstExport": "GST નિકાસ",
+    "gstHealthScore": "GST સ્વાસ્થ્ય સ્કોર",
+    "totalGst": "કુલ GST (બહાર)",
+    "cgst": "CGST",
+    "sgst": "SGST",
+    "igst": "IGST",
+    "utgst": "UTGST",
+    "taxableValue": "કર યોગ્ય મૂલ્ય",
+    "exportForCA": "CA માટે નિકાસ",
+    "selectPeriod": "અવધિ પસંદ કરો",
+    "selectFormat": "ફોર્મેટ પસંદ કરો",
+    "healthScore": "સ્વાસ્થ્ય સ્કોર",
+    "hsnCoverage": "HSN કવરેજ",
+    "mismatchCount": "અસંગતતા ગણતરી",
+    "periodCoverage": "અવધિ કવરેજ"
+  },
   "modals": {
     "deleteConfirm": "શું તમે ખાતરી કરો છો?",
     "deleteConfirmMessage": "આ ક્રિયા પૂર્વવત્ કરી શકાશે નહીં.",

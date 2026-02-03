@@ -18,6 +18,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { AddActionButton } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { formatCurrencySimple as formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateLong as formatDate } from "@/utils/dateFormatter";
 import logger from "@/utils/logger";
@@ -39,6 +40,7 @@ const InvoicesListTable = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const { showSuccess, showError } = useGlobalToast();
   const [openMenuId, setOpenMenuId] = useState(null);
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const menuRefs = useRef({});
@@ -82,18 +84,42 @@ const InvoicesListTable = ({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
+        return true;
       }
-    } catch (error) {
-      logger.error("Failed to copy to clipboard:", error);
+    } catch {
+      // Fallback for non-secure context (e.g. HTTP)
+    }
+    // Fallback: execCommand works in HTTP and older browsers
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      document.body.removeChild(textarea);
+      return false;
     }
   };
 
-  const handleCopyLink = (row) => {
+  const handleCopyLink = async (row) => {
     const shareUrl = buildShareUrl(row);
-    if (!shareUrl) return;
-    handleCopy(shareUrl);
+    if (!shareUrl) {
+      showError(t("invoice.copyLinkNotAvailable") || "Invoice link not available");
+      return;
+    }
+    const ok = await handleCopy(shareUrl);
     setOpenMenuId(null);
     setOpenSendMenuId(null);
+    if (ok) {
+      showSuccess(t("common.copied") || "Copied to clipboard");
+    } else {
+      showError(t("invoice.copyFailed") || "Failed to copy");
+    }
   };
 
   const handleWhatsAppShare = (row) => {

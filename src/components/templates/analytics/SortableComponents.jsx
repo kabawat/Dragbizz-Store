@@ -11,6 +11,7 @@ const getGradientStyle = (iconColor) => {
     "from-blue-100 to-blue-200": "var(--gradient-blue)",
     "from-purple-100 to-purple-200": "var(--gradient-purple)",
     "from-orange-100 to-orange-200": "var(--gradient-orange)",
+    "from-amber-100 to-amber-200": "var(--gradient-orange)",
     "from-red-100 to-red-200": "var(--gradient-red)",
     "from-yellow-100 to-yellow-200": "var(--gradient-yellow)",
     "from-teal-100 to-teal-200": "var(--gradient-teal)",
@@ -26,6 +27,7 @@ export const SortableMetricCard = ({
   title,
   value,
   change,
+  subtext,
   icon: Icon,
   iconColor,
   textColor,
@@ -46,7 +48,7 @@ export const SortableMetricCard = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
+    <div ref={setNodeRef} style={style} className="relative group h-full">
       <div
         {...attributes}
         {...listeners}
@@ -57,7 +59,7 @@ export const SortableMetricCard = ({
         </div>
       </div>
       <Card
-        className={`backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative overflow-hidden`}
+        className={`h-full backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative overflow-hidden flex flex-col`}
         style={{ background: getGradientStyle(iconColor) }}
       >
         {/* Background Icon */}
@@ -66,17 +68,27 @@ export const SortableMetricCard = ({
         </div>
 
         {/* Content */}
-        <div className="relative z-10 p-4">
-          <div className="flex-1 min-w-0">
+        <div className="relative z-10 p-4 flex-1 min-w-0 flex flex-col">
+          <div className="min-w-0">
             <p className="text-[rgb(var(--color-text-secondary))] text-xs font-medium truncate">
               {title}
             </p>
             <p className="text-[rgb(var(--color-text-primary))] text-xl font-bold mt-1">
               {value}
             </p>
-            <p className="text-[rgb(var(--color-text-secondary))] text-xs flex items-center mt-1 truncate">
-              <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
-              <span className="truncate">{change}</span>
+            <p className="text-[rgb(var(--color-text-secondary))] text-xs flex items-center mt-1 truncate min-h-[1.25rem]">
+              {(subtext != null && subtext !== "") || (change != null && change !== "") ? (
+                subtext != null && subtext !== "" ? (
+                  <span className="truncate">{subtext}</span>
+                ) : (
+                  <>
+                    <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">{change}</span>
+                  </>
+                )
+              ) : (
+                <span className="invisible">&#8203;</span>
+              )}
             </p>
           </div>
         </div>

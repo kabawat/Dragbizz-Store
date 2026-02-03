@@ -1,6 +1,7 @@
 "use client";
 import {
   Activity,
+  BadgePercent,
   BarChart3,
   Building2,
   Check,
@@ -143,6 +144,11 @@ const Sidebar = ({ onStoreChange }) => {
       icon: DollarSign,
       href: "/dashboard/analytics/expenses",
     },
+    {
+      name: t("gst.gstAnalytics") || "GST Analytics",
+      icon: BadgePercent,
+      href: "/dashboard/analytics/gst",
+    },
   ];
 
   const navigationItems = [
@@ -227,6 +233,7 @@ const Sidebar = ({ onStoreChange }) => {
     ],
     [t("sidebar.bills")]: ["Bill Management", "bill_management"],
     [t("sidebar.payments")]: ["Payment Management", "payment_management"],
+    [t("gst.gstAnalytics") || "GST Analytics"]: ["Invoice Management", "invoice_management"],
   };
 
   const hasMenuItemAccess = (itemName) => {
