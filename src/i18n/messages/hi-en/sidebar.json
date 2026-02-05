@@ -1,0 +1,23 @@
+{
+  "dashboard": "Dashboard",
+  "salesTransactions": "Sales & Transactions",
+  "customers": "Customers",
+  "invoices": "Invoices",
+  "expenses": "Expenses",
+  "inventory": "Inventory",
+  "products": "Products",
+  "stocks": "Stocks",
+  "purchase": "Purchase",
+  "suppliers": "Suppliers",
+  "purchaseOrders": "Purchase Orders",
+  "bills": "Bills",
+  "payments": "Payments",
+  "analytics": "Analytics",
+  "settings": "Settings",
+  "expandSidebar": "Sidebar expand karo",
+  "collapseSidebar": "Sidebar collapse karo",
+  "selectStore": "Store select karo",
+  "premiumFeature": "Premium Feature",
+  "lowStockAlerts": "Low Stock Alerts",
+  "sellOrders": "Sales Orders"
+}

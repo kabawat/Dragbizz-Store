@@ -1,0 +1,21 @@
+{
+  "gstAnalytics": "GST विश्लेषण",
+  "gstAnalyticsDesc": "GST सारांश, असंगतियाँ और CA फाइलिंग के लिए निर्यात",
+  "gstSummary": "GST सारांश",
+  "gstMismatches": "GST असंगतियाँ",
+  "gstExport": "GST निर्यात",
+  "gstHealthScore": "GST स्वास्थ्य स्कोर",
+  "totalGst": "कुल GST (बाहरी)",
+  "cgst": "CGST",
+  "sgst": "SGST",
+  "igst": "IGST",
+  "utgst": "UTGST",
+  "taxableValue": "कर योग्य मूल्य",
+  "exportForCA": "CA के लिए निर्यात",
+  "selectPeriod": "अवधि चुनें",
+  "selectFormat": "प्रारूप चुनें",
+  "healthScore": "स्वास्थ्य स्कोर",
+  "hsnCoverage": "HSN कवरेज",
+  "mismatchCount": "असंगति संख्या",
+  "periodCoverage": "अवधि कवरेज"
+}

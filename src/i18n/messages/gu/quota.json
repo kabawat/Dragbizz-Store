@@ -1,0 +1,10 @@
+{
+  "quotaExceeded": "કોટા વટાવી દીધો",
+  "dailyLimitReached": "દૈનિક મર્યાદા પહોંચી ગઈ",
+  "usageToday": "આજનો ઉપયોગ",
+  "remaining": "બાકી",
+  "used": "વપરાયેલું",
+  "limitWillReset": "મર્યાદા {time} પર રીસેટ થશે",
+  "upgradePlan": "યોજના અપગ્રેડ કરો",
+  "upgradeMessage": "આ ફીચરનો ઉપયોગ ચાલુ રાખવા માટે તમારી યોજના અપગ્રેડ કરો"
+}

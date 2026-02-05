@@ -1,0 +1,14 @@
+{
+  "deleteConfirm": "Are you sure?",
+  "deleteConfirmMessage": "This action cannot be undone.",
+  "deleteConfirmWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+  "loadingData": "Loading {item} Data...",
+  "notFound": "{item} Not Found",
+  "deletedSuccessfully": "{item} Deleted Successfully!",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "save": "Save",
+  "discard": "Discard Changes",
+  "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
+}

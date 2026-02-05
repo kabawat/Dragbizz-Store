@@ -1,0 +1,23 @@
+{
+  "dashboard": "ડેશબોર્ડ",
+  "salesTransactions": "વેચાણ અને લેનદેન",
+  "customers": "ગ્રાહકો",
+  "invoices": "ઇન્વૉઇસ",
+  "expenses": "ખર્ચો",
+  "inventory": "ઇન્વેન્ટરી",
+  "products": "ઉત્પાદનો",
+  "stocks": "સ્ટોક",
+  "purchase": "ખરીદી",
+  "suppliers": "સપ્લાયરો",
+  "purchaseOrders": "પર્ચેઝ ઓર્ડર્સ",
+  "bills": "બિલ્સ",
+  "payments": "ચુકવણીઓ",
+  "analytics": "વિશ્લેષણ",
+  "settings": "સેટિંગ્સ",
+  "expandSidebar": "સાઇડબાર વિસ્તૃત કરો",
+  "collapseSidebar": "સાઇડબાર સંકુચિત કરો",
+  "selectStore": "સ્ટોર પસંદ કરો",
+  "premiumFeature": "પ્રીમિયમ ફીચર",
+  "lowStockAlerts": "ઓછો સ્ટોક એલર્ટ",
+  "sellOrders": "વેચાણ ઓર્ડર"
+}

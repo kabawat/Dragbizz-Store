@@ -1,0 +1,23 @@
+{
+  "dashboard": "डैशबोर्ड",
+  "salesTransactions": "बिक्री और लेनदेन",
+  "customers": "ग्राहक",
+  "invoices": "चालान",
+  "expenses": "व्यय",
+  "inventory": "इन्वेंटरी",
+  "products": "उत्पाद",
+  "stocks": "स्टॉक",
+  "purchase": "खरीद",
+  "suppliers": "आपूर्तिकर्ता",
+  "purchaseOrders": "खरीद आदेश",
+  "bills": "बिल",
+  "payments": "भुगतान",
+  "analytics": "विश्लेषण",
+  "settings": "सेटिंग्स",
+  "expandSidebar": "साइडबार विस्तृत करें",
+  "collapseSidebar": "साइडबार संकुचित करें",
+  "selectStore": "स्टोर चुनें",
+  "premiumFeature": "प्रीमियम सुविधा",
+  "lowStockAlerts": "कम स्टॉक अलर्ट",
+  "sellOrders": "बिक्री आदेश"
+}
