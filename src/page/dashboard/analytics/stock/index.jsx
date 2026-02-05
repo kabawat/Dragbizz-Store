@@ -37,6 +37,13 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getStockAnalytics } from "@/store/slices/productsSlice";
 
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+const formatCurrency = (amount) =>
+  `₹${(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const StockAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -89,10 +96,6 @@ const StockAnalytics = () => {
       },
     [analytics?.valueSummary]
   );
-
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-  const formatCurrency = (amount) =>
-    `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -235,7 +238,7 @@ const StockAnalytics = () => {
         return Array.from(cardsMap.values());
       });
     }
-  }, [analytics, totals, valueSummary, formatNumber]);
+  }, [analytics, totals, valueSummary]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

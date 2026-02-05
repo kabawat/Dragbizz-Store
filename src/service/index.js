@@ -1,4 +1,4 @@
-export { authService } from "./auth";
+export { authService, uploadService } from "./auth";
 export { authAxios, unauthAxios } from "./config/axiosConfig";
 export {
   billService,

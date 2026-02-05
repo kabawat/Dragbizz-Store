@@ -36,6 +36,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomerAnalytics } from "@/store/slices/customersSlice";
 
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+
 const CustomerAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -79,8 +81,6 @@ const CustomerAnalytics = () => {
       },
     [analytics?.newCustomers]
   );
-
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -168,7 +168,7 @@ const CustomerAnalytics = () => {
         return Array.from(metricsMap.values());
       });
     }
-  }, [analytics, newCustomers, formatNumber]);
+  }, [analytics, newCustomers]);
 
   // Handle click outside export menu
   useEffect(() => {

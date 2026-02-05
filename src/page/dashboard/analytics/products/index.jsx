@@ -35,6 +35,8 @@ import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+
 const ProductAnalytics = () => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -50,8 +52,6 @@ const ProductAnalytics = () => {
     }),
     []
   );
-
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     false,

@@ -100,6 +100,7 @@ const ProfileSettings = ({ user }) => {
         email={apiUser?.email || user?.email}
         phone={apiUser?.phone || user?.phone}
         countryCode={apiUser?.countryCode || user?.countryCode}
+        profileImage={apiUser?.profile || user?.profile}
       />
 
       {/* Personal Information Section */}
@@ -131,8 +132,6 @@ const ProfileSettings = ({ user }) => {
       >
         <ProfileEditForm form={form} onChange={handleChange} />
       </FormDrawer>
-
-      {/* Toast Container */}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 "use client";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoutModal from "@/components/ui/LogoutModal";
 import { useLogout } from "@/hooks/useLogout";
@@ -137,8 +137,8 @@ const Header = ({ title, description }) => {
                       <div
                         key={notification.id}
                         className={`p-3 border-b border-[rgb(var(--color-border-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer ${notification.unread
-                            ? "bg-[rgb(var(--color-primary))]/10"
-                            : ""
+                          ? "bg-[rgb(var(--color-primary))]/10"
+                          : ""
                           }`}
                       >
                         <p
@@ -168,12 +168,16 @@ const Header = ({ title, description }) => {
                 className="flex items-center space-x-2 hover:bg-[rgb(var(--color-bg-secondary))] p-1.5 rounded-lg transition-colors cursor-pointer"
               >
                 {/* Profile Picture */}
-                <div className="w-8 h-8 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-8 h-8 bg-gradient-to-br from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-full flex items-center justify-center overflow-hidden border border-[rgb(var(--color-border-primary))]/30">
+                  {user?.profile || authProfile?.profile ? (
+                    <img
+                      src={user?.profile || authProfile?.profile}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
                 </div>
 
                 {/* User Info */}
