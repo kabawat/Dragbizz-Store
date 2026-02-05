@@ -1,0 +1,12 @@
+{
+  "title": "Notifications",
+  "noNotifications": "Koi notifications nahi hain",
+  "markAllRead": "Sabko read mark karo",
+  "viewAll": "Sab notifications dekho",
+  "newOrderReceived": "Naya order receive ho gaya",
+  "inventoryLowAlert": "Inventory low alert",
+  "paymentReceived": "Payment receive ho gayi",
+  "twoMinAgo": "2 min pehle",
+  "fifteenMinAgo": "15 min pehle",
+  "oneHourAgo": "1 hour pehle"
+}

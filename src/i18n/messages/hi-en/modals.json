@@ -1,0 +1,14 @@
+{
+  "deleteConfirm": "Kya aap sure hain?",
+  "deleteConfirmMessage": "Yeh action undo nahi ho sakta.",
+  "deleteConfirmWithName": "Kya aap sure hain ki \"{name}\" delete karna chahte hain? Yeh action undo nahi ho sakta.",
+  "loadingData": "{item} Data load ho raha hai...",
+  "notFound": "{item} nahi mila",
+  "deletedSuccessfully": "{item} Successfully Delete ho gaya!",
+  "cancel": "Cancel",
+  "confirm": "Confirm karo",
+  "close": "Close",
+  "save": "Save karo",
+  "discard": "Changes discard karo",
+  "unsavedChanges": "Aapke paas unsaved changes hain. Kya aap sure hain ki leave karna chahte hain?"
+}

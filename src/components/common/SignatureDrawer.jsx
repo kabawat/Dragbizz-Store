@@ -114,10 +114,10 @@ const SignatureDrawer = ({
     };
 
     const tabs = [
-        { id: "type", label: "Type Name" },
-        { id: "draw", label: "Draw" },
-        { id: "upload", label: "Upload Image" },
-        { id: "identity", label: "Digital Identity" },
+        { id: "type", label: t("invoice.typeName") },
+        { id: "draw", label: t("invoice.draw") },
+        { id: "upload", label: t("invoice.uploadImage") },
+        { id: "identity", label: t("invoice.digitalIdentity") },
     ];
     return (
         <SideDrawer
@@ -147,7 +147,7 @@ const SignatureDrawer = ({
                                 <TabPanel isActive={activeTab === "type"}>
                                     <div className="space-y-6">
                                         <div className="flex flex-col sm:flex-row gap-3 items-end">
-                                            <Input label="Type your full name" placeholder="E.g. John Doe" value={typedName} onChange={(val) => setTypedName(val)} className="text-lg flex-1" />
+                                            <Input label={t("invoice.typeFullName")} placeholder={t("invoice.namePlaceholder")} value={typedName} onChange={(val) => setTypedName(val)} className="text-lg flex-1" />
                                             <div className="flex items-center gap-2 mb-0.5">
                                                 <button
                                                     onClick={() => setSelectedStyle(prev => ({ ...prev, bold: !prev.bold }))}
@@ -200,7 +200,7 @@ const SignatureDrawer = ({
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))]">
                                                 <PenTool className="w-4 h-4" />
-                                                <span>Draw your signature below</span>
+                                                <span>{t("invoice.drawBelow")}</span>
                                             </div>
                                             <Button
                                                 variant="ghost"
@@ -209,7 +209,7 @@ const SignatureDrawer = ({
                                                 className="text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10"
                                             >
                                                 <RotateCcw className="w-4 h-4 mr-1" />
-                                                Clear
+                                                {t("common.clear")}
                                             </Button>
                                         </div>
                                         <div className="relative border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-2xl bg-white overflow-hidden touch-none shadow-sm">
@@ -228,7 +228,7 @@ const SignatureDrawer = ({
                                             />
                                         </div>
                                         <p className="text-[10px] text-center text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
-                                            Use your mouse or touch screen to sign
+                                            {t("invoice.signInstructions")}
                                         </p>
                                     </div>
                                 </TabPanel>
@@ -239,16 +239,16 @@ const SignatureDrawer = ({
                                         <div className="flex items-center gap-3 p-4 bg-[rgb(var(--color-warning))]/10 rounded-xl mb-4 border border-[rgb(var(--color-warning))]/20">
                                             <Info className="w-5 h-5 text-[rgb(var(--color-warning))] shrink-0" />
                                             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                                Sign on a white piece of paper, take a photo, and upload it here for the best results.
+                                                {t("invoice.uploadInstructions")}
                                             </p>
                                         </div>
                                         <FileUpload
-                                            label="Upload Signature (JPG, PNG, PDF)"
+                                            label={t("invoice.uploadSignature")}
                                             accept="image/*,.pdf"
                                             multiple={false}
                                             value={uploadedFiles}
                                             onChange={setUploadedFiles}
-                                            dropZoneLabel="Drag and drop your signature here"
+                                            dropZoneLabel={t("invoice.dragDropSignature")}
                                         />
                                     </div>
                                 </TabPanel>
@@ -259,24 +259,24 @@ const SignatureDrawer = ({
                                         {/* Coming Soon Overlay */}
                                         <div className="absolute inset-0 bg-[rgb(var(--color-bg-primary))]/60 backdrop-blur-[1px] z-20 flex items-center justify-center rounded-2xl">
                                             <span className="bg-[rgb(var(--color-primary))] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg transform -rotate-12 border border-white/20">
-                                                Coming Soon...
+                                                {t("invoice.comingSoon")}
                                             </span>
                                         </div>
                                         <div className="p-6 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-2xl flex flex-col items-center text-center opacity-70">
                                             <Fingerprint className="w-12 h-12 text-[rgb(var(--color-primary))] mb-4" />
-                                            <h3 className="font-semibold text-lg mb-2">e-PAN Verification</h3>
+                                            <h3 className="font-semibold text-lg mb-2">{t("invoice.epanVerification")}</h3>
                                             <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6 max-w-sm">
-                                                Securely verify your identity using your electronic ID. This links your signature to a verified persona.
+                                                {t("invoice.securelyVerifyIdentity")}
                                             </p>
 
                                             <div className="w-full max-w-sm flex gap-2 pointer-events-none">
                                                 <Input
-                                                    placeholder="Enter PAN Number"
+                                                    placeholder={t("invoice.enterPan")}
                                                     disabled
                                                     className="flex-1"
                                                 />
                                                 <Button disabled>
-                                                    Verify
+                                                    {t("invoice.verifyIdentity")}
                                                 </Button>
                                             </div>
                                         </div>
@@ -290,14 +290,12 @@ const SignatureDrawer = ({
                                     <ShieldCheck className="w-6 h-6 text-[rgb(var(--color-primary))] shrink-0 mt-1" />
                                     <div>
                                         <h4 className="font-semibold text-[rgb(var(--color-text-primary))] mb-1">
-                                            Legal Validity Strategy
+                                            {t("invoice.legalValidityStrategy")}
                                         </h4>
-                                        <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed">
-                                            All documents are digitally signed by <strong>DragBizz Store</strong> using our
-                                            official Digital Signature Certificate (DSC). Your chosen signature above is used
-                                            for visual confirmation and intent recording. This combined approach ensures full
-                                            compliance with Indian digital signing standards.
-                                        </p>
+                                        <p
+                                            className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed"
+                                            dangerouslySetInnerHTML={{ __html: t("invoice.legalValidityDescription") }}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -308,22 +306,22 @@ const SignatureDrawer = ({
                             <Card className="p-6 sticky top-24 bg-[rgb(var(--color-bg-primary))] dark:bg-[rgb(var(--color-bg-secondary))]">
                                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b border-[rgb(var(--color-border-primary))] pb-4">
                                     <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                    Sign Summary
+                                    {t("invoice.signSummary")}
                                 </h3>
 
                                 <div className="space-y-4 mb-8">
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Method</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t("invoice.method")}</span>
                                         <span className="font-medium capitalize">{activeTab}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">Legal Status</span>
+                                        <span className="text-[rgb(var(--color-text-secondary))]">{t("invoice.legalStatus")}</span>
                                         <span className="text-green-600 font-medium flex items-center gap-1">
-                                            <ShieldCheck className="w-4 h-4" /> Valid
+                                            <ShieldCheck className="w-4 h-4" /> {t("invoice.valid")}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm text-[rgb(var(--color-text-tertiary))]">
-                                        <span>Timestamp</span>
+                                        <span>{t("invoice.timestamp")}</span>
                                         <span>{isMounted ? new Date().toLocaleString() : "--/--/----, --:--:--"}</span>
                                     </div>
                                 </div>
@@ -346,7 +344,7 @@ const SignatureDrawer = ({
                                             (activeTab === "upload" && uploadedFiles.length > 0) ||
                                             (activeTab === "identity" && isVerified) ? "bg-[rgb(var(--color-success))] shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-[rgb(var(--color-warning))] animate-pulse"
                                             }`}></span>
-                                        Signature Preview
+                                        {t("invoice.signaturePreview")}
                                     </p>
 
                                     <div className="relative z-10 w-full flex flex-col items-center justify-center">
@@ -379,7 +377,7 @@ const SignatureDrawer = ({
                                         {activeTab === "identity" && isVerified && (
                                             <div className="text-center bg-[rgb(var(--color-primary))]/5 px-6 py-3 rounded-xl border border-[rgb(var(--color-primary))]/10 scale-110">
                                                 <p className="font-serif text-[10px] italic text-[rgb(var(--color-primary))] mb-1 font-bold uppercase tracking-tighter">
-                                                    Digitally Verified
+                                                    {t("invoice.digitallyVerified")}
                                                 </p>
                                                 <p className="font-black text-xl tracking-widest uppercase">{idNumber}</p>
                                             </div>
@@ -389,25 +387,25 @@ const SignatureDrawer = ({
                                         {(!typedName && activeTab === "type") && (
                                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                                 <TypeIcon className="w-8 h-8 stroke-1" />
-                                                <span className="text-[10px] uppercase font-bold tracking-widest">Type your name</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.typeYourName")}</span>
                                             </div>
                                         )}
                                         {(!drawnSignature && activeTab === "draw") && (
                                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                                 <PenTool className="w-8 h-8 stroke-1" />
-                                                <span className="text-[10px] uppercase font-bold tracking-widest">Draw on the left</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.drawOnLeft")}</span>
                                             </div>
                                         )}
                                         {(!uploadedFiles.length && activeTab === "upload") && (
                                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                                 <UploadIcon className="w-8 h-8 stroke-1" />
-                                                <span className="text-[10px] uppercase font-bold tracking-widest">Upload your file</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.uploadYourFile")}</span>
                                             </div>
                                         )}
                                         {(!isVerified && activeTab === "identity") && (
                                             <div className="flex flex-col items-center gap-2 text-[rgb(var(--color-text-tertiary))] opacity-50">
                                                 <Fingerprint className="w-8 h-8 stroke-1" />
-                                                <span className="text-[10px] uppercase font-bold tracking-widest">Verify ID first</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest">{t("invoice.verifyIDFirst")}</span>
                                             </div>
                                         )}
 
@@ -418,8 +416,8 @@ const SignatureDrawer = ({
                                             (activeTab === "identity" && isVerified)) && (
                                                 <div className="absolute -right-2 -bottom-2 w-28 h-28 border-3 border-blue-600/60 rounded-full flex items-center justify-center -rotate-12 pointer-events-none select-none z-[100] transition-all duration-500 mix-blend-multiply dark:mix-blend-normal transform scale-[1.1] origin-bottom-right">
                                                     <div className="border-2 border-blue-600/60 rounded-full w-[94%] h-[94%] flex flex-col items-center justify-center text-center p-2 bg-blue-50/20 backdrop-blur-[0.2px]">
-                                                        <span className="text-[9px] font-black text-blue-700 uppercase leading-none mb-1 tracking-widest">Authentic</span>
-                                                        <span className="text-[11px] font-black text-blue-800 uppercase leading-none border-y-2 border-blue-600/60 py-1.5 mb-1 w-full">Verified By</span>
+                                                        <span className="text-[9px] font-black text-blue-700 uppercase leading-none mb-1 tracking-widest">{t("invoice.authentic")}</span>
+                                                        <span className="text-[11px] font-black text-blue-800 uppercase leading-none border-y-2 border-blue-600/60 py-1.5 mb-1 w-full">{t("invoice.verifiedBy")}</span>
                                                         <span className="text-[14px] font-black text-blue-800 uppercase leading-none tracking-tighter">DragBizz</span>
                                                     </div>
                                                 </div>
@@ -439,12 +437,12 @@ const SignatureDrawer = ({
                                     loading={isSigning}
                                     onClick={handleFinalSign}
                                 >
-                                    Confirm & Sign
+                                    {t("invoice.confirmSign")}
                                 </Button>
 
                                 <div className="mt-4 flex items-center gap-2 justify-center text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold tracking-widest">
                                     <div className="h-px bg-[rgb(var(--color-border-primary))] flex-1"></div>
-                                    <span>Secured by DSC</span>
+                                    <span>{t("invoice.securedByDSC")}</span>
                                     <div className="h-px bg-[rgb(var(--color-border-primary))] flex-1"></div>
                                 </div>
                             </Card>

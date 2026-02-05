@@ -1,0 +1,10 @@
+{
+  "quotaExceeded": "Quota Exceeded",
+  "dailyLimitReached": "Daily limit reached",
+  "usageToday": "Usage Today",
+  "remaining": "Remaining",
+  "used": "Used",
+  "limitWillReset": "Limit will reset {time}",
+  "upgradePlan": "Upgrade Plan",
+  "upgradeMessage": "Upgrade your plan to continue using this feature"
+}

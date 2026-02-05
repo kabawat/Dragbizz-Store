@@ -26,14 +26,17 @@ export const LanguageProvider = ({ children }) => {
 
   const loadMessages = useCallback(async (lang) => {
     try {
-      const messagesModule = await import(`@/i18n/messages/${lang}.json`);
-      setMessages(messagesModule.default);
+      const { messages } = await import(`@/i18n`);
+      if (messages[lang]) {
+        setMessages(messages[lang]);
+      } else {
+        setMessages(messages[defaultLocale]);
+      }
     } catch (error) {
       logger.error(`Failed to load messages for locale: ${lang}`, error);
-      const fallbackMessages = await import(
-        `@/i18n/messages/${defaultLocale}.json`
-      );
-      setMessages(fallbackMessages.default);
+      // Fallback already handled above slightly, but safe fallback:
+      const { messages } = await import(`@/i18n`);
+      setMessages(messages[defaultLocale]);
     }
   }, []);
 
