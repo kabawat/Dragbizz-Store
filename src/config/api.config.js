@@ -22,6 +22,8 @@ const API_CONFIG = {
     VERIFY_EMAIL: "/auth/verify-email",
     RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
+    UPLOAD_INIT: "/auth/upload/init",
+    UPLOAD_STATUS: "/auth/upload/status",
   },
   RETAILER: {
     INVENTORY: "/retailer/inventory",

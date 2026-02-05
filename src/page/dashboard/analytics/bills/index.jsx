@@ -37,6 +37,13 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getBillAnalytics } from "@/store/slices/billsSlice";
 
+const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+const formatCurrency = (amount) =>
+  `₹${(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const BillAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -65,10 +72,6 @@ const BillAnalytics = () => {
       hasFetchedRef.current = { storeId: null, fetched: false };
     }
   }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
-
-  const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-  const formatCurrency = (amount) =>
-    `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -230,7 +233,7 @@ const BillAnalytics = () => {
         return Array.from(cardsMap.values());
       });
     }
-  }, [analytics, counts, amounts, formatCurrency, formatNumber]);
+  }, [analytics, counts, amounts]);
 
   // Handle click outside export menu
   useEffect(() => {

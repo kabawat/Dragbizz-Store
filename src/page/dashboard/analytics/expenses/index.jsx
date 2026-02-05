@@ -37,20 +37,23 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenseAnalytics } from "@/store/slices/expensesSlice";
 
+const formatCurrency = (amount) => {
+  return `₹${(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
+const formatNumber = (num) => {
+  return (num || 0).toLocaleString("en-IN");
+};
+
 const ExpenseAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.expenses);
   const hasFetchedRef = useRef({ storeId: null, fetched: false });
-
-  const formatCurrency = (amount) => {
-    return `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const formatNumber = (num) => {
-    return (num || 0).toLocaleString("en-IN");
-  };
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -233,23 +236,7 @@ const ExpenseAnalytics = () => {
         return Array.from(cardsMap.values());
       });
     }
-  }, [
-    analytics,
-    counts.totalExpenses,
-    counts.paidExpenses,
-    counts.pendingExpenses,
-    counts.todayExpenses,
-    amounts.totalAmount,
-    amounts.totalNetAmount,
-    amounts.totalGstAmount,
-    amounts.todayAmount,
-    amounts.paidAmount,
-    amounts.pendingAmount,
-    amounts,
-    formatCurrency,
-    formatNumber,
-    counts,
-  ]);
+  }, [analytics, counts, amounts]);
 
   const [cards, setCards] = useState([
     { id: "chart1", type: "chart", title: "Expenses by Category" },
@@ -495,7 +482,7 @@ const ExpenseAnalytics = () => {
                                   {card.title}
                                 </h3>
                                 {categoryData &&
-                                Object.keys(categoryData).length > 0 ? (
+                                  Object.keys(categoryData).length > 0 ? (
                                   <div className="space-y-3">
                                     {Object.entries(categoryData).map(
                                       ([category, data]) => (
@@ -519,10 +506,10 @@ const ExpenseAnalytics = () => {
                                             <span>
                                               {amounts.totalAmount > 0
                                                 ? (
-                                                    (data.amount /
-                                                      amounts.totalAmount) *
-                                                    100
-                                                  ).toFixed(1)
+                                                  (data.amount /
+                                                    amounts.totalAmount) *
+                                                  100
+                                                ).toFixed(1)
                                                 : 0}
                                               %
                                             </span>
@@ -548,7 +535,7 @@ const ExpenseAnalytics = () => {
                                   {card.title}
                                 </h3>
                                 {paymentMethodData &&
-                                Object.keys(paymentMethodData).length > 0 ? (
+                                  Object.keys(paymentMethodData).length > 0 ? (
                                   <div className="space-y-3">
                                     {Object.entries(paymentMethodData).map(
                                       ([method, data]) => (
@@ -572,10 +559,10 @@ const ExpenseAnalytics = () => {
                                             <span>
                                               {amounts.totalAmount > 0
                                                 ? (
-                                                    (data.amount /
-                                                      amounts.totalAmount) *
-                                                    100
-                                                  ).toFixed(1)
+                                                  (data.amount /
+                                                    amounts.totalAmount) *
+                                                  100
+                                                ).toFixed(1)
                                                 : 0}
                                               %
                                             </span>
