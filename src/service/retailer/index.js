@@ -16,3 +16,4 @@ export { default as stockService } from "./stock.service";
 export { default as storeService } from "./store.service";
 export { default as supplierService } from "./supplier.service";
 export { default as salesOrderService } from "./salesOrder.service";
+export { default as signatureService } from "./signature.service";

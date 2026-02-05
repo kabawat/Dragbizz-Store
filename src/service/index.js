@@ -6,6 +6,7 @@ export {
   expenseService,
   invoiceService,
   productService,
+  signatureService,
   storeService,
   supplierService,
 } from "./retailer";

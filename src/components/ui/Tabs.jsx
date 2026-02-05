@@ -19,32 +19,31 @@ const Tabs = ({
   // Variant classes
   const variantClasses = {
     default:
-      "border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700",
-    pills: "rounded-lg hover:bg-gray-100",
-    underline: "border-b-2 border-transparent hover:border-gray-300",
+      "border-b-2 border-transparent hover:border-[rgb(var(--color-border-secondary))] hover:text-[rgb(var(--color-text-secondary))]",
+    pills: "rounded-lg hover:bg-[rgb(var(--color-bg-secondary))]",
+    underline: "border-b-2 border-transparent hover:border-[rgb(var(--color-border-secondary))]",
   };
 
   const activeClasses = {
-    default: "border-blue-500 text-blue-600",
-    pills: "bg-blue-100 text-blue-700",
-    underline: "border-blue-500 text-blue-600",
+    default: "border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))]",
+    pills: "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]",
+    underline: "border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))]",
   };
 
   return (
     <div className={className} {...props}>
       {/* Tab Headers */}
       <div
-        className={`flex ${variant === "pills" ? "space-x-1 bg-gray-100 p-1 rounded-lg" : "border-b border-gray-200"}`}
+        className={`flex ${variant === "pills" ? "space-x-1 bg-[rgb(var(--color-bg-tertiary))] p-1 rounded-lg" : "border-b border-[rgb(var(--color-border-primary))]"}`}
       >
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange?.(tab.id)}
-            className={`${sizeClasses[size]} font-medium transition-all duration-200 ${
-              activeTab === tab.id
-                ? activeClasses[variant]
-                : variantClasses[variant]
-            } ${tab.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`${sizeClasses[size]} font-medium transition-all duration-200 ${activeTab === tab.id
+              ? activeClasses[variant]
+              : variantClasses[variant]
+              } ${tab.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             disabled={tab.disabled}
           >
             {tab.label}
