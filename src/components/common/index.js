@@ -11,3 +11,5 @@ export { default as SectionHeader } from "./SectionHeader";
 export { default as StatsCard } from "./StatsCard";
 export { default as CatalogQRModal } from "./CatalogQRModal";
 export { default as UpiQrModal } from "./UpiQrModal";
+export { default as SignatureDrawer } from "./SignatureDrawer";
+export { default as SignaturePreview } from "./SignaturePreview";

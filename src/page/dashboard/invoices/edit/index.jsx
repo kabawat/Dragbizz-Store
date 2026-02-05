@@ -8,7 +8,10 @@ import {
   Plus,
   Save,
   Trash2,
+  Trash2,
   User,
+  Check,
+  Fingerprint,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,9 +19,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button, Card, Input, Select } from "@/components/ui";
+import { SignatureDrawer, SignaturePreview } from "@/components/common";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
-import { customerService, invoiceService, productService } from "@/service";
+import {
+  customerService,
+  invoiceService,
+  productService,
+  signatureService,
+} from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
 const EditInvoicePage = ({ invoiceId }) => {
@@ -58,6 +67,35 @@ const EditInvoicePage = ({ invoiceId }) => {
     ],
     orderSource: "POS",
   });
+
+  // Digital Signature State
+  const [signatures, setSignatures] = useState([]);
+  const [signaturesLoading, setSignaturesLoading] = useState(false);
+  const [showSignatureDrawer, setShowSignatureDrawer] = useState(false);
+  const [selectedSignature, setSelectedSignature] = useState("");
+
+  const agencyId = selectedStore?.agency || selectedStore?.agencyId;
+
+  // Fetch signatures from API
+  const fetchSignatures = useCallback(async () => {
+    if (!agencyId) return;
+    try {
+      setSignaturesLoading(true);
+      const result = await signatureService.getSignatures({ agencyId });
+      if (result.success) {
+        setSignatures(result.data || []);
+      }
+    } catch (_error) {
+      console.error("Error fetching signatures", _error);
+    } finally {
+      setSignaturesLoading(false);
+    }
+  }, [agencyId]);
+
+  const handleSignatureSuccess = (signatureData) => {
+    setSignatures((prev) => [signatureData, ...prev]);
+    setSelectedSignature(signatureData.id || signatureData._id);
+  };
 
   // Fetch products from API
   const fetchProducts = useCallback(async () => {
@@ -155,6 +193,7 @@ const EditInvoicePage = ({ invoiceId }) => {
           items: transformedItems,
           orderSource: inv.orderSource || "POS",
         });
+        setSelectedSignature(inv.signature?.id || inv.signature?._id || inv.signature || "");
       } else {
         setError(
           result.message ||
@@ -176,8 +215,9 @@ const EditInvoicePage = ({ invoiceId }) => {
       fetchProducts();
       fetchCustomers();
       fetchInvoiceData();
+      fetchSignatures();
     }
-  }, [selectedStore?.storeId, fetchProducts, fetchCustomers, fetchInvoiceData]);
+  }, [selectedStore?.storeId, fetchProducts, fetchCustomers, fetchInvoiceData, fetchSignatures]);
 
   const handleAddItem = () => {
     const newItem = {
@@ -248,6 +288,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
       orderSource: formData.orderSource || "POS",
+      signature: selectedSignature || undefined,
     };
 
     try {
@@ -651,6 +692,69 @@ const EditInvoicePage = ({ invoiceId }) => {
                       </div>
                     </div>
 
+                    {/* Digital Signature Selection */}
+                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
+                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
+                        <Fingerprint className="w-4 h-4 mr-2" />
+                        {t("invoice.digitalSignature") || "Digital Signature"}
+                      </h4>
+
+                      <div className="relative">
+                        {signaturesLoading ? (
+                          <div className="flex space-x-3 overflow-x-hidden">
+                            {[1, 2].map((i) => (
+                              <div
+                                key={i}
+                                className="flex-shrink-0 w-[calc(50%-6px)] h-20 bg-slate-100 animate-pulse rounded-xl"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none snap-x">
+                            {/* Add New Signature Card */}
+                            <div
+                              onClick={() => setShowSignatureDrawer(true)}
+                              className="flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 transition-all group snap-start"
+                            >
+                              <Plus className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
+                              <span className="text-[10px] font-medium mt-1 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]">
+                                {t("invoice.createSignature") || "Add New"}
+                              </span>
+                            </div>
+
+                            {/* Existing Signatures */}
+                            {signatures.map((sig) => (
+                              <div
+                                key={sig._id}
+                                onClick={() =>
+                                  setSelectedSignature(
+                                    selectedSignature === sig._id ? "" : sig._id
+                                  )
+                                }
+                                className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${
+                                  selectedSignature === sig._id
+                                    ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
+                                    : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
+                                }`}
+                              >
+                                <SignaturePreview signature={sig} size="sm" />
+                                {selectedSignature === sig._id && (
+                                  <div className="absolute top-1.5 right-1.5 bg-[rgb(var(--color-primary))] text-white rounded-full p-0.5">
+                                    <Check className="w-2.5 h-2.5" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {!signaturesLoading && signatures.length === 0 && (
+                          <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1 italic">
+                            {t("invoice.noSignaturesFound") || "No signatures found. Add one to sign your invoices."}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="space-y-3">
                       <Button
                         variant="primary"
@@ -678,6 +782,14 @@ const EditInvoicePage = ({ invoiceId }) => {
           </div>
         </div>
       </div>
+      </div>
+
+      <SignatureDrawer
+        isOpen={showSignatureDrawer}
+        onClose={() => setShowSignatureDrawer(false)}
+        agencyId={agencyId}
+        onSuccess={handleSignatureSuccess}
+      />
     </div >
   );
 };
