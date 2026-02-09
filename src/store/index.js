@@ -12,6 +12,8 @@ import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
 import storeUpiSlice from "./slices/storeUpiSlice";
 import suppliersSlice from "./slices/suppliersSlice";
+import signaturesSlice from "./slices/signaturesSlice";
+import themeSlice from "./slices/themeSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
 
@@ -31,6 +33,8 @@ export const store = configureStore({
     gst: gstSlice,
     analytics: analyticsSlice,
     publicCart: publicCartSlice,
+    signatures: signaturesSlice,
+    theme: themeSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

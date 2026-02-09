@@ -158,5 +158,14 @@
     "scanToPay": "UPI se pay karne ke liye scan karein",
     "qrDownloaded": "QR code successfully download ho gaya",
     "qrDownloadFailed": "QR code download karne mein fail"
-  }
+  },
+  "digitalSignatures": "Digital Signatures",
+  "signatureDescription": "Invoice aur documents ke liye apne digital signatures manage karein.",
+  "signatureAdded": "Signature successfully add ho gaya",
+  "signatureDeleted": "Signature successfully delete ho gaya",
+  "noSignatures": "Koi signature nahi mila",
+  "createSignaturePrompt": "Apne invoices aur documents par use karne ke liye digital signature banayein.",
+  "createSignature": "Signature Banayein",
+  "deleteSignature": "Signature Delete karein",
+  "signatureAddedTitle": "Signature Add ho gaya"
 }

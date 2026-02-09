@@ -125,5 +125,9 @@
   "failedToDownloadPDF": "PDF download karne mein fail. Please try again.",
   "printingFailed": "Printing fail.",
   "automatedReportGenerated": "Yeh DragBizz dwara generate ki gayi ek automated {reportType} report hai.",
-  "reportGeneratedOn": "Report Generated on"
+  "reportGeneratedOn": "Report Generated on",
+  "addNew": "New Add karo",
+  "createNow": "Abhi Create karo",
+  "confirmDelete": "Kya aap sure ho ki is item ko delete karna chahte ho?",
+  "copied": "Copy ho gaya"
 }

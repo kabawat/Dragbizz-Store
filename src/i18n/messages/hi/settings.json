@@ -168,5 +168,14 @@
     "scanToPay": "UPI के माध्यम से भुगतान के लिए स्कैन करें",
     "qrDownloaded": "QR कोड सफलतापूर्वक डाउनलोड हुआ",
     "qrDownloadFailed": "QR कोड डाउनलोड करने में विफल"
-  }
+  },
+  "digitalSignatures": "डिजिटल हस्ताक्षर",
+  "signatureDescription": "चालान और दस्तावेजों के लिए अपने डिजिटल हस्ताक्षर प्रबंधित करें।",
+  "signatureAdded": "हस्ताक्षर सफलतापूर्वक जोड़ा गया",
+  "signatureDeleted": "हस्ताक्षर सफलतापूर्वक हटाया गया",
+  "noSignatures": "कोई हस्ताक्षर नहीं मिला",
+  "createSignaturePrompt": "अपने चालान और दस्तावेजों पर उपयोग करने के लिए डिजिटल हस्ताक्षर बनाएं।",
+  "createSignature": "हस्ताक्षर बनाएं",
+  "deleteSignature": "हस्ताक्षर हटाएं",
+  "signatureAddedTitle": "हस्ताक्षर जोड़ा गया"
 }
