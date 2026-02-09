@@ -50,6 +50,7 @@ const API_CONFIG = {
     PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
+    SUGGESTION: "/retailer/suggestion",
   },
 
   // Voice AI Service Endpoints

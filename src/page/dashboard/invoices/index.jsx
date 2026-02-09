@@ -322,11 +322,10 @@ const InvoicesPage = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}

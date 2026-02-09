@@ -1,5 +1,6 @@
 "use client";
 import { Bell, ChevronDown, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import LogoutModal from "@/components/ui/LogoutModal";
 import { useLogout } from "@/hooks/useLogout";
@@ -10,6 +11,7 @@ const Header = ({ title, description }) => {
   const { t } = useTranslation();
   const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } =
     useLogout();
+  const router = useRouter();
 
   // Get user data from Redux
   const { user, agency, selectedStore, authProfile } = useAppSelector(
@@ -208,6 +210,15 @@ const Header = ({ title, description }) => {
                     </button>
                     <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
                       {t("header.preferences")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        router.push("/dashboard/suggestions");
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer font-medium text-[rgb(var(--color-primary))]"
+                    >
+                      {t("header.suggestions") || "Suggestions"}
                     </button>
                     <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
                     <button

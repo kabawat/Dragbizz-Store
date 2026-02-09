@@ -14,6 +14,7 @@ import storeUpiSlice from "./slices/storeUpiSlice";
 import suppliersSlice from "./slices/suppliersSlice";
 import signaturesSlice from "./slices/signaturesSlice";
 import themeSlice from "./slices/themeSlice";
+import suggestionsSlice from "./slices/suggestionsSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
 
@@ -35,6 +36,7 @@ export const store = configureStore({
     publicCart: publicCartSlice,
     signatures: signaturesSlice,
     theme: themeSlice,
+    suggestions: suggestionsSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

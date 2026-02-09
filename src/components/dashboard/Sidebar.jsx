@@ -14,6 +14,7 @@ import {
   IndianRupee,
   LayoutDashboard,
   LineChart,
+  Lightbulb,
   Package,
   PieChart,
   Receipt,
@@ -188,6 +189,11 @@ const Sidebar = ({ onStoreChange }) => {
   ];
 
   const bottomItems = [
+    {
+      name: t("sidebar.suggestions") || "Suggestions",
+      icon: Lightbulb,
+      href: "/dashboard/suggestions",
+    },
     {
       name: t("sidebar.settings"),
       icon: Settings,

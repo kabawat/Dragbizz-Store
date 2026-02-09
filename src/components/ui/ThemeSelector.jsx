@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { localeNames } from "@/i18n/config";
+import { useAppSelector } from "@/store/hooks";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const SettingsPanel = () => {
@@ -24,6 +25,14 @@ const SettingsPanel = () => {
   const [notifications, setNotifications] = useState(true);
   const [sound, setSound] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
+  const { isAuthenticated } = useAppSelector((state) => state.profile);
+
+  // Set default tab based on auth
+  useEffect(() => {
+    if (!isAuthenticated && activeTab !== "appearance") {
+      setActiveTab("appearance");
+    }
+  }, [isAuthenticated, activeTab]);
 
   // Close drawer with Escape key
   useEffect(() => {
@@ -81,24 +90,28 @@ const SettingsPanel = () => {
 
   const tabs = [
     { id: "appearance", label: t("settings.appearance"), icon: Palette },
-    {
-      id: "notifications",
-      label: t("settings.notificationsLabel"),
-      icon: Bell,
-    },
-    { id: "general", label: t("settings.general"), icon: Settings },
+    ...(isAuthenticated
+      ? [
+        {
+          id: "notifications",
+          label: t("settings.notificationsLabel"),
+          icon: Bell,
+        },
+        { id: "general", label: t("settings.general"), icon: Settings },
+      ]
+      : []),
   ];
 
   return (
-    <div className="settings-panel fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000]">
+    <div className="settings-panel fixed bottom-20 right-0 sm:bottom-20 z-[10000]">
       {/* Main Settings Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-[rgb(var(--color-primary))] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group cursor-pointer"
+        className="bg-[rgb(var(--color-primary))] text-white h-14 w-14 pl-5 pr-2 rounded-l-2xl transition-all duration-300 group cursor-pointer flex items-center justify-center"
         title={t("settings.title")}
       >
         <Settings
-          className={`w-6 h-6 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+          className={`w-6 h-6 transition-transform transition-all hover:scale-110 hover:text-white duration-300 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -136,11 +149,10 @@ const SettingsPanel = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors cursor-pointer flex-shrink-0 ${
-                    activeTab === tab.id
-                      ? "text-[rgb(var(--color-primary))] border-b-2 border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-secondary))]"
-                      : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
-                  }`}
+                  className={`flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors cursor-pointer flex-shrink-0 ${activeTab === tab.id
+                    ? "text-[rgb(var(--color-primary))] border-b-2 border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-secondary))]"
+                    : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -175,18 +187,16 @@ const SettingsPanel = () => {
                   </div>
                   <button
                     onClick={handleVariantToggle}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      currentVariant === "dark"
-                        ? "bg-[rgb(var(--color-primary))]"
-                        : "bg-[rgb(var(--color-border-primary))]"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${currentVariant === "dark"
+                      ? "bg-[rgb(var(--color-primary))]"
+                      : "bg-[rgb(var(--color-border-primary))]"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        currentVariant === "dark"
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentVariant === "dark"
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
@@ -200,11 +210,10 @@ const SettingsPanel = () => {
                       <button
                         key={themeKey}
                         onClick={() => handleThemeChange(themeKey)}
-                        className={`relative p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                          currentTheme === themeKey
-                            ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-10"
-                            : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
-                        }`}
+                        className={`relative p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${currentTheme === themeKey
+                          ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-10"
+                          : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                          }`}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <div
@@ -214,21 +223,19 @@ const SettingsPanel = () => {
                             }}
                           />
                           <span
-                            className={`text-xs font-medium ${
-                              currentTheme === themeKey
-                                ? "text-white"
-                                : "text-[rgb(var(--color-text-primary))]"
-                            }`}
+                            className={`text-xs font-medium ${currentTheme === themeKey
+                              ? "text-white"
+                              : "text-[rgb(var(--color-text-primary))]"
+                              }`}
                           >
                             {theme.name}
                           </span>
                         </div>
                         <p
-                          className={`text-xs text-left ${
-                            currentTheme === themeKey
-                              ? "text-white/80"
-                              : "text-[rgb(var(--color-text-secondary))]"
-                          }`}
+                          className={`text-xs text-left ${currentTheme === themeKey
+                            ? "text-white/80"
+                            : "text-[rgb(var(--color-text-secondary))]"
+                            }`}
                         >
                           {theme.description}
                         </p>
@@ -256,16 +263,14 @@ const SettingsPanel = () => {
                   </div>
                   <button
                     onClick={() => setNotifications(!notifications)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      notifications
-                        ? "bg-[rgb(var(--color-primary))]"
-                        : "bg-[rgb(var(--color-border-primary))]"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${notifications
+                      ? "bg-[rgb(var(--color-primary))]"
+                      : "bg-[rgb(var(--color-border-primary))]"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        notifications ? "translate-x-6" : "translate-x-1"
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications ? "translate-x-6" : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
@@ -284,16 +289,14 @@ const SettingsPanel = () => {
                   </div>
                   <button
                     onClick={() => setSound(!sound)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      sound
-                        ? "bg-[rgb(var(--color-primary))]"
-                        : "bg-[rgb(var(--color-border-primary))]"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${sound
+                      ? "bg-[rgb(var(--color-primary))]"
+                      : "bg-[rgb(var(--color-border-primary))]"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        sound ? "translate-x-6" : "translate-x-1"
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${sound ? "translate-x-6" : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
@@ -317,16 +320,14 @@ const SettingsPanel = () => {
                   </div>
                   <button
                     onClick={() => setAutoSave(!autoSave)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      autoSave
-                        ? "bg-[rgb(var(--color-primary))]"
-                        : "bg-[rgb(var(--color-border-primary))]"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${autoSave
+                      ? "bg-[rgb(var(--color-primary))]"
+                      : "bg-[rgb(var(--color-border-primary))]"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        autoSave ? "translate-x-6" : "translate-x-1"
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoSave ? "translate-x-6" : "translate-x-1"
+                        }`}
                     />
                   </button>
                 </div>
