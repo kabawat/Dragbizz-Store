@@ -1,0 +1,40 @@
+{
+    "title": "સૂચનો",
+    "description": "DragBizz ને બહેતર બનાવવા માટે કોઈ વિચાર છે? તે અમારી સાથે શેર કરો અને જે સુવિધાઓ તમે જોવા માંગો છો તેના માટે વોટ કરો.",
+    "submitNew": "નવું સૂચન સબમિટ કરો",
+    "mySuggestions": "મારા સૂચનો",
+    "allSuggestions": "બધા સૂચનો",
+    "trending": "ટ્રેન્ડિંગ",
+    "latest": "નવીનતમ",
+    "searchPlaceholder": "સૂચનો શોધો...",
+    "noSuggestions": "હજી સુધી કોઈ સૂચન નથી",
+    "form": {
+        "title": "શીર્ષક",
+        "titlePlaceholder": "તમારા વિચારનું ટૂંકું શીર્ષક",
+        "description": "વર્ણન",
+        "descriptionPlaceholder": "તમારું સૂચન વિગતવાર સમજાવો...",
+        "category": "કેટેગરી",
+        "submit": "વિચાર સબમિટ કરો",
+        "cancel": "રદ કરો",
+        "success": "આભાર! તમારું સૂચન સફળતાપૂર્વક સબમિટ કરવામાં આવ્યું છે."
+    },
+    "categories": {
+        "FEATURE": "નવી સુવિધા",
+        "UI_UX": "UI/UX ડિઝાઇન",
+        "REPORT": "બગ રિપોર્ટ",
+        "THEME": "થીમ / સ્ટાઇલ",
+        "INTEGRATION": "ઈન્ટીગ્રેશન",
+        "OTHER": "અન્ય"
+    },
+    "status": {
+        "REQUESTED": "વિનંતી કરેલ",
+        "UNDER_REVIEW": "સમીક્ષા હેઠળ",
+        "PLANNED": "આયોજિત",
+        "IN_PROGRESS": "પ્રગતિમાં",
+        "COMPLETED": "પૂર્ણ",
+        "DISCARDED": "રદ કરેલ"
+    },
+    "votes": "વોટ",
+    "vote": "વોટ આપો",
+    "upvoted": "વોટ આપેલો"
+}

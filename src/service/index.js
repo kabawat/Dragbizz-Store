@@ -8,6 +8,7 @@ export {
   productService,
   signatureService,
   storeService,
+  suggestionService,
   supplierService,
 } from "./retailer";
 export { checkoutService, packageService, subscriptionService } from "./subscription";

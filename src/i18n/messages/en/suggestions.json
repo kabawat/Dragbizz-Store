@@ -1,0 +1,40 @@
+{
+    "title": "Suggestions",
+    "description": "Have an idea to improve DragBizz? Share it with us and vote for features you want to see.",
+    "submitNew": "Submit New Suggestion",
+    "mySuggestions": "My Suggestions",
+    "allSuggestions": "All Suggestions",
+    "trending": "Trending",
+    "latest": "Latest",
+    "searchPlaceholder": "Search suggestions...",
+    "noSuggestions": "No suggestions yet",
+    "form": {
+        "title": "Title",
+        "titlePlaceholder": "Brief title of your idea",
+        "description": "Description",
+        "descriptionPlaceholder": "Explain your suggestion in detail...",
+        "category": "Category",
+        "submit": "Submit Idea",
+        "cancel": "Cancel",
+        "success": "Thank you! Your suggestion has been submitted successfully."
+    },
+    "categories": {
+        "FEATURE": "New Feature",
+        "UI_UX": "UI/UX Design",
+        "REPORT": "Bug Report",
+        "THEME": "Theme / Styling",
+        "INTEGRATION": "Integrations",
+        "OTHER": "Other"
+    },
+    "status": {
+        "REQUESTED": "Requested",
+        "UNDER_REVIEW": "Under Review",
+        "PLANNED": "Planned",
+        "IN_PROGRESS": "In Progress",
+        "COMPLETED": "Completed",
+        "DISCARDED": "Discarded"
+    },
+    "votes": "votes",
+    "vote": "Vote",
+    "upvoted": "Upvoted"
+}

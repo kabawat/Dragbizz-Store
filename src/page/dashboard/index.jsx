@@ -893,7 +893,7 @@ export default function Dashboard() {
                         key={section.id}
                         id={section.id}
                         isVisible={section.visible}
-                        onToggleVisibility={() => {}}
+                        onToggleVisibility={() => { }}
                       >
                         <div className="inline-block w-full">
                           {renderSectionContent(section)}

@@ -144,7 +144,7 @@ const ProductCard = ({
   // Grid view - Modern Card Design
   return (
     <div
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`}
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden ${className}`}
       {...props}
     >
       {/* Product Image with Gradient Overlay */}
