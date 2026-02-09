@@ -29,7 +29,6 @@ const uploadService = {
             const response = await authAxios.get(`${API_CONFIG.AUTH.UPLOAD_STATUS}/${uploadId}`);
             return response.data;
         } catch (error) {
-            console.error("Failed to get upload status:", error);
             throw error;
         }
     },
@@ -37,19 +36,32 @@ const uploadService = {
     // Poll for upload completion
     async pollUploadStatus(uploadId, maxAttempts = 30, interval = 2000) {
         for (let i = 0; i < maxAttempts; i++) {
-            const response = await this.getUploadStatus(uploadId);
-            const { status, url } = response.data;
-
-            if (status === "completed") {
-                return response.data;
+            let response;
+            try {
+                response = await this.getUploadStatus(uploadId);
+            } catch (error) {
+                if (error.response?.status === 429) {
+                    console.warn(`Rate limited (429), retrying upload status check... (Attempt ${i + 1})`);
+                } else {
+                    console.error("Failed to get upload status:", error);
+                    throw error;
+                }
             }
 
-            if (status === "failed") {
-                throw new Error(response.data.error || "Upload failed");
+            if (response) {
+                const { status, url } = response.data;
+
+                if (status === "completed") {
+                    return response.data;
+                }
+
+                if (status === "failed") {
+                    throw new Error(response.data.error || "Upload failed");
+                }
             }
 
-            // Wait before next poll
-            await new Promise((resolve) => setTimeout(resolve, interval));
+            // Wait before next poll with exponential backoff
+            await new Promise((resolve) => setTimeout(resolve, interval * (i + 1))); // Increased delay
         }
 
         throw new Error("Upload timed out");

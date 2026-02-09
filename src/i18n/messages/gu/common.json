@@ -125,5 +125,9 @@
   "failedToDownloadPDF": "PDF ડાઉનલોડ કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
   "printingFailed": "પ્રિન્ટિંગ નિષ્ફળ.",
   "automatedReportGenerated": "આ DragBizz દ્વારા જનરેટ કરેલી એક સ્વચાલિત {reportType} રિપોર્ટ છે.",
-  "reportGeneratedOn": "રિપોર્ટ જનરેટ કરવામાં આવી"
+  "reportGeneratedOn": "રિપોર્ટ જનરેટ કરવામાં આવી",
+  "addNew": "નવું ઉમેરો",
+  "createNow": "હમણાં બનાવો",
+  "confirmDelete": "શું તમે ખરેખર આ આઇટમને કાઢી નાખવા માંગો છો?",
+  "copied": "કૉપિ કર્યું"
 }

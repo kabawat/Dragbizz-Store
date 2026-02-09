@@ -27,7 +27,7 @@ const SignaturePreview = ({ signature, size = "md", className = "" }) => {
                     <img
                         src={content}
                         alt="Signature"
-                        className={`${size === "sm" ? "max-h-10" : "max-h-16"} object-contain`}
+                        className={`max-w-full ${size === "sm" ? "max-h-12" : "max-h-24"} object-contain`}
                     />
                 );
             case "identity":

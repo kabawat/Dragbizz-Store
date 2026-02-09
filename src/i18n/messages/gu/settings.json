@@ -158,5 +158,14 @@
     "scanToPay": "UPI દ્વારા ચુકવણી માટે સ્કેન કરો",
     "qrDownloaded": "QR કોડ સફળતાપૂર્વક ડાઉનલોડ થયો",
     "qrDownloadFailed": "QR કોડ ડાઉનલોડ કરવામાં નિષ્ફળ"
-  }
+  },
+  "digitalSignatures": "ડિજિટલ સહી",
+  "signatureDescription": "ચલણ અને દસ્તાવેજો માટે તમારી ડિજિટલ સહીઓ મેનેજ કરો.",
+  "signatureAdded": "સહી સફળતાપૂર્વક ઉમેરાઈ",
+  "signatureDeleted": "સહી સફળતાપૂર્વક કાઢી નાખી",
+  "noSignatures": "કોઈ સહી મળી નથી",
+  "createSignaturePrompt": "તમારા ચલણ અને દસ્તાવેજો પર ઉપયોગ કરવા માટે ડિજિટલ સહી બનાવો.",
+  "createSignature": "સહી બનાવો",
+  "deleteSignature": "સહી કાઢી નાખો",
+  "signatureAddedTitle": "સહી ઉમેરવામાં આવી"
 }

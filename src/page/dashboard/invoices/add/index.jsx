@@ -1,150 +1,93 @@
 "use client";
-import {
-  ArrowLeft,
-  Calculator,
-  Package,
-  Plus,
-  Trash2,
-  User,
-  Check,
-  Fingerprint,
-} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { CreateCustomer } from "@/components/customer";
-import { SignatureDrawer, SignaturePreview } from "@/components/common";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
-import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import { Button, Card, Input, Select, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import { SignatureDrawer } from "@/components/common";
+import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { customerService, invoiceService, productService, signatureService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
+import { customerService, invoiceService, productService } from "@/service";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { fetchSignatures, addSignature } from "@/store/slices/signaturesSlice";
+
+import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
+import QuotaProgressBar from "@/components/product/QuotaProgressBar";
+import useErrorHandling from "@/hooks/useErrorHandling";
+import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+
+const INITIAL_FORM_DATA = {
+  customer: "",
+  totalDiscount: 0,
+  items: [],
+  orderSource: "POS",
+};
 
 const CreateInvoicePage = () => {
+  // 1. Core Hooks & Selectors
   const router = useRouter();
   const { t } = useTranslation();
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const quotaRefreshRef = useRef(null);
+  const dispatch = useAppDispatch();
+  // Combine selectors for profile
+  const { selectedStore, agency: profileAgency } = useAppSelector((state) => state.profile);
+  const { items: signatures, loading: signaturesLoading } = useAppSelector((state) => state.signatures);
 
-  // Get quota information for frontend validation
-  const { quota, isLoading: quotaLoading } =
-    useUsageQuota("invoice_management");
-
-  // Local loading state for invoice creation
+  // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [customersLoading, setCustomersLoading] = useState(false);
+  const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
+  const [showSignatureDrawer, setShowSignatureDrawer] = useState(false);
+  const [selectedSignature, setSelectedSignature] = useState("");
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+
+  // 3. Refs
+  const quotaRefreshRef = useRef(null);
+  const productsFetchedRef = useRef({ storeId: null, fetched: false });
+  const customersFetchedRef = useRef({ storeId: null, fetched: false });
+
+  // 4. Custom Hooks
+  const { quota, isLoading: quotaLoading } = useUsageQuota("invoice_management");
   const {
     handleApiError,
     handleApiResult,
-    fieldErrors,
-    setFieldErrors,
     QuotaModal,
-    showSuccess,
     showError,
     setQuotaErrorManually,
   } = useErrorHandling();
 
-  // Check if quota is available
+  // 5. Derived Values
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
+
   const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
-    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
+    if (!quota || quotaLoading) return true;
+    if (quota.remaining === -1 || quota.limit === -1) return true;
     return quota.remaining > 0 && quota.hasAccess !== false;
   };
 
   const quotaExceeded = !isQuotaAvailable();
 
-  // Local state for products and customers
-  const [products, setProducts] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [_productsLoading, setProductsLoading] = useState(false);
-  const [customersLoading, setCustomersLoading] = useState(false);
-
-  // Refs to prevent duplicate API calls
-  const productsFetchedRef = useRef({ storeId: null, fetched: false });
-  const customersFetchedRef = useRef({ storeId: null, fetched: false });
-
-  // Get stable storeId
-  const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
-
-  // Customer drawer state
-  const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
-
-  const [formData, setFormData] = useState({
-    customer: "",
-    totalDiscount: 0,
-    items: [],
-    orderSource: "POS",
-  });
-
-  // State for adding new items
-  const [selectedProduct, setSelectedProduct] = useState("");
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
-
-  // Signature related state
-  const [signatures, setSignatures] = useState([]);
-  const [signaturesLoading, setSignaturesLoading] = useState(false);
-  const [showSignatureDrawer, setShowSignatureDrawer] = useState(false);
-  const [selectedSignature, setSelectedSignature] = useState("");
-
-  const agencyId = selectedStore?.agency || selectedStore?.agencyId;
-
-  // Fetch signatures from API
-  const fetchSignatures = useCallback(async () => {
+  // 6. Data Fetching Callbacks
+  const loadSignatures = useCallback(async () => {
     if (!agencyId) return;
-    try {
-      setSignaturesLoading(true);
-      const result = await signatureService.getSignatures({ agencyId });
-      if (result.success) {
-        setSignatures(result.data || []);
-      }
-    } catch (_error) {
-      console.error("Error fetching signatures", _error);
-    } finally {
-      setSignaturesLoading(false);
-    }
-  }, [agencyId]);
+    if (signatures && signatures.length > 0) return;
+    dispatch(fetchSignatures({ agencyId, lightweight: true }));
+  }, [agencyId, signatures, dispatch]);
 
-  useEffect(() => {
-    if (agencyId) {
-      fetchSignatures();
-    }
-  }, [agencyId, fetchSignatures]);
-
-  const handleSignatureChange = (value) => {
-    if (value === "add-new-signature") {
-      setShowSignatureDrawer(true);
-    } else {
-      setSelectedSignature(value);
-    }
-  };
-
-  const handleSignatureSuccess = (signatureData) => {
-    const newId = signatureData.id || signatureData._id;
-    fetchSignatures(); // Refresh list
-    setSelectedSignature(newId);
-    setShowSignatureDrawer(false);
-  };
-
-  // Fetch products from API
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
-
-    // Prevent duplicate calls for the same store
-    if (
-      productsFetchedRef.current.storeId === storeId &&
-      productsFetchedRef.current.fetched
-    ) {
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
       return;
     }
 
     productsFetchedRef.current = { storeId, fetched: true };
 
     try {
-      setProductsLoading(true);
       const result = await productService.getProducts({
         limit: 100,
         lightweight: true,
@@ -154,21 +97,13 @@ const CreateInvoicePage = () => {
         setProducts(result?.data || []);
       }
     } catch (_error) {
-      productsFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
-    } finally {
-      setProductsLoading(false);
+      productsFetchedRef.current = { storeId: null, fetched: false };
     }
   }, [storeId]);
 
-  // Fetch customers from API
   const fetchCustomers = useCallback(async () => {
     if (!storeId) return;
-
-    // Prevent duplicate calls for the same store
-    if (
-      customersFetchedRef.current.storeId === storeId &&
-      customersFetchedRef.current.fetched
-    ) {
+    if (customersFetchedRef.current.storeId === storeId && customersFetchedRef.current.fetched) {
       return;
     }
 
@@ -176,13 +111,9 @@ const CreateInvoicePage = () => {
 
     try {
       setCustomersLoading(true);
-      const params = {
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      };
-
+      const params = { limit: 100, lightweight: true, store: storeId };
       const result = await customerService.getCustomers(params);
+
       if (result.success) {
         const serializedOptions = [
           { value: "", label: t("invoice.walkInCustomer") },
@@ -199,33 +130,40 @@ const CreateInvoicePage = () => {
         setCustomers(serializedOptions);
       }
     } catch (_error) {
-      customersFetchedRef.current = { storeId: null, fetched: false }; // Reset on error
+      customersFetchedRef.current = { storeId: null, fetched: false };
     } finally {
       setCustomersLoading(false);
     }
   }, [storeId, t]);
 
-  // Reset refs when storeId changes
+  // 7. Effects
   useEffect(() => {
-    if (
-      storeId &&
-      (productsFetchedRef.current.storeId !== storeId ||
-        customersFetchedRef.current.storeId !== storeId)
-    ) {
+    if (agencyId) {
+      loadSignatures();
+    }
+  }, [agencyId, loadSignatures]);
+
+  useEffect(() => {
+    if (storeId && (productsFetchedRef.current.storeId !== storeId || customersFetchedRef.current.storeId !== storeId)) {
       productsFetchedRef.current = { storeId: null, fetched: false };
       customersFetchedRef.current = { storeId: null, fetched: false };
     }
   }, [storeId]);
 
-  // Load products and customers on component mount or store change (only once per store)
   useEffect(() => {
     if (!storeId) return;
-
     fetchProducts();
     fetchCustomers();
   }, [storeId, fetchProducts, fetchCustomers]);
 
-  // Handle customer select change
+  // 8. Event Handlers
+  const handleSignatureSuccess = (signatureData) => {
+    const newId = signatureData.id || signatureData._id;
+    dispatch(addSignature(signatureData));
+    setSelectedSignature(newId);
+    setShowSignatureDrawer(false);
+  };
+
   const handleCustomerChange = (value) => {
     if (value === "add-new-customer") {
       setShowCustomerDrawer(true);
@@ -234,122 +172,21 @@ const CreateInvoicePage = () => {
     }
   };
 
-  // Handle customer creation success from drawer
   const handleCustomerSuccess = async (customerData) => {
-    // Refresh customers list
     customersFetchedRef.current = { storeId: null, fetched: false };
     await fetchCustomers();
 
-    // Auto-select the newly created customer
     const newCustomerId = customerData?.id || customerData?._id;
     if (newCustomerId) {
       setFormData({ ...formData, customer: newCustomerId });
     }
-
-    // Close drawer
     setShowCustomerDrawer(false);
   };
 
-  const handleAddItem = () => {
-    if (!selectedProduct) {
-      showError(t("invoice.pleaseSelectProduct"));
-      return;
-    }
-
-    const product = products.find((p) => p._id === selectedProduct);
-    if (!product) {
-      showError(t("invoice.productNotFound"));
-      return;
-    }
-
-    const productPrice = product.price || product.sellingPrice || 0;
-    const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
-
-    // Check if product already exists in items
-    const existingItemIndex = formData.items.findIndex(
-      (item) => item.product === selectedProduct
-    );
-
-    if (existingItemIndex !== -1) {
-      // Product already exists, increment quantity
-      const updatedItems = [...formData.items];
-      const existingItem = updatedItems[existingItemIndex];
-      const newQuantity = existingItem.quantity + quantityToAdd;
-      const newTotal = productPrice * newQuantity;
-
-      updatedItems[existingItemIndex] = {
-        ...existingItem,
-        quantity: newQuantity,
-        total: newTotal,
-      };
-
-      setFormData({
-        ...formData,
-        items: updatedItems,
-      });
-    } else {
-      // Product doesn't exist, add as new item
-      const total = productPrice * quantityToAdd;
-
-      const newItem = {
-        product: selectedProduct,
-        productName: product.name || "",
-        quantity: quantityToAdd,
-        price: productPrice,
-        total: total,
-      };
-
-      setFormData({
-        ...formData,
-        items: [...formData.items, newItem],
-      });
-    }
-
-    // Reset selection
-    setSelectedProduct("");
-    setSelectedQuantity(1);
-  };
-
-  const handleRemoveItem = (index) => {
-    const updatedItems = formData.items.filter((_, i) => i !== index);
-    setFormData({ ...formData, items: updatedItems });
-  };
-
-  const _handleItemChange = (index, field, value) => {
-    const updatedItems = [...formData.items];
-    updatedItems[index][field] = value;
-
-    // Calculate total when quantity or price changes
-    if (field === "quantity" || field === "price") {
-      const product = products.find(
-        (p) => p._id === updatedItems[index].product
-      );
-      const price = product?.price || product?.sellingPrice || 0;
-      const quantity = updatedItems[index].quantity || 1;
-      updatedItems[index].total = price * quantity;
-    }
-
-    setFormData({ ...formData, items: updatedItems });
-  };
-
-  const calculateSubtotal = () => {
-    return formData.items.reduce((total, item) => {
-      return total + (item.total || 0);
-    }, 0);
-  };
-
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    return Math.max(0, subtotal - (formData.totalDiscount || 0));
-  };
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
 
-    // Filter out empty items
-    const validItems = formData.items.filter(
-      (item) => item.product && item.quantity > 0
-    );
+    const validItems = formData.items.filter((item) => item.product && item.quantity > 0);
 
     if (validItems.length === 0) {
       showError(t("invoice.addAtLeastOneItem"));
@@ -359,17 +196,11 @@ const CreateInvoicePage = () => {
     if (!isQuotaAvailable()) {
       const quotaData = quota || {};
       setQuotaErrorManually({
-        message:
-          quota.remaining === 0
-            ? t("invoice.dailyLimitReached", { limit: quota.limit })
-            : t("invoice.quotaExceededMessage"),
+        message: quota.remaining === 0
+          ? t("invoice.dailyLimitReached", { limit: quota.limit })
+          : t("invoice.quotaExceededMessage"),
         quota: quotaData,
-        resetTime:
-          quota.usageType === "DAILY_FIXED"
-            ? "tomorrow"
-            : quota.usageType === "MONTHLY_TOTAL"
-              ? "next month"
-              : null,
+        resetTime: quota.usageType === "DAILY_FIXED" ? "tomorrow" : quota.usageType === "MONTHLY_TOTAL" ? "next month" : null,
         canUpgrade: true,
       });
       return;
@@ -390,23 +221,13 @@ const CreateInvoicePage = () => {
     try {
       setInvoiceLoading(true);
       const result = await invoiceService.createDraftInvoice(invoiceData);
-      const handled = handleApiResult(
-        result,
-        t("invoice.invoiceCreatedSuccess"),
-        "invoice-creation"
-      );
+      const handled = handleApiResult(result, t("invoice.invoiceCreatedSuccess"), "invoice-creation");
 
       if (handled.type === "success") {
-        if (quotaRefreshRef.current) {
-          quotaRefreshRef.current();
-        }
+        if (quotaRefreshRef.current) quotaRefreshRef.current();
         setTimeout(() => {
           const invoiceId = result.data?.id || result.data?._id;
-          if (invoiceId) {
-            router.push(`/dashboard/invoices/view/${invoiceId}`);
-          } else {
-            router.push("/dashboard/invoices");
-          }
+          router.push(invoiceId ? `/dashboard/invoices/view/${invoiceId}` : "/dashboard/invoices");
         }, 1500);
       }
     } catch (error) {
@@ -475,385 +296,35 @@ const CreateInvoicePage = () => {
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 pe-3 h-full">
                   <form onSubmit={handleSubmit} className="h-full">
-                    {/* Items Section */}
-                    <Card className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
-                      <div className="p-4 flex flex-col h-full overflow-hidden">
-                        <div className="mb-4 flex-shrink-0">
-                          {/* Add Item Section */}
-                          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                            <div className="md:col-span-6">
-                              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                {t("invoice.selectProduct")} *
-                              </label>
-                              <Select
-                                size="sm"
-                                searchable={true}
-                                value={selectedProduct}
-                                onChange={(value) => setSelectedProduct(value)}
-                                options={[
-                                  {
-                                    value: "",
-                                    label: t(
-                                      "invoice.selectProductPlaceholder"
-                                    ),
-                                  },
-                                  ...products
-                                    .filter((product) => product._id)
-                                    .map((product) => ({
-                                      value: product._id,
-                                      label: `${product.name} - ₹${product.price || product.sellingPrice || 0}`,
-                                    })),
-                                ]}
-                                leftIcon={Package}
-                                size="sm"
-                              />
-                            </div>
-
-                            <div className="md:col-span-3">
-                              <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                {t("invoice.quantity")} *
-                              </label>
-                              <Input
-                                type="number"
-                                value={selectedQuantity}
-                                onChange={(value) => setSelectedQuantity(value)}
-                                min="1"
-                                placeholder="1"
-                                leftIcon={Package}
-                                size="sm"
-                              />
-                            </div>
-
-                            <div className="md:col-span-3">
-                              <Button
-                                type="button"
-                                variant="primary"
-                                onClick={handleAddItem}
-                                leftIcon={Plus}
-                                // className="w-full"
-                                disabled={!selectedProduct}
-                              >
-                                {t("invoice.addItem")}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Items List and Discount Container */}
-                        {formData.items.length > 0 ? (
-                          <div className="mt-6 flex-1 flex flex-col min-h-0">
-                            {/* Items List - Scrollable */}
-                            <div className="flex-1 flex flex-col min-h-0">
-                              <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex-shrink-0">
-                                {t("invoice.addedItems")} (
-                                {formData.items.length})
-                              </h4>
-                              <div
-                                className="overflow-y-auto overflow-x-hidden space-y-3 pr-2"
-                                style={{ maxHeight: "calc(100vh - 450px)" }}
-                              >
-                                {formData.items.map((item, index) => {
-                                  const product = products.find(
-                                    (p) => p._id === item.product
-                                  );
-                                  return (
-                                    <div
-                                      key={index}
-                                      className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0"
-                                    >
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                                          <div>
-                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t("invoice.product")}
-                                            </label>
-                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              {item.productName ||
-                                                product?.name ||
-                                                "N/A"}
-                                            </p>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t("invoice.quantity")}
-                                            </label>
-                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              {item.quantity}
-                                            </p>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t("invoice.price")}
-                                            </label>
-                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              ₹
-                                              {item.price?.toFixed(2) || "0.00"}
-                                            </p>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                                              {t("invoice.total")}
-                                            </label>
-                                            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                              ₹
-                                              {item.total?.toFixed(2) || "0.00"}
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleRemoveItem(index)
-                                          }
-                                          className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
-                                          title={t("invoice.removeItem")}
-                                        >
-                                          <Trash2 className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* Total Discount Section - Fixed at Bottom */}
-                            <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
-                              <div className="w-full md:w-80">
-                                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
-                                  {t("invoice.totalDiscount")} (₹)
-                                  <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                                    ({t("common.optional")})
-                                  </span>
-                                </label>
-                                <Input
-                                  type="number"
-                                  value={formData.totalDiscount}
-                                  onChange={(value) =>
-                                    setFormData({
-                                      ...formData,
-                                      totalDiscount: value,
-                                    })
-                                  }
-                                  min="0"
-                                  step="0.01"
-                                  leftIcon={Calculator}
-                                  size="sm"
-                                  placeholder="Enter discount amount"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center text-[rgb(var(--color-text-secondary))]">
-                              <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                              <p className="text-sm">
-                                {t("invoice.noItemsAdded")}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <InvoiceItemsSection
+                      t={t}
+                      products={products}
+                      formData={formData}
+                      setFormData={setFormData}
+                      showError={showError}
+                    />
                   </form>
                 </div>
               </div>
 
               {/* Summary Sidebar */}
-              <div className="flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-224px)]">
-                  <div className="space-y-4">
-                    {/* Customer Information */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
-                        <User className="w-4 h-4 mr-2" />
-                        {t("invoice.customerInformation")}
-                      </h4>
-                      <div>
-                        <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                          {t("invoice.customer")}
-                          <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                            ({t("common.optional")} - defaults to walk-in)
-                          </span>
-                        </label>
-                        <Select
-                          value={formData.customer}
-                          onChange={handleCustomerChange}
-                          options={
-                            customersLoading
-                              ? [
-                                {
-                                  value: "",
-                                  label: t("invoice.loadingCustomers"),
-                                },
-                              ]
-                              : customers
-                          }
-                          disabled={customersLoading}
-                          leftIcon={User}
-                          size="sm"
-                          searchable={true}
-                          placeholder={t("invoice.searchCustomers")}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                        {t("invoice.invoiceSummary")}
-                      </h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">
-                            {t("invoice.subtotal")}:
-                          </span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            ₹{calculateSubtotal().toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[rgb(var(--color-text-secondary))]">
-                            {t("invoice.discount")}:
-                          </span>
-                          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                            ₹{formData.totalDiscount || "0"}
-                          </span>
-                        </div>
-                        <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
-                          <div className="flex justify-between">
-                            <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                              {t("invoice.total")}:
-                            </span>
-                            <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
-                              ₹{calculateTotal().toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                        {t("invoice.itemCount")}
-                      </h4>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
-                          {formData.items.length}
-                        </div>
-                        <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                          {formData.items.length === 1
-                            ? t("invoice.item")
-                            : t("invoice.items")}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Digital Signature Selection */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
-                        <ArrowLeft className="w-4 h-4 mr-2 rotate-[-45deg]" />
-                        {t("invoice.digitalSignature") || "Digital Signature"}
-                      </h4>
-                      <div className="relative">
-                        {signaturesLoading ? (
-                          <div className="flex space-x-3 overflow-x-hidden">
-                            {[1, 2].map((i) => (
-                              <div
-                                key={i}
-                                className="flex-shrink-0 w-[calc(50%-6px)] h-20 bg-slate-100 animate-pulse rounded-xl"
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none snap-x">
-                            {/* Add New Signature Card */}
-                            <div
-                              onClick={() => setShowSignatureDrawer(true)}
-                              className="flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 transition-all group snap-start"
-                            >
-                              <Plus className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
-                              <span className="text-[10px] font-medium mt-1 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]">
-                                {t("invoice.createSignature") || "Add New"}
-                              </span>
-                            </div>
-
-                            {/* Existing Signatures */}
-                            {signatures.map((sig) => (
-                              <div
-                                key={sig._id}
-                                onClick={() =>
-                                  setSelectedSignature(
-                                    selectedSignature === sig._id ? "" : sig._id
-                                  )
-                                }
-                                className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${selectedSignature === sig._id
-                                    ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
-                                    : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
-                                  }`}
-                              >
-                                <SignaturePreview signature={sig} size="sm" />
-                                {selectedSignature === sig._id && (
-                                  <div className="absolute top-1.5 right-1.5 bg-[rgb(var(--color-primary))] text-white rounded-full p-0.5">
-                                    <Check className="w-2.5 h-2.5" />
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {!signaturesLoading && signatures.length === 0 && (
-                          <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1 italic">
-                            {t("invoice.noSignaturesFound") || "No signatures found. Add one to sign your invoices."}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Quota exceeded warning message */}
-                    {quotaExceeded && !quotaLoading && (
-                      <div className="mb-3">
-                        <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
-                          ⚠️ {t("invoice.quotaExceeded")}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col md:flex-row gap-3">
-                      <Button
-                        variant="primary"
-                        className="w-full md:flex-1"
-                        onClick={handleSubmit}
-                        loading={invoiceLoading}
-                        leftIcon={Plus}
-                        disabled={
-                          formData.items.length === 0 ||
-                          quotaExceeded ||
-                          quotaLoading
-                        }
-                        title={
-                          quotaExceeded ? t("invoice.quotaExceededMessage") : ""
-                        }
-                      >
-                        {t("invoice.createInvoiceButton")}
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="w-full md:flex-1"
-                        onClick={() => router.push("/dashboard/invoices")}
-                        disabled={invoiceLoading}
-                      >
-                        {t("common.cancel")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <InvoiceSidebar
+                t={t}
+                router={router}
+                formData={formData}
+                handleCustomerChange={handleCustomerChange}
+                customers={customers}
+                customersLoading={customersLoading}
+                signatures={signatures}
+                signaturesLoading={signaturesLoading}
+                selectedSignature={selectedSignature}
+                setSelectedSignature={setSelectedSignature}
+                setShowSignatureDrawer={setShowSignatureDrawer}
+                quotaExceeded={quotaExceeded}
+                quotaLoading={quotaLoading}
+                invoiceLoading={invoiceLoading}
+                handleSubmit={handleSubmit}
+              />
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import {
   Shield,
   Store,
   User,
+  PenTool,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ import {
   ProfileSettings,
   SecuritySettings,
   StoreSettings,
+  SignatureSettings,
 } from "@/components/settings";
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -42,6 +44,7 @@ export default function SettingsPage() {
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
     { id: "store", label: t("settings.store"), icon: Store },
+    { id: "signature", label: t("settings.digitalSignatures") || "Signatures", icon: PenTool },
     { id: "payment", label: t("settings.payment"), icon: CreditCard },
     { id: "security", label: t("settings.security"), icon: Shield },
     {
@@ -102,11 +105,10 @@ export default function SettingsPage() {
                     <button
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
-                        activeTab === tab.id
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${activeTab === tab.id
                           ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
                           : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                       <span className="font-medium">{tab.label}</span>
@@ -138,6 +140,8 @@ export default function SettingsPage() {
               {activeTab === "store" && (
                 <StoreSettings selectedStore={selectedStore} />
               )}
+
+              {activeTab === "signature" && <SignatureSettings />}
 
               {activeTab === "payment" && <ManageUpiSettings />}
 

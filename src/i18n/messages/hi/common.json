@@ -124,5 +124,8 @@
   "failedToDownloadPDF": "PDF डाउनलोड करने में विफल। कृपया पुनः प्रयास करें।",
   "printingFailed": "प्रिंटिंग विफल।",
   "automatedReportGenerated": "यह DragBizz द्वारा उत्पन्न एक स्वचालित {reportType} रिपोर्ट है।",
-  "reportGeneratedOn": "रिपोर्ट उत्पन्न की गई"
+  "reportGeneratedOn": "रिपोर्ट उत्पन्न की गई",
+  "addNew": "नया जोड़ें",
+  "createNow": "अभी बनाएं",
+  "confirmDelete": "क्या आप वाकई इस आइटम को हटाना चाहते हैं?"
 }

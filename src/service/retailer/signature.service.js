@@ -33,6 +33,18 @@ class SignatureService {
             return handleApiErrorResponse(error, "signatures-fetch");
         }
     }
+
+    // Delete a signature
+    async deleteSignature(id) {
+        try {
+            const response = await authAxios.delete(
+                `${API_CONFIG?.RETAILER?.SIGNATURE}/${id}`
+            );
+            return handleApiSuccess(response?.data, "Signature deleted successfully");
+        } catch (error) {
+            return handleApiErrorResponse(error, "signature-deletion");
+        }
+    }
 }
 
 const signatureService = new SignatureService();
