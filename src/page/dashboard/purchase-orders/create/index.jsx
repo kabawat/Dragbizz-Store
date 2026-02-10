@@ -594,10 +594,7 @@ const CreatePurchaseOrder = () => {
               </Link>
             </div>
 
-            <div
-              className="flex flex-col h-full"
-              style={{ height: "calc(100vh-208px)" }}
-            >
+            <div className="flex flex-col h-[calc(100vh-208px)]">
               <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
                 <form
                   onSubmit={(e) => {
@@ -621,10 +618,7 @@ const CreatePurchaseOrder = () => {
                                     "rgba(var(--color-primary), 0.1)",
                                 }}
                               >
-                                <FileText
-                                  className="w-5 h-5"
-                                  style={{ color: "rgb(var(--color-primary))" }}
-                                />
+                                <FileText className="w-5 h-5  text-[rgb(var(--color-primary))]" />
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -1394,11 +1388,7 @@ const CreatePurchaseOrder = () => {
                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                             {t("purchaseOrders.ifscCode")}
                                           </label>
-                                          <Input
-                                            type="text"
-                                            value={
-                                              paymentDetails.ifscCode || ""
-                                            }
+                                          <Input type="text" value={paymentDetails.ifscCode || ""}
                                             onChange={(value) =>
                                               updatePaymentDetails(
                                                 "ifscCode",
@@ -1460,21 +1450,8 @@ const CreatePurchaseOrder = () => {
                                   )}
 
                                   {paymentMethod === "CHEQUE" && (
-                                    <div
-                                      className="space-y-3 p-3 rounded-lg"
-                                      style={{
-                                        backgroundColor:
-                                          "rgba(var(--color-primary), 0.08)",
-                                        border:
-                                          "1px solid rgb(var(--color-border-primary))",
-                                      }}
-                                    >
-                                      <h5
-                                        className="text-xs font-medium"
-                                        style={{
-                                          color: "rgb(var(--color-primary))",
-                                        }}
-                                      >
+                                    <div className="space-y-3 p-3 rounded-lg bg-[rgba(var(--color-primary), 0.08)] border-[1px solid rgb(var(--color-border-primary))]" >
+                                      <h5 className="text-xs font-medium color-[rgb(var(--color-primary))]">
                                         {t("purchaseOrders.chequeDetails")}
                                       </h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1503,8 +1480,7 @@ const CreatePurchaseOrder = () => {
                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                             {t("purchaseOrders.chequeDate")}
                                           </label>
-                                          <Input
-                                            type="date"
+                                          <Input type="date"
                                             value={
                                               paymentDetails.chequeDate || ""
                                             }
@@ -1517,12 +1493,12 @@ const CreatePurchaseOrder = () => {
                                             size="sm"
                                           />
                                         </div>
+
                                         <div>
                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                             {t("purchaseOrders.bankName")}
                                           </label>
-                                          <Input
-                                            type="text"
+                                          <Input type="text"
                                             value={
                                               paymentDetails.bankName || ""
                                             }
@@ -1538,6 +1514,7 @@ const CreatePurchaseOrder = () => {
                                             size="sm"
                                           />
                                         </div>
+
                                         <div>
                                           <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
                                             {t("purchaseOrders.branchName")}
@@ -1866,62 +1843,63 @@ const CreatePurchaseOrder = () => {
                                   {t("invoice.selectSignaturePlaceholder")}
                                 </p>
                               </div>
-
-                              <div className="relative">
-                                {signaturesLoading ? (
-                                  <div className="flex space-x-3 overflow-x-hidden">
-                                    {[1, 2].map((i) => (
-                                      <div
-                                        key={i}
-                                        className="flex-shrink-0 w-[calc(50%-6px)] h-20 bg-slate-100 animate-pulse rounded-xl"
-                                      />
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none snap-x">
-                                    {/* Add New Signature Card */}
-                                    <div
-                                      onClick={() => setShowSignatureDrawer(true)}
-                                      className="flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 transition-all group snap-start"
-                                    >
-                                      <Plus className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
-                                      <span className="text-[10px] font-medium mt-1 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]">
-                                        {t("invoice.createSignature")}
-                                      </span>
-                                    </div>
-
-                                    {/* Existing Signatures */}
-                                    {signatures.map((sig) => (
-                                      <div
-                                        key={sig._id}
-                                        onClick={() =>
-                                          setSelectedSignature(
-                                            selectedSignature === sig._id ? "" : sig._id
-                                          )
-                                        }
-                                        className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${selectedSignature === sig._id
-                                          ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
-                                          : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
-                                          }`}
-                                      >
-                                        <SignaturePreview signature={sig} size="sm" />
-                                        {selectedSignature === sig._id && (
-                                          <div className="absolute top-1.5 right-1.5 bg-[rgb(var(--color-primary))] text-white rounded-full p-0.5">
-                                            <Check className="w-2.5 h-2.5" />
-                                          </div>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                                {!signaturesLoading && signatures.length === 0 && (
-                                  <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1 italic">
-                                    {t("invoice.noSignaturesFound") ||
-                                      "No signatures found. Add one to sign your purchase order."}
-                                  </p>
-                                )}
-                              </div>
                             </div>
+
+                            <div className="relative">
+                              {signaturesLoading ? (
+                                <div className="flex space-x-3 overflow-x-hidden">
+                                  {[1, 2].map((i) => (
+                                    <div
+                                      key={i}
+                                      className="flex-shrink-0 w-[calc(50%-6px)] h-20 bg-slate-100 animate-pulse rounded-xl"
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none snap-x">
+                                  {/* Add New Signature Card */}
+                                  <div
+                                    onClick={() => setShowSignatureDrawer(true)}
+                                    className="flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 transition-all group snap-start"
+                                  >
+                                    <Plus className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
+                                    <span className="text-[10px] font-medium mt-1 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]">
+                                      {t("invoice.createSignature")}
+                                    </span>
+                                  </div>
+
+                                  {/* Existing Signatures */}
+                                  {signatures.map((sig) => (
+                                    <div
+                                      key={sig._id}
+                                      onClick={() =>
+                                        setSelectedSignature(
+                                          selectedSignature === sig._id ? "" : sig._id
+                                        )
+                                      }
+                                      className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${selectedSignature === sig._id
+                                        ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
+                                        : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
+                                        }`}
+                                    >
+                                      <SignaturePreview signature={sig} size="sm" />
+                                      {selectedSignature === sig._id && (
+                                        <div className="absolute top-1.5 right-1.5 bg-[rgb(var(--color-primary))] text-white rounded-full p-0.5">
+                                          <Check className="w-2.5 h-2.5" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {!signaturesLoading && signatures.length === 0 && (
+                                <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1 italic">
+                                  {t("invoice.noSignaturesFound") ||
+                                    "No signatures found. Add one to sign your purchase order."}
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </Card>
                       </div>
                     </div>
@@ -1967,18 +1945,18 @@ const CreatePurchaseOrder = () => {
               </div>
             </div>
           </div>
-        </div >
-      </div >
+        </div>
+      </div>
 
       {/* Add Supplier Drawer */}
-      < AddSupplierDrawer
+      <AddSupplierDrawer
         isOpen={showAddSupplierDrawer}
         onClose={() => setShowAddSupplierDrawer(false)}
         onSuccess={handleSupplierSuccess}
       />
 
       {/* Save Draft Modal */}
-      < Modal
+      <Modal
         isOpen={showSaveDraftModal}
         onClose={() => setShowSaveDraftModal(false)}
       >
@@ -2001,16 +1979,16 @@ const CreatePurchaseOrder = () => {
             </Button>
           </div>
         </div>
-      </Modal >
+      </Modal>
 
       {/* Signature Drawer */}
-      < SignatureDrawer
+      <SignatureDrawer
         isOpen={showSignatureDrawer}
         onClose={() => setShowSignatureDrawer(false)}
         agencyId={storeId}
         onSuccess={handleSignatureSuccess}
       />
-    </div >
+    </div>
   );
 };
 

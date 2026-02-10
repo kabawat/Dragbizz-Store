@@ -8,7 +8,6 @@ import {
   Plus,
   Save,
   Trash2,
-  Trash2,
   User,
   Check,
   Fingerprint,
@@ -731,11 +730,10 @@ const EditInvoicePage = ({ invoiceId }) => {
                                     selectedSignature === sig._id ? "" : sig._id
                                   )
                                 }
-                                className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${
-                                  selectedSignature === sig._id
-                                    ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
-                                    : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
-                                }`}
+                                className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${selectedSignature === sig._id
+                                  ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
+                                  : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50 shadow-sm"
+                                  }`}
                               >
                                 <SignaturePreview signature={sig} size="sm" />
                                 {selectedSignature === sig._id && (
@@ -782,7 +780,6 @@ const EditInvoicePage = ({ invoiceId }) => {
           </div>
         </div>
       </div>
-      </div>
 
       <SignatureDrawer
         isOpen={showSignatureDrawer}
@@ -790,7 +787,7 @@ const EditInvoicePage = ({ invoiceId }) => {
         agencyId={agencyId}
         onSuccess={handleSignatureSuccess}
       />
-    </div >
+    </div>
   );
 };
 
