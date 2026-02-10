@@ -611,13 +611,7 @@ const CreatePurchaseOrder = () => {
                         <Card>
                           <div className="p-5">
                             <div className="flex items-center mb-6">
-                              <div
-                                className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3"
-                                style={{
-                                  backgroundColor:
-                                    "rgba(var(--color-primary), 0.1)",
-                                }}
-                              >
+                              <div className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3 bg-[rgb(var(--color-primary))]/10">
                                 <FileText className="w-5 h-5  text-[rgb(var(--color-primary))]" />
                               </div>
                               <div>
@@ -786,17 +780,8 @@ const CreatePurchaseOrder = () => {
                         <Card>
                           <div className="p-5">
                             <div className="flex items-center mb-6">
-                              <div
-                                className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3"
-                                style={{
-                                  backgroundColor:
-                                    "rgba(var(--color-primary), 0.1)",
-                                }}
-                              >
-                                <MapPin
-                                  className="w-5 h-5"
-                                  style={{ color: "rgb(var(--color-primary))" }}
-                                />
+                              <div className="w-10 h-10 rounded-lg flex border border-[rgb(var(--color-border-primary))] items-center justify-center mr-3 bg-[rgb(var(--color-primary))]/10">
+                                <MapPin className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -1196,19 +1181,8 @@ const CreatePurchaseOrder = () => {
                           <div className="p-4">
                             <div className="flex items-center justify-between mb-6">
                               <div className="flex items-center">
-                                <div
-                                  className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3"
-                                  style={{
-                                    backgroundColor:
-                                      "rgba(var(--color-primary), 0.1)",
-                                  }}
-                                >
-                                  <IndianRupee
-                                    className="w-5 h-5"
-                                    style={{
-                                      color: "rgb(var(--color-primary))",
-                                    }}
-                                  />
+                                <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3 bg-[rgb(var(--color-primary))]/10">
+                                  <IndianRupee className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                                 </div>
                                 <div>
                                   <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -1280,21 +1254,8 @@ const CreatePurchaseOrder = () => {
 
                                   {/* Payment Method Specific Details */}
                                   {paymentMethod === "UPI" && (
-                                    <div
-                                      className="space-y-3 p-3 rounded-lg"
-                                      style={{
-                                        backgroundColor:
-                                          "rgba(var(--color-primary), 0.08)",
-                                        border:
-                                          "1px solid rgb(var(--color-border-primary))",
-                                      }}
-                                    >
-                                      <h5
-                                        className="text-xs font-medium"
-                                        style={{
-                                          color: "rgb(var(--color-primary))",
-                                        }}
-                                      >
+                                    <div className="space-y-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-border-primary))]">
+                                      <h5 className="text-xs font-medium text-[rgb(var(--color-primary))]">
                                         {t("purchaseOrders.upiDetails")}
                                       </h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1343,21 +1304,8 @@ const CreatePurchaseOrder = () => {
                                   )}
 
                                   {paymentMethod === "BANK_TRANSFER" && (
-                                    <div
-                                      className="space-y-3 p-3 rounded-lg"
-                                      style={{
-                                        backgroundColor:
-                                          "rgba(var(--color-primary), 0.08)",
-                                        border:
-                                          "1px solid rgb(var(--color-border-primary))",
-                                      }}
-                                    >
-                                      <h5
-                                        className="text-xs font-medium"
-                                        style={{
-                                          color: "rgb(var(--color-primary))",
-                                        }}
-                                      >
+                                    <div className="space-y-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-border-primary))]">
+                                      <h5 className="text-xs font-medium text-[rgb(var(--color-primary))]">
                                         {t(
                                           "purchaseOrders.bankTransferDetails"
                                         )}
@@ -1450,8 +1398,8 @@ const CreatePurchaseOrder = () => {
                                   )}
 
                                   {paymentMethod === "CHEQUE" && (
-                                    <div className="space-y-3 p-3 rounded-lg bg-[rgba(var(--color-primary), 0.08)] border-[1px solid rgb(var(--color-border-primary))]" >
-                                      <h5 className="text-xs font-medium color-[rgb(var(--color-primary))]">
+                                    <div className="space-y-3 p-3 rounded-lg bg-[rgb(var(--color-primary))]/10 border border-[rgb(var(--color-border-primary))]">
+                                      <h5 className="text-xs font-medium text-[rgb(var(--color-primary))]">
                                         {t("purchaseOrders.chequeDetails")}
                                       </h5>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1633,10 +1581,7 @@ const CreatePurchaseOrder = () => {
                           <div className="p-4">
                             <div className="flex items-center mb-6">
                               <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3">
-                                <Package
-                                  className="w-5 h-5"
-                                  style={{ color: "rgb(var(--color-success))" }}
-                                />
+                                <Package className="w-5 h-5 text-[rgb(var(--color-success))]" />
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
@@ -1755,20 +1700,8 @@ const CreatePurchaseOrder = () => {
                                     >
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                                          <div
-                                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                            style={{
-                                              backgroundColor:
-                                                "rgba(var(--color-primary), 0.1)",
-                                            }}
-                                          >
-                                            <Package
-                                              className="w-4 h-4"
-                                              style={{
-                                                color:
-                                                  "rgb(var(--color-primary))",
-                                              }}
-                                            />
+                                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-[rgb(var(--color-primary))]/10">
+                                            <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <span className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate block">
@@ -1779,15 +1712,7 @@ const CreatePurchaseOrder = () => {
                                             </span>
                                           </div>
                                           <div className="flex-shrink-0">
-                                            <span
-                                              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-                                              style={{
-                                                backgroundColor:
-                                                  "rgba(var(--color-primary), 0.1)",
-                                                color:
-                                                  "rgb(var(--color-primary))",
-                                              }}
-                                            >
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]">
                                               {t("purchaseOrders.qty")}:{" "}
                                               {item.quantity}
                                             </span>
@@ -1824,16 +1749,8 @@ const CreatePurchaseOrder = () => {
                         <Card className="mt-6">
                           <div className="p-5">
                             <div className="flex items-center mb-6">
-                              <div
-                                className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3"
-                                style={{
-                                  backgroundColor: "rgba(var(--color-primary), 0.1)",
-                                }}
-                              >
-                                <Fingerprint
-                                  className="w-5 h-5"
-                                  style={{ color: "rgb(var(--color-primary))" }}
-                                />
+                              <div className="w-10 h-10 border border-[rgb(var(--color-border-primary))] rounded-lg flex items-center justify-center mr-3 bg-[rgb(var(--color-primary))]/10">
+                                <Fingerprint className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">

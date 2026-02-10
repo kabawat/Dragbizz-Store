@@ -37,10 +37,10 @@ export default function GlobalProfileLoader() {
           hasRefreshedRef.current = true;
           try {
             const refreshResult = await authService.refreshToken();
-            if (refreshResult?.success === true) {
+            if (refreshResult?.success === true && refreshResult.data !== null) {
               refreshSucceededRef.current = true;
             }
-          } catch (_) {}
+          } catch (_) { }
         }
 
         // If first refresh API failed, do not call the 2 profile APIs (getAuthProfile, getRetailerDetails)
@@ -50,9 +50,9 @@ export default function GlobalProfileLoader() {
           hasFetchedAuthRef.current = true;
           try {
             await dispatch(getAuthProfile()).unwrap();
-          } catch (_) {}
+          } catch (_) { }
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     load();
