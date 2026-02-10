@@ -49,11 +49,6 @@ export function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If accessing auth routes with auth token, redirect to dashboard
-  if (isAuthRoute && authToken) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
   // Allow the request to continue
   return NextResponse.next();
 }

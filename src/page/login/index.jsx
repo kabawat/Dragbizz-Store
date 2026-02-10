@@ -135,8 +135,9 @@ export default function Login() {
         // Fetch retailer details to get subdomain/agency info for redirection
         const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
         const retailerData = actionResult.payload?.data;
+        const thunkRedirectTo = actionResult.payload?.redirectTo;
 
-        let finalRedirectUrl = defaultRedirectUrl;
+        let finalRedirectUrl = thunkRedirectTo || defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
           const subdomain = retailerData.agency.subdomain;
@@ -177,9 +178,9 @@ export default function Login() {
             // If we are on localhost/dev and shifting domains, use sync API to carry over tokens
             if ((hostname === "localhost" || hostname === "127.0.0.1") && result.data?.tokens) {
               const { accessToken, refreshToken } = result.data.tokens;
-              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${defaultRedirectUrl}`;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${thunkRedirectTo || defaultRedirectUrl}`;
             } else {
-              finalRedirectUrl = `${protocol}//${newHostname}${port}${defaultRedirectUrl}`;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}${thunkRedirectTo || defaultRedirectUrl}`;
             }
           }
         }
@@ -307,8 +308,9 @@ export default function Login() {
         // Fetch retailer details to get subdomain/agency info for redirection
         const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
         const retailerData = actionResult.payload?.data;
+        const thunkRedirectTo = actionResult.payload?.redirectTo;
 
-        let finalRedirectUrl = defaultRedirectUrl;
+        let finalRedirectUrl = thunkRedirectTo || defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
           const subdomain = retailerData.agency.subdomain;
@@ -345,9 +347,9 @@ export default function Login() {
             // If we are on localhost/dev and shifting domains, use sync API to carry over tokens
             if ((hostname === "localhost" || hostname === "127.0.0.1") && result.data?.tokens) {
               const { accessToken, refreshToken } = result.data.tokens;
-              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${defaultRedirectUrl}`;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}/api/auth/sync?at=${accessToken}&rt=${refreshToken}&redirect=${thunkRedirectTo || defaultRedirectUrl}`;
             } else {
-              finalRedirectUrl = `${protocol}//${newHostname}${port}${defaultRedirectUrl}`;
+              finalRedirectUrl = `${protocol}//${newHostname}${port}${thunkRedirectTo || defaultRedirectUrl}`;
             }
           }
         }
