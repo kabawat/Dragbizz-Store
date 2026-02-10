@@ -249,7 +249,18 @@ class AuthService {
     refreshPromise = (async () => {
       try {
         const response = await unauthAxios.post(API_CONFIG.AUTH.REFRESH);
-        return handleApiSuccess(response, "Token refreshed successfully");
+        const result = handleApiSuccess(response, "Token refreshed successfully");
+
+        // If data is null, treat as failure as per user requirement
+        if (!result.data) {
+          return {
+            success: false,
+            message: "Token refresh returned null data",
+            error: "null_data"
+          };
+        }
+
+        return result;
       } catch (error) {
         return handleApiErrorResponse(error, "token-refresh");
       } finally {

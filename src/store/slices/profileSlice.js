@@ -23,7 +23,7 @@ const setStoredStoreId = (id) => {
         localStorage.removeItem(SELECTED_STORE_STORAGE_KEY);
       }
     }
-  } catch {}
+  } catch { }
 };
 
 export const getRetailerDetails = createAsyncThunk(
@@ -124,6 +124,16 @@ export const getAuthProfile = createAsyncThunk(
       }
 
       const data = result.data?.data || result.data || null;
+
+      // Check if agency_id is null/missing - user needs onboarding
+      if (data && data.agency_id === null) {
+        return {
+          success: true,
+          data,
+          message: "Agency onboarding required",
+          redirectTo: "/onboarding/agency",
+        };
+      }
 
       return {
         success: true,
@@ -254,10 +264,13 @@ const profileSlice = createSlice({
         state.authProfileLoading = false;
         state.authProfileError = null;
 
-        const { data } = action.payload;
+        const { data, redirectTo } = action.payload;
         if (data) {
           state.authProfile = data;
           state.isAuthenticated = true;
+        }
+        if (redirectTo) {
+          state.redirectTo = redirectTo;
         }
       })
       .addCase(getAuthProfile.rejected, (state, action) => {
