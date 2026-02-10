@@ -67,7 +67,9 @@ export default function GlobalProfileLoader() {
 
   // Retailer profile: after we have authProfile
   useEffect(() => {
-    if (!authProfile) return;
+    // If no auth profile or agency_id is null, it means user needs onboarding.
+    // In this case, we definitely should NOT call retailer profile API.
+    if (!authProfile || !authProfile.agency_id) return;
 
     const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');

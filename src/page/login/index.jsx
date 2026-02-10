@@ -132,12 +132,27 @@ export default function Login() {
       const result = await authService.login(loginData);
 
       if (result.success) {
-        // Fetch retailer details to get subdomain/agency info for redirection
+        // 1. Fetch Auth Profile first to verify status and internal redirection
+        const authActionResult = await dispatch(getAuthProfile());
+        const authData = authActionResult.payload?.data;
+        const authRedirect = authActionResult.payload?.redirectTo;
+
+        // If agency_id is null, the auth redirect will point to onboarding
+        if (!authData?.agency_id) {
+          setComputedRedirectUrl(authRedirect || defaultRedirectUrl);
+          setSuccessData({
+            firstName: result.data?.user?.firstName || result.data?.firstName || "User",
+          });
+          setShowSuccessScreen(true);
+          return;
+        }
+
+        // 2. Fetch retailer details ONLY if we have an agency_id
         const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
         const retailerData = actionResult.payload?.data;
         const thunkRedirectTo = actionResult.payload?.redirectTo;
 
-        let finalRedirectUrl = thunkRedirectTo || defaultRedirectUrl;
+        let finalRedirectUrl = thunkRedirectTo || authRedirect || defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
           const subdomain = retailerData.agency.subdomain;
@@ -305,12 +320,27 @@ export default function Login() {
 
       const result = await authService.verifyLoginOTP(verifyData);
       if (result.success) {
-        // Fetch retailer details to get subdomain/agency info for redirection
+        // 1. Fetch Auth Profile first to verify status and internal redirection
+        const authActionResult = await dispatch(getAuthProfile());
+        const authData = authActionResult.payload?.data;
+        const authRedirect = authActionResult.payload?.redirectTo;
+
+        // If agency_id is null, the auth redirect will point to onboarding
+        if (!authData?.agency_id) {
+          setComputedRedirectUrl(authRedirect || defaultRedirectUrl);
+          setSuccessData({
+            firstName: result.data?.user?.firstName || result.data?.firstName || "User",
+          });
+          setShowSuccessScreen(true);
+          return;
+        }
+
+        // 2. Fetch retailer details ONLY if we have an agency_id
         const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
         const retailerData = actionResult.payload?.data;
         const thunkRedirectTo = actionResult.payload?.redirectTo;
 
-        let finalRedirectUrl = thunkRedirectTo || defaultRedirectUrl;
+        let finalRedirectUrl = thunkRedirectTo || authRedirect || defaultRedirectUrl;
 
         if (retailerData?.agency?.subdomain) {
           const subdomain = retailerData.agency.subdomain;
