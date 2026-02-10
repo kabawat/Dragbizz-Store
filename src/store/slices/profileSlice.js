@@ -163,6 +163,7 @@ const initialState = {
 
   error: null,
   redirectTo: null,
+  isInitialized: false, // Tracks if initial auth check completed
 };
 
 const profileSlice = createSlice({
@@ -178,6 +179,9 @@ const profileSlice = createSlice({
       state.error = null;
       state.redirectTo = null;
       setStoredStoreId(null);
+    },
+    setInitialized: (state, action) => {
+      state.isInitialized = action.payload ?? true;
     },
     setSelectedStore: (state, action) => {
       state.selectedStore = action.payload;
@@ -248,6 +252,7 @@ const profileSlice = createSlice({
         }
 
         state.isAuthenticated = true;
+        state.isInitialized = true;
       })
       .addCase(getRetailerDetails.rejected, (state, action) => {
         state.isLoading = false;
@@ -255,6 +260,7 @@ const profileSlice = createSlice({
           action.payload?.message || "Failed to get retailer details";
         state.redirectTo = action.payload?.redirectTo || "/login";
         state.isAuthenticated = false;
+        state.isInitialized = true;
       })
       .addCase(getAuthProfile.pending, (state) => {
         state.authProfileLoading = true;
@@ -271,18 +277,22 @@ const profileSlice = createSlice({
         }
         if (redirectTo) {
           state.redirectTo = redirectTo;
+        } else {
+          state.redirectTo = null;
         }
+        state.isInitialized = true;
       })
       .addCase(getAuthProfile.rejected, (state, action) => {
         state.authProfileLoading = false;
         state.authProfileError =
           action.payload?.message || "Failed to fetch auth profile";
         state.isAuthenticated = false;
+        state.isInitialized = true;
       });
   },
 });
 
-export const { clearAuth, setSelectedStore } = profileSlice.actions;
+export const { clearAuth, setSelectedStore, setInitialized } = profileSlice.actions;
 export { getAuthProfile };
 
 export default profileSlice.reducer;
