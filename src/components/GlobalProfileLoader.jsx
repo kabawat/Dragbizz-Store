@@ -29,7 +29,10 @@ export default function GlobalProfileLoader() {
   const hasFetchedRetailerRef = useRef(false);
 
   useEffect(() => {
-    if (isAuthPath(pathname)) return;
+    const isAuth = isAuthPath(pathname);
+    const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
+
+    if (isAuth && !hasSessionCookie) return;
 
     const load = async () => {
       try {
@@ -60,7 +63,11 @@ export default function GlobalProfileLoader() {
 
   // Retailer profile: after we have authProfile
   useEffect(() => {
-    if (isAuthPath(pathname) || !authProfile) return;
+    if (!authProfile) return;
+
+    const isAuth = isAuthPath(pathname);
+    const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
+    if (isAuth && !hasSessionCookie) return;
 
     const hasRetailerData = !!user || !!agency || (stores && stores.length > 0);
     if (hasRetailerData || hasFetchedRetailerRef.current) return;

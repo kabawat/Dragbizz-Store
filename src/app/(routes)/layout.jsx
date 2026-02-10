@@ -47,6 +47,16 @@ export default function RoutesLayout({ children }) {
     }
   }, [redirectTo, isLoading, router]);
 
+  // Redirect authenticated users away from auth pages
+  useEffect(() => {
+    if (authProfile && !isLoading) {
+      const currentPath = window.location.pathname;
+      if (currentPath === "/login" || currentPath === "/register") {
+        router.push(redirectTo || "/dashboard");
+      }
+    }
+  }, [authProfile, redirectTo, isLoading, router]);
+
   const isVerifyingAuth = authProfileLoading || (!authProfile && !authProfileError);
   const isDataLoading = isLoading && !user && !agency && !error;
 
