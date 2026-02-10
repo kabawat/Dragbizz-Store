@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getAuthProfile,
   getRetailerDetails,
+  setInitialized,
 } from "@/store/slices/profileSlice";
 
 const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
@@ -32,7 +33,7 @@ export default function GlobalProfileLoader() {
     const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
 
-    if (isAuth && !hasSessionCookie) return;
+    if (isAuth && !hasSessionCookie) { dispatch(setInitialized(true)); return; }
 
     const load = async () => {
       try {
@@ -47,7 +48,10 @@ export default function GlobalProfileLoader() {
         }
 
         // If first refresh API failed, do not call the 2 profile APIs (getAuthProfile, getRetailerDetails)
-        if (!refreshSucceededRef.current) return;
+        if (!refreshSucceededRef.current) {
+          dispatch(setInitialized(true));
+          return;
+        }
 
         if (!hasFetchedAuthRef.current) {
           hasFetchedAuthRef.current = true;
