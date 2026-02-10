@@ -16,7 +16,7 @@ import { Button } from "@/components/ui";
 import LogoutModal from "@/components/ui/LogoutModal";
 import { useLogout } from "@/hooks/useLogout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getRetailerDetails } from "@/store/slices/profileSlice";
+
 import logger from "@/utils/logger";
 
 const ProductHeader = () => {
