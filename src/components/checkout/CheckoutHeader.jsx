@@ -17,7 +17,7 @@ export default function CheckoutHeader() {
           <span>Back to Shop</span>
         </button>
         <div className="flex items-center gap-2 text-sm font-bold text-[rgb(var(--color-text-primary))]">
-          <ShieldCheck className="w-4 h-4 text-green-600" />
+          <ShieldCheck className="w-4 h-4 text-[rgb(var(--color-success))]" />
           <span>Secure Checkout</span>
         </div>
       </div>

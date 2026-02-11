@@ -21,7 +21,7 @@ export default function CheckoutOtpStep({
           <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
             Verify it&apos;s you
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-[rgb(var(--color-text-secondary))] text-sm">
             We&apos;ve sent a 5-digit code to{" "}
             <span className="font-bold text-[rgb(var(--color-text-primary))]">
               {contactDisplay}
@@ -29,11 +29,11 @@ export default function CheckoutOtpStep({
           </p>
         </div>
 
-        <Card className="border-none shadow-sm">
+        <Card className="border-none">
           <CardBody className="p-8">
             <form onSubmit={onSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-500 uppercase text-center block">
+                <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase text-center block">
                   Enter OTP Code
                 </label>
                 <Input
@@ -50,7 +50,7 @@ export default function CheckoutOtpStep({
               </div>
 
               {error && (
-                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center font-medium">
+                <div className="bg-[rgb(var(--color-danger))]/10 text-[rgb(var(--color-danger))] text-sm p-3 rounded-lg text-center font-medium">
                   {error}
                 </div>
               )}
@@ -69,7 +69,7 @@ export default function CheckoutOtpStep({
               <button
                 type="button"
                 onClick={onBack}
-                className="w-full text-center text-sm text-gray-400 hover:text-[rgb(var(--color-primary))] font-medium transition-colors"
+                className="w-full text-center text-sm text-[rgb(var(--color-text-tertiary))] hover:text-[rgb(var(--color-primary))] font-medium transition-colors"
               >
                 Change contact
               </button>
