@@ -157,16 +157,19 @@ const CustomerTable = ({
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Customer Column */}
-                  <td className="w-1/3 px-6 py-4 relative">
+                  <td
+                    className="w-1/3 px-6 py-4 relative cursor-pointer group/cell"
+                    onClick={() => onViewDetails?.(customer.id)}
+                  >
                     <div className="flex items-center gap-4">
                       {/* Customer Avatar */}
-                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20 group-hover/cell:border-[rgb(var(--color-primary))]/40 transition-colors">
                         <Users className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                       </div>
 
                       {/* Customer Details */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate group-hover/cell:text-[rgb(var(--color-primary))] transition-colors">
                           {customer.name || "N/A"}
                         </h3>
                         <div className="flex items-center gap-2 mt-1">

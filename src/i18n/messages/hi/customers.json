@@ -45,6 +45,8 @@
   "enterCompanyName": "कंपनी का नाम दर्ज करें",
   "gstin": "GSTIN",
   "enterGstin": "GSTIN नंबर दर्ज करें",
+  "addCompanyDetails": "कंपनी विवरण जोड़ें",
+  "companyInformation": "कंपनी की जानकारी",
   "addresses": "पते",
   "addBillingShipping": "बिलिंग और शिपिंग पते जोड़ें",
   "locationDetected": "📍 स्थान का पता चला: {city}, {state} - पते स्वचालित रूप से भर दिए जाएंगे",

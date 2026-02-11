@@ -44,6 +44,8 @@
   "enterCompanyName": "Enter company name",
   "gstin": "GSTIN",
   "enterGstin": "Enter GSTIN number",
+  "addCompanyDetails": "Add Company Details",
+  "companyInformation": "Company Information",
   "addresses": "Addresses",
   "addBillingShipping": "Add billing and shipping addresses",
   "locationDetected": "📍 Location detected: {city}, {state} - Will auto-fill addresses",

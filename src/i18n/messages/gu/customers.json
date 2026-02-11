@@ -44,6 +44,8 @@
   "enterCompanyName": "કંપનીનું નામ દાખલ કરો",
   "gstin": "GSTIN",
   "enterGstin": "GSTIN નંબર દાખલ કરો",
+  "addCompanyDetails": "કંપનીની વિગતો ઉમેરો",
+  "companyInformation": "કંપનીની માહિતી",
   "addresses": "સરનામાં",
   "addBillingShipping": "બિલિંગ અને શિપિંગ સરનામાં ઉમેરો",
   "locationDetected": "📍 સ્થાન શોધાયું: {city}, {state} - સરનામાં આપમેળે ભરાશે",

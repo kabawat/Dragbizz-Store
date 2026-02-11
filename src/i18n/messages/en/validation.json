@@ -7,5 +7,6 @@
   "invalidNumber": "Please enter a valid number",
   "invalidDate": "Please enter a valid date",
   "invalidUrl": "Please enter a valid URL",
-  "fixErrors": "Please fix the validation errors in the form."
+  "fixErrors": "Please fix the validation errors in the form.",
+  "eitherPhoneOrEmailRequired": "Either Phone or Email is required"
 }

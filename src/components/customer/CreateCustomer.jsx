@@ -167,6 +167,27 @@ const CreateCustomer = ({
       setLoading(true);
       clearFieldErrors();
 
+      // Frontend validation
+      const errors = {};
+      if (!formData.name?.trim()) {
+        errors.name = t("validation.required", { field: t("customers.customerName") });
+      }
+
+      // Email || Phone required: At least one of them must be present
+      if (!formData.phone?.trim() && !formData.email?.trim()) {
+        const errorMsg = t("validation.eitherPhoneOrEmailRequired") || "Either Phone or Email is required";
+        errors.phone = errorMsg;
+        errors.email = errorMsg;
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
       // Prepare payload: make companyDetails optional (omit when empty)
       const payload = (() => {
         const data = { ...formData };

@@ -7,5 +7,6 @@
   "invalidNumber": "Kripya valid number enter karo",
   "invalidDate": "Kripya valid date enter karo",
   "invalidUrl": "Kripya valid URL enter karo",
-  "fixErrors": "Kripya form mein validation errors fix karo."
+  "fixErrors": "Kripya form mein validation errors fix karo.",
+  "eitherPhoneOrEmailRequired": "Phone ya Email mein se ek hona zaroori hai"
 }
