@@ -461,10 +461,7 @@ const CheckoutContent = () => {
   }
 
   // Main Render
-  const highlightedFeatures =
-    packageData?.featureUsageLimits?.filter(
-      (feature) => feature.enabled !== false && feature.highlight
-    ) || [];
+  const highlights = packageData?.highlights || [];
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] pt-20 md:pt-24">
@@ -535,21 +532,21 @@ const CheckoutContent = () => {
                   </div>
 
                   {/* Features Section */}
-                  {highlightedFeatures.length > 0 && (
+                  {highlights.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold mb-4 text-[rgb(var(--color-text-primary))] flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-[rgb(var(--color-primary))]" />
                         What's Included
                       </h3>
                       <div className="space-y-2">
-                        {highlightedFeatures.map((feature, index) => (
+                        {highlights.map((highlight, index) => (
                           <div
                             key={index}
                             className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
                           >
                             <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-[rgb(var(--color-text-primary))]">
-                              {feature.highlight}
+                              {highlight}
                             </p>
                           </div>
                         ))}
@@ -704,16 +701,16 @@ const CheckoutContent = () => {
 
                 {warning && (
                   <div className={`p-4 rounded-lg border ${warning.type === 'downgrade'
-                      ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-                      : warning.type === 'renewal'
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                        : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                    ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+                    : warning.type === 'renewal'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                      : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
                     }`}>
                     <div className={`flex items-start gap-2 ${warning.type === 'downgrade'
-                        ? 'text-orange-700 dark:text-orange-400'
-                        : warning.type === 'renewal'
-                          ? 'text-blue-700 dark:text-blue-400'
-                          : 'text-yellow-700 dark:text-yellow-400'
+                      ? 'text-orange-700 dark:text-orange-400'
+                      : warning.type === 'renewal'
+                        ? 'text-blue-700 dark:text-blue-400'
+                        : 'text-yellow-700 dark:text-yellow-400'
                       }`}>
                       <Shield className="w-5 h-5 flex-shrink-0 mt-0.5" />
                       <div className="flex-1">

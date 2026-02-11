@@ -111,18 +111,18 @@ const FeatureDisplay = ({
   // Group features by category
   const groupedFeatures = showCategories
     ? features.reduce((acc, feature) => {
-        const featureKey = feature.featureKey || feature.key;
-        const category =
-          Object.keys(FEATURE_CATEGORIES).find((cat) =>
-            FEATURE_CATEGORIES[cat].includes(featureKey)
-          ) || "Other";
+      const featureKey = feature.featureKey || feature.key;
+      const category =
+        Object.keys(FEATURE_CATEGORIES).find((cat) =>
+          FEATURE_CATEGORIES[cat].includes(featureKey)
+        ) || "Other";
 
-        if (!acc[category]) {
-          acc[category] = [];
-        }
-        acc[category].push(feature);
-        return acc;
-      }, {})
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(feature);
+      return acc;
+    }, {})
     : { "All Features": features };
 
   const toggleCategory = (category) => {
@@ -147,32 +147,25 @@ const FeatureDisplay = ({
       return (
         <div
           key={index}
-          className={`flex items-center justify-between p-2 rounded-lg transition-all ${
-            isEnabled
-              ? "bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
-              : "bg-gray-50 dark:bg-gray-800 opacity-50"
-          }`}
+          className={`flex items-center justify-between p-2 rounded-lg transition-all ${isEnabled
+            ? "bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
+            : "bg-gray-50 dark:bg-gray-800 opacity-50"
+            }`}
           onMouseEnter={() => setHoveredFeature(index)}
           onMouseLeave={() => setHoveredFeature(null)}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Icon
-              className={`w-4 h-4 flex-shrink-0 ${
-                isEnabled ? "text-[rgb(var(--color-primary))]" : "text-gray-400"
-              }`}
+              className={`w-4 h-4 flex-shrink-0 ${isEnabled ? "text-[rgb(var(--color-primary))]" : "text-gray-400"
+                }`}
             />
             <div className="flex-1 min-w-0">
               <span className="text-sm text-[rgb(var(--color-text-primary))] truncate block">
                 {featureName}
               </span>
-              {highlight && (
-                <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-0.5 italic truncate">
-                  {highlight}
-                </p>
-              )}
             </div>
           </div>
-          {isEnabled && !highlight && badge && (
+          {isEnabled && badge && (
             <div
               className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}
             >
@@ -188,28 +181,25 @@ const FeatureDisplay = ({
       return (
         <div
           key={index}
-          className={`p-4 rounded-xl border transition-all ${
-            isEnabled
-              ? "bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:shadow-md"
-              : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50"
-          }`}
+          className={`p-4 rounded-xl border transition-all ${isEnabled
+            ? "bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:shadow-md"
+            : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-50"
+            }`}
           onMouseEnter={() => setHoveredFeature(index)}
           onMouseLeave={() => setHoveredFeature(null)}
         >
           <div className="flex items-start justify-between mb-3">
             <div
-              className={`p-2 rounded-lg ${
-                isEnabled
-                  ? "bg-[rgb(var(--color-primary))]/10"
-                  : "bg-gray-200 dark:bg-gray-700"
-              }`}
+              className={`p-2 rounded-lg ${isEnabled
+                ? "bg-[rgb(var(--color-primary))]/10"
+                : "bg-gray-200 dark:bg-gray-700"
+                }`}
             >
               <Icon
-                className={`w-5 h-5 ${
-                  isEnabled
-                    ? "text-[rgb(var(--color-primary))]"
-                    : "text-gray-400"
-                }`}
+                className={`w-5 h-5 ${isEnabled
+                  ? "text-[rgb(var(--color-primary))]"
+                  : "text-gray-400"
+                  }`}
               />
             </div>
             {isEnabled ? (
@@ -221,11 +211,7 @@ const FeatureDisplay = ({
           <h4 className="font-semibold text-[rgb(var(--color-text-primary))] mb-1">
             {featureName}
           </h4>
-          {highlight ? (
-            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 italic">
-              {highlight}
-            </p>
-          ) : (
+          {
             isEnabled &&
             badge && (
               <div
@@ -235,8 +221,8 @@ const FeatureDisplay = ({
                 <span>{badge.label}</span>
               </div>
             )
-          )}
-        </div>
+          }
+        </div >
       );
     }
 
@@ -244,25 +230,22 @@ const FeatureDisplay = ({
     return (
       <div
         key={index}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-all ${
-          isEnabled
-            ? "bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
-            : "bg-gray-50 dark:bg-gray-800 opacity-50"
-        }`}
+        className={`flex items-start gap-3 p-3 rounded-lg transition-all ${isEnabled
+          ? "bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
+          : "bg-gray-50 dark:bg-gray-800 opacity-50"
+          }`}
         onMouseEnter={() => setHoveredFeature(index)}
         onMouseLeave={() => setHoveredFeature(null)}
       >
         <div
-          className={`p-2 rounded-lg flex-shrink-0 ${
-            isEnabled
-              ? "bg-[rgb(var(--color-primary))]/10"
-              : "bg-gray-200 dark:bg-gray-700"
-          }`}
+          className={`p-2 rounded-lg flex-shrink-0 ${isEnabled
+            ? "bg-[rgb(var(--color-primary))]/10"
+            : "bg-gray-200 dark:bg-gray-700"
+            }`}
         >
           <Icon
-            className={`w-4 h-4 ${
-              isEnabled ? "text-[rgb(var(--color-primary))]" : "text-gray-400"
-            }`}
+            className={`w-4 h-4 ${isEnabled ? "text-[rgb(var(--color-primary))]" : "text-gray-400"
+              }`}
           />
         </div>
         <div className="flex-1 min-w-0">
@@ -271,12 +254,7 @@ const FeatureDisplay = ({
               <h4 className="font-medium text-[rgb(var(--color-text-primary))] mb-1">
                 {featureName}
               </h4>
-              {highlight ? (
-                <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1 italic">
-                  {highlight}
-                </p>
-              ) : (
-                isEnabled &&
+              {isEnabled &&
                 usageType &&
                 usageType !== "UNLIMITED" && (
                   <p className="text-xs text-[rgb(var(--color-text-secondary))]">
@@ -287,8 +265,7 @@ const FeatureDisplay = ({
                     {usageType === "DAILY_ROLLING" &&
                       "Daily limit with monthly total"}
                   </p>
-                )
-              )}
+                )}
             </div>
             {isEnabled ? (
               <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -296,7 +273,7 @@ const FeatureDisplay = ({
               <XCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
             )}
           </div>
-          {isEnabled && !highlight && badge && (
+          {isEnabled && badge && (
             <div
               className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-medium ${badge.className}`}
             >
@@ -355,11 +332,10 @@ const FeatureDisplay = ({
             </button>
             {isExpanded && (
               <div
-                className={`p-4 space-y-2 ${
-                  variant === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-                    : "space-y-2"
-                }`}
+                className={`p-4 space-y-2 ${variant === "grid"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+                  : "space-y-2"
+                  }`}
               >
                 {displayCategoryFeatures.map((feature, index) =>
                   renderFeature(feature, index)
