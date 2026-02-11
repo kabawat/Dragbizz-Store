@@ -67,7 +67,7 @@ import {
   VelocityLedgerTemplate,
   VintageTemplate,
   ZenithTemplate,
-} from "@/components/invoice/templates";
+} from "@/components/templates/invoice";
 
 export const getTemplateComponent = (selectedTemplate) => {
   const templates = {
