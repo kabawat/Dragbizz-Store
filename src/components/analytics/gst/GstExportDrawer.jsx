@@ -3,7 +3,9 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
-import { exportToCSV, exportToXLSX } from "@/utils/exportUtils";
+import { exportToCSV } from "@/utils/exportUtils";
+import exportGstr2bExcel from "@/utils/excel/gst/exportGstr2bExcel";
+import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
 const MONTH_OPTIONS = [
@@ -30,6 +32,7 @@ const FORMAT_OPTIONS = [
 const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
   const { t } = useTranslation();
   const { showError } = useGlobalToast();
+  const { selectedStore } = useAppSelector((state) => state.profile);
   const [period, setPeriod] = useState({ month: "", quarter: "", year: new Date().getFullYear() });
   const [format, setFormat] = useState("xlsx");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -55,15 +58,41 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
         }
         exportToCSV(rows, baseName, (err) => err && showError(err));
       } else if (format === "xlsx") {
-        const rows = data.gstr1?.length ? data.gstr1 : data.hsnWise || [];
-        if (rows.length === 0) {
+        const rows = data.gstr1?.map(item => ({
+          gstin: item.customerGstin || "N/A",
+          tradeName: item.customerName || "N/A",
+          invoiceType: "Regular",
+          invoiceDate: item.invoiceDate ? new Date(item.invoiceDate).toLocaleDateString("en-IN") : "N/A",
+          invoiceValue: item.taxableValue + item.cgst + item.sgst + item.igst + item.cess,
+          taxableValue: item.taxableValue,
+          cgst: item.cgst,
+          sgst: item.sgst,
+          igst: item.igst,
+          cess: item.cess,
+          itc: "Yes"
+        })) || [];
+
+        if (rows.length === 0 && (!data.hsnWise || data.hsnWise.length === 0)) {
           showError("No data to export");
           return;
         }
-        await exportToXLSX(rows, baseName, {
-          sheetName: "GSTR Export",
-          onError: (err) => showError(err || "Export failed"),
-        });
+
+        const exportMetadata = {
+          financialYear: `${period.year}-${(period.year + 1).toString().slice(-2)}`,
+          taxPeriod: period.month ? MONTH_OPTIONS.find(m => m.value === period.month)?.label : (period.quarter ? `Q${period.quarter}` : "Full Year"),
+          gstin: selectedStore?.gstNumber || "N/A",
+          legalName: selectedStore?.name || "N/A",
+          tradeName: selectedStore?.name || "N/A",
+          generationDate: new Date().toLocaleDateString("en-IN")
+        };
+
+        // Combine metadata with rows for the export tool
+        const finalExportData = {
+          ...exportMetadata,
+          gstr1: rows
+        };
+
+        await exportGstr2bExcel(finalExportData, `${baseName}.xlsx`);
       }
 
       onClose();

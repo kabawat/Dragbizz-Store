@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { SignaturePreview } from "@/components/common";
@@ -109,13 +109,15 @@ const CreatePurchaseOrder = () => {
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
   const productsFetchedRef = useRef({ storeId: null, fetched: false });
+  const signaturesFetchedRef = useRef({ agencyId: null, fetched: false });
 
   // Get stable storeId
   const storeId =
     selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const agencyId = selectedStore?.agency || selectedStore?.agencyId;
 
   // Fetch suppliers
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     if (!storeId) return;
 
     // Prevent duplicate calls for the same store
@@ -147,10 +149,10 @@ const CreatePurchaseOrder = () => {
     } finally {
       setSuppliersLoading(false);
     }
-  };
+  }, [storeId, suppliersLoading]);
 
   // Fetch products
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!storeId) return;
 
     if (
@@ -180,34 +182,40 @@ const CreatePurchaseOrder = () => {
     } finally {
       setProductsLoading(false);
     }
-  };
+  }, [storeId, productsLoading]);
 
   // Reset refs when storeId changes
   useEffect(() => {
     if (
       storeId &&
       (suppliersFetchedRef.current.storeId !== storeId ||
-        productsFetchedRef.current.storeId !== storeId)
+        productsFetchedRef.current.storeId !== storeId ||
+        signaturesFetchedRef.current.agencyId !== agencyId)
     ) {
       suppliersFetchedRef.current = { storeId: null, fetched: false };
       productsFetchedRef.current = { storeId: null, fetched: false };
+      signaturesFetchedRef.current = { agencyId: null, fetched: false };
     }
-  }, [storeId]);
+  }, [storeId, agencyId]);
 
-  // Fetch data on mount or store change (only once per store)
-  useEffect(() => {
-    if (!storeId) return;
+  const fetchSignatures = useCallback(async () => {
+    if (!agencyId) return;
 
-    fetchSuppliers();
-    fetchProducts();
-    fetchSignatures();
-  }, [storeId, fetchProducts, fetchSuppliers]);
+    if (
+      signaturesFetchedRef.current.agencyId === agencyId &&
+      signaturesFetchedRef.current.fetched
+    ) {
+      return;
+    }
 
-  const fetchSignatures = async () => {
-    if (!storeId) return;
+    if (signaturesLoading) {
+      return;
+    }
+
+    signaturesFetchedRef.current = { agencyId, fetched: true };
+
     try {
       setSignaturesLoading(true);
-      const agencyId = selectedStore?.agency || selectedStore?.agencyId;
       const result = await signatureService.getSignatures({ agencyId });
       if (result.success) {
         setSignatures(result.data || []);
@@ -217,7 +225,16 @@ const CreatePurchaseOrder = () => {
     } finally {
       setSignaturesLoading(false);
     }
-  };
+  }, [agencyId, signaturesLoading]);
+
+  // Fetch data on mount or store change (only once per store)
+  useEffect(() => {
+    if (!storeId) return;
+
+    fetchSuppliers();
+    fetchProducts();
+    fetchSignatures();
+  }, [storeId, fetchProducts, fetchSuppliers, fetchSignatures]);
 
   const handleSignatureSuccess = (newSignature) => {
     setSignatures((prev) => [newSignature, ...prev]);
@@ -1786,9 +1803,9 @@ const CreatePurchaseOrder = () => {
                                   </div>
 
                                   {/* Existing Signatures */}
-                                  {signatures.map((sig) => (
+                                  {signatures.map((sig, index) => (
                                     <div
-                                      key={sig._id}
+                                      key={sig._id || sig.id || index}
                                       onClick={() =>
                                         setSelectedSignature(
                                           selectedSignature === sig._id ? "" : sig._id
