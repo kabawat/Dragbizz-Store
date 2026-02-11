@@ -202,5 +202,7 @@
   "documentsNonEditable": "Documents are non-editable after signing",
   "auditTrail": "Audit Trail",
   "comingSoon": "Coming Soon...",
-  "securelyVerifyIdentity": "Securely verify your identity using your electronic ID. This links your signature to a verified persona."
+  "securelyVerifyIdentity": "Securely verify your identity using your electronic ID. This links your signature to a verified persona.",
+  "copyLinkNotAvailable": "Invoice link not available",
+  "copyFailed": "Failed to copy link"
 }

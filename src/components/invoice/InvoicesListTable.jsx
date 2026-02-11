@@ -107,6 +107,7 @@ const InvoicesListTable = ({
   };
 
   const handleCopyLink = async (row) => {
+    console.log("row", row)
     const shareUrl = buildShareUrl(row);
     if (!shareUrl) {
       showError(t("invoice.copyLinkNotAvailable") || "Invoice link not available");

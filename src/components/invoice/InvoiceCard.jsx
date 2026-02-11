@@ -53,6 +53,40 @@ const InvoiceCard = ({
   const isDraft = invoiceStatus === "DRAFT";
   const isReleased = invoiceStatus === "RELEASED";
 
+  const buildShareUrl = (inv) => {
+    console.log("inv", inv)
+    if (typeof window === "undefined") return "";
+    const publicId = inv.publicId;
+    if (!publicId) return "";
+    const base = window.location.origin;
+    return `${base}/view/invoice/${publicId}`;
+  };
+
+  const handleCopy = async (text) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      // Fallback
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      document.body.removeChild(textarea);
+      return false;
+    }
+  };
+
   const actionMenuItems = [
     {
       value: "view",
@@ -71,6 +105,12 @@ const InvoiceCard = ({
       label: t("invoice.shareOnWhatsApp"),
       icon: MessageCircle,
       onClick: () => {
+        const shareUrl = buildShareUrl(invoice);
+        if (!shareUrl) {
+          // If publicId missing, fallback to raw text or show error
+          // For now, let's just proceed with basic text
+        }
+
         const invoiceNumber =
           invoice.invoiceNumber ||
           invoice.invoice_number ||
@@ -82,13 +122,32 @@ const InvoiceCard = ({
           invoice.customer?.name ||
           invoice.customerName ||
           t("invoice.customer");
-        const message = t("invoice.whatsappShareMessage", {
+
+        let message = t("invoice.whatsappShareMessage", {
           invoiceNumber,
           customerName,
           totalAmount,
         });
+
+        if (shareUrl) {
+          message += `\n\nLink: ${shareUrl}`;
+        }
+
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, "_blank");
+      },
+    },
+    {
+      value: "copyLink",
+      label: t("common.copyLink"),
+      icon: Copy,
+      onClick: async () => {
+        const shareUrl = buildShareUrl(invoice);
+        if (!shareUrl) {
+          console.error("Public ID missing");
+          return;
+        }
+        await handleCopy(shareUrl);
       },
     },
     {
@@ -109,33 +168,33 @@ const InvoiceCard = ({
     {
       value: "duplicate",
       label: t("common.duplicate"),
-      icon: Copy,
+      icon: FileText, // Changed icon to distinguish from Copy Link
       onClick: () => onDuplicate?.(invoice.id || invoice._id),
     },
     // Show payment status update for RELEASED invoices
     ...(isReleased && onUpdatePaymentStatus
       ? [
-          {
-            value: "paymentStatus",
-            label: t("invoice.paymentStatus"),
-            icon: CreditCard,
-            onClick: () =>
-              onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
-            className: "cursor-pointer",
-          },
-        ]
+        {
+          value: "paymentStatus",
+          label: t("invoice.paymentStatus"),
+          icon: CreditCard,
+          onClick: () =>
+            onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
+          className: "cursor-pointer",
+        },
+      ]
       : []),
     // Only show delete if invoice is DRAFT
     ...(isDraft
       ? [
-          {
-            value: "delete",
-            label: t("common.delete"),
-            icon: Trash2,
-            onClick: () => onDelete?.(invoice),
-            className: "cursor-pointer text-red-600 hover:text-red-700",
-          },
-        ]
+        {
+          value: "delete",
+          label: t("common.delete"),
+          icon: Trash2,
+          onClick: () => onDelete?.(invoice),
+          className: "cursor-pointer text-red-600 hover:text-red-700",
+        },
+      ]
       : []),
   ];
 
@@ -157,11 +216,10 @@ const InvoiceCard = ({
 
   return (
     <Card
-      className={`relative transition-all duration-200 group ${
-        selected
-          ? "ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 border-l-4 border-l-[rgb(var(--color-primary))]"
-          : "hover:bg-[rgb(var(--color-bg-tertiary))]"
-      } ${className}`}
+      className={`relative transition-all duration-200 group ${selected
+        ? "ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 border-l-4 border-l-[rgb(var(--color-primary))]"
+        : "hover:bg-[rgb(var(--color-bg-tertiary))]"
+        } ${className}`}
       {...props}
     >
       {/* Selection Checkbox */}
@@ -207,12 +265,11 @@ const InvoiceCard = ({
                     item.onClick();
                   }}
                   disabled={item.disabled}
-                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 ${
-                    item.disabled
-                      ? "text-[rgb(var(--color-text-tertiary))] cursor-not-allowed"
-                      : item.className ||
-                        "text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  }`}
+                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 ${item.disabled
+                    ? "text-[rgb(var(--color-text-tertiary))] cursor-not-allowed"
+                    : item.className ||
+                    "text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                    }`}
                 >
                   <item.icon className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {item.label}
