@@ -9,7 +9,7 @@ import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 
-const ReleaseInvoiceModal = ({ onClose, invoice }) => {
+const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -29,7 +29,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
   useEffect(() => {
     if (invoice) {
       // Set default payment status and paidAmount
-      setPaymentStatus(invoice?.paymentStatus || "PAID");
+      setPaymentStatus("PAID");
       setPaidAmount(totalAmount ? totalAmount.toString() : "");
       setErrors({});
     }
@@ -102,10 +102,15 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
         };
         await dispatch(getInvoices(refreshParams));
 
+        if (onSuccess) {
+          onSuccess(result.data || invoiceId);
+        }
         onClose();
 
         // Auto-redirect to view invoice page after successful release
-        router.push(`/dashboard/invoices/view/${invoiceId}`);
+        if (router.pathname !== `/dashboard/invoices/view/[invoiceId]`) {
+          router.push(`/dashboard/invoices/view/${invoiceId}`);
+        }
       } else {
         showError(
           result.message || "Failed to release invoice. Please try again."
@@ -142,7 +147,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
           it cannot be edited afterwards.
         </p>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
             Payment Status
           </label>
           <Select
@@ -160,7 +165,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice }) => {
 
         {(paymentStatus === "PAY_LATTER" || paymentStatus === "PAID") && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
               {t("invoice.paidAmount")} {t("common.optional")}
             </label>
             <Input

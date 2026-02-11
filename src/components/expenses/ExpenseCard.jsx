@@ -7,7 +7,6 @@ import {
   Eye,
   FileText,
   IndianRupee,
-  MoreVertical,
   Trash2,
 } from "lucide-react";
 import {
@@ -17,6 +16,7 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  IconButton,
 } from "@/components/ui";
 import {
   getCategoryLabel,
@@ -77,11 +77,10 @@ const ExpenseCard = ({
 
   return (
     <Card
-      className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-        isSelected
+      className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${isSelected
           ? "ring-2 ring-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5"
           : ""
-      }`}
+        }`}
       onClick={() => onSelect?.(id)}
     >
       <CardHeader className="pb-3">
@@ -103,17 +102,11 @@ const ExpenseCard = ({
             </Badge>
 
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-[rgb(var(--color-bg-secondary))]"
+              <IconButton
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Handle menu toggle
                 }}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
+              />
             </div>
           </div>
         </div>

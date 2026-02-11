@@ -23,6 +23,7 @@ import Divider from "./Divider";
 import Dropdown from "./Dropdown";
 import ErrorModal from "./ErrorModal";
 import FileUpload from "./FileUpload";
+import IconButton from "./IconButton";
 import Input from "./Input";
 import Loading, {
   CircularProgress,
@@ -124,6 +125,7 @@ export {
   Toast,
   ToastContainer,
   ErrorModal,
+  IconButton,
 };
 
 // Default export
@@ -192,4 +194,5 @@ export default {
   Toast,
   ToastContainer,
   ErrorModal,
+  IconButton,
 };

@@ -5,7 +5,7 @@ const cancelTokens = new Map();
 export const createCancelToken = (key) => {
   if (cancelTokens.has(key)) {
     const existingToken = cancelTokens.get(key);
-    existingToken.cancel("Request cancelled: new request initiated");
+    // existingToken.cancel("Request cancelled: new request initiated");
   }
 
   const source = axios.CancelToken.source();

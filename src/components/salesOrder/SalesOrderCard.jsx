@@ -1,7 +1,8 @@
 import moment from "moment";
-import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
+import { Eye, Printer, Clock, CheckCircle, Package, XCircle, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { IconButton } from "../ui";
 
 const StatusBadge = ({ status }) => {
     const styles = {
@@ -105,7 +106,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     };
 
     return (
-        <div className="w-full rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+        <div className="w-full rounded-xl border border-[rgb(var(--color-border-primary))]/50 transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))]">
             {/* Header Section with Gradient */}
             <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative">
                 <div className="w-full h-full flex items-center justify-center">
@@ -121,13 +122,10 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
 
                 {/* Action Menu */}
                 <div className="absolute top-3 right-3" ref={menuRef}>
-                    <button
+                    <IconButton
                         onClick={() => handleMenuToggle(order.id || order._id)}
-                        className="p-2 bg-[rgb(var(--color-bg-primary))]/90 rounded-lg transition-all duration-200 group/btn cursor-pointer"
                         title={t("common.actions")}
-                    >
-                        <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                    </button>
+                    />
                     {openMenuId === (order.id || order._id) && (
                         <div className="absolute right-0 mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-xl border border-[rgb(var(--color-border-primary))] py-1 z-50">
                             {_actionMenuItems.map((item) => (
