@@ -4,7 +4,6 @@ import {
   Edit,
   Eye,
   Mail,
-  MoreVertical,
   Phone,
   Printer,
   Trash2,
@@ -13,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Badge } from "../ui";
+import { Badge, IconButton } from "../ui";
 
 const SupplierCard = ({
   supplier,
@@ -133,13 +132,9 @@ const SupplierCard = ({
         {/* Action Menu */}
         <div className="absolute top-4 right-4">
           <div className="relative" ref={menuRef}>
-            <button
+            <IconButton
               onClick={() => handleMenuToggle(supplier.id)}
-              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t("common.actions")}
-            >
-              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-            </button>
+            />
 
             {/* Popup Menu */}
             {openMenuId === supplier.id && (

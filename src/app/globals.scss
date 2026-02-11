@@ -1148,11 +1148,6 @@ input:-moz-autofill-preview {
   background-color: rgba(var(--color-primary), 0.1) !important;
 }
 
-/* Specific hover for dropdown items only - Hardcoded colors for dark mode */
-[data-variant="dark"] .px-4.py-2.cursor-pointer:hover {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
 /* More specific hover for individual option items - Hardcoded colors */
 [data-variant="dark"] .select-dropdown .px-4.py-2.cursor-pointer:hover {
   background-color: rgba(59, 130, 246, 0.1) !important;
@@ -1160,11 +1155,6 @@ input:-moz-autofill-preview {
 
 /* Ensure only individual items get hover effect - Hardcoded colors */
 [data-variant="dark"] .max-h-48 .px-4.py-2:hover {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-/* Light mode hover effects for Select dropdown options - Hardcoded colors */
-[data-variant="light"] .px-4.py-2.cursor-pointer:hover {
   background-color: rgba(59, 130, 246, 0.1) !important;
 }
 

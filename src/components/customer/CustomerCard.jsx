@@ -3,7 +3,6 @@ import {
   Edit,
   Eye,
   Mail,
-  MoreVertical,
   Phone,
   Trash2,
   Users,
@@ -12,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { Badge } from "../ui";
+import { Badge, IconButton } from "../ui";
 
 const CustomerCard = ({
   customer,
@@ -110,13 +109,9 @@ const CustomerCard = ({
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
-            <button
+            <IconButton
               onClick={() => handleMenuToggle(customer.id)}
-              className="p-2 bg-white/90 dark:bg-[rgb(var(--color-bg-primary))]/90 hover:bg-white dark:hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer border border-[rgb(var(--color-border-primary))]/20"
-              title={t("common.actions")}
-            >
-              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-            </button>
+            />
 
             {/* Popup Menu */}
             {openMenuId === customer.id && (

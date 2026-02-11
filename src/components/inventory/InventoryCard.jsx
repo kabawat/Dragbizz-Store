@@ -3,7 +3,6 @@ import {
   Copy,
   Edit,
   Eye,
-  MoreVertical,
   Package,
   Trash2,
   TrendingUp,
@@ -13,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Badge } from "../ui";
+import { Badge, IconButton } from "../ui";
 
 const InventoryCard = ({
   inventory,
@@ -86,40 +85,6 @@ const InventoryCard = ({
   const profitMargin = inventory.pricingSummary?.profitMargin || 0;
   const totalValue = inventory.pricingSummary?.totalSellingValue || 0;
 
-  const _actionMenuItems = [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(inventory.id),
-    },
-    {
-      value: "stock-in",
-      label: t("inventory.addStock"),
-      icon: TrendingUp,
-      onClick: () => onStockIn?.(inventory.id),
-      className: "text-green-600 hover:text-green-700",
-    },
-    {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(inventory.id),
-    },
-    {
-      value: "duplicate",
-      label: t("common.duplicate"),
-      icon: Copy,
-      onClick: () => onDuplicate?.(inventory.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(inventory.id),
-    },
-  ];
-
   const handleMenuToggle = (inventoryId) => {
     setOpenMenuId(openMenuId === inventoryId ? null : inventoryId);
   };
@@ -150,7 +115,7 @@ const InventoryCard = ({
   // Grid view - Modern Card Design
   return (
     <div
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? "ring-2 ring-blue-500" : ""} ${className}`}
+      className={`w-full max-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${selected ? "ring-2 ring-blue-500" : ""} ${className}`}
       {...props}
     >
       {/* Checkbox */}
@@ -200,13 +165,9 @@ const InventoryCard = ({
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
-            <button
+            <IconButton
               onClick={() => handleMenuToggle(inventory.id)}
-              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t("common.actions")}
-            >
-              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-            </button>
+            />
 
             {/* Popup Menu */}
             {openMenuId === inventory.id && (

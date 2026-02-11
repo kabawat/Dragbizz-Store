@@ -4,7 +4,6 @@ import {
   Copy,
   Edit,
   Eye,
-  MoreVertical,
   Package,
   Trash2,
 } from "lucide-react";
@@ -12,7 +11,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "../../contexts/ThemeContext";
-import { Badge } from "../ui";
+import { Badge, IconButton } from "../ui";
 
 const ProductCard = ({
   product,
@@ -186,13 +185,9 @@ const ProductCard = ({
         {/* Action Menu */}
         <div className="absolute top-4 right-4 z-10">
           <div className="relative" ref={menuRef}>
-            <button
+            <IconButton
               onClick={() => handleMenuToggle(product.id)}
-              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
-              title={t("common.actions")}
-            >
-              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-            </button>
+            />
 
             {/* Popup Menu */}
             {openMenuId === product.id && (

@@ -225,10 +225,12 @@ const CreateInvoicePage = () => {
 
       if (handled.type === "success") {
         if (quotaRefreshRef.current) quotaRefreshRef.current();
-        setTimeout(() => {
-          const invoiceId = result.data?.id || result.data?._id;
-          router.push(invoiceId ? `/dashboard/invoices/view/${invoiceId}` : "/dashboard/invoices");
-        }, 1500);
+        const invoiceId = result?.data?.id || null;
+        router.push(
+          invoiceId
+            ? `/dashboard/invoices/view/${invoiceId}`
+            : "/dashboard/invoices"
+        );
       }
     } catch (error) {
       handleApiError(error, "invoice-creation");

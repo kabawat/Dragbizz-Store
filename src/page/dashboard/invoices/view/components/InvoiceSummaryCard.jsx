@@ -26,11 +26,15 @@ const InvoiceSummaryCard = ({
               {invoiceData.invoiceNumber}
             </h3>
             <div className="flex space-x-1">
-              <Badge className={getStatusColor(invoiceData?.invoiceStatus)}>
+              <Badge
+                size="xs"
+                className={`${getStatusColor(invoiceData?.invoiceStatus)} text-[10px] px-2 py-0`}
+              >
                 {invoiceData?.invoiceStatus}
               </Badge>
               <Badge
-                className={getPaymentStatusColor(invoiceData.paymentStatus)}
+                size="xs"
+                className={`${getPaymentStatusColor(invoiceData.paymentStatus)} text-[10px] px-2 py-0`}
               >
                 {invoiceData.paymentStatus}
               </Badge>

@@ -1,8 +1,8 @@
 "use client";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Download, Plus, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import {
@@ -57,37 +57,36 @@ const ViewInvoicePage = ({ invoiceId }) => {
     ? calculateSubtotal(invoiceData, calculatedGstAmount, itemsWithGst)
     : 0;
 
-  // Fetch invoice data on component mount
-  useEffect(() => {
-    const fetchInvoiceData = async () => {
-      if (hasFetched.current) return;
-      hasFetched.current = true;
+  // Fetch invoice data
+  const fetchInvoiceData = useCallback(async () => {
+    if (!invoiceId || !storeId) return;
 
-      try {
-        setFetching(true);
-        const result = await invoiceService.getInvoices({
-          id: invoiceId,
-          store: storeId,
-        });
-        if (result.success && result.data) {
-          setInvoiceData(result.data);
-        } else {
-          showError(
-            result.message ||
-              t("errors.failedToFetchData", { item: t("common.invoice") })
-          );
-        }
-      } catch (_error) {
+    try {
+      setFetching(true);
+      const result = await invoiceService.getInvoices({
+        id: invoiceId,
+        store: storeId,
+      });
+      if (result.success && result.data) {
+        setInvoiceData(result.data);
+      } else {
         showError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
+          result.message ||
+          t("errors.failedToFetchData", { item: t("common.invoice") })
         );
-      } finally {
-        setFetching(false);
       }
-    };
-
-    fetchInvoiceData();
+    } catch (_error) {
+      showError(
+        t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
+      );
+    } finally {
+      setFetching(false);
+    }
   }, [invoiceId, storeId, showError, t]);
+
+  useEffect(() => {
+    fetchInvoiceData();
+  }, [fetchInvoiceData]);
 
   // Load default template from localStorage
   useEffect(() => {
@@ -125,7 +124,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.invoice") })
+          t("errors.failedToDelete", { item: t("common.invoice") })
         );
       }
     } catch (_error) {
@@ -167,7 +166,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToCancel", { item: t("common.invoice") })
+          t("errors.failedToCancel", { item: t("common.invoice") })
         );
       }
     } catch (_error) {
@@ -212,7 +211,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
       } else {
         showError(
           result.message ||
-            t("errors.failedToRelease", { item: t("common.invoice") })
+          t("errors.failedToRelease", { item: t("common.invoice") })
         );
       }
     } catch (_error) {
@@ -353,11 +352,33 @@ const ViewInvoicePage = ({ invoiceId }) => {
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm font-medium">Back to Invoices</span>
                 </Link>
-                <Link href="/dashboard/invoices/add">
-                  <Button variant="primary" leftIcon={Plus}>
-                    Create New Invoice
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-3">
+                  {invoiceData?.invoiceStatus === "RELEASED" && (
+                    <Button
+                      variant="outline"
+                      onClick={handleUpdatePaymentStatus}
+                      leftIcon={CreditCard}
+                      className="h-9"
+                    >
+                      {t("invoice.updatePaymentStatus")}
+                    </Button>
+                  )}
+                  {invoiceData?.invoiceStatus !== "DRAFT" && (
+                    <Button
+                      variant="outline"
+                      onClick={() => handleDownloadPDF(invoiceData, invoiceId)}
+                      leftIcon={Download}
+                      className="h-9"
+                    >
+                      {t("invoice.downloadPDF")}
+                    </Button>
+                  )}
+                  <Link href="/dashboard/invoices/add">
+                    <Button variant="primary" leftIcon={Plus} className="h-9">
+                      Create New Invoice
+                    </Button>
+                  </Link>
+                </div>
               </div>
               {/* Invoice Details - Two Column Layout */}
               {invoiceData && (
@@ -440,26 +461,21 @@ const ViewInvoicePage = ({ invoiceId }) => {
           isCancelling={isCancelling}
         />
 
-        <ReleaseInvoiceModal
-          isOpen={showReleaseModal}
-          onClose={() => setShowReleaseModal(false)}
-          onConfirm={handleConfirmRelease}
-          invoiceNumber={invoiceData?.invoiceNumber}
-          paymentStatus={paymentStatus}
-          onPaymentStatusChange={(value) => setPaymentStatus(value)}
-          isReleasing={isReleasing}
-          totalAmount={invoiceData?.totalAmount || 0}
-        />
+        {showReleaseModal && (
+          <ReleaseInvoiceModal
+            onClose={() => setShowReleaseModal(false)}
+            onSuccess={fetchInvoiceData}
+            invoice={invoiceData}
+          />
+        )}
 
-        <UpdatePaymentStatusModal
-          isOpen={showPaymentStatusModal}
-          onClose={() => setShowPaymentStatusModal(false)}
-          onConfirm={handleConfirmPaymentStatusUpdate}
-          invoiceNumber={invoiceData?.invoiceNumber}
-          currentPaymentStatus={invoiceData?.paymentStatus}
-          totalAmount={invoiceData?.totalAmount || 0}
-          isUpdating={isUpdatingPayment}
-        />
+        {showPaymentStatusModal && (
+          <UpdatePaymentStatusModal
+            onClose={() => setShowPaymentStatusModal(false)}
+            onSuccess={fetchInvoiceData}
+            invoice={invoiceData}
+          />
+        )}
       </div>
     </>
   );

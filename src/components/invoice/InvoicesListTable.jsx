@@ -191,10 +191,10 @@ const InvoicesListTable = ({
             <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
-            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.status")}
             </th>
-            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.payment")}
             </th>
             <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -208,11 +208,8 @@ const InvoicesListTable = ({
             const isMenuOpen = openMenuId === invoiceId;
 
             return (
-              <tr
-                key={invoiceId}
-                className="hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
-              >
-                <td className="px-4 py-2">
+              <tr key={invoiceId} className="transition-colors">
+                <td className="px-4 py-2 cursor-pointer" onClick={() => onViewDetails?.(invoiceId)}>
                   <div className="font-medium text-[rgb(var(--color-text-primary))]">
                     {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
                   </div>

@@ -7,12 +7,12 @@ import {
   CreditCard,
   Edit,
   Eye,
-  MoreVertical,
   Receipt,
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
+import { IconButton } from "../ui";
 
 const BillCard = ({
   bill,
@@ -60,13 +60,10 @@ const BillCard = ({
             className="relative"
             ref={(el) => (menuRefs.current[bill._id || bill.id] = el)}
           >
-            <button
+            <IconButton
               onClick={() => onMenuToggle(bill._id || bill.id)}
-              className="p-2 bg-white/90 hover:bg-white rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm"
               title={t("common.moreActions")}
-            >
-              <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-            </button>
+            />
 
             {/* Popup Menu */}
             {openMenuId === (bill._id || bill.id) && (

@@ -8,7 +8,7 @@ import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
 
-const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
+const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -118,6 +118,9 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
         };
         await dispatch(getInvoices(refreshParams));
 
+        if (onSuccess) {
+          onSuccess(result.data || invoiceId);
+        }
         onClose();
       } else {
         showError(
@@ -155,7 +158,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
         </p>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+          <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
             {t("invoice.paymentStatus")}
           </label>
           <Select
@@ -172,7 +175,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
 
         {(paymentStatus === "PAY_LATTER" || paymentStatus === "PAID") && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
               {t("invoice.paidAmount")} {t("common.optional")}
             </label>
             <Input
@@ -182,11 +185,11 @@ const UpdatePaymentStatusModal = ({ onClose, invoice }) => {
               placeholder={
                 paymentStatus === "PAY_LATTER"
                   ? t("invoice.enterPaidAmount", {
-                      max: totalAmount?.toLocaleString() || 0,
-                    })
+                    max: totalAmount?.toLocaleString() || 0,
+                  })
                   : t("invoice.enterPaidAmountDefault", {
-                      amount: totalAmount?.toLocaleString() || 0,
-                    })
+                    amount: totalAmount?.toLocaleString() || 0,
+                  })
               }
               min="0"
               max={paymentStatus === "PAY_LATTER" ? totalAmount : undefined}
