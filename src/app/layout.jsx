@@ -1,4 +1,4 @@
-import "@/app/globals.scss";
+import "@/app/globals.css";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
 import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
