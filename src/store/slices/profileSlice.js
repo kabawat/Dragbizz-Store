@@ -280,7 +280,10 @@ const profileSlice = createSlice({
         } else {
           state.redirectTo = null;
         }
-        state.isInitialized = true;
+
+        if (!data?.agency_id || redirectTo) {
+          state.isInitialized = true;
+        }
       })
       .addCase(getAuthProfile.rejected, (state, action) => {
         state.authProfileLoading = false;
