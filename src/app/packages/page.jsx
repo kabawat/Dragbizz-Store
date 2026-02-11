@@ -80,8 +80,8 @@ const PackagesContent = () => {
     try {
       const response = await subscriptionService.getActiveSubscription();
       if (response.success && response.data?.packageId) {
-        const packageId = response.data.packageId._id 
-          ? response.data.packageId._id.toString() 
+        const packageId = response.data.packageId._id
+          ? response.data.packageId._id.toString()
           : response.data.packageId.toString();
         setCurrentPackageId(packageId);
       }
@@ -291,7 +291,7 @@ const PackagesContent = () => {
               const currencySymbol = getCurrencySymbol(lowestPrice.currency);
               const packageId = pkg.id || pkg._id;
               const isCurrentPlan = currentPackageId && (
-                packageId === currentPackageId || 
+                packageId === currentPackageId ||
                 packageId.toString() === currentPackageId
               );
 
@@ -370,26 +370,19 @@ const PackagesContent = () => {
                         What's Included
                       </h4>
                       <div className="space-y-2">
-                        {features
-                          .filter(
-                            (feature) =>
-                              feature.enabled !== false && feature.highlight
-                          )
-                          .map((feature, index) => (
+                        {pkg.highlights && pkg.highlights.length > 0 ? (
+                          pkg.highlights.map((highlight, index) => (
                             <div
                               key={index}
                               className="flex items-start gap-2 p-2 rounded-lg bg-[rgb(var(--color-bg-secondary))]"
                             >
                               <CheckCircle className="w-4 h-4 text-[rgb(var(--color-success))] flex-shrink-0 mt-0.5" />
                               <p className="text-sm text-[rgb(var(--color-text-primary))]">
-                                {feature.highlight}
+                                {highlight}
                               </p>
                             </div>
-                          ))}
-                        {features.filter(
-                          (feature) =>
-                            feature.enabled !== false && feature.highlight
-                        ).length === 0 && (
+                          ))
+                        ) : (
                           <p className="text-xs text-[rgb(var(--color-text-secondary))] italic">
                             No highlights available
                           </p>
@@ -421,11 +414,11 @@ const PackagesContent = () => {
                       className={pkg.isPopular && !isCurrentPlan ? colorClasses.button : ""}
                       disabled={isCurrentPlan}
                     >
-                      {isCurrentPlan 
-                        ? "Current Plan" 
-                        : upgrade 
-                        ? "Upgrade Now" 
-                        : "Select Plan"}
+                      {isCurrentPlan
+                        ? "Current Plan"
+                        : upgrade
+                          ? "Upgrade Now"
+                          : "Select Plan"}
                     </Button>
                   </div>
                 </Card>
