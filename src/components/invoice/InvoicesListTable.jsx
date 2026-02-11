@@ -203,9 +203,10 @@ const InvoicesListTable = ({
           </tr>
         </thead>
         <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-          {invoices.map((invoice) => {
+          {invoices.map((invoice, index) => {
             const invoiceId = invoice.id || invoice._id;
             const isMenuOpen = openMenuId === invoiceId;
+            const isLastItems = index >= invoices.length - 2 && invoices.length > 3;
 
             return (
               <tr key={invoiceId} className="transition-colors">
@@ -263,7 +264,7 @@ const InvoicesListTable = ({
                         className="h-9 px-3 rounded-lg"
                       />
                       {openSendMenuId === invoiceId && (
-                        <div className="absolute right-0 top-full mt-1 w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                        <div className={`absolute right-0 ${isLastItems ? 'bottom-full mb-1' : 'top-full mt-1'} w-44 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50`}>
                           <button
                             className="w-full px-3 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                             onClick={() => handleWhatsAppShare(invoice)}
@@ -307,7 +308,7 @@ const InvoicesListTable = ({
                         <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                       </button>
                       {isMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50">
+                        <div className={`absolute right-0 ${isLastItems ? 'bottom-full mb-2' : 'top-full mt-2'} w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50`}>
                           <div className="py-1">
                             <button
                               onClick={() => {
