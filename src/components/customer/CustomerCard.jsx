@@ -92,7 +92,7 @@ const CustomerCard = ({
   // Grid view - Modern Card Design
   return (
     <div
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] hover:shadow-xl transition-all duration-300 ease-out group overflow-hidden ${className}`}
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] group overflow-hidden ${className}`}
       {...props}
     >
       {/* Customer Avatar Section with Gradient Background */}
@@ -112,7 +112,7 @@ const CustomerCard = ({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => handleMenuToggle(customer.id)}
-              className="p-2 bg-white/90 dark:bg-[rgb(var(--color-bg-primary))]/90 hover:bg-white dark:hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer shadow-sm border border-[rgb(var(--color-border-primary))]/20"
+              className="p-2 bg-white/90 dark:bg-[rgb(var(--color-bg-primary))]/90 hover:bg-white dark:hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer border border-[rgb(var(--color-border-primary))]/20"
               title={t("common.actions")}
             >
               <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />

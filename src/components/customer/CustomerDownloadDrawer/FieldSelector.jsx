@@ -21,7 +21,7 @@ const FieldSelector = ({
           <button
             type="button"
             onClick={onSelectAll}
-            className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
+            className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))]  hover:bg-opacity-10 transition-colors duration-200"
           >
             {t("customers.selectAll")}
           </button>
@@ -31,7 +31,7 @@ const FieldSelector = ({
           <button
             type="button"
             onClick={onDeselectAll}
-            className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:bg-opacity-10 transition-colors duration-200"
+            className="text-xs font-medium px-2 py-1 rounded text-[rgb(var(--color-primary))]  hover:bg-opacity-10 transition-colors duration-200"
           >
             {t("customers.deselectAll")}
           </button>
