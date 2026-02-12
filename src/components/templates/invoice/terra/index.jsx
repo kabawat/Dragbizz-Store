@@ -3,7 +3,7 @@ import moment from "moment";
 import InvoiceContainer from "../InvoiceContainer";
 import styles from "./style.module.scss";
 
-const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
+const TerraTemplate = ({ invoiceData, selectedStore }) => {
     const formatCurrency = (amount) => {
         return `₹${(amount || 0).toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -13,49 +13,32 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.geometricInvoice} >
+            <div className={styles.terraInvoice} >
                 {/* Header Section */}
                 <div className={styles.header}>
-                    <h1>INVOICE</h1>
-                    <div className={styles.metaInfo}>
+                    <div className={styles.storeBlock}>
+                        <h2>{selectedStore?.storeName || "ECO RETAIL"}</h2>
+                        <p>{selectedStore?.address || "456 Green Boulevard, City"}</p>
                         <p>
-                            Invoice No:{" "}
-                            <span className={styles.valueBold}>
-                                {invoiceData.invoiceNumber}
-                            </span>
+                            {selectedStore?.phone && <span>{selectedStore.phone} | </span>}
+                            {selectedStore?.email && <span>{selectedStore.email}</span>}
                         </p>
+                    </div>
+                    <div className={styles.titleBlock}>
+                        <h1>INVOICE</h1>
                         <p>
-                            Date:{" "}
-                            <span className={styles.valueBold}>
-                                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
-                            </span>
+                            Date: <strong>{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}</strong>
                         </p>
                     </div>
                 </div>
 
-                {/* Info Grid */}
-                <div className={styles.infoSection}>
-                    {/* Store/Biller Info */}
-                    <div className={styles.infoBox}>
-                        <div className={styles.label}>Billed By</div>
-                        <span className={styles.storeName}>
-                            {selectedStore?.storeName || "Geometric Billing Corp"}
-                        </span>
-                        <p className={styles.storeInfoText}>
-                            {selectedStore?.address || "123 Structure Road, Business Park"}
-                        </p>
-                        <p className={styles.storeInfoText}>
-                            {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
-                            {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
-                        </p>
-                    </div>
-
-                    {/* Customer/Bill To Info */}
-                    <div className={styles.infoBox}>
-                        <div className={styles.label}>Bill To</div>
-                        <p className={styles.valueBold}>
+                {/* Details Section */}
+                <div className={styles.detailsGrid}>
+                    <div className={styles.detailBox}>
+                        <div className={styles.label}>Billed To</div>
+                        <div className={styles.value}>
                             {invoiceData.customer?.name || "Walk-in Customer"}
-                        </p>
+                        </div>
                         {invoiceData.customer?.email && (
                             <p>{invoiceData.customer.email}</p>
                         )}
@@ -66,17 +49,27 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                             <p>{invoiceData.customer.address}</p>
                         )}
                     </div>
+                    <div className={styles.detailBox}>
+                        <div className={styles.label}>Invoice Reference</div>
+                        <div className={styles.value}>{invoiceData.invoiceNumber}</div>
+                        <p>Issued By: {selectedStore?.storeName || "ECO RETAIL"}</p>
+                        <p>
+                            Due Date: <strong>{moment(invoiceData.createdAt)
+                                .add(7, "days")
+                                .format("MMMM DD, YYYY")}</strong>
+                        </p>
+                    </div>
                 </div>
 
-                {/* Table Selection */}
+                {/* Items Table */}
                 <div className={styles.tableContainer}>
-                    <table className={styles.geometricTable}>
+                    <table className={styles.terraTable}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Description</th>
-                                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Amount</th>
+                                <td className="font-bold" style={{ width: "50%" }}>Product / Service</td>
+                                <td className="font-bold" style={{ width: "10%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,14 +77,19 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                                 <tr key={index}>
                                     <td>
                                         <div className={styles.productName}>
-                                            {item.product?.name || "Unnamed Item"}
+                                            {item.product?.name || "Unnamed Product"}
                                         </div>
+                                        {item.product?.sku && (
+                                            <div className={styles.productSku}>
+                                                SKU: {item.product.sku}
+                                            </div>
+                                        )}
                                     </td>
                                     <td style={{ textAlign: "center" }}>{item.quantity}</td>
                                     <td style={{ textAlign: "right" }}>
                                         {formatCurrency(item.price)}
                                     </td>
-                                    <td style={{ textAlign: "right" }}>
+                                    <td style={{ textAlign: "right", fontWeight: 700 }}>
                                         {formatCurrency(item.quantity * item.price)}
                                     </td>
                                 </tr>
@@ -101,29 +99,29 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                 </div>
 
                 {/* Totals Section */}
-                <div className={styles.totalsSection}>
-                    <div className={styles.totalsTable}>
-                        <div className={styles.totalRow}>
+                <div className={styles.totalsContainer}>
+                    <div className={styles.totals}>
+                        <div className={styles.row}>
                             <div className={styles.totalLabel}>Subtotal:</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.subtotal)}
                             </div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.totalLabel}>Tax (GST):</div>
+                        <div className={styles.row}>
+                            <div className={styles.totalLabel}>GST:</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.gstAmount || 0)}
                             </div>
                         </div>
                         {invoiceData.totalDiscount > 0 && (
-                            <div className={styles.totalRow}>
+                            <div className={styles.row}>
                                 <div className={styles.totalLabel}>Discount:</div>
-                                <div className={styles.amount} style={{ color: "#c0392b" }}>
+                                <div className={styles.amount} style={{ color: "#2ecc71" }}>
                                     -{formatCurrency(invoiceData.totalDiscount)}
                                 </div>
                             </div>
                         )}
-                        <div className={styles.finalRow}>
+                        <div className={`${styles.row} ${styles.finalRow}`}>
                             <div className={styles.finalLabel}>TOTAL DUE:</div>
                             <div className={styles.finalAmount}>
                                 {formatCurrency(invoiceData.totalAmount)}
@@ -132,16 +130,20 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                     </div>
                 </div>
 
-                {/* Footer & Signature */}
+                {/* Footer */}
                 <div className={styles.footer}>
                     <p>
-                        Thank you for choosing Geometric Billing. All amounts are in INR.
+                        Thank you for supporting{" "}
+                        {selectedStore?.storeName || "our business"}!
                     </p>
-                    <div className={styles.signatureLine}>Authorized Signature</div>
+                    <p>
+                        Generated on{" "}
+                        {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
+                    </p>
                 </div>
             </div>
         </InvoiceContainer>
     );
 };
 
-export default GeometricEdgeTemplate;
+export default TerraTemplate;

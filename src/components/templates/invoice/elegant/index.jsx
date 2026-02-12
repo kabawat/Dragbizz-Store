@@ -13,7 +13,7 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.elegantInvoice} id="invoice">
+            <div className={styles.elegantInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <div className={styles.storeDetails}>

@@ -79,33 +79,29 @@ const InvoiceItemsTable = ({
     <table className={className}>
       <thead className={headerClassName}>
         <tr className={headerRowClassName}>
-          <th className={thClassName} style={{ width: columnWidths.product }}>
+          <td className={`${thClassName} font-bold`} style={{ width: columnWidths.product }}>
             Product
-          </th>
-          <th
-            className={thClassName}
+          </td>
+          <td className={`${thClassName} font-bold`}
             style={{ width: columnWidths.quantity, textAlign: "center" }}
           >
             Quantity
-          </th>
-          <th
-            className={thClassName}
+          </td>
+          <td className={`${thClassName} font-bold`}
             style={{ width: columnWidths.unitPrice, textAlign: "right" }}
           >
             Unit Price
-          </th>
-          <th
-            className={thClassName}
+          </td>
+          <td className={`${thClassName} font-bold`}
             style={{ width: columnWidths.gst, textAlign: "right" }}
           >
             GST
-          </th>
-          <th
-            className={thClassName}
+          </td>
+          <td className={`${thClassName} font-bold`}
             style={{ width: columnWidths.total, textAlign: "right" }}
           >
             Total
-          </th>
+          </td>
         </tr>
       </thead>
       <tbody>

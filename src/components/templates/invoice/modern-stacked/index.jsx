@@ -3,7 +3,7 @@ import moment from "moment";
 import InvoiceContainer from "../InvoiceContainer";
 import styles from "./style.module.scss";
 
-const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
+const ModernStackedTemplate = ({ invoiceData, selectedStore }) => {
     const formatCurrency = (amount) => {
         return `₹${(amount || 0).toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -13,48 +13,29 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.geometricInvoice} >
+            <div className={styles.modernInvoice} >
                 {/* Header Section */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>
-                    <div className={styles.metaInfo}>
-                        <p>
-                            Invoice No:{" "}
-                            <span className={styles.valueBold}>
-                                {invoiceData.invoiceNumber}
-                            </span>
-                        </p>
-                        <p>
-                            Date:{" "}
-                            <span className={styles.valueBold}>
-                                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-
-                {/* Info Grid */}
-                <div className={styles.infoSection}>
-                    {/* Store/Biller Info */}
-                    <div className={styles.infoBox}>
-                        <div className={styles.label}>Billed By</div>
+                    <div className={styles.storeInfo}>
                         <span className={styles.storeName}>
-                            {selectedStore?.storeName || "Geometric Billing Corp"}
+                            {selectedStore?.storeName || "Redline Solutions"}
                         </span>
-                        <p className={styles.storeInfoText}>
-                            {selectedStore?.address || "123 Structure Road, Business Park"}
-                        </p>
-                        <p className={styles.storeInfoText}>
+                        <p>{selectedStore?.address || "101 Modern Street, High City"}</p>
+                        <p>
                             {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
                             {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
                         </p>
                     </div>
+                </div>
 
-                    {/* Customer/Bill To Info */}
-                    <div className={styles.infoBox}>
-                        <div className={styles.label}>Bill To</div>
-                        <p className={styles.valueBold}>
-                            {invoiceData.customer?.name || "Walk-in Customer"}
+                {/* Info Blocks */}
+                <div className={styles.infoContainer}>
+                    {/* Bill To Details */}
+                    <div className={`${styles.block} ${styles.customer}`}>
+                        <div className={styles.title}>Bill To</div>
+                        <p className={styles.valueLarge}>
+                            {invoiceData.customer?.name || "Premium Customer"}
                         </p>
                         {invoiceData.customer?.email && (
                             <p>{invoiceData.customer.email}</p>
@@ -66,32 +47,59 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                             <p>{invoiceData.customer.address}</p>
                         )}
                     </div>
+
+                    {/* Invoice Details */}
+                    <div className={`${styles.block} ${styles.invoiceDetails}`}>
+                        <div className={styles.title}>Invoice Details</div>
+                        <p>
+                            Invoice #:{" "}
+                            <span className={styles.valueLarge}>
+                                {invoiceData.invoiceNumber}
+                            </span>
+                        </p>
+                        <p>
+                            Date Issued:{" "}
+                            <span className={styles.valueLarge}>
+                                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                            </span>
+                        </p>
+                        {invoiceData.paymentMode && (
+                            <p>
+                                Payment: <span className={styles.valueLarge}>{invoiceData.paymentMode}</span>
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Table Selection */}
                 <div className={styles.tableContainer}>
-                    <table className={styles.geometricTable}>
+                    <table className={styles.modernTable}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Description</th>
+                                <th style={{ width: "50%" }}>Description (SKU)</th>
                                 <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
                                 <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Amount</th>
+                                <th style={{ width: "20%", textAlign: "right" }}>Line Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {invoiceData.items?.map((item, index) => (
                                 <tr key={index}>
-                                    <td>
+                                    <td className={styles.productInfo}>
                                         <div className={styles.productName}>
                                             {item.product?.name || "Unnamed Item"}
                                         </div>
+                                        {item.product?.sku && (
+                                            <div className={styles.productSku}>
+                                                SKU: {item.product.sku}
+                                            </div>
+                                        )}
                                     </td>
                                     <td style={{ textAlign: "center" }}>{item.quantity}</td>
                                     <td style={{ textAlign: "right" }}>
                                         {formatCurrency(item.price)}
                                     </td>
-                                    <td style={{ textAlign: "right" }}>
+                                    <td style={{ textAlign: "right", fontWeight: 700 }}>
                                         {formatCurrency(item.quantity * item.price)}
                                     </td>
                                 </tr>
@@ -101,30 +109,30 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                 </div>
 
                 {/* Totals Section */}
-                <div className={styles.totalsSection}>
+                <div className={styles.totalsArea}>
                     <div className={styles.totalsTable}>
                         <div className={styles.totalRow}>
-                            <div className={styles.totalLabel}>Subtotal:</div>
+                            <div className={styles.label}>Subtotal:</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.subtotal)}
                             </div>
                         </div>
                         <div className={styles.totalRow}>
-                            <div className={styles.totalLabel}>Tax (GST):</div>
+                            <div className={styles.label}>Tax (GST):</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.gstAmount || 0)}
                             </div>
                         </div>
                         {invoiceData.totalDiscount > 0 && (
                             <div className={styles.totalRow}>
-                                <div className={styles.totalLabel}>Discount:</div>
-                                <div className={styles.amount} style={{ color: "#c0392b" }}>
+                                <div className={styles.label}>Discount:</div>
+                                <div className={styles.amount} style={{ color: "#2ecc71" }}>
                                     -{formatCurrency(invoiceData.totalDiscount)}
                                 </div>
                             </div>
                         )}
                         <div className={styles.finalRow}>
-                            <div className={styles.finalLabel}>TOTAL DUE:</div>
+                            <div className={styles.finalLabel}>AMOUNT DUE</div>
                             <div className={styles.finalAmount}>
                                 {formatCurrency(invoiceData.totalAmount)}
                             </div>
@@ -132,16 +140,16 @@ const GeometricEdgeTemplate = ({ invoiceData, selectedStore }) => {
                     </div>
                 </div>
 
-                {/* Footer & Signature */}
+                {/* Footer */}
                 <div className={styles.footer}>
                     <p>
-                        Thank you for choosing Geometric Billing. All amounts are in INR.
+                        Payment confirms acceptance of services. Invoice generated on{" "}
+                        {moment().format("MMMM Do YYYY, h:mm a")}.
                     </p>
-                    <div className={styles.signatureLine}>Authorized Signature</div>
                 </div>
             </div>
         </InvoiceContainer>
     );
 };
 
-export default GeometricEdgeTemplate;
+export default ModernStackedTemplate;

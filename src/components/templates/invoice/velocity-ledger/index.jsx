@@ -3,7 +3,7 @@ import moment from "moment";
 import InvoiceContainer from "../InvoiceContainer";
 import styles from "./style.module.scss";
 
-const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
+const VelocityLedgerTemplate = ({ invoiceData, selectedStore }) => {
     const formatCurrency = (amount) => {
         return `₹${(amount || 0).toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -13,52 +13,48 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.elitepaperInvoice} >
-                {/* Header Section */}
-                <div className={styles.header}>
-                    <h1>INVOICE</h1>
-                    <div className={styles.tagline}>
-                        ElitePaper Billing Solutions
-                    </div>
-                    <div className={styles.storeInfo}>
-                        <p>
-                            <span className={styles.valueBold}>
-                                {selectedStore?.storeName || "ElitePaper Global"}
-                            </span>{" "}
-                            | {selectedStore?.address || "789 Corporate Blvd"}
-                        </p>
-                        <p>
-                            {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
-                            {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
-                        </p>
+            <div className={styles.velocityInvoice} >
+                {/* Header Band */}
+                <div className={styles.headerBand}>
+                    <h1>TAX INVOICE</h1>
+                    <div className={styles.invoiceNumberBadge}>
+                        INVOICE # {invoiceData.invoiceNumber}
                     </div>
                 </div>
 
-                {/* Info Bar */}
-                <div className={styles.infoSection}>
-                    <div className={styles.infoBlock}>
-                        <div className={styles.label}>Invoice Details</div>
+                {/* Store Info Block (Right-aligned) */}
+                <div className={styles.storeInfoArea}>
+                    <div className={styles.storeName}>
+                        {selectedStore?.storeName || "Velocity Solutions Corp."}
+                    </div>
+                    <p>
+                        {selectedStore?.address || "101 Commerce Tower, Business Park"}
+                    </p>
+                    <p>
+                        {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
+                        {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
+                    </p>
+                </div>
+
+                {/* Info Bar - Invoice Meta and Customer */}
+                <div className={styles.infoContainer}>
+                    {/* Invoice Details Box */}
+                    <div className={styles.detailBox}>
+                        <div className={styles.title}>Invoice Date & Due</div>
                         <p>
-                            Invoice #:{" "}
-                            <span className={styles.valueBold}>
-                                {invoiceData.invoiceNumber}
-                            </span>
-                        </p>
-                        <p>
-                            Date Issued:{" "}
+                            Issued:{" "}
                             <span className={styles.valueBold}>
                                 {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
                             </span>
                         </p>
-                        {invoiceData.paymentMode && (
-                            <p>
-                                Payment: <span className={styles.valueBold}>{invoiceData.paymentMode}</span>
-                            </p>
-                        )}
+                        <p>
+                            Due: <span className={styles.valueBold}>Upon Receipt</span>
+                        </p>
                     </div>
 
-                    <div className={styles.infoBlock}>
-                        <div className={styles.label}>Bill To</div>
+                    {/* Bill To Box */}
+                    <div className={styles.detailBox}>
+                        <div className={styles.title}>Bill To / Customer</div>
                         <p className={styles.valueBold}>
                             {invoiceData.customer?.name || "Walk-in Customer"}
                         </p>
@@ -75,14 +71,14 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
                 </div>
 
                 {/* Table Selection */}
-                <div className={styles.tableContainer}>
-                    <table className={styles.elitepaperTable}>
+                <div className={styles.tableArea}>
+                    <table className={styles.velocityTable}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Description</th>
-                                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Total</th>
+                                <td className="font-bold" style={{ width: "45%" }}>Description</td>
+                                <td className="font-bold" style={{ width: "15%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -102,7 +98,7 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
                                     <td style={{ textAlign: "right" }}>
                                         {formatCurrency(item.price)}
                                     </td>
-                                    <td style={{ textAlign: "right" }}>
+                                    <td style={{ textAlign: "right", fontWeight: 700 }}>
                                         {formatCurrency(item.quantity * item.price)}
                                     </td>
                                 </tr>
@@ -111,46 +107,47 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
                     </table>
                 </div>
 
-                {/* Totals Section */}
-                <div className={styles.totalsSection}>
+                {/* Totals Area */}
+                <div className={styles.totalsArea}>
                     <div className={styles.totalsTable}>
-                        <div className={styles.totalRow}>
+                        <div className={styles.row}>
                             <div className={styles.totalLabel}>Subtotal:</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.subtotal)}
                             </div>
                         </div>
-                        <div className={styles.totalRow}>
+                        <div className={styles.row}>
                             <div className={styles.totalLabel}>Tax (GST):</div>
                             <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount)}
+                                {formatCurrency(invoiceData.gstAmount || 0)}
                             </div>
                         </div>
                         {invoiceData.totalDiscount > 0 && (
-                            <div className={styles.totalRow}>
+                            <div className={styles.row}>
                                 <div className={styles.totalLabel}>Discount:</div>
-                                <div className={styles.amount} style={{ color: "#c0392b" }}>
+                                <div className={styles.amount} style={{ color: "#e74c3c" }}>
                                     -{formatCurrency(invoiceData.totalDiscount)}
                                 </div>
                             </div>
                         )}
-                        <div className={styles.finalRow}>
-                            <div className={styles.finalLabel}>AMOUNT DUE:</div>
-                            <div className={styles.finalAmount}>
-                                {formatCurrency(invoiceData.totalAmount)}
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className={styles.footer}>
+                {/* Grand Total Footer Band */}
+                <div className={styles.grandTotalHighlight}>
+                    <div className={styles.finalLabel}>TOTAL AMOUNT DUE:</div>
+                    <div className={styles.finalAmount}>
+                        {formatCurrency(invoiceData.totalAmount)}
+                    </div>
+                </div>
+
+                <div className={styles.electronicFooter}>
                     <p>
-                        Thank you for choosing ElitePaper. All prices are inclusive of
-                        applicable taxes.
+                        This invoice was generated electronically and is valid without a
+                        signature. Thank you for your continued partnership.
                     </p>
-                    <p>
-                        Generated on {moment().format("YYYY-MM-DD [at] HH:mm:ss")}
+                    <p style={{ marginTop: "5px", opacity: 0.8 }}>
+                        Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}
                     </p>
                 </div>
             </div>
@@ -158,4 +155,4 @@ const ElitePaperTemplate = ({ invoiceData, selectedStore }) => {
     );
 };
 
-export default ElitePaperTemplate;
+export default VelocityLedgerTemplate;

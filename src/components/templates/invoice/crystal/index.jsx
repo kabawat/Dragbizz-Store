@@ -3,7 +3,7 @@ import moment from "moment";
 import InvoiceContainer from "../InvoiceContainer";
 import styles from "./style.module.scss";
 
-const CrystalTemplate = ({ invoiceData, selectedStore }) => {
+export default function CrystalTemplate({ invoiceData, selectedStore }) {
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return "₹0.00";
         return `₹${Number(amount).toLocaleString("en-IN", {
@@ -143,6 +143,4 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
             </div>
         </InvoiceContainer>
     );
-};
-
-export default CrystalTemplate;
+}

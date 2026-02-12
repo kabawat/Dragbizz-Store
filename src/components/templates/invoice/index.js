@@ -18,29 +18,29 @@ export { default as FlexviewTemplate } from "./flexview";
 export { default as FusionTemplate } from "./fusion";
 export { default as GeometricEdgeTemplate } from "./geometric-edge";
 export { default as InvoiceContainer } from "./InvoiceContainer";
-export { default as LuminousLedgerTemplate } from "./LuminousLedgerTemplate";
-export { default as LumosTemplate } from "./LumosTemplate";
-export { default as MatrixLedgerTemplate } from "./MatrixLedgerTemplate";
-export { default as MinimalTemplate } from "./MinimalTemplate";
-export { default as MinimalistMonochromeTemplate } from "./MinimalistMonochromeTemplate";
-export { default as ModernStackedTemplate } from "./ModernStackedTemplate";
-export { default as ModernTemplate } from "./ModernTemplate";
-export { default as NeoEdgeTemplate } from "./NeoEdgeTemplate";
-export { default as NeoGeometricTemplate } from "./NeoGeometricTemplate";
-export { default as OrionTemplate } from "./OrionTemplate";
-export { default as PillarProTemplate } from "./PillarProTemplate";
-export { default as PrismTemplate } from "./PrismTemplate";
-export { default as ProfessionalBlueTemplate } from "./ProfessionalBlueTemplate";
-export { default as ProfessionalTemplate } from "./ProfessionalTemplate";
-export { default as RoyalEdgeTemplate } from "./RoyalEdgeTemplate";
-export { default as RusticEleganceTemplate } from "./RusticEleganceTemplate";
-export { default as SleekStreamTemplate } from "./SleekStreamTemplate";
-export { default as SpectrumTemplate } from "./SpectrumTemplate";
-export { default as StructedTemplate } from "./StructedTemplate";
-export { default as TerraTemplate } from "./TerraTemplate";
-export { default as VelocityLedgerTemplate } from "./VelocityLedgerTemplate";
-export { default as VintageTemplate } from "./VintageTemplate";
-export { default as ZenithTemplate } from "./ZentithTemplate";
+export { default as LuminousLedgerTemplate } from "./luminous-ledger";
+export { default as LumosTemplate } from "./lumos";
+export { default as MatrixLedgerTemplate } from "./matrix-ledger";
+export { default as MinimalTemplate } from "./minimal";
+export { default as MinimalistMonochromeTemplate } from "./minimalist-monochrome";
+export { default as ModernStackedTemplate } from "./modern-stacked";
+export { default as ModernTemplate } from "./modern";
+export { default as NeoEdgeTemplate } from "./neo-edge";
+export { default as NeoGeometricTemplate } from "./neo-geometric";
+export { default as OrionTemplate } from "./orion";
+export { default as PillarProTemplate } from "./pillar-pro";
+export { default as PrismTemplate } from "./prism";
+export { default as ProfessionalBlueTemplate } from "./professional-blue";
+export { default as ProfessionalTemplate } from "./professional";
+export { default as RoyalEdgeTemplate } from "./royal-edge";
+export { default as RusticEleganceTemplate } from "./rustic-elegance";
+export { default as SleekStreamTemplate } from "./sleek-stream";
+export { default as SpectrumTemplate } from "./spectrum";
+export { default as StructedTemplate } from "./structed";
+export { default as TerraTemplate } from "./terra";
+export { default as VelocityLedgerTemplate } from "./velocity-ledger";
+export { default as VintageTemplate } from "./vintage";
+export { default as ZenithTemplate } from "./zenith";
 
 // Template selector options (sorted alphabetically by label)
 export const TEMPLATE_OPTIONS = [
@@ -159,7 +159,7 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/lumos-preview.png",
   },
   {
-    value: "matrixLedger",
+    value: "matrix-ledger",
     label: "Matrix Ledger",
     description: "Structured design with emphasis on clarity",
     preview: "/images/templates/matrix-ledger-preview.png",
@@ -189,13 +189,13 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/modern-stacked-preview.png",
   },
   {
-    value: "neogeometric",
+    value: "neo-geometric",
     label: "Neo Geometric",
     description: "Sleek design with geometric elements",
     preview: "/images/templates/neo-geometric-preview.png",
   },
   {
-    value: "neoedge",
+    value: "neo-edge",
     label: "Neo Edge",
     description: "Sleek and modern design with sharp edges",
     preview: "/images/templates/neo-edge-preview.png",
@@ -207,7 +207,7 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/orion-preview.png",
   },
   {
-    value: "pillarPro",
+    value: "pillar-pro",
     label: "Pillar Pro",
     description: "Professional design with brand colors",
     preview: "/images/templates/pillar-pro-preview.png",
@@ -225,25 +225,25 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/professional-preview.png",
   },
   {
-    value: "professionalblue",
+    value: "professional-blue",
     label: "Professional Blue",
     description: "Professional design with blue accents",
     preview: "/images/templates/professional-blue-preview.png",
   },
   {
-    value: "royaledge",
+    value: "royal-edge",
     label: "Royal Edge",
     description: "Elegant design with regal accents",
     preview: "/images/templates/royal-edge-preview.png",
   },
   {
-    value: "rusticelegance",
+    value: "rustic-elegance",
     label: "Rustic Elegance",
     description: "Warm and charming rustic design",
     preview: "/images/templates/rustic-elegance-preview.png",
   },
   {
-    value: "sleekstream",
+    value: "sleek-stream",
     label: "Sleek Stream",
     description: "Modern design with fluid elements",
     preview: "/images/templates/sleek-stream-preview.png",
@@ -256,7 +256,7 @@ export const TEMPLATE_OPTIONS = [
   },
   {
     value: "structed",
-    label: "Structed",
+    label: "Structured",
     description: "Organized and neat layout",
     preview: "/images/templates/structed-preview.png",
   },
@@ -267,7 +267,7 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/terra-preview.png",
   },
   {
-    value: "velocityledger",
+    value: "velocity-ledger",
     label: "Velocity Ledger",
     description: "Dynamic and fast-paced design",
     preview: "/images/templates/velocity-ledger-preview.png",
@@ -279,8 +279,8 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/vintage-preview.png",
   },
   {
-    value: "zentith",
-    label: "Zentith",
+    value: "zenith",
+    label: "Zenith",
     description: "Peak professional style",
     preview: "/images/templates/zentith-preview.png",
   },
