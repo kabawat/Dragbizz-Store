@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 
-export const useInvoicePrint = (fetching, invoiceData) => {
+export const useInvoicePrint = (fetching, invoiceData, skipAutoPrint = false) => {
   const { showError } = useGlobalToast();
 
   useEffect(() => {
+    if (skipAutoPrint) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const shouldPrint = urlParams.get("print") === "true";
 
@@ -13,7 +15,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
         window.print();
       }, 500);
     }
-  }, [fetching, invoiceData]);
+  }, [fetching, invoiceData, skipAutoPrint]);
 
   const handlePrint = () => {
     try {
