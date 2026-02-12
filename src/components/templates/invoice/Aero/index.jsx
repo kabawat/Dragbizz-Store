@@ -6,7 +6,7 @@ import styles from "./style.module.scss";
 const AeroTemplate = ({ invoiceData, selectedStore }) => {
     return (
         <InvoiceContainer>
-            <div className={styles.aeroInvoice}>
+            <div className={styles.aeroInvoice} id="invoice">
                 {/* Header */}
                 <div className={styles.aeroHeader}>
                     <div>

@@ -2,7 +2,7 @@
 
 export { default as AeroTemplate } from "./Aero";
 export { default as InvoiceContainer } from "./InvoiceContainer";
-export { default as AetherTemplate } from "./AetherTemplate";
+export { default as AetherTemplate } from "./Aether";
 export { default as ApexTemplate } from "./ApexTemplate";
 export { default as AuraTemplate } from "./AuraTemplate";
 export { default as AuroraTemplate } from "./AuroraTemplate";
