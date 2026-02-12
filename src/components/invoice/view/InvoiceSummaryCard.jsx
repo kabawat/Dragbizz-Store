@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import {
   getPaymentStatusColor,
   getStatusColor,
-} from "../utils/invoiceView.utils";
+} from "@/utils/invoice/invoiceView.utils";
 
 const InvoiceSummaryCard = ({
   invoiceData,

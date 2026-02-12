@@ -3,12 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
-
-/**
- * AuthGuard - Protects routes that require authentication.
- * Redirects to /login if not authenticated.
- * Redirects to onboarding steps if profile is incomplete.
- */
+// AuthGuard - Protects routes that require authentication.
 export default function AuthGuard({ children }) {
     const router = useRouter();
     const pathname = usePathname();
