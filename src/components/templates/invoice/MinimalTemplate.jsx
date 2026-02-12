@@ -21,28 +21,6 @@ const MinimalTemplate = ({ invoiceData, selectedStore }) => {
             color: #2c3e50 !important;
             background: white !important;
           }
-
-            body {
-          /* Using a classic serif font */
-          font-family: 'Georgia', 'Times New Roman', serif !important;
-          font-size: 14px !important;
-          line-height: 1.6 !important;
-          color: #4e342e !important; /* Dark brown text */
-          background-color: #fcfaf7 !important; /* Light beige background */
-        }
-
-         body.print-mode-mini .minimal-invoice {
-    width: 74mm !important;
-    max-width: 74mm !important;
-    padding: 6px !important;
-    border: none !important; /* thermal usually no border */
-    box-shadow: none !important;
-  }
-
-  body.print-mode-standard .minimal-invoice {
-    max-width: 800px !important;
-    padding: 40px !important;
-  }
           
           .minimal-invoice {
             width: 100% !important;

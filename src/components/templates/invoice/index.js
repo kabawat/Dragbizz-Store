@@ -1,6 +1,6 @@
 // Export all invoice templates
 
-export { default as AeroTemplate } from "./AeroTemplate";
+export { default as AeroTemplate } from "./Aero";
 export { default as AetherTemplate } from "./AetherTemplate";
 export { default as ApexTemplate } from "./ApexTemplate";
 export { default as AuraTemplate } from "./AuraTemplate";

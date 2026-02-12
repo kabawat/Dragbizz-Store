@@ -10,26 +10,7 @@
 }
 
 /* Print mode styles */
-:global(body.print-mode-mini) .classicInvoice {
-  width: 74mm !important;
-  max-width: 74mm !important;
-  padding: 6px !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-:global(body.print-mode-mini) .classicInfo {
-  flex-direction: column;
 
-   .companyInfo,
-  .customerInfo {
-    width: 100% !important;
-  }
-}
-
-
-:global(body.print-mode-standard) .classicInvoice {
-  max-width: 800px !important;
-}
 
 .classicHeader {
   text-align: center !important;
@@ -132,4 +113,3 @@
     margin-bottom: 5px !important;
   }
 }
-

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
 
@@ -9,22 +9,6 @@ export const useAnalyticsReportPrint = (
   reportName
 ) => {
   const { showError } = useGlobalToast();
-  const [showPrintMenu, setShowPrintMenu] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showPrintMenu && !event.target.closest(".print-menu-container")) {
-        setShowPrintMenu(false);
-      }
-    };
-
-    if (showPrintMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [showPrintMenu]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -37,38 +21,9 @@ export const useAnalyticsReportPrint = (
     }
   }, [fetching, analyticsData]);
 
-  const handlePrint = (mode = "standard") => {
+  const handlePrint = () => {
     try {
-      const old = document.getElementById("app-print-stylesheet");
-      if (old) old.remove();
-
-      document.body.classList.remove("print-mode-mini", "print-mode-standard");
-
-      const cls = mode === "mini" ? "print-mode-mini" : "print-mode-standard";
-      document.body.classList.add(cls);
-
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.id = "app-print-stylesheet";
-      link.href = mode === "mini" ? "/print-mini.css" : "/print-a4.css";
-      document.head.appendChild(link);
-
-      const cleanup = () => {
-        setTimeout(() => {
-          const l = document.getElementById("app-print-stylesheet");
-          if (l) l.remove();
-          document.body.classList.remove(
-            "print-mode-mini",
-            "print-mode-standard"
-          );
-          window.onafterprint = null;
-        }, 200);
-      };
-
-      window.onafterprint = cleanup;
       window.print();
-      setTimeout(cleanup, 8000);
-      setShowPrintMenu(false);
     } catch (_e) {
       showError("Printing failed.");
     }
@@ -353,10 +308,10 @@ export const useAnalyticsReportPrint = (
               const altFill =
                 index % 2 === 0
                   ? {
-                      type: "pattern",
-                      pattern: "solid",
-                      fgColor: { argb: "FFFCFCFD" },
-                    }
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFCFCFD" },
+                  }
                   : {};
 
               if (Array.isArray(rowData)) {
@@ -419,8 +374,6 @@ export const useAnalyticsReportPrint = (
   };
 
   return {
-    showPrintMenu,
-    setShowPrintMenu,
     handlePrint,
     handleDownloadPDF,
     handleDownloadXLSX,

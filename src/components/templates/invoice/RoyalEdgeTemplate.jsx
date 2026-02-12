@@ -25,134 +25,6 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
           }
         }
 
-                  /* ✅ MINI MODE – Royal Template Perfect Fix */
-        body.print-mode-mini .royal-invoice {
-          width: 74mm !important;
-          max-width: 74mm !important;
-          margin: 0 auto !important;
-          padding: 6px !important;
-          border: none !important;
-          box-shadow: none !important;
-          overflow: hidden !important;
-        }
-
-        /* ✅ Base font reduces for mini */
-        body.print-mode-mini .royal-body {
-          font-size: 10.5px !important;
-        }
-
-        /* ✅ HEADER FIX */
-        body.print-mode-mini .royal-header {
-          padding: 10px !important;
-          flex-direction: column !important;
-          text-align: center !important;
-          gap: 4px !important;
-        }
-
-        body.print-mode-mini .royal-brand .title {
-          font-size: 12px !important;
-        }
-
-        body.print-mode-mini .royal-logo {
-          width: 36px !important;
-          height: 36px !important;
-          font-size: 14px !important;
-        }
-
-        body.print-mode-mini .royal-meta {
-          font-size: 9px !important;
-        }
-
-        body.print-mode-mini .royal-meta .meta-strong {
-          font-size: 12px !important;
-        }
-
-        /* ✅ GRID FIX (stack layout) */
-        body.print-mode-mini .royal-body-grid {
-          display: block !important;
-          padding: 10px !important;
-          gap: 0 !important;
-        }
-
-        /* ✅ CARDS FIX */
-        body.print-mode-mini .royal-card {
-          padding: 8px !important;
-          margin-bottom: 6px !important;
-        }
-
-        body.print-mode-mini .royal-info-title {
-          font-size: 8px !important;
-        }
-
-        body.print-mode-mini .royal-info-val,
-        body.print-mode-mini .royal-small {
-          font-size: 10px !important;
-        }
-
-        /* ✅ ITEMS TABLE FIX */
-        body.print-mode-mini .royal-items-table thead th {
-          font-size: 8px !important;
-          padding: 3px 4px !important;
-        }
-
-        body.print-mode-mini .royal-items-table tbody td {
-          font-size: 9.5px !important;
-          padding: 3px 4px !important;
-        }
-
-        /* Product Description width control */
-        body.print-mode-mini .royal-items-table tbody td:first-child {
-          max-width: 55mm !important;
-          word-wrap: break-word !important;
-        }
-
-        /* ✅ TOTALS SECTION FIX */
-        body.print-mode-mini .royal-totals {
-          padding: 8px !important;
-          margin-top: 6px !important;
-        }
-
-        body.print-mode-mini .royal-row {
-          font-size: 10px !important;
-          margin: 4px 0 !important;
-        }
-
-        body.print-mode-mini .royal-row .val {
-          font-size: 10px !important;
-          font-weight: 600 !important;
-        }
-
-        /* ✅ GRAND TOTAL FIX */
-        body.print-mode-mini .royal-grand {
-          font-size: 12px !important;
-          padding: 6px !important;
-          border-radius: 6px !important;
-          margin-top: 6px !important;
-          display: flex !important;
-          justify-content: space-between !important;
-        }
-
-        /* ✅ FOOTER FIX */
-        body.print-mode-mini .royal-footer {
-          padding: 6px !important;
-          font-size: 9px !important;
-          margin-top: 6px !important;
-        }
-
-        body.print-mode-mini .royal-icon {
-          width: 20px !important;
-          height: 20px !important;
-          font-size: 10px !important;
-        }
-
-
-        /* ✅ Footer */
-        body.print-mode-mini .footer {
-          font-size: 9px !important;
-          margin-top: 10px !important;
-        }
-
-
         /* Root */
         .royal-body {
           font-family: Inter, ui-sans-serif, system-ui, -apple-system,
@@ -489,12 +361,12 @@ const RoyalEdgeTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                     {(invoiceData.items && invoiceData.items.length > 0
                       ? invoiceData.items
                       : [
-                          {
-                            product: { name: "No items" },
-                            quantity: 0,
-                            price: 0,
-                          },
-                        ]
+                        {
+                          product: { name: "No items" },
+                          quantity: 0,
+                          price: 0,
+                        },
+                      ]
                     ).map((item, idx) => (
                       <tr key={idx}>
                         <td>
