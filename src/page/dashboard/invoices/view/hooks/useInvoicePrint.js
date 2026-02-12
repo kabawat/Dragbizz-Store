@@ -38,6 +38,18 @@ export const useInvoicePrint = (fetching, invoiceData) => {
         scale: 3,
         useCORS: true,
         allowTaint: true,
+        onclone: (clonedDoc) => {
+          // Adjust styles to match print layout
+          const invoiceContainer = clonedDoc.getElementById("invoice-container");
+          if (invoiceContainer) {
+            invoiceContainer.style.padding = "0.5cm"; // Match the print padding defined in CSS
+            invoiceContainer.style.width = "210mm";   // Force A4 width
+            invoiceContainer.style.maxWidth = "none";
+            invoiceContainer.style.margin = "0";      // Remove centering margin for capture
+            invoiceContainer.style.height = "auto";
+            invoiceContainer.style.minHeight = "297mm";
+          }
+        },
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 0.7);
