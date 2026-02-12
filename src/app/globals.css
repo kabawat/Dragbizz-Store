@@ -2276,3 +2276,9 @@ body>div[style*="z-index: 999999"] {
   /* Theme variables automatically adapt, but ensure they're not overridden */
   opacity: 1 !important;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -103,7 +103,7 @@ const SettingsPanel = () => {
   ];
 
   return (
-    <div className="settings-panel fixed bottom-20 right-0 sm:bottom-20 z-[10000]">
+    <div className="no-print settings-panel fixed bottom-20 right-0 sm:bottom-20 z-[10000]">
       {/* Main Settings Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}

@@ -8,23 +8,21 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import {
   ReleaseInvoiceModal,
   UpdatePaymentStatusModal,
+  InvoiceActionButtons,
+  InvoiceSummaryCard,
 } from "@/components/invoice";
 import { Button } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import CancelInvoiceModal from "./components/CancelInvoiceModal";
-import DeleteInvoiceModal from "./components/DeleteInvoiceModal";
-import InvoiceActionButtons from "./components/InvoiceActionButtons";
-import InvoiceSummaryCard from "./components/InvoiceSummaryCard";
-import { useInvoicePrint } from "./hooks/useInvoicePrint";
+import { useInvoicePrint } from "@/hooks/invoice/useInvoicePrint";
 import {
   calculateGstAmount,
   calculateSubtotal,
   getItemsWithGst,
-} from "./utils/invoiceCalculations.utils";
-import { getTemplateComponent } from "./utils/invoiceView.utils";
+} from "@/utils/invoice/invoiceCalculations.utils";
+import { getTemplateComponent } from "@/utils/invoice/invoiceView.utils";
 
 const ViewInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -34,18 +32,10 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   const [fetching, setFetching] = useState(true);
   const [invoiceData, setInvoiceData] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
   const [showReleaseModal, setShowReleaseModal] = useState(false);
-  const [isReleasing, setIsReleasing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState("PAID");
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
-  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
-  const hasFetched = useRef(false);
-  const { showSuccess, showError } = useGlobalToast();
+  const { showError } = useGlobalToast();
   const { handlePrint, handleDownloadPDF } = useInvoicePrint(
     fetching,
     invoiceData
@@ -101,169 +91,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
     router.push(`/dashboard/invoices/edit/${invoiceId}`);
   };
 
-  // Handle delete invoice
-  const _handleDeleteInvoice = () => {
-    setShowDeleteModal(true);
-  };
-
-  // Handle confirm delete
-  const handleConfirmDelete = async () => {
-    if (!invoiceId) return;
-
-    setIsDeleting(true);
-    try {
-      const result = await invoiceService.deleteInvoice(invoiceId);
-
-      if (result.success) {
-        showSuccess(
-          t("success.deletedSuccessfully", { item: t("common.invoice") })
-        );
-        setTimeout(() => {
-          router.push("/dashboard/invoices");
-        }, 1000);
-      } else {
-        showError(
-          result.message ||
-          t("errors.failedToDelete", { item: t("common.invoice") })
-        );
-      }
-    } catch (_error) {
-      showError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.invoice") })
-      );
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  // Handle cancel invoice
-  const _handleCancelInvoice = () => {
-    setShowCancelModal(true);
-  };
-
-  // Handle confirm cancel
-  const handleConfirmCancel = async () => {
-    if (!invoiceId) return;
-
-    setIsCancelling(true);
-    try {
-      const result = await invoiceService.cancelInvoice(
-        invoiceId,
-        "Cancelled by user"
-      );
-
-      if (result.success) {
-        showSuccess(
-          t("success.cancelledSuccessfully", { item: t("common.invoice") })
-        );
-        const refreshResult = await invoiceService.getInvoiceById(
-          invoiceId,
-          storeId
-        );
-        if (refreshResult.success && refreshResult.data) {
-          setInvoiceData(refreshResult.data);
-        }
-      } else {
-        showError(
-          result.message ||
-          t("errors.failedToCancel", { item: t("common.invoice") })
-        );
-      }
-    } catch (_error) {
-      showError(
-        t("errors.failedToCancelTryAgain", { item: t("common.invoice") })
-      );
-    } finally {
-      setIsCancelling(false);
-    }
-  };
-
-  // Handle release invoice
-  const handleReleaseInvoice = () => {
-    setShowReleaseModal(true);
-  };
-
-  // Handle confirm release
-  const handleConfirmRelease = async (payload) => {
-    if (!invoiceId) return;
-
-    setIsReleasing(true);
-    try {
-      const result = await invoiceService.releaseInvoice(
-        invoiceId,
-        payload.paymentStatus,
-        storeId,
-        payload.paidAmount || null
-      );
-
-      if (result.success) {
-        showSuccess(
-          t("success.releasedSuccessfully", { item: t("common.invoice") })
-        );
-        setShowReleaseModal(false);
-        const refreshResult = await invoiceService.getInvoices({
-          id: invoiceId,
-          store: storeId,
-        });
-        if (refreshResult.success && refreshResult.data) {
-          setInvoiceData(refreshResult.data);
-        }
-      } else {
-        showError(
-          result.message ||
-          t("errors.failedToRelease", { item: t("common.invoice") })
-        );
-      }
-    } catch (_error) {
-      showError(
-        t("errors.failedToReleaseTryAgain", { item: t("common.invoice") })
-      );
-    } finally {
-      setIsReleasing(false);
-    }
-  };
-
-  // Handle update payment status
-  const handleUpdatePaymentStatus = () => {
-    setShowPaymentStatusModal(true);
-  };
-
-  // Handle confirm payment status update
-  const handleConfirmPaymentStatusUpdate = async (payload) => {
-    if (!invoiceId) return;
-
-    setIsUpdatingPayment(true);
-    try {
-      const result = await invoiceService.updatePaymentStatus(
-        invoiceId,
-        payload.paymentStatus,
-        null, // paymentMode (optional)
-        storeId,
-        payload.paidAmount || null // paidAmount (optional, for PAY_LATTER)
-      );
-
-      if (result.success) {
-        showSuccess(
-          t("success.updatedSuccessfully", { item: t("common.paymentStatus") })
-        );
-        setShowPaymentStatusModal(false);
-        const refreshResult = await invoiceService.getInvoices({
-          id: invoiceId,
-          store: storeId,
-        });
-        if (refreshResult.success && refreshResult.data) {
-          setInvoiceData(refreshResult.data);
-        }
-      } else {
-        showError(result.message || t("errors.failedToUpdatePaymentStatus"));
-      }
-    } catch (_error) {
-      showError(t("errors.failedToUpdatePaymentStatusTryAgain"));
-    } finally {
-      setIsUpdatingPayment(false);
-    }
-  };
-
   // Loading state
   if (fetching) {
     return (
@@ -284,46 +111,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   return (
     <>
-      {/* Global Print Styles - Hide UI elements */}
-      <style jsx global>{`
-                @media print {
-                    /* Hide navigation and UI elements */
-                    .no-print,
-                    nav,
-                    header,
-                    .sidebar,
-                    .header,
-                    button,
-                    .btn,
-                    .action-buttons,
-                    .right-sidebar {
-                        display: none !important;
-                    }
-                    
-                    /* Body setup */
-                    body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        background: white !important;
-                    }
-                    
-                    /* Main container */
-                    .main-content {
-                        width: 100% !important;
-                        max-width: none !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        background: white !important;
-                    }
-                    
-                    /* Page setup */
-                    @page {
-                        margin: 1cm;
-                        size: A4;
-                    }
-                }
-            `}</style>
-
       <div className="flex h-screen relative w-full overflow-hidden">
         {/* Sidebar */}
         <div className="no-print">
@@ -356,7 +143,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
                   {invoiceData?.invoiceStatus === "RELEASED" && (
                     <Button
                       variant="outline"
-                      onClick={handleUpdatePaymentStatus}
+                      onClick={() => setShowPaymentStatusModal(true)}
                       leftIcon={CreditCard}
                       className="h-9"
                     >
@@ -429,10 +216,9 @@ const ViewInvoicePage = ({ invoiceId }) => {
                         <InvoiceActionButtons
                           invoiceData={invoiceData}
                           onEdit={handleEditInvoice}
-                          onRelease={handleReleaseInvoice}
-                          onUpdatePaymentStatus={handleUpdatePaymentStatus}
-                          onDownloadPDF={() =>
-                            handleDownloadPDF(invoiceData, invoiceId)
+                          onRelease={() => setShowReleaseModal(true)}
+                          onUpdatePaymentStatus={() =>
+                            setShowPaymentStatusModal(true)
                           }
                           onPrint={handlePrint}
                         />
@@ -444,22 +230,6 @@ const ViewInvoicePage = ({ invoiceId }) => {
             </div>
           </div>
         </div>
-
-        <DeleteInvoiceModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleConfirmDelete}
-          invoiceNumber={invoiceData?.invoiceNumber}
-          isDeleting={isDeleting}
-        />
-
-        <CancelInvoiceModal
-          isOpen={showCancelModal}
-          onClose={() => setShowCancelModal(false)}
-          onConfirm={handleConfirmCancel}
-          invoiceNumber={invoiceData?.invoiceNumber}
-          isCancelling={isCancelling}
-        />
 
         {showReleaseModal && (
           <ReleaseInvoiceModal

@@ -18,10 +18,12 @@ const InvoiceActionButtons = ({
   const { t } = useTranslation();
   const router = useRouter();
 
+  const isDraft = invoiceData?.invoiceStatus === "DRAFT";
+
   return (
     <div className="mt-auto space-y-3 no-print action-buttons">
       {/* Main Status Actions or Total Amount */}
-      {invoiceData?.invoiceStatus === "DRAFT" ? (
+      {isDraft ? (
         <div className="flex gap-2 mb-3">
           <Button
             onClick={onEdit}
@@ -44,7 +46,7 @@ const InvoiceActionButtons = ({
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4 mb-3">
           <div className="text-center">
             <div className="text-2xl font-bold text-[rgb(var(--color-primary))] mb-1">
-              ₹{invoiceData.totalAmount?.toLocaleString()}
+              ₹{invoiceData?.totalAmount?.toLocaleString()}
             </div>
             <div className="text-sm text-[rgb(var(--color-text-secondary))]">
               {t("invoices.totalAmount")}
@@ -54,27 +56,29 @@ const InvoiceActionButtons = ({
       )}
 
       {/* Action Buttons Row - Only for non-drafts */}
-      {invoiceData?.invoiceStatus !== "DRAFT" && (
-        <div className="flex gap-2">
-          {/* Template Settings */}
-          <Button
-            onClick={() => router.push("/dashboard/invoices/print-preview")}
-            variant="outline"
-            className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium border-dashed"
-          >
-            <Settings className="w-4 h-4" />
-            <span>{t("invoices.templateSettings")}</span>
-          </Button>
+      {!isDraft && (
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            {/* Template Settings */}
+            <Button
+              onClick={() => router.push("/dashboard/invoices/print-preview")}
+              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium border-dashed"
+            >
+              <Settings className="w-4 h-4" />
+              <span>{t("invoices.templateSettings")}</span>
+            </Button>
 
-          {/* Print Action */}
-          <Button
-            onClick={() => onPrint()}
-            variant="primary"
-            className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium text-white"
-          >
-            <Printer className="w-4 h-4" />
-            <span>{t("invoices.print")}</span>
-          </Button>
+            {/* Print Action */}
+            <Button
+              onClick={() => onPrint()}
+              variant="primary"
+              className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium text-white"
+            >
+              <Printer className="w-4 h-4" />
+              <span>{t("invoices.print")}</span>
+            </Button>
+          </div>
         </div>
       )}
     </div>
