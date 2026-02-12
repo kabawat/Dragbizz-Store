@@ -21,6 +21,7 @@ import sidebar from "./sidebar.json";
 import success from "./success.json";
 import suppliers from "./suppliers.json";
 import validation from "./validation.json";
+import salesOrder from "./salesOrder.json";
 
 export default {
   auth,
@@ -45,5 +46,6 @@ export default {
   sidebar,
   success,
   suppliers,
-  validation
+  validation,
+  salesOrder
 };

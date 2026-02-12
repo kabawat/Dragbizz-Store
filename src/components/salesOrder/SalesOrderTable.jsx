@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const StatusBadge = ({ status }) => {
+    const { t } = useTranslation();
     const styles = {
         // Delivery Statuses - Using opacity for better dark mode compatibility
         PENDING: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
@@ -33,10 +34,19 @@ const StatusBadge = ({ status }) => {
 
     const Icon = icons[status] || Clock;
 
+    // Map status strings to translation keys if they don't exactly match
+    const getStatusLabel = (s) => {
+        const key = s?.toLowerCase();
+        if (s === "PENDING") return t("common.pending");
+        if (s === "PAID") return t("common.paid");
+        if (s === "UNPAID") return t("common.paymentStatus");
+        return t(`salesOrder.status.${key}`, { defaultValue: s });
+    };
+
     return (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${styles[status] || "bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))]"}`}>
             <Icon size={12} />
-            {status}
+            {getStatusLabel(status)}
         </span>
     );
 };
@@ -90,13 +100,13 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                     <thead>
                         <tr>
                             <th className="w-1/4 px-4 py-2 text-left">
-                                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">Order ID</span>
+                                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">{t("common.orderId")}</span>
                             </th>
-                            <th className="w-1/5 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Customer</th>
-                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Date</th>
-                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Delivery</th>
-                            <th className="w-1/6 px-4 py-2 text-right font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Amount</th>
-                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">Payment</th>
+                            <th className="w-1/5 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.customer")}</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.date")}</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.delivery")}</th>
+                            <th className="w-1/6 px-4 py-2 text-right font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.amount")}</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.payment")}</th>
                             <th className="w-24 px-4 py-2 text-center">
                                 <MoreVertical className="w-4 h-4 mx-auto" />
                             </th>
@@ -130,7 +140,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                                        {order.itemCount || 0} Products
+                                                        {order.itemCount || 0} {t("common.products")}
                                                     </span>
                                                 </div>
                                             </div>
@@ -139,7 +149,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                     <td className="w-1/5 px-4 py-2">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">
-                                                {order.customer?.name || "Guest"}
+                                                {order.customer?.name || t("common.guest")}
                                             </span>
                                             <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
                                                 {order.customer?.phone || order.customer?.email || ""}
@@ -201,7 +211,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                                 className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
                                                             >
                                                                 <Truck className="w-4 h-4" />
-                                                                Mark as Shipped
+                                                                {t("salesOrder.markAsShipped")}
                                                             </button>
                                                         </>
                                                     )}
@@ -214,7 +224,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                                 className="w-full px-4 py-2 text-left text-sm text-emerald-600 hover:bg-emerald-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
                                                             >
                                                                 <CreditCard className="w-4 h-4" />
-                                                                Mark as Paid
+                                                                {t("salesOrder.markAsPaid")}
                                                             </button>
                                                         </>
                                                     )}
