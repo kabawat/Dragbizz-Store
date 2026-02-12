@@ -121,7 +121,7 @@ const SalesOrdersPage = () => {
             <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
                 <Header
                     title={t("sidebar.sellOrders")}
-                    description="Manage and track all customer orders from catalogs"
+                    description={t("salesOrder.orderListSubtitle")}
                 />
 
                 <div className="flex-1 p-5">
@@ -133,7 +133,7 @@ const SalesOrdersPage = () => {
                                 <div className="w-100">
                                     <Input
                                         type="text"
-                                        placeholder={`${t("common.search")} orders...`}
+                                        placeholder={t("common.searchOrders")}
                                         value={searchTerm}
                                         onChange={(value) => setSearchTerm(value)}
                                         leftIcon={Search}
@@ -145,15 +145,15 @@ const SalesOrdersPage = () => {
 
                                     <div className="min-w-[160px]">
                                         <Select
-                                            placeholder="All Status"
+                                            placeholder={t("common.allStatus")}
                                             value={statusFilter}
                                             onChange={setStatusFilter}
                                             options={[
-                                                { value: "all", label: "All Status" },
-                                                { value: "PENDING", label: "Pending" },
-                                                { value: "CONFIRMED", label: "Confirmed" },
-                                                { value: "DELIVERED", label: "Delivered" },
-                                                { value: "CANCELLED", label: "Cancelled" },
+                                                { value: "all", label: t("common.allStatus") },
+                                                { value: "PENDING", label: t("common.pending") },
+                                                { value: "CONFIRMED", label: t("salesOrder.confirm") },
+                                                { value: "DELIVERED", label: t("salesOrder.markAsDelivered") },
+                                                { value: "CANCELLED", label: t("salesOrder.cancelOrder") },
                                             ]}
                                         />
                                     </div>
@@ -242,7 +242,7 @@ const SalesOrdersPage = () => {
                                         {t("common.noResults")}
                                     </h3>
                                     <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                                        {searchTerm ? t("common.noResults") : "Orders from your shared catalogs will appear here."}
+                                        {searchTerm ? t("common.noResults") : t("salesOrder.orderListDescription")}
                                     </p>
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ const SalesOrdersPage = () => {
                                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
                                     <div className="flex items-center justify-between">
                                         <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                            Showing <span className="font-semibold text-[rgb(var(--color-text-primary))]">{orders.length}</span> orders
+                                            {t("common.showing")} <span className="font-semibold text-[rgb(var(--color-text-primary))]">{orders.length}</span> {t("sidebar.sellOrders").toLowerCase()}
                                         </div>
                                     </div>
                                 </div>

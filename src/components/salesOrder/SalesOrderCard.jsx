@@ -5,6 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { IconButton } from "../ui";
 
 const StatusBadge = ({ status }) => {
+    const { t } = useTranslation();
     const styles = {
         // Delivery Statuses - Using opacity for better dark mode compatibility
         PENDING: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
@@ -34,10 +35,19 @@ const StatusBadge = ({ status }) => {
 
     const Icon = icons[status] || Clock;
 
+    // Map status strings to translation keys if they don't exactly match
+    const getStatusLabel = (s) => {
+        const key = s?.toLowerCase();
+        if (s === "PENDING") return t("common.pending");
+        if (s === "PAID") return t("common.paid");
+        if (s === "UNPAID") return t("common.paymentStatus");
+        return t(`salesOrder.status.${key}`, { defaultValue: s });
+    };
+
     return (
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${styles[status] || "bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-secondary))]"}`}>
             <Icon size={12} />
-            {status}
+            {getStatusLabel(status)}
         </span>
     );
 };
@@ -71,7 +81,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
         _actionMenuItems.push(
             {
                 value: "ship",
-                label: "Mark as Shipped",
+                label: t("salesOrder.markAsShipped"),
                 icon: Truck,
                 className: "text-[rgb(var(--color-primary))]",
                 onClick: () => onUpdateStatus?.(order.id || order._id, "SHIPPED", { message: 'Order marked as shipped' }),
@@ -82,7 +92,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     if (["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
         _actionMenuItems.push({
             value: "mark_paid",
-            label: "Mark as Paid",
+            label: t("salesOrder.markAsPaid"),
             icon: CreditCard,
             className: "text-emerald-600",
             onClick: () => onUpdateStatus?.(order.id || order._id, null, { paymentStatus: "PAID", message: "Payment confirmed and marked as PAID" }),
@@ -163,7 +173,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                         <User size={18} className="text-[rgb(var(--color-primary))]" />
                     </div>
                     <div className="min-w-0">
-                        <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">{order.customer?.name || "Guest"}</p>
+                        <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">{order.customer?.name || t("common.guest")}</p>
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate">{order.customer?.phone || order.customer?.email || ""}</p>
                     </div>
                 </div>
@@ -171,11 +181,11 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                 {/* Footer Stats Section */}
                 <div className="rounded-xl p-3 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">Products</span>
-                        <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">{order.itemCount || 0} Items</span>
+                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">{t("common.products")}</span>
+                        <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">{order.itemCount || 0} {t("invoice.items")}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">Total Amount</span>
+                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">{t("invoice.totalAmount")}</span>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-black text-[rgb(var(--color-primary))]">₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}</span>
                             <div className="mt-1">

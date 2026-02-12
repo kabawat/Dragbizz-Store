@@ -128,6 +128,35 @@
     "topVendors": "शीर्ष विक्रेता",
     "vendorAnalysisWillBeImplementedSoon": "विक्रेता विश्लेषण जल्द ही लागू किया जाएगा",
     "advancedAnalyticsComingSoon": "उन्नत विश्लेषण जल्द ही आ रहा है",
-    "advancedAnalyticsDescription": "हम विस्तृत चार्ट, प्रवृत्ति विश्लेषण, बजट ट्रैकिंग और निर्यात योग्य रिपोर्ट सहित व्यापक व्यय विश्लेषण पर काम कर रहे हैं। बने रहें!"
+    "advancedAnalyticsDescription": "हम विस्तृत चार्ट, रुझान विश्लेषण, बजट ट्रैकिंग और निर्यात योग्य रिपोर्ट सहित व्यापक व्यय विश्लेषण पर काम कर रहे हैं। बने रहें!"
+  },
+  "analytics": {
+    "totalExpenses": "कुल खर्चे",
+    "todayExpenses": "आज के खर्चे",
+    "paidExpenses": "भुगतान किए गए खर्चे",
+    "pendingExpenses": "लंबित खर्चे",
+    "totalAmount": "कुल राशि",
+    "netAmount": "शुद्ध राशि",
+    "gstAmount": "जीएसटी राशि",
+    "totalExpensesAmount": "कुल खर्चे की राशि",
+    "netAmountExclGst": "शुद्ध राशि (जीएसटी को छोड़कर)",
+    "totalGstAmount": "कुल जीएसटी राशि",
+    "byCategory": "श्रेणी के अनुसार खर्चे",
+    "byPaymentMethod": "भुगतान विधि के अनुसार खर्चे",
+    "breakdown": "खर्चों का विवरण",
+    "paidAmount": "भुगतान की गई राशि",
+    "pendingAmount": "लंबित राशि",
+    "todayAmount": "आज की राशि",
+    "reportTitle": "खर्च विश्लेषण रिपोर्ट",
+    "summary": "सारांश",
+    "financialBreakdown": "वित्तीय विवरण",
+    "loading": "विश्लेषण डेटा लोड हो रहा है...",
+    "downloadReport": "रिपोर्ट डाउनलोड करें",
+    "downloadAsPDF": "पीडीएफ के रूप में डाउनलोड करें",
+    "downloadAsXLSX": "एक्सेल के रूप में डाउनलोड करें",
+    "noCategoryData": "कोई श्रेणी डेटा उपलब्ध नहीं है",
+    "noPaymentMethodData": "कोई भुगतान विधि डेटा उपलब्ध नहीं है",
+    "metric": "मीट्रिक",
+    "value": "मान"
   }
 }

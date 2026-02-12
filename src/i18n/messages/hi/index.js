@@ -22,6 +22,7 @@ import success from "./success.json";
 import suppliers from "./suppliers.json";
 import validation from "./validation.json";
 import suggestions from "./suggestions.json";
+import salesOrder from "./salesOrder.json";
 
 export default {
   auth,
@@ -47,5 +48,6 @@ export default {
   success,
   suppliers,
   validation,
-  suggestions
+  suggestions,
+  salesOrder
 };

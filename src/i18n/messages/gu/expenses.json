@@ -128,6 +128,35 @@
     "topVendors": "ટોચના વેન્ડર્સ",
     "vendorAnalysisWillBeImplementedSoon": "વેન્ડર વિશ્લેષણ ટૂંક સમયમાં અમલમાં આવશે",
     "advancedAnalyticsComingSoon": "અદ્યતન વિશ્લેષણ ટૂંક સમયમાં આવશે",
-    "advancedAnalyticsDescription": "અમે વિગતવાર ચાર્ટ્સ, ટ્રેન્ડ વિશ્લેષણ, બજેટ ટ્રેકિંગ અને નિકાસ યોગ્ય અહેવાલો સહિત વ્યાપક ખર્ચ વિશ્લેષણ પર કામ કરી રહ્યા છીએ. સંપર્કમાં રહો!"
+    "advancedAnalyticsDescription": "અમે વિગતવાર ચાર્ટ, વલણ વિશ્લેષણ, બજેટ ટ્રેકિંગ અને નિકાસ કરી શકાય તેવા અહેવાલો સહિત વ્યાપક ખર્ચ વિશ્લેષણ પર કામ કરી રહ્યા છીએ. જોડાયેલા રહો!"
+  },
+  "analytics": {
+    "totalExpenses": "કુલ ખર્ચ",
+    "todayExpenses": "આજના ખર્ચ",
+    "paidExpenses": "ચૂકવેલ ખર્ચ",
+    "pendingExpenses": "બાકી ખર્ચ",
+    "totalAmount": "કુલ રકમ",
+    "netAmount": "ચોખ્ખી રકમ",
+    "gstAmount": "જીએસટી રકમ",
+    "totalExpensesAmount": "કુલ ખર્ચ રકમ",
+    "netAmountExclGst": "ચોખ્ખી રકમ (જીએસટી સિવાય)",
+    "totalGstAmount": "કુલ જીએસટી રકમ",
+    "byCategory": "કેટેગરી મુજબ ખર્ચ",
+    "byPaymentMethod": "ચુકવણી પદ્ધતિ મુજબ ખર્ચ",
+    "breakdown": "ખર્ચ વિગતો",
+    "paidAmount": "ચૂકવેલ રકમ",
+    "pendingAmount": "બાકી રકમ",
+    "todayAmount": "આજની રકમ",
+    "reportTitle": "ખર્ચ વિશ્લેષણ રિપોર્ટ",
+    "summary": "સારાંશ",
+    "financialBreakdown": "નાણાકીય વિગતો",
+    "loading": "વિશ્લેષણ ડેટા લોડ થઈ રહ્યો છે...",
+    "downloadReport": "રિપોર્ટ ડાઉનલોડ કરો",
+    "downloadAsPDF": "પીડીએફ તરીકે ડાઉનલોડ કરો",
+    "downloadAsXLSX": "એક્સેલ તરીકે ડાઉનલોડ કરો",
+    "noCategoryData": "કોઈ કેટેગરી ડેટા ઉપલબ્ધ નથી",
+    "noPaymentMethodData": "કોઈ ચુકવણી પદ્ધતિ ડેટા ઉપલબ્ધ નથી",
+    "metric": "મેટ્રિક",
+    "value": "કિંમત"
   }
 }
