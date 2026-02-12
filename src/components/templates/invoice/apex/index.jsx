@@ -17,7 +17,7 @@ const ApexTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.apexInvoice} id="invoice">
+            <div className={styles.apexInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <div>

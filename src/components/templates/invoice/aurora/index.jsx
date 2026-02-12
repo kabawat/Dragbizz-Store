@@ -14,7 +14,7 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.auroraInvoice} id="invoice">
+            <div className={styles.auroraInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <div>

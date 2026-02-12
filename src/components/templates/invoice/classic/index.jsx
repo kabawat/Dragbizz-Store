@@ -7,7 +7,7 @@ import styles from "./style.module.scss";
 const ClassicTemplate = ({ invoiceData, selectedStore }) => {
     return (
         <InvoiceContainer>
-            <div className={styles.classicInvoice} id="invoice">
+            <div className={styles.classicInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>
