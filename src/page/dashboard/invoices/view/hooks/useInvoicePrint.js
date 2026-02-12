@@ -24,7 +24,7 @@ export const useInvoicePrint = (fetching, invoiceData) => {
   };
 
   const handleDownloadPDF = async (invoiceData, invoiceId) => {
-    const invoice = document.getElementById("invoice-area");
+    const invoice = document.getElementById("invoice-container");
     if (!invoice) {
       showError("Invoice not found!");
       return;
@@ -34,33 +34,36 @@ export const useInvoicePrint = (fetching, invoiceData) => {
       const { default: html2canvas } = await import("html2canvas");
       const { default: jsPDF } = await import("jspdf");
 
+      // 210mm = ~794px at 96 DPI, 297mm = ~1123px
+      const a4WidthPx = 794;
       const canvas = await html2canvas(invoice, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
-        onclone: (clonedDoc) => {
-          // Adjust styles to match print layout
-          const invoiceContainer = clonedDoc.getElementById("invoice-container");
-          if (invoiceContainer) {
-            invoiceContainer.style.padding = "0.5cm"; // Match the print padding defined in CSS
-            invoiceContainer.style.width = "210mm";   // Force A4 width
-            invoiceContainer.style.maxWidth = "none";
-            invoiceContainer.style.margin = "0";      // Remove centering margin for capture
-            invoiceContainer.style.height = "auto";
-            invoiceContainer.style.minHeight = "297mm";
-          }
-        },
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: a4WidthPx,
+        // padding: 10,
+        height: invoice.scrollHeight,
+        windowWidth: a4WidthPx,
+        windowHeight: invoice.scrollHeight,
       });
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.7);
+      const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF("p", "mm", "a4");
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      // Add padding: 10mm on all sides
+      const padding = 5; // 10mm padding
+      const contentWidth = pdfWidth - (padding * 2);
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", padding, padding, contentWidth, contentHeight);
       pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
     } catch (_error) {
+      console.error(_error);
       showError("Failed to download PDF. Please try again.");
     }
   };

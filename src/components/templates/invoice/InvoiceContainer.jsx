@@ -1,7 +1,7 @@
 "use client";
 import styles from "./style.module.scss";
 
-const InvoiceContainer = ({ children, className = "" }) => {
+const InvoiceContainer = ({ children, className = "", style = {} }) => {
   return (
     <>
       <style jsx global>{`
@@ -20,7 +20,7 @@ const InvoiceContainer = ({ children, className = "" }) => {
           }
         }
       `}</style>
-      <div id="invoice-container" className={`${styles.invoicePage} ${className}`}>
+      <div id="invoice-container" className={`${styles.invoicePage} ${className}`} style={style}>
         {children}
       </div>
     </>
