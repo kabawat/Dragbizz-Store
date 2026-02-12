@@ -12,7 +12,7 @@ const EclipseTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.eclipseInvoice} id="invoice">
+            <div className={styles.eclipseInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>

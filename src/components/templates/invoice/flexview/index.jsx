@@ -14,7 +14,7 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.flexviewInvoice} id="invoice">
+            <div className={styles.flexviewInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>

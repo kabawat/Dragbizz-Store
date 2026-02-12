@@ -4,7 +4,7 @@ import InvoiceContainer from "../InvoiceContainer";
 import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
 
-const FusionTemplate = ({ invoiceData, selectedStore }) => {
+const PrismTemplate = ({ invoiceData, selectedStore }) => {
     const formatCurrency = (amount) => {
         return `₹${(amount || 0).toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -14,31 +14,44 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.fusionInvoice} >
+            <div className={styles.prismInvoice} >
                 {/* Header Section */}
-                <div className={styles.headerSection}>
-                    <div className={styles.brandingBlock}>
-                        <h2>{selectedStore?.storeName || "FUSION INC."}</h2>
-                        <p>{selectedStore?.address || "101 Tech Center, City"}</p>
-                        {selectedStore?.phone && <p>{selectedStore.phone}</p>}
-                        {selectedStore?.email && <p>{selectedStore.email}</p>}
-                    </div>
-                    <div className={styles.invoiceInfo}>
+                <div className={styles.header}>
+                    <div>
                         <h1>INVOICE</h1>
-                        <div>
-                            <span style={{ color: "#bdc3c7" }}>No:</span>
-                            <span className={styles.tag}>{invoiceData.invoiceNumber}</span>
-                        </div>
-                        <div style={{ marginTop: "10px" }}>
-                            <span style={{ color: "#bdc3c7" }}>Date:</span>
-                            <span className={styles.tag}>
-                                {moment(invoiceData.createdAt).format("DD-MMM-YYYY")}
-                            </span>
-                        </div>
+                    </div>
+                    <div className={styles.storeDetails}>
+                        <h2>{selectedStore?.storeName || "PRISM TECHNOLOGIES"}</h2>
+                        <p>{selectedStore?.address || "555 Innovation Park"}</p>
+                        <p>
+                            {selectedStore?.phone && <span>{selectedStore.phone} | </span>}
+                            {selectedStore?.email && <span>{selectedStore.email}</span>}
+                        </p>
                     </div>
                 </div>
 
-                {/* Details Section */}
+                {/* Info Bar */}
+                <div className={styles.infoBar}>
+                    <span>
+                        Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
+                    </span>
+                    <span>
+                        Issue Date:{" "}
+                        <strong>
+                            {moment(invoiceData.createdAt).format("DD-MMM-YYYY")}
+                        </strong>
+                    </span>
+                    <span>
+                        Due Date:{" "}
+                        <strong>
+                            {moment(invoiceData.createdAt)
+                                .add(30, "days")
+                                .format("DD-MMM-YYYY")}
+                        </strong>
+                    </span>
+                </div>
+
+                {/* Billing Details Section */}
                 <div className={styles.detailsSection}>
                     <div className={styles.detailsBlock}>
                         <div className={styles.label}>Bill To</div>
@@ -51,24 +64,27 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
                         {invoiceData.customer?.phone && (
                             <p>{invoiceData.customer.phone}</p>
                         )}
+                        {invoiceData.customer?.address && (
+                            <p>{invoiceData.customer.address}</p>
+                        )}
                     </div>
-                    <div className={styles.detailsBlock}>
+                    <div className={styles.detailsBlock} style={{ textAlign: "right" }}>
                         <div className={styles.label}>Issued By</div>
                         <div className={styles.value}>
-                            {selectedStore?.storeName || "FUSION INC."}
+                            {selectedStore?.storeName || "PRISM TECHNOLOGIES"}
                         </div>
+                        <p>Prepared by: Accounts Dept.</p>
                         {invoiceData.paymentMode && (
-                            <p>Payment Mode: <b>{invoiceData.paymentMode}</b></p>
+                            <p>Payment: {invoiceData.paymentMode}</p>
                         )}
-                        <p>Reference: {invoiceData.invoiceNumber}</p>
                     </div>
                 </div>
 
-                {/* Table Selection */}
+                {/* Items Table */}
                 <div className={styles.tableContainer}>
                     <InvoiceItemsTable
                         items={invoiceData.items}
-                        className={styles.fusionTable}
+                        className={styles.prismTable}
                         columnWidths={{
                             product: "40%",
                             quantity: "12%",
@@ -79,7 +95,7 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
                         renderProductCell={(item) => (
                             <>
                                 <div className={styles.productName}>
-                                    {item.product?.name || "Unnamed Product"}
+                                    {item.product?.name || "Unnamed Item"}
                                 </div>
                                 {item.product?.sku && (
                                     <div className={styles.productSku}>
@@ -99,21 +115,21 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
                 {/* Totals Section */}
                 <div className={styles.totalsContainer}>
                     <div className={styles.totals}>
-                        <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>Subtotal:</div>
+                        <div className={styles.row}>
+                            <div className={styles.totalLabel}>Subtotal:</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.subtotal)}
                             </div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>GST:</div>
+                        <div className={styles.row}>
+                            <div className={styles.totalLabel}>Tax (GST):</div>
                             <div className={styles.amount}>
                                 {formatCurrency(invoiceData.gstAmount || 0)}
                             </div>
                         </div>
                         {invoiceData.totalDiscount > 0 && (
-                            <div className={styles.totalRow}>
-                                <div className={styles.rowLabel}>Discount:</div>
+                            <div className={styles.row}>
+                                <div className={styles.totalLabel}>Discount:</div>
                                 <div className={styles.amount} style={{ color: "#e74c3c" }}>
                                     -{formatCurrency(invoiceData.totalDiscount)}
                                 </div>
@@ -122,8 +138,8 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
                     </div>
                 </div>
 
-                {/* Final Total Bar */}
-                <div className={styles.finalBar}>
+                {/* Final Total Block */}
+                <div className={styles.finalTotalBlock}>
                     <span>TOTAL AMOUNT DUE:</span>
                     <span>{formatCurrency(invoiceData.totalAmount)}</span>
                 </div>
@@ -131,7 +147,8 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
                 {/* Footer */}
                 <div className={styles.footer}>
                     <p>
-                        Thank you for your business. We look forward to serving you again!
+                        Thank you for choosing{" "}
+                        {selectedStore?.storeName || "Prism Technologies"}.
                     </p>
                     <p>Generated on {moment().format("YYYY-MM-DD HH:mm:ss")}</p>
                 </div>
@@ -140,4 +157,4 @@ const FusionTemplate = ({ invoiceData, selectedStore }) => {
     );
 };
 
-export default FusionTemplate;
+export default PrismTemplate;
