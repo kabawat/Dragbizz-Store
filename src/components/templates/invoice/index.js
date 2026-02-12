@@ -1,46 +1,53 @@
 // Export all invoice templates (sorted alphabetically)
 
-export { default as AeroTemplate } from "./aero";
-export { default as AetherTemplate } from "./aether";
-export { default as ApexTemplate } from "./apex";
-export { default as AuraTemplate } from "./aura";
-export { default as AuroraTemplate } from "./aurora";
-export { default as AurumTemplate } from "./aurum";
-export { default as CelesteTemplate } from "./celeste";
-export { default as ClassicTemplate } from "./classic";
-export { default as CleanDataSheetTemplate } from "./clean-datasheet";
-export { default as CosmicReceiptTemplate } from "./cosmic-receipt";
-export { default as CrystalTemplate } from "./crystal";
-export { default as EclipseTemplate } from "./eclipse";
-export { default as ElegantTemplate } from "./elegant";
-export { default as ElitePaperTemplate } from "./elitepaper";
-export { default as FlexviewTemplate } from "./flexview";
-export { default as FusionTemplate } from "./fusion";
-export { default as GeometricEdgeTemplate } from "./geometric-edge";
+export { default as AeroTemplate } from "./standard/aero";
+export { default as AetherTemplate } from "./standard/aether";
+export { default as ApexTemplate } from "./standard/apex";
+export { default as AuraTemplate } from "./standard/aura";
+export { default as AuroraTemplate } from "./standard/aurora";
+export { default as AurumTemplate } from "./standard/aurum";
+export { default as CelesteTemplate } from "./standard/celeste";
+export { default as ClassicTemplate } from "./standard/classic";
+export { default as CleanDataSheetTemplate } from "./standard/clean-datasheet";
+export { default as CosmicReceiptTemplate } from "./standard/cosmic-receipt";
+export { default as CrystalTemplate } from "./standard/crystal";
+export { default as EclipseTemplate } from "./standard/eclipse";
+export { default as ElegantTemplate } from "./standard/elegant";
+export { default as ElitePaperTemplate } from "./standard/elitepaper";
+export { default as FlexviewTemplate } from "./standard/flexview";
+export { default as FusionTemplate } from "./standard/fusion";
+export { default as GeometricEdgeTemplate } from "./standard/geometric-edge";
 export { default as InvoiceContainer } from "./InvoiceContainer";
-export { default as LuminousLedgerTemplate } from "./luminous-ledger";
-export { default as LumosTemplate } from "./lumos";
-export { default as MatrixLedgerTemplate } from "./matrix-ledger";
-export { default as MinimalTemplate } from "./minimal";
-export { default as MinimalistMonochromeTemplate } from "./minimalist-monochrome";
-export { default as ModernStackedTemplate } from "./modern-stacked";
-export { default as ModernTemplate } from "./modern";
-export { default as NeoEdgeTemplate } from "./neo-edge";
-export { default as NeoGeometricTemplate } from "./neo-geometric";
-export { default as OrionTemplate } from "./orion";
-export { default as PillarProTemplate } from "./pillar-pro";
-export { default as PrismTemplate } from "./prism";
-export { default as ProfessionalBlueTemplate } from "./professional-blue";
-export { default as ProfessionalTemplate } from "./professional";
-export { default as RoyalEdgeTemplate } from "./royal-edge";
-export { default as RusticEleganceTemplate } from "./rustic-elegance";
-export { default as SleekStreamTemplate } from "./sleek-stream";
-export { default as SpectrumTemplate } from "./spectrum";
-export { default as StructedTemplate } from "./structed";
-export { default as TerraTemplate } from "./terra";
-export { default as VelocityLedgerTemplate } from "./velocity-ledger";
-export { default as VintageTemplate } from "./vintage";
-export { default as ZenithTemplate } from "./zenith";
+export { default as LuminousLedgerTemplate } from "./standard/luminous-ledger";
+export { default as LumosTemplate } from "./standard/lumos";
+export { default as MatrixLedgerTemplate } from "./standard/matrix-ledger";
+export { default as MinimalTemplate } from "./standard/minimal";
+export { default as MinimalistMonochromeTemplate } from "./standard/minimalist-monochrome";
+export { default as ModernStackedTemplate } from "./standard/modern-stacked";
+export { default as ModernTemplate } from "./standard/modern";
+export { default as NeoEdgeTemplate } from "./standard/neo-edge";
+export { default as NeoGeometricTemplate } from "./standard/neo-geometric";
+export { default as OrionTemplate } from "./standard/orion";
+export { default as PillarProTemplate } from "./standard/pillar-pro";
+export { default as PrismTemplate } from "./standard/prism";
+export { default as ProfessionalBlueTemplate } from "./standard/professional-blue";
+export { default as ProfessionalTemplate } from "./standard/professional";
+export { default as RoyalEdgeTemplate } from "./standard/royal-edge";
+export { default as RusticEleganceTemplate } from "./standard/rustic-elegance";
+export { default as SleekStreamTemplate } from "./standard/sleek-stream";
+export { default as SpectrumTemplate } from "./standard/spectrum";
+export { default as StructedTemplate } from "./standard/structed";
+export { default as TerraTemplate } from "./standard/terra";
+export { default as VelocityLedgerTemplate } from "./standard/velocity-ledger";
+export { default as VintageTemplate } from "./standard/vintage";
+export { default as ZenithTemplate } from "./standard/zenith";
+
+// Thermal Printer Templates
+export { default as ThermalClassicTemplate } from "./mini/thermal-classic";
+export { default as ThermalModernTemplate } from "./mini/thermal-modern";
+export { default as ThermalCompactTemplate } from "./mini/thermal-compact";
+export { default as ThermalMinimalTemplate } from "./mini/thermal-minimal";
+export { default as ThermalBoldTemplate } from "./mini/thermal-bold";
 
 // Template selector options (sorted alphabetically by label)
 export const TEMPLATE_OPTIONS = [
@@ -283,5 +290,35 @@ export const TEMPLATE_OPTIONS = [
     label: "Zenith",
     description: "Peak professional style",
     preview: "/images/templates/zentith-preview.png",
+  },
+  {
+    value: "thermal-classic",
+    label: "Thermal Classic",
+    description: "Classic 80mm thermal receipt",
+    preview: "/images/templates/thermal-classic-preview.png",
+  },
+  {
+    value: "thermal-modern",
+    label: "Thermal Modern",
+    description: "Modern 80mm thermal receipt",
+    preview: "/images/templates/thermal-modern-preview.png",
+  },
+  {
+    value: "thermal-compact",
+    label: "Thermal Compact",
+    description: "Compact 58mm thermal receipt",
+    preview: "/images/templates/thermal-compact-preview.png",
+  },
+  {
+    value: "thermal-minimal",
+    label: "Thermal Minimal",
+    description: "Minimal 80mm thermal receipt",
+    preview: "/images/templates/thermal-minimal-preview.png",
+  },
+  {
+    value: "thermal-bold",
+    label: "Thermal Bold",
+    description: "Bold 80mm thermal receipt",
+    preview: "/images/templates/thermal-bold-preview.png",
   },
 ];

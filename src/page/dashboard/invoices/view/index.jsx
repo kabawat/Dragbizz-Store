@@ -17,6 +17,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useInvoicePrint } from "@/hooks/invoice/useInvoicePrint";
+import { useMiniInvoicePrint } from "@/hooks/invoice/useMiniInvoicePrint";
 import {
   calculateGstAmount,
   calculateSubtotal,
@@ -36,10 +37,23 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const { showError } = useGlobalToast();
-  const { handlePrint, handleDownloadPDF } = useInvoicePrint(
+  const isMiniTemplate = selectedTemplate?.startsWith("thermal");
+
+  const standardPrint = useInvoicePrint(
     fetching,
-    invoiceData
+    invoiceData,
+    isMiniTemplate // skip if mini
   );
+
+  const miniPrint = useMiniInvoicePrint(
+    fetching,
+    invoiceData,
+    !isMiniTemplate // skip if standard
+  );
+
+  const { handlePrint, handleDownloadPDF } = isMiniTemplate
+    ? miniPrint
+    : standardPrint;
 
   const calculatedGstAmount = invoiceData ? calculateGstAmount(invoiceData) : 0;
   const itemsWithGst = invoiceData ? getItemsWithGst(invoiceData) : [];

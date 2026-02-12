@@ -67,6 +67,11 @@ import {
   VelocityLedgerTemplate,
   VintageTemplate,
   ZenithTemplate,
+  ThermalClassicTemplate,
+  ThermalModernTemplate,
+  ThermalCompactTemplate,
+  ThermalMinimalTemplate,
+  ThermalBoldTemplate,
 } from "@/components/templates/invoice";
 
 export const getTemplateComponent = (selectedTemplate) => {
@@ -111,6 +116,11 @@ export const getTemplateComponent = (selectedTemplate) => {
     minimalistmonochrome: MinimalistMonochromeTemplate,
     modernstacked: ModernStackedTemplate,
     "rustic-elegance": RusticEleganceTemplate,
+    "thermal-classic": ThermalClassicTemplate,
+    "thermal-modern": ThermalModernTemplate,
+    "thermal-compact": ThermalCompactTemplate,
+    "thermal-minimal": ThermalMinimalTemplate,
+    "thermal-bold": ThermalBoldTemplate,
   };
 
   return templates[selectedTemplate] || ModernTemplate;
