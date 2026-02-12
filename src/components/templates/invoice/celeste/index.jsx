@@ -14,7 +14,7 @@ const CelesteTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.celesteInvoice} id="invoice">
+            <div className={styles.celesteInvoice} >
                 <div className={styles.header}>
                     <h1>INVOICE</h1>
                     <p>

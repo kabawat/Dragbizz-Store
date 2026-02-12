@@ -16,7 +16,7 @@ const AuraTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.auraInvoice} id="invoice">
+            <div className={styles.auraInvoice} >
                 {/* Top Bar for Invoice Number and Date */}
                 <div className={styles.topBar}>
                     <span>

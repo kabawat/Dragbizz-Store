@@ -3,7 +3,7 @@ import moment from "moment";
 import InvoiceContainer from "../InvoiceContainer";
 import styles from "./style.module.scss";
 
-const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
+const CosmicReceiptTemplate = ({ invoiceData, selectedStore }) => {
     const formatCurrency = (amount) => {
         return `₹${(amount || 0).toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -13,20 +13,19 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.cleanInvoice} >
+            <div className={styles.cosmicInvoice} >
                 {/* Header Section */}
                 <div className={styles.header}>
-                    <h1>INVOICE</h1>
-                    <div className={styles.storeName}>
-                        {selectedStore?.storeName || "Data Stream Accounting"}
-                    </div>
+                    <h1>RECEIPT</h1>
                     <div className={styles.storeInfo}>
                         <p>
-                            {selectedStore?.address || "456 Minimalist Way, Clarity City"}
+                            <span className={styles.storeName}>
+                                {selectedStore?.storeName || "Cosmic Systems Ltd."}
+                            </span>
                         </p>
                         <p>
-                            {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
-                            {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
+                            {selectedStore?.address && <span>{selectedStore.address} | </span>}
+                            {selectedStore?.phone && <span>Ph: {selectedStore.phone}</span>}
                         </p>
                     </div>
                 </div>
@@ -34,28 +33,23 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
                 {/* Info Section */}
                 <div className={styles.infoSection}>
                     <div className={styles.infoBlock}>
-                        <div className={styles.label}>Invoice Details</div>
+                        <div className={styles.label}>Transaction Meta</div>
                         <p>
                             Invoice #:{" "}
-                            <span className={styles.invoiceNumber}>
+                            <span className={styles.valueBold}>
                                 {invoiceData.invoiceNumber}
                             </span>
                         </p>
                         <p>
-                            Date Issued:{" "}
+                            Date:{" "}
                             <span className={styles.valueBold}>
-                                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
+                                {moment(invoiceData.createdAt).format("YYYY-MM-DD")}
                             </span>
                         </p>
-                        {invoiceData.paymentMode && (
-                            <p>
-                                Payment: <span className={styles.valueBold}>{invoiceData.paymentMode}</span>
-                            </p>
-                        )}
                     </div>
 
-                    <div className={styles.infoBlock}>
-                        <div className={styles.label}>Bill To</div>
+                    <div className={styles.infoBlock} style={{ textAlign: "right" }}>
+                        <div className={styles.label}>Billed To</div>
                         <p className={styles.valueBold}>
                             {invoiceData.customer?.name || "Walk-in Customer"}
                         </p>
@@ -65,15 +59,12 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
                         {invoiceData.customer?.phone && (
                             <p>{invoiceData.customer.phone}</p>
                         )}
-                        {invoiceData.customer?.address && (
-                            <p>{invoiceData.customer.address}</p>
-                        )}
                     </div>
                 </div>
 
                 {/* Table Selection */}
                 <div className={styles.tableContainer}>
-                    <table className={styles.cleanTable}>
+                    <table className={styles.cosmicTable}>
                         <thead>
                             <tr>
                                 <th style={{ width: "50%" }}>Description</th>
@@ -110,46 +101,42 @@ const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
 
                 {/* Totals Section */}
                 <div className={styles.totalsSection}>
-                    <div className={styles.totalsTable}>
+                    <div className={styles.totalRow}>
+                        <div className={styles.rowLabel}>Subtotal:</div>
+                        <div className={styles.amount}>
+                            {formatCurrency(invoiceData.subtotal)}
+                        </div>
+                    </div>
+                    <div className={styles.totalRow}>
+                        <div className={styles.rowLabel}>Tax (GST):</div>
+                        <div className={styles.amount}>
+                            {formatCurrency(invoiceData.gstAmount)}
+                        </div>
+                    </div>
+                    {invoiceData.totalDiscount > 0 && (
                         <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>Subtotal:</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
+                            <div className={styles.rowLabel}>Discount:</div>
+                            <div className={styles.amount} style={{ color: "#ff5252" }}>
+                                -{formatCurrency(invoiceData.totalDiscount)}
                             </div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>Tax (GST):</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
-                            <div className={styles.totalRow}>
-                                <div className={styles.rowLabel}>Discount:</div>
-                                <div className={styles.amount} style={{ color: "#ff4d4f" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
-                                </div>
-                            </div>
-                        )}
-                        <div className={`${styles.totalRow} ${styles.finalRow}`}>
-                            <div className={styles.finalLabel}>AMOUNT DUE:</div>
-                            <div className={styles.finalAmount}>
-                                {formatCurrency(invoiceData.totalAmount)}
-                            </div>
+                    )}
+                    <div className={styles.finalRow}>
+                        <div className={styles.finalLabel}>AMOUNT DUE:</div>
+                        <div className={styles.finalAmount}>
+                            {formatCurrency(invoiceData.totalAmount)}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className={styles.footer}>
-                    <p>
-                        We appreciate your business. All figures are accurate as of the
-                        invoice date.
-                    </p>
+                    <p>Processing complete. Data stream verified.</p>
+                    <p>Thank you for your transaction.</p>
                 </div>
             </div>
         </InvoiceContainer>
     );
 };
 
-export default CleanDataSheetTemplate;
+export default CosmicReceiptTemplate;

@@ -6,7 +6,7 @@ import styles from "./style.module.scss";
 const AetherTemplate = ({ invoiceData, selectedStore }) => {
     return (
         <InvoiceContainer style={{ padding: 0 }}>
-            <div className={styles.aetherInvoice} id="invoice">
+            <div className={styles.aetherInvoice} >
                 {/* Left Panel - Dark Sidebar */}
                 <div className={styles.leftPanel}>
                     <div className={styles.storeInfo}>

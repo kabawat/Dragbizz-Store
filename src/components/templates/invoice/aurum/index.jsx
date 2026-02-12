@@ -12,7 +12,7 @@ const AurumTemplate = ({ invoiceData, selectedStore }) => {
 
     return (
         <InvoiceContainer>
-            <div className={styles.aurumInvoice} id="invoice">
+            <div className={styles.aurumInvoice} >
                 {/* Header */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>
