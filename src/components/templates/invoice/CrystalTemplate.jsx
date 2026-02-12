@@ -38,43 +38,7 @@ const CrystalTemplate = ({ invoiceData, selectedStore }) => {
           background-color: #f8faff !important; /* Very light, cool blue/white */
         }
 
-          body {
-          /* Using a classic serif font */
-          font-family: 'Georgia', 'Times New Roman', serif !important;
-          font-size: 14px !important;
-          line-height: 1.6 !important;
-          color: #4e342e !important; /* Dark brown text */
-          background-color: #fcfaf7 !important; /* Light beige background */
-        }
 
-         body.print-mode-mini .crystal-invoice {
-          width: 74mm !important;
-          max-width: 74mm !important;
-          padding: 6px !important;
-          border: none !important; /* thermal usually no border */
-          box-shadow: none !important;
-        }
-        body.print-mode-mini .crystal-header {
-          flex-direction: column-reverse !important;
-          align-item: center !important;
-          text-align: center !important;
-            .invoice-title-box {
-              text-align: center !important;
-            }
-        }
-        body.print-mode-mini .crystal-info {
-          grid-template-columns: 1fr !important;
-        
-        }
-
-        body.print-mode-standard .crystal-invoice {
-          max-width: 800px !important;
-          padding: 40px !important;
-        }
-        body.print-mode-mini .crystal-table thead th,
-        body.print-mode-mini .crystal-table td {
-            font-size: 10px !important;
-        }
 
         .crystal-invoice {
           max-width: 850px !important;
