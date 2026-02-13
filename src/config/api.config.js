@@ -11,6 +11,7 @@ const API_CONFIG = {
 
   // Authentication Endpoints
   AUTH: {
+    BASE_URL: "/auth",
     LOGIN: "/auth/login",
     LOGIN_VERIFY: "/auth/login",
     REFRESH: "/auth/refresh",
@@ -52,6 +53,12 @@ const API_CONFIG = {
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
+  },
+
+  // Utility Service Endpoints
+  UTILITY: {
+    BASE_URL: "/utility",
+    SOCKET: "/utility/socket.io",
   },
 
   // Voice AI Service Endpoints
