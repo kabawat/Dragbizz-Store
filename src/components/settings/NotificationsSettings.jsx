@@ -1,6 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  getNotificationSettings,
+  updateNotificationSettings,
+  resetNotificationSettings
+} from "@/store/slices/notificationSettingsSlice";
 import authService from "@/service/auth/auth.service";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { Bell, Mail, MessageSquare, Smartphone, Shield, ShoppingCart, Percent, CreditCard, User, RotateCcw, Loader2 } from "lucide-react";
@@ -18,42 +24,42 @@ const WhatsAppIcon = ({ className }) => (
 
 const NotificationsSettings = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { showSuccess, showError } = useErrorHandling();
-  const [loading, setLoading] = useState(true);
+
+  const settings = useAppSelector((state) => state.notificationSettings?.settings);
+  const loading = useAppSelector((state) => state.notificationSettings?.loading);
+
   const [isUpdating, setIsUpdating] = useState(false);
-  const [settings, setSettings] = useState(null);
+  const hasFetchedRef = useRef(false);
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
+    if (!settings && !loading) {
+      fetchSettings();
+    }
+  }, [settings, loading]);
 
   const fetchSettings = async () => {
+    if (hasFetchedRef.current || isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
     try {
-      setLoading(true);
-      const result = await authService.getNotificationSettings();
-      if (result.success) {
-        setSettings(result.data.data || result.data);
-      } else {
-        showError(result.message || "Failed to fetch notification settings");
-      }
+      await dispatch(getNotificationSettings()).unwrap();
+      hasFetchedRef.current = true;
     } catch (error) {
-      showError("An unexpected error occurred while fetching settings");
+      showError(error || "Failed to fetch notification settings");
     } finally {
-      setLoading(false);
+      isFetchingRef.current = false;
     }
   };
 
   const handleUpdate = async (updatedData) => {
     try {
       setIsUpdating(true);
-      const result = await authService.updateNotificationSettings(updatedData);
-      if (result.success) {
-        setSettings(result.data.data || result.data);
-      } else {
-        showError(result.message || "Failed to update settings");
-      }
+      await dispatch(updateNotificationSettings(updatedData)).unwrap();
     } catch (error) {
-      showError("An unexpected error occurred while updating settings");
+      showError(error || "Failed to update settings");
     } finally {
       setIsUpdating(false);
     }
@@ -62,20 +68,16 @@ const NotificationsSettings = () => {
   const handleReset = async () => {
     try {
       setIsUpdating(true);
-      const result = await authService.resetNotificationSettings();
-      if (result.success) {
-        setSettings(result.data.data || result.data);
-      } else {
-        showError(result.message || "Failed to reset settings");
-      }
+      await dispatch(resetNotificationSettings()).unwrap();
     } catch (error) {
-      showError("An unexpected error occurred while resetting settings");
+      showError(error || "Failed to reset settings");
     } finally {
       setIsUpdating(false);
     }
   };
 
   const toggleChannel = (channel) => {
+    if (!settings) return;
     const updated = {
       channels: {
         ...settings.channels,
@@ -86,6 +88,7 @@ const NotificationsSettings = () => {
   };
 
   const toggleCategoryChannel = (category, channel) => {
+    if (!settings) return;
     const updated = {
       categories: {
         ...settings.categories,
@@ -98,7 +101,7 @@ const NotificationsSettings = () => {
     handleUpdate(updated);
   };
 
-  if (loading) {
+  if (loading && !settings) {
     return (
       <div className="flex flex-col items-center justify-center p-12 space-y-4">
         <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--color-primary))]" />
