@@ -48,7 +48,6 @@ const EditBill = ({ billId }) => {
 
   const [formData, setFormData] = useState({
     supplier: "",
-    billDate: new Date().toISOString().split("T")[0],
     dueDate: "",
     notes: "",
     goodsReceived: true,
@@ -168,9 +167,6 @@ const EditBill = ({ billId }) => {
 
           setFormData({
             supplier: billData.supplier?._id || billData.supplier?.id || "",
-            billDate: billData.billDate
-              ? new Date(billData.billDate).toISOString().split("T")[0]
-              : new Date().toISOString().split("T")[0],
             dueDate: billData.dueDate
               ? new Date(billData.dueDate).toISOString().split("T")[0]
               : "",
@@ -181,7 +177,7 @@ const EditBill = ({ billId }) => {
         } else {
           setFetchError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.bill") })
+            t("errors.failedToFetchData", { item: t("common.bill") })
           );
         }
       } catch (_error) {
@@ -326,9 +322,7 @@ const EditBill = ({ billId }) => {
       newErrors.supplier = t("errors.selectSupplier");
     }
 
-    if (!formData.billDate) {
-      newErrors.billDate = t("bills.selectBillDate");
-    }
+
 
     // Validate items
     formData.items.forEach((item, index) => {
@@ -370,7 +364,6 @@ const EditBill = ({ billId }) => {
           expiryDate: item.expiryDate || undefined,
         })),
 
-        billDate: formData.billDate || new Date().toISOString().split("T")[0],
         dueDate: formData.dueDate || undefined,
         notes: formData.notes || undefined,
       };
@@ -387,7 +380,7 @@ const EditBill = ({ billId }) => {
       } else {
         setUpdateError(
           result.message ||
-            t("errors.failedToUpdate", { item: t("common.bill") })
+          t("errors.failedToUpdate", { item: t("common.bill") })
         );
       }
     } catch (_error) {
@@ -582,24 +575,7 @@ const EditBill = ({ billId }) => {
                             />
                           </div>
 
-                          <div>
-                            <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                              {t("bills.billDate")}
-                              <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                                ({t("common.optional")} -{" "}
-                                {t("bills.defaultsToToday")})
-                              </span>
-                            </label>
-                            <Input
-                              type="date"
-                              value={formData.billDate}
-                              onChange={(value) =>
-                                handleInputChange("billDate", value)
-                              }
-                              error={errors.billDate}
-                              leftIcon={Calendar}
-                            />
-                          </div>
+
 
                           <div>
                             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">

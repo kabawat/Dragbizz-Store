@@ -31,7 +31,6 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
   const [formData, setFormData] = useState({
     supplier: "",
     purchaseOrder: "",
-    billDate: new Date().toISOString().split("T")[0],
     dueDate: "",
     notes: "",
     goodsReceived: true,
@@ -82,7 +81,6 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
       setFormData({
         supplier: purchaseOrder.supplier?.id || "",
         purchaseOrder: purchaseOrder.id || purchaseOrder._id || "",
-        billDate: new Date().toISOString().split("T")[0],
         dueDate: dueDate.toISOString().split("T")[0],
         notes: "",
         goodsReceived: true,
@@ -322,27 +320,15 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
               </div>
 
               {/* Bill Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Input
-                    label={t("bills.billDate")}
-                    size="sm"
-                    type="date"
-                    value={formData.billDate}
-                    onChange={(value) => handleInputChange("billDate", value)}
-                    leftIcon={Calendar}
-                  />
-                </div>
-                <div>
-                  <Input
-                    label={t("bills.dueDate")}
-                    size="sm"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(value) => handleInputChange("dueDate", value)}
-                    leftIcon={Calendar}
-                  />
-                </div>
+              <div className="md:col-span-2">
+                <Input
+                  label={t("Payment deadline date")}
+                  size="sm"
+                  type="date"
+                  value={formData.dueDate}
+                  onChange={(value) => handleInputChange("dueDate", value)}
+                  leftIcon={Calendar}
+                />
               </div>
 
               {/* Items */}
