@@ -32,10 +32,10 @@ const Select = ({
   // Filter options based on search term
   const filteredOptions = searchable
     ? options.filter(
-        (option) =>
-          option.isAddOption ||
-          option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      (option) =>
+        option.isAddOption ||
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : options;
 
   // Separate regular options from add options
@@ -184,17 +184,15 @@ const Select = ({
       {/* Select Container */}
       <div
         ref={selectRef}
-        className={`relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${
-          error
-            ? "border-red-500 bg-red-50"
-            : "border-[rgb(var(--color-border-primary))]"
-        } ${
-          error
+        className={`relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${error
+          ? "border-red-500 bg-red-50"
+          : "border-[rgb(var(--color-border-primary))]"
+          } ${error
             ? "border-red-500 focus:ring-red-500"
             : isOpen
               ? "border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
               : "border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]"
-        } ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}`}
+          } ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? -1 : 0}
@@ -257,9 +255,8 @@ const Select = ({
 
             {/* Dropdown Arrow */}
             <ChevronDown
-              className={`${size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${
-                isOpen ? "rotate-180" : ""
-              }`}
+              className={`${size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))] transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+                }`}
             />
           </div>
         </div>
@@ -335,12 +332,11 @@ const Select = ({
 
                       return (
                         <div
-                          key={option.value || `option-${index}`}
-                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
-                            isHighlighted || isSelected
-                              ? "bg-blue-500 bg-opacity-10"
-                              : ""
-                          } hover:bg-blue-500 hover:bg-opacity-10`}
+                          key={`${String(option.value)}-${index}`}
+                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${isHighlighted || isSelected
+                            ? "bg-blue-500 bg-opacity-10"
+                            : ""
+                            } hover:bg-blue-500 hover:bg-opacity-10`}
                           style={{
                             backgroundColor:
                               isHighlighted || isSelected
@@ -396,9 +392,8 @@ const Select = ({
                       return (
                         <div
                           key={option.value || `add-option-${index}`}
-                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${
-                            isHighlighted ? "bg-blue-500 bg-opacity-10" : ""
-                          } hover:bg-blue-500 hover:bg-opacity-10`}
+                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${isHighlighted ? "bg-blue-500 bg-opacity-10" : ""
+                            } hover:bg-blue-500 hover:bg-opacity-10`}
                           style={{
                             backgroundColor: isHighlighted
                               ? "rgba(59, 130, 246, 0.1)"
