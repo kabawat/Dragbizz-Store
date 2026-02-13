@@ -1,3 +1,5 @@
+"use client";
+import React, { useState } from "react";
 import { Package, Plus, Trash2 } from "lucide-react";
 import { Button, Card, Input, Select } from "@/components/ui";
 import { productService } from "@/service/retailer";

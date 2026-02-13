@@ -1,3 +1,5 @@
+"use client";
+import React from "react";
 import { Building2, FileText, Receipt } from "lucide-react";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
 import { supplierService, purchaseOrderService } from "@/service/retailer";
@@ -91,11 +93,11 @@ const BillSidebar = ({
                         <div className="p-4 space-y-4">
                             <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                                 <Building2 className="w-4 h-4 mr-2" />
-                                Bill Details
+                                {t("bills.billDetails")}
                             </h3>
                             <div>
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Select Supplier *
+                                    {t("bills.selectSupplierLabel")}
                                 </label>
                                 <Select
                                     value={formData.supplier}
@@ -130,7 +132,7 @@ const BillSidebar = ({
 
                             <div>
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Purchase Order (Optional)
+                                    {t("bills.purchaseOrderOptional")}
                                 </label>
                                 <Select
                                     value={formData.purchaseOrder}
@@ -168,7 +170,7 @@ const BillSidebar = ({
 
                             <div>
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Payment Due Date
+                                    {t("bills.paymentDueDate")}
                                 </label>
                                 <Input
                                     type="date"
@@ -185,17 +187,17 @@ const BillSidebar = ({
                         <div className="p-4 space-y-4">
                             <h3 className="text-md font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
                                 <Receipt className="w-4 h-4 mr-2" />
-                                Additional Info
+                                {t("bills.additionalInfo")}
                             </h3>
 
                             <div>
                                 <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                                    Notes
+                                    {t("bills.notes")}
                                 </label>
                                 <Textarea
                                     value={formData.notes}
                                     onChange={(value) => handleInputChange("notes", value)}
-                                    placeholder="Add notes..."
+                                    placeholder={t("bills.addAdditionalNotes")}
                                     rows={3}
                                     maxLength={500}
                                 />
@@ -213,10 +215,10 @@ const BillSidebar = ({
                                     />
                                     <div>
                                         <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                            Stock In Goods?
+                                            {t("bills.stockInGoods")}
                                         </span>
                                         <p className="text-[10px] text-[rgb(var(--color-text-secondary))] mt-1">
-                                            Automatically add items to inventory
+                                            {t("bills.stockInGoodsDescription")}
                                         </p>
                                     </div>
                                 </label>
