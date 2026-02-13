@@ -79,6 +79,7 @@ const NotificationsSettings = () => {
   const toggleChannel = (channel) => {
     if (!settings) return;
     const updated = {
+      ...settings,
       channels: {
         ...settings.channels,
         [channel]: !settings.channels[channel]
@@ -90,6 +91,7 @@ const NotificationsSettings = () => {
   const toggleCategoryChannel = (category, channel) => {
     if (!settings) return;
     const updated = {
+      ...settings,
       categories: {
         ...settings.categories,
         [category]: {
@@ -154,7 +156,7 @@ const NotificationsSettings = () => {
           {t("settings.notifications.masterChannels")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(settings.channels).map(([channel, isEnabled]) => (
+          {Object.entries(settings.channels || {}).map(([channel, isEnabled]) => (
             <div
               key={channel}
               className={`group p-4 rounded-lg border transition-all backdrop-blur-sm bg-[rgb(var(--color-bg-primary))]/20 ${isEnabled
@@ -188,7 +190,7 @@ const NotificationsSettings = () => {
           {t("settings.notifications.activityCategories")}
         </h3>
         <div className="space-y-4">
-          {Object.entries(settings.categories).map(([category, categoryChannels]) => (
+          {Object.entries(settings.categories || {}).map(([category, categoryChannels]) => (
             <div
               key={category}
               className="p-5 rounded-2xl border border-[rgb(var(--color-border-primary))]/40 bg-[rgb(var(--color-bg-primary))]/10 backdrop-blur-md"
@@ -209,8 +211,8 @@ const NotificationsSettings = () => {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  {Object.entries(categoryChannels).map(([channel, isEnabled]) => {
-                    const masterEnabled = settings.channels[channel];
+                  {Object.entries(categoryChannels || {}).map(([channel, isEnabled]) => {
+                    const masterEnabled = settings.channels?.[channel];
                     return (
                       <div
                         key={channel}

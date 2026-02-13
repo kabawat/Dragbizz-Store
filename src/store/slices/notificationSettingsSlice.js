@@ -80,17 +80,31 @@ const notificationSettingsSlice = createSlice({
             })
             // Update Settings
             .addCase(updateNotificationSettings.pending, (state) => {
-                // We might want to keep loading false here if we handle loading state locally in component for optimistic updates,
-                // but for global consistency let's set it or leave it. Usually strict loading state is fine.
-                // The component uses a local isUpdating state for the button spinner, so we might not need to set global loading true.
-                // However, setting it to true is safer for consistency.
+                state.loading = true;
+                state.error = null;
             })
             .addCase(updateNotificationSettings.fulfilled, (state, action) => {
+                state.loading = false;
                 state.settings = action.payload;
+                state.error = null;
+            })
+            .addCase(updateNotificationSettings.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             })
             // Reset Settings
+            .addCase(resetNotificationSettings.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(resetNotificationSettings.fulfilled, (state, action) => {
+                state.loading = false;
                 state.settings = action.payload;
+                state.error = null;
+            })
+            .addCase(resetNotificationSettings.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             });
     },
 });
