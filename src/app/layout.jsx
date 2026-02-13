@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { SocketProvider } from "@/contexts/SocketContext";
 import { ReduxProvider } from "@/store/provider";
 import { LocationProvider } from "./LocationProvider";
 
@@ -27,17 +28,19 @@ export default function RootLayout({ children }) {
             <LanguageProvider>
               <ToastProvider>
                 <NetworkErrorProvider>
-                  <ErrorBoundary>
-                    <ToastInitializer />
-                    <NetworkErrorInitializer />
-                    <GlobalProfileLoader />
-                    <LocationProvider>
-                      {children}
-                      <GlobalToastContainer />
-                      <NetworkErrorWrapper />
-                      <SettingsPanel />
-                    </LocationProvider>
-                  </ErrorBoundary>
+                  <SocketProvider>
+                    <ErrorBoundary>
+                      <ToastInitializer />
+                      <NetworkErrorInitializer />
+                      <GlobalProfileLoader />
+                      <LocationProvider>
+                        {children}
+                        <GlobalToastContainer />
+                        <NetworkErrorWrapper />
+                        <SettingsPanel />
+                      </LocationProvider>
+                    </ErrorBoundary>
+                  </SocketProvider>
                 </NetworkErrorProvider>
               </ToastProvider>
             </LanguageProvider>
