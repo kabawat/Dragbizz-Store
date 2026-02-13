@@ -22,6 +22,7 @@ const API_CONFIG = {
     VERIFY_EMAIL: "/auth/verify-email",
     RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
+    NOTIFICATION_SETTINGS: "/auth/settings/notification",
     UPLOAD_INIT: "/auth/upload/init",
     UPLOAD_STATUS: "/auth/upload/status",
   },

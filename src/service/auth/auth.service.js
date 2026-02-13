@@ -302,6 +302,39 @@ class AuthService {
       return handleApiErrorResponse(error, "logout");
     }
   }
+
+  // Notification Settings
+  async getNotificationSettings() {
+    try {
+      const response = await authAxios.get(API_CONFIG.AUTH.NOTIFICATION_SETTINGS);
+      return handleApiSuccess(response, "Notification settings fetched successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "get-notification-settings");
+    }
+  }
+
+  async updateNotificationSettings(settingsData) {
+    try {
+      const response = await authAxios.put(
+        API_CONFIG.AUTH.NOTIFICATION_SETTINGS,
+        settingsData
+      );
+      return handleApiSuccess(response, "Notification settings updated successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "update-notification-settings");
+    }
+  }
+
+  async resetNotificationSettings() {
+    try {
+      const response = await authAxios.post(
+        `${API_CONFIG.AUTH.NOTIFICATION_SETTINGS}/reset`
+      );
+      return handleApiSuccess(response, "Notification settings reset successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "reset-notification-settings");
+    }
+  }
 }
 
 // Create and export a singleton instance
