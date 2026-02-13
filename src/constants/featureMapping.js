@@ -96,7 +96,6 @@ export const FEATURE_ROUTES = {
     routes: [
       "/dashboard/bills",
       "/dashboard/bills/create",
-      "/dashboard/bills/reports",
     ],
     menuItems: ["Purchase"],
     subMenuItems: ["Bills"],

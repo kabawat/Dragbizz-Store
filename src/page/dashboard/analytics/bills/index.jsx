@@ -1,37 +1,30 @@
 "use client";
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
-import {
   AlertTriangle,
+  Building2,
   CheckCircle,
   ChevronDown,
+  Clock,
   Download,
   FileSpreadsheet,
   FileText,
+  Filter,
   Receipt,
+  TrendingUp,
+  Users,
   XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import StatsGrid from "@/components/analytics/StatsGrid";
+import PerformanceCard from "@/components/analytics/cards/PerformanceCard";
+import AnalyticsListCard from "@/components/analytics/cards/AnalyticsListCard";
+import AnalyticsChartCard from "@/components/analytics/cards/AnalyticsChartCard";
+import AnalyticsBreakdownCard from "@/components/analytics/cards/AnalyticsBreakdownCard";
 import BillsReportTemplate from "@/components/templates/analytics/bills/BillsReportTemplate";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
-import { Button, Card } from "@/components/ui";
+import { SortableCard } from "@/components/templates/analytics/SortableComponents";
+import { Button, Card, Select } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -44,34 +37,41 @@ const formatCurrency = (amount) =>
     maximumFractionDigits: 2,
   })}`;
 
+const DATE_RANGE_OPTIONS = [
+  { value: "all", label: "All Time" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "quarter", label: "This Quarter" },
+  { value: "year", label: "This Year" },
+];
+
 const BillAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.bills);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const { suppliers } = useAppSelector((state) => state.suppliers || { suppliers: [] });
 
-  useEffect(() => {
+  const [dateRange, setDateRange] = useState("month");
+  const [supplierId, setSupplierId] = useState("all");
+
+  const fetchAnalytics = () => {
     const storeId =
       selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
     if (!storeId) return;
 
-    const lastFetched = hasFetchedRef.current;
-    if (lastFetched.fetched && lastFetched.storeId === storeId) {
-      return;
-    }
-
-    hasFetchedRef.current = { storeId, fetched: true };
-    dispatch(getBillAnalytics(storeId));
-  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+    dispatch(getBillAnalytics({
+      store: storeId,
+      dateRange,
+      supplier: supplierId !== "all" ? supplierId : undefined
+    }));
+  };
 
   useEffect(() => {
-    const storeId =
-      selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
-    if (storeId && hasFetchedRef.current.storeId !== storeId) {
-      hasFetchedRef.current = { storeId: null, fetched: false };
-    }
-  }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
+    fetchAnalytics();
+  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId, dateRange, supplierId]);
+
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
@@ -201,7 +201,7 @@ const BillAnalytics = () => {
           metricsMap.set("overdueBills", {
             ...metricsMap.get("overdueBills"),
             value: formatNumber(counts.overdueBills),
-            change: "Urgent action needed",
+            change: counts.overdueBills > 0 ? "Urgent action needed" : "No overdue bills",
           });
         }
 
@@ -234,6 +234,32 @@ const BillAnalytics = () => {
       });
     }
   }, [analytics, counts, amounts]);
+
+  const performanceMetrics = useMemo(() => {
+    return [
+      {
+        title: "Avg Payment Time",
+        value: `${analytics?.performance?.avgPaymentDays || 0} days`,
+        label: "Time to pay bills",
+        icon: Clock,
+        color: "text-blue-600",
+      },
+      {
+        title: "On-Time Rate",
+        value: `${analytics?.performance?.onTimeRate || 0}%`,
+        label: "Bills paid by due date",
+        icon: CheckCircle,
+        color: "text-green-600",
+      },
+      {
+        title: "Supplier Reliability",
+        value: `${analytics?.performance?.reliability || 0}%`,
+        label: "Delivery & billing accuracy",
+        icon: Users,
+        color: "text-purple-600",
+      },
+    ];
+  }, [analytics]);
 
   // Handle click outside export menu
   useEffect(() => {
@@ -288,78 +314,25 @@ const BillAnalytics = () => {
   };
 
   const [cards, setCards] = useState([
-    { id: "chart1", type: "chart", title: "Bill Status Trend" },
-    { id: "chart2", type: "chart", title: "Bills by Supplier" },
+    { id: "supplierAnalysis", type: "list", title: "Top Suppliers", key: "topSuppliers" },
+    { id: "monthlyTrends", type: "list", title: "Monthly Bill Trends", key: "trends" },
     { id: "breakdown", type: "breakdown", title: "Bill Statistics" },
   ]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleMetricsDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setMetrics((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const handleMetricsDragEnd = (items) => {
+    setMetrics(items);
   };
 
-  const handleAmountCardsDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setAmountCards((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const handleAmountCardsDragEnd = (items) => {
+    setAmountCards(items);
   };
 
-  const handleCardsDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setCards((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const handleCardsDragEnd = (items) => {
+    setCards(items);
   };
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
 
       <div
         id="bills-report-area"
@@ -388,6 +361,77 @@ const BillAnalytics = () => {
           />
 
           <div className="flex-1 p-6 overflow-y-auto">
+            {/* Filters Section */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1 max-w-xs">
+                <Select
+                  placeholder="Date Range"
+                  value={dateRange}
+                  onChange={(val) => setDateRange(val)}
+                  options={DATE_RANGE_OPTIONS}
+                  size="sm"
+                />
+              </div>
+
+              <div className="flex-1 max-w-xs">
+                <Select
+                  placeholder="Select Supplier"
+                  value={supplierId}
+                  onChange={(val) => setSupplierId(val)}
+                  options={[
+                    { value: "all", label: "All Suppliers" },
+                    ...(suppliers?.map((s) => ({
+                      value: s.id || s._id,
+                      label: s.name,
+                    })) || []),
+                  ]}
+                  size="sm"
+                  searchable
+                />
+              </div>
+
+              <div className="ml-auto no-print relative" ref={exportMenuRef}>
+                <Button
+                  variant="primary"
+                  leftIcon={Download}
+                  rightIcon={ChevronDown}
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  disabled={isLoading || !analytics}
+                >
+                  Download Report
+                </Button>
+
+                {showExportMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                    <button
+                      onClick={() => {
+                        handleDownloadPDF(analytics);
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+                    >
+                      <FileText className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                      Download as PDF
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleDownloadXLSX(
+                          analytics,
+                          selectedStore,
+                          "bills-analytics-report",
+                          getBillsXLSXConfig()
+                        );
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                      Download as XLSX
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             {isLoading ? (
               <div className="flex items-center justify-center h-64">
                 <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
@@ -396,180 +440,104 @@ const BillAnalytics = () => {
               </div>
             ) : (
               <>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleMetricsDragEnd}
-                >
-                  <SortableContext
-                    items={metrics.map((m) => m.id)}
-                    strategy={rectSortingStrategy}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                      {metrics.map((metric) => (
-                        <SortableMetricCard key={metric.id} {...metric} />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                <StatsGrid
+                  items={metrics}
+                  onItemsChange={handleMetricsDragEnd}
+                />
 
                 {/* Amount Cards - Single Row */}
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleAmountCardsDragEnd}
-                >
-                  <SortableContext
-                    items={amountCards.map((c) => c.id)}
-                    strategy={rectSortingStrategy}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      {amountCards.map((card) => (
-                        <SortableCard key={card.id} id={card.id}>
-                          <Card>
-                            <div className="p-4">
-                              <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-2 text-center">
-                                {card.title}
-                              </h3>
-                              <div className="text-center">
-                                <p
-                                  className={`text-2xl font-bold ${card.color} mb-1`}
-                                >
-                                  {card.value}
-                                </p>
-                                <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                  {card.label}
-                                </p>
-                              </div>
+                <StatsGrid
+                  items={amountCards}
+                  onItemsChange={handleAmountCardsDragEnd}
+                  columns={3}
+                  renderItem={(card) => (
+                    <SortableCard key={card.id} id={card.id}>
+                      <Card className="hover:shadow-md transition-shadow">
+                        <div className="p-5">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                              {card.title}
+                            </h3>
+                            <div className={`p-1.5 rounded-md bg-[rgb(var(--color-bg-secondary))] ${card.color}`}>
+                              <Filter className="w-4 h-4" />
                             </div>
-                          </Card>
-                        </SortableCard>
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                          </div>
+                          <div>
+                            <p className={`text-2xl font-bold ${card.color} mb-1`}>
+                              {card.value}
+                            </p>
+                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {card.label}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    </SortableCard>
+                  )}
+                />
+
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {performanceMetrics.map((pm, idx) => (
+                    <PerformanceCard
+                      key={idx}
+                      title={pm.title}
+                      value={pm.value}
+                      label={pm.label}
+                      icon={pm.icon}
+                      color={pm.color}
+                    />
+                  ))}
+                </div>
 
                 {/* Other Cards */}
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleCardsDragEnd}
-                >
-                  <SortableContext
-                    items={cards.map((c) => c.id)}
-                    strategy={rectSortingStrategy}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {cards.map((card) => (
-                        <SortableCard key={card.id} id={card.id}>
-                          {card.type === "chart" && (
-                            <Card>
-                              <div className="p-6">
-                                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                                  {card.title}
-                                </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
-                                </div>
-                              </div>
-                            </Card>
-                          )}
-                          {card.type === "breakdown" && (
-                            <Card>
-                              <div className="p-6">
-                                <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                                  {card.title}
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">
-                                      Paid Bills
-                                    </p>
-                                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                                      {formatNumber(counts.paidBills)}
-                                    </p>
-                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                                      {formatCurrency(amounts.totalPaid)}
-                                    </p>
-                                  </div>
-                                  <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">
-                                      Pending Bills
-                                    </p>
-                                    <p className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">
-                                      {formatNumber(counts.pendingBills)}
-                                    </p>
-                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                                      {formatCurrency(amounts.totalDue)}
-                                    </p>
-                                  </div>
-                                  <div className="bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg p-4 border-[var(--color-border-primary-light)] text-center">
-                                    <p className="text-xs text-[rgb(var(--color-text-secondary))] mb-2">
-                                      Overdue Bills
-                                    </p>
-                                    <p className="text-lg font-semibold text-red-600 dark:text-red-400">
-                                      {formatNumber(counts.overdueBills)}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </Card>
-                          )}
-                        </SortableCard>
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                <StatsGrid
+                  items={cards}
+                  onItemsChange={handleCardsDragEnd}
+                  columns={3}
+                  renderItem={(card) => (
+                    <SortableCard key={card.id} id={card.id}>
+                      {card.type === "list" && (
+                        <AnalyticsListCard
+                          title={card.title}
+                          icon={card.id === "supplierAnalysis" ? Building2 : TrendingUp}
+                          items={analytics?.[card.key]}
+                          formatItemValue={(item) =>
+                            item.value ? formatCurrency(item.value) : (item.percentage ? `${item.percentage}%` : "")
+                          }
+                        />
+                      )}
+                      {card.type === "chart" && (
+                        <AnalyticsChartCard title={card.title} />
+                      )}
+                      {card.type === "breakdown" && (
+                        <AnalyticsBreakdownCard
+                          title={card.title}
+                          items={[
+                            {
+                              label: "Paid Bills",
+                              value: formatNumber(counts.paidBills),
+                              subValue: formatCurrency(amounts.totalPaid),
+                              colorClass: "text-green-600 dark:text-green-400"
+                            },
+                            {
+                              label: "Pending Bills",
+                              value: formatNumber(counts.pendingBills),
+                              subValue: formatCurrency(amounts.totalDue),
+                              colorClass: "text-yellow-600 dark:text-yellow-400"
+                            },
+                            {
+                              label: "Overdue Bills",
+                              value: formatNumber(counts.overdueBills),
+                              colorClass: "text-red-600 dark:text-red-400"
+                            }
+                          ]}
+                        />
+                      )}
+                    </SortableCard>
+                  )}
+                />
               </>
-            )}
-          </div>
-        </div>
-
-        <div
-          className="no-print fixed bottom-6 right-6 z-50"
-          ref={exportMenuRef}
-        >
-          <div className="relative">
-            <Button
-              variant="primary"
-              leftIcon={Download}
-              rightIcon={ChevronDown}
-              onClick={() => setShowExportMenu(!showExportMenu)}
-              disabled={isLoading || !analytics}
-            >
-              Download Report
-            </Button>
-
-            {showExportMenu && (
-              <div className="absolute bottom-full right-0 mb-2 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                <button
-                  onClick={() => {
-                    handleDownloadPDF(analytics);
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
-                >
-                  <FileText className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Download as PDF
-                </button>
-                <button
-                  onClick={() => {
-                    handleDownloadXLSX(
-                      analytics,
-                      selectedStore,
-                      "bills-analytics-report",
-                      getBillsXLSXConfig()
-                    );
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors duration-200 cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none text-[rgb(var(--color-text-primary))]"
-                >
-                  <FileSpreadsheet className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  Download as XLSX
-                </button>
-              </div>
             )}
           </div>
         </div>
