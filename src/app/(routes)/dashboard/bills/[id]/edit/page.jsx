@@ -1,16 +1,15 @@
-"use client";
-import dynamic from "next/dynamic";
+import EditBillPage from "@/page/dashboard/bills/edit";
 
-const EditBillPage = dynamic(() => import("@/page/dashboard/bills/edit"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))]">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-[rgb(var(--color-text-secondary))]">Loading...</p>
-      </div>
-    </div>
-  ),
-});
+export const metadata = {
+  title: "Edit Bill - DragBizz Store",
+  description: "Edit detailed bill information and manage bill status",
+  keywords: "bill details, edit bill, bill information, DragBizz Store",
+};
 
-export default EditBillPage;
+async function BillEditPage({ params }) {
+  const { id } = await params;
+  console.log(id);
+  return <EditBillPage billId={id} />;
+}
+
+export default BillEditPage;

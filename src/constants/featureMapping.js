@@ -96,8 +96,6 @@ export const FEATURE_ROUTES = {
     routes: [
       "/dashboard/bills",
       "/dashboard/bills/create",
-      "/dashboard/bills/pending",
-      "/dashboard/bills/overdue",
       "/dashboard/bills/reports",
     ],
     menuItems: ["Purchase"],
