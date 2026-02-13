@@ -17,11 +17,13 @@ import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
+import notificationSettingsSlice from "./slices/notificationSettingsSlice";
 
 export const store = configureStore({
   reducer: {
     profile: profileSlice,
     storeUpi: storeUpiSlice,
+    notificationSettings: notificationSettingsSlice,
     products: productsSlice,
     customers: customersSlice,
     suppliers: suppliersSlice,
