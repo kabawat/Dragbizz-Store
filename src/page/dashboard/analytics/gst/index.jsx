@@ -18,6 +18,7 @@ import {
   Download,
   IndianRupee,
   Receipt,
+  RefreshCw,
   TrendingUp,
 } from "lucide-react";
 import Header from "@/components/dashboard/Header";
@@ -34,6 +35,7 @@ import {
   getGstMismatches,
   getGstExport,
   getGstHealthScore,
+  syncGstStats,
 } from "@/store/slices/gstSlice";
 import { gstService } from "@/service/retailer";
 
@@ -54,10 +56,11 @@ const GstAnalytics = () => {
     isLoading,
     isLoadingMismatches,
     isLoadingHealthScore,
+    isSyncing,
   } = useAppSelector((state) => state.gst);
 
   const [period, setPeriod] = useState({
-    month: "",
+    month: String(new Date().getMonth() + 1),
     quarter: "",
     year: new Date().getFullYear(),
   });
@@ -118,6 +121,14 @@ const GstAnalytics = () => {
     const params = { store: storeId, ...exportPeriod };
     const result = await gstService.getGstExport(storeId, exportPeriod);
     return result;
+  };
+
+  const handleSync = () => {
+    if (!storeId || !period.year || !period.month) return;
+    dispatch(syncGstStats({
+      storeId,
+      params: { year: period.year, month: period.month }
+    }));
   };
 
   const outward = summary?.outward ?? {};
@@ -187,14 +198,35 @@ const GstAnalytics = () => {
                 />
               </div>
             </div>
-            <Button
-              variant="primary"
-              leftIcon={Download}
-              onClick={() => setShowExportDrawer(true)}
-              size="sm"
-            >
-              {t("gst.exportForCA") || "Export for CA"}
-            </Button>
+            <div className="flex items-center gap-2">
+              {period.month && (
+                <Button
+                  variant="secondary"
+                  onClick={handleSync}
+                  size="sm"
+                  isLoading={isSyncing}
+                  className={`
+                    border-[rgb(var(--color-border-primary))] 
+                    hover:bg-[rgb(var(--color-bg-tertiary))] 
+                    transition-all duration-300
+                    ${isSyncing ? "opacity-80 pointer-events-none" : ""}
+                  `}
+                  title="Manual sync for this month"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
+                  {isSyncing ? "Syncing..." : "Sync Data"}
+                </Button>
+              )}
+              <Button
+                variant="primary"
+                leftIcon={Download}
+                onClick={() => setShowExportDrawer(true)}
+                size="sm"
+                className="transition-all"
+              >
+                {t("gst.exportForCA") || "Export for CA"}
+              </Button>
+            </div>
           </div>
 
           {isLoading ? (

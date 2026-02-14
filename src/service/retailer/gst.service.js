@@ -74,6 +74,22 @@ class GstService {
       return handleApiErrorResponse(error, "gst-health-score-fetch");
     }
   }
+
+  async syncGstStats(storeId, params = {}) {
+    try {
+      const url = attachQueryParams(
+        `${API_CONFIG.RETAILER.GST}/sync`,
+        { store: storeId }
+      );
+      const response = await authAxios.post(url, params);
+      return handleApiSuccess(
+        response.data,
+        "GST statistics synced successfully"
+      );
+    } catch (error) {
+      return handleApiErrorResponse(error, "gst-sync-stats");
+    }
+  }
 }
 
 const gstService = new GstService();
