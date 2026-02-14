@@ -1,5 +1,5 @@
 "use client";
-import { Download, FileText, Grid3X3, List, Plus, Search } from "lucide-react";
+import { Download, FileText, Grid3X3, List, Plus, RotateCcw, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
@@ -12,7 +12,7 @@ import {
   ReleaseInvoiceModal,
   UpdatePaymentStatusModal,
 } from "@/components/invoice";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -36,8 +36,14 @@ const InvoicesPage = () => {
   const [invoiceToRelease, setInvoiceToRelease] = useState(null);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
+
+  // Filter states (matching backend parameters)
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [invoiceStatus, setInvoiceStatus] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const scrollRef = useRef(null);
 
   // Error display
@@ -61,7 +67,10 @@ const InvoicesPage = () => {
   const lastFetchRef = useRef(null);
   const hasFetchedRef = useRef({
     storeId: null,
-    searchValue: null,
+    paymentStatus: null,
+    invoiceStatus: null,
+    startDate: null,
+    endDate: null,
     fetched: false,
   });
 
@@ -70,7 +79,10 @@ const InvoicesPage = () => {
     lastFetchRef.current = null;
     hasFetchedRef.current = {
       storeId: null,
-      searchValue: null,
+      paymentStatus: null,
+      invoiceStatus: null,
+      startDate: null,
+      endDate: null,
       fetched: false,
     };
   }, []);
@@ -84,7 +96,10 @@ const InvoicesPage = () => {
       return (
         (lastFetched.fetched &&
           lastFetched.storeId === storeId &&
-          lastFetched.searchValue === searchValue) ||
+          lastFetched.paymentStatus === paymentStatus &&
+          lastFetched.invoiceStatus === invoiceStatus &&
+          lastFetched.startDate === startDate &&
+          lastFetched.endDate === endDate) ||
         isLoading
       );
     };
@@ -93,7 +108,7 @@ const InvoicesPage = () => {
 
     const timer = setTimeout(() => {
       const fetchInvoices = async () => {
-        const fetchKey = `${storeId}-${searchValue}`;
+        const fetchKey = `${storeId}-${paymentStatus}-${invoiceStatus}-${startDate}-${endDate}`;
 
         if (lastFetchRef.current === fetchKey) {
           return;
@@ -106,14 +121,20 @@ const InvoicesPage = () => {
           limit: 20,
           cursor: null,
           isFreshLoad: true,
-          search: searchValue || undefined,
+          paymentStatus: paymentStatus || undefined,
+          invoiceStatus: invoiceStatus || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
         };
 
         await dispatch(getInvoices(params));
 
         hasFetchedRef.current = {
           storeId,
-          searchValue,
+          paymentStatus,
+          invoiceStatus,
+          startDate,
+          endDate,
           fetched: true,
         };
       };
@@ -122,7 +143,7 @@ const InvoicesPage = () => {
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [dispatch, selectedStore, searchValue, isLoading]);
+  }, [dispatch, selectedStore, paymentStatus, invoiceStatus, startDate, endDate, isLoading]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination?.hasNextPage || !pagination?.nextCursor) {
@@ -141,7 +162,10 @@ const InvoicesPage = () => {
 
       const params = {
         store: storeId,
-        search: searchValue || undefined,
+        paymentStatus: paymentStatus || undefined,
+        invoiceStatus: invoiceStatus || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         limit: 20,
         cursor: pagination.nextCursor,
         isFreshLoad: false,
@@ -156,7 +180,10 @@ const InvoicesPage = () => {
     isLoadingMore,
     pagination?.hasNextPage,
     pagination?.nextCursor,
-    searchValue,
+    paymentStatus,
+    invoiceStatus,
+    startDate,
+    endDate,
     selectedStore,
     dispatch,
   ]);
@@ -221,9 +248,14 @@ const InvoicesPage = () => {
     };
   }, [isLoadingMore, pagination?.hasNextPage, handleLoadMore]);
 
-  const handleSearch = (value) => {
-    setSearchValue(value);
+  const handleClearFilters = () => {
+    setPaymentStatus("");
+    setInvoiceStatus("");
+    setStartDate("");
+    setEndDate("");
   };
+
+  const hasActiveFilters = paymentStatus || invoiceStatus || startDate || endDate;
 
   const handleAddInvoice = () => {
     router.push("/dashboard/invoices/add");
@@ -305,26 +337,97 @@ const InvoicesPage = () => {
             )}
 
             <div className="mb-3">
-              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                <div className="w-100">
-                  <Input
-                    type="text"
-                    placeholder={`${t("common.search")} ${t("sidebar.invoices").toLowerCase()}...`}
-                    value={searchValue}
-                    onChange={(value) => handleSearch(value)}
-                    leftIcon={Search}
-                    className="w-100"
-                  />
+              <div className="flex justify-between items-center gap-3 flex-wrap">
+                {/* Left side - Filters */}
+                <div className="flex gap-3 flex-wrap">
+                  {/* Payment Status */}
+                  <div className="w-[160px]">
+                    <Select
+                      value={paymentStatus}
+                      onChange={setPaymentStatus}
+                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors"
+                      options={[
+                        { value: "", label: t("invoice.paymentStatus") },
+                        { value: "UNPAID", label: t("invoice.unpaid") },
+                        { value: "PAID", label: t("invoice.paid") },
+                        { value: "PAY_LATTER", label: t("invoice.payLatter") },
+                        { value: "CANCELLED", label: t("invoice.cancelled") },
+                      ]}
+                      placeholder={t("invoice.paymentStatus")}
+                    />
+                  </div>
+
+                  {/* Invoice Status */}
+                  <div className="w-[160px]">
+                    <Select
+                      value={invoiceStatus}
+                      onChange={setInvoiceStatus}
+                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors"
+                      options={[
+                        { value: "", label: t("invoice.invoiceStatus") },
+                        { value: "DRAFT", label: t("invoice.draft") },
+                        { value: "RELEASED", label: t("invoice.released") },
+                        { value: "CANCELLED", label: t("invoice.cancelled") },
+                        { value: "DELETED", label: t("invoice.deleted") },
+                      ]}
+                      placeholder={t("invoice.invoiceStatus")}
+                    />
+                  </div>
+
+                  {/* Start Date */}
+                  <div className="w-[140px]">
+                    <Input
+                      type={startDate ? "date" : "text"}
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
+                      value={startDate}
+                      onChange={setStartDate}
+                      max={endDate || undefined}
+                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors placeholder:text-[rgb(var(--color-text-secondary))]"
+                      placeholder={t("common.startDate")}
+                    />
+                  </div>
+
+                  {/* End Date */}
+                  <div className="w-[140px]">
+                    <Input
+                      type={endDate ? "date" : "text"}
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
+                      value={endDate}
+                      onChange={setEndDate}
+                      min={startDate || undefined}
+                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors placeholder:text-[rgb(var(--color-text-secondary))]"
+                      placeholder={t("common.endDate")}
+                    />
+                  </div>
+
+                  {/* Clear Filters */}
+                  {hasActiveFilters && (
+                    <Button
+                      variant="ghost"
+                      onClick={handleClearFilters}
+                      className="h-10 px-4 text-sm font-medium text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      {t("common.clearFilters")}
+                    </Button>
+                  )}
                 </div>
 
+                {/* Right side - Action Buttons */}
                 <div className="flex gap-3">
                   {invoices.length > 0 && (
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <List className="w-4 h-4" />
@@ -374,17 +477,17 @@ const InvoicesPage = () => {
                   <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {error
                       ? `${t("common.error")}: ${error}`
-                      : searchValue
+                      : hasActiveFilters
                         ? t("common.noResults")
                         : t("common.noData")}
                   </p>
                   <div className="pt-4 flex gap-3">
-                    {searchValue && (
+                    {hasActiveFilters && (
                       <Button
                         variant="outline"
-                        onClick={() => setSearchValue("")}
+                        onClick={handleClearFilters}
                       >
-                        {t("common.clear")}
+                        {t("common.clearFilters")}
                       </Button>
                     )}
                     <Button
