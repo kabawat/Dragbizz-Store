@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import socketService from "@/service/socket/socket.service";
+import { useAppSelector } from "@/store/hooks";
 
 const SocketContext = createContext(null);
 
@@ -8,7 +9,20 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
 
+    // Get authentication status from Redux
+    const { isAuthenticated } = useAppSelector((state) => state.profile);
+
     useEffect(() => {
+        // Only connect if authenticated
+        if (!isAuthenticated) {
+            if (socketService.socket) {
+                socketService.disconnect();
+                setSocket(null);
+                setIsConnected(false);
+            }
+            return;
+        }
+
         // Initialize socket connection
         const socketInstance = socketService.connect();
         setSocket(socketInstance);
@@ -30,7 +44,7 @@ export const SocketProvider = ({ children }) => {
             socketService.off("connect", onConnect);
             socketService.off("disconnect", onDisconnect);
         };
-    }, []);
+    }, [isAuthenticated]);
 
     return (
         <SocketContext.Provider value={{ socket, isConnected, socketService }}>
