@@ -53,6 +53,11 @@ class SocketService {
         this.socket.on("customer_created", (data) => {
             console.log("🔔 [Real-time] Customer Created Notification:", data);
         });
+
+        // Listen for Sales Order Created Notification
+        this.socket.on("sales_order_created", (data) => {
+            console.log("🔔 [Real-time] Sales Order Created Notification:", data);
+        });
     }
 
     // Add event listener

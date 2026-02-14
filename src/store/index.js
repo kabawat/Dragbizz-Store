@@ -15,6 +15,7 @@ import suppliersSlice from "./slices/suppliersSlice";
 import signaturesSlice from "./slices/signaturesSlice";
 import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
+import notificationsSlice from "./slices/notificationsSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
 import notificationSettingsSlice from "./slices/notificationSettingsSlice";
@@ -23,6 +24,7 @@ export const store = configureStore({
   reducer: {
     profile: profileSlice,
     storeUpi: storeUpiSlice,
+    notifications: notificationsSlice,
     notificationSettings: notificationSettingsSlice,
     products: productsSlice,
     customers: customersSlice,

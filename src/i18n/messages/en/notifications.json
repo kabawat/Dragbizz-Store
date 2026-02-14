@@ -8,5 +8,6 @@
   "paymentReceived": "Payment received",
   "twoMinAgo": "2 min ago",
   "fifteenMinAgo": "15 min ago",
-  "oneHourAgo": "1 hour ago"
+  "oneHourAgo": "1 hour ago",
+  "justNow": "Just now"
 }
