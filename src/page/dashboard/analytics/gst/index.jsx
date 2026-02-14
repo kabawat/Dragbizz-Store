@@ -62,7 +62,7 @@ const GstAnalytics = () => {
     year: new Date().getFullYear(),
   });
   const [showExportDrawer, setShowExportDrawer] = useState(false);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const lastFetchedParamsRef = useRef(null);
 
   const [metrics, setMetrics] = useState([
     { id: "totalGst", titleKey: "gst.totalGst", subtextKey: "invoices", icon: IndianRupee, iconColor: "from-green-100 to-green-200" },
@@ -92,7 +92,18 @@ const GstAnalytics = () => {
 
   useEffect(() => {
     if (!storeId) return;
-    hasFetchedRef.current = { storeId, fetched: true };
+
+    // Prevent duplicate calls with the same parameters (especially important in React StrictMode)
+    const currentParams = {
+      storeId,
+      month: period.month,
+      quarter: period.quarter,
+      year: period.year,
+    };
+    const paramsKey = JSON.stringify(currentParams);
+    if (lastFetchedParamsRef.current === paramsKey) return;
+    lastFetchedParamsRef.current = paramsKey;
+
     const params = {};
     if (period.month) params.month = period.month;
     if (period.quarter) params.quarter = period.quarter;
@@ -102,12 +113,6 @@ const GstAnalytics = () => {
     dispatch(getGstMismatches({ storeId, params: { limit: 20 } }));
     dispatch(getGstHealthScore({ storeId, params: { year: period.year } }));
   }, [dispatch, storeId, period.month, period.quarter, period.year]);
-
-  useEffect(() => {
-    if (storeId && hasFetchedRef.current.storeId !== storeId) {
-      hasFetchedRef.current = { storeId: null, fetched: false };
-    }
-  }, [storeId]);
 
   const handleExport = async (exportPeriod) => {
     const params = { store: storeId, ...exportPeriod };
