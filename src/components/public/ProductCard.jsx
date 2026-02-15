@@ -18,6 +18,7 @@ export default function ProductCard({ product, onWhatsAppShare, onUpdateQuantity
     const handleIncrement = () => onUpdateQuantity(product, quantity + 1);
     const handleDecrement = () => onUpdateQuantity(product, quantity - 1);
 
+    const isOutOfStock = product.status === 'OUT_OF_STOCK';
     return (
         <div className="group flex flex-col bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/40 hover:border-[rgb(var(--color-primary))]/30 transition-all duration-500 hover:shadow-[0_20px_50px_-15px_rgba(var(--color-primary),0.15)] h-full relative overflow-hidden">
             {/* Soft Glow Background Decor */}
@@ -52,6 +53,11 @@ export default function ProductCard({ product, onWhatsAppShare, onUpdateQuantity
                     {product.brand && (
                         <div className="bg-[rgb(var(--color-bg-primary))]/60 backdrop-blur-md text-[rgb(var(--color-text-primary))] text-[9px] font-bold px-3 py-1.5 rounded-lg border border-[rgb(var(--color-bg-primary))]/40 shadow-sm uppercase tracking-wider leading-none">
                             {product.brand}
+                        </div>
+                    )}
+                    {isOutOfStock && (
+                        <div className="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg shadow-lg uppercase tracking-wider leading-none">
+                            Out of Stock
                         </div>
                     )}
                 </div>
@@ -92,14 +98,22 @@ export default function ProductCard({ product, onWhatsAppShare, onUpdateQuantity
                                 )}
                             </div>
                         </div>
-                        <div className="px-3 py-1 rounded-lg bg-orange-50/10 text-orange-500 text-[10px] font-black uppercase tracking-wider leading-none border border-orange-500/20">
-                            Premium
+                        <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider leading-none border ${isOutOfStock ? 'bg-red-50 text-red-500 border-red-500/20' : 'bg-orange-50/10 text-orange-500 border-orange-500/20'}`}>
+                            {isOutOfStock ? 'Sold Out' : 'Premium'}
                         </div>
                     </div>
 
                     {/* Action Area: Quantity Toggle */}
                     <div className="h-[52px] flex items-center">
-                        {quantity === 0 ? (
+                        {isOutOfStock ? (
+                            <Button
+                                disabled
+                                className="w-full !py-4 !bg-gray-200 !text-gray-400 !font-black !text-[11px] !uppercase !tracking-widest !rounded-xl cursor-not-allowed"
+                                leftIcon={Package}
+                            >
+                                Out of Stock
+                            </Button>
+                        ) : quantity === 0 ? (
                             <Button
                                 onClick={() => onUpdateQuantity(product, 1)}
                                 variant="primary"

@@ -5,12 +5,12 @@
   "gstMismatches": "GST असंगतियाँ",
   "gstExport": "GST निर्यात",
   "gstHealthScore": "GST स्वास्थ्य स्कोर",
-  "totalGst": "कुल GST (बाहरी)",
+  "totalGst": "कुल एकत्रित GST",
   "cgst": "CGST",
   "sgst": "SGST",
   "igst": "IGST",
   "utgst": "UTGST",
-  "taxableValue": "कर योग्य मूल्य",
+  "taxableValue": "कुल कर योग्य बिक्री",
   "exportForCA": "CA के लिए निर्यात",
   "selectPeriod": "अवधि चुनें",
   "selectFormat": "प्रारूप चुनें",
@@ -23,5 +23,11 @@
   "b2bCount": "B2B Invoices",
   "b2cCount": "B2C Invoices",
   "b2bPurchases": "B2B Purchases (ITC)",
-  "b2cPurchases": "B2C Purchases"
+  "b2cPurchases": "B2C Purchases",
+  "totalItc": "कुल दावा किया गया ITC",
+  "netGst": "कुल GST स्थिति",
+  "taxableValueInward": "कर योग्य मूल्य (इनवर्ड)",
+  "cgstInward": "CGST (इनवर्ड)",
+  "sgstInward": "SGST (इनवर्ड)",
+  "igstInward": "IGST (इनवर्ड)"
 }
