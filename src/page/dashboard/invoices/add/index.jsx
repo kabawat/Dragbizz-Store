@@ -4,13 +4,11 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreateCustomer } from "@/components/customer";
-import { SignatureDrawer } from "@/components/common";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
 import { customerService, invoiceService, productService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { fetchSignatures, addSignature } from "@/store/slices/signaturesSlice";
 
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
@@ -33,7 +31,6 @@ const CreateInvoicePage = () => {
   const dispatch = useAppDispatch();
   // Combine selectors for profile
   const { selectedStore, agency: profileAgency } = useAppSelector((state) => state.profile);
-  const { items: signatures, loading: signaturesLoading } = useAppSelector((state) => state.signatures);
 
   // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -41,8 +38,6 @@ const CreateInvoicePage = () => {
   const [customers, setCustomers] = useState([]);
   const [customersLoading, setCustomersLoading] = useState(false);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
-  const [showSignatureDrawer, setShowSignatureDrawer] = useState(false);
-  const [selectedSignature, setSelectedSignature] = useState("");
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
   // 3. Refs
@@ -73,11 +68,7 @@ const CreateInvoicePage = () => {
   const quotaExceeded = !isQuotaAvailable();
 
   // 6. Data Fetching Callbacks
-  const loadSignatures = useCallback(async () => {
-    if (!agencyId) return;
-    if (signatures && signatures.length > 0) return;
-    dispatch(fetchSignatures({ agencyId, lightweight: true }));
-  }, [agencyId, signatures, dispatch]);
+
 
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
@@ -137,11 +128,7 @@ const CreateInvoicePage = () => {
   }, [storeId, t]);
 
   // 7. Effects
-  useEffect(() => {
-    if (agencyId) {
-      loadSignatures();
-    }
-  }, [agencyId, loadSignatures]);
+
 
   useEffect(() => {
     if (storeId && (productsFetchedRef.current.storeId !== storeId || customersFetchedRef.current.storeId !== storeId)) {
@@ -157,12 +144,7 @@ const CreateInvoicePage = () => {
   }, [storeId, fetchProducts, fetchCustomers]);
 
   // 8. Event Handlers
-  const handleSignatureSuccess = (signatureData) => {
-    const newId = signatureData.id || signatureData._id;
-    dispatch(addSignature(signatureData));
-    setSelectedSignature(newId);
-    setShowSignatureDrawer(false);
-  };
+
 
   const handleCustomerChange = (value) => {
     if (value === "add-new-customer") {
@@ -215,7 +197,6 @@ const CreateInvoicePage = () => {
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
       orderSource: formData.orderSource || "POS",
-      signature: selectedSignature || null,
     };
 
     try {
@@ -296,7 +277,7 @@ const CreateInvoicePage = () => {
               style={{ height: "calc(100vh - 150px)" }}
             >
               <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 pe-3 h-full">
+                <div className="flex-1 h-full">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}
@@ -317,11 +298,6 @@ const CreateInvoicePage = () => {
                 handleCustomerChange={handleCustomerChange}
                 customers={customers}
                 customersLoading={customersLoading}
-                signatures={signatures}
-                signaturesLoading={signaturesLoading}
-                selectedSignature={selectedSignature}
-                setSelectedSignature={setSelectedSignature}
-                setShowSignatureDrawer={setShowSignatureDrawer}
                 quotaExceeded={quotaExceeded}
                 quotaLoading={quotaLoading}
                 invoiceLoading={invoiceLoading}
@@ -359,12 +335,7 @@ const CreateInvoicePage = () => {
         </div>
       </SideDrawer>
 
-      <SignatureDrawer
-        isOpen={showSignatureDrawer}
-        onClose={() => setShowSignatureDrawer(false)}
-        onSuccess={handleSignatureSuccess}
-        agencyId={agencyId}
-      />
+
     </div>
   );
 };

@@ -184,7 +184,7 @@ const CreateBill = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
               <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 pe-3 h-full">
+                <div className="flex-1 h-full">
                   <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
                     <BillItemsSection
                       t={t}

@@ -181,8 +181,7 @@ const BillItemsSection = ({
                             {t("common.items")} ({formData.items.length})
                         </h4>
                         <div
-                            className="overflow-y-auto overflow-x-hidden space-y-3 pr-2"
-                            style={{ maxHeight: "calc(100vh - 450px)" }}
+                            className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 pr-2 min-h-0"
                         >
                             {formData.items.map((item, index) => {
                                 const product = products.find(

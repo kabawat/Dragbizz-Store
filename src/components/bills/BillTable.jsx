@@ -81,31 +81,31 @@ const BillTable = ({
         <table className="w-full min-w-[800px] table-fixed">
           <thead>
             <tr>
-              <th className="w-1/6 px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[15%] px-6 py-4 text-left">
+                <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   {t("bills.title")}
                 </span>
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[20%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("bills.supplier")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.date")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("invoice.total")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("bills.paid")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("bills.due")}
               </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.status")}
               </th>
-              <th className="w-24 px-6 py-4 text-center">
-                <MoreVertical className="w-4 h-4 mx-auto" />
+              <th className="w-24 px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.actions")}
               </th>
             </tr>
           </thead>
@@ -137,46 +137,50 @@ const BillTable = ({
                   key={bill._id || bill.id || bill.billNumber}
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                 >
-                  <td className="w-1/6 px-6 py-4">
-                    <div className="font-medium text-[rgb(var(--color-text-primary))]">
+                  <td className="w-[15%] px-6 py-4">
+                    <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))]">
                       {bill.billNumber}
                     </div>
                   </td>
-                  <td className="w-1/6 px-6 py-4">
+                  <td className="w-[20%] px-6 py-4">
                     <div className="flex items-center">
-                      <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2" />
-                      <span className="text-[rgb(var(--color-text-primary))]">
+                      <Building2 className="w-3.5 h-3.5 text-[rgb(var(--color-text-tertiary))] mr-2 shrink-0" />
+                      <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">
                         {bill.supplier?.name || t("common.notAvailable")}
                       </span>
                     </div>
                   </td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                  <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
                     {formatDate(bill.billDate)}
                   </td>
-                  <td className="w-1/6 px-6 py-4">
-                    <div className="font-bold text-[rgb(var(--color-text-primary))]">
+                  <td className="w-[12%] px-6 py-4 text-right">
+                    <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
                       {formatCurrency(bill.totalAmount)}
                     </div>
                     <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
-                      Sub: {formatCurrency(bill.subtotal || 0)} | GST: {formatCurrency(bill.gstAmount || 0)}
+                      Sub: {formatCurrency(bill.subtotal || 0)}
                     </div>
                   </td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
+                  <td className="w-[12%] px-6 py-4 text-right text-sm text-[rgb(var(--color-text-secondary))] font-medium">
                     {formatCurrency(bill.paidAmount || 0)}
                   </td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
-                    {formatCurrency(
-                      bill.dueAmount ||
-                      Math.max(
-                        (bill.totalAmount || 0) - (bill.paidAmount || 0),
-                        0
-                      )
-                    )}
+                  <td className="w-[12%] px-6 py-4 text-right">
+                    <div className="text-sm font-bold text-[rgb(var(--color-danger))]">
+                      {formatCurrency(
+                        bill.dueAmount ||
+                        Math.max(
+                          (bill.totalAmount || 0) - (bill.paidAmount || 0),
+                          0
+                        )
+                      )}
+                    </div>
                   </td>
-                  <td className="w-1/6 px-6 py-4">
-                    {renderStatusBadge(status, "bill", StatusIcon)}
+                  <td className="w-[12%] px-6 py-4 text-center">
+                    <div className="inline-flex">
+                      {renderStatusBadge(status, "bill", StatusIcon)}
+                    </div>
                   </td>
-                  <td className="w-32 px-6 py-4 text-center">
+                  <td className="w-24 px-6 py-4 text-center">
                     <div className="relative inline-flex items-center gap-2">
                       {enableSendMenu && (
                         <div
@@ -301,15 +305,17 @@ const BillTable = ({
                               <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                               {t("common.edit")}
                             </button>
-                            <button
-                              onClick={() =>
-                                onMenuAction(bill._id || bill.id, "payment")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
-                            >
-                              <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                              {t("bills.payBill")}
-                            </button>
+                            {bill.paymentStatus !== "PAID" && (
+                              <button
+                                onClick={() =>
+                                  onMenuAction(bill._id || bill.id, "payment")
+                                }
+                                className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                              >
+                                <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
+                                {t("bills.payBill")}
+                              </button>
+                            )}
                             <button
                               onClick={() =>
                                 onMenuAction(bill._id || bill.id, "delete")

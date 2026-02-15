@@ -12,11 +12,6 @@ const InvoiceSidebar = ({
     handleCustomerChange,
     customers,
     customersLoading,
-    signatures,
-    signaturesLoading,
-    selectedSignature,
-    setSelectedSignature,
-    setShowSignatureDrawer,
     quotaExceeded,
     quotaLoading,
     invoiceLoading,
@@ -37,7 +32,7 @@ const InvoiceSidebar = ({
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-224px)]">
+            <div className="flex-1 overflow-y-auto ps-3 min-h-0">
                 <div className="space-y-4">
                     {/* Customer Information */}
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
@@ -121,74 +116,6 @@ const InvoiceSidebar = ({
                                     ? t("invoice.item")
                                     : t("invoice.items")}
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Digital Signature Selection */}
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
-                            <ArrowLeft className="w-4 h-4 mr-2 rotate-[-45deg]" />
-                            {t("invoice.digitalSignature") || "Digital Signature"}
-                        </h4>
-                        <div className="relative">
-                            {signaturesLoading ? (
-                                <div className="flex space-x-3 overflow-x-hidden">
-                                    {[1, 2].map((i) => (
-                                        <div
-                                            key={i}
-                                            className="flex-shrink-0 w-[calc(50%-6px)] h-20 bg-slate-100 animate-pulse rounded-xl"
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none snap-x">
-                                    {/* Add New Signature Card */}
-                                    <div
-                                        onClick={() => setShowSignatureDrawer(true)}
-                                        className="flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 border-dashed border-[rgb(var(--color-border-primary))] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/5 transition-all group snap-start"
-                                    >
-                                        <Plus className="w-5 h-5 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]" />
-                                        <span className="text-[10px] font-medium mt-1 text-[rgb(var(--color-text-tertiary))] group-hover:text-[rgb(var(--color-primary))]">
-                                            {t("invoice.createSignature") || "Add New"}
-                                        </span>
-                                    </div>
-
-                                    {/* Existing Signatures */}
-                                    {signatures.map((sig) => (
-                                        <div
-                                            key={sig.id || sig._id}
-                                            onClick={() => {
-                                                const id = sig.id || sig._id;
-                                                setSelectedSignature(selectedSignature === id ? "" : id);
-                                            }}
-                                            className={`flex-shrink-0 w-[calc(50%-6px)] h-20 border-2 rounded-xl flex items-center justify-center cursor-pointer transition-all relative overflow-hidden snap-start ${selectedSignature === (sig.id || sig._id)
-                                                ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5 ring-1 ring-[rgb(var(--color-primary))]/20"
-                                                : "border-[rgb(var(--color-border-primary))] bg-white hover:border-[rgb(var(--color-primary))]/50"
-                                                }`}
-                                        >
-                                            <div className="relative w-full h-full p-2">
-                                                <Image
-                                                    src={sig.content}
-                                                    alt="Signature"
-                                                    fill
-                                                    className={`object-contain ${themeVariant === 'dark' ? 'invert' : ''}`}
-                                                />
-                                            </div>
-                                            {selectedSignature === (sig.id || sig._id) && (
-                                                <div className="absolute top-1.5 right-1.5 bg-[rgb(var(--color-primary))] text-white rounded-full p-0.5">
-                                                    <Check className="w-2.5 h-2.5" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {!signaturesLoading && signatures.length === 0 && (
-                                <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] mt-1 italic">
-                                    {t("invoice.noSignaturesFound") ||
-                                        "No signatures found. Add one to sign your invoices."}
-                                </p>
-                            )}
                         </div>
                     </div>
 

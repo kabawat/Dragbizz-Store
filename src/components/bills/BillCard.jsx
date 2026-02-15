@@ -82,13 +82,15 @@ const BillCard = ({
                   <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                   {t("common.edit")}
                 </button>
-                <button
-                  onClick={() => onMenuAction(bill._id || bill.id, "payment")}
-                  className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
-                >
-                  <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
-                  {t("bills.payBill")}
-                </button>
+                {bill.paymentStatus !== "PAID" && (
+                  <button
+                    onClick={() => onMenuAction(bill._id || bill.id, "payment")}
+                    className="w-full px-4 py-2 text-left text-sm text-green-700 dark:text-green-500 hover:bg-green-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10"
+                  >
+                    <CreditCard className="w-4 h-4 text-green-700 dark:text-green-500" />
+                    {t("bills.payBill")}
+                  </button>
+                )}
                 <button
                   onClick={() => onMenuAction(bill._id || bill.id, "delete")}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
