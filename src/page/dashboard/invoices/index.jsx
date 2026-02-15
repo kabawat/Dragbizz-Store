@@ -345,7 +345,6 @@ const InvoicesPage = () => {
                     <Select
                       value={paymentStatus}
                       onChange={setPaymentStatus}
-                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors"
                       options={[
                         { value: "", label: t("invoice.paymentStatus") },
                         { value: "UNPAID", label: t("invoice.unpaid") },
@@ -362,7 +361,6 @@ const InvoicesPage = () => {
                     <Select
                       value={invoiceStatus}
                       onChange={setInvoiceStatus}
-                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors"
                       options={[
                         { value: "", label: t("invoice.invoiceStatus") },
                         { value: "DRAFT", label: t("invoice.draft") },
@@ -385,7 +383,6 @@ const InvoicesPage = () => {
                       value={startDate}
                       onChange={setStartDate}
                       max={endDate || undefined}
-                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors placeholder:text-[rgb(var(--color-text-secondary))]"
                       placeholder={t("common.startDate")}
                     />
                   </div>
@@ -401,7 +398,6 @@ const InvoicesPage = () => {
                       value={endDate}
                       onChange={setEndDate}
                       min={startDate || undefined}
-                      className="h-10 w-full rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] px-3 py-2 text-sm focus:ring-1 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] transition-colors placeholder:text-[rgb(var(--color-text-secondary))]"
                       placeholder={t("common.endDate")}
                     />
                   </div>

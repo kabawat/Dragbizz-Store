@@ -86,7 +86,7 @@ const BillSidebar = ({
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto ps-3 max-h-[calc(100vh-224px)]">
+            <div className="flex-1 overflow-y-auto ps-3 min-h-0">
                 <div className="space-y-4">
                     {/* Bill Details Card */}
                     <Card>
