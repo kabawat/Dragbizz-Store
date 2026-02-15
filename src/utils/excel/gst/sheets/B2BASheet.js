@@ -3,7 +3,7 @@ import { COLORS } from "../styles";
 const createB2BASheet = (workbook, data) => {
     const sheet = workbook.addWorksheet("B2BA");
 
-    sheet.columns = Array(25).fill({ width: 15 });
+    sheet.columns = Array(25).fill({ width: 15 }).map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     sheet.mergeCells("A1:Y1");
     const title = sheet.getCell("A1");
@@ -11,52 +11,33 @@ const createB2BASheet = (workbook, data) => {
     title.font = { name: 'Calibri', bold: true, size: 16, color: { argb: COLORS.WHITE } };
     title.alignment = { horizontal: "center", vertical: "middle" };
     title.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } };
-    sheet.getRow(1).height = 35;
 
     sheet.mergeCells("A2:Y2");
-    sheet.getCell("C2").value = "Amendments to previously filed invoices by supplier";
+    sheet.getCell("A2").value = "Amendments to previously filed invoices by supplier";
 
-    [sheet.getCell("A2"), sheet.getCell("C2")].forEach(cell => {
-        cell.alignment = { horizontal: "center", vertical: "middle" };
-        cell.font = { name: 'Calibri', bold: true, size: 10 };
-        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "fff2cc" } };
-        cell.border = {
-            top: { style: "thin" }, left: { style: "thin" },
-            bottom: { style: "thin" }, right: { style: "thin" }
-        };
-    });
+    const subHeader = sheet.getCell("A2");
+    subHeader.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    subHeader.font = { name: 'Calibri', bold: true, size: 10 };
+    subHeader.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "fff2cc" } };
+    subHeader.border = {
+        top: { style: "thin" }, left: { style: "thin" },
+        bottom: { style: "thin" }, right: { style: "thin" }
+    };
 
     sheet.mergeCells("A3:B3");
     sheet.getCell("A3").value = "Original Details";
 
     const originalCell = sheet.getCell("A3");
-
-    originalCell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "fff2cc" }
-    };
-
-    originalCell.border = {
-        top: { style: "thin" }, left: { style: "thin" },
-        bottom: { style: "thin" }, right: { style: "thin" }
-    };
-
-    originalCell.font = {
-        name: 'Calibri',
-        bold: true,
-        size: 12
-    };
-
+    originalCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "fff2cc" } };
+    originalCell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
+    originalCell.font = { name: 'Calibri', bold: true, size: 12 };
     originalCell.alignment = { horizontal: "center", vertical: "middle" };
-
 
     sheet.mergeCells("C3:Y3");
     const revHeader = sheet.getCell("C3");
     revHeader.value = "Revised Details";
     revHeader.alignment = { horizontal: "center", vertical: "middle" };
     revHeader.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "dcc8dc" } };
-
 
     sheet.getRow(4).values = [
         "Invoice number", "Invoice Date",
@@ -89,7 +70,6 @@ const createB2BASheet = (workbook, data) => {
     sheet.mergeCells("L4:O4");
     sheet.mergeCells("Q4:T4");
 
-
     [4, 5].forEach(rowNum => {
         sheet.getRow(rowNum).eachCell((cell) => {
             cell.font = { name: 'Calibri', bold: true, size: 8, color: { argb: COLORS.WHITE } };
@@ -102,6 +82,25 @@ const createB2BASheet = (workbook, data) => {
         });
     });
 
+    if (data && data.length > 0) {
+        data.forEach(item => {
+            const row = sheet.addRow([
+                item.origInvNum, item.origInvDate,
+                item.gstin, item.tradeName,
+                item.invoiceNumber, item.invoiceType, item.invoiceDate, item.invoiceValue,
+                item.pos, item.reverseCharge, item.taxableValue,
+                item.igst, item.cgst, item.sgst, item.cess,
+                item.itcReducedInput,
+                item.redIgst, item.redCgst, item.redSgst, item.redCess,
+                item.period, item.filingDate, item.itcAvailable, item.reason, item.taxRate
+            ]);
+            row.eachCell(cell => {
+                cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+                cell.font = { name: 'Calibri', size: 9 };
+            });
+        });
+    }
 };
 
 export default createB2BASheet;

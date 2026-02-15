@@ -312,5 +312,21 @@
   "monthly": "માસિક",
   "maximumImagesAllowed": "મહત્તમ {max} છબીઓની મંજૂરી છે. કૃપા કરીને પહેલા કેટલીક છબીઓ દૂર કરો.",
   "onlyMoreImagesCanBeAdded": "માત્ર {remaining} વધુ છબી(ઓ) ઉમેરી શકાય છે. મહત્તમ {max} છબીઓની મંજૂરી છે.",
-  "pleaseSelectAtLeastOneImage": "કૃપા કરીને ઓછામાં ઓછી એક છબી પસંદ કરો"
+  "pleaseSelectAtLeastOneImage": "કૃપા કરીને ઓછામાં ઓછી એક છબી પસંદ કરો",
+  "showInCatalog": "Show in Catalog",
+  "showInCatalogDescription": "Show this product on your public catalog page where customers can browse and shop online",
+  "configureCatalogVisibility": "Configure Catalog Visibility",
+  "configureCatalogVisibilityHelperText": "Enable to configure if this product appears in your public catalog",
+  "showInCatalogLabel": "Show in Catalog",
+  "catalogVisibilityDescription": "Control if this product is visible in your public QR catalog",
+  "addCatalogContentHelperText": "Add descriptions, features and images for your public catalog page where customers shop online",
+  "failedToCreateCategory": "Failed to create category",
+  "unknownError": "Unknown error",
+  "failedToExtractProductData": "Failed to extract product data",
+  "failedToExtractFromAnyImage": "Failed to extract product data from any image",
+  "extractionErrorTryAgain": "An error occurred during extraction. Please try again.",
+  "extractedDataFromImages": "Successfully extracted data from {count} image(s)",
+  "failedToAddStock": "Failed to add stock",
+  "stockAddedSuccessfully": "Stock added successfully!",
+  "errorAddingStock": "Error adding stock"
 }

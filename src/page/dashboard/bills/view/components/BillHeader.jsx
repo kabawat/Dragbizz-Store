@@ -1,61 +1,31 @@
 "use client";
-import { AlertTriangle, CheckCircle2, Clock, Clock3 } from "lucide-react";
+import { CheckCircle2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui";
-
-export const getPaymentStatusBadge = (status, isOverdue = false) => {
-  if (isOverdue) {
-    return (
-      <Badge variant="danger" className="flex items-center gap-1">
-        <AlertTriangle className="w-3 h-3" />
-        Overdue
-      </Badge>
-    );
-  }
-
-  const statusConfig = {
-    PAID: { variant: "success", text: "Paid", icon: CheckCircle2 },
-    PARTIAL: { variant: "warning", text: "Partial", icon: Clock },
-    UNPAID: { variant: "secondary", text: "Pending", icon: Clock3 },
-  };
-
-  const config = statusConfig[status] || {
-    variant: "secondary",
-    text: status,
-    icon: Clock,
-  };
-  const IconComponent = config.icon;
-
-  return (
-    <Badge variant={config.variant} className="flex items-center gap-1">
-      <IconComponent className="w-3 h-3" />
-      {config.text}
-    </Badge>
-  );
-};
 
 const BillHeader = ({ billData, formatDate }) => {
   return (
-    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-      <div className="px-6 py-6 border-b border-[rgb(var(--color-border-primary))]/40 bg-[rgb(var(--color-bg-secondary))]/30">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.5em] text-[rgb(var(--color-text-tertiary))]">
-              Invoice
+    <div className="px-6 py-5 border-b border-[rgb(var(--color-border-primary))]/30">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-[rgb(var(--color-primary))]/10 rounded-lg hidden sm:block">
+            <CheckCircle2 className="w-6 h-6 text-[rgb(var(--color-primary))]" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[rgb(var(--color-text-tertiary))]">
+              Supplier Bill
             </p>
-            <div className="gap-3 text-[rgb(var(--color-text-primary))]">
-              <div className="text-xl font-semibold">
-                #{billData.billNumber || "N/A"}
-              </div>
-              <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Issued {formatDate(billData.billDate)} · Due{" "}
-                {formatDate(billData.dueDate)}
-              </div>
+            <h1 className="text-xl font-bold text-[rgb(var(--color-text-primary))]">
+              #{billData.billNumber || "N/A"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[rgb(var(--color-text-secondary))]">
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Issued: {formatDate(billData.billDate)}
+              </span>
             </div>
           </div>
-          <div className="flex md:justify-end">
-            {getPaymentStatusBadge(billData.paymentStatus, billData.isOverdue)}
-          </div>
         </div>
+
       </div>
     </div>
   );

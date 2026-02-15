@@ -1,7 +1,6 @@
 "use client";
 import { Download, Edit, Receipt, Trash2 } from "lucide-react";
-import { Badge, Button } from "@/components/ui";
-import { getPaymentStatusBadge } from "./BillHeader";
+import { Button } from "@/components/ui";
 
 const BillActions = ({
   billData,
@@ -13,123 +12,97 @@ const BillActions = ({
   formatDateTime,
 }) => {
   return (
-    <div className="lg:col-span-1">
-      <div className="sticky top-6">
-        <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                Quick Actions
-              </h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                Manage this bill
-              </p>
-            </div>
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/60 overflow-hidden">
+        {/* Actions Header */}
+        <div className="p-5 border-b border-[rgb(var(--color-border-primary))]/30">
+          <div className="flex items-center gap-3">
+            <Receipt className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+            <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-tight">
+              Bill Actions
+            </h3>
           </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="primary"
-              className="flex-1"
-              onClick={onEditBill}
-              leftIcon={Edit}
-            >
-              Edit
-            </Button>
+        <div className="p-5 flex flex-row items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+            onClick={onEditBill}
+            leftIcon={Edit}
+            size="sm"
+          >
+            Edit
+          </Button>
 
-            <Button
-              variant="danger"
-              className="flex-1"
-              onClick={onDeleteBill}
-              leftIcon={Trash2}
-            >
-              Delete
-            </Button>
+          <Button
+            variant="outline"
+            className="flex-1 h-8 text-red-600 border-red-600/10 hover:bg-red-600/5 font-bold text-[10px] uppercase px-2"
+            onClick={onDeleteBill}
+            leftIcon={Trash2}
+            size="sm"
+          >
+            Delete
+          </Button>
 
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onDownloadPDF?.(billData)}
-              leftIcon={Download}
-            >
-              <span className="hidden sm:inline">Download</span>
-              <span className="sm:hidden">Download</span>
-            </Button>
-          </div>
+          <Button
+            variant="primary"
+            className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+            onClick={() => onDownloadPDF?.(billData)}
+            leftIcon={Download}
+            size="sm"
+          >
+            PDF
+          </Button>
+        </div>
 
-          {/* Status Display */}
-          <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-              Status
-            </h4>
-            <div className="flex justify-center">
-              {getPaymentStatusBadge(
-                billData.paymentStatus,
-                billData.isOverdue
-              )}
-            </div>
-          </div>
-
-          {/* Bill Stats */}
-          <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-            <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-              Bill Stats
-            </h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Total Amount:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {formatCurrency(billData.totalAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Paid Amount:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {formatCurrency(billData.paidAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Due Amount:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+        {/* Financial Summary Card */}
+        <div className="px-5 pb-5">
+          <div className="py-4 space-y-4">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-tertiary))] mb-1">Total Outstanding</p>
+                <h2 className="text-2xl font-black text-[rgb(var(--color-text-primary))] tracking-tighter">
                   {formatCurrency(billData.dueAmount)}
-                </span>
+                </h2>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Overdue Days:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {billData.overdueDays || 0} days
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Created:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {formatDate(billData.createdAt)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[rgb(var(--color-text-secondary))]">
-                  Last Updated:
-                </span>
-                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                  {formatDateTime(billData.updatedAt)}
-                </span>
+
+              <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]/20 grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Bill Total</p>
+                  <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(billData.totalAmount)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-[rgb(var(--color-text-tertiary))] mb-0.5">Tax (ITC)</p>
+                  <p className="text-sm font-bold text-[rgb(var(--color-primary))]">{formatCurrency(billData.gstAmount)}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <div className="p-5 pt-0 space-y-3">
+          <div className="pt-3 border-t border-[rgb(var(--color-border-primary))]/30 space-y-1.5">
+            <div className="flex justify-between text-[10px] text-[rgb(var(--color-text-tertiary))]">
+              <span className="font-bold uppercase">Created</span>
+              <span className="font-medium">{formatDate(billData.createdAt)}</span>
+            </div>
+            <div className="flex justify-between text-[10px] text-[rgb(var(--color-text-tertiary))]">
+              <span className="font-bold uppercase">Updated</span>
+              <span className="font-medium">{formatDateTime(billData.updatedAt)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Audit Log / Note section */}
+      <div className="p-5 bg-orange-500/5 rounded-2xl border border-orange-500/10 flex items-start gap-3">
+        <div className="p-2 bg-orange-500/10 rounded-lg shrink-0">
+          <Edit className="w-4 h-4 text-orange-600" />
+        </div>
+        <p className="text-[10px] leading-relaxed text-orange-800 dark:text-orange-200 font-medium">
+          Audit Logs: This document is digitally signed and any changes made will be recorded in the system audit trail.
+        </p>
       </div>
     </div>
   );

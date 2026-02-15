@@ -31,7 +31,7 @@ const createB2BCDNRASheet = (workbook, data) => {
         { key: 'itcAvailability', width: 18 },
         { key: 'reason', width: 20 },
         { key: 'taxRate', width: 15 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
     const yellowFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.SECONDARY } };
@@ -114,8 +114,6 @@ const createB2BCDNRASheet = (workbook, data) => {
         c.value = l; c.fill = blueFill; c.font = whiteFont; c.alignment = centerAlign; c.border = whiteBorder;
     });
 
-    worksheet.getRow(4).height = 30;
-    worksheet.getRow(5).height = 50;
 
     if (data && data.length > 0) {
         data.forEach(item => {

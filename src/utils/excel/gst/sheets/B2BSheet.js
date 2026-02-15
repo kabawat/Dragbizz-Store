@@ -11,7 +11,7 @@ const createB2BSheet = (workbook, data) => {
         { width: 18 }, { width: 18 }, { width: 15 }, { width: 15 }, { width: 12 },
         { width: 22 }, { width: 22 }, { width: 15 }, { width: 15 }, { width: 22 },
         { width: 12 }, { width: 15 }, { width: 15 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     sheet.mergeCells("A1:R1");
     const title = sheet.getCell("A1");
@@ -19,7 +19,6 @@ const createB2BSheet = (workbook, data) => {
     title.font = { name: 'Calibri', bold: true, size: 16, color: { argb: COLORS.WHITE } };
     title.alignment = { horizontal: "center", vertical: "middle" };
     title.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } };
-    sheet.getRow(1).height = 40;
 
     sheet.mergeCells("A2:R2");
     const subTitle = sheet.getCell("A2");
@@ -60,8 +59,6 @@ const createB2BSheet = (workbook, data) => {
             };
         });
     });
-    sheet.getRow(3).height = 25;
-    sheet.getRow(4).height = 30;
 
     invoices.forEach((item) => {
         const row = sheet.addRow([
@@ -86,7 +83,7 @@ const createB2BSheet = (workbook, data) => {
         ]);
 
         row.eachCell((cell, col) => {
-            cell.alignment = { horizontal: "center" };
+            cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             if (col === 8) {
                 cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.YELLOW } };
             }

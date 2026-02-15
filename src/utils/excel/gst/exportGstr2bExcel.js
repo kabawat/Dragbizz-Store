@@ -36,32 +36,36 @@ const exportGstr2bExcel = async (data, filename = "GSTR-2B_Professional.xlsx") =
   // Data for actual sheets
   const rows = Array.isArray(data) ? data : (data?.gstr1 || []);
 
-  createITCAvailableSheet(workbook, rows);
-  createITCNotAvailableSheet(workbook, rows);
-  createITCReversalSheet(workbook, rows);
-  createITCRejectdSheet(workbook, rows);
-  createB2BSheet(workbook, rows);
-  createB2BASheet(workbook, rows);
-  createB2BCDNRSheet(workbook, rows);
-  createB2BCDNRASheet(workbook, rows);
-  createECOSheet(workbook, rows);
-  createECOASheet(workbook, rows);
-  createISDSheet(workbook, rows);
-  createISDASheet(workbook, rows);
-  createIMPGSheet(workbook, rows);
-  createIMPGSEZSheet(workbook, rows);
-  createB2BITCReversalSheet(workbook, rows);
-  createB2BAITCRSheet(workbook, rows);
-  createB2BDNRSheet(workbook, rows);
-  createB2BDNRASheet(workbook, rows);
-  createB2BRejectedSheet(workbook, rows);
-  createB2BARejectedSheet(workbook, rows);
-  createB2BCDNRRejectedSheet(workbook, rows);
-  createB2BCDNRARejectedSheet(workbook, rows);
-  createECORejectedSheet(workbook, rows);
-  createECOARejectedSheet(workbook, rows);
-  createISDRejectedSheet(workbook, rows);
-  createISDARejectedSheet(workbook, rows);
+  createITCAvailableSheet(workbook, data);
+  createITCNotAvailableSheet(workbook, data);
+  createITCReversalSheet(workbook, data);
+  createITCRejectdSheet(workbook, data);
+
+  // Dynamic Categorized Sheets
+  createB2BSheet(workbook, data?.gstr2b || []);
+  createB2BASheet(workbook, data?.b2ba || []);
+  createB2BCDNRSheet(workbook, data?.cdnr || []);
+  createB2BCDNRASheet(workbook, data?.cdnra || []);
+  createECOSheet(workbook, data?.eco || []);
+  createECOASheet(workbook, data?.ecoa || []);
+  createISDSheet(workbook, data?.isd || []);
+  createISDASheet(workbook, data?.isda || []);
+  createIMPGSheet(workbook, data?.impg || []);
+  createIMPGSEZSheet(workbook, data?.impgsez || []);
+  createB2BITCReversalSheet(workbook, data?.itcReversal || []);
+  createB2BAITCRSheet(workbook, data?.b2baItcr || []);
+  createB2BDNRSheet(workbook, data?.cdnr || []);
+  createB2BDNRASheet(workbook, data?.cdnra || []);
+
+  // Rejections
+  createB2BRejectedSheet(workbook, data?.rejected?.b2b || []);
+  createB2BARejectedSheet(workbook, data?.rejected?.b2ba || []);
+  createB2BCDNRRejectedSheet(workbook, data?.rejected?.cdnr || []);
+  createB2BCDNRARejectedSheet(workbook, data?.rejected?.cdnra || []);
+  createECORejectedSheet(workbook, data?.rejected?.eco || []);
+  createECOARejectedSheet(workbook, data?.rejected?.ecoa || []);
+  createISDRejectedSheet(workbook, data?.rejected?.isd || []);
+  createISDARejectedSheet(workbook, data?.rejected?.isda || []);
 
   const buffer = await workbook.xlsx.writeBuffer();
 

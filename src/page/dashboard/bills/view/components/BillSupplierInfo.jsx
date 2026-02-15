@@ -1,49 +1,46 @@
 "use client";
 import { FileText, Mail, Phone } from "lucide-react";
+import { Badge } from "@/components/ui";
 
 const BillSupplierInfo = ({ supplier }) => {
   return (
-    <div className="px-6 py-6 space-y-4">
-      <p className="text-[11px] uppercase tracking-[0.4em] text-[rgb(var(--color-text-tertiary))]">
-        Bill To
-      </p>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-            {supplier?.name || "Not Provided"}
-          </p>
-          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-            {supplier?.address || "No address on file"}
-          </p>
+    <div className="w-full px-6 py-4 border-b border-[rgb(var(--color-border-primary))]/30 bg-[rgb(var(--color-bg-secondary))]/5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-12">
+        {/* Left: Supplier Identity */}
+        <div className="min-w-0 flex-1 flex items-start gap-4">
+          <div className="w-1.5 h-10 bg-[rgb(var(--color-primary))]/20 rounded-full mt-1 hidden sm:block" />
+          <div className="space-y-0.5">
+            <h2 className="text-base font-bold text-[rgb(var(--color-text-primary))]">
+              {supplier?.name || "Not Provided"}
+            </h2>
+            <p className="text-xs text-[rgb(var(--color-text-secondary))] font-medium line-clamp-1 max-w-xl">
+              {supplier?.address || "No official address on file"}
+            </p>
+          </div>
         </div>
-        <div className="grid sm:grid-cols-2 gap-4 text-sm text-[rgb(var(--color-text-secondary))]">
-          <div className="space-y-1">
-            <p className="text-[rgb(var(--color-text-tertiary))] uppercase text-[11px] tracking-[0.3em]">
-              Phone
-            </p>
-            <p className="font-medium flex items-center gap-2 text-[rgb(var(--color-text-primary))]">
-              <Phone className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-              {supplier?.phone || "N/A"}
-            </p>
+
+        {/* Right: Contact & Identity Grid */}
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <div className="flex items-center gap-3">
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Phone</p>
+              <p className="text-xs font-bold text-[rgb(var(--color-text-primary))]">{supplier?.phone || "N/A"}</p>
+            </div>
+            <div className="h-6 w-px bg-[rgb(var(--color-border-primary))]/40 hidden sm:block" />
           </div>
-          <div className="space-y-1">
-            <p className="text-[rgb(var(--color-text-tertiary))] uppercase text-[11px] tracking-[0.3em]">
-              Email
-            </p>
-            <p className="font-medium flex items-center gap-2 text-[rgb(var(--color-text-primary))]">
-              <Mail className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-              {supplier?.email || "N/A"}
-            </p>
+
+          <div className="flex items-center gap-3">
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">Email</p>
+              <p className="text-xs font-bold text-[rgb(var(--color-text-primary))] lowercase">{supplier?.email || "N/A"}</p>
+            </div>
+            <div className="h-6 w-px bg-[rgb(var(--color-border-primary))]/40 hidden sm:block" />
           </div>
+
           {supplier?.gstNumber && (
-            <div className="space-y-1 sm:col-span-2">
-              <p className="text-[rgb(var(--color-text-tertiary))] uppercase text-[11px] tracking-[0.3em]">
-                GST Number
-              </p>
-              <p className="font-medium flex items-center gap-2 text-[rgb(var(--color-text-primary))]">
-                <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                {supplier.gstNumber}
-              </p>
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase tracking-widest">GSTIN</p>
+              <p className="text-xs font-black text-[rgb(var(--color-primary))] tracking-wide">{supplier.gstNumber}</p>
             </div>
           )}
         </div>

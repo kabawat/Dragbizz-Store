@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { SortableMetricCard } from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard } from "@/components/templates/analytics/SortableComponents";
 import GstMismatchList from "@/components/analytics/gst/GstMismatchList";
 import GstHealthScoreWidget from "@/components/analytics/gst/GstHealthScoreWidget";
 import GstExportDrawer from "@/components/analytics/gst/GstExportDrawer";
@@ -68,10 +68,15 @@ const GstAnalytics = () => {
   const lastFetchedParamsRef = useRef(null);
 
   const [metrics, setMetrics] = useState([
+    { id: "netGst", titleKey: "gst.netGst", icon: TrendingUp, iconColor: "from-amber-100 to-amber-200" },
     { id: "totalGst", titleKey: "gst.totalGst", subtextKey: "invoices", icon: IndianRupee, iconColor: "from-green-100 to-green-200" },
-    { id: "cgst", titleKey: "gst.cgst", icon: Receipt, iconColor: "from-blue-100 to-blue-200" },
-    { id: "sgst", titleKey: "gst.sgst", icon: Receipt, iconColor: "from-purple-100 to-purple-200" },
-    { id: "igst", titleKey: "gst.igst", icon: TrendingUp, iconColor: "from-amber-100 to-amber-200" },
+    { id: "totalItc", titleKey: "gst.totalItc", subtextKey: "bills", icon: IndianRupee, iconColor: "from-blue-100 to-blue-200" },
+    { id: "taxableValue", titleKey: "gst.taxableValue", icon: IndianRupee, iconColor: "from-teal-100 to-teal-200" },
+  ]);
+
+  const [cards, setCards] = useState([
+    { id: "outwardSupplies", title: "Outward Supplies (Sales)", type: "breakdown" },
+    { id: "inwardSupplies", title: "Inward Supplies (Purchases)", type: "breakdown" },
   ]);
 
   const sensors = useSensors(
@@ -83,6 +88,17 @@ const GstAnalytics = () => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setMetrics((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleCardsDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setCards((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
@@ -133,25 +149,18 @@ const GstAnalytics = () => {
 
   const outward = summary?.outward ?? {};
   const inward = summary?.inward ?? {};
+  const netPosition = summary?.summary ?? {};
 
-  const yearOptions = [2023, 2024, 2025, 2026].map((y) => ({
-    label: String(y),
-    value: String(y),
-  }));
-  const monthOptions = [
-    { label: "All months", value: "" },
-    ...Array.from({ length: 12 }, (_, i) => ({
-      label: new Date(2000, i).toLocaleString("default", { month: "long" }),
-      value: String(i + 1),
-    })),
-  ];
-  const quarterOptions = [
-    { label: "All quarters", value: "" },
-    { label: "Q1", value: "1" },
-    { label: "Q2", value: "2" },
-    { label: "Q3", value: "3" },
-    { label: "Q4", value: "4" },
-  ];
+
+  const StatRow = ({ label, value, color = "text-[rgb(var(--color-text-primary))]", icon: Icon }) => (
+    <div className="flex items-center justify-between py-2 border-b border-[var(--color-border-primary-light)] last:border-0 px-1 hover:bg-[rgb(var(--color-bg-secondary))]/50 transition-colors">
+      <div className="flex items-center gap-2">
+        {Icon && <Icon className="w-3.5 h-3.5 text-[rgb(var(--color-text-tertiary))]" />}
+        <span className="text-sm text-[rgb(var(--color-text-secondary))]">{label}</span>
+      </div>
+      <span className={`text-sm font-bold ${color}`}>{value}</span>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
@@ -167,102 +176,70 @@ const GstAnalytics = () => {
             <div className="flex flex-wrap items-center gap-2">
               <div className="w-24">
                 <Select
-                  options={yearOptions}
+                  options={[2023, 2024, 2025, 2026].map(y => ({ label: String(y), value: String(y) }))}
                   value={String(period.year)}
-                  onChange={(val) =>
-                    setPeriod((p) => ({
-                      ...p,
-                      year: parseInt(val, 10) || new Date().getFullYear(),
-                    }))
-                  }
+                  onChange={(val) => setPeriod(p => ({ ...p, year: parseInt(val) }))}
                   placeholder="Year"
                   clearable={false}
                 />
               </div>
-              <div className="w-36">
+              <div className="w-40">
                 <Select
-                  options={monthOptions}
+                  options={[
+                    { label: "All months", value: "" },
+                    ...Array.from({ length: 12 }, (_, i) => ({
+                      label: new Date(2000, i).toLocaleString("default", { month: "long" }),
+                      value: String(i + 1),
+                    })),
+                  ]}
                   value={period.month}
-                  onChange={(val) => setPeriod((p) => ({ ...p, month: val }))}
+                  onChange={(val) => setPeriod(p => ({ ...p, month: val }))}
                   placeholder="Month"
-                  clearable={false}
-                />
-              </div>
-              <div className="w-28">
-                <Select
-                  options={quarterOptions}
-                  value={period.quarter}
-                  onChange={(val) => setPeriod((p) => ({ ...p, quarter: val }))}
-                  placeholder="Quarter"
                   clearable={false}
                 />
               </div>
             </div>
             <div className="flex items-center gap-2">
               {period.month && (
-                <Button
-                  variant="secondary"
-                  onClick={handleSync}
-                  size="sm"
-                  isLoading={isSyncing}
-                  className={`
-                    border-[rgb(var(--color-border-primary))] 
-                    hover:bg-[rgb(var(--color-bg-tertiary))] 
-                    transition-all duration-300
-                    ${isSyncing ? "opacity-80 pointer-events-none" : ""}
-                  `}
-                  title="Manual sync for this month"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
-                  {isSyncing ? "Syncing..." : "Sync Data"}
+                <Button variant="secondary" onClick={handleSync} size="sm" isLoading={isSyncing}>
+                  <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+                  Sync Data
                 </Button>
               )}
-              <Button
-                variant="primary"
-                leftIcon={Download}
-                onClick={() => setShowExportDrawer(true)}
-                size="sm"
-                className="transition-all"
-              >
+              <Button variant="primary" leftIcon={Download} onClick={() => setShowExportDrawer(true)} size="sm">
                 {t("gst.exportForCA") || "Export for CA"}
               </Button>
             </div>
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center h-64 items-center">
-              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                {t("common.loadingData") || "Loading GST data..."}
-              </p>
+            <div className="flex items-center justify-center h-64">
+              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">Loading analytics data...</p>
             </div>
           ) : (
             <>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleMetricsDragEnd}
-              >
-                <SortableContext
-                  items={metrics.map((m) => m.id)}
-                  strategy={rectSortingStrategy}
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-stretch">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMetricsDragEnd}>
+                <SortableContext items={metrics.map(m => m.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {metrics.map((metric) => {
                       const valueMap = {
+                        netGst: formatCurrency(netPosition.totalGst),
                         totalGst: formatCurrency(outward.totalGst),
-                        cgst: formatCurrency(outward.cgst),
-                        sgst: formatCurrency(outward.sgst),
-                        igst: formatCurrency(outward.igst),
+                        totalItc: formatCurrency(inward.totalItc),
+                        taxableValue: formatCurrency(outward.taxableAmount),
                       };
                       const subtextMap = {
+                        netGst: netPosition.totalGst < 0 ? "Tax Credit Available" : "Tax Payable",
                         totalGst: `${outward.invoiceCount ?? 0} invoices`,
+                        totalItc: `${inward.billCount ?? 0} bills`,
+                        taxableValue: "Total Sales Base"
                       };
                       return (
                         <SortableMetricCard
                           key={metric.id}
                           id={metric.id}
                           title={t(metric.titleKey) || metric.titleKey}
-                          value={valueMap[metric.id] ?? "₹0.00"}
+                          value={valueMap[metric.id]}
                           subtext={subtextMap[metric.id]}
                           icon={metric.icon}
                           iconColor={metric.iconColor}
@@ -273,32 +250,105 @@ const GstAnalytics = () => {
                 </SortableContext>
               </DndContext>
 
-              {/* Left: 1 card width (Health Score + Taxable Value) | Right: 3 cards width (Mismatches) - matches top row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div className="md:col-span-1 flex flex-col gap-4">
-                  <GstHealthScoreWidget
-                    healthScore={healthScore}
-                    isLoading={isLoadingHealthScore}
-                  />
-                  <Card className="backdrop-blur-md border-[var(--color-border-primary-light)] transition-all duration-300 relative overflow-hidden" style={{ background: "var(--gradient-teal)" }}>
-                    <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end pr-3 opacity-10">
-                      <IndianRupee className="w-13 h-13 text-[rgb(var(--color-text-primary))]" />
-                    </div>
-                    <div className="relative z-10 p-4">
-                      <p className="text-[rgb(var(--color-text-secondary))] text-xs font-medium truncate uppercase tracking-wide">
-                        {t("gst.taxableValue") || "Taxable Value (Outward)"}
-                      </p>
-                      <p className="text-[rgb(var(--color-text-primary))] text-xl font-bold mt-1">
-                        {formatCurrency(outward.taxableAmount)}
-                      </p>
-                    </div>
-                  </Card>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCardsDragEnd}>
+                <SortableContext items={cards.map(c => c.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+                    {cards.map((card) => (
+                      <SortableCard key={card.id} id={card.id}>
+                        {card.id === "outwardSupplies" && (
+                          <Card className="border-[var(--color-border-primary-light)] overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+                            <div className="p-0">
+                              <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/30 border-b border-[var(--color-border-primary-light)] flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-green-500/10 dark:bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                                    <TrendingUp className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{card.title}</h3>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-1 Section</p>
+                                  </div>
+                                </div>
+                                <span className="text-[10px] font-bold px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md border border-green-500/20">Invoices ({outward.invoiceCount || 0})</span>
+                              </div>
+                              <div className="p-5 space-y-1">
+                                <StatRow label="Gross Taxable Value" value={formatCurrency(outward.taxableAmount)} icon={Receipt} />
+                                <div className="grid grid-cols-2 gap-3 py-3">
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">B2B Sales</p>
+                                    <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2bTaxable)}</p>
+                                  </div>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">B2C Sales</p>
+                                    <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2cTaxable)}</p>
+                                  </div>
+                                </div>
+                                <div className="pt-2 space-y-1">
+                                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">GST Distribution</p>
+                                  <StatRow label="CGST" value={formatCurrency(outward.cgst)} color="text-green-600 dark:text-green-400" />
+                                  <StatRow label="SGST" value={formatCurrency(outward.sgst)} color="text-green-600 dark:text-green-400" />
+                                  <StatRow label="IGST" value={formatCurrency(outward.igst)} color="text-green-600 dark:text-green-400" />
+                                </div>
+                              </div>
+                              <div className="p-4 bg-[rgb(var(--color-primary))]/5 border-t border-[var(--color-border-primary-light)] flex justify-between items-center group hover:bg-[rgb(var(--color-primary))]/10 transition-colors cursor-default">
+                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">Total Output Tax</span>
+                                <span className="text-lg font-black text-green-600 dark:text-green-400 tabular-nums">{formatCurrency(outward.totalGst)}</span>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
+                        {card.id === "inwardSupplies" && (
+                          <Card className="border-[var(--color-border-primary-light)] overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+                            <div className="p-0">
+                              <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/30 border-b border-[var(--color-border-primary-light)] flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                    <IndianRupee className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <h3 className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{card.title}</h3>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider font-semibold">GSTR-2B Section</p>
+                                  </div>
+                                </div>
+                                <span className="text-[10px] font-bold px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md border border-blue-500/20">Bills ({inward.billCount || 0})</span>
+                              </div>
+                              <div className="p-5 space-y-1">
+                                <StatRow label="Total Purchase Value" value={formatCurrency(inward.taxableAmount)} icon={Receipt} />
+                                <div className="grid grid-cols-2 gap-3 py-3">
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">ITC Eligible</p>
+                                    <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatCurrency(inward.b2bTaxable)}</p>
+                                  </div>
+                                  <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">Non-ITC Purchase</p>
+                                    <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(inward.b2cTaxable)}</p>
+                                  </div>
+                                </div>
+                                <div className="pt-2 space-y-1">
+                                  <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">ITC Breakdown</p>
+                                  <StatRow label="Input CGST" value={formatCurrency(inward.cgst)} color="text-blue-600 dark:text-blue-400" />
+                                  <StatRow label="Input SGST" value={formatCurrency(inward.sgst)} color="text-blue-600 dark:text-blue-400" />
+                                  <StatRow label="Input IGST" value={formatCurrency(inward.igst)} color="text-blue-600 dark:text-blue-400" />
+                                </div>
+                              </div>
+                              <div className="p-4 bg-[rgb(var(--color-primary))]/5 border-t border-[var(--color-border-primary-light)] flex justify-between items-center group hover:bg-[rgb(var(--color-primary))]/10 transition-colors cursor-default">
+                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">Net Available ITC</span>
+                                <span className="text-lg font-black text-blue-600 dark:text-blue-400 tabular-nums">{formatCurrency(inward.totalItc)}</span>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
+                      </SortableCard>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pb-10">
+                <div className="lg:col-span-1">
+                  <GstHealthScoreWidget healthScore={healthScore} isLoading={isLoadingHealthScore} />
                 </div>
-                <div className="md:col-span-2 lg:col-span-3">
-                  <GstMismatchList
-                    mismatches={mismatches?.mismatches ?? []}
-                    isLoading={isLoadingMismatches}
-                  />
+                <div className="lg:col-span-3">
+                  <GstMismatchList mismatches={mismatches?.mismatches ?? []} isLoading={isLoadingMismatches} />
                 </div>
               </div>
             </>

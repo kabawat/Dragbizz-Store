@@ -13,7 +13,7 @@ const createIMPGSEZSheet = (workbook, data) => {
         { key: 'igst', width: 18 },
         { key: 'cess', width: 12 },
         { key: 'isAmended', width: 15 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
     const yellowFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.SECONDARY } };
@@ -33,7 +33,6 @@ const createIMPGSEZSheet = (workbook, data) => {
     r1.fill = blueFill;
     r1.font = { ...whiteFont, size: 16 };
     r1.alignment = centerAlign;
-    worksheet.getRow(1).height = 40;
 
     worksheet.mergeCells('A2:J2');
     const r2 = worksheet.getCell('A2');
@@ -45,7 +44,6 @@ const createIMPGSEZSheet = (workbook, data) => {
         top: { style: "thin" }, left: { style: "thin" },
         bottom: { style: "thin" }, right: { style: "thin" }
     };
-    worksheet.getRow(2).height = 25;
 
     const vMerged = [
         { cell: 'A3', label: 'GSTIN of supplier' },
@@ -94,8 +92,6 @@ const createIMPGSEZSheet = (workbook, data) => {
         cell.fill = blueFill; cell.font = whiteFont; cell.alignment = centerAlign; cell.border = whiteBorder;
     });
 
-    worksheet.getRow(3).height = 25;
-    worksheet.getRow(4).height = 30;
 
     // Data Roww
     if (data && data.length > 0) {
@@ -113,7 +109,7 @@ const createIMPGSEZSheet = (workbook, data) => {
                 item.isAmended
             ]);
             row.eachCell(cell => {
-                cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             });
         });
     }

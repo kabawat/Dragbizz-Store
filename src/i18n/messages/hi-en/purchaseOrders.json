@@ -114,5 +114,17 @@
   "bankTransfer": "Bank Transfer",
   "cheque": "Cheque",
   "createBill": "Create Bill",
-  "loadingMore": "Loading more purchase orders..."
+  "loadingMore": "Loading more purchase orders...",
+  "editPO": "Edit Purchase Order",
+  "deletePO": "Delete Purchase Order",
+  "poNumber": "PO Number",
+  "poDate": "PO Date",
+  "supplier": "Supplier",
+  "orderDate": "Order Date",
+  "expectedDate": "Expected Date",
+  "status": "Status",
+  "total": "Total",
+  "deleteConfirm": "Are you sure you want to delete this purchase order?",
+  "deleteSuccess": "Purchase order deleted successfully",
+  "errorLoading": "Error loading purchase orders"
 }

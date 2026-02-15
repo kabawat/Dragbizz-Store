@@ -116,9 +116,9 @@ const ViewBillPage = ({ billId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="h-screen w-full flex flex-col overflow-hidden">
         <Header title="View Bill" description="Bill information and details" />
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">
               <Link
@@ -146,37 +146,50 @@ const ViewBillPage = ({ billId }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-2 flex flex-col space-y-6">
-                  <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                    <BillHeader billData={billData} formatDate={formatDate} />
-                    <BillSupplierInfo supplier={billData.supplier} />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: "calc(100vh - 184px)" }}>
+                  <div className="lg:col-span-2 flex flex-col overflow-y-auto pe-4 space-y-5 custom-scrollbar">
+                    {/* Main Bill Sheet (Document Style) */}
+                    <div className="bg-white dark:bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/60">
+                      <BillHeader billData={billData} formatDate={formatDate} />
+                      <div className="w-full">
+                        <BillSupplierInfo supplier={billData.supplier} />
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <BillItemsTable
+                        items={billData.items}
+                        itemsSummary={{
+                          ...billData.itemsSummary,
+                          subtotal: billData.subtotal,
+                          gstAmount: billData.gstAmount,
+                          totalValue: billData.totalAmount
+                        }}
+                        gstBreakdown={billData.gstBreakdown}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
+
+                    <BillBatches
+                      batches={billData.batches}
+                      formatCurrency={formatCurrency}
+                    />
+
+                    <BillNotes notes={billData.notes} />
                   </div>
 
-                  <BillItemsTable
-                    items={billData.items}
-                    itemsSummary={billData.itemsSummary}
-                    formatCurrency={formatCurrency}
-                  />
-
-                  <BillBatches
-                    batches={billData.batches}
-                    formatCurrency={formatCurrency}
-                  />
-
-                  <BillNotes notes={billData.notes} />
+                  <div className="lg:col-span-1 h-full overflow-y-auto px-1">
+                    <BillActions
+                      billData={billData}
+                      onEditBill={handleEditBill}
+                      onDeleteBill={handleDeleteBill}
+                      onDownloadPDF={handleDownloadPDF}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      formatDateTime={formatDateTime}
+                    />
+                  </div>
                 </div>
-
-                <BillActions
-                  billData={billData}
-                  onEditBill={handleEditBill}
-                  onDeleteBill={handleDeleteBill}
-                  onDownloadPDF={handleDownloadPDF}
-                  formatCurrency={formatCurrency}
-                  formatDate={formatDate}
-                  formatDateTime={formatDateTime}
-                />
-              </div>
               </>
             )}
           </div>

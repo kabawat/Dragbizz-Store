@@ -70,7 +70,7 @@ export default function CatalogPage({ catalogId }) {
                     setError(catalogResult?.message || "Catalog not found");
                 }
             } catch (err) {
-                console.error("Initial fetch error:", err);
+                
                 setError("An unexpected error occurred while fetching the catalog");
             } finally {
                 setLoading(false);
@@ -102,7 +102,7 @@ export default function CatalogPage({ catalogId }) {
                     }));
                 }
             } catch (err) {
-                console.error("Filter fetch error:", err);
+                
                 toast.showError("Failed to update product list");
             } finally {
                 setProductsLoading(false);

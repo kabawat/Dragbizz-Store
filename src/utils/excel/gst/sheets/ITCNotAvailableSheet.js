@@ -12,7 +12,10 @@ const createITCNotAvailableSheet = (workbook, data) => {
         { width: 14 },
         { width: 10 },
         { width: 32 },
-    ];
+    ].map(col => ({
+        ...col,
+        alignment: { horizontal: "center", vertical: "middle", wrapText: true }
+    }));
 
     const styles = {
         darkBlueFill: { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } },
@@ -29,24 +32,34 @@ const createITCNotAvailableSheet = (workbook, data) => {
         },
     };
 
+    // ✅ SAME HEIGHT FUNCTION
+    const autoHeight = (row, height = 20) => {
+        row.height = height;
+    };
+
     worksheet.mergeCells("A1:H1");
-    worksheet.getCell("A1").value = "FORM GSTR-2B";
-    worksheet.getCell("A1").fill = styles.darkBlueFill;
-    worksheet.getCell("A1").font = { ...styles.whiteText, size: 16 };
-    worksheet.getCell("A1").alignment = { horizontal: "center", vertical: "middle" };
+    const r1 = worksheet.getRow(1);
+    r1.getCell(1).value = "FORM GSTR-2B";
+    r1.getCell(1).fill = styles.darkBlueFill;
+    r1.getCell(1).font = { ...styles.whiteText, size: 16 };
+    r1.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+    autoHeight(r1, 24);
 
     worksheet.mergeCells("A2:H2");
-    worksheet.getCell("A2").value =
+    const r2 = worksheet.getRow(2);
+    r2.getCell(1).value =
         "FORM GSTR-2B has been generated on the basis of the information furnished by your suppliers in their respective FORMS GSTR-1/IFF including E-Commerce supplies, GSTR-1A, 5 and 6. It also contains information on imports of goods from the ICEGATE system. This information is for guidance purposes only.";
-    worksheet.getCell("A2").fill = styles.lightOrangeFill;
-    worksheet.getCell("A2").font = { bold: true, size: 10 };
-    worksheet.getCell("A2").alignment = { wrapText: true, horizontal: "center", vertical: "middle" };
-    worksheet.getCell("A2").border = styles.border;
+    r2.getCell(1).fill = styles.lightOrangeFill;
+    r2.getCell(1).font = { bold: true, size: 10 };
+    r2.getCell(1).alignment = { wrapText: true, horizontal: "center", vertical: "middle" };
+    r2.getCell(1).border = styles.border;
+    autoHeight(r2, 40);
 
     worksheet.mergeCells("A3:H3");
     worksheet.getCell("A3").value = "FORM SUMMARY - ITC Not Available";
     worksheet.getCell("A3").fill = styles.lightBlueFill;
     worksheet.getCell("A3").font = styles.whiteText;
+    autoHeight(worksheet.getRow(3), 20);
 
     const headerRow = worksheet.addRow([
         "S.no.",
@@ -58,19 +71,21 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "Cess (₹)",
         "Advisory",
     ]);
-    headerRow.height = 30;
+
     headerRow.eachCell(cell => {
         cell.fill = styles.darkBlueFill;
         cell.font = styles.whiteText;
         cell.border = styles.border;
-        cell.alignment = { wrapText: true, horizontal: "center", vertical: "middle" };
+        cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
     });
+    autoHeight(headerRow, 40);
 
     worksheet.mergeCells("A5:H5");
     worksheet.getCell("A5").value = "Credit which may not be availed under FORM GSTR-3B";
     worksheet.getCell("A5").fill = styles.darkOrangeFill;
     worksheet.getCell("A5").font = styles.whiteText;
     worksheet.getCell("A5").border = styles.border;
+    autoHeight(worksheet.getRow(5), 20);
 
     worksheet.mergeCells("B6:H6");
     worksheet.getCell("A6").value = "Part A";
@@ -79,8 +94,7 @@ const createITCNotAvailableSheet = (workbook, data) => {
     worksheet.getCell("A6").alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getCell("A6").border = styles.border;
 
-    worksheet.getCell("B6").value =
-        "ITC Not Available";
+    worksheet.getCell("B6").value = "ITC Not Available";
     worksheet.getCell("B6").fill = styles.lightOrangeFill;
     worksheet.getCell("B6").font = { bold: true };
     worksheet.getCell("B6").border = styles.border;
@@ -89,25 +103,27 @@ const createITCNotAvailableSheet = (workbook, data) => {
         worksheet.getCell(c).border = styles.border;
     });
 
-    const addMainRow = rowData => {
+    autoHeight(worksheet.getRow(6), 20);
+
+    const addMainRow = (rowData, height = 50) => {
         const r = worksheet.addRow(rowData);
-        r.height = 35;
         r.eachCell((cell, col) => {
             cell.border = styles.border;
             cell.font = { bold: col === 2 || col === 3 };
             cell.alignment = {
-                wrapText: true,
                 horizontal: col === 2 ? "left" : "center",
                 vertical: "middle",
+                wrapText: true
             };
         });
+        autoHeight(r, height);
     };
 
     const addDetailRow = label => {
         const r = worksheet.addRow(["", label, "", "0.00", "0.00", "0.00", "0.00", ""]);
         r.eachCell((cell, col) => {
             cell.border = styles.border;
-            if (col === 2) cell.alignment = { horizontal: "left", vertical: "middle" };
+            if (col === 2) cell.alignment = { horizontal: "left", vertical: "middle", wrapText: true };
             if (col === 3) cell.fill = styles.greyFill;
         });
     };
@@ -122,22 +138,22 @@ const createITCNotAvailableSheet = (workbook, data) => {
         d.font = { bold: true };
         d.alignment = { textRotation: 90, horizontal: "center", vertical: "middle" };
         d.border = styles.border;
-
-        worksheet.getCell(`C${start}`).fill = styles.greyFill;
-        worksheet.getCell(`H${start}`).fill = styles.greyFill;
     };
 
+    const ineligible = data?.gstr3b?.section4D2 || {};
+
     let s = worksheet.lastRow.number + 1;
+
     addMainRow([
         "I",
         "All other ITC - Supplies from registered persons other than reverse charge",
         "4(D)(2)",
-        "0.00",
-        "0.00",
-        "0.00",
-        "0.00",
+        ineligible.igst || "0.00",
+        ineligible.cgst || "0.00",
+        ineligible.sgst || "0.00",
+        ineligible.cess || "0.00",
         "Such credit shall not be taken and has to be reported in table 4(D)(2) of FORM GSTR-3B.",
-    ]);
+    ], 60);
 
     [
         "B2B - Invoices",
@@ -151,6 +167,7 @@ const createITCNotAvailableSheet = (workbook, data) => {
     mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 
     s = worksheet.lastRow.number + 1;
+
     addMainRow([
         "II",
         "Inward Supplies from ISD",
@@ -160,12 +177,13 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "0.00",
         "0.00",
         "Such credit shall not be taken and has to be reported in table 4(D)(2) of FORM GSTR-3B.",
-    ]);
+    ], 60);
 
     ["ISD - Invoices", "ISD - Invoices (Amendment)"].forEach(addDetailRow);
     mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 
     s = worksheet.lastRow.number + 1;
+
     addMainRow([
         "III",
         "Inward Supplies liable for reverse charge",
@@ -175,7 +193,7 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "0.00",
         "0.00",
         "These supplies shall be declared in Table 3.1(d) of FORM GSTR-3B for payment of tax. However, credit will not be available on the same and has to be reported in table 4(D)(2) of FORM GSTR-3B.",
-    ]);
+    ], 80);
 
     [
         "B2B - Invoices",
@@ -193,6 +211,24 @@ const createITCNotAvailableSheet = (workbook, data) => {
     worksheet.getCell(`A${worksheet.lastRow.number}`).fill = styles.lightOrangeFill;
     worksheet.getCell(`A${worksheet.lastRow.number}`).font = { bold: true };
     worksheet.getCell(`A${worksheet.lastRow.number}`).border = styles.border;
+    autoHeight(worksheet.getRow(worksheet.lastRow.number), 25);
+
+    // ✅ ADD RECORDS IF PROVIDED
+    if (data?.ineligible && data.ineligible.length > 0) {
+        worksheet.addRow([]); // Gap
+        const recordHeader = worksheet.addRow(["Detailed Ineligible Records"]);
+        recordHeader.getCell(1).font = { bold: true };
+
+        data.ineligible.forEach(item => {
+            const row = worksheet.addRow([
+                "", item.tradeName, item.billNumber, item.billDate, item.igst, item.cgst, item.sgst, "Ineligible"
+            ]);
+            row.eachCell(cell => {
+                cell.border = styles.border;
+                cell.alignment = { horizontal: "center", vertical: "middle" };
+            });
+        });
+    }
 };
 
 export default createITCNotAvailableSheet;

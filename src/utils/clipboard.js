@@ -8,7 +8,7 @@ export const copyToClipboard = async (text) => {
             await navigator.clipboard.writeText(text);
             return true;
         } catch (err) {
-            console.error("Modern clipboard copy failed:", err);
+            
             // Fallback to legacy method
         }
     }
@@ -32,7 +32,7 @@ export const copyToClipboard = async (text) => {
 
         return successful;
     } catch (err) {
-        console.error("Fallback clipboard copy failed:", err);
+        
         return false;
     }
 };

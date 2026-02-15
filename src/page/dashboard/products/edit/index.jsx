@@ -81,7 +81,7 @@ const UpdateProductPage = ({ productId }) => {
         };
         const result = await productService.getProducts(params);
         const product = result.data;
-        console.log("product : ", product);
+        
         // Transform API data to form data structure based on the actual response format
         const transformedData = {
           store: storeId,
@@ -134,7 +134,7 @@ const UpdateProductPage = ({ productId }) => {
 
         setFormData(transformedData);
       } catch (_error) {
-        console.log("_error : ", _error);
+        
         setProductNotFound(true);
       } finally {
         setInitialLoading(false);

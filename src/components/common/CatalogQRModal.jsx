@@ -202,7 +202,7 @@ const CatalogQRModal = ({ isOpen, onClose, store, catalogId: propCatalogId }) =>
             doc.save(`${store?.name?.replace(/\s+/g, '-').toLowerCase() || 'catalog'}-qr.pdf`);
             showSuccess("PDF generated successfully");
         } catch (error) {
-            console.error("PDF generation failed:", error);
+            
             showError("Failed to generate PDF. Please try again.");
         }
     };

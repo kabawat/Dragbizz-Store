@@ -4,5 +4,6 @@
   "updatedSuccessfully": "{item} सफलतापूर्वक अपडेट किया गया",
   "savedSuccessfully": "{item} सफलतापूर्वक सहेजा गया",
   "cancelledSuccessfully": "{item} सफलतापूर्वक रद्द किया गया",
-  "releasedSuccessfully": "{item} सफलतापूर्वक जारी किया गया"
+  "releasedSuccessfully": "{item} सफलतापूर्वक जारी किया गया",
+  "hasBeenUpdatedSuccessfully": "has been updated successfully"
 }

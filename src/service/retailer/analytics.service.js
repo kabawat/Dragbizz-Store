@@ -180,6 +180,7 @@ class AnalyticsService {
 
   // Get Bill Analytics
   async getBillAnalytics(params = {}) {
+    
     try {
       const url = attachQueryParams(
         `${API_CONFIG.RETAILER.ANALYTICS}/bills`,

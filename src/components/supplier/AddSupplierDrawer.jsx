@@ -1,7 +1,7 @@
 "use client";
 import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { SupplierForm } from "@/components/supplier";
+import SupplierForm from "./SupplierForm";
 import { Button, SideDrawer } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";

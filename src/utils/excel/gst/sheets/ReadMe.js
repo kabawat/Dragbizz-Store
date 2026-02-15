@@ -7,7 +7,7 @@ const createReadSheet = (workbook, data) => {
         { width: 20 },
         { width: 30 },
         { width: 85 },
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     sheet.mergeCells("A1:D1");
     const mainHeader = sheet.getCell("A1");
@@ -15,9 +15,8 @@ const createReadSheet = (workbook, data) => {
     mainHeader.style = {
         font: { name: "Arial", size: 16, bold: true, color: { argb: "FFFFFFFF" } },
         fill: { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } },
-        alignment: { horizontal: "center", vertical: "middle" },
+        alignment: { horizontal: "center", vertical: "middle", wrapText: true },
     };
-    sheet.getRow(1).height = 30;
 
     const metadata = [
         ["Financial Year", data?.financialYear || "2025-26"],
@@ -54,7 +53,7 @@ const createReadSheet = (workbook, data) => {
     subHeader.value = "GSTR-2B Data Entry Instructions";
     subHeader.style = {
         font: { bold: true },
-        alignment: { horizontal: "center", vertical: "middle" },
+        alignment: { horizontal: "center", vertical: "middle", wrapText: true },
         fill: { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.GRAY } },
         border: { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } }
     };
@@ -65,7 +64,7 @@ const createReadSheet = (workbook, data) => {
         cell.style = {
             font: { bold: true },
             fill: { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.GRAY } },
-            alignment: { horizontal: "center", vertical: "middle" },
+            alignment: { horizontal: "center", vertical: "middle", wrapText: true },
             border: { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } }
         };
     });
@@ -108,7 +107,7 @@ const createReadSheet = (workbook, data) => {
 
         [1, 2, 3, 4].forEach((col) => {
             const cell = currentRow.getCell(col);
-            cell.alignment = { wrapText: true, vertical: "middle" };
+            cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             cell.border = {
                 top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" }
             };

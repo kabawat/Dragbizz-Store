@@ -17,5 +17,11 @@
   "healthScore": "સ્વાસ્થ્ય સ્કોર",
   "hsnCoverage": "HSN કવરેજ",
   "mismatchCount": "અસંગતતા ગણતરી",
-  "periodCoverage": "અવધિ કવરેજ"
+  "periodCoverage": "અવધિ કવરેજ",
+  "b2bSales": "B2B Sales",
+  "b2cSales": "B2C Sales",
+  "b2bCount": "B2B Invoices",
+  "b2cCount": "B2C Invoices",
+  "b2bPurchases": "B2B Purchases (ITC)",
+  "b2cPurchases": "B2C Purchases"
 }

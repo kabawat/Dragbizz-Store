@@ -174,7 +174,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
       doc.save(`upi-qr-${upiId.replace(/[@.]/g, "-")}.pdf`);
       showSuccess(t("settings.upi.qrDownloaded"));
     } catch (error) {
-      console.error("PDF generation failed:", error);
+      
       showError(t("settings.upi.qrDownloadFailed"));
     }
   };

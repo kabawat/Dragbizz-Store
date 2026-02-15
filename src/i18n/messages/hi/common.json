@@ -148,5 +148,9 @@
   "reportGeneratedOn": "रिपोर्ट उत्पन्न की गई",
   "addNew": "नया जोड़ें",
   "createNow": "अभी बनाएं",
-  "confirmDelete": "क्या आप वाकई इस आइटम को हटाना चाहते हैं?"
+  "confirmDelete": "क्या आप वाकई इस आइटम को हटाना चाहते हैं?",
+  "somethingWentWrong": "Something went wrong",
+  "expense": "Expense",
+  "expenses": "Expenses",
+  "selected": "selected"
 }

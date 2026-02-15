@@ -71,5 +71,9 @@
   "fieldInvoiceStatus": "Invoice Status",
   "fieldPaymentMode": "Payment Mode",
   "fieldReleasedAt": "Released At",
-  "invoices": "Invoices"
+  "invoices": "Invoices",
+  "standardPrint": "Standard (A4 / Letter)",
+  "miniThermalPrint": "Mini / Thermal Printer",
+  "updatePaymentStatus": "Update Payment Status",
+  "orderSource": "Order Source"
 }

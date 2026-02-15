@@ -6,7 +6,10 @@ export const getBills = createAsyncThunk(
   "bills/getBills",
   async (params = {}, { rejectWithValue }) => {
     try {
-      const result = await billService.getBills(params);
+      const result = await billService.getBills({
+        lightweight: true,
+        ...params,
+      });
 
       if (!result.success) {
         return rejectWithValue({
@@ -56,12 +59,10 @@ export const getBillStats = createAsyncThunk(
 // Async thunk for getting bill analytics (using analyticsService)
 export const getBillAnalytics = createAsyncThunk(
   "bills/getBillAnalytics",
-  async (storeId, { rejectWithValue }) => {
+  async (param, { rejectWithValue }) => {
     try {
       // Use analyticsService for analytics
-      const result = await analyticsService.getBillAnalytics({
-        store: storeId,
-      });
+      const result = await analyticsService.getBillAnalytics(param);
 
       if (!result.success) {
         return rejectWithValue({

@@ -18,6 +18,7 @@ import SupplierAccountDetails from "./components/SupplierAccountDetails";
 import SupplierActions from "./components/SupplierActions";
 import SupplierAddress from "./components/SupplierAddress";
 import SupplierBasicInfo from "./components/SupplierBasicInfo";
+import { EditSupplierDrawer } from "@/components/supplier";
 
 const ViewSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ const ViewSupplierPage = ({ supplierId }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedSupplierName, setDeletedSupplierName] = useState("");
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
   const hasFetched = useRef(false);
 
   const { handleDownloadPDF } = useSupplierDetailsPrint(
@@ -57,7 +59,7 @@ const ViewSupplierPage = ({ supplierId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.supplier") })
+            t("errors.failedToFetchData", { item: t("common.supplier") })
           );
         }
       } catch (_error) {
@@ -73,7 +75,11 @@ const ViewSupplierPage = ({ supplierId }) => {
   }, [supplierId, storeId, t]);
 
   const handleEditSupplier = () => {
-    router.push(`/dashboard/suppliers/edit/${supplierId}`);
+    setShowEditDrawer(true);
+  };
+
+  const handleEditSuccess = (updatedData) => {
+    setSupplierData(updatedData);
   };
 
   const handleDeleteSupplier = () => {
@@ -94,7 +100,7 @@ const ViewSupplierPage = ({ supplierId }) => {
       } else {
         setError(
           result.message ||
-            t("errors.failedToDelete", { item: t("common.supplier") })
+          t("errors.failedToDelete", { item: t("common.supplier") })
         );
         setShowDeleteModal(false);
       }
@@ -233,6 +239,13 @@ const ViewSupplierPage = ({ supplierId }) => {
         isOpen={showDeleteSuccessModal}
         supplierName={deletedSupplierName}
         onClose={handleDeleteSuccess}
+      />
+
+      <EditSupplierDrawer
+        isOpen={showEditDrawer}
+        onClose={() => setShowEditDrawer(false)}
+        supplierId={supplierId}
+        onSuccess={handleEditSuccess}
       />
     </>
   );
