@@ -223,13 +223,13 @@ const GstAnalytics = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {metrics.map((metric) => {
                       const valueMap = {
-                        netGst: formatCurrency(netPosition.totalGst),
-                        totalGst: formatCurrency(outward.totalGst),
-                        totalItc: formatCurrency(inward.totalItc),
-                        taxableValue: formatCurrency(outward.taxableAmount),
+                        netGst: formatCurrency(Math.abs(netPosition.totalGst)),
+                        totalGst: formatCurrency(Math.abs(outward.totalGst)),
+                        totalItc: formatCurrency(Math.abs(inward.totalItc)),
+                        taxableValue: formatCurrency(Math.abs(outward.taxableAmount)),
                       };
                       const subtextMap = {
-                        netGst: netPosition.totalGst < 0 ? "Tax Credit Available" : "Tax Payable",
+                        netGst: (netPosition.totalGst || 0) < 0 ? "Tax Credit Available" : "Tax Payable",
                         totalGst: `${outward.invoiceCount ?? 0} invoices`,
                         totalItc: `${inward.billCount ?? 0} bills`,
                         taxableValue: "Total Sales Base"
