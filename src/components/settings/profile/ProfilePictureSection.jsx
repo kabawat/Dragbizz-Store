@@ -61,7 +61,7 @@ const ProfilePictureSection = ({
         }
       }
     } catch (error) {
-      console.error("Profile image update failed:", error);
+      
       showError(error.message || "An unexpected error occurred during upload");
     } finally {
       setIsUploading(false);

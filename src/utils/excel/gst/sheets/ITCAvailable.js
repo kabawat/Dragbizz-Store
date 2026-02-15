@@ -12,7 +12,10 @@ const createITCAvailableSheet = (workbook, data) => {
     { width: 14 },
     { width: 10 },
     { width: 32 },
-  ];
+  ].map(col => ({
+    ...col,
+    alignment: { horizontal: "center", vertical: "middle", wrapText: true }
+  }));
 
   const styles = {
     darkBlueFill: { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } },
@@ -29,28 +32,34 @@ const createITCAvailableSheet = (workbook, data) => {
     },
   };
 
+  // ✅ -------- AUTO HEIGHT FUNCTION --------
+  const autoHeight = (row, Height = 15) => {
+    row.height = Height;
+  };
+
   worksheet.mergeCells("A1:H1");
   const r1 = worksheet.getRow(1);
-  r1.height = 30;
   r1.getCell(1).value = "FORM GSTR-2B";
   r1.getCell(1).fill = styles.darkBlueFill;
   r1.getCell(1).font = { ...styles.whiteText, size: 16 };
   r1.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+  autoHeight(r1, 24); // ✅
 
   worksheet.mergeCells("A2:H2");
   const r2 = worksheet.getRow(2);
-  r2.height = 60;
   r2.getCell(1).value =
     "FORM GSTR-2B has been generated on the basis of the information furnished by your suppliers in their respective FORMS GSTR-1/IFF including E-Commerce supplies, GSTR-1A, 5 and 6. It also contains information on imports of goods from the ICEGATE system. This information is for guidance purposes only.";
   r2.getCell(1).fill = styles.lightOrangeFill;
   r2.getCell(1).font = { bold: true, size: 10 };
   r2.getCell(1).alignment = { wrapText: true, horizontal: "center", vertical: "middle" };
   r2.getCell(1).border = styles.border;
+  autoHeight(r2, 40); // ✅
 
   worksheet.mergeCells("A3:H3");
   worksheet.getCell("A3").value = "FORM SUMMARY - ITC Available";
   worksheet.getCell("A3").fill = styles.lightBlueFill;
   worksheet.getCell("A3").font = styles.whiteText;
+  autoHeight(worksheet.getRow(3), 20); // ✅
 
   const headerRow = worksheet.addRow([
     "S.no.",
@@ -62,19 +71,21 @@ const createITCAvailableSheet = (workbook, data) => {
     "Cess (₹)",
     "Advisory",
   ]);
-  headerRow.height = 30;
+
   headerRow.eachCell(cell => {
     cell.fill = styles.darkBlueFill;
     cell.font = styles.whiteText;
     cell.border = styles.border;
-    cell.alignment = { wrapText: true, horizontal: "center", vertical: "middle" };
+    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
   });
+  autoHeight(headerRow, 40); // ✅
 
   worksheet.mergeCells("A5:H5");
   worksheet.getCell("A5").value = "Credit which may be availed under FORM GSTR-3B";
   worksheet.getCell("A5").fill = styles.darkOrangeFill;
   worksheet.getCell("A5").font = styles.whiteText;
   worksheet.getCell("A5").border = styles.border;
+  autoHeight(worksheet.getRow(5), 20); // ✅
 
   worksheet.mergeCells("B6:H6");
   worksheet.getCell("A6").value = "Part A";
@@ -93,25 +104,27 @@ const createITCAvailableSheet = (workbook, data) => {
     worksheet.getCell(c).border = styles.border;
   });
 
-  const addMainRow = rowData => {
+  autoHeight(worksheet.getRow(6), 20); // ✅
+
+  const addMainRow = (rowData, height = 20) => {
     const r = worksheet.addRow(rowData);
-    r.height = 35;
     r.eachCell((cell, col) => {
       cell.border = styles.border;
       cell.font = { bold: col === 2 || col === 3 };
       cell.alignment = {
-        wrapText: true,
         horizontal: col === 2 ? "left" : "center",
         vertical: "middle",
+        wrapText: true
       };
     });
+    autoHeight(r, height); // ✅
   };
 
   const addDetailRow = label => {
     const r = worksheet.addRow(["", label, "", "0.00", "0.00", "0.00", "0.00", ""]);
     r.eachCell((cell, col) => {
       cell.border = styles.border;
-      if (col === 2) cell.alignment = { horizontal: "left", vertical: "middle" };
+      if (col === 2) cell.alignment = { horizontal: "left", vertical: "middle", wrapText: true };
       if (col === 3) cell.fill = styles.greyFill;
     });
   };
@@ -126,22 +139,21 @@ const createITCAvailableSheet = (workbook, data) => {
     d.font = { bold: true };
     d.alignment = { textRotation: 90, horizontal: "center", vertical: "middle" };
     d.border = styles.border;
-
-    worksheet.getCell(`C${start}`).fill = styles.greyFill;
-    worksheet.getCell(`H${start}`).fill = styles.greyFill;
   };
+
+  const itc = data?.gstr3b?.section4 || {};
 
   let s = worksheet.lastRow.number + 1;
   addMainRow([
     "I",
     "All other ITC - Supplies from registered persons other than reverse charge (IMS)",
     "4(A)(5)",
-    data?.totalIntTax || "0.00",
-    data?.totalCentTax || "0.00",
-    data?.totalStateTax || "0.00",
-    data?.totalCess || "0.00",
+    itc.igst || "0.00",
+    itc.cgst || "0.00",
+    itc.sgst || "0.00",
+    itc.cess || "0.00",
     "Net input tax credit may be availed under Table 4(A)(5) of FORM GSTR-3B.",
-  ]);
+  ], 50);
   [
     "B2B - Invoices (IMS)",
     "B2B - Debit notes (IMS)",
@@ -160,7 +172,7 @@ const createITCAvailableSheet = (workbook, data) => {
     "0.00",
     "0.00",
     "Net input tax credit may be availed under Table 4(A)(4) of FORM GSTR-3B.",
-  ]);
+  ], 50);
   ["ISD - Invoices", "ISD - Invoices (Amendment)"].forEach(addDetailRow);
   mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 
@@ -174,7 +186,7 @@ const createITCAvailableSheet = (workbook, data) => {
     "0.00",
     "0.00",
     "These supplies shall be declared in Table 3.1(d) of FORM GSTR-3B for payment of tax. Net input tax credit may be availed under Table 4(A)(3) of FORM GSTR-3B on payment of tax.",
-  ]);
+  ], 80);
   [
     "B2B - Invoices",
     "B2B - Debit notes",

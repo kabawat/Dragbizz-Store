@@ -14,6 +14,7 @@ import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import {
   AddSupplierDrawer,
+  EditSupplierDrawer,
   SupplierCard,
   SupplierTable,
   VoiceAISupplier,
@@ -84,6 +85,8 @@ const SuppliersPage = () => {
 
   // Drawer state
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
+  const [showEditSupplierDrawer, setShowEditSupplierDrawer] = useState(false);
+  const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
   const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);
@@ -244,7 +247,8 @@ const SuppliersPage = () => {
   };
 
   const handleEditSupplier = (supplierId) => {
-    router.push(`/dashboard/suppliers/edit/${supplierId}`);
+    setEditingSupplierId(supplierId);
+    setShowEditSupplierDrawer(true);
   };
 
   const handleViewSupplier = (supplierId) => {
@@ -395,22 +399,20 @@ const SuppliersPage = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}
                       </button>
                       <button
                         onClick={() => handleViewModeChange("card")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "card"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
                         {t("common.cardView")}
@@ -693,6 +695,17 @@ const SuppliersPage = () => {
       <AddSupplierDrawer
         isOpen={showAddSupplierDrawer}
         onClose={() => setShowAddSupplierDrawer(false)}
+        onSuccess={handleSupplierSuccess}
+      />
+
+      {/* Edit Supplier Drawer */}
+      <EditSupplierDrawer
+        isOpen={showEditSupplierDrawer}
+        onClose={() => {
+          setShowEditSupplierDrawer(false);
+          setEditingSupplierId(null);
+        }}
+        supplierId={editingSupplierId}
         onSuccess={handleSupplierSuccess}
       />
 

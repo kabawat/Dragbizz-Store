@@ -3,7 +3,7 @@ import { COLORS } from "../styles";
 const createB2BCDNRSheet = (workbook, data) => {
     const sheet = workbook.addWorksheet("B2B-CDNR");
 
-    sheet.columns = Array(26).fill({ width: 15 });
+    sheet.columns = Array(26).fill({ width: 15, alignment: { horizontal: "center", vertical: "middle", wrapText: true } });
 
     sheet.mergeCells("A1:Z1");
     const title = sheet.getCell("A1");
@@ -11,7 +11,6 @@ const createB2BCDNRSheet = (workbook, data) => {
     title.font = { name: 'Calibri', bold: true, size: 16, color: { argb: COLORS.WHITE } };
     title.alignment = { horizontal: "center", vertical: "middle" };
     title.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.PRIMARY } };
-    sheet.getRow(1).height = 35;
 
     sheet.mergeCells("A2:Z2");
     const subHeader = sheet.getCell("A2");
@@ -63,8 +62,6 @@ const createB2BCDNRSheet = (workbook, data) => {
         });
     });
 
-    sheet.getRow(3).height = 30;
-    sheet.getRow(4).height = 35;
 
     if (data && data.length > 0) {
         data.forEach(item => {
@@ -79,7 +76,7 @@ const createB2BCDNRSheet = (workbook, data) => {
             ]);
             row.eachCell(cell => {
                 cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
-                cell.alignment = { horizontal: "center", vertical: "middle" };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
                 cell.font = { name: 'Calibri', size: 9 };
             });
         });

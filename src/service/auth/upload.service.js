@@ -18,7 +18,7 @@ const uploadService = {
 
             return response.data;
         } catch (error) {
-            console.error("Upload initialization failed:", error);
+            
             throw error;
         }
     },
@@ -41,9 +41,9 @@ const uploadService = {
                 response = await this.getUploadStatus(uploadId);
             } catch (error) {
                 if (error.response?.status === 429) {
-                    console.warn(`Rate limited (429), retrying upload status check... (Attempt ${i + 1})`);
+                    
                 } else {
-                    console.error("Failed to get upload status:", error);
+                    
                     throw error;
                 }
             }

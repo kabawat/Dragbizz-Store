@@ -310,5 +310,15 @@
   "monthly": "मासिक",
   "maximumImagesAllowed": "अधिकतम {max} छवियों की अनुमति है। कृपया पहले कुछ छवियां हटाएं।",
   "onlyMoreImagesCanBeAdded": "केवल {remaining} और छवि(यां) जोड़ी जा सकती हैं। अधिकतम {max} छवियों की अनुमति है।",
-  "pleaseSelectAtLeastOneImage": "कृपया कम से कम एक छवि चुनें"
+  "pleaseSelectAtLeastOneImage": "कृपया कम से कम एक छवि चुनें",
+  "addCatalogContentHelperText": "Add descriptions, features and images for your public catalog page where customers shop online",
+  "failedToCreateCategory": "Failed to create category",
+  "unknownError": "Unknown error",
+  "failedToExtractProductData": "Failed to extract product data",
+  "failedToExtractFromAnyImage": "Failed to extract product data from any image",
+  "extractionErrorTryAgain": "An error occurred during extraction. Please try again.",
+  "extractedDataFromImages": "Successfully extracted data from {count} image(s)",
+  "failedToAddStock": "Failed to add stock",
+  "stockAddedSuccessfully": "Stock added successfully!",
+  "errorAddingStock": "Error adding stock"
 }

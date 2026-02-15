@@ -48,7 +48,7 @@ const NotificationBell = () => {
         if (!socketService) return;
 
         const handleRealtimeNotification = (data) => {
-            console.log("🔔 Socket Notification Received:", data);
+            
 
             const notificationPayload = {
                 message: data.message || "New activity detected",
@@ -82,9 +82,9 @@ const NotificationBell = () => {
         dispatch(markAsRead(notification.id));
 
         // Get config and navigate
-        console.log("🔔 Notification Clicked:", notification);
+        
         const config = getNotificationConfig(notification.type, notification.data || {});
-        console.log("🔔 [Dropdown] Navigating to:", config.url);
+        
 
         if (config.url && config.url !== "#") {
             setTimeout(() => {

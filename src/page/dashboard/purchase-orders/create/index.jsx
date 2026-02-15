@@ -221,7 +221,7 @@ const CreatePurchaseOrder = () => {
         setSignatures(result.data || []);
       }
     } catch (error) {
-      console.error("Error fetching signatures:", error);
+      
     } finally {
       setSignaturesLoading(false);
     }

@@ -18,7 +18,7 @@ const createISDSheet = (workbook, data) => {
         { header: 'ISD GSTR-6 Period', key: 'period', width: 18 },
         { header: 'ISD GSTR-6 Filing Date', key: 'filingDate', width: 22 },
         { header: 'Eligibility of ITC', key: 'eligibility', width: 18 },
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
     const yellowFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.SECONDARY } };
@@ -38,7 +38,6 @@ const createISDSheet = (workbook, data) => {
     mainHeader.fill = blueFill;
     mainHeader.font = { ...whiteFont, size: 16 };
     mainHeader.alignment = centerAlign;
-    worksheet.getRow(1).height = 45;
 
     worksheet.mergeCells('A2:N2');
     const subHeader = worksheet.getCell('A2');
@@ -46,7 +45,6 @@ const createISDSheet = (workbook, data) => {
     subHeader.fill = yellowFill;
     subHeader.font = blackFont;
     subHeader.alignment = centerAlign;
-    worksheet.getRow(2).height = 25;
 
     const headerLabels = [
         "GSTIN of ISD", "Trade/Legal name", "ISD Document type",
@@ -97,8 +95,6 @@ const createISDSheet = (workbook, data) => {
         cell.border = whiteBorder;
     });
 
-    worksheet.getRow(3).height = 25;
-    worksheet.getRow(4).height = 35;
 
     // --- ADD DATA ROWS ---
     if (data && data.length > 0) {

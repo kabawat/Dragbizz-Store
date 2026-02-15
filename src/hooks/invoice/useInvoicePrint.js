@@ -65,7 +65,7 @@ export const useInvoicePrint = (fetching, invoiceData, skipAutoPrint = false) =>
       pdf.addImage(imgData, "PNG", padding, padding, contentWidth, contentHeight);
       pdf.save(`invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
     } catch (_error) {
-      console.error(_error);
+      
       showError("Failed to download PDF. Please try again.");
     }
   };

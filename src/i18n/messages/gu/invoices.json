@@ -71,5 +71,9 @@
   "fieldInvoiceStatus": "ઇન્વૉઇસ સ્થિતિ",
   "fieldPaymentMode": "ચુકવણી મોડ",
   "fieldReleasedAt": "રિલીઝ થયું",
-  "invoices": "ઇન્વૉઇસ"
+  "invoices": "ઇન્વૉઇસ",
+  "standardPrint": "Standard (A4 / Letter)",
+  "miniThermalPrint": "Mini / Thermal Printer",
+  "updatePaymentStatus": "Update Payment Status",
+  "orderSource": "Order Source"
 }

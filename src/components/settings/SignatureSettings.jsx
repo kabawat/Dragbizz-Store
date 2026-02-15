@@ -59,7 +59,7 @@ const SignatureSettings = () => {
                 showToast(res.message || "Failed to delete signature", "error");
             }
         } catch (error) {
-            console.error(error);
+            
             showToast("Failed to delete signature", "error");
         } finally {
             setIsDeleting(false);

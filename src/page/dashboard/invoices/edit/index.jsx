@@ -85,7 +85,7 @@ const EditInvoicePage = ({ invoiceId }) => {
         setSignatures(result.data || []);
       }
     } catch (_error) {
-      console.error("Error fetching signatures", _error);
+      
     } finally {
       setSignaturesLoading(false);
     }

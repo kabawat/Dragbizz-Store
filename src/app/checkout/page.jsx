@@ -172,7 +172,7 @@ const CheckoutContent = () => {
         });
       }
     } catch (err) {
-      console.error("Failed to fetch package:", err);
+      
       setError("Failed to load package. Please try again.");
     } finally {
       setLoading(false);
@@ -224,7 +224,7 @@ const CheckoutContent = () => {
         }
       }
     } catch (err) {
-      console.error("Failed to check subscription:", err);
+      
     }
   }, [authProfile, packageData]);
 
@@ -314,7 +314,7 @@ const CheckoutContent = () => {
         }
       }
     } catch (err) {
-      console.error("Failed to create payment order:", err);
+      
       setError("Failed to create payment order. Please try again.");
     } finally {
       setProcessing(false);
@@ -377,7 +377,7 @@ const CheckoutContent = () => {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (err) {
-      console.error("Failed to open Razorpay:", err);
+      
       setError("Failed to initialize payment. Please try again.");
       setProcessing(false);
     }
@@ -418,7 +418,7 @@ const CheckoutContent = () => {
         setError(response.message || "Payment verification failed");
       }
     } catch (err) {
-      console.error("Payment verification failed:", err);
+      
       setError("Payment verification failed. Please contact support.");
     } finally {
       setProcessing(false);

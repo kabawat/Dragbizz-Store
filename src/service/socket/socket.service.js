@@ -34,29 +34,29 @@ class SocketService {
         if (!this.socket) return;
 
         this.socket.on("connect", () => {
-            console.log("🟢 Socket Connected:", this.socket.id);
+            
             this.isConnected = true;
             this.processPendingListeners();
         });
 
         this.socket.on("disconnect", (reason) => {
-            console.warn("🔴 Socket Disconnected:", reason);
+            
             this.isConnected = false;
         });
 
         this.socket.on("connect_error", (error) => {
-            console.error("⚠️ Socket Connection Error:", error.message);
+            
             this.isConnected = false;
         });
 
         // Listen for Customer Created Notification
         this.socket.on("customer_created", (data) => {
-            console.log("🔔 [Real-time] Customer Created Notification:", data);
+            
         });
 
         // Listen for Sales Order Created Notification
         this.socket.on("sales_order_created", (data) => {
-            console.log("🔔 [Real-time] Sales Order Created Notification:", data);
+            
         });
     }
 
@@ -95,7 +95,7 @@ class SocketService {
         if (this.socket && this.isConnected) {
             this.socket.emit(event, data);
         } else {
-            console.warn(`Cannot emit '${event}': Socket not connected`);
+            
         }
     }
 

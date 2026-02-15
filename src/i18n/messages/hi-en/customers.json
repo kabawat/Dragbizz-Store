@@ -127,5 +127,6 @@
   "fieldAddress": "Address",
   "fieldCreatedAt": "Created At",
   "fieldUpdatedAt": "Updated At",
-  "pleaseSelectTimePeriod": "Kripya ek time period select karo"
+  "pleaseSelectTimePeriod": "Kripya ek time period select karo",
+  "invalidDateRangeCustomers": "Invalid date range"
 }

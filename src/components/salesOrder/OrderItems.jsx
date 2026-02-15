@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 const OrderItems = ({ order }) => {
     const { t } = useTranslation();
-    console.log("order", order.items);
+    
     return (
         <div className="w-full">
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex flex-col">

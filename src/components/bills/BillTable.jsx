@@ -71,7 +71,7 @@ const BillTable = ({
     try {
       if (navigator?.clipboard?.writeText)
         await navigator.clipboard.writeText(text);
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -91,9 +91,6 @@ const BillTable = ({
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.date")}
-              </th>
-              <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("bills.dueDate")}
               </th>
               <th className="w-1/6 px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("invoice.total")}
@@ -156,11 +153,13 @@ const BillTable = ({
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
                     {formatDate(bill.billDate)}
                   </td>
-                  <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
-                    {formatDate(bill.dueDate)}
-                  </td>
-                  <td className="w-1/6 px-6 py-4 font-medium text-[rgb(var(--color-text-primary))]">
-                    {formatCurrency(bill.totalAmount)}
+                  <td className="w-1/6 px-6 py-4">
+                    <div className="font-bold text-[rgb(var(--color-text-primary))]">
+                      {formatCurrency(bill.totalAmount)}
+                    </div>
+                    <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                      Sub: {formatCurrency(bill.subtotal || 0)} | GST: {formatCurrency(bill.gstAmount || 0)}
+                    </div>
                   </td>
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
                     {formatCurrency(bill.paidAmount || 0)}
@@ -168,10 +167,10 @@ const BillTable = ({
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
                     {formatCurrency(
                       bill.dueAmount ||
-                        Math.max(
-                          (bill.totalAmount || 0) - (bill.paidAmount || 0),
-                          0
-                        )
+                      Math.max(
+                        (bill.totalAmount || 0) - (bill.paidAmount || 0),
+                        0
+                      )
                     )}
                   </td>
                   <td className="w-1/6 px-6 py-4">
@@ -224,8 +223,8 @@ const BillTable = ({
                                   const url = buildShareUrl(bill);
                                   const subject = encodeURIComponent(
                                     bill.billNumber ||
-                                      bill.poNumber ||
-                                      "Details"
+                                    bill.poNumber ||
+                                    "Details"
                                   );
                                   const body = encodeURIComponent(
                                     `Please review:\n${url}`

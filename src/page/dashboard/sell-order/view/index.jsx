@@ -54,7 +54,7 @@ const ViewSellOrderPage = ({ orderId }) => {
         setOrder(result.data);
       }
     } catch (error) {
-      console.error("Fetch order error:", error);
+      
       showError("An unexpected error occurred while fetching order");
     }
   }, [orderId, storeId, showError]);
@@ -71,7 +71,7 @@ const ViewSellOrderPage = ({ orderId }) => {
         showError(result.message || "Failed to update order");
       }
     } catch (error) {
-      console.error("Update status error:", error);
+      
       showError("An unexpected error occurred while updating status");
     } finally {
       setUpdatingStatus(false);

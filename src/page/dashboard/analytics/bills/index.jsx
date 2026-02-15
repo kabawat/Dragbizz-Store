@@ -57,12 +57,12 @@ const BillAnalytics = () => {
   const [supplierId, setSupplierId] = useState("all");
 
   const fetchAnalytics = () => {
-    const storeId =
-      selectedStore?._id || selectedStore?.id || selectedStore?.storeId;
+    const storeId = selectedStore?.storeId
+    
     if (!storeId) return;
 
     dispatch(getBillAnalytics({
-      store: storeId,
+      store: `${storeId}`,
       dateRange,
       supplier: supplierId !== "all" ? supplierId : undefined
     }));
@@ -100,6 +100,7 @@ const BillAnalytics = () => {
         totalPayable: 0,
         totalPaid: 0,
         totalDue: 0,
+        totalGst: 0,
       },
     [analytics?.amounts]
   );
@@ -149,8 +150,17 @@ const BillAnalytics = () => {
       type: "amount",
       title: "Total Payable",
       value: "₹0.00",
-      label: "Total amount payable",
+      label: "Total purchase value",
       color: "text-red-600 dark:text-red-400",
+    },
+    {
+      id: "amountGst",
+      type: "amount",
+      title: "Total GST Paid",
+      value: "₹0.00",
+      label: "Total Input Tax Credit",
+      color: "text-blue-600 dark:text-blue-400",
+      icon: Receipt,
     },
     {
       id: "amount2",
@@ -215,6 +225,12 @@ const BillAnalytics = () => {
           cardsMap.set("amount1", {
             ...cardsMap.get("amount1"),
             value: formatCurrency(amounts.totalPayable),
+          });
+        }
+        if (cardsMap.has("amountGst")) {
+          cardsMap.set("amountGst", {
+            ...cardsMap.get("amountGst"),
+            value: formatCurrency(amounts.totalGst),
           });
         }
         if (cardsMap.has("amount2")) {

@@ -8,7 +8,7 @@ export const metadata = {
 
 async function BillEditPage({ params }) {
   const { id } = await params;
-  console.log(id);
+  
   return <EditBillPage billId={id} />;
 }
 

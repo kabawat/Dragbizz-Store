@@ -114,7 +114,7 @@ const SuccessScreen = ({ firstName }) => {
 
       await createSingleBurst(confettiLib);
     } catch (error) {
-      console.error("Failed to load confetti:", error);
+      
     }
   };
 

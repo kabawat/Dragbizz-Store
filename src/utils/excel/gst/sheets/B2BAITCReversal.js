@@ -4,7 +4,7 @@ const createB2BAITCRSheet = (workbook, data) => {
     const worksheet = workbook.addWorksheet('B2BA (ITC Reversal)');
 
     worksheet.columns = [
-        { key: 'origInvNum', width: 18 },
+        { key: 'origInvNum', width: 18, },
         { key: 'origInvDate', width: 15 },
         { key: 'gstin', width: 20 },
         { key: 'tradeName', width: 25 },
@@ -24,7 +24,7 @@ const createB2BAITCRSheet = (workbook, data) => {
         { key: 'itcAvailability', width: 18 },
         { key: 'reason', width: 25 },
         { key: 'taxRate', width: 15 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
     const yellowFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.SECONDARY } };
@@ -43,7 +43,6 @@ const createB2BAITCRSheet = (workbook, data) => {
     const r1 = worksheet.getCell('A1');
     r1.value = 'Goods and Services Tax - GSTR-2B';
     r1.fill = blueFill; r1.font = { ...whiteFont, size: 16 }; r1.alignment = centerAlign;
-    worksheet.getRow(1).height = 40;
 
     worksheet.mergeCells('A2:T2');
     const r2 = worksheet.getCell('A2');
@@ -53,7 +52,6 @@ const createB2BAITCRSheet = (workbook, data) => {
         top: { style: "thin" }, left: { style: "thin" },
         bottom: { style: "thin" }, right: { style: "thin" }
     };
-    worksheet.getRow(2).height = 25;
 
     worksheet.mergeCells('A3:B3');
     const r3a = worksheet.getCell('A3');
@@ -112,8 +110,6 @@ const createB2BAITCRSheet = (workbook, data) => {
         cell.fill = blueFill; cell.font = whiteFont; cell.alignment = centerAlign; cell.border = whiteBorder;
     });
 
-    worksheet.getRow(4).height = 25;
-    worksheet.getRow(5).height = 35;
 
 
     if (data && data.length > 0) {
@@ -126,7 +122,7 @@ const createB2BAITCRSheet = (workbook, data) => {
                 item.period, item.filingDate, item.itcAvailability, item.reason, item.taxRate
             ]);
             row.eachCell(cell => {
-                cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             });
         });
     }

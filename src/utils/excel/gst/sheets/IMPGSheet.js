@@ -12,7 +12,7 @@ const createIMPGSheet = (workbook, data) => {
         { key: 'igst', width: 20 },
         { key: 'cess', width: 15 },
         { key: 'isAmended', width: 18 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
     const yellowFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.SECONDARY } };
     const whiteFont = { color: { argb: 'FFFFFF' }, bold: true, size: 10 };
@@ -31,7 +31,6 @@ const createIMPGSheet = (workbook, data) => {
     r1.fill = blueFill;
     r1.font = { ...whiteFont, size: 16 };
     r1.alignment = centerAlign;
-    worksheet.getRow(1).height = 40;
 
     worksheet.mergeCells('A2:H2');
     const r2 = worksheet.getCell('A2');
@@ -43,7 +42,6 @@ const createIMPGSheet = (workbook, data) => {
         top: { style: "thin" }, left: { style: "thin" },
         bottom: { style: "thin" }, right: { style: "thin" }
     };
-    worksheet.getRow(2).height = 25;
     const vMerged = [
         { cell: 'A3', label: 'Icegate Reference Date' },
         { cell: 'B3', label: 'Port Code' },
@@ -89,8 +87,6 @@ const createIMPGSheet = (workbook, data) => {
         cell.fill = blueFill; cell.font = whiteFont; cell.alignment = centerAlign; cell.border = whiteBorder;
     });
 
-    worksheet.getRow(3).height = 25;
-    worksheet.getRow(4).height = 30;
 
     if (data && data.length > 0) {
         data.forEach(item => {
@@ -105,7 +101,7 @@ const createIMPGSheet = (workbook, data) => {
                 item.isAmended
             ]);
             row.eachCell(cell => {
-                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             });
         });
     }

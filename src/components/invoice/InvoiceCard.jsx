@@ -138,7 +138,7 @@ const InvoiceCard = ({
       onClick: async () => {
         const shareUrl = buildShareUrl(invoice);
         if (!shareUrl) {
-          console.error("Public ID missing");
+          
           return;
         }
         await handleCopy(shareUrl);

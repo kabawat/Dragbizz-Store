@@ -12,7 +12,7 @@ const createITCRejectdSheet = (workbook, data) => {
         { width: 12 },
         { width: 10 },
         { width: 40 },
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
     const styles = {
         darkBlueFill: { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } },
@@ -31,7 +31,6 @@ const createITCRejectdSheet = (workbook, data) => {
 
     worksheet.mergeCells('A1:H1');
     const row1 = worksheet.getRow(1);
-    row1.height = 30;
     row1.getCell(1).value = 'FORM GSTR-2B';
     row1.getCell(1).fill = styles.darkBlueFill;
     row1.getCell(1).font = { ...styles.whiteText, size: 16 };
@@ -40,7 +39,6 @@ const createITCRejectdSheet = (workbook, data) => {
 
     worksheet.mergeCells('A2:H2');
     const row2 = worksheet.getRow(2);
-    row2.height = 60;
     row2.getCell(1).value = 'FORM GSTR-2B has been generated on the basis of the information furnished by your suppliers in their respective FORMS GSTR-1/IFF including E-Commerce supplies, GSTR-1A, 5 and 6. It also contains information on imports of goods from the ICEGATE system. This information is for guidance purposes only.';
     row2.getCell(1).fill = styles.lightOrangeFill;
     row2.getCell(1).font = { size: 10, bold: true };
@@ -56,11 +54,10 @@ const createITCRejectdSheet = (workbook, data) => {
 
     const headers = ['S.no.', 'Heading', 'GSTR-3B table', 'Integrated Tax (₹)', 'Central Tax (₹)', 'State/UT Tax (₹)', 'Cess (₹)', 'Advisory'];
     const row4 = worksheet.addRow(headers);
-    row4.height = 30;
     row4.eachCell((cell) => {
         cell.fill = styles.darkBlueFill;
         cell.font = styles.whiteText;
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         cell.border = styles.border;
     });
 
@@ -73,7 +70,6 @@ const createITCRejectdSheet = (workbook, data) => {
     row5.getCell(1).border = styles.border;
 
     const row6 = worksheet.addRow([]);
-    row6.height = 22;
     worksheet.getCell("A6").value = "Part A";
     worksheet.getCell("A6").fill = styles.lightOrangeFill;
     worksheet.getCell("A6").font = { bold: true };
@@ -108,7 +104,6 @@ const createITCRejectdSheet = (workbook, data) => {
         data?.totalCess || '0.00',
         'Such credit shall be reversed and has to be reported in table 4(B)(2) of FORM GSTR-3B'
     ]);
-    row7.height = 35;
     row7.eachCell((cell, colNum) => {
         cell.border = styles.border;
         cell.font = { bold: true };
@@ -128,9 +123,9 @@ const createITCRejectdSheet = (workbook, data) => {
         const row = worksheet.addRow(['', item[0], '', item[1], item[2], item[3], item[4], '']);
         row.eachCell((cell, colNum) => {
             cell.border = styles.border;
-            if (colNum === 2) cell.alignment = { horizontal: 'left', vertical: 'middle' };
+            if (colNum === 2) cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             if (colNum === 3) cell.fill = styles.greyFill;
-            if (colNum > 3 && colNum < 8) cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            if (colNum > 3 && colNum < 8) cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         });
     });
 

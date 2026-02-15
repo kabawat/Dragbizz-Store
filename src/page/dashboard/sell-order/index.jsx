@@ -63,7 +63,7 @@ const SalesOrdersPage = () => {
                 }
             }
         } catch (error) {
-            console.error("Failed to fetch orders", error);
+            
             showError(t("common.failedToFetch"));
         } finally {
             setLoading(false);
@@ -102,7 +102,7 @@ const SalesOrdersPage = () => {
                 showError(result.message || "Failed to update order");
             }
         } catch (error) {
-            console.error("Update status error:", error);
+            
             showError("An unexpected error occurred while updating status");
         } finally {
             setUpdatingStatus(false);
@@ -110,7 +110,7 @@ const SalesOrdersPage = () => {
     };
 
     const handlePrint = (order) => {
-        console.log("Printing order", order);
+        
         // Implementation for printing
     };
 

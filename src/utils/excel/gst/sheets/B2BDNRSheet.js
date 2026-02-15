@@ -26,7 +26,7 @@ const createB2BDNRSheet = (workbook, data) => {
         { key: 'source', width: 12 },
         { key: 'irn', width: 25 },
         { key: 'irnDate', width: 18 }
-    ];
+    ].map(col => ({ ...col, alignment: { horizontal: "center", vertical: "middle", wrapText: true } }));
 
 
     const blueFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.PRIMARY } };
@@ -46,7 +46,6 @@ const createB2BDNRSheet = (workbook, data) => {
     const r1 = worksheet.getCell('A1');
     r1.value = 'Goods and Services Tax - GSTR-2B';
     r1.fill = blueFill; r1.font = { ...whiteFont, size: 16 }; r1.alignment = centerAlign;
-    worksheet.getRow(1).height = 40;
 
 
     worksheet.mergeCells('A2:V2');
@@ -57,7 +56,6 @@ const createB2BDNRSheet = (workbook, data) => {
         top: { style: "thin" }, left: { style: "thin" },
         bottom: { style: "thin" }, right: { style: "thin" }
     };
-    worksheet.getRow(2).height = 25;
 
     const vCols = [
         { col: 'A', label: 'GSTIN of supplier' },
@@ -106,8 +104,6 @@ const createB2BDNRSheet = (workbook, data) => {
         cell.fill = blueFill; cell.font = whiteFont; cell.alignment = centerAlign; cell.border = whiteBorder;
     });
 
-    worksheet.getRow(3).height = 25;
-    worksheet.getRow(4).height = 35;
 
     if (data && data.length > 0) {
         data.forEach(item => {
@@ -120,7 +116,7 @@ const createB2BDNRSheet = (workbook, data) => {
                 item.reason, item.taxRate, item.source, item.irn, item.irnDate
             ]);
             row.eachCell(cell => {
-                cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
             });
         });
     }

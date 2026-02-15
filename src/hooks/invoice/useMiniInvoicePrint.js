@@ -95,7 +95,7 @@ export const useMiniInvoicePrint = (fetching, invoiceData, skipAutoPrint = false
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidthMm, pdfHeightMm);
             pdf.save(`thermal-invoice-${invoiceData?.invoiceNumber || invoiceId}.pdf`);
         } catch (_error) {
-            console.error(_error);
+            
             showError("Failed to download PDF. Please try again.");
         } finally {
             setIsPrinting(false);

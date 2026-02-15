@@ -160,5 +160,6 @@
     "latePaymentRate": "देर से भुगतान दर",
     "averageProcessingTime": "औसत प्रसंस्करण समय",
     "paymentSuccessRate": "भुगतान सफलता दर"
-  }
+  },
+  "paymentMethodNumber": "Payment Method {number}"
 }

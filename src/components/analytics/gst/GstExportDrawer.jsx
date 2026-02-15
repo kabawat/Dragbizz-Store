@@ -41,6 +41,7 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
     setIsGenerating(true);
     try {
       const result = await onExport(period);
+      console.log("result", result);
       if (!result?.success || !result?.data) {
         showError(result?.message || "Failed to fetch export data");
         return;

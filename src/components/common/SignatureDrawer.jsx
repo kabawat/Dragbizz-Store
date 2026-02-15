@@ -197,7 +197,7 @@ const SignatureDrawer = ({
                 showToast("Failed to save signature: " + response.message, "error");
             }
         } catch (error) {
-            console.error("Signature processing failed:", error);
+            
             showToast("An error occurred while saving your signature.", "error");
         } finally {
             setIsSigning(false);

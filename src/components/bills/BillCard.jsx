@@ -120,28 +120,26 @@ const BillCard = ({
         </div>
 
         {/* Bill Details */}
-        <div className="space-y-2">
-          <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <Calendar className="w-4 h-4 mr-2" />
-            <span>
-              {t("bills.billDate")}: {formatDate(bill.billDate)}
-            </span>
-          </div>
-          <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <Calendar className="w-4 h-4 mr-2" />
-            <span>
-              {t("bills.dueDate")}: {formatDate(bill.dueDate)}
-            </span>
+        <div className="space-y-1.5 px-0.5">
+          <div className="flex items-center text-xs font-medium text-[rgb(var(--color-text-secondary))]">
+            <Calendar className="w-3.5 h-3.5 mr-2 opacity-70" />
+            <span>{t("bills.billDate")}: {formatDate(bill.billDate)}</span>
           </div>
         </div>
 
         {/* Amount */}
-        <div className="flex items-center justify-between">
-          <div className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
-            <span className="font-medium">{t("bills.amount")}:</span>
+        <div className="flex flex-col space-y-1 pt-2 border-t border-[rgb(var(--color-border-primary))]/20">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+              <span className="font-medium">{t("bills.amount")}:</span>
+            </div>
+            <div className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+              {formatCurrency(bill.totalAmount)}
+            </div>
           </div>
-          <div className="text-lg sm:text-lg xl:text-lg font-bold text-[rgb(var(--color-text-primary))]">
-            {formatCurrency(bill.totalAmount)}
+          <div className="flex justify-end gap-3 text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">
+            <span>Sub: {formatCurrency(bill.subtotal || 0)}</span>
+            <span>GST: {formatCurrency(bill.gstAmount || 0)}</span>
           </div>
         </div>
       </div>

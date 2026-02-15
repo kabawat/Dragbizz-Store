@@ -86,7 +86,7 @@ const PackagesContent = () => {
         setCurrentPackageId(packageId);
       }
     } catch (err) {
-      console.error("Failed to fetch current subscription:", err);
+      
     }
   }, []);
 

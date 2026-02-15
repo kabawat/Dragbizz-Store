@@ -19,5 +19,6 @@
   "selectStore": "Store select karo",
   "premiumFeature": "Premium Feature",
   "lowStockAlerts": "Low Stock Alerts",
-  "sellOrders": "Sales Orders"
+  "sellOrders": "Sales Orders",
+  "suggestions": "Suggestions"
 }
