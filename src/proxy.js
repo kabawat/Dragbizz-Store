@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 
-export function middleware(request) {
+export function proxy(request) {
   const { pathname } = request.nextUrl;
 
   // Define protected routes that require authentication
-  const protectedRoutes = ["/dashboard", "/profile", "/settings", "/admin", "/onboarding"];
+  const protectedRoutes = [
+    "/dashboard",
+    "/profile",
+    "/settings",
+    "/admin",
+    "/onboarding",
+  ];
 
   // Check if the current path is a protected route
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -14,7 +20,7 @@ export function middleware(request) {
   // Get auth token from cookies
   const authToken = request.cookies.get("logged_in")?.value;
 
-  // For protected routes, we need at least the auth token (logged_in cookie must be true)
+  // If protected route and no auth token → redirect to login
   if (isProtectedRoute && !authToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
@@ -24,7 +30,9 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// Configure which paths the middleware should run on
+// Configure which paths the proxy should run on
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public/|manifest.json).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|public/|manifest.json).*)",
+  ],
 };

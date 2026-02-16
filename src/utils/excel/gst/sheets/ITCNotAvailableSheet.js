@@ -119,8 +119,8 @@ const createITCNotAvailableSheet = (workbook, data) => {
         autoHeight(r, height);
     };
 
-    const addDetailRow = label => {
-        const r = worksheet.addRow(["", label, "", "0.00", "0.00", "0.00", "0.00", ""]);
+    const addDetailRow = (label, igst = 0, cgst = 0, sgst = 0, cess = 0) => {
+        const r = worksheet.addRow(["", label, "", igst, cgst, sgst, cess, ""]);
         r.eachCell((cell, col) => {
             cell.border = styles.border;
             if (col === 2) cell.alignment = { horizontal: "left", vertical: "middle", wrapText: true };
@@ -162,7 +162,29 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "B2B - Invoices (Amendment)",
         "B2B - Debit notes (Amendment)",
         "ECO - Documents (Amendment)",
-    ].forEach(addDetailRow);
+    ].forEach((label, index) => {
+        let igst = 0, cgst = 0, sgst = 0, cess = 0;
+
+        if (data?.gstr2b) {
+            const docs = data.gstr2b.filter(d => {
+                // Filter for Ineligible (ITC Not Available)
+                if (d.itcAvailable === "Yes") return false;
+
+                // Document type logic
+                if (index === 0) return d.invoiceType === "B2B" && (!d.noteType || d.noteType === "R");
+                if (index === 1) return d.noteType === "D" || d.noteType === "C"; // Debit/Credit notes
+                // Add logic for ECO and Amendments if data distinguishes them
+                return false;
+            });
+
+            igst = docs.reduce((acc, curr) => acc + (curr.igst || 0), 0);
+            cgst = docs.reduce((acc, curr) => acc + (curr.cgst || 0), 0);
+            sgst = docs.reduce((acc, curr) => acc + (curr.sgst || 0), 0);
+            cess = docs.reduce((acc, curr) => acc + (curr.cess || 0), 0);
+        }
+
+        addDetailRow(label, igst, cgst, sgst, cess);
+    });
 
     mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 
@@ -179,7 +201,7 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "Such credit shall not be taken and has to be reported in table 4(D)(2) of FORM GSTR-3B.",
     ], 60);
 
-    ["ISD - Invoices", "ISD - Invoices (Amendment)"].forEach(addDetailRow);
+    ["ISD - Invoices", "ISD - Invoices (Amendment)"].forEach(label => addDetailRow(label, 0, 0, 0, 0));
     mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 
     s = worksheet.lastRow.number + 1;
@@ -200,7 +222,7 @@ const createITCNotAvailableSheet = (workbook, data) => {
         "B2B - Debit notes",
         "B2B - Invoices (Amendment)",
         "B2B - Debit notes (Amendment)",
-    ].forEach(addDetailRow);
+    ].forEach(label => addDetailRow(label, 0, 0, 0, 0));
 
     mergeDetailsBlock(s + 1, worksheet.lastRow.number);
 

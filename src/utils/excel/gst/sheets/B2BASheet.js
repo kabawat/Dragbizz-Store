@@ -84,15 +84,35 @@ const createB2BASheet = (workbook, data) => {
 
     if (data && data.length > 0) {
         data.forEach(item => {
+            const origDate = item.origInvDate ? new Date(item.origInvDate).toLocaleDateString("en-IN") : "";
+            const revDate = item.invoiceDate ? new Date(item.invoiceDate).toLocaleDateString("en-IN") : "";
+
             const row = sheet.addRow([
-                item.origInvNum, item.origInvDate,
-                item.gstin, item.tradeName,
-                item.invoiceNumber, item.invoiceType, item.invoiceDate, item.invoiceValue,
-                item.pos, item.reverseCharge, item.taxableValue,
-                item.igst, item.cgst, item.sgst, item.cess,
-                item.itcReducedInput,
-                item.redIgst, item.redCgst, item.redSgst, item.redCess,
-                item.period, item.filingDate, item.itcAvailable, item.reason, item.taxRate
+                item.origInvNum || "",
+                origDate,
+                item.supplierGstin || item.gstin || "",
+                item.tradeName || item.supplierName || "",
+                item.invoiceNumber || "",
+                item.invoiceType || "Regular",
+                revDate,
+                item.invoiceValue || 0,
+                item.placeOfSupply || item.pos || "",
+                item.reverseCharge || "No",
+                item.taxableValue || 0,
+                item.igst || 0,
+                item.cgst || 0,
+                item.sgst || 0,
+                item.cess || 0,
+                item.itcReducedInput || "No",
+                item.redIgst || 0,
+                item.redCgst || 0,
+                item.redSgst || 0,
+                item.redCess || 0,
+                item.period || "",
+                item.filingDate || "",
+                item.itcAvailable || "Yes",
+                item.reason || "",
+                item.applicablePercent || "100%"
             ]);
             row.eachCell(cell => {
                 cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };

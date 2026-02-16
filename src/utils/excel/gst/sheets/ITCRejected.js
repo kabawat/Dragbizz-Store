@@ -47,7 +47,7 @@ const createITCRejectdSheet = (workbook, data) => {
 
     worksheet.mergeCells('A3:H3');
     const row3 = worksheet.getRow(3);
-    row3.getCell(1).value = 'FORM SUMMARY - ITC Reversal';
+    row3.getCell(1).value = 'FORM SUMMARY - ITC Rejected';
     row3.getCell(1).fill = styles.lightBlueFill;
     row3.getCell(1).font = { ...styles.whiteText, size: 12 };
 
@@ -112,11 +112,11 @@ const createITCRejectdSheet = (workbook, data) => {
 
 
     const detailItems = [
-        ['B2B - Invoices', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Debit notes', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Invoices (Amendment)', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Debit notes (Amendment)', '0.00', '0.00', '0.00', '0.00'],
-    ];
+        "B2B - Invoices",
+        "B2B - Debit notes",
+        "B2B - Invoices (Amendment)",
+        "B2B - Debit notes (Amendment)",
+    ].map(label => [label, 0, 0, 0, 0]);
 
     detailItems.forEach((item, index) => {
 
