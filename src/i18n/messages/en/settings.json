@@ -117,6 +117,7 @@
   "enterPincode": "Enter pincode",
   "landmarkOptional": "Landmark (Optional)",
   "enterLandmark": "Enter landmark",
+  "generalInformation": "General Information",
   "businessInformation": "Business Information",
   "storeCategoryOptional": "Store Category (Optional)",
   "productsRequireExpiryDate": "Products require expiry date (e.g. Grocery, Pharma)",

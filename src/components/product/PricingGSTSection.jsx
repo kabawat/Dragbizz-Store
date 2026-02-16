@@ -3,9 +3,20 @@ import { Calculator, Hash, Package } from "lucide-react";
 import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Input, Select, Toggle } from "../ui";
+import { useAppSelector } from "@/store/hooks";
+import { useEffect } from "react";
 
 const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { t } = useTranslation();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const hasStoreGst = !!selectedStore?.gst;
+
+  useEffect(() => {
+    if (!hasStoreGst && formData.gstInfo?.isGstApplicable) {
+      onChange("gstInfo.isGstApplicable", false);
+    }
+  }, [hasStoreGst, formData.gstInfo?.isGstApplicable, onChange]);
+
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };
@@ -223,8 +234,8 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             {/* Right Column - Savings */}
             <div className="space-y-3">
               {formData.mrp &&
-              formData.sellingPrice &&
-              parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
+                formData.sellingPrice &&
+                parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
                 <div className="flex justify-between items-center p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
                   <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                     {t("products.youSave")}:
@@ -249,8 +260,8 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
               )}
 
               {formData.mrp &&
-              formData.sellingPrice &&
-              parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
+                formData.sellingPrice &&
+                parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
                 <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
                     {t("products.discount")}:
@@ -260,7 +271,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                       ((parseFloat(formData.mrp) -
                         parseFloat(formData.sellingPrice)) /
                         parseFloat(formData.mrp)) *
-                        100
+                      100
                     )}
                     %
                   </span>
@@ -291,11 +302,18 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
         <div className="mb-6">
           <Toggle
             label={t("products.gstApplicable")}
-            checked={formData.gstInfo?.isGstApplicable || false}
-            onChange={(checked) =>
-              handleFieldChange("gstInfo.isGstApplicable", checked)
+            checked={hasStoreGst ? (formData.gstInfo?.isGstApplicable || false) : false}
+            onChange={(checked) => {
+              if (hasStoreGst) {
+                handleFieldChange("gstInfo.isGstApplicable", checked);
+              }
+            }}
+            disabled={!hasStoreGst}
+            helperText={
+              !hasStoreGst
+                ? t("products.gstNotAvailableNoStoreGst") || "GST cannot be applied because this store has no GST number. Add it in Store Settings."
+                : t("products.gstApplicableHelperText")
             }
-            helperText={t("products.gstApplicableHelperText")}
           />
         </div>
 

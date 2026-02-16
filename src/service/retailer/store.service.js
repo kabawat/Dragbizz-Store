@@ -211,6 +211,18 @@ class StoreService {
       return handleApiErrorResponse(error, "store-upi-delete");
     }
   }
+
+  // Verify GST number
+  async verifyGst(gstNo) {
+    try {
+      const response = await authAxios.post(API_CONFIG?.RETAILER?.GST_VERIFY, {
+        gstNo,
+      });
+      return handleApiSuccess(response?.data, "GST verified successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "gst-verification");
+    }
+  }
 }
 
 // Create and export a singleton instance

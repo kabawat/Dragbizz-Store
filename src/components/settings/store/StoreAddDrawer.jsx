@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
 import StoreEditForm from "./StoreEditForm";
+import { useGstVerification } from "@/hooks/useGstVerification";
 
 const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
   const [form, setForm] = useState({
@@ -26,6 +27,23 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
   });
   const [errors, setErrors] = useState({});
   const [isCreating, setIsCreating] = useState(false);
+
+  // Hook for GST verification
+  const {
+    isVerifyingGst,
+    isGstVerified,
+    handleVerifyGst: verifyGst,
+    resetGstVerification
+  } = useGstVerification(setForm);
+
+  // Handle GST Verification
+  const handleVerifyGst = async () => {
+    if (!form.gst || form.gst.length < 15) {
+      setErrors((prev) => ({ ...prev, gst: "Please enter a valid GST number" }));
+      return;
+    }
+    await verifyGst(form.gst);
+  };
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -53,6 +71,9 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
         },
       }));
     } else {
+      if (name === "gst") {
+        resetGstVerification();
+      }
       setForm((prev) => ({
         ...prev,
         [name]: value,
@@ -209,7 +230,14 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
       saveIcon={Save}
       saveVariant="primary"
     >
-      <StoreEditForm form={form} onChange={handleChange} errors={errors} />
+      <StoreEditForm
+        form={form}
+        onChange={handleChange}
+        errors={errors}
+        isVerifyingGst={isVerifyingGst}
+        isGstVerified={isGstVerified}
+        onVerifyGst={handleVerifyGst}
+      />
     </FormDrawer>
   );
 };

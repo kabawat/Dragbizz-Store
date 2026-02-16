@@ -24,6 +24,7 @@ import {
 } from "@/components/onboard";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useGstVerification } from "@/hooks/useGstVerification";
 import { authService } from "@/service";
 
 export default function StoreCreation() {
@@ -61,6 +62,14 @@ export default function StoreCreation() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
+  // Hook for GST verification
+  const {
+    isVerifyingGst,
+    isGstVerified,
+    handleVerifyGst: verifyGst,
+    resetGstVerification
+  } = useGstVerification(setFormData);
+
   // Load agency data from Redux
   useEffect(() => {
     // Check if agency exists with any of the possible ID fields
@@ -73,7 +82,16 @@ export default function StoreCreation() {
     }
   }, [agency, profileLoading, router]);
 
+  const handleVerifyGst = async () => {
+    if (!formData.gst || formData.gst.length < 15) return;
+    await verifyGst(formData.gst);
+  };
+
   const updateFormData = (field, value) => {
+    if (field === "gst") {
+      resetGstVerification();
+    }
+
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
       setFormData((prev) => ({
@@ -210,20 +228,31 @@ export default function StoreCreation() {
       };
 
       const result = await storeService.createStore(storeData);
-      if (result?.success) {
-        const userProfile = await authService.refreshToken();
-        const subdomain = userProfile.data?.tenant;
 
-        if (subdomain) {
-          const { host, protocol } = window.location;
-          window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
-          return;
+      if (result?.success) {
+        try {
+          const userProfile = await authService.refreshToken();
+
+          const subdomain = userProfile.data?.tenant;
+
+          if (subdomain) {
+            const { host, protocol } = window.location;
+            window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
+            return;
+          }
+        } catch (refreshError) {
+          // Don't throw, just proceed to show success screen so user isn't stuck
         }
 
         setShowSuccessScreen(true);
       } else {
-        if (result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
+        if (result?.error?.data?.fields) {
+          setFieldErrors(result.error.data.fields);
+        } else {
+          // Show general error if no specific field errors
+          setErrors({
+            general: result?.message || result?.error?.message || "Failed to create store",
+          });
         }
       }
     } catch (_error) {
@@ -301,6 +330,9 @@ export default function StoreCreation() {
                     formData={formData}
                     errors={errors}
                     fieldErrors={fieldErrors}
+                    isVerifyingGst={isVerifyingGst}
+                    isGstVerified={isGstVerified}
+                    onVerifyGst={handleVerifyGst}
                     onUpdate={updateFormData}
                   />
                 )}
@@ -321,6 +353,9 @@ export default function StoreCreation() {
                     formData={formData}
                     errors={errors}
                     fieldErrors={fieldErrors}
+                    isVerifyingGst={isVerifyingGst}
+                    isGstVerified={isGstVerified}
+                    onVerifyGst={handleVerifyGst}
                     onUpdate={updateFormData}
                   />
                 )}

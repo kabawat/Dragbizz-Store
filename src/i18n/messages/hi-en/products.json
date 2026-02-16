@@ -76,6 +76,7 @@
   "gstInformation": "GST Information",
   "gstApplicable": "GST Applicable",
   "gstApplicableHelperText": "Enable karo agar is product par GST applicable hai",
+  "gstNotAvailableNoStoreGst": "GST apply nahi ho sakta kyunki is store ke paas GST number nahi hai. Store Settings mein ise add karein.",
   "selectGstRate": "GST rate select karo",
   "gstType": "GST Type",
   "selectGstType": "GST type select karo",

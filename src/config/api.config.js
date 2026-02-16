@@ -47,6 +47,7 @@ const API_CONFIG = {
     DASHBOARD: "/retailer/dashboard",
     ANALYTICS: "/retailer/analytics",
     GST: "/retailer/gst",
+    GST_VERIFY: "/retailer/gst/verify",
     PUBLIC_CATALOG: "/retailer/public/products",
     PUBLIC_CATEGORIES: "/retailer/public/categories",
     PUBLIC_SALES_ORDER: "/retailer/public/sales-order",
