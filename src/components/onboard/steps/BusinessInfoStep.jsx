@@ -1,18 +1,17 @@
-import { AlertCircle, Building2 } from "lucide-react";
-import { Input, Select } from "@/components/ui";
+import { AlertCircle } from "lucide-react";
+import { Select } from "@/components/ui";
 import { STORE_CATEGORIES } from "@/data";
 
 export default function BusinessInfoStep({
     formData,
     errors,
-    fieldErrors,
     onUpdate,
 }) {
     return (
         <div className="space-y-4">
             <div>
                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-3">
-                    Business Information
+                    Business Category
                 </h3>
             </div>
 
@@ -33,43 +32,6 @@ export default function BusinessInfoStep({
                         {errors.category}
                     </p>
                 )}
-            </div>
-
-            {/* Row 2: GST & PAN */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <Input
-                        type="text"
-                        placeholder="Enter GST number (optional)"
-                        value={formData.gst}
-                        onChange={(value) => onUpdate("gst", value)}
-                        leftIcon={Building2}
-                        error={fieldErrors.gst || errors.gst}
-                    />
-                    {(fieldErrors.gst || errors.gst) && (
-                        <p className="text-red-500 text-sm flex items-center mt-2">
-                            <AlertCircle className="w-4 h-4 mr-1" />
-                            {fieldErrors.gst || errors.gst}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <Input
-                        type="text"
-                        placeholder="Enter PAN number (optional)"
-                        value={formData.pan}
-                        onChange={(value) => onUpdate("pan", value)}
-                        leftIcon={Building2}
-                        error={fieldErrors.pan || errors.pan}
-                    />
-                    {(fieldErrors.pan || errors.pan) && (
-                        <p className="text-red-500 text-sm flex items-center mt-2">
-                            <AlertCircle className="w-4 h-4 mr-1" />
-                            {fieldErrors.pan || errors.pan}
-                        </p>
-                    )}
-                </div>
             </div>
         </div>
     );

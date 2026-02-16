@@ -76,6 +76,7 @@
   "gstInformation": "GST માહિતી",
   "gstApplicable": "GST લાગુ",
   "gstApplicableHelperText": "જો આ ઉત્પાદન પર GST લાગુ હોય તો સક્ષમ કરો",
+  "gstNotAvailableNoStoreGst": "GST લાગુ કરી શકાતું નથી કારણ કે આ સ્ટોર પાસે કોઈ GST નંબર નથી. તેને સ્ટોર સેટિંગ્સમાં ઉમેરો.",
   "selectGstRate": "GST દર પસંદ કરો",
   "gstType": "GST પ્રકાર",
   "selectGstType": "GST પ્રકાર પસંદ કરો",
