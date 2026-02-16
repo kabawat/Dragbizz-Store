@@ -26,6 +26,7 @@ const ProductTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
+  hasStoreGst = false,
 }) => {
   const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
@@ -188,9 +189,11 @@ const ProductTable = ({
               <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("products.price")}
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
-                {t("products.gst")}
-              </th>
+              {hasStoreGst && (
+                <th className="px-6 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  {t("products.gst")}
+                </th>
+              )}
               <th className="px-6 py-4 w-24 text-center text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
               </th>
@@ -317,41 +320,43 @@ const ProductTable = ({
                   </td>
 
                   {/* GST Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-start h-full">
-                      {(product.gst || product.gstRate) > 0 ? (
-                        <div className="flex flex-col items-start">
-                          <div className="flex gap-2 mb-1">
-                            <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                              {product.gst || product.gstRate || 0}%
-                            </span>
-                            <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 dark:border-green-500/30">
-                              GST
-                            </span>
-                          </div>
-                          <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            {product.gstType === "CGST_SGST"
-                              ? "CGST+SGST"
-                              : product.gstType || "CGST+SGST"}
-                          </div>
-                          {(product.hsnCode || product.hsn) && (
-                            <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
-                              HSN: {product.hsnCode || product.hsn}
+                  {hasStoreGst && (
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-start h-full">
+                        {(product.gst || product.gstRate) > 0 ? (
+                          <div className="flex flex-col items-start">
+                            <div className="flex gap-2 mb-1">
+                              <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
+                                {product.gst || product.gstRate || 0}%
+                              </span>
+                              <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 dark:border-green-500/30">
+                                GST
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex flex-col">
-                          <span className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                            No GST
-                          </span>
-                          <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
-                            Not Applicable
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {product.gstType === "CGST_SGST"
+                                ? "CGST+SGST"
+                                : product.gstType || "CGST+SGST"}
+                            </div>
+                            {(product.hsnCode || product.hsn) && (
+                              <div className="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">
+                                HSN: {product.hsnCode || product.hsn}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-[rgb(var(--color-text-tertiary))]">
+                              No GST
+                            </span>
+                            <span className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                              Not Applicable
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  )}
 
                   {/* Actions Column */}
                   <td className="px-4 py-4 w-24 text-start">

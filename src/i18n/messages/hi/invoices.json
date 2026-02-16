@@ -75,5 +75,8 @@
   "fieldPaymentMode": "भुगतान मोड",
   "fieldReleasedAt": "रिलीज़ हुआ",
   "invoices": "चालान",
-  "orderSource": "ऑर्डर का स्रोत"
+  "orderSource": "ऑर्डर का स्रोत",
+  "totalAmount": "कुल राशि",
+  "walkInCustomer": "सामान्य ग्राहक",
+  "discount": "छूट"
 }

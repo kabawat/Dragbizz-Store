@@ -322,5 +322,7 @@
   "extractedDataFromImages": "Successfully extracted data from {count} image(s)",
   "failedToAddStock": "Failed to add stock",
   "stockAddedSuccessfully": "Stock added successfully!",
-  "errorAddingStock": "Error adding stock"
+  "errorAddingStock": "Error adding stock",
+  "gstNotRegistered": "जीएसटी पंजीकृत नहीं है",
+  "gstNotRegisteredMessage": "आपके स्टोर का जीएसटी नंबर पंजीकृत नहीं है। सरकारी नियमों के अनुसार, आप उत्पादों पर जीएसटी नहीं ले सकते।"
 }

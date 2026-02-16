@@ -75,5 +75,8 @@
   "standardPrint": "Standard (A4 / Letter)",
   "miniThermalPrint": "Mini / Thermal Printer",
   "updatePaymentStatus": "Update Payment Status",
-  "orderSource": "Order Source"
+  "orderSource": "Order Source",
+  "totalAmount": "Total Amount",
+  "walkInCustomer": "Walk-in Customer",
+  "discount": "Discount"
 }

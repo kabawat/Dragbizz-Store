@@ -322,9 +322,6 @@
   "showInCatalogLabel": "Show in Catalog",
   "catalogVisibilityDescription": "Control if this product is visible in your public QR catalog",
   "addCatalogContentHelperText": "Add descriptions, features and images for your public catalog page where customers shop online",
-  "basicInformationDescriptionDetail": "Essential product details required for listing",
-  "pricingInformationDescriptionDetail": "Product pricing and tax configuration",
-  "contentSeoDescriptionDetail": "Detailed product information and marketing content",
   "failedToCreateCategory": "Failed to create category",
   "unknownError": "Unknown error",
   "failedToExtractProductData": "Failed to extract product data",
@@ -333,5 +330,7 @@
   "extractedDataFromImages": "Successfully extracted data from {count} image(s)",
   "failedToAddStock": "Failed to add stock",
   "stockAddedSuccessfully": "Stock added successfully!",
-  "errorAddingStock": "Error adding stock"
+  "errorAddingStock": "Error adding stock",
+  "gstNotRegistered": "GST Registered Nahi Hai",
+  "gstNotRegisteredMessage": "Aapke store ka GST number registered nahi hai. Government regulations ke hisab se, aap products par GST collect nahi kar sakte."
 }
