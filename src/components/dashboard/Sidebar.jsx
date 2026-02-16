@@ -145,11 +145,11 @@ const Sidebar = ({ onStoreChange }) => {
       icon: DollarSign,
       href: "/dashboard/analytics/expenses",
     },
-    {
+    ...(selectedStore?.gst ? [{
       name: t("gst.gstAnalytics") || "GST Analytics",
       icon: BadgePercent,
       href: "/dashboard/analytics/gst",
-    },
+    }] : []),
   ];
 
   const navigationItems = [
