@@ -59,39 +59,23 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
         }
         exportToCSV(rows, baseName, (err) => err && showError(err));
       } else if (format === "xlsx") {
-        const rows = data.gstr1?.map(item => ({
-          gstin: item.customerGstin || "N/A",
-          tradeName: item.customerName || "N/A",
-          invoiceType: "Regular",
-          invoiceDate: item.invoiceDate ? new Date(item.invoiceDate).toLocaleDateString("en-IN") : "N/A",
-          invoiceValue: item.taxableValue + item.cgst + item.sgst + item.igst + item.cess,
-          taxableValue: item.taxableValue,
-          cgst: item.cgst,
-          sgst: item.sgst,
-          igst: item.igst,
-          cess: item.cess,
-          itc: "Yes"
-        })) || [];
-
-        if (rows.length === 0 && (!data.hsnWise || data.hsnWise.length === 0)) {
-          showError("No data to export");
-          return;
-        }
-
         const exportMetadata = {
-          financialYear: `${period.year}-${(period.year + 1).toString().slice(-2)}`,
-          taxPeriod: period.month ? MONTH_OPTIONS.find(m => m.value === period.month)?.label : (period.quarter ? `Q${period.quarter}` : "Full Year"),
-          gstin: selectedStore?.gstNumber || "N/A",
-          legalName: selectedStore?.name || "N/A",
-          tradeName: selectedStore?.name || "N/A",
-          generationDate: new Date().toLocaleDateString("en-IN")
+          financialYear: data.financialYear || `${period.year}-${(period.year + 1).toString().slice(-2)}`,
+          taxPeriod: data.taxPeriod || (period.month ? MONTH_OPTIONS.find((m) => m.value === period.month)?.label : period.quarter ? `Q${period.quarter}` : "Full Year"),
+          gstin: (data.gstin && data.gstin !== "N/A") ? data.gstin : (selectedStore?.gstNumber || "N/A"),
+          legalName: (data.legalName && data.legalName !== "N/A") ? data.legalName : (selectedStore?.name || "N/A"),
+          tradeName: (data.tradeName && data.tradeName !== "N/A") ? data.tradeName : (selectedStore?.name || "N/A"),
+          generationDate: data.generationDate || new Date().toLocaleDateString("en-IN")
         };
 
-        // Combine metadata with rows for the export tool
         const finalExportData = {
-          ...exportMetadata,
-          gstr1: rows
+          ...data,
+          ...exportMetadata
         };
+
+        if (finalExportData?.gstr2b?.length === 0 && finalExportData?.cdnr?.length === 0 && finalExportData?.gstr3b?.section4?.length === 0) {
+          // Optional: You could show a warning here if needed, but we'll allow empty reports.
+        }
 
         await exportGstr2bExcel(finalExportData, `${baseName}.xlsx`);
       }

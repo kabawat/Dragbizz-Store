@@ -8,10 +8,8 @@ import createIMPGSheet from "./sheets/IMPGSheet";
 import createIMPGSEZSheet from "./sheets/IMPGSEZSheet";
 import createB2BITCReversalSheet from "./sheets/B2BITCReversalSheet";
 import createB2BAITCRSheet from "./sheets/B2BAITCReversal";
-import createB2BDNRSheet from "./sheets/B2BDNRSheet";
-import createB2BDNRASheet from "./sheets/B2BDNRASheet.js";
 import createB2BRejectedSheet from "./sheets/B2BRejected.js";
-import createB2BARejectedSheet from "./sheets/ B2BARejected.js";
+import createB2BARejectedSheet from "./sheets/B2BARejected.js";
 import createB2BCDNRRejectedSheet from "./sheets/B2BCDNRRejectedSheet.js";
 import createB2BCDNRARejectedSheet from "./sheets/B2BCDNRARejected.js";
 import createECORejectedSheet from "./sheets/ECORejected.js";
@@ -34,7 +32,7 @@ const exportGstr2bExcel = async (data, filename = "GSTR-2B_Professional.xlsx") =
   createReadSheet(workbook, data);
 
   // Data for actual sheets
-  const rows = Array.isArray(data) ? data : (data?.gstr1 || []);
+  // Data processed for sheets
 
   createITCAvailableSheet(workbook, data);
   createITCNotAvailableSheet(workbook, data);
@@ -54,8 +52,8 @@ const exportGstr2bExcel = async (data, filename = "GSTR-2B_Professional.xlsx") =
   createIMPGSEZSheet(workbook, data?.impgsez || []);
   createB2BITCReversalSheet(workbook, data?.itcReversal || []);
   createB2BAITCRSheet(workbook, data?.b2baItcr || []);
-  createB2BDNRSheet(workbook, data?.cdnr || []);
-  createB2BDNRASheet(workbook, data?.cdnra || []);
+  // createB2BDNRSheet(workbook, data?.cdnr || []);
+  // createB2BDNRASheet(workbook, data?.cdnra || []);
 
   // Rejections
   createB2BRejectedSheet(workbook, data?.rejected?.b2b || []);

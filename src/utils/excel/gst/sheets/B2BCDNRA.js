@@ -116,20 +116,44 @@ const createB2BCDNRASheet = (workbook, data) => {
 
 
     if (data && data.length > 0) {
+
         data.forEach(item => {
-            worksheet.addRow([
-                item.origNoteType, item.origNoteNum, item.origNoteDate,
-                item.gstinSupplier, item.tradeName,
-                item.revNoteNum, item.revNoteType, item.revSupplyType, item.revNoteDate, item.revNoteValue,
-                item.pos, item.reverseCharge, item.taxValue,
-                item.igst, item.cgst, item.sgst, item.cess,
-                item.itcReduced, item.redIgst, item.redCgst, item.redSgst, item.redCess,
-                item.period, item.filingDate, item.itcAvailability, item.reason, item.taxRate
-            ]).eachCell(c => {
-                c.alignment = { vertical: 'middle', horizontal: 'left' };
-            });
+            const origDate = item.origNoteDate ? new Date(item.origNoteDate).toLocaleDateString("en-IN") : "";
+            const revDate = item.noteDate ? new Date(item.noteDate).toLocaleDateString("en-IN") : "";
+
+            const row = worksheet.addRow([
+                item.origNoteType || "",
+                item.origNoteNum || "",
+                origDate,
+                item.supplierGstin || item.gstin || "",
+                item.tradeName || item.supplierName || "",
+                item.noteNum || "",
+                item.noteType || "",
+                item.noteSupplyType || "Regular",
+                revDate,
+                item.noteValue || (item.taxableValue + (item.igst || 0) + (item.cgst || 0) + (item.sgst || 0)),
+                item.placeOfSupply || item.pos || "",
+                item.reverseCharge || "No",
+                item.taxableValue || 0,
+                item.igst || 0,
+                item.cgst || 0,
+                item.sgst || 0,
+                item.cess || 0,
+                item.itcReducedInput || "No",
+                item.redIgst || 0,
+                item.redCgst || 0,
+                item.redSgst || 0,
+                item.redCess || 0,
+                item.period || "",
+                item.filingDate || "",
+                item.itcAvailable || "Yes",
+                item.reason || "",
+                item.applicablePercent || "100%"
+            ]);
+
         });
     }
 };
+
 
 export default createB2BCDNRASheet;

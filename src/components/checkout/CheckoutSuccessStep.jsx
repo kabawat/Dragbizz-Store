@@ -46,8 +46,7 @@ export default function CheckoutSuccessStep({
 
         <div className="space-y-3">
           <Button
-            href={orderResult.trackingUrl}
-            target="_blank"
+            onClick={() => router.push(`/order/track/${orderResult.publicId}`)}
             variant="primary"
             fullWidth
             className="!h-12 !rounded-xl font-bold shadow-lg shadow-[rgb(var(--color-primary))]/20"

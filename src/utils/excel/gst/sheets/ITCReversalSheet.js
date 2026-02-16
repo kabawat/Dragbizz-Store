@@ -112,11 +112,11 @@ const createITCReversalSheet = (workbook, data) => {
 
 
     const detailItems = [
-        ['B2B - Invoices', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Debit notes', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Invoices (Amendment)', '0.00', '0.00', '0.00', '0.00'],
-        ['B2B - Debit notes (Amendment)', '0.00', '0.00', '0.00', '0.00'],
-    ];
+        "B2B - Invoices",
+        "B2B - Debit notes",
+        "B2B - Invoices (Amendment)",
+        "B2B - Debit notes (Amendment)",
+    ].map(label => [label, 0, 0, 0, 0]);
 
     detailItems.forEach((item, index) => {
 

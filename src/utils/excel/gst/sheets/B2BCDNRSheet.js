@@ -3,7 +3,7 @@ import { COLORS } from "../styles";
 const createB2BCDNRSheet = (workbook, data) => {
     const sheet = workbook.addWorksheet("B2B-CDNR");
 
-    sheet.columns = Array(26).fill({ width: 15, alignment: { horizontal: "center", vertical: "middle", wrapText: true } });
+    sheet.columns = Array(30).fill({ width: 15, alignment: { horizontal: "center", vertical: "middle", wrapText: true } });
 
     sheet.mergeCells("A1:Z1");
     const title = sheet.getCell("A1");
@@ -65,14 +65,36 @@ const createB2BCDNRSheet = (workbook, data) => {
 
     if (data && data.length > 0) {
         data.forEach(item => {
+            const noteDate = item.noteDate ? new Date(item.noteDate).toLocaleDateString("en-IN") : "";
+
             const row = sheet.addRow([
-                item.gstin, item.tradeName, item.noteType, item.noteNum, item.noteDate, item.noteValue,
-                item.pos, item.reverseCharge, item.taxableValue,
-                item.igst, item.cgst, item.sgst, item.cess,
-                item.itcReducedInput,
-                item.redIgst, item.redCgst, item.redSgst, item.redCess,
-                item.period, item.filingDate, item.itcAvailable, item.reason, item.taxRate,
-                item.source, item.irn, item.irnDate
+                item.supplierGstin || item.gstin || "",
+                item.tradeName || item.supplierName || "",
+                item.noteNum || "",
+                item.noteType || "",
+                item.noteSupplyType || "Regular",
+                noteDate,
+                item.noteValue || (item.taxableValue + (item.igst || 0) + (item.cgst || 0) + (item.sgst || 0)),
+                item.placeOfSupply || item.pos || "",
+                item.reverseCharge || "No",
+                item.taxableValue || 0,
+                item.igst || 0,
+                item.cgst || 0,
+                item.sgst || 0,
+                item.cess || 0,
+                item.itcReducedInput || "No",
+                item.redIgst || 0,
+                item.redCgst || 0,
+                item.redSgst || 0,
+                item.redCess || 0,
+                item.period || "",
+                item.filingDate || "",
+                item.itcAvailable || "Yes",
+                item.reason || "",
+                item.applicablePercent || "100%",
+                item.source || "",
+                item.irn || "",
+                item.irnDate || ""
             ]);
             row.eachCell(cell => {
                 cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
