@@ -115,33 +115,25 @@ const ProductDetailsTemplate = ({ productData, selectedStore }) => {
             <div className={styles.details}>
               <table className={styles.table}>
                 <tbody>
-                  <tr>
-                    <td className={styles.label}>GST Applicable:</td>
-                    <td>
-                      {productData.gstInfo.isGstApplicable ? "Yes" : "No"}
-                    </td>
-                  </tr>
-                  {productData.gstInfo.isGstApplicable &&
-                    productData.gstInfo.gstRate && (
-                      <tr>
-                        <td className={styles.label}>GST Rate:</td>
-                        <td>{productData.gstInfo.gstRate}%</td>
-                      </tr>
-                    )}
-                  {productData.gstInfo.isGstApplicable &&
+                  {productData.gstInfo.gstRate && (
+                    <tr>
+                      <td className={styles.label}>GST Rate:</td>
+                      <td>{productData.gstInfo.gstRate}%</td>
+                    </tr>
+                  )}
+                  {productData.gstInfo.gstRate &&
                     productData.gstInfo.gstType && (
                       <tr>
                         <td className={styles.label}>GST Type:</td>
                         <td>{productData.gstInfo.gstType}</td>
                       </tr>
                     )}
-                  {productData.gstInfo.isGstApplicable &&
-                    productData.gstInfo.hsnCode && (
-                      <tr>
-                        <td className={styles.label}>HSN Code:</td>
-                        <td>{productData.gstInfo.hsnCode}</td>
-                      </tr>
-                    )}
+                  {productData.gstInfo.hsnCode && (
+                    <tr>
+                      <td className={styles.label}>HSN Code:</td>
+                      <td>{productData.gstInfo.hsnCode}</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

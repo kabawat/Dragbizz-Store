@@ -2,12 +2,11 @@
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
 import { AIProductExtract, ProductForm } from "@/components/product";
-import QuotaProgressBar from "@/components/product/QuotaProgressBar";
 import { AIButton, Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -22,7 +21,7 @@ const AddProductPage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
     selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
-  const quotaRefreshRef = useRef(null);
+
 
   // Get quota information for frontend validation
   const { quota, isLoading: quotaLoading } =
@@ -62,7 +61,6 @@ const AddProductPage = () => {
     currency: "INR",
     uom: "PCS",
     gstInfo: {
-      isGstApplicable: false,
       gstRate: "",
       gstType: "CGST_SGST",
       hsnCode: "",
@@ -171,9 +169,7 @@ const AddProductPage = () => {
       );
 
       if (handled.type === "success") {
-        if (quotaRefreshRef.current) {
-          quotaRefreshRef.current();
-        }
+
         setTimeout(() => {
           setFormData(getInitialFormData());
           clearFieldErrors();
@@ -241,10 +237,10 @@ const AddProductPage = () => {
       if (extractedData.gstInfo) {
         updatedFormData.gstInfo = {
           ...updatedFormData.gstInfo,
-          isGstApplicable:
-            extractedData.gstInfo.isGstApplicable !== undefined
-              ? extractedData.gstInfo.isGstApplicable
-              : updatedFormData.gstInfo.isGstApplicable,
+          isGstIncluded:
+            extractedData.gstInfo.isGstIncluded !== undefined
+              ? extractedData.gstInfo.isGstIncluded
+              : (extractedData.isGstIncluded !== undefined ? extractedData.isGstIncluded : updatedFormData.gstInfo.isGstIncluded),
           gstRate:
             extractedData.gstInfo.gstRate !== undefined &&
               extractedData.gstInfo.gstRate !== null
@@ -262,9 +258,6 @@ const AddProductPage = () => {
               ? String(extractedData.gstInfo.cessRate)
               : updatedFormData.gstInfo.cessRate,
         };
-      }
-      if (extractedData.isGstIncluded !== undefined) {
-        updatedFormData.gstInfo.isGstIncluded = extractedData.isGstIncluded;
       }
 
       // Content fields
@@ -347,12 +340,6 @@ const AddProductPage = () => {
                 <AIButton onClick={() => setShowAIModal(true)} size="sm">
                   {t("products.aiExtract")}
                 </AIButton>
-                <QuotaProgressBar
-                  featureKey="product_management"
-                  onRefreshRef={(refreshFn) => {
-                    quotaRefreshRef.current = refreshFn;
-                  }}
-                />
               </div>
             </div>
 
