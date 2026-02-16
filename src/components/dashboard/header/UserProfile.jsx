@@ -93,15 +93,34 @@ const UserProfile = () => {
                 {isProfileDropdownOpen && (
                     <div className="absolute right-0 top-full mt-2 w-40 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
                         <div className="py-1">
-                            <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
+                            <button
+                                onClick={() => {
+                                    setIsProfileDropdownOpen(false);
+                                    router.push("/dashboard/settings?tab=profile");
+                                }}
+                                className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer"
+                            >
                                 {t("header.profileSettings")}
                             </button>
-                            <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
+                            <button
+                                onClick={() => {
+                                    setIsProfileDropdownOpen(false);
+                                    router.push("/dashboard/settings?tab=account");
+                                }}
+                                className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer"
+                            >
                                 {t("header.accountSettings")}
                             </button>
-                            <button className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer">
+                            <button
+                                onClick={() => {
+                                    setIsProfileDropdownOpen(false);
+                                    router.push("/dashboard/settings?tab=appearance");
+                                }}
+                                className="w-full px-3 py-1.5 text-left text-xs text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] cursor-pointer"
+                            >
                                 {t("header.preferences")}
                             </button>
+
                             <button
                                 onClick={() => {
                                     setIsProfileDropdownOpen(false);
