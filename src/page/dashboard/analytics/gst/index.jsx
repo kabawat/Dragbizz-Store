@@ -38,6 +38,7 @@ import {
   syncGstStats,
 } from "@/store/slices/gstSlice";
 import { gstService } from "@/service/retailer";
+import GstGuard from "@/components/auth/GstGuard";
 
 const formatCurrency = (amount) =>
   `₹${(amount || 0).toLocaleString("en-IN", {
@@ -45,7 +46,7 @@ const formatCurrency = (amount) =>
     maximumFractionDigits: 2,
   })}`;
 
-const GstAnalytics = () => {
+const GstAnalyticsContent = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -112,7 +113,7 @@ const GstAnalytics = () => {
   useEffect(() => {
     if (!storeId) return;
 
-    // Prevent duplicate calls with the same parameters (especially important in React StrictMode)
+    // Prevent duplicate calls with the same parameters
     const currentParams = {
       storeId,
       month: period.month,
@@ -134,7 +135,6 @@ const GstAnalytics = () => {
   }, [dispatch, storeId, period.month, period.quarter, period.year]);
 
   const handleExport = async (exportPeriod) => {
-    const params = { store: storeId, ...exportPeriod };
     const result = await gstService.getGstExport(storeId, exportPeriod);
     return result;
   };
@@ -150,7 +150,6 @@ const GstAnalytics = () => {
   const outward = summary?.outward ?? {};
   const inward = summary?.inward ?? {};
   const netPosition = summary?.summary ?? {};
-
 
   const StatRow = ({ label, value, color = "text-[rgb(var(--color-text-primary))]", icon: Icon }) => (
     <div className="flex items-center justify-between py-2 border-b border-[var(--color-border-primary-light)] last:border-0 px-1 hover:bg-[rgb(var(--color-bg-secondary))]/50 transition-colors">
@@ -363,6 +362,14 @@ const GstAnalytics = () => {
         isLoading={isLoading}
       />
     </div>
+  );
+};
+
+const GstAnalytics = () => {
+  return (
+    <GstGuard>
+      <GstAnalyticsContent />
+    </GstGuard>
   );
 };
 
