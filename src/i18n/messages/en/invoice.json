@@ -208,5 +208,6 @@
   "comingSoon": "Coming Soon...",
   "securelyVerifyIdentity": "Securely verify your identity using your electronic ID. This links your signature to a verified persona.",
   "copyLinkNotAvailable": "Invoice link not available",
-  "copyFailed": "Failed to copy link"
+  "copyFailed": "Failed to copy link",
+  "cannotEditNonDraft": "Only draft invoices can be edited. Released or cancelled invoices are immutable."
 }

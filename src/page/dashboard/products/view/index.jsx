@@ -524,7 +524,7 @@ const ViewProductPage = ({ productId }) => {
                       </div>
 
                       {/* GST Information Card */}
-                      {productData.gstInfo && (
+                      {(productData.gstInfo || !selectedStore?.gst) && (
                         <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-6">
                           <div className="flex items-center space-x-3 mb-6">
                             <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-full flex items-center justify-center">
@@ -540,25 +540,31 @@ const ViewProductPage = ({ productId }) => {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {/* GST Applicable */}
-                            <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
-                              <Shield className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
-                              <div className="relative z-10">
-                                <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  GST Rate
-                                </p>
-                                <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {productData.gstInfo.gstRate
-                                    ? `${productData.gstInfo.gstRate}%`
-                                    : t("common.na")}
-                                </p>
-                              </div>
+                          {!selectedStore?.gst ? (
+                            <div className="p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl flex flex-col items-center text-center justify-center gap-4">
+                              <p className="text-base font-medium text-orange-800">
+                                {t("products.gstNotRegisteredMessage") || "Your store does not have a registered GST number. According to government regulations, you cannot collect GST on products."}
+                              </p>
                             </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                              {/* GST Applicable */}
+                              <div className="relative p-4 bg-gradient-to-br from-blue-50/15 to-blue-100/10 dark:from-blue-900/5 dark:to-blue-800/3 rounded-lg overflow-hidden">
+                                <Shield className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
+                                <div className="relative z-10">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    GST Rate
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
+                                    {productData.gstInfo?.gstRate
+                                      ? `${productData.gstInfo.gstRate}%`
+                                      : t("common.na")}
+                                  </p>
+                                </div>
+                              </div>
 
-                            {/* GST Type */}
-                            {productData.gstInfo.gstRate &&
-                              productData.gstInfo.gstType && (
+                              {/* GST Type */}
+                              {(productData.gstInfo?.gstRate || productData.gstInfo?.gstType) && (
                                 <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                                   <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
                                   <div className="relative z-10">
@@ -566,29 +572,30 @@ const ViewProductPage = ({ productId }) => {
                                       GST Type
                                     </p>
                                     <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {productData.gstInfo.gstType ||
+                                      {productData.gstInfo?.gstType ||
                                         t("common.na")}
                                     </p>
                                   </div>
                                 </div>
                               )}
 
-                            {/* HSN Code */}
-                            {productData.gstInfo.hsnCode && (
-                              <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
-                                <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
-                                <div className="relative z-10">
-                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                    HSN Code
-                                  </p>
-                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                    {productData.gstInfo.hsnCode ||
-                                      t("common.na")}
-                                  </p>
+                              {/* HSN Code */}
+                              {productData.gstInfo?.hsnCode && (
+                                <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                                  <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                                  <div className="relative z-10">
+                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                      HSN Code
+                                    </p>
+                                    <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                                      {productData.gstInfo.hsnCode ||
+                                        t("common.na")}
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
 

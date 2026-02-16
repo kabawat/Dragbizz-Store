@@ -85,7 +85,7 @@ const EditInvoicePage = ({ invoiceId }) => {
         setSignatures(result.data || []);
       }
     } catch (_error) {
-      
+
     } finally {
       setSignaturesLoading(false);
     }
@@ -168,6 +168,12 @@ const EditInvoicePage = ({ invoiceId }) => {
       });
       if (result.success && result.data) {
         const inv = result.data;
+
+        if (inv.invoiceStatus !== "DRAFT") {
+          setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
+          setFetching(false);
+          return;
+        }
 
         // Transform invoice data to match form structure
         const transformedItems = inv.items?.map((item) => ({

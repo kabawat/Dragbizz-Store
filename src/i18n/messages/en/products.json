@@ -322,5 +322,7 @@
   "monthly": "Monthly",
   "maximumImagesAllowed": "Maximum {max} images allowed. Please remove some images first.",
   "onlyMoreImagesCanBeAdded": "Only {remaining} more image(s) can be added. Maximum {max} images allowed.",
-  "pleaseSelectAtLeastOneImage": "Please select at least one image"
+  "pleaseSelectAtLeastOneImage": "Please select at least one image",
+  "gstNotRegistered": "GST Not Registered",
+  "gstNotRegisteredMessage": "Your store does not have a registered GST number. According to government regulations, you cannot collect GST on products."
 }

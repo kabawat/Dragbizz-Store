@@ -74,5 +74,8 @@
   "fieldInvoiceStatus": "Invoice Status",
   "fieldPaymentMode": "Payment Mode",
   "fieldReleasedAt": "Released At",
-  "orderSource": "Order Source"
+  "orderSource": "Order Source",
+  "totalAmount": "Total Amount",
+  "walkInCustomer": "Walk-in Customer",
+  "discount": "Discount"
 }

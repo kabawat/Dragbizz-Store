@@ -11,10 +11,6 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const hasStoreGst = !!selectedStore?.gst;
 
-  useEffect(() => {
-    // Logic to auto-set GST defaults if needed, can be empty now if no auto-toggle is needed
-  }, [hasStoreGst, onChange]);
-
   const handleFieldChange = (field, value) => {
     onChange(field, value);
   };

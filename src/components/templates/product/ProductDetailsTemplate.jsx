@@ -109,7 +109,7 @@ const ProductDetailsTemplate = ({ productData, selectedStore }) => {
           </div>
         </section>
 
-        {productData?.gstInfo && (
+        {selectedStore?.gst && productData?.gstInfo && (
           <section className={styles.details}>
             <h3>GST Information</h3>
             <div className={styles.details}>

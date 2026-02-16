@@ -646,6 +646,7 @@ const ProductsPage = () => {
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
+                        hasStoreGst={!!selectedStore?.gst}
                       />
                     </div>
                   ) : (
