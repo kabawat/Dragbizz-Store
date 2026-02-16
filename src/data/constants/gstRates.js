@@ -1,26 +1,29 @@
 export const GST_RATE_OPTIONS = [
-  { value: 0, label: "0% - Exempt", description: "Exempt from GST" },
+  { value: 0, label: "0% - Exempt", description: "Essentials & Life Insurance" },
   {
     value: 0.25,
-    label: "0.25% - Gold",
-    description: "Gold and precious metals",
+    label: "0.25% - Precious Stones",
+    description: "Rough diamonds and precious stones",
   },
   {
     value: 3,
-    label: "3% - Gold Jewellery",
-    description: "Gold jewellery and ornaments",
+    label: "3% - Precious Metals",
+    description: "Gold, silver, and jewellery",
   },
   {
     value: 5,
-    label: "5% - Essential Items",
-    description: "Essential commodities",
+    label: "5% - Merit Rate",
+    description: "Food essentials and household items (previously 12%)",
   },
-  { value: 12, label: "12% - Standard Rate", description: "Standard GST rate" },
-  { value: 18, label: "18% - Standard Rate", description: "Standard GST rate" },
   {
-    value: 28,
-    label: "28% - Luxury Items",
-    description: "Luxury goods and services",
+    value: 18,
+    label: "18% - Standard Rate",
+    description: "General goods, services, and electronics (previously 28%)"
+  },
+  {
+    value: 40,
+    label: "40% - Sin/Luxury Tax",
+    description: "Luxury cars, tobacco, and aerated drinks",
   },
 ];
 

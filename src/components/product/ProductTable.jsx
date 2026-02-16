@@ -319,11 +319,11 @@ const ProductTable = ({
                   {/* GST Column */}
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-start h-full">
-                      {product.isGstApplicable ? (
+                      {(product.gst || product.gstRate) > 0 ? (
                         <div className="flex flex-col items-start">
                           <div className="flex gap-2 mb-1">
                             <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
-                              {product.gst || product.gstRate || 18}%
+                              {product.gst || product.gstRate || 0}%
                             </span>
                             <span className="inline-flex px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 dark:border-green-500/30">
                               GST

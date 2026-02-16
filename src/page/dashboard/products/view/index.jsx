@@ -546,34 +546,18 @@ const ViewProductPage = ({ productId }) => {
                               <Shield className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-blue-500/35 dark:!text-blue-400 dark:opacity-40" />
                               <div className="relative z-10">
                                 <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                  GST Applicable
+                                  GST Rate
                                 </p>
                                 <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                  {productData.gstInfo.isGstApplicable
-                                    ? t("common.yes")
-                                    : t("common.no")}
+                                  {productData.gstInfo.gstRate
+                                    ? `${productData.gstInfo.gstRate}%`
+                                    : t("common.na")}
                                 </p>
                               </div>
                             </div>
 
-                            {/* GST Rate */}
-                            {productData.gstInfo.isGstApplicable &&
-                              productData.gstInfo.gstRate && (
-                                <div className="relative p-4 bg-gradient-to-br from-green-50/15 to-green-100/10 dark:from-green-900/5 dark:to-green-800/3 rounded-lg overflow-hidden">
-                                  <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-green-500/35 dark:!text-green-400 dark:opacity-40" />
-                                  <div className="relative z-10">
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                      GST Rate
-                                    </p>
-                                    <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                      {productData.gstInfo.gstRate}%
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
                             {/* GST Type */}
-                            {productData.gstInfo.isGstApplicable &&
+                            {productData.gstInfo.gstRate &&
                               productData.gstInfo.gstType && (
                                 <div className="relative p-4 bg-gradient-to-br from-purple-50/15 to-purple-100/10 dark:from-purple-900/5 dark:to-purple-800/3 rounded-lg overflow-hidden">
                                   <FileText className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-purple-500/35 dark:!text-purple-400 dark:opacity-40" />
@@ -590,21 +574,20 @@ const ViewProductPage = ({ productId }) => {
                               )}
 
                             {/* HSN Code */}
-                            {productData.gstInfo.isGstApplicable &&
-                              productData.gstInfo.hsnCode && (
-                                <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
-                                  <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
-                                  <div className="relative z-10">
-                                    <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                      HSN Code
-                                    </p>
-                                    <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
-                                      {productData.gstInfo.hsnCode ||
-                                        t("common.na")}
-                                    </p>
-                                  </div>
+                            {productData.gstInfo.hsnCode && (
+                              <div className="relative p-4 bg-gradient-to-br from-orange-50/15 to-orange-100/10 dark:from-orange-900/5 dark:to-orange-800/3 rounded-lg overflow-hidden">
+                                <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500/35 dark:!text-orange-400 dark:opacity-40" />
+                                <div className="relative z-10">
+                                  <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                    HSN Code
+                                  </p>
+                                  <p className="text-base font-semibold text-[rgb(var(--color-text-primary))] font-mono">
+                                    {productData.gstInfo.hsnCode ||
+                                      t("common.na")}
+                                  </p>
                                 </div>
-                              )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

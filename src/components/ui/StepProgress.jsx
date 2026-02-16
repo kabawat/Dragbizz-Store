@@ -99,19 +99,15 @@ const StepProgress = ({
           {
             name: "gstRate",
             value: data.gstInfo?.gstRate,
-            required: data.gstInfo?.isGstApplicable,
+            required: false,
           },
           { name: "gstType", value: data.gstInfo?.gstType, required: false },
           {
             name: "hsnCode",
             value: data.gstInfo?.hsnCode?.trim(),
-            required: data.gstInfo?.isGstApplicable,
+            required: false,
           },
         ],
-        conditional: {
-          field: "gstInfo.isGstApplicable",
-          value: true,
-        },
       },
       {
         id: "status",
@@ -312,24 +308,22 @@ const StepProgress = ({
                       </span>
                       <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                         <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            step.completionPercentage === 100
+                          className={`h-1.5 rounded-full transition-all duration-500 ${step.completionPercentage === 100
                               ? "bg-emerald-500"
                               : getInformationColors(
-                                  getInformationLevel(step.completionPercentage)
-                                ).bg
-                          }`}
+                                getInformationLevel(step.completionPercentage)
+                              ).bg
+                            }`}
                           style={{ width: `${step.completionPercentage}%` }}
                         ></div>
                       </div>
                       <span
-                        className={`text-xs font-semibold whitespace-nowrap ${
-                          step.completionPercentage === 100
+                        className={`text-xs font-semibold whitespace-nowrap ${step.completionPercentage === 100
                             ? "text-emerald-600"
                             : getInformationColors(
-                                getInformationLevel(step.completionPercentage)
-                              ).text
-                        }`}
+                              getInformationLevel(step.completionPercentage)
+                            ).text
+                          }`}
                       >
                         {step.completionPercentage}%
                       </span>
@@ -342,11 +336,10 @@ const StepProgress = ({
                             className="flex items-center space-x-2"
                           >
                             <div
-                              className={`w-1 h-1 rounded-full ${
-                                detail.completed
+                              className={`w-1 h-1 rounded-full ${detail.completed
                                   ? "bg-[rgb(var(--color-primary))]"
                                   : "bg-[rgb(var(--color-border-primary))]"
-                              }`}
+                                }`}
                             />
                             <span
                               className={
@@ -406,24 +399,22 @@ const StepProgress = ({
                     </span>
                     <div className="flex-1 bg-gray-200 rounded-full h-1">
                       <div
-                        className={`h-1 rounded-full transition-all duration-500 ${
-                          step.completionPercentage === 100
+                        className={`h-1 rounded-full transition-all duration-500 ${step.completionPercentage === 100
                             ? "bg-emerald-500"
                             : getInformationColors(
-                                getInformationLevel(step.completionPercentage)
-                              ).bg
-                        }`}
+                              getInformationLevel(step.completionPercentage)
+                            ).bg
+                          }`}
                         style={{ width: `${step.completionPercentage}%` }}
                       ></div>
                     </div>
                     <span
-                      className={`text-xs font-semibold whitespace-nowrap ${
-                        step.completionPercentage === 100
+                      className={`text-xs font-semibold whitespace-nowrap ${step.completionPercentage === 100
                           ? "text-emerald-600"
                           : getInformationColors(
-                              getInformationLevel(step.completionPercentage)
-                            ).text
-                      }`}
+                            getInformationLevel(step.completionPercentage)
+                          ).text
+                        }`}
                     >
                       {step.completionPercentage}%
                     </span>

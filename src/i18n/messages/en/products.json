@@ -76,6 +76,7 @@
   "gstApplicable": "GST Applicable",
   "gstApplicableHelperText": "Enable if GST is applicable to this product",
   "gstNotAvailableNoStoreGst": "GST cannot be applied because this store has no GST number. Add it in Store Settings.",
+  "noGstInfoMessage": "Since your store doesn't have a GST number, this information is collected for future reference only.",
   "selectGstRate": "Select GST rate",
   "gstType": "GST Type",
   "selectGstType": "Select GST type",

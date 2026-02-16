@@ -53,10 +53,10 @@ const UpdateProductPage = ({ productId }) => {
     },
     stockQuantity: 0,
     gstInfo: {
-      isGstApplicable: false,
       gstRate: "",
       gstType: "CGST_SGST",
       hsnCode: "",
+      isGstIncluded: true,
     },
     content: {
       shortDescription: "",
@@ -81,7 +81,7 @@ const UpdateProductPage = ({ productId }) => {
         };
         const result = await productService.getProducts(params);
         const product = result.data;
-        
+
         // Transform API data to form data structure based on the actual response format
         const transformedData = {
           store: storeId,
@@ -116,11 +116,10 @@ const UpdateProductPage = ({ productId }) => {
           stockQuantity: product?.stockQuantity || 0,
           // GST info from nested gstInfo object
           gstInfo: {
-            isGstApplicable: product?.gstInfo?.isGstApplicable || false,
+            isGstIncluded: product?.gstInfo?.isGstIncluded !== undefined ? product?.gstInfo?.isGstIncluded : (product?.gstInfo?.isGstApplicable || false),
             gstRate: product?.gstInfo?.gstRate || "",
             gstType: product?.gstInfo?.gstType || "CGST_SGST",
             hsnCode: product?.gstInfo?.hsnCode || "",
-            isGstIncluded: product?.gstInfo?.isGstIncluded || false,
           },
           // Content data from nested content object
           content: {
@@ -134,7 +133,7 @@ const UpdateProductPage = ({ productId }) => {
 
         setFormData(transformedData);
       } catch (_error) {
-        
+
         setProductNotFound(true);
       } finally {
         setInitialLoading(false);

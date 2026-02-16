@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Hash, Package } from "lucide-react";
+import { Calculator, Hash, Info, Package, Percent } from "lucide-react";
 import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Input, Select, Toggle } from "../ui";
@@ -12,10 +12,8 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
   const hasStoreGst = !!selectedStore?.gst;
 
   useEffect(() => {
-    if (!hasStoreGst && formData.gstInfo?.isGstApplicable) {
-      onChange("gstInfo.isGstApplicable", false);
-    }
-  }, [hasStoreGst, formData.gstInfo?.isGstApplicable, onChange]);
+    // Logic to auto-set GST defaults if needed, can be empty now if no auto-toggle is needed
+  }, [hasStoreGst, onChange]);
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -156,6 +154,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
             error={errors.currency}
             errorMessage={errors.currency}
             required
+            disabled
             searchable
             placeholder={t("products.selectCurrency")}
           />
@@ -174,7 +173,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
         </div>
 
         {/* Price Summary */}
-        <div className="mt-6 p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+        <div className="mt-6 p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
               <span className="text-[rgb(var(--color-primary))] font-bold text-xl mr-2">
@@ -236,11 +235,11 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
               {formData.mrp &&
                 formData.sellingPrice &&
                 parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
                     {t("products.youSave")}:
                   </span>
-                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <span className="text-sm font-bold text-[rgb(var(--color-primary))]">
                     ₹
                     {(
                       parseFloat(formData.mrp) -
@@ -262,11 +261,11 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
               {formData.mrp &&
                 formData.sellingPrice &&
                 parseFloat(formData.mrp) > parseFloat(formData.sellingPrice) ? (
-                <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
-                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
                     {t("products.discount")}:
                   </span>
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                  <span className="text-sm font-bold text-green-600">
                     {Math.round(
                       ((parseFloat(formData.mrp) -
                         parseFloat(formData.sellingPrice)) /
@@ -298,69 +297,49 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
           {t("products.gstInformation")}
         </h3>
 
-        {/* GST Applicable Toggle */}
-        <div className="mb-6">
-          <Toggle
-            label={t("products.gstApplicable")}
-            checked={hasStoreGst ? (formData.gstInfo?.isGstApplicable || false) : false}
-            onChange={(checked) => {
-              if (hasStoreGst) {
-                handleFieldChange("gstInfo.isGstApplicable", checked);
-              }
-            }}
-            disabled={!hasStoreGst}
-            helperText={
-              !hasStoreGst
-                ? t("products.gstNotAvailableNoStoreGst") || "GST cannot be applied because this store has no GST number. Add it in Store Settings."
-                : t("products.gstApplicableHelperText")
-            }
-          />
-        </div>
 
-        {/* GST Fields - Only show if GST is applicable */}
-        {formData.gstInfo?.isGstApplicable && (
-          <>
-            {/* GST Rate and Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* GST Rate */}
-              <div>
-                <Select
-                  label={t("products.gstRate")}
-                  options={GST_RATE_OPTIONS}
-                  value={formData.gstInfo?.gstRate || ""}
-                  onChange={(value) =>
-                    handleFieldChange("gstInfo.gstRate", value)
-                  }
-                  error={errors.gstRate}
-                  errorMessage={errors.gstRate}
-                  required
-                  leftIcon={Calculator}
-                  searchable
-                  placeholder={t("products.selectGstRate")}
-                />
-              </div>
 
-              {/* GST Type */}
-              <div>
-                <Select
-                  label={t("products.gstType")}
-                  options={gstTypeOptions(t)}
-                  value={formData.gstInfo?.gstType || "CGST_SGST"}
-                  onChange={(value) =>
-                    handleFieldChange("gstInfo.gstType", value)
-                  }
-                  error={errors.gstType}
-                  errorMessage={errors.gstType}
-                  required
-                  searchable
-                  placeholder={t("products.selectGstType")}
-                  helperText={t("products.gstTypeHelperText")}
-                />
-              </div>
+        {/* GST Fields - Always show, but some parts conditional */}
+        <>
+          {/* GST Rate, Type, and HSN Code - Single Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {/* GST Rate */}
+            <div>
+              <Select
+                label={t("products.gstRate")}
+                options={GST_RATE_OPTIONS}
+                value={formData.gstInfo?.gstRate || ""}
+                onChange={(value) =>
+                  handleFieldChange("gstInfo.gstRate", value)
+                }
+                error={errors.gstRate}
+                errorMessage={errors.gstRate}
+                required={hasStoreGst}
+                leftIcon={Calculator}
+                searchable
+                placeholder={t("products.selectGstRate")}
+              />
+            </div>
+
+            {/* GST Type */}
+            <div>
+              <Select
+                label={t("products.gstType")}
+                options={gstTypeOptions(t)}
+                value={formData.gstInfo?.gstType || "CGST_SGST"}
+                onChange={(value) =>
+                  handleFieldChange("gstInfo.gstType", value)
+                }
+                error={errors.gstType}
+                errorMessage={errors.gstType}
+                required={hasStoreGst}
+                searchable
+                placeholder={t("products.selectGstType")}
+              />
             </div>
 
             {/* HSN Code */}
-            <div className="mb-6">
+            <div>
               <Input
                 label={t("products.hsnCode")}
                 placeholder={t("products.enterHsnCode")}
@@ -370,25 +349,24 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                 }
                 error={errors.hsnCode}
                 errorMessage={errors.hsnCode}
+                required={hasStoreGst}
                 leftIcon={Hash}
                 maxLength={8}
-                helperText={t("products.hsnCodeHelperText")}
               />
             </div>
+          </div>
 
-            {/* GST Include/Exclude Option */}
-            <div className="mb-6">
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                  {t("products.gstPricingMethod")}
-                </label>
-                <div className="space-y-2">
+          {/* GST Include/Exclude Option */}
+          <div className="mb-6">
+            {hasStoreGst ? (
+              <>
+                <div className="flex flex-col space-y-2">
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
                       name="gstIncluded"
                       value="excluded"
-                      checked={!formData.gstInfo?.isGstIncluded}
+                      checked={formData.gstInfo?.isGstIncluded === false}
                       onChange={() =>
                         handleFieldChange("gstInfo.isGstIncluded", false)
                       }
@@ -396,10 +374,10 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                     />
                     <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
                       <span className="font-medium">
-                        {t("products.gstExcluded")}
+                        {t("products.gstExcluded") || "GST Excluded"}
                       </span>
                       <span className="text-[rgb(var(--color-text-secondary))] ml-1">
-                        - {t("products.gstExcludedDescription")}
+                        - {t("products.gstExcludedDescription") || "Base Price + GST"}
                       </span>
                     </span>
                   </label>
@@ -408,7 +386,7 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                       type="radio"
                       name="gstIncluded"
                       value="included"
-                      checked={formData.gstInfo?.isGstIncluded}
+                      checked={formData.gstInfo?.isGstIncluded === true}
                       onChange={() =>
                         handleFieldChange("gstInfo.isGstIncluded", true)
                       }
@@ -416,10 +394,10 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                     />
                     <span className="ml-3 text-sm text-[rgb(var(--color-text-primary))]">
                       <span className="font-medium">
-                        {t("products.gstIncluded")}
+                        {t("products.gstIncluded") || "GST Included"}
                       </span>
                       <span className="text-[rgb(var(--color-text-secondary))] ml-1">
-                        - {t("products.gstIncludedDescription")}
+                        - {t("products.gstIncludedDescription") || "Selling Price includes GST"}
                       </span>
                     </span>
                   </label>
@@ -427,94 +405,100 @@ const PricingGSTSection = ({ formData, onChange, errors = {}, ...props }) => {
                 <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-2">
                   {t("products.gstPricingMethodHelperText")}
                 </p>
+              </>
+            ) : (
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] flex items-start gap-2">
+                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>
+                  <span className="font-semibold">Note: </span>
+                  {t("products.noGstInfoMessage") ||
+                    "Since your store doesn't have a GST number, this information is collected for future reference only."}
+                </span>
+              </p>
+            )}
+          </div>
+
+          {/* GST Summary */}
+          <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-lg">
+            <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
+              <Calculator className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
+              {t("products.gstSummary")}
+            </h4>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {/* Price Field */}
+
+
+              {/* GST Rate */}
+              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
+                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
+                  {t("products.gstRate")}
+                </span>
+                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                  {(parseFloat(formData.gstInfo?.gstRate) || 0).toFixed(2)}%
+                </span>
+              </div>
+
+              {/* GST Type */}
+              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
+                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
+                  {t("products.gstType")}
+                </span>
+                <span className="font-semibold text-[rgb(var(--color-text-primary))] truncate" title={gstTypeOptions(t).find(
+                  (type) => type.value === formData.gstInfo?.gstType
+                )?.label || formData.gstInfo?.gstType}>
+                  {gstTypeOptions(t).find(
+                    (type) => type.value === formData.gstInfo?.gstType
+                  )?.label || formData.gstInfo?.gstType}
+                </span>
+              </div>
+
+              {/* GST Status */}
+              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
+                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
+                  {t("products.gstStatus")}
+                </span>
+                <span className={`font-semibold ${formData.gstInfo?.isGstIncluded ? "text-green-600" : "text-blue-600"}`}>
+                  {formData.gstInfo?.isGstIncluded
+                    ? t("products.included")
+                    : t("products.excluded")}
+                </span>
+              </div>
+
+              {/* HSN Code - Conditional */}
+              <div className="p-3 rounded-lg bg-[rgb(var(--color-bg-primary))]">
+                <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] block mb-1">
+                  {t("products.hsnCode")}
+                </span>
+                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
+                  {formData.gstInfo?.hsnCode ? formData.gstInfo.hsnCode : "-"}
+                </span>
               </div>
             </div>
 
-            {/* GST Summary */}
-            {formData.gstInfo?.gstRate && formData.sellingPrice && (
-              <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm">
-                <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4 flex items-center">
-                  <Calculator className="w-5 h-5 mr-2 text-[rgb(var(--color-primary))]" />
-                  {t("products.gstSummary")}
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                        {formData.gstInfo?.isGstIncluded
-                          ? t("products.sellingPriceGstIncluded")
-                          : t("products.basePrice")}
-                      </span>
-                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                        ₹
-                        {formData.gstInfo?.isGstIncluded
-                          ? parseFloat(formData.sellingPrice).toFixed(2)
-                          : basePrice.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                        {t("products.gstRate")}:
-                      </span>
-                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                        {parseFloat(formData.gstInfo?.gstRate).toFixed(2)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                        {t("products.gstType")}:
-                      </span>
-                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                        {gstTypeOptions(t).find(
-                          (type) => type.value === formData.gstInfo?.gstType
-                        )?.label || formData.gstInfo?.gstType}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                      <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                        {t("products.gstStatus")}:
-                      </span>
-                      <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                        {formData.gstInfo?.isGstIncluded
-                          ? t("products.included")
-                          : t("products.excluded")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    {formData.gstInfo?.hsnCode && (
-                      <div className="flex justify-between items-center p-3 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-                        <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                          {t("products.hsnCode")}:
-                        </span>
-                        <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                          {formData.gstInfo.hsnCode}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center p-3 rounded-lg border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]">
-                      <span className="text-sm font-medium text-white">
-                        {t("products.gstAmount")}:
-                      </span>
-                      <span className="font-bold text-white">
-                        ₹{gstAmount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
-                      <span className="text-sm font-medium text-green-700 dark:text-green-300 font-bold">
-                        {t("products.totalPrice")}:
-                      </span>
-                      <span className="font-bold text-green-600 dark:text-green-400">
-                        ₹{totalPrice.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {/* Totals Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex justify-between items-center py-2 px-4 rounded-lg bg-[rgb(var(--color-primary)/0.8)] text-white">
+                <span className="text-sm font-medium opacity-90">
+                  {t("products.gstAmount")}
+                </span>
+                <span className="text-lg font-bold">
+                  ₹{gstAmount.toFixed(2)}
+                </span>
               </div>
-            )}
-          </>
-        )}
-      </div>
+              <div className="flex justify-between items-center py-2 px-4 rounded-lg bg-green-500 text-white">
+                <span className="text-sm font-medium opacity-90">
+                  {t("products.totalPrice")}
+                </span>
+                <span className="text-lg font-bold">
+                  ₹{totalPrice.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </>
+      </div >
     </>
   );
 };
