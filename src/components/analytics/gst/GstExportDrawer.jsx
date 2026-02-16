@@ -41,7 +41,7 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
     setIsGenerating(true);
     try {
       const result = await onExport(period);
-      console.log("result", result);
+
       if (!result?.success || !result?.data) {
         showError(result?.message || "Failed to fetch export data");
         return;
@@ -72,10 +72,6 @@ const GstExportDrawer = ({ isOpen, onClose, onExport, isLoading }) => {
           ...data,
           ...exportMetadata
         };
-
-        if (finalExportData?.gstr2b?.length === 0 && finalExportData?.cdnr?.length === 0 && finalExportData?.gstr3b?.section4?.length === 0) {
-          // Optional: You could show a warning here if needed, but we'll allow empty reports.
-        }
 
         await exportGstr2bExcel(finalExportData, `${baseName}.xlsx`);
       }

@@ -9,6 +9,7 @@ import {
   Store,
   User,
   PenTool,
+  Languages,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,6 +24,7 @@ import {
   SecuritySettings,
   StoreSettings,
   SignatureSettings,
+  LanguageSettings,
 } from "@/components/settings";
 import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -41,6 +43,7 @@ export default function SettingsPage() {
 
   const settingsTabs = [
     { id: "appearance", label: t("settings.appearance"), icon: Palette },
+    { id: "language", label: t("settings.language"), icon: Languages },
     { id: "profile", label: t("settings.profile"), icon: User },
     { id: "account", label: t("settings.account"), icon: SettingsIcon },
     { id: "store", label: t("settings.store"), icon: Store },
@@ -106,8 +109,8 @@ export default function SettingsPage() {
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${activeTab === tab.id
-                          ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
-                          : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
+                        ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border border-[rgb(var(--color-primary))]/20"
+                        : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-primary))]/30 hover:text-[rgb(var(--color-text-primary))]"
                         }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -132,6 +135,8 @@ export default function SettingsPage() {
                   handleToggleVariant={handleToggleVariant}
                 />
               )}
+
+              {activeTab === "language" && <LanguageSettings />}
 
               {activeTab === "profile" && <ProfileSettings user={user} />}
 
