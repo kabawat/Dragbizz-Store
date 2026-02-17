@@ -1,37 +1,30 @@
 "use client";
 import {
-  Activity,
-  BadgePercent,
-  BarChart3,
-  Building2,
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Crown,
-  DollarSign,
-  FileText,
-  IndianRupee,
-  LayoutDashboard,
-  LineChart,
-  Lightbulb,
-  Package,
-  PieChart,
-  Receipt,
-  Settings,
   ShoppingCart,
-  ShoppingBag,
-  Users,
-  Warehouse,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedStore } from "@/store/slices/profileSlice";
+import {
+  getSalesSubMenuItems,
+  getInventorySubMenuItems,
+  getPurchaseSubMenuItems,
+  getAnalyticsSubMenuItems,
+  getNavigationItems,
+  getBottomItems,
+  getMenuToFeatureMap,
+  getSubMenuToFeatureMap,
+} from "./constants/sidebarData";
 
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
@@ -52,6 +45,7 @@ const Sidebar = ({ onStoreChange }) => {
   // Unified state management
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState({});
   const [upgradeModal, setUpgradeModal] = useState({
     isOpen: false,
     featureName: "",
@@ -61,186 +55,20 @@ const Sidebar = ({ onStoreChange }) => {
   // Refs
   const storeDropdownRef = useRef(null);
 
-  const salesSubMenuItems = [
-    { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers" },
-    {
-      name: t("sidebar.invoices"),
-      icon: FileText,
-      href: "/dashboard/invoices",
-    },
-    {
-      name: t("sidebar.expenses"),
-      icon: IndianRupee,
-      href: "/dashboard/expenses",
-    },
-    {
-      name: t("sidebar.sellOrders") || "Sell Orders",
-      icon: ShoppingBag,
-      href: "/dashboard/sales-order",
-    },
-  ];
+  // Memoized Menu Items
+  const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
+  const inventorySubMenuItems = useMemo(() => getInventorySubMenuItems(t), [t]);
+  const purchaseSubMenuItems = useMemo(() => getPurchaseSubMenuItems(t), [t]);
+  const analyticsSubMenuItems = useMemo(() => getAnalyticsSubMenuItems(t, selectedStore), [t, selectedStore]);
 
-  const inventorySubMenuItems = [
-    { name: t("sidebar.products"), icon: Package, href: "/dashboard/products" },
-    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock" },
-  ];
+  const navigationItems = useMemo(() =>
+    getNavigationItems(t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems),
+    [t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems]
+  );
 
-  const purchaseSubMenuItems = [
-    {
-      name: t("sidebar.suppliers"),
-      icon: Building2,
-      href: "/dashboard/suppliers",
-    },
-    {
-      name: t("sidebar.purchaseOrders"),
-      icon: ShoppingCart,
-      href: "/dashboard/purchase-orders",
-    },
-    { name: t("sidebar.bills"), icon: Receipt, href: "/dashboard/bills" },
-    {
-      name: t("sidebar.payments"),
-      icon: IndianRupee,
-      href: "/dashboard/payments",
-    },
-  ];
-
-  const analyticsSubMenuItems = [
-    {
-      name: t("dashboard.revenueAnalytics") || "Revenue Analytics",
-      icon: LineChart,
-      href: "/dashboard/analytics/revenue",
-    },
-    {
-      name: t("dashboard.salesAnalytics") || "Sales Analytics",
-      icon: BarChart3,
-      href: "/dashboard/analytics/sales",
-    },
-    {
-      name: t("dashboard.stockAnalytics") || "Stock Analytics",
-      icon: Warehouse,
-      href: "/dashboard/analytics/stock",
-    },
-    {
-      name: t("dashboard.productAnalytics") || "Product Analytics",
-      icon: PieChart,
-      href: "/dashboard/analytics/products",
-    },
-    {
-      name: t("dashboard.customerAnalytics") || "Customer Analytics",
-      icon: Activity,
-      href: "/dashboard/analytics/customers",
-    },
-    {
-      name: t("dashboard.supplierAnalytics") || "Supplier Analytics",
-      icon: Building2,
-      href: "/dashboard/analytics/suppliers",
-    },
-    {
-      name: t("dashboard.billAnalytics") || "Bill Analytics",
-      icon: Receipt,
-      href: "/dashboard/analytics/bills",
-    },
-    {
-      name: t("dashboard.expenseAnalytics") || "Expense Analytics",
-      icon: DollarSign,
-      href: "/dashboard/analytics/expenses",
-    },
-    ...(selectedStore?.gst ? [{
-      name: t("gst.gstAnalytics") || "GST Analytics",
-      icon: BadgePercent,
-      href: "/dashboard/analytics/gst",
-    }] : []),
-  ];
-
-  const navigationItems = [
-    { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard" },
-    {
-      name: t("sidebar.salesTransactions"),
-      icon: Receipt,
-      href: "/dashboard/customers",
-      hasSubMenu: true,
-      subMenuItems: salesSubMenuItems,
-      key: "sales",
-    },
-    {
-      name: t("sidebar.inventory"),
-      icon: Package,
-      href: "/dashboard/products",
-      hasSubMenu: true,
-      subMenuItems: inventorySubMenuItems,
-      key: "inventory",
-    },
-    {
-      name: t("sidebar.purchase"),
-      icon: ShoppingCart,
-      href: "/dashboard/purchase-orders",
-      hasSubMenu: true,
-      subMenuItems: purchaseSubMenuItems,
-      key: "purchase",
-    },
-    {
-      name: t("sidebar.analytics") || "Analytics",
-      icon: BarChart3,
-      href: "/dashboard/analytics/revenue",
-      hasSubMenu: true,
-      subMenuItems: analyticsSubMenuItems,
-      key: "analytics",
-    },
-  ];
-
-  const bottomItems = [
-    {
-      name: t("sidebar.suggestions") || "Suggestions",
-      icon: Lightbulb,
-      href: "/dashboard/suggestions",
-    },
-    {
-      name: t("sidebar.settings"),
-      icon: Settings,
-      href: "/dashboard/settings",
-    },
-  ];
-
-  const menuToFeatureMap = {
-    [t("sidebar.salesTransactions")]: [
-      "Customer Management",
-      "Invoice Management",
-      "Expense Management",
-      "customer_management",
-      "invoice_management",
-      "expense_management",
-    ],
-    [t("sidebar.inventory")]: [
-      "Product Management",
-      "Stock Management",
-      "product_management",
-      "stock_management",
-    ],
-    [t("sidebar.purchase")]: ["Purchase Management", "purchase_management"],
-  };
-
-  const subMenuToFeatureMap = {
-    [t("sidebar.customers")]: ["Customer Management", "customer_management"],
-    [t("sidebar.invoices")]: ["Invoice Management", "invoice_management"],
-    [t("sidebar.sellOrders") || "Sell Orders"]: ["Invoice Management", "invoice_management"],
-    [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
-    [t("sidebar.products")]: ["Product Management", "product_management"],
-    [t("sidebar.stocks")]: ["Stock Management", "stock_management"],
-    [t("sidebar.lowStockAlerts")]: ["Stock Management", "stock_management"],
-    [t("sidebar.suppliers")]: [
-      "Purchase Management",
-      "purchase_management",
-      "Supplier Management",
-      "supplier_management",
-    ],
-    [t("sidebar.purchaseOrders")]: [
-      "Purchase Management",
-      "purchase_management",
-    ],
-    [t("sidebar.bills")]: ["Bill Management", "bill_management"],
-    [t("sidebar.payments")]: ["Payment Management", "payment_management"],
-    [t("gst.gstAnalytics") || "GST Analytics"]: ["Invoice Management", "invoice_management"],
-  };
+  const bottomItems = useMemo(() => getBottomItems(t), [t]);
+  const menuToFeatureMap = useMemo(() => getMenuToFeatureMap(t), [t]);
+  const subMenuToFeatureMap = useMemo(() => getSubMenuToFeatureMap(t), [t]);
 
   const hasMenuItemAccess = (itemName) => {
     if (itemName === t("sidebar.dashboard")) return true;
@@ -345,6 +173,43 @@ const Sidebar = ({ onStoreChange }) => {
     }
     return true;
   };
+
+  const handleSubMenuToggle = (item, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    if (!hasMenuItemAccess(item.name)) {
+      handleMenuItemClick(item, e);
+      return;
+    }
+
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [item.key]: !prev[item.key],
+    }));
+  };
+
+  // Auto-expand menu based on active route
+  useEffect(() => {
+    if (navigationItems && pathname) {
+      const activeItem = navigationItems.find(
+        (item) =>
+          item.hasSubMenu &&
+          item.subMenuItems?.some((subItem) =>
+            pathname === subItem.href || pathname.startsWith(`${subItem.href}/`)
+          )
+      );
+      if (activeItem) {
+        setExpandedMenus((prev) => {
+          if (prev[activeItem.key]) return prev;
+          return {
+            ...prev,
+            [activeItem.key]: true,
+          };
+        });
+      }
+    }
+  }, [pathname, navigationItems]);
 
   const handleStoreSelect = (store) => {
     dispatch(setSelectedStore(store));
@@ -513,36 +378,49 @@ const Sidebar = ({ onStoreChange }) => {
             const isDropdownOpen = item.hasSubMenu && !isCollapsed;
 
             if (item.hasSubMenu && item.key) {
+              const isExpanded = expandedMenus[item.key];
+
               return (
                 <div key={item.name} className="relative">
                   <div
-                    className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"} py-2 ${hasAccess
+                    onClick={(e) => !isCollapsed && handleSubMenuToggle(item, e)}
+                    className={`w-full group flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"} py-2 cursor-pointer rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${hasAccess
                       ? "text-[rgb(var(--color-text-secondary))]"
                       : "text-[rgb(var(--color-text-tertiary))] opacity-60"
-                      }`}
+                      } ${isExpanded && !isCollapsed ? "bg-[rgb(var(--color-bg-secondary))]" : ""}`}
                     title={isCollapsed ? item.name : ""}
                   >
                     {!isCollapsed ? (
                       <div className="flex items-center space-x-3 text-[rgb(var(--color-text-secondary))]">
-                        <Icon className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                        <span className="font-semibold tracking-wide uppercase text-xs">
+                        <Icon className={`w-4 h-4 transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
+                        <span className={`font-semibold tracking-wide uppercase text-xs transition-colors ${isExpanded ? "text-[rgb(var(--color-primary))]" : ""}`}>
                           {item.name}
                         </span>
                       </div>
                     ) : (
                       <Icon className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                     )}
-                    {!isCollapsed && !hasAccess && (
-                      <div className="flex items-center space-x-1">
-                        <Crown className="w-3.5 h-3.5 text-yellow-500" />
+
+                    {!isCollapsed && (
+                      <div className="flex items-center space-x-2">
+                        {!hasAccess && (
+                          <Crown className="w-3.5 h-3.5 text-yellow-500" />
+                        )}
+                        <ChevronDown
+                          className={`w-4 h-4 text-[rgb(var(--color-text-tertiary))] transition-all duration-200 ${isExpanded ? "rotate-180 opacity-100 text-[rgb(var(--color-primary))]" : "opacity-50 group-hover:opacity-100"
+                            }`}
+                        />
                       </div>
                     )}
                   </div>
 
                   {/* Sub-menu */}
-                  {isDropdownOpen && !isCollapsed && item.subMenuItems && (
-                    <div className="ml-6 mt-2 space-y-1">
-                      {item.subMenuItems.map((subItem) => {
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded && !isCollapsed ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"
+                      }`}
+                  >
+                    <div className="ml-6 space-y-1">
+                      {item.subMenuItems && item.subMenuItems.map((subItem) => {
                         const SubIcon = subItem.icon;
                         const isSubActive =
                           pathname === subItem.href ||
@@ -582,7 +460,7 @@ const Sidebar = ({ onStoreChange }) => {
                         );
                       })}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             }
