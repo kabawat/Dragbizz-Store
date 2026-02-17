@@ -1,6 +1,8 @@
 "use client";
 import { Card } from "@/components/ui";
 
+import ComingSoonChart from "@/components/analytics/ComingSoonChart";
+
 const AnalyticsChartCard = ({ title, children, height = "h-64", emptyMessage = "Chart data will be displayed here" }) => {
     return (
         <Card className="hover:shadow-md transition-shadow duration-200">
@@ -14,9 +16,7 @@ const AnalyticsChartCard = ({ title, children, height = "h-64", emptyMessage = "
                     {children ? (
                         children
                     ) : (
-                        <p className="text-sm text-[rgb(var(--color-text-tertiary))] italic">
-                            {emptyMessage}
-                        </p>
+                        <ComingSoonChart />
                     )}
                 </div>
             </div>

@@ -21,7 +21,8 @@ import {
   FileText,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import SalesChart from "@/components/analytics/sales/SalesChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import {
@@ -48,7 +49,7 @@ const SalesAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.invoices);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
     const storeId =
@@ -110,7 +111,7 @@ const SalesAnalytics = () => {
     "sales-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -410,10 +411,8 @@ const SalesAnalytics = () => {
                                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                                   {card.title}
                                 </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
+                                <div className="h-64 overflow-hidden">
+                                  <SalesChart type={card.id === "chart1" ? "bar" : "line"} />
                                 </div>
                               </div>
                             </Card>

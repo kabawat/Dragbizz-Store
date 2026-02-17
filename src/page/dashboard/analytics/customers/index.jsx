@@ -22,14 +22,13 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import * as React from "react";
+import { useEffect, useMemo, useState } from "react";
+import CustomersChart from "@/components/analytics/customers/CustomersChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import CustomersReportTemplate from "@/components/templates/analytics/customers/CustomersReportTemplate";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -43,7 +42,7 @@ const CustomerAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.customers);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
     const storeId =
@@ -89,7 +88,7 @@ const CustomerAnalytics = () => {
     "customers-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -261,32 +260,6 @@ const CustomerAnalytics = () => {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
-
       <div
         id="customers-report-area"
         style={{
@@ -357,10 +330,8 @@ const CustomerAnalytics = () => {
                                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                                   {card.title}
                                 </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
+                                <div className="h-64 overflow-hidden">
+                                  <CustomersChart type={card.id === "chart1" ? "area" : "line"} />
                                 </div>
                               </div>
                             </Card>
