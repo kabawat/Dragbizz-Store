@@ -1,13 +1,20 @@
 "use client";
-import { Building, Building2, Hash, Mail, Phone } from "lucide-react";
-import { Input } from "@/components/ui";
+import { Building, Building2, Hash, Mail, Phone, CheckCircle, ShieldCheck } from "lucide-react";
+import { Button, Input } from "@/components/ui";
 
 const SupplierForm = ({
   formData,
   onChange,
   fieldErrors = {},
   mode = "page",
+  gstVerification = {},
 }) => {
+  const {
+    isVerifyingGst = false,
+    handleVerifyGst = () => { },
+    isGstVerified = false
+  } = gstVerification || {};
+
   const handleInputChange = (fieldName, value) => {
     onChange(fieldName, value);
   };
@@ -41,6 +48,56 @@ const SupplierForm = ({
               leftIcon={Building}
             />
 
+            {/* GST Number */}
+            <Input
+              type="text"
+              label="GST Number"
+              placeholder="Enter GST number"
+              value={formData.gstNumber || ""}
+              onChange={(value) => {
+                handleInputChange("gstNumber", value.toUpperCase());
+                // Also clear gstDetail if GST number changes
+                if (formData.gstDetail) {
+                  handleInputChange("gstDetail", "");
+                }
+              }}
+              onBlur={() => {
+                if (
+                  formData.gstNumber?.length === 15 &&
+                  !isGstVerified &&
+                  !isVerifyingGst
+                ) {
+                  handleVerifyGst(formData.gstNumber);
+                }
+              }}
+              error={!!fieldErrors.gstNumber}
+              errorMessage={fieldErrors.gstNumber}
+              helperText="Enter the GST registration number (optional)"
+              leftIcon={Hash}
+              rightElement={
+                formData.gstNumber?.length >= 15 && (
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyGst(formData.gstNumber)}
+                    disabled={isVerifyingGst || isGstVerified}
+                    className={`p-1.5 rounded-md transition-all disabled:opacity-70 ${isGstVerified
+                      ? "bg-green-500 text-white shadow-sm"
+                      : "bg-[rgb(var(--color-primary))] text-white hover:brightness-110"
+                      }`}
+                    title={isGstVerified ? "Verified" : "Verify GST"}
+                  >
+                    {isVerifyingGst ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : isGstVerified ? (
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    ) : (
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                )
+              }
+            />
+
             {/* Agency */}
             <Input
               type="text"
@@ -53,19 +110,6 @@ const SupplierForm = ({
               helperText="Enter the agency or company name"
               required
               leftIcon={Building2}
-            />
-
-            {/* GST Number */}
-            <Input
-              type="text"
-              label="GST Number"
-              placeholder="Enter GST number"
-              value={formData.gstNumber || ""}
-              onChange={(value) => handleInputChange("gstNumber", value)}
-              error={!!fieldErrors.gstNumber}
-              errorMessage={fieldErrors.gstNumber}
-              helperText="Enter the GST registration number (optional)"
-              leftIcon={Hash}
             />
 
             {/* Phone Number */}
@@ -97,7 +141,6 @@ const SupplierForm = ({
         </div>
       </div>
 
-      {/* Right Side - Benefits Section */}
       {mode !== "drawer" && (
         <div className="lg:col-span-1">
           <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm sticky top-6">
@@ -116,7 +159,6 @@ const SupplierForm = ({
             </div>
 
             <div className="space-y-4">
-              {/* Communication Benefits */}
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-green-600 text-sm">📞</span>
@@ -126,13 +168,11 @@ const SupplierForm = ({
                     Easy Communication
                   </h4>
                   <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                    Quick contact for orders, inquiries, and business
-                    discussions
+                    Quick contact for orders, inquiries, and business discussions
                   </p>
                 </div>
               </div>
 
-              {/* Order Management */}
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-blue-600 text-sm">📦</span>
@@ -147,7 +187,6 @@ const SupplierForm = ({
                 </div>
               </div>
 
-              {/* Payment Tracking */}
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-yellow-600 text-sm">💰</span>
@@ -162,7 +201,6 @@ const SupplierForm = ({
                 </div>
               </div>
 
-              {/* Business Analytics */}
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-purple-600 text-sm">📊</span>
@@ -177,7 +215,6 @@ const SupplierForm = ({
                 </div>
               </div>
 
-              {/* Relationship Management */}
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-orange-600 text-sm">🤝</span>
@@ -193,7 +230,6 @@ const SupplierForm = ({
               </div>
             </div>
 
-            {/* Tips Section */}
             <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
               <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                 💡 Pro Tips

@@ -22,6 +22,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
     category: "",
     hasExpiryDate: false,
     gst: "",
+    gstDetail: null,
     pan: "",
     catalogId: "",
   });
@@ -154,6 +155,7 @@ const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
         category: form.category || "",
         hasExpiryDate: form.hasExpiryDate === true,
         gst: form.gst?.trim() || "",
+        gstDetail: form.gstDetail || null,
         pan: form.pan?.trim() || "",
         catalogId: form.catalogId?.trim() || null,
         agency: agency.agencyId,

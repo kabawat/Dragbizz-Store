@@ -69,6 +69,7 @@ class StoreService {
         subCategories: storeData.subCategories || [],
         tags: storeData.tags || [],
         gst: storeData.gst || "",
+        gstDetail: storeData.gstDetail || null,
         pan: storeData.pan || "",
         status: "active",
         metadata: {

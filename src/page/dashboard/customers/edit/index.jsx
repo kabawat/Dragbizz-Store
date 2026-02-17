@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CustomerAddSuccessModal, CustomerForm } from "@/components/customer";
+import { useGstVerification } from "@/hooks/useGstVerification";
+import { useTranslation } from "@/hooks/useTranslation";
 import Header from "@/components/dashboard/Header";
 // Import components
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -32,11 +34,34 @@ const EditCustomerPage = ({ customerId }) => {
     companyDetails: {
       gstin: "",
       companyName: "",
+      gstDetail: "",
     },
     addresses: null,
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
+
+  // GST Verification Hook
+  const gstVerification = useGstVerification({
+    onNameAutoFill: (name) => {
+      setFormData((prev) => ({
+        ...prev,
+        companyDetails: {
+          ...prev.companyDetails,
+          companyName: name,
+        },
+      }));
+    },
+    ongstDetailChange: (id) => {
+      setFormData((prev) => ({
+        ...prev,
+        companyDetails: {
+          ...prev.companyDetails,
+          gstDetail: id,
+        },
+      }));
+    },
+  });
   const [fieldErrors, setFieldErrors] = useState({});
   const [_error, setError] = useState(null);
   const hasFetched = useRef(false);
@@ -72,9 +97,10 @@ const EditCustomerPage = ({ customerId }) => {
             phone: customerData.phone || "",
             email: customerData.email || "",
             address: customerData.address || "",
-            companyDetails: customerData.companyDetails || {
-              gstin: "",
-              companyName: "",
+            companyDetails: {
+              gstin: customerData.companyDetails?.gstin || "",
+              companyName: customerData.companyDetails?.companyName || "",
+              gstDetail: customerData.companyDetails?.gstDetail || "",
             },
             addresses: addresses,
           });
@@ -172,7 +198,7 @@ const EditCustomerPage = ({ customerId }) => {
         } else {
           setError(
             result.message ||
-              t("errors.failedToUpdate", { item: t("common.customer") })
+            t("errors.failedToUpdate", { item: t("common.customer") })
           );
         }
       }
@@ -184,7 +210,7 @@ const EditCustomerPage = ({ customerId }) => {
         } else {
           setError(
             errorData.message ||
-              t("errors.failedToUpdate", { item: t("common.customer") })
+            t("errors.failedToUpdate", { item: t("common.customer") })
           );
         }
       } else {
@@ -287,6 +313,7 @@ const EditCustomerPage = ({ customerId }) => {
                     formData={formData}
                     onChange={handleFormDataChange}
                     fieldErrors={fieldErrors}
+                    gstVerification={gstVerification}
                   />
                 </div>
 

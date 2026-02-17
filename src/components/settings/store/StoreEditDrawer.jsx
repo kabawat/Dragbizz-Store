@@ -29,6 +29,7 @@ const StoreEditDrawer = ({
     category: "",
     hasExpiryDate: false,
     gst: "",
+    gstDetail: null,
     pan: "",
     catalogId: "",
   });
@@ -75,6 +76,7 @@ const StoreEditDrawer = ({
               category: storeData.category || "",
               hasExpiryDate: storeData.hasExpiryDate === true,
               gst: storeData.gst || "",
+              gstDetail: storeData.gstDetail || null,
               pan: storeData.pan || "",
               catalogId: storeData.catalogId || "",
             });
@@ -216,6 +218,7 @@ const StoreEditDrawer = ({
         category: form.category || "",
         hasExpiryDate: form.hasExpiryDate === true,
         gst: form.gst?.trim() || "",
+        gstDetail: form.gstDetail || null,
         pan: form.pan?.trim() || "",
         catalogId: form.catalogId?.trim() || null,
       };
