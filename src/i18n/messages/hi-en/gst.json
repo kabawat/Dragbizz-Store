@@ -26,8 +26,8 @@
   "b2cPurchases": "B2C Purchases",
   "totalItc": "Total ITC Claimed",
   "netGst": "Net GST Position",
-  "taxableValueInward": "Taxable Value (Inward)",
-  "cgstInward": "CGST (Inward)",
-  "sgstInward": "SGST (Inward)",
-  "igstInward": "IGST (Inward)"
+  "taxableValueInward": "Taxable Value",
+  "cgstInward": "CGST",
+  "sgstInward": "SGST",
+  "igstInward": "IGST"
 }

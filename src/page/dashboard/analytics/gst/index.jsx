@@ -270,26 +270,40 @@ const GstAnalyticsContent = () => {
                                 <span className="text-[10px] font-bold px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md border border-green-500/20">Invoices ({outward.invoiceCount || 0})</span>
                               </div>
                               <div className="p-5 space-y-1">
-                                <StatRow label="Gross Taxable Value" value={formatCurrency(outward.taxableAmount)} icon={Receipt} />
+                                <StatRow label={t("gst.taxableValue")} value={formatCurrency(outward.taxableAmount)} icon={Receipt} />
                                 <div className="grid grid-cols-2 gap-3 py-3">
                                   <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">B2B Sales</p>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2bSales")}</p>
                                     <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2bTaxable)}</p>
                                   </div>
                                   <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">B2C Sales</p>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.b2cSales")}</p>
                                     <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(outward.b2cTaxable)}</p>
                                   </div>
                                 </div>
                                 <div className="pt-2 space-y-1">
                                   <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">GST Distribution</p>
-                                  <StatRow label="CGST" value={formatCurrency(outward.cgst)} color="text-green-600 dark:text-green-400" />
-                                  <StatRow label="SGST" value={formatCurrency(outward.sgst)} color="text-green-600 dark:text-green-400" />
-                                  <StatRow label="IGST" value={formatCurrency(outward.igst)} color="text-green-600 dark:text-green-400" />
+                                  <StatRow label={t("gst.cgst")} value={formatCurrency(outward.cgst)} color="text-green-600 dark:text-green-400" />
+                                  <StatRow label={t("gst.sgst")} value={formatCurrency(outward.sgst)} color="text-green-600 dark:text-green-400" />
+                                  <StatRow label={t("gst.igst")} value={formatCurrency(outward.igst)} color="text-green-600 dark:text-green-400" />
+                                  {(outward.utgst > 0 || outward.cess > 0) && (
+                                    <>
+                                      {outward.utgst > 0 && <StatRow label={t("gst.utgst")} value={formatCurrency(outward.utgst)} color="text-green-600 dark:text-green-400" />}
+                                      {outward.cess > 0 && <StatRow label={t("gst.cess")} value={formatCurrency(outward.cess)} color="text-green-600 dark:text-green-400" />}
+                                    </>
+                                  )}
                                 </div>
+                                {outward.totalItemsWithGst > 0 && (
+                                  <div className="mt-4 p-2 bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.hsnCoverage")}</span>
+                                    <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">
+                                      {Math.round((outward.itemsWithHsn / outward.totalItemsWithGst) * 100)}%
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div className="p-4 bg-[rgb(var(--color-primary))]/5 border-t border-[var(--color-border-primary-light)] flex justify-between items-center group hover:bg-[rgb(var(--color-primary))]/10 transition-colors cursor-default">
-                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">Total Output Tax</span>
+                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">{t("gst.totalOutputTax")}</span>
                                 <span className="text-lg font-black text-green-600 dark:text-green-400 tabular-nums">{formatCurrency(outward.totalGst)}</span>
                               </div>
                             </div>
@@ -311,26 +325,40 @@ const GstAnalyticsContent = () => {
                                 <span className="text-[10px] font-bold px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md border border-blue-500/20">Bills ({inward.billCount || 0})</span>
                               </div>
                               <div className="p-5 space-y-1">
-                                <StatRow label="Total Purchase Value" value={formatCurrency(inward.taxableAmount)} icon={Receipt} />
+                                <StatRow label={t("gst.taxableValueInward")} value={formatCurrency(inward.taxableAmount)} icon={Receipt} />
                                 <div className="grid grid-cols-2 gap-3 py-3">
                                   <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">ITC Eligible</p>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.itcEligible")}</p>
                                     <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatCurrency(inward.b2bTaxable)}</p>
                                   </div>
                                   <div className="p-3 bg-[rgb(var(--color-bg-secondary))]/40 rounded-xl border border-[var(--color-border-primary-light)]">
-                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">Non-ITC Purchase</p>
+                                    <p className="text-[10px] text-[rgb(var(--color-text-tertiary))] uppercase font-bold mb-1">{t("gst.nonItcPurchase")}</p>
                                     <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{formatCurrency(inward.b2cTaxable)}</p>
                                   </div>
                                 </div>
                                 <div className="pt-2 space-y-1">
                                   <p className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase mb-2 tracking-wide">ITC Breakdown</p>
-                                  <StatRow label="Input CGST" value={formatCurrency(inward.cgst)} color="text-blue-600 dark:text-blue-400" />
-                                  <StatRow label="Input SGST" value={formatCurrency(inward.sgst)} color="text-blue-600 dark:text-blue-400" />
-                                  <StatRow label="Input IGST" value={formatCurrency(inward.igst)} color="text-blue-600 dark:text-blue-400" />
+                                  <StatRow label={t("gst.cgstInward")} value={formatCurrency(inward.cgst)} color="text-blue-600 dark:text-blue-400" />
+                                  <StatRow label={t("gst.sgstInward")} value={formatCurrency(inward.sgst)} color="text-blue-600 dark:text-blue-400" />
+                                  <StatRow label={t("gst.igstInward")} value={formatCurrency(inward.igst)} color="text-blue-600 dark:text-blue-400" />
+                                  {(inward.utgst > 0 || inward.cess > 0) && (
+                                    <>
+                                      {inward.utgst > 0 && <StatRow label={t("gst.utgstInward")} value={formatCurrency(inward.utgst)} color="text-blue-600 dark:text-blue-400" />}
+                                      {inward.cess > 0 && <StatRow label={t("gst.cess")} value={formatCurrency(inward.cess)} color="text-blue-600 dark:text-blue-400" />}
+                                    </>
+                                  )}
                                 </div>
+                                {inward.totalItemsWithGst > 0 && (
+                                  <div className="mt-4 p-2 bg-[rgb(var(--color-bg-secondary))]/30 rounded-lg flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-[rgb(var(--color-text-tertiary))] uppercase">{t("gst.compliance")}</span>
+                                    <span className="text-xs font-bold text-[rgb(var(--color-text-primary))]">
+                                      {Math.round((inward.itemsWithHsn / inward.totalItemsWithGst) * 100)}% HSN
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div className="p-4 bg-[rgb(var(--color-primary))]/5 border-t border-[var(--color-border-primary-light)] flex justify-between items-center group hover:bg-[rgb(var(--color-primary))]/10 transition-colors cursor-default">
-                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">Net Available ITC</span>
+                                <span className="text-sm font-bold text-[rgb(var(--color-text-secondary))]">{t("gst.totalItc")}</span>
                                 <span className="text-lg font-black text-blue-600 dark:text-blue-400 tabular-nums">{formatCurrency(inward.totalItc)}</span>
                               </div>
                             </div>

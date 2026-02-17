@@ -29,5 +29,12 @@
   "taxableValueInward": "कर योग्य मूल्य (इनवर्ड)",
   "cgstInward": "CGST (इनवर्ड)",
   "sgstInward": "SGST (इनवर्ड)",
-  "igstInward": "IGST (इनवर्ड)"
+  "igstInward": "IGST (इनवर्ड)",
+  "utgstInward": "UTGST (इनवर्ड)",
+  "cess": "सेस (Cess)",
+  "netTaxable": "कुल कर योग्य अंतर",
+  "itcEligible": "ITC योग्य",
+  "nonItcPurchase": "बिना-ITC खरीदारी",
+  "compliance": "अनुपालन (Compliance)",
+  "totalOutputTax": "कुल आउटपुट टैक्स"
 }
