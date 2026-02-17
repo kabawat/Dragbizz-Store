@@ -20,8 +20,11 @@ import settings from "./settings.json";
 import sidebar from "./sidebar.json";
 import success from "./success.json";
 import suppliers from "./suppliers.json";
+import suggestions from "./suggestions.json";
 import validation from "./validation.json";
 import salesOrder from "./salesOrder.json";
+import shortcuts from "./shortcuts.json";
+import help from "./help.json";
 
 export default {
   auth,
@@ -46,6 +49,9 @@ export default {
   sidebar,
   success,
   suppliers,
+  suggestions,
   validation,
-  salesOrder
+  salesOrder,
+  shortcuts,
+  help
 };

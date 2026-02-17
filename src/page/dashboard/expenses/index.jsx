@@ -26,6 +26,7 @@ import {
   setSortOptions,
   setViewMode,
 } from "@/store/slices/expensesSlice";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 
 const ExpensesPage = () => {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ const ExpensesPage = () => {
 
   // Get stable storeId
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   // Local state
   const [searchTerm, setSearchTerm] = useState("");
@@ -172,6 +173,18 @@ const ExpensesPage = () => {
     setShowDeleteModal(true);
   };
 
+  // Shortcuts
+  useCommonHotkeys({
+    onNew: handleAddExpense,
+    onSearch: () => {
+      const searchInput = document.querySelector('input[placeholder*="search"]');
+      if (searchInput) searchInput.focus();
+    },
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+    onBack: () => router.push("/dashboard"),
+  });
+
   const confirmDelete = async () => {
     if (!expenseToDelete) return;
 
@@ -247,22 +260,20 @@ const ExpensesPage = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}
                       </button>
                       <button
                         onClick={() => handleViewModeChange("card")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "card"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          }`}
                       >
                         <Grid3X3 className="w-4 h-4" />
                         {t("common.cardView")}

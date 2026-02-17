@@ -126,7 +126,7 @@ const Bills = () => {
   };
   const _handleManualApiCall = () => {
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     dispatch(
       getBills({
         store: storeId || "test-store",
@@ -139,7 +139,7 @@ const Bills = () => {
   // Fetch bills and stats on component mount
   useEffect(() => {
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
 
     // Fetch only if store exists
     if (!storeId) return;
@@ -176,7 +176,7 @@ const Bills = () => {
 
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       const params = {
         store: storeId,
         search: searchTerm,
@@ -309,7 +309,7 @@ const Bills = () => {
 
         // All bills come from the same API, filtering is done on frontend
         const storeId =
-          selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+          selectedStore?.storeId;
         if (storeId) {
           dispatch(getBills({ store: storeId }));
         }
@@ -338,7 +338,7 @@ const Bills = () => {
 
     const billId = billToDelete._id || billToDelete.id;
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
 
     setIsDeleting(true);
     try {
@@ -456,11 +456,10 @@ const Bills = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}
@@ -620,7 +619,7 @@ const Bills = () => {
         onSuccess={() => {
           // Refresh bills list after successful payment
           const storeId =
-            selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+            selectedStore?.storeId;
           if (storeId) {
             dispatch(getBills({ store: storeId, limit: 20 }));
           }

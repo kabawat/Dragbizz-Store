@@ -152,5 +152,6 @@
   "reportGeneratedOn": "Report Generated on",
   "addNew": "Add New",
   "createNow": "Create Now",
-  "confirmDelete": "Are you sure you want to delete this item?"
+  "confirmDelete": "Are you sure you want to delete this item?",
+  "gst": "GST"
 }

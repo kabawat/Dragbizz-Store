@@ -51,7 +51,7 @@ const Payments = () => {
 
   // Get stable storeId
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   // Handle view mode change
   const handleViewModeChange = (mode) => {
@@ -152,7 +152,7 @@ const Payments = () => {
     setIsLoadingMore(true);
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       await dispatch(
         getPayments({
           store: storeId,
@@ -234,7 +234,7 @@ const Payments = () => {
   const confirmDelete = async () => {
     if (paymentToDelete) {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       const paymentId = paymentToDelete._id || paymentToDelete.id;
 
       if (storeId && paymentId) {
@@ -392,11 +392,10 @@ const Payments = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}
@@ -536,8 +535,7 @@ const Payments = () => {
                                   </td>
                                   <td className="w-1/7 px-6 py-4">
                                     <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                                        typeBadge.variant === "primary"
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${typeBadge.variant === "primary"
                                           ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
                                           : typeBadge.variant === "info"
                                             ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
@@ -546,40 +544,38 @@ const Payments = () => {
                                               : typeBadge.variant === "danger"
                                                 ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
                                                 : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                      }`}
+                                        }`}
                                     >
                                       {typeBadge.text}
                                     </span>
                                   </td>
                                   <td className="w-1/7 px-6 py-4">
                                     <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                                        methodBadge.variant === "success"
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${methodBadge.variant === "success"
                                           ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
                                           : methodBadge.variant === "info"
                                             ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
                                             : methodBadge.variant === "warning"
                                               ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
                                               : methodBadge.variant ===
-                                                  "primary"
+                                                "primary"
                                                 ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
                                                 : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                      }`}
+                                        }`}
                                     >
                                       {methodBadge.text}
                                     </span>
                                   </td>
                                   <td className="w-1/7 px-6 py-4">
                                     <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                                        statusBadge.variant === "success"
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.variant === "success"
                                           ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
                                           : statusBadge.variant === "warning"
                                             ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
                                             : statusBadge.variant === "danger"
                                               ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
                                               : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                      }`}
+                                        }`}
                                     >
                                       <StatusIcon className="w-3 h-3 mr-1" />
                                       {statusBadge.text}
@@ -779,22 +775,20 @@ const Payments = () => {
                                 {/* Status, Type and Method Badges */}
                                 <div className="flex flex-wrap gap-1 sm:gap-2">
                                   <span
-                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${
-                                      statusBadge.variant === "success"
+                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.variant === "success"
                                         ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
                                         : statusBadge.variant === "warning"
                                           ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
                                           : statusBadge.variant === "danger"
                                             ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
                                             : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                    }`}
+                                      }`}
                                   >
                                     <StatusIcon className="w-3 h-3 mr-1" />
                                     {statusBadge.text}
                                   </span>
                                   <span
-                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${
-                                      typeBadge.variant === "primary"
+                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${typeBadge.variant === "primary"
                                         ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
                                         : typeBadge.variant === "info"
                                           ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
@@ -803,13 +797,12 @@ const Payments = () => {
                                             : typeBadge.variant === "danger"
                                               ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
                                               : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                    }`}
+                                      }`}
                                   >
                                     {typeBadge.text}
                                   </span>
                                   <span
-                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${
-                                      methodBadge.variant === "success"
+                                    className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${methodBadge.variant === "success"
                                         ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
                                         : methodBadge.variant === "info"
                                           ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
@@ -818,7 +811,7 @@ const Payments = () => {
                                             : methodBadge.variant === "primary"
                                               ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
                                               : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                                    }`}
+                                      }`}
                                   >
                                     {methodBadge.text}
                                   </span>

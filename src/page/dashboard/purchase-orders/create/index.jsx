@@ -57,7 +57,7 @@ const CreatePurchaseOrder = () => {
 
   // Get stable storeId
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   // Fetch suppliers
   const fetchSuppliers = useCallback(async () => {

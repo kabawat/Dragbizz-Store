@@ -1,6 +1,8 @@
 {
   "title": "व्यय",
-  "description": "विवरण",
+  "payment": "भुगतान",
+  "totalAmount": "कुल राशि",
+  "description": "अपने सभी व्यावसायिक व्ययों को कुशलतापूर्वक प्रबंधित और ट्रैक करें।",
   "addExpense": "व्यय जोड़ें",
   "addNewExpense": "नया व्यय जोड़ें",
   "addNewExpenseDescription": "अपने व्यवसाय के लिए एक नया व्यय प्रविष्टि बनाएं",

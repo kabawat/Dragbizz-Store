@@ -35,7 +35,7 @@ const SalesOrdersPage = () => {
 
     const scrollRef = useRef(null);
 
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = selectedStore?.storeId;
 
     useEffect(() => {
         const savedViewMode = localStorage.getItem("sales-orders-view-mode");
@@ -63,7 +63,7 @@ const SalesOrdersPage = () => {
                 }
             }
         } catch (error) {
-            
+
             showError(t("common.failedToFetch"));
         } finally {
             setLoading(false);
@@ -102,7 +102,7 @@ const SalesOrdersPage = () => {
                 showError(result.message || "Failed to update order");
             }
         } catch (error) {
-            
+
             showError("An unexpected error occurred while updating status");
         } finally {
             setUpdatingStatus(false);
@@ -110,7 +110,7 @@ const SalesOrdersPage = () => {
     };
 
     const handlePrint = (order) => {
-        
+
         // Implementation for printing
     };
 

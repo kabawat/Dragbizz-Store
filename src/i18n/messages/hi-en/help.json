@@ -1,0 +1,34 @@
+{
+    "faqs": {
+        "createInvoice": {
+            "q": "Naya invoice kaise banayein?",
+            "a": "Invoices page par jayein aur 'Add Invoice' par click karein ya fir Shift+N shortcut use karein. Client details fill karein aur save karein."
+        },
+        "multipleStores": {
+            "q": "Kya main multiple stores manage kar sakta hoon?",
+            "a": "Haan! Sidebar mein store switcher use karke aap ek hi account se multiple stores chala sakte hain."
+        },
+        "voiceAI": {
+            "q": "Voice AI kaise kaam karta hai?",
+            "a": "Customer ya Product pages par microphone icon click karein (ya Alt+V use karein). Details boliye aur AI apne aap form fill kar dega."
+        },
+        "exportData": {
+            "q": "Data export kaise karein?",
+            "a": "Zyadatar pages par 'Download' button ya Ctrl+D shortcut hai. Aap PDF ya CSV mein data export kar sakte hain."
+        }
+    },
+    "steps": {
+        "completeProfile": "Apna business profile pura karein",
+        "configureStore": "Apna pehla store configure karein",
+        "addProducts": "Inventory mein products add karein",
+        "createInvoice": "Pehla professional invoice banayein"
+    },
+    "ui": {
+        "docsTitle": "Detailed Documentation",
+        "docsDesc": "DragBizz Pro ke har feature ko use karne ke liye step-by-step guides.",
+        "contactTitle": "Support se contact karein",
+        "contactDesc": "Direct help chahiye? Humari support team 24/7 chat aur email par available hai.",
+        "faqTitle": "Frequently Asked Questions (FAQ)",
+        "checklistTitle": "Quick Start Checklist"
+    }
+}

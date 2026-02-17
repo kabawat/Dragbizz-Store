@@ -242,7 +242,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
       const paymentData = {
         ...formData,
         store:
-          selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+          selectedStore?.storeId,
       };
 
       const result = await paymentService.createPayment(paymentData);
@@ -374,10 +374,10 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                       currency: "INR",
                     }).format(
                       bill?.dueAmount ||
-                        Math.max(
-                          (bill?.totalAmount || 0) - (bill?.paidAmount || 0),
-                          0
-                        )
+                      Math.max(
+                        (bill?.totalAmount || 0) - (bill?.paidAmount || 0),
+                        0
+                      )
                     )}
                   </span>
                 </div>
@@ -669,20 +669,20 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                     {/* Reference field for cash and credit */}
                     {(method.method === "CASH" ||
                       method.method === "CREDIT") && (
-                      <div>
-                        <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                          Reference
-                        </label>
-                        <Input
-                          size="sm"
-                          value={method.reference}
-                          onChange={(value) =>
-                            handlePaymentMethodChange(index, "reference", value)
-                          }
-                          placeholder={t("payments.paymentReference")}
-                        />
-                      </div>
-                    )}
+                        <div>
+                          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                            Reference
+                          </label>
+                          <Input
+                            size="sm"
+                            value={method.reference}
+                            onChange={(value) =>
+                              handlePaymentMethodChange(index, "reference", value)
+                            }
+                            placeholder={t("payments.paymentReference")}
+                          />
+                        </div>
+                      )}
                   </div>
                 </div>
               ))}

@@ -107,7 +107,7 @@ const InvoicesListTable = ({
   };
 
   const handleCopyLink = async (row) => {
-    
+
     const shareUrl = buildShareUrl(row);
     if (!shareUrl) {
       showError(t("invoice.copyLinkNotAvailable") || "Invoice link not available");
@@ -189,6 +189,12 @@ const InvoicesListTable = ({
               {t("common.date")}
             </th>
             <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              {t("invoice.subtotal")}
+            </th>
+            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+              {t("common.gst")}
+            </th>
+            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
             <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
@@ -232,15 +238,36 @@ const InvoicesListTable = ({
                   </div>
                 </td>
                 <td className="px-4 py-2 text-right">
+                  <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                    {formatCurrency(invoice.subtotal || (invoice.totalAmount - (invoice.gstAmount || 0)))}
+                  </span>
+                </td>
+                <td className="px-4 py-2 text-right">
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                      {formatCurrency(invoice.gstAmount || (invoice.gst?.amount || 0))}
+                    </span>
+                    {invoice.gst?.breakdown?.total > 0 && (
+                      <span className="text-[9px] text-[rgb(var(--color-text-tertiary))] leading-none">
+                        {[
+                          invoice.gst.breakdown.cgst > 0 ? "CGST" : "",
+                          invoice.gst.breakdown.sgst > 0 ? "SGST" : "",
+                          invoice.gst.breakdown.igst > 0 ? "IGST" : ""
+                        ].filter(Boolean).join(" + ")}
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-right">
                   <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                     {formatCurrency(invoice.totalAmount)}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-center">
-                  {renderStatusBadge(invoice.invoiceStatus, "invoice")}
+                  {renderStatusBadge(invoice.invoiceStatus || invoice.status, "invoice")}
                 </td>
                 <td className="px-4 py-2 text-center">
-                  {renderStatusBadge(invoice.paymentStatus, "invoice")}
+                  {renderStatusBadge(invoice.paymentStatus || invoice.payment, "invoice")}
                 </td>
                 <td className="px-4 py-2 text-center">
                   <div className="flex items-center justify-center gap-2">

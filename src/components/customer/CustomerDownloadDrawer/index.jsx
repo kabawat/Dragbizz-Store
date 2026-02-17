@@ -144,7 +144,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("suppliers.storeIdMissing"));
       return;
@@ -201,7 +201,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("suppliers.storeIdMissing"));
       return;

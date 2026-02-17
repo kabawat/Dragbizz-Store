@@ -12,7 +12,7 @@ import { useAppSelector } from "@/store/hooks";
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+  const storeId = selectedStore?.storeId || "";
 
   const {
     handleApiError,

@@ -13,7 +13,7 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
     const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+        selectedStore?.storeId || "";
 
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);

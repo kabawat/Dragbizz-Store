@@ -2,14 +2,13 @@
 
 import { useHotkeys } from "@/hooks/useHotkeys";
 import { useRouter } from "next/navigation";
-import { useGlobalToast } from "@/contexts/ToastContext";
 
+// GlobalHotkeys Component Handles strictly global navigation shortcuts (Alt + Key) and global Help navigation.
 const GlobalHotkeys = () => {
     const router = useRouter();
-    const { showSuccess } = useGlobalToast();
 
     useHotkeys({
-        // --- General Navigation ---
+        // --- Global Navigation ---
         "alt+h": (e) => {
             e.preventDefault();
             router.push("/dashboard");
@@ -22,61 +21,65 @@ const GlobalHotkeys = () => {
             e.preventDefault();
             router.push("/dashboard/analytics/revenue");
         },
-
-        // --- Sales & Transactions ---
-        "alt+c": (e) => {
+        "alt+c": (e) => { // Customers
             e.preventDefault();
             router.push("/dashboard/customers");
         },
-        "alt+i": (e) => {
+        "alt+i": (e) => { // Invoices
             e.preventDefault();
             router.push("/dashboard/invoices");
+        },
+        "alt+p": (e) => { // Products
+            e.preventDefault();
+            router.push("/dashboard/products");
         },
         "alt+e": (e) => { // Expenses
             e.preventDefault();
             router.push("/dashboard/expenses");
         },
-        "alt+o": (e) => { // Sell Orders
-            e.preventDefault();
-            router.push("/dashboard/sales-order");
-        },
-
-        // --- Inventory ---
-        "alt+p": (e) => {
-            e.preventDefault();
-            router.push("/dashboard/products");
-        },
         "alt+s": (e) => { // Stock
             e.preventDefault();
             router.push("/dashboard/stock");
         },
-
-        // --- Purchase ---
-        "alt+u": (e) => { // sUppliers (S is taken)
+        "alt+u": (e) => { // Suppliers
             e.preventDefault();
             router.push("/dashboard/suppliers");
-        },
-        "alt+shift+o": (e) => { // Purchase Orders (Alt+O is Sell Orders)
-            e.preventDefault();
-            router.push("/dashboard/purchase-orders");
         },
         "alt+b": (e) => { // Bills
             e.preventDefault();
             router.push("/dashboard/bills");
         },
-        "alt+y": (e) => { // PaYments (P is taken)
+        "alt+y": (e) => { // Payments
             e.preventDefault();
             router.push("/dashboard/payments");
         },
+        "alt+o": (e) => { // Sales Orders
+            e.preventDefault();
+            router.push("/dashboard/sales-order");
+        },
+        "alt+shift+o": (e) => { // Purchase Orders
+            e.preventDefault();
+            router.push("/dashboard/purchase-orders");
+        },
+        "alt+q": (e) => { // Support Center (Questions)
+            e.preventDefault();
+            router.push("/dashboard/support");
+        },
+
+        // --- Global Control ---
+        "shift+backspace": (e) => { // Global "Back"
+            e.preventDefault();
+            router.back();
+        },
 
         // --- Help ---
-        "shift+?": (e) => {
+        "shift+?": (e) => { // Open Support/Help Center
             e.preventDefault();
-            showSuccess("Shortcuts: Alt+H (Home), Alt+I (Invoices), Alt+P (Products), Alt+C (Customers), etc.");
+            router.push("/dashboard/support");
         },
     });
 
-    return null; // This component doesn't render anything
+    return null;
 };
 
 export default GlobalHotkeys;

@@ -27,7 +27,7 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+    selectedStore?.storeId || "";
   const [formData, setFormData] = useState({
     supplier: "",
     purchaseOrder: "",

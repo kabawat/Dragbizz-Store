@@ -1,6 +1,11 @@
 {
-  "title": "Suggestions",
-  "description": "Have an idea to improve DragBizz? Share it with us and vote for features you want to see.",
+  "title": "Support Center",
+  "description": "Help lijiye, apne ideas share kijiye aur shortcuts seekhiye.",
+  "tabs": {
+    "suggestions": "Suggestions",
+    "help": "Help Center",
+    "shortcuts": "Shortcuts"
+  },
   "submitNew": "Submit New Suggestion",
   "mySuggestions": "My Suggestions",
   "allSuggestions": "All Suggestions",
@@ -36,5 +41,24 @@
   },
   "votes": "votes",
   "vote": "Vote",
-  "upvoted": "Upvoted"
+  "upvoted": "Upvoted",
+  "submitFirstIdea": "Pehla Idea submit karein",
+  "noSuggestionsDesc": "DragBizz ko better banane ke liye koi idea hai? New feature ya improvement suggest karne wale pehle person banein!",
+  "shortcuts": {
+    "ui": {
+      "masterWorkflow": "Workflow mein mastery hasil karein",
+      "workflowDescription": "DragBizz Pro deep keyboard integration support karta hai. Har shortcut design kiya gaya hai taaki aapka hath keyboard par rahe aur business fast chale. Naye entries ke liye Shift+N ya home jane ke liye Alt+H se start karein.",
+      "proTip": "Pro tip: 2x fast kaam karne ke liye ye shortcuts use karein."
+    }
+  },
+  "help": {
+    "ui": {
+      "docsTitle": "Detailed Documentation",
+      "docsDesc": "DragBizz Pro ke har feature ko use karne ke liye step-by-step guides.",
+      "contactTitle": "Support se contact karein",
+      "contactDesc": "Direct help chahiye? Humari support team 24/7 chat aur email par available hai.",
+      "faqTitle": "Frequently Asked Questions (FAQ)",
+      "checklistTitle": "Quick Start Checklist"
+    }
+  }
 }

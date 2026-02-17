@@ -77,7 +77,7 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
     try {
       const invoiceId = invoice.id || invoice._id;
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
 
       if (!storeId) {
         showError("Store ID is missing. Please select a store.");

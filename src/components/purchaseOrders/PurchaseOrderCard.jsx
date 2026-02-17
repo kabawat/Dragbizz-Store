@@ -2,6 +2,8 @@
 import { Building2, Calendar, FileText, Mail, Phone } from "lucide-react";
 import { ActionMenu, SendMenu } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
+import { normalizePurchaseOrder, getPurchaseOrderStatus } from "@/utils/purchaseOrder";
+import { getStatusBadge as getBaseStatusBadge } from "@/utils/statusBadge";
 
 const PurchaseOrderCard = ({
   purchaseOrder,
@@ -12,36 +14,23 @@ const PurchaseOrderCard = ({
   onMenuToggle,
   onMenuAction,
   menuRefs,
-  getStatusBadge,
   formatCurrency,
   formatDate,
   enableSendMenu = true,
   getShareUrl,
 }) => {
   const { t } = useTranslation();
-  const statusBadge = getStatusBadge(purchaseOrder);
-  const StatusIcon = statusBadge.icon;
-  const poStatus = (purchaseOrder.status || "").toUpperCase();
+  const normalizedData = normalizePurchaseOrder(purchaseOrder);
+  const { status, icon: StatusIcon } = getPurchaseOrderStatus(normalizedData);
+  const statusConfig = getBaseStatusBadge(status, "purchase-order");
+
+  const poStatus = (normalizedData.status || "").toUpperCase();
   const isDeleted = poStatus === "DELETED";
 
-  // Check if advance payment has been made
-  const advanceAmount = purchaseOrder.advanceAmount ?? 0;
-  const hasAdvancePayments = (purchaseOrder.payments || []).some(
+  const hasAdvancePayments = (normalizedData.payments || []).some(
     (payment) => payment.paymentType === "ADVANCE_PAYMENT"
   );
-  const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
-  const totalQuantity =
-    purchaseOrder.totalQuantity ??
-    (purchaseOrder.items || []).reduce(
-      (sum, item) => sum + (item.quantity || 0),
-      0
-    );
-  const receivedQuantity =
-    purchaseOrder.receivedQuantity ??
-    (purchaseOrder.items || []).reduce(
-      (sum, item) => sum + (item.receivedQuantity || 0),
-      0
-    );
+  const hasAdvancePayment = normalizedData.advanceAmount > 0 || hasAdvancePayments;
 
   // Build actions array conditionally
   const actions = ["view"];
@@ -85,7 +74,7 @@ const PurchaseOrderCard = ({
           <div className="absolute top-4 right-16 z-10">
             <SendMenu
               item={purchaseOrder}
-              onShare={(_type, _item) => {}}
+              onShare={(_type, _item) => { }}
               getShareUrl={getShareUrl}
               formatCurrency={formatCurrency}
               formatDate={formatDate}
@@ -99,35 +88,38 @@ const PurchaseOrderCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* PO Info */}
         <div>
-          <h3 className="font-bold text-md sm:text-lg xl:text-lg mb-1 text-[rgb(var(--color-text-primary))] line-clamp-1">
-            {purchaseOrder.billNumber || purchaseOrder.poNumber}
+          <h3
+            className="font-bold text-md sm:text-lg xl:text-lg mb-1 text-[rgb(var(--color-primary))] line-clamp-1 cursor-pointer hover:underline decoration-2 underline-offset-4"
+            onClick={() => onViewDetails(normalizedData._id || normalizedData.id)}
+          >
+            {normalizedData.billNumber}
           </h3>
           <div className="flex items-start">
             <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2 mt-0.5" />
             <div>
               <p className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                {purchaseOrder.supplier?.name || "N/A"}
+                {normalizedData.supplier?.name || "N/A"}
               </p>
-              {(purchaseOrder.supplier?.phone ||
-                purchaseOrder.supplier?.email) && (
-                <div className="text-xs mt-0.5 flex items-center gap-1.5">
-                  {purchaseOrder.supplier?.phone ? (
-                    <>
-                      <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
-                      <span className="text-[rgb(var(--color-text-secondary))]">
-                        {purchaseOrder.supplier.phone}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
-                      <span className="text-[rgb(var(--color-text-secondary))]">
-                        {purchaseOrder.supplier?.email}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
+              {(normalizedData.supplier?.phone ||
+                normalizedData.supplier?.email) && (
+                  <div className="text-xs mt-0.5 flex items-center gap-1.5">
+                    {normalizedData.supplier?.phone ? (
+                      <>
+                        <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
+                        <span className="text-[rgb(var(--color-text-secondary))]">
+                          {normalizedData.supplier.phone}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
+                        <span className="text-[rgb(var(--color-text-secondary))]">
+                          {normalizedData.supplier?.email}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -135,10 +127,10 @@ const PurchaseOrderCard = ({
         {/* Status Badge */}
         <div className="flex flex-wrap gap-1 sm:gap-2">
           <span
-            className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.color}`}
+            className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusConfig.variant === "success" ? "bg-green-500/10 text-green-600 border-green-500/20" : statusConfig.variant === "danger" ? "bg-red-500/10 text-red-600 border-red-500/20" : statusConfig.variant === "primary" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" : "bg-gray-500/10 text-gray-600 border-gray-500/20"}`}
           >
             <StatusIcon className="w-3 h-3 mr-1 currentColor" />
-            {statusBadge.text}
+            {statusConfig.text}
           </span>
         </div>
 
@@ -147,14 +139,14 @@ const PurchaseOrderCard = ({
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
             <span>
-              {t("purchaseOrders.poDate")}: {formatDate(purchaseOrder.billDate)}
+              {t("purchaseOrders.poDate")}: {formatDate(normalizedData.billDate)}
             </span>
           </div>
           <div className="flex items-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
             <Calendar className="w-4 h-4 mr-2 text-[rgb(var(--color-text-tertiary))]" />
             <span>
               {t("purchaseOrders.expectedDelivery")}:{" "}
-              {formatDate(purchaseOrder.dueDate)}
+              {formatDate(normalizedData.dueDate)}
             </span>
           </div>
         </div>
@@ -168,7 +160,7 @@ const PurchaseOrderCard = ({
               </span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-              {formatCurrency(advanceAmount)}
+              {formatCurrency(normalizedData.advanceAmount)}
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -178,7 +170,7 @@ const PurchaseOrderCard = ({
               </span>
             </div>
             <div className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-              {receivedQuantity}/{totalQuantity}
+              {normalizedData.receivedQuantity}/{normalizedData.totalQuantity}
             </div>
           </div>
         </div>

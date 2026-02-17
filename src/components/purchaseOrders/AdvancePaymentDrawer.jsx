@@ -279,7 +279,7 @@ const AdvancePaymentDrawer = ({
         paymentMethods: transformedPaymentMethods,
         notes: formData.notes || "",
         store:
-          selectedStore?.storeId || selectedStore?._id || selectedStore?.id,
+          selectedStore?.storeId,
       };
 
       const result = await paymentService.createPayment(paymentData);
@@ -388,8 +388,8 @@ const AdvancePaymentDrawer = ({
                   <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                     {formatCurrency(
                       purchaseOrder?.advanceAmount ||
-                        purchaseOrder?.paidAmount ||
-                        0
+                      purchaseOrder?.paidAmount ||
+                      0
                     )}
                   </span>
                 </div>

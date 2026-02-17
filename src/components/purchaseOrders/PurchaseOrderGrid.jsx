@@ -12,7 +12,6 @@ const PurchaseOrderGrid = ({
   onMenuToggle,
   onMenuAction,
   menuRefs,
-  getStatusBadge,
   formatCurrency,
   formatDate,
   enableSendMenu = true,
@@ -36,7 +35,6 @@ const PurchaseOrderGrid = ({
             onMenuToggle={onMenuToggle}
             onMenuAction={onMenuAction}
             menuRefs={menuRefs}
-            getStatusBadge={getStatusBadge}
             formatCurrency={formatCurrency}
             formatDate={formatDate}
             enableSendMenu={enableSendMenu}

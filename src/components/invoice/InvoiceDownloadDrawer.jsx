@@ -220,7 +220,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;
@@ -277,7 +277,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;

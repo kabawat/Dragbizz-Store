@@ -45,7 +45,7 @@ const SuggestionCard = ({ item, onVote }) => {
 
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/40 transition-all duration-300 flex flex-col h-full group overflow-hidden">
-            <Link href={`/dashboard/suggestions/view/${suggestionId}`} className="flex-1 flex flex-col">
+            <Link href={`/dashboard/support/view/${suggestionId}`} className="flex-1 flex flex-col">
                 {/* Header with Badges */}
                 <div className="p-4 flex items-center justify-between border-b border-[rgb(var(--color-border-primary))]/50 bg-[rgb(var(--color-bg-secondary))]/30">
                     <div className="flex gap-2">
@@ -93,7 +93,7 @@ const SuggestionCard = ({ item, onVote }) => {
                 </div>
 
                 <Link
-                    href={`/dashboard/suggestions/view/${suggestionId}`}
+                    href={`/dashboard/support/view/${suggestionId}`}
                     className="flex items-center gap-1 text-[10px] font-bold text-[rgb(var(--color-primary))] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                 >
                     {t("common.viewDetails") || "View Details"}

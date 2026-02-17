@@ -40,7 +40,7 @@ const StockInDrawer = ({
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId || !hasSupplierManagement) return;
 
     try {
@@ -114,7 +114,7 @@ const StockInDrawer = ({
     setIsLoading(true);
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
 
       if (!storeId) {
         throw new Error("Store not selected");

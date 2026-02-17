@@ -121,7 +121,7 @@ const SuppliersPage = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       const params = {
         store: storeId,
         search: debouncedSearch,
@@ -169,7 +169,7 @@ const SuppliersPage = () => {
 
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       const params = {
         store: storeId,
         search: debouncedSearch,
@@ -235,7 +235,7 @@ const SuppliersPage = () => {
   const handleSupplierSuccess = async () => {
     // Refresh suppliers list after successful creation
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     const params = {
       store: storeId,
       search: searchValue,
@@ -289,7 +289,7 @@ const SuppliersPage = () => {
     setIsDeleting(true);
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       const result = await dispatch(
         deleteSupplier({
           supplierId: supplierToDelete.id,
@@ -400,8 +400,8 @@ const SuppliersPage = () => {
                       <button
                         onClick={() => handleViewModeChange("table")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <List className="w-4 h-4" />
@@ -410,8 +410,8 @@ const SuppliersPage = () => {
                       <button
                         onClick={() => handleViewModeChange("card")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <Grid3X3 className="w-4 h-4" />

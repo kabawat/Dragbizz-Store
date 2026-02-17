@@ -21,7 +21,7 @@ const UpdateProductPage = ({ productId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -147,7 +147,7 @@ const UpdateProductPage = ({ productId }) => {
   // Update store ID when selectedStore changes
   useEffect(() => {
     const currentStoreId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (currentStoreId) {
       setFormData((prevData) => ({
         ...prevData,
