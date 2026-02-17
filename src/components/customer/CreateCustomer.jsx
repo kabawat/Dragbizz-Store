@@ -6,6 +6,7 @@ import { Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useGstVerification } from "@/hooks/useGstVerification";
 import { customerService } from "@/service";
 
 const CreateCustomer = ({
@@ -38,6 +39,28 @@ const CreateCustomer = ({
     setQuotaErrorManually,
   } = useErrorHandling();
 
+  // GST Verification Hook
+  const gstVerification = useGstVerification({
+    onNameAutoFill: (name) => {
+      setFormData((prev) => ({
+        ...prev,
+        companyDetails: {
+          ...prev.companyDetails,
+          companyName: name,
+        },
+      }));
+    },
+    ongstDetailChange: (id) => {
+      setFormData((prev) => ({
+        ...prev,
+        companyDetails: {
+          ...prev.companyDetails,
+          gstDetail: id,
+        },
+      }));
+    },
+  });
+
   // Check if quota is available
   const isQuotaAvailable = () => {
     // If quota is loading or not loaded, allow (enable button)
@@ -67,6 +90,7 @@ const CreateCustomer = ({
     companyDetails: {
       gstin: "",
       companyName: "",
+      gstDetail: "",
     },
     addresses: null,
   });
@@ -242,6 +266,7 @@ const CreateCustomer = ({
             formData={formData}
             onChange={handleFormDataChange}
             fieldErrors={fieldErrors}
+            gstVerification={gstVerification}
           />
         </div>
 

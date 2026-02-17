@@ -5,6 +5,7 @@ import SupplierForm from "./SupplierForm";
 import { Button, SideDrawer } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useGstVerification } from "@/hooks/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
@@ -24,12 +25,29 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
         clearFieldErrors,
     } = useErrorHandling();
 
+    // GST Verification Hook
+    const gstVerification = useGstVerification({
+        onNameAutoFill: (name) => {
+            setFormData((prev) => ({
+                ...prev,
+                agency: name,
+            }));
+        },
+        ongstDetailChange: (id) => {
+            setFormData((prev) => ({
+                ...prev,
+                gstDetail: id,
+            }));
+        },
+    });
+
     // Initial form data
     const getInitialFormData = useCallback(() => ({
         store: storeId,
         name: "",
         agency: "",
         gstNumber: "",
+        gstDetail: "",
         phone: "",
         email: "",
     }), [storeId]);
@@ -57,6 +75,7 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
                         name: supplierData.name || "",
                         agency: supplierData.agency || "",
                         gstNumber: supplierData.gstNumber || "",
+                        gstDetail: supplierData.gstDetail || "",
                         phone: supplierData.phone || "",
                         email: supplierData.email || "",
                     });
@@ -161,6 +180,7 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
                                 onChange={handleFormDataChange}
                                 fieldErrors={fieldErrors}
                                 mode="drawer"
+                                gstVerification={gstVerification}
                             />
                         </div>
 

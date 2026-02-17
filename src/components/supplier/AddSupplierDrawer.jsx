@@ -1,27 +1,25 @@
 "use client";
+import SupplierForm from "./SupplierForm";
 import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import SupplierForm from "./SupplierForm";
 import { Button, SideDrawer } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useGstVerification } from "@/hooks/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
-  const [loading, setLoading] = useState(false);
   const {
     handleApiError,
     handleApiResult,
     fieldErrors,
     setFieldErrors,
     QuotaModal,
-    showSuccess,
     clearFieldErrors,
   } = useErrorHandling();
 
@@ -31,11 +29,29 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
     name: "",
     agency: "",
     gstNumber: "",
+    gstDetail: "",
     phone: "",
     email: "",
   }), [storeId]);
 
   const [formData, setFormData] = useState(getInitialFormData());
+  const [loading, setLoading] = useState(false);
+
+  // GST Verification Hook
+  const gstVerification = useGstVerification({
+    onNameAutoFill: (name) => {
+      setFormData((prev) => ({
+        ...prev,
+        agency: name,
+      }));
+    },
+    ongstDetailChange: (id) => {
+      setFormData((prev) => ({
+        ...prev,
+        gstDetail: id,
+      }));
+    },
+  });
 
   // Reset form when drawer opens/closes
   useEffect(() => {
@@ -139,6 +155,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
                 onChange={handleFormDataChange}
                 fieldErrors={fieldErrors}
                 mode="drawer"
+                gstVerification={gstVerification}
               />
             </div>
 

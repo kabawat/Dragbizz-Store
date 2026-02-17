@@ -53,6 +53,7 @@ export default function StoreCreation() {
     subCategories: [],
     tags: [],
     gst: "",
+    gstDetail: null,
     pan: "",
   });
   const [errors, setErrors] = useState({});
