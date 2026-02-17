@@ -22,13 +22,11 @@ import {
   FileText,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import SuppliersChart from "@/components/analytics/suppliers/SuppliersChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import SuppliersReportTemplate from "@/components/templates/analytics/suppliers/SuppliersReportTemplate";
 import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
@@ -43,7 +41,7 @@ const SupplierAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.suppliers);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
     const storeId =
@@ -84,7 +82,7 @@ const SupplierAnalytics = () => {
     "suppliers-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -250,32 +248,6 @@ const SupplierAnalytics = () => {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
-
       <div
         id="suppliers-report-area"
         style={{
@@ -346,10 +318,8 @@ const SupplierAnalytics = () => {
                                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                                   {card.title}
                                 </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
+                                <div className="h-64 overflow-hidden">
+                                  <SuppliersChart type={card.id === "chart1" ? "multi-line" : "area"} />
                                 </div>
                               </div>
                             </Card>

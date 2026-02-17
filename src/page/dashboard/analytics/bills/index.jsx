@@ -22,6 +22,7 @@ import PerformanceCard from "@/components/analytics/cards/PerformanceCard";
 import AnalyticsListCard from "@/components/analytics/cards/AnalyticsListCard";
 import AnalyticsChartCard from "@/components/analytics/cards/AnalyticsChartCard";
 import AnalyticsBreakdownCard from "@/components/analytics/cards/AnalyticsBreakdownCard";
+import BillsChart from "@/components/analytics/bills/BillsChart";
 import BillsReportTemplate from "@/components/templates/analytics/bills/BillsReportTemplate";
 import { SortableCard } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card, Select } from "@/components/ui";
@@ -58,7 +59,7 @@ const BillAnalytics = () => {
 
   const fetchAnalytics = () => {
     const storeId = selectedStore?.storeId
-    
+
     if (!storeId) return;
 
     dispatch(getBillAnalytics({
@@ -524,7 +525,9 @@ const BillAnalytics = () => {
                         />
                       )}
                       {card.type === "chart" && (
-                        <AnalyticsChartCard title={card.title} />
+                        <AnalyticsChartCard title={card.title}>
+                          <BillsChart type={card.id === "chart1" ? "line" : "area"} />
+                        </AnalyticsChartCard>
                       )}
                       {card.type === "breakdown" && (
                         <AnalyticsBreakdownCard

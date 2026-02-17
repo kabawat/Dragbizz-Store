@@ -23,14 +23,12 @@ import {
   IndianRupee,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import RevenueChart from "@/components/analytics/revenue/RevenueChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import RevenueReportTemplate from "@/components/templates/analytics/revenue/RevenueReportTemplate";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -49,7 +47,7 @@ const RevenueAnalytics = () => {
   const { revenue: analytics, isLoading } = useAppSelector(
     (state) => state.analytics
   );
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
     const storeId =
@@ -73,15 +71,13 @@ const RevenueAnalytics = () => {
     }
   }, [selectedStore?._id, selectedStore?.id, selectedStore?.storeId]);
 
-  const summary = useMemo(
-    () =>
-      analytics?.summary || {
-        totalRevenue: 0,
-        totalProfit: 0,
-        totalDiscount: 0,
-        totalGst: 0,
-        profitMargin: 0,
-      },
+  const summary = useMemo(() => analytics?.summary || {
+    totalRevenue: 0,
+    totalProfit: 0,
+    totalDiscount: 0,
+    totalGst: 0,
+    profitMargin: 0,
+  },
     [analytics?.summary]
   );
 
@@ -115,7 +111,7 @@ const RevenueAnalytics = () => {
   const { handlePrint, handleDownloadPDF, handleDownloadXLSX } =
     useRevenueReportPrint(isLoading, analytics);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -352,10 +348,8 @@ const RevenueAnalytics = () => {
                                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                                   {card.title}
                                 </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
+                                <div className="h-64 overflow-hidden">
+                                  <RevenueChart type={card.id === "chart1" ? "area" : "line"} />
                                 </div>
                               </div>
                             </Card>

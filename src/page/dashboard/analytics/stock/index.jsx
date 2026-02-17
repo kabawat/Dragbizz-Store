@@ -23,13 +23,11 @@ import {
   Warehouse,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import StockChart from "@/components/analytics/stock/StockChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import StockReportTemplate from "@/components/templates/analytics/stock/StockReportTemplate";
 import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
@@ -49,7 +47,7 @@ const StockAnalytics = () => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { analytics, isLoading } = useAppSelector((state) => state.products);
-  const hasFetchedRef = useRef({ storeId: null, fetched: false });
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
     const storeId =
@@ -104,7 +102,7 @@ const StockAnalytics = () => {
     "stock-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -325,32 +323,6 @@ const StockAnalytics = () => {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
-
       <div
         id="stock-report-area"
         style={{
@@ -440,10 +412,8 @@ const StockAnalytics = () => {
                                 <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                                   {card.title}
                                 </h3>
-                                <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                                  <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                    Chart will be displayed here
-                                  </p>
+                                <div className="h-64 overflow-hidden">
+                                  <StockChart type={card.id === "chart1" ? "line" : "area"} />
                                 </div>
                               </div>
                             </Card>

@@ -22,14 +22,12 @@ import {
   Package,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import ProductsChart from "@/components/analytics/products/ProductsChart";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProductsReportTemplate from "@/components/templates/analytics/products/ProductsReportTemplate";
-import {
-  SortableCard,
-  SortableMetricCard,
-} from "@/components/templates/analytics/SortableComponents";
+import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -60,7 +58,8 @@ const ProductAnalytics = () => {
     "products-analytics-report"
   );
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const exportMenuRef = useRef(null);
+  const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
+  const exportMenuRef = React.useRef(null);
 
   const [metrics, setMetrics] = useState([
     {
@@ -281,10 +280,8 @@ const ProductAnalytics = () => {
                             <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-4">
                               {card.title}
                             </h3>
-                            <div className="h-64 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg flex items-center justify-center border-[var(--color-border-primary-light)]">
-                              <p className="text-sm text-[rgb(var(--color-text-tertiary))]">
-                                Chart will be displayed here
-                              </p>
+                            <div className="h-64 overflow-hidden">
+                              <ProductsChart type={card.id === "chart1" ? "bar" : "area"} />
                             </div>
                           </div>
                         </Card>
