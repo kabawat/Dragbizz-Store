@@ -20,6 +20,8 @@ export const metadata = {
   description: "The ultimate business management platform with Voice AI. Manage inventory, invoices, expenses, and staff with ease.",
 };
 
+import GlobalHotkeys from "@/components/GlobalHotkeys";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
@@ -36,6 +38,7 @@ export default function RootLayout({ children }) {
                         <NetworkErrorInitializer />
                         <GlobalProfileLoader />
                         <LocationProvider>
+                          <GlobalHotkeys />
                           {children}
                           <GlobalToastContainer />
                           <NetworkErrorWrapper />

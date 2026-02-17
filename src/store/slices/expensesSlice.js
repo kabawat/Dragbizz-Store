@@ -84,6 +84,32 @@ export const updateExpense = createAsyncThunk(
   }
 );
 
+// Async thunk for deleting expense
+export const deleteExpense = createAsyncThunk(
+  "expenses/deleteExpense",
+  async ({ expenseId, storeId }, { rejectWithValue }) => {
+    try {
+      const result = await expenseService.deleteExpense(expenseId, storeId);
+
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || "Failed to delete expense",
+        });
+      }
+
+      return {
+        success: true,
+        expenseId,
+        message: "Expense deleted successfully",
+      };
+    } catch (_error) {
+      return rejectWithValue({
+        message: "Failed to delete expense. Please try again.",
+      });
+    }
+  }
+);
+
 // Async thunk for getting expense statistics
 // (kept as placeholder, but not currently used in UI based on grep)
 export const getExpenseStats = createAsyncThunk(
@@ -331,6 +357,35 @@ const expensesSlice = createSlice({
         state.error = action.payload?.message || "Failed to update expense";
       })
 
+      // Delete expense
+      .addCase(deleteExpense.pending, (state) => {
+        state.isDeleting = true;
+        state.error = null;
+      })
+      .addCase(deleteExpense.fulfilled, (state, action) => {
+        state.isDeleting = false;
+        state.error = null;
+
+        // Remove expense from the list
+        state.expenses = state.expenses.filter(
+          (expense) => expense.id !== action.payload.expenseId
+        );
+
+        // Update total count
+        if (state.pagination.total > 0) {
+          state.pagination.total -= 1;
+        }
+
+        // Remove from selected if present
+        state.selectedExpenses = state.selectedExpenses.filter(
+          id => id !== action.payload.expenseId
+        );
+      })
+      .addCase(deleteExpense.rejected, (state, action) => {
+        state.isDeleting = false;
+        state.error = action.payload?.message || "Failed to delete expense";
+      })
+
       // Get expense stats
       .addCase(getExpenseStats.pending, (state) => {
         state.isLoading = true;
@@ -381,6 +436,7 @@ export {
   getExpenses,
   createExpense,
   updateExpense,
+  deleteExpense,
   getExpenseStats,
   getExpenseAnalytics,
 };

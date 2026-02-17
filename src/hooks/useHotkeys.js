@@ -1,0 +1,81 @@
+import { useEffect, useLayoutEffect, useRef } from 'react';
+
+// Modifier bit masks
+const MODIFIERS = {
+    ctrl: 1,
+    alt: 2,
+    shift: 4,
+    meta: 8,
+};
+
+// Map for special keys
+const ALIASES = {
+    esc: 'escape',
+    return: 'enter',
+    up: 'arrowup',
+    down: 'arrowdown',
+    left: 'arrowleft',
+    right: 'arrowright',
+};
+
+// Helper to confirm which modifiers are active
+const getActiveModifiers = (event) => {
+    let modifiers = 0;
+    if (event.ctrlKey) modifiers |= MODIFIERS.ctrl;
+    if (event.altKey) modifiers |= MODIFIERS.alt;
+    if (event.shiftKey) modifiers |= MODIFIERS.shift;
+    if (event.metaKey) modifiers |= MODIFIERS.meta;
+    return modifiers;
+};
+
+// Helper to parse key string like "ctrl+s" into detailed object
+const parseKeyCombo = (comboStr) => {
+    const parts = comboStr.toLowerCase().split('+');
+    let modifiers = 0;
+    let key = '';
+
+    parts.forEach((part) => {
+        if (MODIFIERS[part]) {
+            modifiers |= MODIFIERS[part];
+        } else {
+            key = ALIASES[part] || part;
+        }
+    });
+
+    return { modifiers, key };
+};
+
+export const useHotkeys = (keyMap, inputs = []) => {
+    const handlersRef = useRef(keyMap);
+    useLayoutEffect(() => {
+        handlersRef.current = keyMap;
+    });
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const tagName = event.target.tagName.toLowerCase();
+            if ((tagName === 'input' || tagName === 'textarea' || event.target.isContentEditable) &&
+                event.key.toLowerCase() !== 'escape') {
+                return;
+            }
+
+            const activeModifiers = getActiveModifiers(event);
+            const pressedKey = event.key.toLowerCase();
+
+            // Loop through all defined hotkeys
+            Object.entries(handlersRef.current).forEach(([combo, handler]) => {
+                const { modifiers, key } = parseKeyCombo(combo);
+
+                // Check if both Key and Modifiers match
+                if (key === pressedKey && modifiers === activeModifiers) {
+                    handler(event);
+                }
+            });
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, inputs);
+};
