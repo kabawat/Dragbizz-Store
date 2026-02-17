@@ -39,25 +39,7 @@ export const getSuppliers = createAsyncThunk(
   }
 );
 
-export const updateSupplier = createAsyncThunk(
-  "suppliers/updateSupplier",
-  async ({ supplierId, supplierData, storeId }, { rejectWithValue }) => {
-    try {
-      const result = await supplierService.updateSupplier(
-        supplierId,
-        supplierData,
-        storeId
-      );
-      if (result.success) {
-        return { supplierId, supplierData: result.data };
-      } else {
-        return rejectWithValue(result.message || "Failed to update supplier");
-      }
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to update supplier");
-    }
-  }
-);
+
 
 export const deleteSupplier = createAsyncThunk(
   "suppliers/deleteSupplier",
@@ -168,28 +150,7 @@ const suppliersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update supplier
-      .addCase(updateSupplier.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(updateSupplier.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const { supplierId, supplierData } = action.payload;
-        const index = state.suppliers.findIndex(
-          (supplier) => supplier.id === supplierId
-        );
-        if (index !== -1) {
-          state.suppliers[index] = {
-            ...state.suppliers[index],
-            ...supplierData,
-          };
-        }
-      })
-      .addCase(updateSupplier.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      })
+
 
       // Delete supplier
       .addCase(deleteSupplier.pending, (state) => {

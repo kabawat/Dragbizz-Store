@@ -20,22 +20,7 @@ export const fetchSignatures = createAsyncThunk(
 );
 
 // Define async thunk for creating a signature (optional, but good practice)
-export const createSignature = createAsyncThunk(
-    "signatures/createSignature",
-    async (signatureData, { rejectWithValue, dispatch }) => {
-        try {
-            const response = await signatureService.createSignature(signatureData);
-            if (response.success) {
-                return response.data;
-            }
-            return rejectWithValue(response.message || "Failed to create signature");
-        } catch (error) {
-            return rejectWithValue(
-                error.message || "An error occurred while creating signature"
-            );
-        }
-    }
-);
+
 
 const initialState = {
     items: [],
@@ -81,15 +66,7 @@ const signaturesSlice = createSlice({
                 state.error = action.payload;
             })
 
-            // Create Signature
-            .addCase(createSignature.fulfilled, (state, action) => {
-                const exists = state.items.some(
-                    (item) => item.id === action.payload.id || item._id === action.payload._id
-                );
-                if (!exists) {
-                    state.items.push(action.payload);
-                }
-            });
+
     },
 });
 

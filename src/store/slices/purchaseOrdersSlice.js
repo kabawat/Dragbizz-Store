@@ -21,24 +21,7 @@ export const getPurchaseOrders = createAsyncThunk(
   }
 );
 
-export const updatePurchaseOrder = createAsyncThunk(
-  "purchaseOrders/updatePurchaseOrder",
-  async ({ id, updateData, store }, { rejectWithValue }) => {
-    try {
-      const result = await purchaseOrderService.updatePurchaseOrder(
-        id,
-        updateData,
-        store
-      );
-      if (result?.success) {
-        return result.data;
-      }
-      return rejectWithValue(result?.message || "Failed to update");
-    } catch (_e) {
-      return rejectWithValue("Failed to update");
-    }
-  }
-);
+
 
 export const deletePurchaseOrder = createAsyncThunk(
   "purchaseOrders/deletePurchaseOrder",
@@ -101,14 +84,7 @@ const purchaseOrdersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload || "Failed to fetch purchase orders";
       })
-      .addCase(updatePurchaseOrder.fulfilled, (state, action) => {
-        const updated = action.payload;
-        state.list = state.list.map((po) =>
-          po.id === updated.id || po._id === updated._id
-            ? { ...po, ...updated }
-            : po
-        );
-      })
+
       .addCase(deletePurchaseOrder.fulfilled, (state, action) => {
         const { id } = action.payload;
         state.list = state.list.filter((po) => (po.id || po._id) !== id);

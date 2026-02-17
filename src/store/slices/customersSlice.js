@@ -38,26 +38,6 @@ export const getCustomers = createAsyncThunk(
   }
 );
 
-export const updateCustomer = createAsyncThunk(
-  "customers/updateCustomer",
-  async ({ customerId, customerData, storeId }, { rejectWithValue }) => {
-    try {
-      const result = await customerService.updateCustomer(
-        customerId,
-        customerData,
-        storeId
-      );
-      if (result.success) {
-        return { customerId, customerData: result.data };
-      } else {
-        return rejectWithValue(result.message || "Failed to update customer");
-      }
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to update customer");
-    }
-  }
-);
-
 export const deleteCustomer = createAsyncThunk(
   "customers/deleteCustomer",
   async ({ customerId, storeId }, { rejectWithValue }) => {
@@ -202,32 +182,6 @@ const customersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update customer
-      .addCase(updateCustomer.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(updateCustomer.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-
-        const { customerId, customerData } = action.payload;
-        const index = state.customers.findIndex(
-          (customer) => customer.id === customerId
-        );
-
-        if (index !== -1) {
-          state.customers[index] = {
-            ...state.customers[index],
-            ...customerData,
-          };
-        }
-      })
-      .addCase(updateCustomer.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      })
-
       // Delete customer
       .addCase(deleteCustomer.pending, (state) => {
         state.isLoading = true;
@@ -278,7 +232,7 @@ export const {
 } = customersSlice.actions;
 
 // Export async thunks
-export { getCustomers, updateCustomer, deleteCustomer, getCustomerAnalytics };
+export { getCustomers, deleteCustomer, getCustomerAnalytics };
 
 // Export reducer
 export default customersSlice.reducer;

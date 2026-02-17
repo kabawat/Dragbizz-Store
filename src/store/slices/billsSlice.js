@@ -30,32 +30,6 @@ export const getBills = createAsyncThunk(
   }
 );
 
-// Async thunk for getting bill analytics (using /analytics endpoint)
-export const getBillStats = createAsyncThunk(
-  "bills/getBillStats",
-  async (storeId, { rejectWithValue }) => {
-    try {
-      const result = await billService.getBillAnalytics(storeId);
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch bill analytics",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Bill analytics fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch bill analytics. Please try again.",
-      });
-    }
-  }
-);
-
 // Async thunk for getting bill analytics (using analyticsService)
 export const getBillAnalytics = createAsyncThunk(
   "bills/getBillAnalytics",
@@ -87,34 +61,7 @@ export const getBillAnalytics = createAsyncThunk(
   }
 );
 
-// Async thunk for getting bill reports
-export const getBillReports = createAsyncThunk(
-  "bills/getBillReports",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const result = await billService.getBills(params);
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch bill reports",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Bill reports fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch bill reports. Please try again.",
-      });
-    }
-  }
-);
-
 // Note: CRUD operations (create, update, delete) are handled in separate pages/components
-
 const initialState = {
   // Bills data
   bills: [],
@@ -208,39 +155,6 @@ const billsSlice = createSlice({
         state.error = action.payload.message;
       })
 
-      // Get bill stats
-      .addCase(getBillStats.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(getBillStats.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.stats = action.payload.data || initialState.stats;
-      })
-      .addCase(getBillStats.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload.message;
-      })
-
-      // Get bill reports
-      .addCase(getBillReports.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(getBillReports.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        const responseData = action.payload.data;
-        state.bills = responseData?.data || responseData || [];
-        state.pagination =
-          responseData?.meta?.pagination || initialState.pagination;
-      })
-      .addCase(getBillReports.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload.message;
-      })
-
       // Get bill analytics
       .addCase(getBillAnalytics.pending, (state) => {
         state.isLoading = true;
@@ -264,7 +178,7 @@ export const { setCurrentFilter, addMoreBills, clearBills, updateBill } =
   billsSlice.actions;
 
 // Export async thunks
-export { getBills, getBillStats, getBillReports, getBillAnalytics };
+export { getBills, getBillAnalytics };
 
 // Export reducer
 export default billsSlice.reducer;
