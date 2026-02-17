@@ -84,33 +84,8 @@ export const updateExpense = createAsyncThunk(
   }
 );
 
-// Async thunk for deleting expense
-export const deleteExpense = createAsyncThunk(
-  "expenses/deleteExpense",
-  async ({ expenseId, storeId }, { rejectWithValue }) => {
-    try {
-      const result = await expenseService.deleteExpense(expenseId, storeId);
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to delete expense",
-        });
-      }
-
-      return {
-        success: true,
-        expenseId: expenseId,
-        message: "Expense deleted successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to delete expense. Please try again.",
-      });
-    }
-  }
-);
-
 // Async thunk for getting expense statistics
+// (kept as placeholder, but not currently used in UI based on grep)
 export const getExpenseStats = createAsyncThunk(
   "expenses/getExpenseStats",
   async (storeId, { rejectWithValue }) => {
@@ -356,36 +331,6 @@ const expensesSlice = createSlice({
         state.error = action.payload?.message || "Failed to update expense";
       })
 
-      // Delete expense
-      .addCase(deleteExpense.pending, (state) => {
-        state.isDeleting = true;
-        state.error = null;
-      })
-      .addCase(deleteExpense.fulfilled, (state, action) => {
-        state.isDeleting = false;
-        state.error = null;
-
-        // Remove expense from the list
-        const expenseId = action.payload.expenseId;
-        state.expenses = state.expenses.filter(
-          (expense) => expense.id !== expenseId
-        );
-
-        // Remove from selected expenses if it was selected
-        state.selectedExpenses = state.selectedExpenses.filter(
-          (id) => id !== expenseId
-        );
-
-        // Update total count
-        if (state.pagination.total > 0) {
-          state.pagination.total -= 1;
-        }
-      })
-      .addCase(deleteExpense.rejected, (state, action) => {
-        state.isDeleting = false;
-        state.error = action.payload?.message || "Failed to delete expense";
-      })
-
       // Get expense stats
       .addCase(getExpenseStats.pending, (state) => {
         state.isLoading = true;
@@ -436,7 +381,6 @@ export {
   getExpenses,
   createExpense,
   updateExpense,
-  deleteExpense,
   getExpenseStats,
   getExpenseAnalytics,
 };

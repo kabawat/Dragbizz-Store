@@ -41,26 +41,6 @@ export const getGstMismatches = createAsyncThunk(
   }
 );
 
-export const getGstExport = createAsyncThunk(
-  "gst/getGstExport",
-  async ({ storeId, params = {} }, { rejectWithValue }) => {
-    try {
-      const result = await gstService.getGstExport(storeId, params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch GST export data",
-        });
-      }
-      const data = result.data?.data ?? result.data;
-      return { success: true, data, message: "GST export data fetched successfully" };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch GST export data. Please try again.",
-      });
-    }
-  }
-);
-
 export const getGstHealthScore = createAsyncThunk(
   "gst/getGstHealthScore",
   async ({ storeId, params = {} }, { rejectWithValue }) => {
@@ -107,11 +87,9 @@ export const syncGstStats = createAsyncThunk(
 const initialState = {
   summary: null,
   mismatches: null,
-  exportData: null,
   healthScore: null,
   isLoading: false,
   isLoadingMismatches: false,
-  isLoadingExport: false,
   isLoadingHealthScore: false,
   isSyncing: false,
   error: null,
@@ -149,16 +127,6 @@ const gstSlice = createSlice({
       })
       .addCase(getGstMismatches.rejected, (state) => {
         state.isLoadingMismatches = false;
-      })
-      .addCase(getGstExport.pending, (state) => {
-        state.isLoadingExport = true;
-      })
-      .addCase(getGstExport.fulfilled, (state, action) => {
-        state.isLoadingExport = false;
-        state.exportData = action.payload.data;
-      })
-      .addCase(getGstExport.rejected, (state) => {
-        state.isLoadingExport = false;
       })
       .addCase(getGstHealthScore.pending, (state) => {
         state.isLoadingHealthScore = true;

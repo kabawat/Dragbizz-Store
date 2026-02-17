@@ -1,6 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
 
+const initialState = {
+  revenue: {
+    summary: {},
+    today: {},
+    change: {},
+  },
+  isLoading: false,
+  error: null,
+};
+
 // Async thunk for getting revenue analytics
 export const getRevenueAnalytics = createAsyncThunk(
   "analytics/getRevenueAnalytics",
@@ -34,24 +44,10 @@ export const getRevenueAnalytics = createAsyncThunk(
   }
 );
 
-const initialState = {
-  revenue: {
-    summary: {},
-    today: {},
-    change: {},
-  },
-  isLoading: false,
-  error: null,
-};
-
 const analyticsSlice = createSlice({
   name: "analytics",
   initialState,
-  reducers: {
-    clearError: (state) => {
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // Get revenue analytics
@@ -72,6 +68,5 @@ const analyticsSlice = createSlice({
   },
 });
 
-export const { clearError } = analyticsSlice.actions;
 export { getRevenueAnalytics };
 export default analyticsSlice.reducer;
