@@ -18,7 +18,7 @@ const BillSidebar = ({
     const router = useRouter();
     const searchParams = useSearchParams();
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = selectedStore?.storeId;
 
     // Local state
     const [suppliers, setSuppliers] = React.useState([]);

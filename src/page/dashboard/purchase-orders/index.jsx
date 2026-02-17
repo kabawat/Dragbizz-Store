@@ -10,7 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from "@/components/bills";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -22,6 +22,7 @@ import PurchaseOrderTable from "@/components/purchaseOrders/PurchaseOrderTable";
 import { Button, Input, ToastContainer } from "@/components/ui";
 import { useToast } from "@/hooks/useToast";
 import { useTranslation } from "@/hooks/useTranslation";
+import useDebounce from "@/hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addMorePurchaseOrders,
@@ -31,6 +32,8 @@ import {
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { normalizePurchaseOrder } from "@/utils/purchaseOrder";
 
 const PurchaseOrders = () => {
   const { t } = useTranslation();
@@ -45,6 +48,7 @@ const PurchaseOrders = () => {
   const { toasts, showToast, removeToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [supplierFilter, _setSupplierFilter] = useState("all");
   const [dateRange, _setDateRange] = useState("all");
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -67,10 +71,10 @@ const PurchaseOrders = () => {
     useState(false);
   const [selectedPOForPayment, setSelectedPOForPayment] = useState(null);
 
-  const handleViewModeChange = (mode) => {
+  const handleViewModeChange = useCallback((mode) => {
     setViewMode(mode);
     localStorage.setItem("purchase-orders-view-mode", mode);
-  };
+  }, []);
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("purchase-orders-view-mode");
@@ -82,9 +86,21 @@ const PurchaseOrders = () => {
     }
   }, []);
 
-  const handleSearch = (value) => {
+  const handleSearch = useCallback((value) => {
     setSearchTerm(value);
-  };
+  }, []);
+
+  // Shortcut Keys
+  useCommonHotkeys({
+    onNew: () => router.push("/dashboard/purchase-orders/create"),
+    onSearch: () => {
+      const searchInput = document.querySelector('input[placeholder*="search"]');
+      if (searchInput) searchInput.focus();
+    },
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+    onBack: () => router.push("/dashboard"),
+  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -112,28 +128,28 @@ const PurchaseOrders = () => {
   // Fetch POs
   useEffect(() => {
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) return;
 
     if (
       lastFetchRef.current.storeId === storeId &&
-      lastFetchRef.current.search === searchTerm &&
+      lastFetchRef.current.search === debouncedSearchTerm &&
       lastFetchRef.current.cursor === null
     ) {
       return;
     }
 
-    lastFetchRef.current = { storeId, search: searchTerm, cursor: null };
+    lastFetchRef.current = { storeId, search: debouncedSearchTerm, cursor: null };
     dispatch(
-      getPOs({ store: storeId, search: searchTerm, limit: 20, cursor: null })
+      getPOs({ store: storeId, search: debouncedSearchTerm, limit: 20, cursor: null })
     );
-  }, [dispatch, selectedStore, searchTerm]);
+  }, [dispatch, selectedStore, debouncedSearchTerm]);
 
-  const handleMenuToggle = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id);
-  };
+  const handleMenuToggle = useCallback((id) => {
+    setOpenMenuId((prev) => (prev === id ? null : id));
+  }, []);
 
-  const handleMenuAction = (id, action) => {
+  const handleMenuAction = useCallback((id, action) => {
     const po = purchaseOrders.find((b) => (b._id || b.id) === id);
     if (!po) return;
     const poStatus = (po.status || "").toUpperCase();
@@ -168,12 +184,12 @@ const PurchaseOrders = () => {
         break;
     }
     setOpenMenuId(null);
-  };
+  }, [purchaseOrders, router]);
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination.hasNextPage) return;
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) return;
     try {
       setIsLoadingMore(true);
@@ -181,7 +197,7 @@ const PurchaseOrders = () => {
 
       if (
         lastFetchRef.current.storeId === storeId &&
-        lastFetchRef.current.search === searchTerm &&
+        lastFetchRef.current.search === debouncedSearchTerm &&
         lastFetchRef.current.cursor === nextCursor
       ) {
         return;
@@ -189,13 +205,13 @@ const PurchaseOrders = () => {
 
       lastFetchRef.current = {
         storeId,
-        search: searchTerm,
+        search: debouncedSearchTerm,
         cursor: nextCursor,
       };
       const resultAction = await dispatch(
         getPOs({
           store: storeId,
-          search: searchTerm,
+          search: debouncedSearchTerm,
           limit: 20,
           cursor: nextCursor,
         })
@@ -207,14 +223,14 @@ const PurchaseOrders = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, [dispatch, selectedStore, debouncedSearchTerm, isLoadingMore, pagination.hasNextPage, pagination.nextCursor]);
 
   const pendingDeleteSet = useMemo(
     () => new Set(pendingDeleteIds),
     [pendingDeleteIds]
   );
 
-  const getFilteredPOs = () => {
+  const filteredPOs = useMemo(() => {
     let filtered = purchaseOrders.filter(
       (po) => !pendingDeleteSet.has(po._id || po.id)
     );
@@ -242,8 +258,8 @@ const PurchaseOrders = () => {
         }
       });
     }
-    if (searchTerm) {
-      const lowerSearch = searchTerm.toLowerCase();
+    if (debouncedSearchTerm) {
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(
         (po) =>
           (po.poNumber || po.billNumber)?.toLowerCase().includes(lowerSearch) ||
@@ -252,47 +268,20 @@ const PurchaseOrders = () => {
       );
     }
     return filtered;
-  };
+  }, [purchaseOrders, pendingDeleteSet, supplierFilter, dateRange, debouncedSearchTerm]);
 
-  const filteredPOs = getFilteredPOs();
+  const normalizedPOs = useMemo(() => filteredPOs.map(normalizePurchaseOrder), [filteredPOs]);
 
-  const normalizedPOs = filteredPOs.map((po) => {
-    const billNumber = po.poNumber || po.billNumber;
-    const billDate = po.poDate || po.billDate;
-    const dueDate = po.expectedDeliveryDate || po.dueDate;
-    const items = po.items || [];
-    const totalQuantity = items.reduce(
-      (sum, item) => sum + (item.quantity || 0),
-      0
-    );
-    const receivedQuantity = items.reduce(
-      (sum, item) => sum + (item.receivedQuantity || 0),
-      0
-    );
-    const pendingQuantity = Math.max(totalQuantity - receivedQuantity, 0);
-    const advanceAmount = po.advanceAmount ?? 0;
-    return {
-      ...po,
-      billNumber,
-      billDate,
-      dueDate,
-      totalQuantity,
-      receivedQuantity,
-      pendingQuantity,
-      advanceAmount,
-    };
-  });
-
-  const handleDelete = (po) => {
+  const handleDelete = useCallback((po) => {
     setPoToDelete(po);
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!poToDelete || isDeleting) return;
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     const poId = poToDelete._id || poToDelete.id;
     if (!poId) return;
 
@@ -304,7 +293,6 @@ const PurchaseOrders = () => {
       setPendingDeleteIds((prev) =>
         prev.includes(poId) ? prev : [...prev, poId]
       );
-      setSelectedPOs((prev) => prev.filter((id) => id !== poId));
       setShowDeleteModal(false);
       setPoToDelete(null);
       const friendlyPo = poToDelete?.poNumber || poToDelete?.billNumber || poId;
@@ -320,62 +308,9 @@ const PurchaseOrders = () => {
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [poToDelete, isDeleting, selectedStore, dispatch, showToast]);
 
-  const getStatusBadge = (po) => {
-    const dueDateObj = po.dueDate ? new Date(po.dueDate) : null;
-    const hasPending =
-      (po.pendingQuantity ??
-        Math.max((po.totalQuantity || 0) - (po.receivedQuantity || 0), 0)) > 0;
-    const isOverdue =
-      !!dueDateObj &&
-      !Number.isNaN(dueDateObj.getTime()) &&
-      dueDateObj < new Date() &&
-      hasPending;
 
-    if (isOverdue) {
-      const config = getCommonStatusBadge("OVERDUE", "purchase-order");
-      return {
-        variant: config.variant,
-        icon: AlertTriangle,
-        text: config.text,
-        color: "bg-red-500/10 text-red-600 border-red-500/20",
-      };
-    }
-
-    const approval = (po.approvalStatus || "").toUpperCase();
-    const config = getCommonStatusBadge(
-      approval || "PENDING",
-      "purchase-order"
-    );
-
-    // Map icons for compatibility
-    const iconMap = {
-      PENDING: Clock,
-      APPROVED: CheckCircle,
-      REJECTED: AlertTriangle,
-    };
-
-    const getColorClass = (variant) => {
-      switch (variant) {
-        case "success":
-          return "bg-green-500/10 text-green-600 border-green-500/20";
-        case "danger":
-          return "bg-red-500/10 text-red-600 border-red-500/20";
-        case "primary":
-          return "bg-blue-500/10 text-blue-600 border-blue-500/20";
-        default:
-          return "bg-gray-500/10 text-gray-600 border-gray-500/20";
-      }
-    };
-
-    return {
-      variant: config.variant,
-      icon: iconMap[approval] || Clock,
-      text: config.text,
-      color: getColorClass(config.variant),
-    };
-  };
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -431,11 +366,10 @@ const PurchaseOrders = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          }`}
                       >
                         <List
                           className={`w-4 h-4 ${viewMode === "table" ? "text-white" : "text-[rgb(var(--color-text-secondary))] group-hover:text-[rgb(var(--color-text-primary))]"}`}
@@ -540,7 +474,6 @@ const PurchaseOrders = () => {
                       onMenuToggle={handleMenuToggle}
                       onMenuAction={handleMenuAction}
                       menuRefs={menuRefs}
-                      getStatusBadge={getStatusBadge}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       enableSendMenu={true}
@@ -617,15 +550,12 @@ const PurchaseOrders = () => {
         }}
         purchaseOrder={selectedPOForPayment}
         onSuccess={() => {
-          // Handle successful advance payment creation
-          // Refresh purchase orders list
-          const storeId =
-            selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+          const storeId = selectedStore?.storeId;
           if (storeId) {
             dispatch(
               getPOs({
                 store: storeId,
-                search: searchTerm,
+                search: debouncedSearchTerm,
                 limit: 20,
                 cursor: null,
               })

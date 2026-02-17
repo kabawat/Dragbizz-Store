@@ -25,13 +25,11 @@ const ExpenseTable = ({
   sortBy,
   sortOrder,
   onSort,
-  onDuplicate,
   loading = false,
   emptyMessage,
   className = "",
 }) => {
   const { t } = useTranslation();
-  const [hoveredRow, setHoveredRow] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
 
@@ -55,9 +53,6 @@ const ExpenseTable = ({
     };
   }, [openMenuId]);
 
-  const _handleMenuToggle = (expenseId) => {
-    setOpenMenuId(openMenuId === expenseId ? null : expenseId);
-  };
 
   const handleMenuAction = (expenseId, action) => {
     setOpenMenuId(null);
@@ -91,18 +86,6 @@ const ExpenseTable = ({
     }).format(amount);
   };
 
-  const _getStatusBadgeColor = (status) => {
-    const config = getStatusBadge(status, "general");
-    // Map variant to color name for Badge component
-    const colorMap = {
-      success: "green",
-      warning: "yellow",
-      danger: "red",
-      secondary: "gray",
-      primary: "blue",
-    };
-    return colorMap[config.variant] || "gray";
-  };
 
   if (isLoading || loading) {
     return (
@@ -192,18 +175,15 @@ const ExpenseTable = ({
               return (
                 <tr
                   key={expense.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index
-                      ? "bg-[rgb(var(--color-bg-tertiary))]"
-                      : ""
-                  }`}
-                  onMouseEnter={() => setHoveredRow(index)}
-                  onMouseLeave={() => setHoveredRow(null)}
+                  className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                 >
-                  <td className="px-4 py-2">
+                  <td
+                    className="px-4 py-2 cursor-pointer group/cell"
+                    onClick={() => onView?.(expense)}
+                  >
                     <div className="flex items-center gap-4">
                       <div>
-                        <div className="font-medium text-[rgb(var(--color-text-primary))]">
+                        <div className="font-medium text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200">
                           {expense.title}
                         </div>
                         <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">

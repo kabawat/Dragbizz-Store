@@ -18,7 +18,7 @@ const CreateSuggestionDrawer = ({
     // Global State
     const { isSubmitting } = useAppSelector((state) => state.suggestions);
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = selectedStore?.storeId;
 
     // Local Form State
     const [formData, setFormData] = useState({

@@ -43,7 +43,7 @@ const InvoiceItemsTable = ({
           className="product-sku"
           style={{ fontSize: "10px", color: "#666" }}
         >
-          GST: {item.gstRate}%
+          GST: {item.gstRate}% {item.gst?.hsnCode ? `| HSN: ${item.gst.hsnCode}` : ""}
         </div>
       )}
     </div>

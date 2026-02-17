@@ -11,6 +11,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { expenseService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateExpense } from "@/store/slices/expensesSlice";
+import { Alert, Button, Loading } from "@/components/ui";
 
 const EditExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -20,7 +21,7 @@ const EditExpensePage = ({ expenseId }) => {
   const { isUpdating, error } = useAppSelector((state) => state.expenses);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   const [submitError, setSubmitError] = useState(null);
   const [expense, setExpense] = useState(null);
@@ -48,7 +49,7 @@ const EditExpensePage = ({ expenseId }) => {
         } else {
           setFetchingError(
             result.message ||
-              t("errors.failedToFetchData", { item: t("common.expense") })
+            t("errors.failedToFetchData", { item: t("common.expense") })
           );
         }
       } catch (_error) {
@@ -89,7 +90,7 @@ const EditExpensePage = ({ expenseId }) => {
       } else {
         setSubmitError(
           result.payload?.message ||
-            t("errors.failedToUpdate", { item: t("common.expense") })
+          t("errors.failedToUpdate", { item: t("common.expense") })
         );
       }
     } catch (_error) {

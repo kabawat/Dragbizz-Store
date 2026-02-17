@@ -10,9 +10,10 @@ import { useUsageQuota } from "@/hooks/useUsageQuota";
 import { customerService, invoiceService, productService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 
+import useErrorHandling from "@/hooks/useErrorHandling";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
-import useErrorHandling from "@/hooks/useErrorHandling";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
@@ -56,7 +57,7 @@ const CreateInvoicePage = () => {
   } = useErrorHandling();
 
   // 5. Derived Values
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId = selectedStore?.storeId;
   const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
 
   const isQuotaAvailable = () => {
@@ -219,6 +220,12 @@ const CreateInvoicePage = () => {
       setInvoiceLoading(false);
     }
   };
+
+  // 9. Shortcuts
+  useCommonHotkeys({
+    onSave: handleSubmit,
+    onBack: () => router.push("/dashboard/invoices"),
+  });
 
   // Show loading if store is not available yet
   if (!selectedStore?.storeId) {

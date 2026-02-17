@@ -68,13 +68,50 @@ const InvoiceSummaryCard = ({
             ₹{calculatedSubtotal?.toLocaleString()}
           </span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[rgb(var(--color-text-secondary))]">
-            {t("invoices.gst")}:
-          </span>
-          <span className="font-medium text-[rgb(var(--color-text-primary))]">
-            ₹{calculatedGstAmount?.toLocaleString() || "0"}
-          </span>
+        <div className="flex flex-col text-sm">
+          <div className="flex justify-between">
+            <span className="text-[rgb(var(--color-text-secondary))]">
+              {t("invoices.gst")}:
+            </span>
+            <span className="font-medium text-[rgb(var(--color-text-primary))]">
+              ₹{calculatedGstAmount?.toLocaleString() || "0"}
+            </span>
+          </div>
+          {/* Detailed GST Breakdown */}
+          {invoiceData.gst?.breakdown && (
+            <div className="ml-4 mt-1 space-y-1 border-l-2 border-[rgb(var(--color-border-primary))] pl-3 opacity-80">
+              {invoiceData.gst.breakdown.cgst > 0 && (
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[rgb(var(--color-text-secondary))]">CGST:</span>
+                  <span className="text-[rgb(var(--color-text-primary))]">₹{invoiceData.gst.breakdown.cgst.toLocaleString()}</span>
+                </div>
+              )}
+              {invoiceData.gst.breakdown.sgst > 0 && (
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[rgb(var(--color-text-secondary))]">SGST:</span>
+                  <span className="text-[rgb(var(--color-text-primary))]">₹{invoiceData.gst.breakdown.sgst.toLocaleString()}</span>
+                </div>
+              )}
+              {invoiceData.gst.breakdown.igst > 0 && (
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[rgb(var(--color-text-secondary))]">IGST:</span>
+                  <span className="text-[rgb(var(--color-text-primary))]">₹{invoiceData.gst.breakdown.igst.toLocaleString()}</span>
+                </div>
+              )}
+              {invoiceData.gst.breakdown.utgst > 0 && (
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[rgb(var(--color-text-secondary))]">UTGST:</span>
+                  <span className="text-[rgb(var(--color-text-primary))]">₹{invoiceData.gst.breakdown.utgst.toLocaleString()}</span>
+                </div>
+              )}
+              {invoiceData.gst.breakdown.cess > 0 && (
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[rgb(var(--color-text-secondary))]">Cess:</span>
+                  <span className="text-[rgb(var(--color-text-primary))]">₹{invoiceData.gst.breakdown.cess.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {invoiceData.totalDiscount > 0 && (
           <div className="flex justify-between text-sm">

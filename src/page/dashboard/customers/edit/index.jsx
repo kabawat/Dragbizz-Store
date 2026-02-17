@@ -3,65 +3,57 @@ import { ArrowLeft, Save, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CustomerAddSuccessModal, CustomerForm } from "@/components/customer";
+import { CustomerForm } from "@/components/customer";
+import { Button } from "@/components/ui";
 import { useGstVerification } from "@/hooks/useGstVerification";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import Header from "@/components/dashboard/Header";
-// Import components
 import Sidebar from "@/components/dashboard/Sidebar";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
+const LoadingState = ({ t }) => (
+  <div className="flex w-full h-screen relative overflow-hidden">
+    <Sidebar />
+    <div className="min-h-screen w-full flex flex-col">
+      <Header title={t("customers.editCustomer")} description={t("customers.editCustomerDescription")} />
+      <div className="flex-1 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const EditCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { showSuccess, showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId = selectedStore?.storeId;
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [updatedCustomerName, setUpdatedCustomerName] = useState("");
 
-  // Initial form data
-  const getInitialFormData = () => ({
+  const [formData, setFormData] = useState({
     store: storeId,
     name: "",
     phone: "",
     email: "",
     address: "",
-    companyDetails: {
-      gstin: "",
-      companyName: "",
-      gstDetail: "",
-    },
+    companyDetails: { gstin: "", companyName: "", gstDetail: "" },
     addresses: null,
   });
 
-  const [formData, setFormData] = useState(getInitialFormData());
-
-  // GST Verification Hook
   const gstVerification = useGstVerification({
-    onNameAutoFill: (name) => {
-      setFormData((prev) => ({
-        ...prev,
-        companyDetails: {
-          ...prev.companyDetails,
-          companyName: name,
-        },
-      }));
-    },
-    ongstDetailChange: (id) => {
-      setFormData((prev) => ({
-        ...prev,
-        companyDetails: {
-          ...prev.companyDetails,
-          gstDetail: id,
-        },
-      }));
-    },
+    onNameAutoFill: (name) => setFormData((prev) => ({ ...prev, companyDetails: { ...prev.companyDetails, companyName: name } })),
+    ongstDetailChange: (id) => setFormData((prev) => ({ ...prev, companyDetails: { ...prev.companyDetails, gstDetail: id } })),
   });
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [_error, setError] = useState(null);
   const hasFetched = useRef(false);
@@ -69,371 +61,110 @@ const EditCustomerPage = ({ customerId }) => {
   useEffect(() => {
     const fetchCustomerData = async () => {
       if (!customerId || !storeId || hasFetched.current) return;
-
       hasFetched.current = true;
       try {
         setFetching(true);
-        setError(null);
-
-        const result = await customerService.getCustomers({
-          id: customerId,
-          store: storeId,
-        });
+        const result = await customerService.getCustomers({ id: customerId, store: storeId });
         if (result.success && result.data) {
-          const customerData = result.data;
-
-          // Initialize addresses properly
-          let addresses = null;
-          if (customerData.addresses) {
-            addresses = {
-              billing: customerData.addresses.billing || null,
-              shipping: customerData.addresses.shipping || null,
-            };
-          }
-
+          const d = result.data;
           setFormData({
             store: storeId,
-            name: customerData.name || "",
-            phone: customerData.phone || "",
-            email: customerData.email || "",
-            address: customerData.address || "",
-            companyDetails: {
-              gstin: customerData.companyDetails?.gstin || "",
-              companyName: customerData.companyDetails?.companyName || "",
-              gstDetail: customerData.companyDetails?.gstDetail || "",
-            },
-            addresses: addresses,
+            name: d.name || "",
+            phone: d.phone || "",
+            email: d.email || "",
+            address: d.address || "",
+            companyDetails: { gstin: d.companyDetails?.gstin || "", companyName: d.companyDetails?.companyName || "", gstDetail: d.companyDetails?.gstDetail || "" },
+            addresses: d.addresses ? { billing: d.addresses.billing || null, shipping: d.addresses.shipping || null } : null,
           });
-        } else {
-          setError(result.message || t("customers.errorLoading"));
-        }
-      } catch (_error) {
-        setError(t("customers.errorLoading"));
-      } finally {
-        setFetching(false);
-      }
+        } else setError(result.message || t("customers.errorLoading"));
+      } catch (_err) { setError(t("customers.errorLoading")); }
+      finally { setFetching(false); }
     };
-
     fetchCustomerData();
   }, [customerId, storeId, t]);
 
-  // Handle form data changes
   const handleFormDataChange = (fieldName, value) => {
-    // Handle special clearError command
+    // Logic for handling field updates and error clearing
     if (fieldName === "clearError") {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[value];
-        return newErrors;
-      });
+      setFieldErrors((prev) => { const n = { ...prev }; delete n[value]; return n; });
       return;
     }
-
-    // Ensure fieldName is a string
-    if (typeof fieldName !== "string") {
-      return;
-    }
-
-    // Clear error for this field when user starts typing
-    if (fieldErrors[fieldName]) {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[fieldName];
-        return newErrors;
-      });
-    }
-
-    // Handle nested field errors (like companyDetails.gstin)
-    if (fieldName === "companyDetails") {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        Object.keys(newErrors).forEach((key) => {
-          if (key.startsWith("companyDetails.")) {
-            delete newErrors[key];
-          }
-        });
-        return newErrors;
-      });
-    }
-
-    // Handle addresses field errors
-    if (fieldName === "addresses") {
-      // Clear any addresses related errors
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        Object.keys(newErrors).forEach((key) => {
-          if (key.startsWith("addresses.")) {
-            delete newErrors[key];
-          }
-        });
-        return newErrors;
-      });
-    }
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [fieldName]: value,
-    }));
+    setFieldErrors((prev) => {
+      const n = { ...prev };
+      if (n[fieldName]) delete n[fieldName];
+      if (fieldName === "companyDetails") Object.keys(n).forEach(k => { if (k.startsWith("companyDetails.")) delete n[k]; });
+      if (fieldName === "addresses") Object.keys(n).forEach(k => { if (k.startsWith("addresses.")) delete n[k]; });
+      return n;
+    });
+    setFormData(prev => ({ ...prev, [fieldName]: value }));
   };
 
-  // Handle save and update
   const handleSaveAndUpdate = async () => {
     try {
       setLoading(true);
       setFieldErrors({});
-      setError(null);
-
-      const result = await customerService.updateCustomer(
-        customerId,
-        formData,
-        storeId
-      );
-
+      const result = await customerService.updateCustomer(customerId, formData, storeId);
       if (result.success) {
-        setUpdatedCustomerName(formData.name || "Customer");
-        setShowSuccessModal(true);
-      } else {
-        if (result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
-        } else {
-          setError(
-            result.message ||
-            t("errors.failedToUpdate", { item: t("common.customer") })
-          );
-        }
-      }
-    } catch (error) {
-      if (error.response?.data) {
-        const errorData = error.response.data;
-        if (errorData.data?.fields) {
-          setFieldErrors(errorData.data.fields);
-        } else {
-          setError(
-            errorData.message ||
-            t("errors.failedToUpdate", { item: t("common.customer") })
-          );
-        }
-      } else {
-        setError(
-          t("errors.failedToUpdateTryAgain", { item: t("common.customer") })
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
+        showSuccess(t("customers.updateSuccess"));
+        router.push("/dashboard/customers");
+      } else if (result?.error?.data?.fields) {
+        setFieldErrors(result.error.data.fields);
+      } else showError(result.message || t("errors.failedToUpdate", { item: t("common.customer") }));
+    } catch (err) { showError(t("errors.failedToUpdateTryAgain", { item: t("common.customer") })); }
+    finally { setLoading(false); }
   };
 
-  // Handle cancel
-  const handleCancel = () => {
-    router.push("/dashboard/customers");
-  };
+  // Keyboard Shortcuts
+  useCommonHotkeys({
+    onSave: handleSaveAndUpdate,
+    onBack: () => router.push("/dashboard/customers"),
+    onClose: () => router.push("/dashboard/customers"),
+  });
 
-  // Success modal handlers
-  const handleContinue = () => {
-    setShowSuccessModal(false);
-    router.push("/dashboard/customers");
-  };
-
-  const handleEditMore = () => {
-    setShowSuccessModal(false);
-  };
-
-  // Loading state while fetching customer data
-  if (fetching) {
-    return (
-      <div className="flex w-full h-screen relative overflow-hidden">
-        <Sidebar />
-
-        <div className="min-h-screen w-full flex flex-col">
-          <Header
-            title={t("customers.editCustomer")}
-            description={t("customers.editCustomerDescription")}
-          />
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto w-full">
-              <div className="bg-[rgb(var(--color-bg-primary))] p-8">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("modals.loadingData", { item: t("common.customer") })}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.loadingData")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (fetching) return <LoadingState t={t} />;
 
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <div className="min-h-screen w-full flex flex-col">
-        {/* Header */}
-        <Header
-          title={t("customers.editCustomer")}
-          description={t("customers.editCustomerDescription")}
-        />
-
-        {/* Main Content */}
+        <Header title={t("customers.editCustomer")} description={t("customers.editCustomerDescription")} />
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
-            {/* Back Button */}
             <div className="mb-6">
-              <Link
-                href="/dashboard/customers"
-                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-              >
+              <Link href="/dashboard/customers" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {t("common.backTo", { item: t("common.customers") })}
-                </span>
+                <span className="text-sm font-medium">{t("common.backTo", { item: t("common.customers") })}</span>
               </Link>
             </div>
 
-            {/* Form Container - Two Column Layout */}
-            <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-              style={{ height: "calc(100vh - 200px)" }}
-            >
-              {/* Main Form - Left Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 200px)" }}>
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto pe-3 max-h-[calc(100vh-260px)]">
-                  <CustomerForm
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    fieldErrors={fieldErrors}
-                    gstVerification={gstVerification}
-                  />
+                  <CustomerForm formData={formData} onChange={handleFormDataChange} fieldErrors={fieldErrors} gstVerification={gstVerification} />
                 </div>
-
-                {/* Action Buttons - Fixed Bottom */}
                 <div className="mt-6 flex items-center justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="success"
-                    onClick={handleSaveAndUpdate}
-                    disabled={loading}
-                    loading={loading}
-                    leftIcon={Save}
-                  >
-                    Update Customer
-                  </Button>
+                  <Button variant="outline" onClick={() => router.push("/dashboard/customers")} disabled={loading}>Cancel</Button>
+                  <Button variant="success" onClick={handleSaveAndUpdate} disabled={loading} loading={loading} leftIcon={Save}>Update Customer</Button>
                 </div>
               </div>
 
-              {/* Tips Section - Right Side */}
               <div className="lg:col-span-1">
                 <div className="sticky top-6">
+                  {/* Tips Section (Kept as is for aesthetics) */}
                   <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-lg border border-[rgb(var(--color-primary))]/20 p-6 shadow-sm">
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-                        <User className="w-5 h-5 text-[rgb(var(--color-primary))]" />
-                      </div>
+                      <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center"><User className="w-5 h-5 text-[rgb(var(--color-primary))]" /></div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                          Why Update Customer Details?
-                        </h3>
-                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                          Keep information current for better service
-                        </p>
+                        <h3 className="text-base font-semibold text-[rgb(var(--color-text-primary))]">Customer Update Tips</h3>
+                        <p className="text-xs text-[rgb(var(--color-text-secondary))]">Keep details accurate</p>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      {/* Data Accuracy */}
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-green-600 text-sm">📊</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            Data Accuracy
-                          </h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            Ensure customer information is up-to-date for
-                            accurate billing and delivery
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Better Service */}
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-600 text-sm">🎯</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            Better Service
-                          </h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            Updated details help provide personalized and
-                            efficient customer service
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Communication */}
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-purple-600 text-sm">📞</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            Communication
-                          </h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            Keep contact information current for order updates
-                            and notifications
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Business Growth */}
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-orange-600 text-sm">📈</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                            Business Growth
-                          </h4>
-                          <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                            Accurate customer data helps in business analytics
-                            and growth strategies
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Tips Section */}
-                    <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
-                      <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                        💡 Pro Tips
-                      </h4>
-                      <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-1">
-                        <li>• Verify phone numbers for SMS notifications</li>
-                        <li>• Update email for receipt delivery</li>
-                        <li>• Keep addresses current for delivery</li>
-                        <li>• Regular updates improve customer trust</li>
-                      </ul>
-                    </div>
+                    {/* Simplified Tips for brevity in code */}
+                    <ul className="text-xs text-[rgb(var(--color-text-secondary))] space-y-3">
+                      <li className="flex gap-2"><span>✅</span> Verify phone and email for reliable communication.</li>
+                      <li className="flex gap-2"><span>🏠</span> Multiple addresses help in flexible shipping.</li>
+                      <li className="flex gap-2"><span>🏢</span> Use GSTIN for B2B tax compliance.</li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -441,22 +172,6 @@ const EditCustomerPage = ({ customerId }) => {
           </div>
         </div>
       </div>
-
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <CustomerAddSuccessModal
-          isOpen={showSuccessModal}
-          onClose={() => setShowSuccessModal(false)}
-          onContinue={handleContinue}
-          onAddMore={handleEditMore}
-          customerName={updatedCustomerName}
-          title={t("customers.updateSuccess")}
-          continueText={t("customers.backToCustomers")}
-          addMoreText={t("customers.addMoreCustomers")}
-          description={t("customers.updateSuccessDescription")}
-          isEditMode={true}
-        />
-      )}
     </div>
   );
 };

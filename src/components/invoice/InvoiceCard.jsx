@@ -138,7 +138,7 @@ const InvoiceCard = ({
       onClick: async () => {
         const shareUrl = buildShareUrl(invoice);
         if (!shareUrl) {
-          
+
           return;
         }
         await handleCopy(shareUrl);
@@ -207,12 +207,21 @@ const InvoiceCard = ({
   const invoiceId = invoice.id || invoice._id;
 
   const getStatusDisplay = () => {
-    const config = getStatusBadge(
-      invoice.paymentStatus || invoice.invoiceStatus,
-      "invoice"
+    const status = invoice.invoiceStatus || invoice.status || "DRAFT";
+    const payment = invoice.paymentStatus || "UNPAID";
+
+    const config = getStatusBadge(status, "invoice");
+    const paymentConfig = getStatusBadge(payment, "invoice");
+
+    return (
+      <div className="flex flex-col gap-1">
+        <Badge variant={config.variant || "outline"} style={config.style} size="xs" className="text-[10px] px-2 py-0 w-fit">{config.text}</Badge>
+        <Badge variant={paymentConfig.variant || "outline"} style={paymentConfig.style} size="xs" className="text-[10px] px-2 py-0 w-fit">{paymentConfig.text}</Badge>
+      </div>
     );
-    return <Badge variant={config.variant || "outline"} style={config.style}>{config.text}</Badge>;
   };
+
+  const gstAmount = invoice.gstAmount !== undefined ? invoice.gstAmount : (invoice.gst?.amount || 0);
 
   return (
     <Card
@@ -318,15 +327,32 @@ const InvoiceCard = ({
         {/* Detailed Stats */}
         <div className="bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl p-3 border border-[rgb(var(--color-border-primary))] space-y-2">
           <div className="flex justify-between items-center text-xs">
+            <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("invoices.subtotal")}</span>
+            <span className="text-[rgb(var(--color-text-primary))] font-semibold">
+              {formatCurrency(invoice.subtotal || (invoice.totalAmount - (gstAmount || 0)))}
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-xs">
             <span className="text-[rgb(var(--color-text-secondary))]">{t("invoice.items")}</span>
             <Badge variant="secondary" className="px-1.5 py-0 min-w-[20px] text-center">
               {invoice.items?.length || 0}
             </Badge>
           </div>
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("products.gst")}</span>
+            <div className="flex flex-col">
+              <span className="text-[rgb(var(--color-text-secondary))] font-medium">{t("products.gst")}</span>
+              {invoice.gst?.breakdown?.total > 0 && (
+                <span className="text-[9px] text-[rgb(var(--color-text-tertiary))] leading-none">
+                  {[
+                    invoice.gst.breakdown.cgst > 0 ? "C" : "",
+                    invoice.gst.breakdown.sgst > 0 ? "S" : "",
+                    invoice.gst.breakdown.igst > 0 ? "I" : ""
+                  ].filter(Boolean).join("+")}
+                </span>
+              )}
+            </div>
             <span className="text-[rgb(var(--color-text-primary))] font-semibold">
-              {formatCurrency(invoice.gstAmount || 0)}
+              {formatCurrency(gstAmount)}
             </span>
           </div>
           {invoice.totalDiscount > 0 && (

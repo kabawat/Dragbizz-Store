@@ -16,7 +16,7 @@ const EditInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+    selectedStore?.storeId || "";
 
   const [inventory, setInventory] = useState(null);
   const [formData, setFormData] = useState({});

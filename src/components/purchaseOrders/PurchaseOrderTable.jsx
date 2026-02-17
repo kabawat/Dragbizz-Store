@@ -22,6 +22,7 @@ import { AddActionButton } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import logger from "@/utils/logger";
 import { renderStatusBadge } from "@/utils/statusBadge";
+import { normalizePurchaseOrder, getPurchaseOrderStatus } from "@/utils/purchaseOrder";
 
 const PurchaseOrderTable = ({
   bills,
@@ -46,30 +47,7 @@ const PurchaseOrderTable = ({
   const _defaultEmptyMessage =
     emptyMessage || t("purchaseOrders.noPurchaseOrders");
 
-  const getPurchaseOrderStatusBadge = (row) => {
-    const dueDateObj = row.dueDate ? new Date(row.dueDate) : null;
-    const hasPending =
-      (row.pendingQuantity ??
-        Math.max((row.totalQuantity || 0) - (row.receivedQuantity || 0), 0)) >
-      0;
-    const isOverdue =
-      !!dueDateObj &&
-      !Number.isNaN(dueDateObj.getTime()) &&
-      dueDateObj < new Date() &&
-      hasPending;
 
-    const iconMap = {
-      PENDING: Clock,
-      APPROVED: CheckCircle,
-      REJECTED: AlertTriangle,
-      OVERDUE: AlertTriangle,
-    };
-
-    const status = isOverdue ? "OVERDUE" : row.approvalStatus || "PENDING";
-    const StatusIcon = iconMap[status] || Clock;
-
-    return renderStatusBadge(status, "purchase-order", StatusIcon);
-  };
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
   const sendMenuRefs = useRef({});
 
@@ -180,66 +158,51 @@ const PurchaseOrderTable = ({
         <table className="w-full min-w-[800px] table-fixed">
           <tbody className="divide-y divide-gray-100">
             {bills.map((row) => {
-              const poStatus = (row.status || "").toUpperCase();
+              const normalizedData = normalizePurchaseOrder(row);
+              const poStatus = (normalizedData.status || "").toUpperCase();
               const isDeleted = poStatus === "DELETED";
 
-              // Check if advance payment has been made
-              const advanceAmount = row.advanceAmount ?? 0;
-              const totalQuantity =
-                row.totalQuantity ??
-                row.items?.reduce(
-                  (sum, item) => sum + (item.quantity || 0),
-                  0
-                ) ??
-                0;
-              const receivedQuantity =
-                row.receivedQuantity ??
-                row.items?.reduce(
-                  (sum, item) => sum + (item.receivedQuantity || 0),
-                  0
-                ) ??
-                0;
-              const _pendingQuantity =
-                row.pendingQuantity ??
-                Math.max(totalQuantity - receivedQuantity, 0);
-              const hasAdvancePayments = (row.payments || []).some(
+              const { status, icon: StatusIcon } = getPurchaseOrderStatus(normalizedData);
+              const hasAdvancePayments = (normalizedData.payments || []).some(
                 (payment) => payment.paymentType === "ADVANCE_PAYMENT"
               );
-              const hasAdvancePayment = advanceAmount > 0 || hasAdvancePayments;
+              const hasAdvancePayment = normalizedData.advanceAmount > 0 || hasAdvancePayments;
 
               return (
                 <tr
-                  key={row._id || row.id || row.billNumber}
+                  key={normalizedData._id || normalizedData.id || normalizedData.billNumber}
                   className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                 >
                   <td className="w-1/6 px-6 py-4">
-                    <div className="font-medium text-[rgb(var(--color-text-primary))]">
-                      {row.billNumber}
+                    <div className="font-medium text-[rgb(var(--color-primary))] cursor-pointer hover:underline transition-colors decoration-2 underline-offset-4"
+                      onClick={() => onViewDetails(normalizedData._id || normalizedData.id)}
+                    >
+                      {normalizedData.billNumber}
                     </div>
                   </td>
                   <td className="w-1/6 px-6 py-4">
                     <div className="flex items-start">
                       <Building2 className="w-4 h-4 text-[rgb(var(--color-text-tertiary))] mr-2 mt-0.5" />
                       <div className="text-[rgb(var(--color-text-primary))] font-medium">
-                        {row.supplier?.name || t("common.notAvailable")}
+                        {normalizedData.supplier?.name || t("common.notAvailable")}
                       </div>
                     </div>
 
                     <div>
-                      {(row.supplier?.phone || row.supplier?.email) && (
+                      {(normalizedData.supplier?.phone || normalizedData.supplier?.email) && (
                         <div className="text-xs mt-0.5 flex items-center justify-start gap-1.5">
-                          {row.supplier?.phone ? (
+                          {normalizedData.supplier?.phone ? (
                             <>
                               <Phone className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                {row.supplier.phone}
+                                {normalizedData.supplier.phone}
                               </span>
                             </>
                           ) : (
                             <>
                               <Mail className="w-3.5 h-3.5 text-[rgb(var(--color-primary))]" />
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                {row.supplier?.email}
+                                {normalizedData.supplier?.email}
                               </span>
                             </>
                           )}
@@ -248,31 +211,31 @@ const PurchaseOrderTable = ({
                     </div>
                   </td>
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
-                    {formatDate(row.billDate)}
+                    {formatDate(normalizedData.billDate)}
                   </td>
                   <td className="w-1/5 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
-                    {formatDate(row.dueDate)}
+                    {formatDate(normalizedData.dueDate)}
                   </td>
                   <td className="w-28 px-6 py-4">
                     <div className="text-sm text-[rgb(var(--color-text-primary))] font-medium">
-                      {receivedQuantity}/{totalQuantity || 0}
+                      {normalizedData.receivedQuantity}/{normalizedData.totalQuantity || 0}
                     </div>
-                    {totalQuantity > 0 && (
+                    {normalizedData.totalQuantity > 0 && (
                       <div className="w-full h-1.5 bg-[rgb(var(--color-bg-tertiary))] rounded-full mt-1">
                         <div
                           className="h-full rounded-full bg-[rgb(var(--color-primary))]"
                           style={{
-                            width: `${Math.min(100, Math.round((receivedQuantity / totalQuantity) * 100))}%`,
+                            width: `${Math.min(100, Math.round((normalizedData.receivedQuantity / normalizedData.totalQuantity) * 100))}%`,
                           }}
                         ></div>
                       </div>
                     )}
                   </td>
                   <td className="w-1/6 px-6 py-4 text-[rgb(var(--color-text-secondary))]">
-                    {formatCurrency(advanceAmount)}
+                    {formatCurrency(normalizedData.advanceAmount)}
                   </td>
                   <td className="w-1/6 px-6 py-4">
-                    {getPurchaseOrderStatusBadge(row)}
+                    {renderStatusBadge(status, "purchase-order", StatusIcon)}
                   </td>
                   <td className="w-50 py-4 text-center">
                     <div className="relative inline-flex items-center gap-2">

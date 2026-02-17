@@ -1,6 +1,8 @@
 {
   "title": "ખર્ચો",
-  "description": "વર્ણન",
+  "payment": "ચુકવણી",
+  "totalAmount": "કુલ રકમ",
+  "description": "તમારા તમામ વ્યવસાયિક ખર્ચોને કાર્યક્ષમ રીતે સંચાલિત અને ટ્રૅક કરો.",
   "addExpense": "ખર્ચ ઉમેરો",
   "addNewExpense": "નવો ખર્ચ ઉમેરો",
   "addNewExpenseDescription": "તમારા વ્યવસાય માટે નવી ખર્ચ એન્ટ્રી બનાવો",

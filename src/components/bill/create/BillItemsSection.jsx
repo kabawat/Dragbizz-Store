@@ -14,7 +14,7 @@ const BillItemsSection = ({
     setErrors,
 }) => {
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = selectedStore?.storeId;
 
     // Local state for products
     const [products, setProducts] = React.useState([]);

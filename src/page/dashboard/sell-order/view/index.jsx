@@ -39,7 +39,7 @@ const ViewSellOrderPage = ({ orderId }) => {
   const router = useRouter();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+  const storeId = selectedStore?.storeId;
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +54,7 @@ const ViewSellOrderPage = ({ orderId }) => {
         setOrder(result.data);
       }
     } catch (error) {
-      
+
       showError("An unexpected error occurred while fetching order");
     }
   }, [orderId, storeId, showError]);
@@ -71,7 +71,7 @@ const ViewSellOrderPage = ({ orderId }) => {
         showError(result.message || "Failed to update order");
       }
     } catch (error) {
-      
+
       showError("An unexpected error occurred while updating status");
     } finally {
       setUpdatingStatus(false);

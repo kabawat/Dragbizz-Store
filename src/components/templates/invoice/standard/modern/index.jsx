@@ -41,6 +41,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                         <p>{selectedStore?.address || "123 Business Street"}</p>
                         {selectedStore?.phone && <p>Phone: {selectedStore.phone}</p>}
                         {selectedStore?.email && <p>Email: {selectedStore.email}</p>}
+                        {selectedStore?.gst && <p>GSTIN: {selectedStore.gst}</p>}
                     </div>
 
                     <div className={styles.infoSection}>
@@ -54,6 +55,7 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                         {invoiceData.customer?.phone && (
                             <p>Phone: {invoiceData.customer.phone}</p>
                         )}
+                        {invoiceData.customer?.gst && <p>GSTIN: {invoiceData.customer.gst}</p>}
                         {invoiceData.customer?.address && (
                             <p>{invoiceData.customer.address}</p>
                         )}
@@ -85,6 +87,11 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                                         GST: {item.gstRate}%
                                     </div>
                                 )}
+                                {item.gst?.hsnCode && (
+                                    <div className={styles.productSku}>
+                                        HSN: {item.gst.hsnCode}
+                                    </div>
+                                )}
                             </>
                         )}
                         renderUnitPriceCell={(item) => formatCurrency(item.price)}
@@ -106,6 +113,35 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
                             <span>GST:</span>
                             <span>{formatCurrency(invoiceData.gstAmount || 0)}</span>
                         </div>
+                        {/* GST Breakdown in Template */}
+                        {invoiceData.gst?.breakdown && (
+                            <div className={styles.breakdownContainer} style={{ paddingLeft: '10px', fontSize: '0.85em', opacity: 0.8 }}>
+                                {invoiceData.gst.breakdown.cgst > 0 && (
+                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
+                                        <span style={{ fontWeight: 'normal' }}>CGST:</span>
+                                        <span>{formatCurrency(invoiceData.gst.breakdown.cgst)}</span>
+                                    </div>
+                                )}
+                                {invoiceData.gst.breakdown.sgst > 0 && (
+                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
+                                        <span style={{ fontWeight: 'normal' }}>SGST:</span>
+                                        <span>{formatCurrency(invoiceData.gst.breakdown.sgst)}</span>
+                                    </div>
+                                )}
+                                {invoiceData.gst.breakdown.igst > 0 && (
+                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
+                                        <span style={{ fontWeight: 'normal' }}>IGST:</span>
+                                        <span>{formatCurrency(invoiceData.gst.breakdown.igst)}</span>
+                                    </div>
+                                )}
+                                {invoiceData.gst.breakdown.utgst > 0 && (
+                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
+                                        <span style={{ fontWeight: 'normal' }}>UTGST:</span>
+                                        <span>{formatCurrency(invoiceData.gst.breakdown.utgst)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         {invoiceData.totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <span>Discount:</span>

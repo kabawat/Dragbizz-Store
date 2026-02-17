@@ -20,7 +20,7 @@ const InventoryPage = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showSuccess, showError } = useGlobalToast();
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+    selectedStore?.storeId || "";
 
   // State management
   const [inventories, setInventories] = useState([]);
@@ -290,7 +290,7 @@ const InventoryPage = () => {
     }
   };
 
-  const handleDuplicate = (_inventoryId) => {};
+  const handleDuplicate = (_inventoryId) => { };
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -350,11 +350,10 @@ const InventoryPage = () => {
                     <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                       <button
                         onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          viewMode === "table"
+                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                             ? "bg-[rgb(var(--color-primary))] text-white"
                             : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                        }`}
+                          }`}
                       >
                         <List className="w-4 h-4" />
                         {t("common.tableView")}

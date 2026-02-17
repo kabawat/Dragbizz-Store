@@ -20,7 +20,7 @@ const AddProductPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
+    selectedStore?.storeId || "";
 
 
   // Get quota information for frontend validation

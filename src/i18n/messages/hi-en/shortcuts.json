@@ -1,0 +1,42 @@
+{
+    "categories": {
+        "navigation": "Global Navigation",
+        "actions": "Action & Management",
+        "view": "View & Control"
+    },
+    "descriptions": {
+        "navigation": "Kahbi bhi kisi bhi section par turant jump karein",
+        "actions": "Apni data entry aur operations ko fast karein",
+        "view": "Layout change karein aur menus navigate karein"
+    },
+    "actions": {
+        "home": "Home / Dashboard",
+        "customers": "Customers List",
+        "invoices": "Invoices Management",
+        "products": "Products / Inventory",
+        "expenses": "Expense Tracker",
+        "stock": "Stock Management",
+        "analytics": "Business Analytics",
+        "settings": "Application Settings",
+        "suppliers": "Suppliers Directory",
+        "bills": "Bills Management",
+        "payments": "Payments History",
+        "salesOrders": "Sales Orders",
+        "purchaseOrders": "Purchase Orders",
+        "support": "Support Center",
+        "createNew": "Naya Entry banayein",
+        "save": "Form save karein",
+        "print": "Document / Receipt print karein",
+        "download": "PDF/Report download karein",
+        "edit": "Selected item edit karein",
+        "delete": "Item delete karein",
+        "focusSearch": "Search input par focus karein",
+        "toggleSearch": "Search bar open/close karein",
+        "toggleHelp": "Shortcuts window dikhayein",
+        "tableView": "Table view par switch karein",
+        "cardView": "Card view par switch karein",
+        "voiceAI": "Voice AI assistant trigger karein",
+        "close": "Drawer ya Modal close karein",
+        "back": "Peeche jayein"
+    }
+}

@@ -1,5 +1,5 @@
 "use client";
-import { Download, FileText, Grid3X3, List, Plus, RotateCcw, X } from "lucide-react";
+import { Download, FileText, Grid3X3, List, Plus, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/Header";
@@ -15,6 +15,7 @@ import {
 import { Button, Input, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices, setViewMode } from "@/store/slices/invoicesSlice";
 
@@ -89,7 +90,7 @@ const InvoicesPage = () => {
 
   useEffect(() => {
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) return;
     const shouldSkip = () => {
       const lastFetched = hasFetchedRef.current;
@@ -154,7 +155,7 @@ const InvoicesPage = () => {
 
     try {
       const storeId =
-        selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+        selectedStore?.storeId;
       if (!storeId) {
         setIsLoadingMore(false);
         return;
@@ -302,6 +303,12 @@ const InvoicesPage = () => {
     dispatch(setViewMode(mode));
     localStorage.setItem("invoices-view-mode", mode);
   };
+
+  useCommonHotkeys({
+    onNew: handleAddInvoice,
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+  });
 
   const showSkeleton = isLoading && invoices.length === 0 && !error;
 
@@ -579,7 +586,6 @@ const InvoicesPage = () => {
                         </>
                       )}
                     </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]" />
                   </div>
                 </div>
               </div>

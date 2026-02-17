@@ -80,7 +80,7 @@ const CreatePayment = () => {
 
   // Get stable storeId
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   // Get bill ID from URL params
   const billId = searchParams.get("billId");

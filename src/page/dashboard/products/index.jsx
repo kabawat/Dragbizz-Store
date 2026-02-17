@@ -82,7 +82,7 @@ const ProductsPage = () => {
   // Memoize storeId to avoid repeated calculations
   const storeId = useMemo(() => {
     return (
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id || ""
+      selectedStore?.storeId || ""
     );
   }, [selectedStore?.storeId, selectedStore?._id, selectedStore?.id]);
 

@@ -28,6 +28,7 @@ import {
   signatureService,
 } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -314,6 +315,11 @@ const EditInvoicePage = ({ invoiceId }) => {
       setInvoiceLoading(false);
     }
   };
+
+  useCommonHotkeys({
+    onSave: handleSubmit,
+    onBack: () => router.push("/dashboard/invoices"),
+  });
 
   // Show loading if store is not available yet
   if (!selectedStore?.storeId) {

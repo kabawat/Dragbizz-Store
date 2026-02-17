@@ -190,7 +190,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("expenses.storeIdMissing"));
       return;
@@ -247,7 +247,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
     }
 
     const storeId =
-      selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+      selectedStore?.storeId;
     if (!storeId) {
       showError(t("expenses.storeIdMissing"));
       return;

@@ -9,7 +9,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuggestionById, upvoteSuggestion, deleteSuggestion } from "@/store/slices/suggestionsSlice";
-import { Badge, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
+import { Badge, Button, Modal } from "@/components/ui";
 
 const ViewSuggestionPage = ({ suggestionId }) => {
     const { t } = useTranslation();
@@ -18,7 +18,7 @@ const ViewSuggestionPage = ({ suggestionId }) => {
 
     const { selectedSuggestion: suggestion, isLoading } = useAppSelector((state) => state.suggestions);
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    const storeId = selectedStore?.storeId;
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -41,7 +41,7 @@ const ViewSuggestionPage = ({ suggestionId }) => {
         try {
             const result = await dispatch(deleteSuggestion({ id: suggestionId, storeId }));
             if (deleteSuggestion.fulfilled.match(result)) {
-                router.push("/dashboard/suggestions");
+                router.push("/dashboard/support");
             }
         } catch (_error) {
             // Error handled by slice/toast
@@ -110,7 +110,7 @@ const ViewSuggestionPage = ({ suggestionId }) => {
                 <div className="flex-1 p-6">
                     <div className="mb-6">
                         <Link
-                            href="/dashboard/suggestions"
+                            href="/dashboard/support"
                             className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
@@ -127,8 +127,8 @@ const ViewSuggestionPage = ({ suggestionId }) => {
                             </div>
                             <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))] mb-2">Suggestion Not Found</h2>
                             <p className="text-[rgb(var(--color-text-secondary))] mb-6">The suggestion you are looking for does not exist or has been removed.</p>
-                            <Link href="/dashboard/suggestions" className="text-[rgb(var(--color-primary))] hover:underline font-medium">
-                                Back to suggestions
+                            <Link href="/dashboard/support" className="text-[rgb(var(--color-primary))] hover:underline font-medium">
+                                Back to support
                             </Link>
                         </div>
                     ) : (

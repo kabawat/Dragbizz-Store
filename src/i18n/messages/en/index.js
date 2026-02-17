@@ -23,6 +23,8 @@ import suppliers from "./suppliers.json";
 import validation from "./validation.json";
 import suggestions from "./suggestions.json";
 import salesOrder from "./salesOrder.json";
+import shortcuts from "./shortcuts.json";
+import help from "./help.json";
 
 export default {
   auth,
@@ -49,5 +51,7 @@ export default {
   suppliers,
   validation,
   suggestions,
-  salesOrder
+  salesOrder,
+  shortcuts,
+  help
 };

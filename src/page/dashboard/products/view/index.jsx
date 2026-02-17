@@ -45,7 +45,7 @@ const ViewProductPage = ({ productId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId =
-    selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+    selectedStore?.storeId;
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);

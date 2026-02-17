@@ -1,6 +1,8 @@
 {
   "title": "Expenses",
-  "description": "Description",
+  "payment": "Payment",
+  "totalAmount": "Total Amount",
+  "description": "Manage and track all your business expenses efficiently.",
   "addExpense": "Add Expense",
   "addNewExpense": "Add New Expense",
   "addNewExpenseDescription": "Create a new expense entry for your business",

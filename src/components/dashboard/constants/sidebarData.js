@@ -16,6 +16,7 @@ import {
     ShoppingCart,
     ShoppingBag,
     Users,
+    LifeBuoy,
     Warehouse,
 } from "lucide-react";
 
@@ -148,9 +149,9 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
 
 export const getBottomItems = (t) => [
     {
-        name: t("sidebar.suggestions") || "Suggestions",
-        icon: Lightbulb,
-        href: "/dashboard/suggestions",
+        name: t("sidebar.supportCenter") || "Support Center",
+        icon: LifeBuoy,
+        href: "/dashboard/support",
     },
     {
         name: t("sidebar.settings"),

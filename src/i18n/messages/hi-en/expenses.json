@@ -1,6 +1,8 @@
 {
   "title": "Expenses",
-  "description": "Description",
+  "payment": "Payment",
+  "totalAmount": "Total Amount",
+  "description": "Apne saare business expenses (खर्चे) efficiently manage aur track karo.",
   "addExpense": "Expense add karo",
   "addNewExpense": "Naya Expense add karo",
   "addNewExpenseDescription": "Apne business ke liye naya expense entry create karo",
