@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { invoiceService } from "@/service/retailer";
 import logger from "@/utils/logger";
-import { formatCurrency } from "@/utils/currencyFormatter";
 
 // Component to fetch and display public invoice
 const accentColor = "#2980b9";
@@ -67,7 +66,10 @@ const getStatusBadgeCommon = (status, _type = "invoice") => {
   };
 };
 
-
+const formatCurrency = (amount) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+    amount || 0
+  );
 
 const formatDate = (d) => (d ? moment(d).format("D MMM, YYYY") : "-");
 

@@ -69,7 +69,48 @@ class CustomerService {
     }
   }
 
+  // Search customers by name, phone, or email
+  async searchCustomers(searchTerm, storeId = null) {
+    try {
+      let url = `${API_CONFIG?.RETAILER?.CUSTOMER}/search`;
+
+      const params = { q: searchTerm };
+      if (storeId) {
+        params.store = storeId;
+      }
+
+      url = attachQueryParams(url, params);
+      const response = await authAxios.get(url);
+      return handleApiSuccess(
+        response?.data,
+        "Customers searched successfully"
+      );
+    } catch (error) {
+      return handleApiErrorResponse(error, "customer-search");
+    }
+  }
+
+  // Get customer statistics
+  async getCustomerStats(storeId = null) {
+    try {
+      let url = `${API_CONFIG?.RETAILER?.CUSTOMER}/stats`;
+
+      if (storeId) {
+        const params = { store: storeId };
+        url = attachQueryParams(url, params);
+      }
+
+      const response = await authAxios.get(url);
+      return handleApiSuccess(
+        response?.data,
+        "Customer statistics fetched successfully"
+      );
+    } catch (error) {
+      return handleApiErrorResponse(error, "customer-stats");
+    }
+  }
 }
 
+// Create and export a singleton instance
 const customerService = new CustomerService();
 export default customerService;

@@ -29,7 +29,7 @@ const CustomerListContent = ({
 
     const handleDeleteClick = (customerId) => {
         const customer = customers.find((c) => c.id === customerId);
-        setCustomerToDelete(customer || { id: customerId });
+        setCustomerToDelete({ id: customerId, name: customer?.name || "Customer" });
         setShowDeleteModal(true);
     };
 
@@ -41,22 +41,16 @@ const CustomerListContent = ({
             const storeId = selectedStore?.storeId;
             const result = await dispatch(
                 deleteCustomer({
-                    customerId: customerToDelete._id || customerToDelete.id,
+                    customerId: customerToDelete.id,
                     storeId: storeId,
                 })
             );
 
-            if (result.payload?.customerId) {
+            if (result.payload?.success) {
                 showSuccess(t("modals.deletedSuccessfully", { item: t("common.customer") }));
-                // The slicing logic update will handle state update, but here strictly:
-                // If the slice handles it, we don't strictly need to do it here, but let's keep it safe
-                setCustomers((prev) => prev.filter((c) => (c._id || c.id) !== (customerToDelete._id || customerToDelete.id)));
-            } else if (result.error) {
-                showError(result.payload || t("common.error"));
+                setCustomers((prev) => prev.filter((c) => c.id !== customerToDelete.id));
             } else {
-                // Fallback for success case without payload specific check if needed
-                setCustomers((prev) => prev.filter((c) => (c._id || c.id) !== (customerToDelete._id || customerToDelete.id)));
-                showSuccess(t("modals.deletedSuccessfully", { item: t("common.customer") }));
+                showError(result.payload?.message || t("common.error"));
             }
         } catch (_error) {
             showError(t("common.error"));

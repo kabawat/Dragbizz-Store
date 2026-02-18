@@ -51,7 +51,7 @@ const ProductAnalytics = () => {
     []
   );
 
-  const { handleDownloadPDF, handleDownloadXLSX, isPreparing } = useAnalyticsReportPrint(
+  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     false,
     analytics,
     "products-report-area",
@@ -218,24 +218,22 @@ const ProductAnalytics = () => {
         }
       `}</style>
 
-      {isPreparing && (
-        <div
-          id="products-report-area"
-          style={{
-            position: "absolute",
-            left: "-9999px",
-            top: "-9999px",
-            width: "850px",
-          }}
-        >
-          {analytics && (
-            <ProductsReportTemplate
-              analyticsData={analytics}
-              selectedStore={selectedStore}
-            />
-          )}
-        </div>
-      )}
+      <div
+        id="products-report-area"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "-9999px",
+          width: "850px",
+        }}
+      >
+        {analytics && (
+          <ProductsReportTemplate
+            analyticsData={analytics}
+            selectedStore={selectedStore}
+          />
+        )}
+      </div>
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />

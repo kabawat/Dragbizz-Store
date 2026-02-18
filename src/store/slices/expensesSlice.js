@@ -1,34 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { expenseService } from "@/service/retailer";
-
-const initialState = {
-  // Expenses data
-  expenses: [],
-  selectedExpenses: [],
-
-  // Pagination
-  pagination: {
-    hasNextPage: false,
-    nextCursor: null,
-    limit: 20,
-    total: 0,
-  },
-
-  // Loading states
-  isLoading: false,
-  isCreating: false,
-  isUpdating: false,
-  isDeleting: false,
-
-  // Error handling
-  error: null,
-
-  // View settings
-  viewMode: "table", // 'table' or 'card'
-  currentFilter: "all", // 'all', 'paid', 'pending', 'overdue'
-  sortBy: "date", // 'date', 'amount', 'title', 'vendor'
-  sortOrder: "desc", // 'asc' or 'desc'
-};
+import { analyticsService, expenseService } from "@/service/retailer";
 
 // Async thunk for getting expenses
 export const getExpenses = createAsyncThunk(
@@ -139,6 +110,111 @@ export const deleteExpense = createAsyncThunk(
   }
 );
 
+// Async thunk for getting expense statistics
+// (kept as placeholder, but not currently used in UI based on grep)
+export const getExpenseStats = createAsyncThunk(
+  "expenses/getExpenseStats",
+  async (storeId, { rejectWithValue }) => {
+    try {
+      const result = await expenseService.getExpenseStats(storeId);
+
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || "Failed to fetch expense statistics",
+        });
+      }
+
+      return {
+        success: true,
+        data: result.data,
+        message: "Expense statistics fetched successfully",
+      };
+    } catch (_error) {
+      return rejectWithValue({
+        message: "Failed to fetch expense statistics. Please try again.",
+      });
+    }
+  }
+);
+
+// Async thunk for getting expense analytics
+export const getExpenseAnalytics = createAsyncThunk(
+  "expenses/getExpenseAnalytics",
+  async (storeId, { rejectWithValue }) => {
+    try {
+      // Use analyticsService instead of expenseService for analytics
+      const result = await analyticsService.getExpenseAnalytics({
+        store: storeId,
+      });
+
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || "Failed to fetch expense analytics",
+        });
+      }
+
+      // Handle null data from backend
+      const analyticsData =
+        result.data?.data !== undefined ? result.data.data : result.data;
+
+      return {
+        success: true,
+        data: analyticsData || initialState.analytics,
+        message: "Expense analytics fetched successfully",
+      };
+    } catch (_error) {
+      return rejectWithValue({
+        message: "Failed to fetch expense analytics. Please try again.",
+      });
+    }
+  }
+);
+
+const initialState = {
+  // Expenses data
+  expenses: [],
+  selectedExpenses: [],
+
+  // Pagination
+  pagination: {
+    hasNextPage: false,
+    nextCursor: null,
+    limit: 20,
+    total: 0,
+  },
+
+  // Statistics
+  stats: {
+    totalExpenses: 0,
+    totalAmount: 0,
+    averageAmount: 0,
+    categoryBreakdown: [],
+    monthlyTrend: [],
+  },
+
+  // Analytics
+  analytics: {
+    categoryWise: [],
+    monthlyTrend: [],
+    paymentMethodBreakdown: [],
+    vendorBreakdown: [],
+  },
+
+  // Loading states
+  isLoading: false,
+  isCreating: false,
+  isUpdating: false,
+  isDeleting: false,
+
+  // Error handling
+  error: null,
+
+  // View settings
+  viewMode: "table", // 'table' or 'card'
+  currentFilter: "all", // 'all', 'paid', 'pending', 'overdue'
+  sortBy: "date", // 'date', 'amount', 'title', 'vendor'
+  sortOrder: "desc", // 'asc' or 'desc'
+};
 
 const expensesSlice = createSlice({
   name: "expenses",
@@ -310,6 +386,37 @@ const expensesSlice = createSlice({
         state.error = action.payload?.message || "Failed to delete expense";
       })
 
+      // Get expense stats
+      .addCase(getExpenseStats.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getExpenseStats.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.stats = action.payload.data || initialState.stats;
+      })
+      .addCase(getExpenseStats.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch expense statistics";
+      })
+
+      // Get expense analytics
+      .addCase(getExpenseAnalytics.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getExpenseAnalytics.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.analytics = action.payload.data || initialState.analytics;
+      })
+      .addCase(getExpenseAnalytics.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch expense analytics";
+      });
   },
 });
 
@@ -330,6 +437,8 @@ export {
   createExpense,
   updateExpense,
   deleteExpense,
+  getExpenseStats,
+  getExpenseAnalytics,
 };
 
 export default expensesSlice.reducer;
