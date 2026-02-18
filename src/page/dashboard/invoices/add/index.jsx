@@ -1,22 +1,21 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { CreateCustomer } from "@/components/customer";
-import { SideDrawer } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { customerService, invoiceService, productService } from "@/service";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
-import QuotaProgressBar from "@/components/product/QuotaProgressBar";
+import useErrorHandling from "@/hooks/useErrorHandling";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import Link from "next/link";
+
+import { customerService, invoiceService, productService } from "@/service";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { CreateCustomer } from "@/components/customer";
+import { useTranslation } from "@/hooks/useTranslation";
+import { SideDrawer } from "@/components/ui";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const INITIAL_FORM_DATA = {
   customer: "",
@@ -47,7 +46,6 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const { quota, isLoading: quotaLoading } = useUsageQuota("invoice_management");
   const {
     handleApiError,
     handleApiResult,
@@ -60,17 +58,7 @@ const CreateInvoicePage = () => {
   const storeId = selectedStore?.storeId;
   const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
 
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true;
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
-
-  const quotaExceeded = !isQuotaAvailable();
-
   // 6. Data Fetching Callbacks
-
-
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
     if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
@@ -129,8 +117,6 @@ const CreateInvoicePage = () => {
   }, [storeId, t]);
 
   // 7. Effects
-
-
   useEffect(() => {
     if (storeId && (productsFetchedRef.current.storeId !== storeId || customersFetchedRef.current.storeId !== storeId)) {
       productsFetchedRef.current = { storeId: null, fetched: false };
@@ -145,8 +131,6 @@ const CreateInvoicePage = () => {
   }, [storeId, fetchProducts, fetchCustomers]);
 
   // 8. Event Handlers
-
-
   const handleCustomerChange = (value) => {
     if (value === "add-new-customer") {
       setShowCustomerDrawer(true);
@@ -176,16 +160,8 @@ const CreateInvoicePage = () => {
       return;
     }
 
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message: quota.remaining === 0
-          ? t("invoice.dailyLimitReached", { limit: quota.limit })
-          : t("invoice.quotaExceededMessage"),
-        quota: quotaData,
-        resetTime: quota.usageType === "DAILY_FIXED" ? "tomorrow" : quota.usageType === "MONTHLY_TOTAL" ? "next month" : null,
-        canUpgrade: true,
-      });
+    if (validItems.length === 0) {
+      showError(t("invoice.addAtLeastOneItem"));
       return;
     }
 
@@ -206,7 +182,6 @@ const CreateInvoicePage = () => {
       const handled = handleApiResult(result, t("invoice.invoiceCreatedSuccess"), "invoice-creation");
 
       if (handled.type === "success") {
-        if (quotaRefreshRef.current) quotaRefreshRef.current();
         const invoiceId = result?.data?.id || null;
         router.push(
           invoiceId
@@ -259,8 +234,7 @@ const CreateInvoicePage = () => {
 
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto w-full">
-            {/* Back Button with Quota Progress Bar */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4">
               <Link
                 href="/dashboard/invoices"
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
@@ -270,12 +244,6 @@ const CreateInvoicePage = () => {
                   {t("invoice.backToInvoices")}
                 </span>
               </Link>
-              <QuotaProgressBar
-                featureKey="invoice_management"
-                onRefreshRef={(refreshFn) => {
-                  quotaRefreshRef.current = refreshFn;
-                }}
-              />
             </div>
 
             {/* Form Container - Two Column Layout */}
@@ -305,8 +273,6 @@ const CreateInvoicePage = () => {
                 handleCustomerChange={handleCustomerChange}
                 customers={customers}
                 customersLoading={customersLoading}
-                quotaExceeded={quotaExceeded}
-                quotaLoading={quotaLoading}
                 invoiceLoading={invoiceLoading}
                 handleSubmit={handleSubmit}
               />
@@ -343,7 +309,7 @@ const CreateInvoicePage = () => {
       </SideDrawer>
 
 
-    </div>
+    </div >
   );
 };
 

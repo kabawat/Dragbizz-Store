@@ -1,9 +1,8 @@
-"use client";
 import React from "react";
-import Image from "next/image";
-import { ArrowLeft, Check, Plus, User } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import { Button, Select } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
+import { calculateGst } from "@/utils/gstCalculator";
 
 const InvoiceSidebar = ({
     t,
@@ -12,23 +11,74 @@ const InvoiceSidebar = ({
     handleCustomerChange,
     customers,
     customersLoading,
-    quotaExceeded,
-    quotaLoading,
     invoiceLoading,
     handleSubmit,
 }) => {
     const themeVariant = useAppSelector((state) => state.theme.variant);
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const { customers: allCustomersData } = useAppSelector((state) => state.customers);
 
-    const calculateSubtotal = () => {
-        return formData.items.reduce((total, item) => {
-            return total + (item.total || 0);
-        }, 0);
-    };
+    // 1. Prepare Data for Calculator with Discount Apportionment
+    const currentCustomer = allCustomersData.find(c => c._id === formData.customer) || {};
+    let remainingDiscount = Number(formData.totalDiscount) || 0;
 
-    const calculateTotal = () => {
-        const subtotal = calculateSubtotal();
-        return Math.max(0, subtotal - (formData.totalDiscount || 0));
-    };
+    const calculationItems = formData.items.map(item => {
+        const qty = Number(item.quantity) || 0;
+        const rate = Number(item.gstRate) || 0;
+        const price = Number(item.price) || 0;
+        const isInclusive = !!item.isInclusive;
+
+        // Determine taxable value to apportion discount correctly
+        let unitTaxablePrice = price;
+        if (isInclusive && rate > 0) {
+            unitTaxablePrice = price / (1 + (rate / 100));
+        }
+        const itemTaxableValue = unitTaxablePrice * qty;
+
+        const itemDiscountToApply = Math.min(remainingDiscount, itemTaxableValue);
+        remainingDiscount -= itemDiscountToApply;
+
+        return {
+            ...item,
+            gstRate: rate,
+            isInclusive: isInclusive,
+            discountValue: itemDiscountToApply
+        };
+    });
+
+    // Calculate gross subtotal for display
+    const grossTaxableValue = formData.items.reduce((acc, item) => {
+        const qty = Number(item.quantity) || 0;
+        const rate = Number(item.gstRate) || 0;
+        const price = Number(item.price) || 0;
+        const isInclusive = !!item.isInclusive;
+        let unitTaxable = price;
+        if (isInclusive && rate > 0) {
+            unitTaxable = price / (1 + (rate / 100));
+        }
+        return acc + (unitTaxable * qty);
+    }, 0);
+
+    // Fallback logic for state codes
+    const storeState = selectedStore?.address?.state || selectedStore?.state || "";
+    const customerState = currentCustomer?.address?.state || currentCustomer?.state || storeState;
+
+    const calculation = calculateGst({
+        items: calculationItems,
+        supplier: {
+            stateCode: storeState,
+            hasGst: !!(selectedStore?.gstNumber || selectedStore?.gstInfo?.gstNumber),
+            isUnionTerritory: false
+        },
+        buyer: {
+            stateCode: customerState,
+            hasGst: !!currentCustomer?.gstNumber,
+            isUnionTerritory: false
+        },
+        isRcmApplicable: false
+    });
+
+    const finalTotal = calculation.totalAmount;
 
     return (
         <div className="flex flex-col h-full">
@@ -66,6 +116,11 @@ const InvoiceSidebar = ({
                                 searchable={true}
                                 placeholder={t("invoice.searchCustomers")}
                             />
+                            {currentCustomer?.gstNumber && (
+                                <div className="mt-2 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] text-green-600 font-medium">
+                                    B2B: {currentCustomer.gstNumber}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -73,83 +128,95 @@ const InvoiceSidebar = ({
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
                             {t("invoice.invoiceSummary")}
                         </h4>
-                        <div className="space-y-2">
+                        <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                    {t("invoice.subtotal")}:
+                                    {t("invoice.grossTaxable")}:
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{calculateSubtotal().toFixed(2)}
+                                    ₹{grossTaxableValue.toFixed(2)}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-[rgb(var(--color-text-secondary))]">
+
+                            <div className="flex justify-between text-orange-500">
+                                <span className="">
                                     {t("invoice.discount")}:
                                 </span>
-                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{formData.totalDiscount || "0"}
+                                <span className="font-medium">
+                                    - ₹{(Number(formData.totalDiscount) || 0).toFixed(2)}
                                 </span>
                             </div>
+
+                            <div className="flex justify-between border-b border-dashed border-[rgb(var(--color-border-primary))]/30 pb-2">
+                                <span className="text-[rgb(var(--color-text-secondary))]">
+                                    {t("invoice.netTaxable")}:
+                                </span>
+                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                    ₹{calculation.subtotal.toFixed(2)}
+                                </span>
+                            </div>
+
+                            {/* Detailed GST Breakdown */}
+                            {calculation.gst.cgst > 0 && (
+                                <div className="flex justify-between text-[11px] italic">
+                                    <span className="text-[rgb(var(--color-text-tertiary))]">CGST:</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">₹{calculation.gst.cgst.toFixed(2)}</span>
+                                </div>
+                            )}
+                            {calculation.gst.sgst > 0 && (
+                                <div className="flex justify-between text-[11px] italic">
+                                    <span className="text-[rgb(var(--color-text-tertiary))]">SGST:</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">₹{calculation.gst.sgst.toFixed(2)}</span>
+                                </div>
+                            )}
+                            {calculation.gst.igst > 0 && (
+                                <div className="flex justify-between text-[11px] italic">
+                                    <span className="text-[rgb(var(--color-text-tertiary))]">IGST:</span>
+                                    <span className="text-[rgb(var(--color-text-secondary))]">₹{calculation.gst.igst.toFixed(2)}</span>
+                                </div>
+                            )}
+
+                            <div className="flex justify-between">
+                                <span className="text-[rgb(var(--color-text-secondary))]">
+                                    {t("invoice.totalGst")}:
+                                </span>
+                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                    + ₹{calculation.gst.total.toFixed(2)}
+                                </span>
+                            </div>
+
                             <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
                                 <div className="flex justify-between">
                                     <span className="text-[rgb(var(--color-text-primary))] font-medium">
-                                        {t("invoice.total")}:
+                                        {t("invoice.payableAmount")}:
                                     </span>
                                     <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
-                                        ₹{calculateTotal().toFixed(2)}
+                                        ₹{finalTotal.toFixed(2)}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                    <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30 text-center">
+                        <h4 className="text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1 uppercase tracking-wider">
                             {t("invoice.itemCount")}
                         </h4>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
-                                {formData.items.length}
-                            </div>
-                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                {formData.items.length === 1
-                                    ? t("invoice.item")
-                                    : t("invoice.items")}
-                            </div>
+                        <div className="text-2xl font-bold text-[rgb(var(--color-primary))]">
+                            {formData.items.length}
                         </div>
                     </div>
 
-                    {/* Quota exceeded warning message */}
-                    {quotaExceeded && !quotaLoading && (
-                        <div className="mb-3">
-                            <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
-                                ⚠️ {t("invoice.quotaExceeded")}
-                            </p>
-                        </div>
-                    )}
-
-                    <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex justify-start pt-2">
                         <Button
                             variant="primary"
-                            className="w-full md:flex-1"
+                            className="px-8 min-w-[180px]"
                             onClick={handleSubmit}
                             loading={invoiceLoading}
                             leftIcon={Plus}
-                            disabled={
-                                formData.items.length === 0 || quotaExceeded || quotaLoading
-                            }
-                            title={quotaExceeded ? t("invoice.quotaExceededMessage") : ""}
+                            disabled={formData.items.length === 0}
                         >
                             {t("invoice.createInvoiceButton")}
-                        </Button>
-
-                        <Button
-                            variant="outline"
-                            className="w-full md:flex-1"
-                            onClick={() => router.push("/dashboard/invoices")}
-                            disabled={invoiceLoading}
-                        >
-                            {t("common.cancel")}
                         </Button>
                     </div>
                 </div>
