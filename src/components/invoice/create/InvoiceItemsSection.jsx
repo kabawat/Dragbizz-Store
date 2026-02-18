@@ -29,6 +29,10 @@ const InvoiceItemsSection = ({
         const productPrice = product.price || product.sellingPrice || 0;
         const quantityToAdd = parseInt(selectedQuantity, 10) || 1;
 
+        // Extract GST Info from product
+        const gstRate = product.gstInfo?.gstRate || 0;
+        const isInclusive = product.gstInfo?.isGstIncluded ?? false;
+
         // Check if product already exists in items
         const existingItemIndex = formData.items.findIndex(
             (item) => item.product === selectedProduct
@@ -57,6 +61,8 @@ const InvoiceItemsSection = ({
                 quantity: quantityToAdd,
                 price: productPrice,
                 total: total,
+                gstRate: gstRate,
+                isInclusive: isInclusive
             };
 
             updatedItems = [...formData.items, newItem];

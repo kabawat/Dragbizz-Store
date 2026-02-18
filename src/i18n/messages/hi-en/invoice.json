@@ -207,5 +207,9 @@
   "securelyVerifyIdentity": "Electronic ID use karke identity verify karein.",
   "copyLinkNotAvailable": "Invoice link available nahi hai",
   "copyFailed": "Link copy karne mein fail ho gaya",
-  "cannotEditNonDraft": "Sirf draft invoices ko edit kiya ja sakta hai. Released ya cancelled invoices immutable hote hain."
+  "cannotEditNonDraft": "Sirf draft invoices ko edit kiya ja sakta hai. Released ya cancelled invoices immutable hote hain.",
+  "totalGst": "Total GST",
+  "payableAmount": "Payable Amount",
+  "grossTaxable": "Gross Taxable",
+  "netTaxable": "Net Taxable"
 }
