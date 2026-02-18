@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
+import { formatCurrency, formatNumber, formatPercent } from "@/utils/currencyFormatter";
 
 export const useAnalyticsReportPrint = (
   fetching,
@@ -9,30 +10,44 @@ export const useAnalyticsReportPrint = (
   reportName
 ) => {
   const { showError } = useGlobalToast();
+  const [isPreparing, setIsPreparing] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const shouldPrint = urlParams.get("print") === "true";
 
     if (shouldPrint && !fetching && analyticsData) {
+      setIsPreparing(true);
       setTimeout(() => {
         window.print();
       }, 500);
     }
   }, [fetching, analyticsData]);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     try {
+      setIsPreparing(true);
+      // Wait for re-render
+      await new Promise(resolve => setTimeout(resolve, 100));
       window.print();
+      // Use a timeout to ensure print dialog is triggered before unmounting
+      setTimeout(() => setIsPreparing(false), 2000);
     } catch (_e) {
       showError("Printing failed.");
+      setIsPreparing(false);
     }
   };
 
   const handleDownloadPDF = async (_analyticsData) => {
+    setIsPreparing(true);
+
+    // Wait for re-render so element exists in DOM
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     const report = document.getElementById(reportId);
     if (!report) {
       showError("Report not found!");
+      setIsPreparing(false);
       return;
     }
 
@@ -103,6 +118,7 @@ export const useAnalyticsReportPrint = (
       logger.error("PDF generation error:", error);
       showError("Failed to download PDF. Please try again.");
     } finally {
+      setIsPreparing(false);
       if (tempStyleEl?.parentNode) {
         tempStyleEl.remove();
       }
@@ -124,16 +140,9 @@ export const useAnalyticsReportPrint = (
       // Use exceljs for professional styling support
       const ExcelJS = (await import("exceljs")).default;
 
-      const _formatCurrency = (amount) => {
-        if (amount === null || amount === undefined) return "₹0.00";
-        return `₹${Number(amount).toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`;
-      };
-
-      const _formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-      const _formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+      const _formatCurrency = formatCurrency;
+      const _formatNumber = formatNumber;
+      const _formatPercent = formatPercent;
 
       // Create workbook
       const workbook = new ExcelJS.Workbook();
@@ -377,5 +386,6 @@ export const useAnalyticsReportPrint = (
     handlePrint,
     handleDownloadPDF,
     handleDownloadXLSX,
+    isPreparing,
   };
 };

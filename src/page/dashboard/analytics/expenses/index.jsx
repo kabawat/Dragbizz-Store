@@ -8,31 +8,23 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getExpenseAnalytics } from "@/store/slices/expensesSlice";
+import { getExpenseAnalytics } from "@/store/slices/analyticsSlice";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ExpensesReportTemplate from "@/components/templates/analytics/expenses/ExpensesReportTemplate";
-
-const formatCurrency = (amount) => {
-  return `₹${(amount || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-};
-
-const formatNumber = (num) => {
-  return (num || 0).toLocaleString("en-IN");
-};
-
+import { formatCurrency, formatNumber } from "@/utils/currencyFormatter";
 const ExpenseAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.expenses);
+  const { expenses: analytics, loading } = useAppSelector(
+    (state) => state.analytics
+  );
+  const isAnalyticsLoading = loading?.expenses;
   const hasFetchedRef = useRef({ storeId: null, fetched: false });
 
-  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
-    isLoading,
+  const { handleDownloadPDF, handleDownloadXLSX, isPreparing } = useAnalyticsReportPrint(
+    isAnalyticsLoading,
     analytics,
     "expenses-report-area",
     "expenses-analytics-report"
@@ -199,13 +191,13 @@ const ExpenseAnalytics = () => {
         if (cardsMap.has("amount2")) {
           cardsMap.set("amount2", {
             ...cardsMap.get("amount2"),
-            value: formatCurrency(amounts.totalNetAmount),
+            value: formatCurrency(amounts.netAmount),
           });
         }
         if (cardsMap.has("amount3")) {
           cardsMap.set("amount3", {
             ...cardsMap.get("amount3"),
-            value: formatCurrency(amounts.totalGstAmount),
+            value: formatCurrency(amounts.gstAmount),
           });
         }
 
@@ -350,22 +342,24 @@ const ExpenseAnalytics = () => {
       }
     `}</style>
 
-      <div
-        id="expenses-report-area"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          top: "-9999px",
-          width: "850px",
-        }}
-      >
-        {analytics && (
-          <ExpensesReportTemplate
-            analyticsData={analytics}
-            selectedStore={selectedStore}
-          />
-        )}
-      </div>
+      {isPreparing && (
+        <div
+          id="expenses-report-area"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "-9999px",
+            width: "850px",
+          }}
+        >
+          {analytics && (
+            <ExpensesReportTemplate
+              analyticsData={analytics}
+              selectedStore={selectedStore}
+            />
+          )}
+        </div>
+      )}
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />

@@ -33,7 +33,7 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getCustomerAnalytics } from "@/store/slices/customersSlice";
+import { getCustomerAnalytics } from "@/store/slices/analyticsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
@@ -41,7 +41,10 @@ const CustomerAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.customers);
+  const { customers: analytics, loading } = useAppSelector(
+    (state) => state.analytics
+  );
+  const isLoading = loading?.customers;
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
@@ -81,7 +84,7 @@ const CustomerAnalytics = () => {
     [analytics?.newCustomers]
   );
 
-  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
+  const { handleDownloadPDF, handleDownloadXLSX, isPreparing } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "customers-report-area",
@@ -260,22 +263,24 @@ const CustomerAnalytics = () => {
 
   return (
     <>
-      <div
-        id="customers-report-area"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          top: "-9999px",
-          width: "850px",
-        }}
-      >
-        {analytics && (
-          <CustomersReportTemplate
-            analyticsData={analytics}
-            selectedStore={selectedStore}
-          />
-        )}
-      </div>
+      {isPreparing && (
+        <div
+          id="customers-report-area"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "-9999px",
+            width: "850px",
+          }}
+        >
+          {analytics && (
+            <CustomersReportTemplate
+              analyticsData={analytics}
+              selectedStore={selectedStore}
+            />
+          )}
+        </div>
+      )}
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />

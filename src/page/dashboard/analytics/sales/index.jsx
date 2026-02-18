@@ -34,21 +34,18 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getInvoiceAnalytics } from "@/store/slices/invoicesSlice";
+import { getInvoiceAnalytics } from "@/store/slices/analyticsSlice";
+import { formatCurrency, formatNumber } from "@/utils/currencyFormatter";
 
-const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-const formatCurrency = (amount) =>
-  `₹${(amount || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-
-const SalesAnalytics = () => {
+const SalesAnalytics = ({ titleOverride, descriptionOverride }) => {
 
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.invoices);
+  const { invoices: analytics, loading } = useAppSelector(
+    (state) => state.analytics
+  );
+  const isLoading = loading?.invoices;
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
@@ -104,7 +101,7 @@ const SalesAnalytics = () => {
   );
 
 
-  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
+  const { handleDownloadPDF, handleDownloadXLSX, isPreparing } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "sales-report-area",
@@ -315,56 +312,32 @@ const SalesAnalytics = () => {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
-
-      <div
-        id="sales-report-area"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          top: "-9999px",
-          width: "850px",
-        }}
-      >
-        {analytics && (
-          <SalesReportTemplate
-            analyticsData={analytics}
-            selectedStore={selectedStore}
-          />
-        )}
-      </div>
+      {isPreparing && (
+        <div
+          id="sales-report-area"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "-9999px",
+            width: "850px",
+          }}
+        >
+          {analytics && (
+            <SalesReportTemplate
+              analyticsData={analytics}
+              selectedStore={selectedStore}
+            />
+          )}
+        </div>
+      )}
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />
 
         <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
           <Header
-            title={t("dashboard.salesAnalytics") || "Sales Analytics"}
-            description="View detailed sales analytics and insights"
+            title={t("dashboard.salesAnalytics") || titleOverride}
+            description={descriptionOverride || "View detailed sales analytics and insights"}
           />
 
           <div className="flex-1 p-6 overflow-y-auto">

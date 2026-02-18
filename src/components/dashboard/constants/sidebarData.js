@@ -116,7 +116,7 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
     {
         name: t("sidebar.salesTransactions"),
         icon: Receipt,
-        href: "/dashboard/customers",
+        href: "/dashboard/sales",
         hasSubMenu: true,
         subMenuItems: salesSubMenuItems,
         key: "sales",
@@ -168,6 +168,7 @@ export const getMenuToFeatureMap = (t) => ({
         "customer_management",
         "invoice_management",
         "expense_management",
+        "Sell Orders",
     ],
     [t("sidebar.inventory")]: [
         "Product Management",
@@ -185,7 +186,7 @@ export const getSubMenuToFeatureMap = (t) => ({
     [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
     [t("sidebar.products")]: ["Product Management", "product_management"],
     [t("sidebar.stocks")]: ["Stock Management", "stock_management"],
-    [t("sidebar.lowStockAlerts")]: ["Stock Management", "stock_management"],
+
     [t("sidebar.suppliers")]: [
         "Purchase Management",
         "purchase_management",
