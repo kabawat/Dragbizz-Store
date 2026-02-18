@@ -8,7 +8,7 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getExpenseAnalytics } from "@/store/slices/expensesSlice";
+import { getExpenseAnalytics } from "@/store/slices/analyticsSlice";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ExpensesReportTemplate from "@/components/templates/analytics/expenses/ExpensesReportTemplate";
@@ -28,7 +28,7 @@ const ExpenseAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.expenses);
+  const { expense: analytics, isLoadingExpense: isLoading } = useAppSelector((state) => state.analytics);
   const hasFetchedRef = useRef({ storeId: null, fetched: false });
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(

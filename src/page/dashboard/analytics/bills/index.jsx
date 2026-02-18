@@ -29,7 +29,7 @@ import { Button, Card, Select } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getBillAnalytics } from "@/store/slices/billsSlice";
+import { getBillAnalytics } from "@/store/slices/analyticsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -51,7 +51,7 @@ const BillAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.bills);
+  const { bill: analytics, isLoadingBill: isLoading } = useAppSelector((state) => state.analytics);
   const { suppliers } = useAppSelector((state) => state.suppliers || { suppliers: [] });
 
   const [dateRange, setDateRange] = useState("month");

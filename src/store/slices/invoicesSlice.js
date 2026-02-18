@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { invoiceService } from "@/service";
-import { analyticsService } from "@/service/retailer";
 
 export const getInvoices = createAsyncThunk(
   "invoices/getInvoices",
@@ -56,38 +55,7 @@ export const deleteInvoice = createAsyncThunk(
   }
 );
 
-// Async thunk for getting invoice analytics (for sales)
-export const getInvoiceAnalytics = createAsyncThunk(
-  "invoices/getInvoiceAnalytics",
-  async (storeId, { rejectWithValue }) => {
-    try {
-      // Use analyticsService for analytics
-      const result = await analyticsService.getInvoiceAnalytics({
-        store: storeId,
-      });
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch invoice analytics",
-        });
-      }
-
-      // Handle null data from backend
-      const analyticsData =
-        result.data?.data !== undefined ? result.data.data : result.data;
-
-      return {
-        success: true,
-        data: analyticsData || initialState.analytics,
-        message: "Invoice analytics fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch invoice analytics. Please try again.",
-      });
-    }
-  }
-);
+// Analytics: use analyticsSlice.getInvoiceAnalytics instead
 
 const initialState = {
   invoices: [],
@@ -227,21 +195,7 @@ const invoicesSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload?.message || "Failed to delete invoice";
       })
-      // Get invoice analytics
-      .addCase(getInvoiceAnalytics.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(getInvoiceAnalytics.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.analytics = action.payload.data || initialState.analytics;
-      })
-      .addCase(getInvoiceAnalytics.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error =
-          action.payload?.message || "Failed to fetch invoice analytics";
-      });
+
   },
 });
 
@@ -254,6 +208,6 @@ export const {
   addMoreInvoices,
 } = invoicesSlice.actions;
 
-export { getInvoices, deleteInvoice, getInvoiceAnalytics };
+export { getInvoices, deleteInvoice };
 
 export default invoicesSlice.reducer;
