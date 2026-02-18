@@ -1,4 +1,4 @@
-import ViewSuggestionPage from "@/page/dashboard/suggestions/view";
+import ViewSuggestionPage from "@/page/dashboard/support/view";
 
 export const metadata = {
     title: "View Suggestion - DragBizz Store",
