@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Alert, Input, Select, Textarea } from "@/components/ui";
-import { EXPENSE_CATEGORIES, EXPENSE_STATUS, PAYMENT_METHODS, } from "@/data/constants/expenses";
+import {
+  EXPENSE_CATEGORIES,
+  EXPENSE_STATUS,
+  PAYMENT_METHODS,
+} from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/useTranslation";
-import { calculateGst } from "@/utils/gstCalculator";
 
 const ExpenseForm = ({
   onSubmit = null,
@@ -21,9 +24,6 @@ const ExpenseForm = ({
     date: new Date().toISOString().split("T")[0],
     category: "office-supplies",
     amount: "",
-    gstRate: 0,
-    gstIncluded: false,
-    isRcm: false,
     paymentMethod: "CASH",
     vendor: "",
     status: "PAID",
@@ -43,9 +43,6 @@ const ExpenseForm = ({
         category:
           expense.category?.name || expense.category || "office-supplies",
         amount: expense.amount || "",
-        gstRate: expense.gst?.percentage || 0,
-        gstIncluded: expense.gstIncluded || false,
-        isRcm: expense.isRcm || false,
         paymentMethod: expense.paymentMethod || "CASH",
         vendor: expense.vendor?.name || expense.vendor || "",
         status: expense.status || "PAID",
@@ -103,39 +100,17 @@ const ExpenseForm = ({
       return;
     }
 
-    // Calculate GST Split using utility
-    // Since expense is usually 1 item
-    const { items: [{ taxableValue, gst: { total: gstAmount, itc: itcValue } }] } = calculateGst({
-      items: [{
-        price: parseFloat(formData.amount),
-        quantity: 1,
-        gstRate: Number(formData.gstRate),
-        isInclusive: formData.gstIncluded
-      }],
-      supplier: { hasGst: true, stateCode: "" }, // Not relevant for simple split
-      buyer: { hasGst: true, stateCode: "" },
-      isRcmApplicable: formData.isRcm
-    });
-
     const submitData = {
       title: formData.title,
       billNumber: formData.billNumber,
       date: formData.date,
       category: formData.category,
       amount: parseFloat(formData.amount),
-      gst: {
-        percentage: Number(formData.gstRate),
-        amount: gstAmount
-      },
-      gstIncluded: formData.gstIncluded,
-      netAmount: taxableValue,
-      isRcm: formData.isRcm,
-      itcClaimable: itcValue,
       paymentMethod: formData.paymentMethod,
       vendor: formData.vendor
         ? {
-          name: formData.vendor,
-        }
+            name: formData.vendor,
+          }
         : null,
       status: formData.status,
       description: formData.description,
@@ -223,64 +198,21 @@ const ExpenseForm = ({
           </div>
         </div>
 
-        {/* Amount & GST */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-end">
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              {t("expenses.amount")} *
-            </label>
-            <Input
-              size="sm"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.amount}
-              onChange={(value) => handleInputChange("amount", value)}
-              placeholder={t("expenses.enterAmount")}
-              error={errors.amount}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-              Tax Rate (%)
-            </label>
-            <Select
-              size="sm"
-              value={formData.gstRate}
-              onChange={(value) => handleInputChange("gstRate", value)}
-              options={[0, 5, 12, 18, 28].map((rate) => ({
-                value: rate,
-                label: `${rate}%`,
-              }))}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2 h-10 mb-1">
-            <input
-              id="gstIncluded"
-              type="checkbox"
-              checked={formData.gstIncluded}
-              onChange={(e) => handleInputChange("gstIncluded", e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="gstIncluded" className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">
-              {t("expenses.taxIncluded")}
-            </label>
-          </div>
-
-          <div className="flex items-center space-x-2 h-10 mb-1 text-orange-600">
-            <input
-              id="isRcm"
-              type="checkbox"
-              checked={formData.isRcm}
-              onChange={(e) => handleInputChange("isRcm", e.target.checked)}
-              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-            />
-            <label htmlFor="isRcm" className="text-xs font-medium">
-              RCM Applicable
-            </label>
-          </div>
+        {/* Amount */}
+        <div>
+          <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
+            {t("expenses.amount")} *
+          </label>
+          <Input
+            size="sm"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.amount}
+            onChange={(value) => handleInputChange("amount", value)}
+            placeholder={t("expenses.enterAmount")}
+            error={errors.amount}
+          />
         </div>
 
         {/* Payment Method and Vendor */}
