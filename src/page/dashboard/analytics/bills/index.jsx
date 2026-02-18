@@ -29,7 +29,7 @@ import { Button, Card, Select } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getBillAnalytics } from "@/store/slices/analyticsSlice";
+import { getBillAnalytics } from "@/store/slices/billsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -51,10 +51,7 @@ const BillAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { bills: analytics, loading } = useAppSelector(
-    (state) => state.analytics
-  );
-  const isLoading = loading?.bills;
+  const { analytics, isLoading } = useAppSelector((state) => state.bills);
   const { suppliers } = useAppSelector((state) => state.suppliers || { suppliers: [] });
 
   const [dateRange, setDateRange] = useState("month");
@@ -77,7 +74,7 @@ const BillAnalytics = () => {
   }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId, dateRange, supplierId]);
 
 
-  const { handleDownloadPDF, handleDownloadXLSX, isPreparing } = useAnalyticsReportPrint(
+  const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     isLoading,
     analytics,
     "bills-report-area",
@@ -354,24 +351,22 @@ const BillAnalytics = () => {
   return (
     <>
 
-      {isPreparing && (
-        <div
-          id="bills-report-area"
-          style={{
-            position: "absolute",
-            left: "-9999px",
-            top: "-9999px",
-            width: "850px",
-          }}
-        >
-          {analytics && (
-            <BillsReportTemplate
-              analyticsData={analytics}
-              selectedStore={selectedStore}
-            />
-          )}
-        </div>
-      )}
+      <div
+        id="bills-report-area"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "-9999px",
+          width: "850px",
+        }}
+      >
+        {analytics && (
+          <BillsReportTemplate
+            analyticsData={analytics}
+            selectedStore={selectedStore}
+          />
+        )}
+      </div>
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />

@@ -1,9 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supplierService } from "@/service";
+import { analyticsService } from "@/service/retailer";
 
 const initialState = {
   suppliers: [],
   selectedSuppliers: [],
+  analytics: {
+    totals: {
+      totalSuppliers: 0,
+      activeSuppliers: 0,
+      inactiveSuppliers: 0,
+    },
+  },
   isLoading: false,
   error: null,
   pagination: {
@@ -31,6 +39,8 @@ export const getSuppliers = createAsyncThunk(
   }
 );
 
+
+
 export const deleteSupplier = createAsyncThunk(
   "suppliers/deleteSupplier",
   async ({ supplierId, storeId }, { rejectWithValue }) => {
@@ -47,6 +57,35 @@ export const deleteSupplier = createAsyncThunk(
   }
 );
 
+export const getSupplierAnalytics = createAsyncThunk(
+  "suppliers/getSupplierAnalytics",
+  async (storeId, { rejectWithValue }) => {
+    try {
+      const result = await analyticsService.getSupplierAnalytics({
+        store: storeId,
+      });
+
+      if (!result.success) {
+        return rejectWithValue({
+          message: result.message || "Failed to fetch supplier analytics",
+        });
+      }
+
+      const analyticsData =
+        result.data?.data !== undefined ? result.data.data : result.data;
+
+      return {
+        success: true,
+        data: analyticsData || initialState.analytics,
+        message: "Supplier analytics fetched successfully",
+      };
+    } catch (_error) {
+      return rejectWithValue({
+        message: "Failed to fetch supplier analytics. Please try again.",
+      });
+    }
+  }
+);
 
 // Slice
 const suppliersSlice = createSlice({
@@ -111,6 +150,8 @@ const suppliersSlice = createSlice({
         state.error = action.payload;
       })
 
+
+
       // Delete supplier
       .addCase(deleteSupplier.pending, (state) => {
         state.isLoading = true;
@@ -130,6 +171,22 @@ const suppliersSlice = createSlice({
       .addCase(deleteSupplier.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+
+      // Get supplier analytics
+      .addCase(getSupplierAnalytics.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getSupplierAnalytics.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.analytics = action.payload.data || initialState.analytics;
+      })
+      .addCase(getSupplierAnalytics.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch supplier analytics";
       });
   },
 });

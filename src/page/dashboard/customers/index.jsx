@@ -34,6 +34,7 @@ const CustomersPage = () => {
 
   const scrollRef = useRef(null);
   const lastFetchRef = useRef(null);
+  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
 
   // Global page Hotkeys
   useCommonHotkeys({
@@ -58,7 +59,10 @@ const CustomersPage = () => {
       const fetchKey = `${storeId}-${searchValue}-${isLoadMore}-${cursor}`;
       if (lastFetchRef.current === fetchKey) return;
 
-
+      if (!isLoadMore) {
+        const lastFetched = hasFetchedRef.current;
+        if (lastFetched.fetched && lastFetched.storeId === storeId && lastFetched.searchValue === searchValue) return;
+      }
 
       lastFetchRef.current = fetchKey;
 
@@ -72,7 +76,7 @@ const CustomersPage = () => {
           if (isLoadMore) setCustomers((prev) => [...prev, ...customersData]);
           else {
             setCustomers(customersData);
-
+            hasFetchedRef.current = { storeId, searchValue, fetched: true };
           }
           const p = result.pagination || result.data?.pagination;
           setPagination({
@@ -83,12 +87,12 @@ const CustomersPage = () => {
       } catch (err) { setError(err.message || "Error"); }
       finally { if (isLoadMore) setIsLoadingMore(false); else setIsLoading(false); }
     },
-    [storeId, searchValue]
+    [storeId, searchValue, customers.length]
   );
 
   useEffect(() => {
     lastFetchRef.current = null;
-
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
     setPagination({ hasNextPage: false, nextCursor: null });
   }, [storeId, searchValue]);
 
@@ -115,7 +119,7 @@ const CustomersPage = () => {
 
   const handleCustomerSuccess = async () => {
     lastFetchRef.current = null;
-
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
     await fetchCustomers(false);
     setShowCustomerDrawer(false);
   };

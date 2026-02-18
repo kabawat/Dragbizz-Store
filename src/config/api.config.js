@@ -80,7 +80,12 @@ const API_CONFIG = {
   },
 
   // External Services
-  EXTERNAL: {},
+  EXTERNAL: {
+    GOOGLE_MAPS: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API || "",
+    STRIPE: process.env.NEXT_PUBLIC_STRIPE_API || "",
+    PAYPAL: process.env.NEXT_PUBLIC_PAYPAL_API || "",
+    TWILIO: process.env.NEXT_PUBLIC_TWILIO_API || "",
+  },
 
   // Request Configuration
   REQUEST: {

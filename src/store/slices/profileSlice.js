@@ -1,15 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
-import { encryptSync, decryptSync } from "@/utils/security";
 
 const SELECTED_STORE_STORAGE_KEY = "dragbizz_selected_store_id";
 
 const getStoredStoreId = () => {
   try {
-    if (typeof window === "undefined") return null;
-    const encryptedId = localStorage.getItem(SELECTED_STORE_STORAGE_KEY);
-    return encryptedId ? decryptSync(encryptedId) : null;
+    return typeof window !== "undefined"
+      ? localStorage.getItem(SELECTED_STORE_STORAGE_KEY)
+      : null;
   } catch {
     return null;
   }
@@ -19,8 +18,7 @@ const setStoredStoreId = (id) => {
   try {
     if (typeof window !== "undefined") {
       if (id != null && id !== "") {
-        const encryptedId = encryptSync(String(id));
-        localStorage.setItem(SELECTED_STORE_STORAGE_KEY, encryptedId);
+        localStorage.setItem(SELECTED_STORE_STORAGE_KEY, String(id));
       } else {
         localStorage.removeItem(SELECTED_STORE_STORAGE_KEY);
       }

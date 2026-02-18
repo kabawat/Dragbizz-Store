@@ -17,7 +17,7 @@ export const getQuickActions = (t) => [
     {
         title: t("dashboard.addSupplier"),
         icon: Building,
-        path: "/dashboard/suppliers?action=add",
+        path: "/dashboard/suppliers/add",
     },
 ];
 

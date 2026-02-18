@@ -62,8 +62,3 @@ export const parseCurrency = (value) => {
   const parsed = parseFloat(cleaned);
   return Number.isNaN(parsed) ? 0 : parsed;
 };
-
-export const formatPercent = (num) => {
-  if (num === null || num === undefined) return "0.00%";
-  return `${(num || 0).toFixed(2)}%`;
-};

@@ -8,24 +8,60 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-// ... (imports)
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import {
+  AddSupplierDrawer,
+  EditSupplierDrawer,
+  SupplierCard,
+  SupplierTable,
+  VoiceAISupplier,
+} from "@/components/supplier";
+import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
+import { Button, Input, Select, SideDrawer } from "@/components/ui";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  deleteSupplier,
+  getSuppliers,
+  setViewMode,
+} from "@/store/slices/suppliersSlice";
 
 const SuppliersPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
 
-  // Open Add Drawer if query param is present
-  useEffect(() => {
-    if (searchParams.get("action") === "add") {
-      setShowAddSupplierDrawer(true);
-    }
-  }, [searchParams]);
+  // Get data from Redux store
+  const { suppliers, isLoading, error, pagination, viewMode } = useAppSelector(
+    (state) => state.suppliers
+  );
 
-  // ... (rest of code)
+  const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Handle error display
+  useEffect(() => {
+    if (error) {
+      setErrorDetails({
+        title: t("suppliers.errorLoading"),
+        message: error,
+        details: t("common.tryAgain"),
+      });
+      setShowErrorModal(true);
+    }
+  }, [error, t]);
+
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem("suppliers-view-mode");
+    if (
+      savedViewMode &&
+      (savedViewMode === "table" || savedViewMode === "card")
+    ) {
+      dispatch(setViewMode(savedViewMode));
+    }
+  }, [dispatch]);
 
   // Local state
   const [searchValue, setSearchValue] = useState("");

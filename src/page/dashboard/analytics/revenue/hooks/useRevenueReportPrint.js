@@ -1,46 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import logger from "@/utils/logger";
-import { formatCurrency, formatNumber, formatPercent } from "@/utils/currencyFormatter";
 
 export const useRevenueReportPrint = (fetching, analyticsData) => {
   const { showError } = useGlobalToast();
-  const [isPreparing, setIsPreparing] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const shouldPrint = urlParams.get("print") === "true";
 
     if (shouldPrint && !fetching && analyticsData) {
-      setIsPreparing(true);
       setTimeout(() => {
         window.print();
       }, 500);
     }
   }, [fetching, analyticsData]);
 
-  const handlePrint = async () => {
+  const handlePrint = () => {
     try {
-      setIsPreparing(true);
-      await new Promise(resolve => setTimeout(resolve, 100));
       window.print();
-      setTimeout(() => setIsPreparing(false), 2000);
     } catch (_e) {
       showError("Printing failed.");
-      setIsPreparing(false);
     }
   };
 
   const handleDownloadPDF = async (_analyticsData) => {
-    setIsPreparing(true);
-
-    // Wait for re-render so element exists in DOM
-    await new Promise(resolve => setTimeout(resolve, 300));
-
     const report = document.getElementById("revenue-report-area");
     if (!report) {
       showError("Report not found!");
-      setIsPreparing(false);
       return;
     }
 
@@ -111,8 +98,6 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
       root.setAttribute("data-theme", originalTheme);
 
       showError("Failed to download PDF. Please try again.");
-    } finally {
-      setIsPreparing(false);
     }
   };
 
@@ -151,7 +136,16 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
         },
       };
 
+      const formatCurrency = (amount) => {
+        if (amount === null || amount === undefined) return "₹0.00";
+        return `₹${Number(amount).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`;
+      };
 
+      const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
+      const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
 
       // Create workbook
       const workbook = new ExcelJS.Workbook();
@@ -494,6 +488,5 @@ export const useRevenueReportPrint = (fetching, analyticsData) => {
     handlePrint,
     handleDownloadPDF,
     handleDownloadXLSX,
-    isPreparing,
   };
 };
