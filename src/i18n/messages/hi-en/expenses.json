@@ -160,6 +160,5 @@
     "noPaymentMethodData": "Payment method data available nahi hai",
     "metric": "Metric",
     "value": "Value"
-  },
-  "taxIncluded": "Tax Included"
+  }
 }
