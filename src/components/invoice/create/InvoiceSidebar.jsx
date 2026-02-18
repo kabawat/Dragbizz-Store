@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import Image from "next/image";
-import { ArrowLeft, Check, Plus, User } from "lucide-react";
+import { ArrowLeft, Check, Plus, User, Receipt, Tag } from "lucide-react";
 import { Button, Select } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
+import { calculateInvoiceGST } from "@/utils/gstCalculator";
 
 const InvoiceSidebar = ({
     t,
@@ -12,29 +12,56 @@ const InvoiceSidebar = ({
     handleCustomerChange,
     customers,
     customersLoading,
-    quotaExceeded,
-    quotaLoading,
     invoiceLoading,
     handleSubmit,
 }) => {
     const themeVariant = useAppSelector((state) => state.theme.variant);
 
-    const calculateSubtotal = () => {
-        return formData.items.reduce((total, item) => {
-            return total + (item.total || 0);
-        }, 0);
-    };
+    // ── GST Calculation ──────────────────────────────────────────────
+    const gstSummary = React.useMemo(() => {
+        if (!formData.items || formData.items.length === 0) {
+            return {
+                subtotal: 0,
+                gst: { total: 0, cgst: 0, sgst: 0, igst: 0, utgst: 0 },
+                totalDiscount: 0,
+                totalAmount: 0,
+                netTaxable: 0,
+            };
+        }
 
-    const calculateTotal = () => {
-        const subtotal = calculateSubtotal();
-        return Math.max(0, subtotal - (formData.totalDiscount || 0));
-    };
+        // Map items to gstCalculator format
+        const mappedItems = formData.items.map((item) => ({
+            price: item.price || 0,
+            quantity: item.quantity || 1,
+            gstRate: item.gstRate || item.gst?.rate || 0,
+            isInclusive: item.isInclusive ?? item.gst?.isInclusive ?? false,
+        }));
+
+        return calculateInvoiceGST({
+            items: mappedItems,
+            totalDiscount: formData.totalDiscount || 0,
+            // State codes — default to intra-state (CGST+SGST) if not available
+            supplierStateCode: formData.supplierStateCode || "default",
+            buyerStateCode: formData.buyerStateCode || "default",
+            supplierHasGst: true,
+        });
+    }, [formData.items, formData.totalDiscount, formData.supplierStateCode, formData.buyerStateCode]);
+
+    const fmt = (num) => Number(num || 0).toFixed(2);
+
+    // Determine which GST type is active
+    const hasIGST = gstSummary.gst.igst > 0;
+    const hasCGST = gstSummary.gst.cgst > 0;
+    const hasSGST = gstSummary.gst.sgst > 0;
+    const hasUTGST = gstSummary.gst.utgst > 0;
+    const hasAnyGST = gstSummary.gst.total > 0;
 
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto ps-3 min-h-0">
                 <div className="space-y-4">
-                    {/* Customer Information */}
+
+                    {/* ── Customer Information ── */}
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                             <User className="w-4 h-4 mr-2" />
@@ -69,40 +96,96 @@ const InvoiceSidebar = ({
                         </div>
                     </div>
 
+                    {/* ── Invoice Summary with GST Breakdown ── */}
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
-                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
+                        <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
+                            <Receipt className="w-4 h-4 mr-2" />
                             {t("invoice.invoiceSummary")}
                         </h4>
-                        <div className="space-y-2">
+
+                        <div className="space-y-2 text-sm">
+                            {/* Net Taxable Value */}
                             <div className="flex justify-between">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                    {t("invoice.subtotal")}:
+                                    {t("invoice.netTaxable") || "Net Taxable"}:
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{calculateSubtotal().toFixed(2)}
+                                    ₹{fmt(gstSummary.netTaxable)}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-[rgb(var(--color-text-secondary))]">
-                                    {t("invoice.discount")}:
-                                </span>
-                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{formData.totalDiscount || "0"}
-                                </span>
-                            </div>
-                            <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2">
+
+                            {/* Discount */}
+                            {(formData.totalDiscount > 0) && (
                                 <div className="flex justify-between">
-                                    <span className="text-[rgb(var(--color-text-primary))] font-medium">
+                                    <span className="text-[rgb(var(--color-text-secondary))] flex items-center gap-1">
+                                        <Tag className="w-3 h-3" />
+                                        {t("invoice.discount")}:
+                                    </span>
+                                    <span className="font-medium text-green-500">
+                                        - ₹{fmt(formData.totalDiscount)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* GST Breakdown */}
+                            {hasAnyGST && (
+                                <div className="border-t border-[rgb(var(--color-border-primary))]/20 pt-2 mt-1 space-y-1">
+                                    <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
+                                        {t("invoice.taxBreakdown") || "Tax Breakdown"}
+                                    </p>
+
+                                    {hasCGST && (
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[rgb(var(--color-text-secondary))]">CGST:</span>
+                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.cgst)}</span>
+                                        </div>
+                                    )}
+                                    {hasSGST && (
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[rgb(var(--color-text-secondary))]">SGST:</span>
+                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.sgst)}</span>
+                                        </div>
+                                    )}
+                                    {hasIGST && (
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[rgb(var(--color-text-secondary))]">IGST:</span>
+                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.igst)}</span>
+                                        </div>
+                                    )}
+                                    {hasUTGST && (
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-[rgb(var(--color-text-secondary))]">UTGST:</span>
+                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.utgst)}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Total GST */}
+                                    <div className="flex justify-between text-xs font-semibold border-t border-[rgb(var(--color-border-primary))]/20 pt-1 mt-1">
+                                        <span className="text-[rgb(var(--color-text-secondary))]">
+                                            {t("invoice.totalGST") || "Total GST"}:
+                                        </span>
+                                        <span className="text-[rgb(var(--color-text-primary))]">
+                                            ₹{fmt(gstSummary.gst.total)}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Grand Total */}
+                            <div className="border-t border-[rgb(var(--color-border-primary))]/30 pt-2 mt-1">
+                                <div className="flex justify-between">
+                                    <span className="text-[rgb(var(--color-text-primary))] font-semibold">
                                         {t("invoice.total")}:
                                     </span>
                                     <span className="font-bold text-[rgb(var(--color-text-primary))] text-lg">
-                                        ₹{calculateTotal().toFixed(2)}
+                                        ₹{fmt(gstSummary.totalAmount)}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* ── Item Count ── */}
                     <div className="bg-[rgb(var(--color-bg-primary))]/20 rounded-lg p-4 border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
                             {t("invoice.itemCount")}
@@ -119,15 +202,7 @@ const InvoiceSidebar = ({
                         </div>
                     </div>
 
-                    {/* Quota exceeded warning message */}
-                    {quotaExceeded && !quotaLoading && (
-                        <div className="mb-3">
-                            <p className="text-xs text-orange-600 dark:text-orange-400 text-center">
-                                ⚠️ {t("invoice.quotaExceeded")}
-                            </p>
-                        </div>
-                    )}
-
+                    {/* ── Action Buttons ── */}
                     <div className="flex flex-col md:flex-row gap-3">
                         <Button
                             variant="primary"
@@ -135,10 +210,7 @@ const InvoiceSidebar = ({
                             onClick={handleSubmit}
                             loading={invoiceLoading}
                             leftIcon={Plus}
-                            disabled={
-                                formData.items.length === 0 || quotaExceeded || quotaLoading
-                            }
-                            title={quotaExceeded ? t("invoice.quotaExceededMessage") : ""}
+                            disabled={formData.items.length === 0}
                         >
                             {t("invoice.createInvoiceButton")}
                         </Button>

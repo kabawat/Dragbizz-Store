@@ -34,7 +34,7 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getInvoiceAnalytics } from "@/store/slices/invoicesSlice";
+import { getInvoiceAnalytics } from "@/store/slices/analyticsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 const formatCurrency = (amount) =>
@@ -48,7 +48,7 @@ const SalesAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.invoices);
+  const { invoice: analytics, isLoadingInvoice: isLoading } = useAppSelector((state) => state.analytics);
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {

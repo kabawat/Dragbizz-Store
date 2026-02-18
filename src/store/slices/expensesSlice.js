@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { analyticsService, expenseService } from "@/service/retailer";
+import { expenseService } from "@/service/retailer";
 
 // Async thunk for getting expenses
 export const getExpenses = createAsyncThunk(
@@ -137,38 +137,7 @@ export const getExpenseStats = createAsyncThunk(
   }
 );
 
-// Async thunk for getting expense analytics
-export const getExpenseAnalytics = createAsyncThunk(
-  "expenses/getExpenseAnalytics",
-  async (storeId, { rejectWithValue }) => {
-    try {
-      // Use analyticsService instead of expenseService for analytics
-      const result = await analyticsService.getExpenseAnalytics({
-        store: storeId,
-      });
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch expense analytics",
-        });
-      }
-
-      // Handle null data from backend
-      const analyticsData =
-        result.data?.data !== undefined ? result.data.data : result.data;
-
-      return {
-        success: true,
-        data: analyticsData || initialState.analytics,
-        message: "Expense analytics fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch expense analytics. Please try again.",
-      });
-    }
-  }
-);
+// Analytics: use analyticsSlice.getExpenseAnalytics instead
 
 const initialState = {
   // Expenses data
@@ -192,7 +161,8 @@ const initialState = {
     monthlyTrend: [],
   },
 
-  // Analytics
+  // Analytics (now managed by analyticsSlice)
+  // Kept for backward compatibility — do not use directly
   analytics: {
     categoryWise: [],
     monthlyTrend: [],
@@ -402,21 +372,6 @@ const expensesSlice = createSlice({
           action.payload?.message || "Failed to fetch expense statistics";
       })
 
-      // Get expense analytics
-      .addCase(getExpenseAnalytics.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(getExpenseAnalytics.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.analytics = action.payload.data || initialState.analytics;
-      })
-      .addCase(getExpenseAnalytics.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error =
-          action.payload?.message || "Failed to fetch expense analytics";
-      });
   },
 });
 
@@ -438,7 +393,6 @@ export {
   updateExpense,
   deleteExpense,
   getExpenseStats,
-  getExpenseAnalytics,
 };
 
 export default expensesSlice.reducer;
