@@ -9,6 +9,7 @@ const calculatePaymentStats = (payments) => {
       pendingPayments: 0,
       approvedPayments: 0,
       totalAmount: 0,
+      methodBreakdown: {},
     };
   }
 
@@ -17,6 +18,7 @@ const calculatePaymentStats = (payments) => {
       acc.totalPayments += 1;
       acc.totalAmount += payment.amount || 0;
 
+      // Status aggregation
       switch (payment.status?.toLowerCase()) {
         case "pending":
           acc.pendingPayments += 1;
@@ -28,6 +30,25 @@ const calculatePaymentStats = (payments) => {
           break;
       }
 
+      // Payment method aggregation (handling multi-method)
+      const methods =
+        payment.paymentMethods && payment.paymentMethods.length > 0
+          ? payment.paymentMethods
+          : payment.paymentMethod
+            ? [{ method: payment.paymentMethod, amount: payment.amount }]
+            : [];
+
+      methods.forEach((m) => {
+        const methodKey = m.method || "unknown";
+        const amount = Number(m.amount) || 0;
+
+        if (!acc.methodBreakdown[methodKey]) {
+          acc.methodBreakdown[methodKey] = { count: 0, amount: 0 };
+        }
+        acc.methodBreakdown[methodKey].count += 1;
+        acc.methodBreakdown[methodKey].amount += amount;
+      });
+
       return acc;
     },
     {
@@ -35,6 +56,7 @@ const calculatePaymentStats = (payments) => {
       pendingPayments: 0,
       approvedPayments: 0,
       totalAmount: 0,
+      methodBreakdown: {},
     }
   );
 
@@ -139,6 +161,7 @@ const initialState = {
     pendingPayments: 0,
     approvedPayments: 0,
     totalAmount: 0,
+    methodBreakdown: {},
   },
 
   // Loading states

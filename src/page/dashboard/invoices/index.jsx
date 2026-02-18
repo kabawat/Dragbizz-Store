@@ -144,7 +144,7 @@ const InvoicesPage = () => {
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [dispatch, selectedStore, paymentStatus, invoiceStatus, startDate, endDate, isLoading]);
+  }, [dispatch, selectedStore, paymentStatus, invoiceStatus, startDate, endDate]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !pagination?.hasNextPage || !pagination?.nextCursor) {
@@ -271,8 +271,7 @@ const InvoicesPage = () => {
   };
 
   const handlePrintInvoice = (invoiceId) => {
-    // Redirect to view invoice page
-    router.push(`/dashboard/invoices/view/${invoiceId}`);
+    window.open(`/dashboard/invoices/view/${invoiceId}?print=true`, "_blank");
   };
 
   const handleReleaseInvoice = (invoice) => {
@@ -619,10 +618,12 @@ const InvoicesPage = () => {
       )}
 
       {/* Download Drawer */}
-      <InvoiceDownloadDrawer
-        isOpen={showDownloadDrawer}
-        onClose={() => setShowDownloadDrawer(false)}
-      />
+      {showDownloadDrawer && (
+        <InvoiceDownloadDrawer
+          isOpen={showDownloadDrawer}
+          onClose={() => setShowDownloadDrawer(false)}
+        />
+      )}
     </div>
   );
 };

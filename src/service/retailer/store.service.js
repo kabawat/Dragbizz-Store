@@ -35,7 +35,7 @@ class StoreService {
         API_CONFIG?.RETAILER?.AGENCY,
         payload
       );
-      return handleApiSuccess(response, "Agency created successfully");
+      return handleApiSuccess(response?.data, "Agency created successfully");
     } catch (error) {
       return handleApiErrorResponse(error, "agency-creation");
     }
@@ -82,7 +82,7 @@ class StoreService {
         API_CONFIG?.RETAILER?.STORE,
         payload
       );
-      return handleApiSuccess(response, "Store created successfully");
+      return handleApiSuccess(response?.data, "Store created successfully");
     } catch (error) {
       return handleApiErrorResponse(error, "store-creation");
     }

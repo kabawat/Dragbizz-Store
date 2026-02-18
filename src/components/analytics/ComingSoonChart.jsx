@@ -162,10 +162,10 @@ const ComingSoonChart = ({ type = 'line' }) => {
     };
 
     return (
-        <div className="relative w-full h-full min-h-[inherit] overflow-hidden rounded-xl bg-[rgb(var(--color-bg-secondary))]/10 border border-[rgb(var(--color-border-primary))]/10">
+        <div className="relative w-full h-full overflow-hidden rounded-xl bg-[rgb(var(--color-bg-secondary))]/10 border border-[rgb(var(--color-border-primary))]/10">
             {/* Background Chart */}
             <div className="absolute inset-0 z-0 opacity-20 blur-[0.5px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={200}>
                     {renderChart()}
                 </ResponsiveContainer>
             </div>

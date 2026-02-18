@@ -75,27 +75,6 @@ class BillService {
     }
   }
 
-  // Get bill analytics
-  async getBillAnalytics(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/supplier-accounts/bills`;
-
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Bill analytics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "bill-analytics");
-    }
-  }
 }
-
-// Create and export a singleton instance
 const billService = new BillService();
 export default billService;

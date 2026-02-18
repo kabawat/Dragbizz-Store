@@ -34,19 +34,15 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
 import { useRevenueReportPrint } from "./hooks/useRevenueReportPrint";
-
-const formatCurrency = (amount) =>
-  `₹${(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
-const formatPercent = (num) => `${(num || 0).toFixed(2)}%`;
+import { formatCurrency, formatNumber, formatPercent } from "@/utils/currencyFormatter";
 
 const RevenueAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { revenue: analytics, isLoading } = useAppSelector(
-    (state) => state.analytics
-  );
+  const analytics = useAppSelector((state) => state.analytics.revenue);
+  const loading = useAppSelector((state) => state.analytics.loading);
+  const isLoading = loading?.revenue;
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {
@@ -108,7 +104,7 @@ const RevenueAnalytics = () => {
 
 
 
-  const { handlePrint, handleDownloadPDF, handleDownloadXLSX } =
+  const { handlePrint, handleDownloadPDF, handleDownloadXLSX, isPreparing } =
     useRevenueReportPrint(isLoading, analytics);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = React.useRef(null);
@@ -161,14 +157,14 @@ const RevenueAnalytics = () => {
           metricsMap.set("totalRevenue", {
             ...metricsMap.get("totalRevenue"),
             value: formatCurrency(summary.totalRevenue),
-            change: `${change.changeType?.revenue === "up" ? "+" : "-"}${formatPercent(change.revenue)} from last period`,
+            change: `${change.revenue >= 0 ? "+" : ""}${formatPercent(change.revenue)} from last period`,
           });
         }
         if (metricsMap.has("totalProfit")) {
           metricsMap.set("totalProfit", {
             ...metricsMap.get("totalProfit"),
             value: formatCurrency(summary.totalProfit),
-            change: `${change.changeType?.profit === "up" ? "+" : "-"}${formatPercent(change.profit)} from last period`,
+            change: `${change.profit >= 0 ? "+" : ""}${formatPercent(change.profit)} from last period`,
           });
         }
         if (metricsMap.has("profitMargin")) {
@@ -278,22 +274,24 @@ const RevenueAnalytics = () => {
         }
       `}</style>
 
-      <div
-        id="revenue-report-area"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          top: "-9999px",
-          width: "850px",
-        }}
-      >
-        {analytics && (
-          <RevenueReportTemplate
-            analyticsData={analytics}
-            selectedStore={selectedStore}
-          />
-        )}
-      </div>
+      {isPreparing && (
+        <div
+          id="revenue-report-area"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "-9999px",
+            width: "850px",
+          }}
+        >
+          {analytics && (
+            <RevenueReportTemplate
+              analyticsData={analytics}
+              selectedStore={selectedStore}
+            />
+          )}
+        </div>
+      )}
 
       <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative">
         <Sidebar />

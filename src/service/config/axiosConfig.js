@@ -169,12 +169,18 @@ authAxios.interceptors.response.use(
 
     // If 401 and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Disable auto-refresh on server-side to prevent shared state race conditions
+      if (typeof window === "undefined") {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
+            originalRequest._retry = true; // Mark as retried to prevent infinite loops
             return authAxios(originalRequest);
           })
           .catch((err) => {

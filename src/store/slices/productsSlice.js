@@ -1,6 +1,28 @@
-// src/store/slices/productsSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { analyticsService, productService } from "@/service/retailer";
+import { productService } from "@/service/retailer";
+
+const initialState = {
+  // Products data
+  products: [],
+  selectedProducts: [],
+
+  // Pagination
+  pagination: {
+    hasNextPage: false,
+    nextCursor: null,
+    limit: 20,
+    total: 0,
+  },
+
+  // Loading states
+  isLoading: false,
+
+  // Error handling
+  error: null,
+
+  // View settings
+  viewMode: "table", // 'table' or 'card'
+};
 
 // Async thunk for getting products
 export const getProducts = createAsyncThunk(
@@ -52,67 +74,6 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// Async thunk for getting stock analytics
-export const getStockAnalytics = createAsyncThunk(
-  "products/getStockAnalytics",
-  async (storeId, { rejectWithValue }) => {
-    try {
-      // Use analyticsService for analytics
-      const result = await analyticsService.getStockAnalytics({
-        store: storeId,
-      });
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch stock analytics",
-        });
-      }
-
-      // Handle null data from backend
-      const analyticsData =
-        result.data?.data !== undefined ? result.data.data : result.data;
-
-      return {
-        success: true,
-        data: analyticsData || initialState.analytics,
-        message: "Stock analytics fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch stock analytics. Please try again.",
-      });
-    }
-  }
-);
-
-const initialState = {
-  // Products data
-  products: [],
-  selectedProducts: [],
-
-  // Pagination
-  pagination: {
-    hasNextPage: false,
-    nextCursor: null,
-    limit: 20,
-    total: 0,
-  },
-
-  // Analytics
-  analytics: {
-    totals: {},
-    valueSummary: {},
-  },
-
-  // Loading states
-  isLoading: false,
-
-  // Error handling
-  error: null,
-
-  // View settings
-  viewMode: "table", // 'table' or 'card'
-};
 
 const productsSlice = createSlice({
   name: "products",
@@ -225,21 +186,6 @@ const productsSlice = createSlice({
       .addCase(deleteProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload?.message || "Failed to delete product";
-      })
-      // Get stock analytics
-      .addCase(getStockAnalytics.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(getStockAnalytics.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.analytics = action.payload.data || initialState.analytics;
-      })
-      .addCase(getStockAnalytics.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error =
-          action.payload?.message || "Failed to fetch stock analytics";
       });
   },
 });
@@ -253,6 +199,6 @@ export const {
   addMoreProducts,
 } = productsSlice.actions;
 
-export { getProducts, deleteProduct, getStockAnalytics };
+export { getProducts, deleteProduct };
 
 export default productsSlice.reducer;

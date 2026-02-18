@@ -86,45 +86,6 @@ class ExpenseService {
     }
   }
 
-  // Get expense statistics
-  async getExpenseStats(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/stats`;
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Expense statistics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-stats");
-    }
-  }
-
-  // Get expense analytics
-  async getExpenseAnalytics(storeId = null, period = "30") {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/expenses`;
-      const params = {};
-      if (storeId) {
-        params.store = storeId;
-      }
-      if (period) {
-        params.period = period;
-      }
-      url = attachQueryParams(url, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Expense analytics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-analytics");
-    }
-  }
 }
 
 // Create and export a singleton instance
