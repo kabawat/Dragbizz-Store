@@ -13,7 +13,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
-import QuotaProgressBar from "@/components/product/QuotaProgressBar";
+
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
@@ -42,7 +42,7 @@ const CreateInvoicePage = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
   // 3. Refs
-  const quotaRefreshRef = useRef(null);
+
   const productsFetchedRef = useRef({ storeId: null, fetched: false });
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
@@ -69,8 +69,6 @@ const CreateInvoicePage = () => {
   const quotaExceeded = !isQuotaAvailable();
 
   // 6. Data Fetching Callbacks
-
-
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
     if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
@@ -78,7 +76,6 @@ const CreateInvoicePage = () => {
     }
 
     productsFetchedRef.current = { storeId, fetched: true };
-
     try {
       const result = await productService.getProducts({
         limit: 100,
@@ -129,8 +126,6 @@ const CreateInvoicePage = () => {
   }, [storeId, t]);
 
   // 7. Effects
-
-
   useEffect(() => {
     if (storeId && (productsFetchedRef.current.storeId !== storeId || customersFetchedRef.current.storeId !== storeId)) {
       productsFetchedRef.current = { storeId: null, fetched: false };
@@ -145,8 +140,6 @@ const CreateInvoicePage = () => {
   }, [storeId, fetchProducts, fetchCustomers]);
 
   // 8. Event Handlers
-
-
   const handleCustomerChange = (value) => {
     if (value === "add-new-customer") {
       setShowCustomerDrawer(true);
@@ -206,8 +199,8 @@ const CreateInvoicePage = () => {
       const handled = handleApiResult(result, t("invoice.invoiceCreatedSuccess"), "invoice-creation");
 
       if (handled.type === "success") {
-        if (quotaRefreshRef.current) quotaRefreshRef.current();
         const invoiceId = result?.data?.id || null;
+
         router.push(
           invoiceId
             ? `/dashboard/invoices/view/${invoiceId}`
@@ -270,18 +263,12 @@ const CreateInvoicePage = () => {
                   {t("invoice.backToInvoices")}
                 </span>
               </Link>
-              <QuotaProgressBar
-                featureKey="invoice_management"
-                onRefreshRef={(refreshFn) => {
-                  quotaRefreshRef.current = refreshFn;
-                }}
-              />
             </div>
+
 
             {/* Form Container - Two Column Layout */}
             <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-              style={{ height: "calc(100vh - 150px)" }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-150px)]"
             >
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="flex-1 h-full">

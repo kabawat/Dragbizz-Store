@@ -321,7 +321,7 @@ const Sidebar = ({ onStoreChange }) => {
             >
               <Link
                 href={item.href}
-                className={`flex items-center ml-2 py-2 rounded-lg transition-all duration-300 cursor-pointer 
+                className={`flex items-center px-2 py-2 rounded-lg transition-all duration-300 cursor-pointer 
                   ${isCollapsed ? "justify-center" : "space-x-3"}
                   ${isActive
                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
