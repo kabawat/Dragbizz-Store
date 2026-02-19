@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import SuggestionsTab from "@/components/support/tabs/SuggestionsTab";
 import HelpTab from "@/components/support/tabs/HelpTab";
 import ShortcutsTab from "@/components/support/tabs/ShortcutsTab";

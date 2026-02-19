@@ -2,8 +2,8 @@
 import { Download, Grid3X3, List, Search, Package, Copy, ExternalLink, QrCode, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Input, Select, Modal } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";

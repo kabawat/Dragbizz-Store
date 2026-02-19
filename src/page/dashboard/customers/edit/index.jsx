@@ -9,8 +9,8 @@ import { useGstVerification } from "@/hooks/useGstVerification";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 

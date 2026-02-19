@@ -7,9 +7,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import Header from "@/components/dashboard/Header";
+import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 

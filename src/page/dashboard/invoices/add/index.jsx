@@ -15,8 +15,8 @@ import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/sidebar";
+import Header from "@/components/dashboard/header";
 
 const INITIAL_FORM_DATA = {
   customer: "",

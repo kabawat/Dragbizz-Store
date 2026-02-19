@@ -3,9 +3,9 @@ import { ArrowLeft, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
+import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/sidebar";
 // Import inventory components
 import InventoryForm from "@/components/inventory/InventoryForm";
 // Import services

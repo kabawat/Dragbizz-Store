@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import CustomerDetailsTemplate from "@/components/templates/customer/CustomerDetailsTemplate";
 import CustomerViewHeader from "@/components/customer/view/CustomerViewHeader";
 import CustomerViewLayout from "@/components/customer/view/CustomerViewLayout";

@@ -20,8 +20,8 @@ import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
 import inventoryService from "@/service/retailer/inventory.service";
@@ -531,15 +531,15 @@ const ViewInventoryPage = ({ inventoryId }) => {
                               <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center">
                                 <div
                                   className={`w-6 h-6 rounded-full ${inventory.paymentSummary?.paymentStatus ===
-                                      "PAID"
-                                      ? "bg-green-500/35 dark:!bg-green-400 dark:opacity-40"
+                                    "PAID"
+                                    ? "bg-green-500/35 dark:!bg-green-400 dark:opacity-40"
+                                    : inventory.paymentSummary
+                                      ?.paymentStatus === "UNPAID"
+                                      ? "bg-red-500/35 dark:!bg-red-400 dark:opacity-40"
                                       : inventory.paymentSummary
-                                        ?.paymentStatus === "UNPAID"
-                                        ? "bg-red-500/35 dark:!bg-red-400 dark:opacity-40"
-                                        : inventory.paymentSummary
-                                          ?.paymentStatus === "PARTIAL"
-                                          ? "bg-yellow-500/35 dark:!bg-yellow-400 dark:opacity-40"
-                                          : "bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40"
+                                        ?.paymentStatus === "PARTIAL"
+                                        ? "bg-yellow-500/35 dark:!bg-yellow-400 dark:opacity-40"
+                                        : "bg-gray-500/35 dark:!bg-gray-400 dark:opacity-40"
                                     }`}
                                 ></div>
                               </div>
@@ -549,15 +549,15 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                 </p>
                                 <p
                                   className={`text-base font-semibold ${inventory.paymentSummary?.paymentStatus ===
-                                      "PAID"
-                                      ? "text-green-600 dark:text-green-400"
+                                    "PAID"
+                                    ? "text-green-600 dark:text-green-400"
+                                    : inventory.paymentSummary
+                                      ?.paymentStatus === "UNPAID"
+                                      ? "text-red-600 dark:text-red-400"
                                       : inventory.paymentSummary
-                                        ?.paymentStatus === "UNPAID"
-                                        ? "text-red-600 dark:text-red-400"
-                                        : inventory.paymentSummary
-                                          ?.paymentStatus === "PARTIAL"
-                                          ? "text-yellow-600 dark:text-yellow-400"
-                                          : "text-[rgb(var(--color-text-primary))]"
+                                        ?.paymentStatus === "PARTIAL"
+                                        ? "text-yellow-600 dark:text-yellow-400"
+                                        : "text-[rgb(var(--color-text-primary))]"
                                     }`}
                                 >
                                   {inventory.paymentSummary?.paymentStatus ||
@@ -676,10 +676,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                                     <td className="py-3">
                                       <span
                                         className={`px-2 py-1 rounded-full text-xs font-medium ${batch.isActive
-                                            ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                                            : batch.isExpired
-                                              ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
-                                              : "bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20"
+                                          ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                                          : batch.isExpired
+                                            ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
+                                            : "bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20"
                                           }`}
                                       >
                                         {batch.isExpired

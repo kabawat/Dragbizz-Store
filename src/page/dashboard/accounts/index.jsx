@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Badge, Button, Card, Input, Modal, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getAccountStats, getAccounts } from "@/store/slices/accountsSlice";
@@ -424,11 +424,10 @@ const Accounts = () => {
                         </td>
                         <td className="p-4">
                           <span
-                            className={`font-medium ${
-                              availableCredit > 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
+                            className={`font-medium ${availableCredit > 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                              }`}
                           >
                             {formatCurrency(availableCredit)}
                           </span>

@@ -25,8 +25,8 @@ import {
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import CustomersChart from "@/components/analytics/customers/CustomersChart";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import CustomersReportTemplate from "@/components/templates/analytics/customers/CustomersReportTemplate";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";

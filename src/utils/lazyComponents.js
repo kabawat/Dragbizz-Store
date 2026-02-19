@@ -21,12 +21,12 @@ export const createLazyComponent = (importFn, options = {}) => {
 };
 
 export const LazySidebar = createLazyComponent(
-  () => import("@/components/dashboard/Sidebar"),
+  () => import("@/components/dashboard/sidebar"),
   { ssr: false }
 );
 
 export const LazyHeader = createLazyComponent(
-  () => import("@/components/dashboard/Header"),
+  () => import("@/components/dashboard/header"),
   { ssr: false }
 );
 
