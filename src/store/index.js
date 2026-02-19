@@ -16,6 +16,7 @@ import signaturesSlice from "./slices/signaturesSlice";
 import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
 import notificationsSlice from "./slices/notificationsSlice";
+import uiSlice from "./slices/uiSlice";
 
 import publicCartSlice from "./slices/publicCartSlice";
 import notificationSettingsSlice from "./slices/notificationSettingsSlice";
@@ -41,6 +42,7 @@ export const store = configureStore({
     signatures: signaturesSlice,
     theme: themeSlice,
     suggestions: suggestionsSlice,
+    ui: uiSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -50,3 +52,4 @@ export const store = configureStore({
     }),
   devTools: process.env.NODE_ENV !== "production",
 });
+
