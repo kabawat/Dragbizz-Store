@@ -5,8 +5,8 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui";
 
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 

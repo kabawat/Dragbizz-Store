@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Check, Copy, ExternalLink, ShoppingBag, Download, Printer } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useGlobalToast } from "@/contexts/ToastContext";
 

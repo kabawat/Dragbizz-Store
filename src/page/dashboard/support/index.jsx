@@ -13,7 +13,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import SuggestionsTab from "@/components/support/tabs/SuggestionsTab";
 import HelpTab from "@/components/support/tabs/HelpTab";
 import ShortcutsTab from "@/components/support/tabs/ShortcutsTab";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const SupportPage = () => {
     const { t } = useTranslation();

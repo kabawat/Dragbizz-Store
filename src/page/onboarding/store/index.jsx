@@ -24,7 +24,7 @@ import {
 } from "@/components/onboard";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useGstVerification } from "@/hooks/useGstVerification";
+import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { authService } from "@/service";
 
 export default function StoreCreation() {

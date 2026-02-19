@@ -3,9 +3,9 @@ import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import SupplierForm from "./SupplierForm";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useGstVerification } from "@/hooks/useGstVerification";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 

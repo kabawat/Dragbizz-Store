@@ -1,6 +1,6 @@
 "use client";
 import { Languages, Check } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { locales, localeNames } from "@/i18n/config";
 
 const LanguageSettings = () => {

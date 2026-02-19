@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@/app/LocationProvider";
 import LoginSuccessScreen from "@/components/auth/LoginSuccessScreen";
 import { AnimatedBackground, AnimatedGridPattern } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { authService } from "@/service/auth";
 import { handleApiError } from "@/utils/errorHandler";
 import { useAppDispatch } from "@/store/hooks";

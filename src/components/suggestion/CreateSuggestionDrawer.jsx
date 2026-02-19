@@ -3,7 +3,7 @@
 import { Lightbulb, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { Button, SideDrawer } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createSuggestion } from "@/store/slices/suggestionsSlice";
 import SuggestionForm from "./SuggestionForm";

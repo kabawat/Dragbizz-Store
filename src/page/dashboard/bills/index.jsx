@@ -20,7 +20,7 @@ import {
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService } from "@/service/retailer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {

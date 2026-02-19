@@ -1,6 +1,6 @@
 "use client";
 import { Edit2, Mail, Phone, User } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import PersonalInfoCard from "./PersonalInfoCard";
 
 const PersonalInfoSection = ({ form, apiUser, user, onEditClick }) => {

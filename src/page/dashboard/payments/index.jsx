@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { deletePayment, getPayments } from "@/store/slices/paymentsSlice";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";

@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
-import { useLogout } from "@/hooks/useLogout";
+import { useLogout } from "@/hooks/auth/useLogout";
 import LogoutModal from "@/components/ui/LogoutModal";
 
 const UserProfile = () => {

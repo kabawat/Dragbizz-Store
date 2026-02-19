@@ -1,7 +1,7 @@
 "use client";
 import { Calculator, Hash } from "lucide-react";
 import { GST_RATE_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Input, Select, Toggle } from "../ui";
 
 const GSTSection = ({ formData, onChange, errors = {}, ...props }) => {

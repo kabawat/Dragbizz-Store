@@ -1,6 +1,6 @@
 "use client";
 import { Plus } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Button, Input, TagInput, Textarea, Toggle } from "../ui";
 
 const AdditionalDetailsSection = ({

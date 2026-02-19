@@ -1,6 +1,6 @@
 "use client";
 import { Button, Modal } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const BillDeleteConfirmModal = ({
   isOpen,

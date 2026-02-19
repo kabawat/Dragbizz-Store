@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Cookies from "js-cookie";
-import { useAppDispatch } from "../store/hooks";
-import { clearAuth } from "../store/slices/profileSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { clearAuth } from "@/store/slices/profileSlice";
 import authService from "@/service/auth/auth.service";
 
 // Helper function to redirect to main domain

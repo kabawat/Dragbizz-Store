@@ -1,7 +1,7 @@
 "use client";
 import { Building2, CheckCircle, Hash, Mail, MapPin, Phone, ShieldCheck, Store } from "lucide-react";
 import { Checkbox, Input, Select, Toggle } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
 const StoreEditForm = ({

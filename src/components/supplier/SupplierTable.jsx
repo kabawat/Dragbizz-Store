@@ -1,7 +1,7 @@
 "use client";
 import { Building, Edit, Eye, MoreVertical, Printer, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Checkbox } from "@/components/ui";
 
 const SupplierTable = ({

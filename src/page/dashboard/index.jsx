@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { dashboardService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";

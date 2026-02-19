@@ -3,7 +3,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedStore } from "@/store/slices/profileSlice";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const StoreSelector = ({ isCollapsed, onStoreChange }) => {
     const { t } = useTranslation();

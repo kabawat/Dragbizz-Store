@@ -7,7 +7,7 @@ import Header from "@/components/dashboard/header";
 // Import components
 import Sidebar from "@/components/dashboard/sidebar";
 import { ExpenseForm } from "@/components/expenses";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { expenseService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateExpense } from "@/store/slices/expensesSlice";

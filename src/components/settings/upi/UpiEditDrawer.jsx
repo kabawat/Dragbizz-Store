@@ -9,7 +9,7 @@ import {
   getStoreUpi,
 } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
 

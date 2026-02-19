@@ -10,7 +10,7 @@ import {
   Receipt,
   Trash2,
 } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { renderStatusBadge } from "@/utils/statusBadge";
 import { IconButton } from "../ui";
 

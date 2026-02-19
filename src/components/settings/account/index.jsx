@@ -2,8 +2,8 @@
 import { Save, Settings } from "lucide-react";
 import { useState } from "react";
 import { FormDrawer } from "@/components/common";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import AccountPreferencesSection from "./AccountPreferencesSection";
 import { useAccountData } from "./useAccountData";
 

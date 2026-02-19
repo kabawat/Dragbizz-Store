@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Badge, IconButton } from "../ui";

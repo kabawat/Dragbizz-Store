@@ -8,12 +8,12 @@ import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";
 import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useInvoicePrint } from "@/hooks/invoice/useInvoicePrint";
-import { useMiniInvoicePrint } from "@/hooks/invoice/useMiniInvoicePrint";
+import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
+import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
 import {
   calculateGstAmount,
   calculateSubtotal,

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button, Modal } from "@/components/ui";
 import { deleteStoreUpi, getStoreUpi } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const UpiDeleteModal = ({
   isOpen,

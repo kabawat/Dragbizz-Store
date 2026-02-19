@@ -1,7 +1,7 @@
 import React from "react";
 import { Clock, CheckCircle, XCircle, RefreshCw, Truck, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus }) => {
     const { t } = useTranslation();

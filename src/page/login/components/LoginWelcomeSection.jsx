@@ -1,6 +1,6 @@
 "use client";
 import { BarChart3, Shield, Users, Zap } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const LoginWelcomeSection = () => {
   const { t } = useTranslation();

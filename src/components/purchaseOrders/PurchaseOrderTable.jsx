@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AddActionButton } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import logger from "@/utils/logger";
 import { renderStatusBadge } from "@/utils/statusBadge";
 import { normalizePurchaseOrder, getPurchaseOrderStatus } from "@/utils/purchaseOrder";

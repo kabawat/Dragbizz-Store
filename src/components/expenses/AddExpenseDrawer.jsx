@@ -3,9 +3,9 @@ import { Receipt, Save } from "lucide-react";
 import { useState } from "react";
 import { ExpenseForm } from "@/components/expenses";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createExpense } from "@/store/slices/expensesSlice";
 

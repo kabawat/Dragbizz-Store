@@ -30,8 +30,8 @@ import Sidebar from "@/components/dashboard/sidebar";
 import CustomersReportTemplate from "@/components/templates/analytics/customers/CustomersReportTemplate";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomerAnalytics } from "@/store/slices/customersSlice";
 

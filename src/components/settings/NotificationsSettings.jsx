@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getNotificationSettings,
@@ -8,7 +8,7 @@ import {
   resetNotificationSettings
 } from "@/store/slices/notificationSettingsSlice";
 import authService from "@/service/auth/auth.service";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { Bell, Mail, MessageSquare, Smartphone, Shield, ShoppingCart, Percent, CreditCard, User, RotateCcw, Loader2 } from "lucide-react";
 
 const WhatsAppIcon = ({ className }) => (

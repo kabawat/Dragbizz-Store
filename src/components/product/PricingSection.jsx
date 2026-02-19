@@ -1,7 +1,7 @@
 "use client";
 import { Package } from "lucide-react";
 import { CURRENCY_OPTIONS, UOM_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Input, Select } from "../ui";
 
 const PricingSection = ({ formData, onChange, errors = {}, ...props }) => {

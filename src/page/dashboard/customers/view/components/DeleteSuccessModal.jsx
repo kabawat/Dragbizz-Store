@@ -1,7 +1,7 @@
 "use client";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const DeleteSuccessModal = ({ isOpen, customerName, onClose }) => {
   const { t } = useTranslation();

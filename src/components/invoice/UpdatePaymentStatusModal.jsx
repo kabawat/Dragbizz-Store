@@ -3,7 +3,7 @@ import { CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";

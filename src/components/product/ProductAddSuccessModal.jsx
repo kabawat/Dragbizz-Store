@@ -2,7 +2,7 @@
 import { ArrowRight, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ProductAddSuccessModal = ({
   isOpen,

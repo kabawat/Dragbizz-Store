@@ -1,6 +1,6 @@
 "use client";
 
-import { useHotkeys } from "@/hooks/useHotkeys";
+import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 import { useAppDispatch } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useRouter } from "next/navigation";

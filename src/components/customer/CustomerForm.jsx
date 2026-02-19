@@ -1,6 +1,6 @@
 "use client";
 import { useCallback } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import BasicInfo from "./sections/BasicInfo";
 import CompanyDetails from "./sections/CompanyDetails";
 import AddressSection from "./sections/AddressSection";

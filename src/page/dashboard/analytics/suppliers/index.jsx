@@ -29,8 +29,8 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import SuppliersReportTemplate from "@/components/templates/analytics/suppliers/SuppliersReportTemplate";
 import { Button, Card } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSupplierAnalytics } from "@/store/slices/suppliersSlice";
 

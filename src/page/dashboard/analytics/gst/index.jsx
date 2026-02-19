@@ -28,7 +28,7 @@ import GstMismatchList from "@/components/analytics/gst/GstMismatchList";
 import GstHealthScoreWidget from "@/components/analytics/gst/GstHealthScoreWidget";
 import GstExportDrawer from "@/components/analytics/gst/GstExportDrawer";
 import { Button, Card, Select } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getGstSummary,

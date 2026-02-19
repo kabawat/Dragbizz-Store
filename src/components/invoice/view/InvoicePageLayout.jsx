@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { InvoiceSummaryCard, InvoiceActionButtons, ReleaseInvoiceModal } from "@/components/invoice";
 import { getTemplateComponent } from "@/utils/invoice/invoiceView.utils";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const InvoicePageLayout = ({
     invoiceData,

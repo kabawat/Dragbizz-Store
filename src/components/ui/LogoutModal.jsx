@@ -1,7 +1,7 @@
 "use client";
 import { AlertTriangle, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 export default function LogoutModal({ onClose, onConfirm }) {
   const { t } = useTranslation();

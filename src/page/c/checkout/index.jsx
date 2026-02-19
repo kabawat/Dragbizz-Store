@@ -12,7 +12,7 @@ import {
 } from "@/components/checkout";
 import { clearCart } from "@/store/slices/publicCartSlice";
 import publicSalesOrderService from "@/service/public/salesOrder.service";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks/ui/useToast";
 
 const initialFormData = {
   name: "",

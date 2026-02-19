@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardBody, Input, Select } from "@/components/ui";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { productService, supplierService } from "@/service/retailer";
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {

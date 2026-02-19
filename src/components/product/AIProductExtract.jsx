@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, FileUpload } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { voiceAIService } from "@/service";
 
 const AIProductExtract = ({ storeId, onExtractSuccess, onCancel }) => {

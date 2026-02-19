@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bell, Check, MoreVertical, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { useSocketNotification } from "@/contexts/SocketNotificationContext";
 import { getNotificationConfig } from "@/utils/notification";

@@ -6,8 +6,8 @@ import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { stockService, supplierService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 

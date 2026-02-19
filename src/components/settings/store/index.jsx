@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";

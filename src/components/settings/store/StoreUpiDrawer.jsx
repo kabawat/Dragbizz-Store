@@ -18,7 +18,7 @@ import {
   deleteStoreUpi,
 } from "@/store/slices/storeUpiSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
 const MAX_UPI_PER_AGENCY = 50;

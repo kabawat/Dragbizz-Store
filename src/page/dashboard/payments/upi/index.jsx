@@ -5,9 +5,9 @@ import { Loader2 } from "lucide-react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import storeService from "@/service/retailer/store.service";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStoreUpi } from "@/store/slices/storeUpiSlice";
 import {
   UpiHeader,

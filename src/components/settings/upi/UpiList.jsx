@@ -10,7 +10,7 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 import { UpiQrModal } from "@/components/common";
 

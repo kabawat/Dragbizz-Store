@@ -31,8 +31,8 @@ import {
 } from "@/components/templates/analytics/SortableComponents";
 import SalesReportTemplate from "@/components/templates/analytics/sales/SalesReportTemplate";
 import { Button, Card } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoiceAnalytics } from "@/store/slices/analyticsSlice";
 

@@ -3,10 +3,10 @@ import { Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CustomerForm } from "@/components/customer";
 import { Button } from "@/components/ui";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
-import { useGstVerification } from "@/hooks/useGstVerification";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
+import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { customerService } from "@/service";
 
 const CreateCustomer = ({

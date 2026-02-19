@@ -1,7 +1,7 @@
 "use client";
 import { MessageCircle, BookOpen, ExternalLink, HelpCircle, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useMemo } from "react";
 import { getFaqs, getQuickStartSteps } from "@/data/constants/supportData";
 

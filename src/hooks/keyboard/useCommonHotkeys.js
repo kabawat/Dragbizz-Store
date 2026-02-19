@@ -1,4 +1,4 @@
-import { useHotkeys } from './useHotkeys';
+import { useHotkeys } from '@/hooks/keyboard/useHotkeys';
 
 //  A hook to register common keyboard shortcuts used across pages.
 export const useCommonHotkeys = ({

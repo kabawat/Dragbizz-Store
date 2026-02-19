@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Plus, Trash2, PenTool, AlertCircle } from "lucide-react";
 import { Button, Card } from "@/components/ui";
 import { SignatureDrawer } from "@/components/common";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchSignatures, addSignature, removeSignature } from "@/store/slices/signaturesSlice";
 import { signatureService } from "@/service";

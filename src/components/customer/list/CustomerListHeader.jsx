@@ -4,7 +4,7 @@ import { Download, Grid3X3, List, Mic, Plus, Search } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
 import { VoiceAICustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const CustomerListHeader = ({
     searchValue,

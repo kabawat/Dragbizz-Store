@@ -3,7 +3,7 @@ import moment from "moment";
 import { ReportFooter, ReportHeader } from "../analytics/common";
 import styles from "../analytics/common/analyticsReport.module.scss";
 
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const BillDetailsTemplate = ({ billData, selectedStore }) => {
   const { t } = useTranslation();

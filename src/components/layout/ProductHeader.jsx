@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import LogoutModal from "@/components/ui/LogoutModal";
-import { useLogout } from "@/hooks/useLogout";
+import { useLogout } from "@/hooks/auth/useLogout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 import logger from "@/utils/logger";

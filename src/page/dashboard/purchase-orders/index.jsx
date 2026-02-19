@@ -20,9 +20,9 @@ import PurchaseOrderGrid from "@/components/purchaseOrders/PurchaseOrderGrid";
 // Import dedicated purchase order components
 import PurchaseOrderTable from "@/components/purchaseOrders/PurchaseOrderTable";
 import { Button, Input, ToastContainer } from "@/components/ui";
-import { useToast } from "@/hooks/useToast";
-import { useTranslation } from "@/hooks/useTranslation";
-import useDebounce from "@/hooks/useDebounce";
+import { useToast } from "@/hooks/ui/useToast";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import useDebounce from "@/hooks/form/useDebounce";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addMorePurchaseOrders,
@@ -32,7 +32,7 @@ import {
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { normalizePurchaseOrder } from "@/utils/purchaseOrder";
 
 const PurchaseOrders = () => {

@@ -3,8 +3,8 @@ import { ArrowUp, Calculator, Package, Truck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { supplierService } from "@/service/retailer";
 import { Input, Select } from "../ui";
 

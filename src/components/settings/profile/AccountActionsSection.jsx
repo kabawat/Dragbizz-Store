@@ -1,5 +1,5 @@
 "use client";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const AccountActionsSection = () => {
   const { t } = useTranslation();

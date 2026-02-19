@@ -1,6 +1,6 @@
 "use client";
 import { Building2, Edit2, Loader2, Plus, QrCode, Trash2 } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { copyToClipboard } from "@/utils/clipboard";
 
 const StoreList = ({

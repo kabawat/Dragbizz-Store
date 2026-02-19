@@ -8,7 +8,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { InventoryCard, InventoryTable } from "@/components/inventory";
 import { Button, Input, StockInDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";

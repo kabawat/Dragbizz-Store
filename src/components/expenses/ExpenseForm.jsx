@@ -7,7 +7,7 @@ import {
   EXPENSE_GST_RATES,
   PAYMENT_METHODS,
 } from "@/data/constants/expenses";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 // ── GST Rate options for Select ──────────────────────────────────────
 const GST_RATE_OPTIONS = EXPENSE_GST_RATES.map((r) => ({
