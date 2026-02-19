@@ -12,8 +12,8 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useTranslation } from "@/hooks/useTranslation";

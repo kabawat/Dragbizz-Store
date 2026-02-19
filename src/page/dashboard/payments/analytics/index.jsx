@@ -15,8 +15,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPayments } from "@/store/slices/paymentsSlice";

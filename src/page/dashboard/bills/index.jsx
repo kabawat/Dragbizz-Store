@@ -17,8 +17,8 @@ import {
   BillPaymentDrawer,
   BillTable,
 } from "@/components/bills";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { billService } from "@/service/retailer";
@@ -457,8 +457,8 @@ const Bills = () => {
                       <button
                         onClick={() => handleViewModeChange("table")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <List className="w-4 h-4" />

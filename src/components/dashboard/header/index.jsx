@@ -1,7 +1,7 @@
 "use client";
-import HeaderTitle from "./header/HeaderTitle";
-import NotificationBell from "./header/NotificationBell";
-import UserProfile from "./header/UserProfile";
+import HeaderTitle from "./HeaderTitle";
+import NotificationBell from "./NotificationBell";
+import UserProfile from "./UserProfile";
 
 const Header = ({ title, description }) => {
   return (

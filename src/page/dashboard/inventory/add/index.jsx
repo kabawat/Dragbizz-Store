@@ -11,9 +11,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
+import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/sidebar";
 import InventoryForm from "@/components/inventory/InventoryForm";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";

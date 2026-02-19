@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -393,8 +393,8 @@ const Payments = () => {
                       <button
                         onClick={() => handleViewModeChange("table")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <List className="w-4 h-4" />
@@ -536,14 +536,14 @@ const Payments = () => {
                                   <td className="w-1/7 px-6 py-4">
                                     <span
                                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${typeBadge.variant === "primary"
-                                          ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
-                                          : typeBadge.variant === "info"
-                                            ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
-                                            : typeBadge.variant === "warning"
-                                              ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                              : typeBadge.variant === "danger"
-                                                ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                                                : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                        ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                                        : typeBadge.variant === "info"
+                                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                          : typeBadge.variant === "warning"
+                                            ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                            : typeBadge.variant === "danger"
+                                              ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                              : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                         }`}
                                     >
                                       {typeBadge.text}
@@ -552,15 +552,15 @@ const Payments = () => {
                                   <td className="w-1/7 px-6 py-4">
                                     <span
                                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${methodBadge.variant === "success"
-                                          ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
-                                          : methodBadge.variant === "info"
-                                            ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
-                                            : methodBadge.variant === "warning"
-                                              ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                              : methodBadge.variant ===
-                                                "primary"
-                                                ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
-                                                : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+                                        : methodBadge.variant === "info"
+                                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                          : methodBadge.variant === "warning"
+                                            ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                            : methodBadge.variant ===
+                                              "primary"
+                                              ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                                              : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                         }`}
                                     >
                                       {methodBadge.text}
@@ -569,12 +569,12 @@ const Payments = () => {
                                   <td className="w-1/7 px-6 py-4">
                                     <span
                                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.variant === "success"
-                                          ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
-                                          : statusBadge.variant === "warning"
-                                            ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                            : statusBadge.variant === "danger"
-                                              ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                                              : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+                                        : statusBadge.variant === "warning"
+                                          ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                          : statusBadge.variant === "danger"
+                                            ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                            : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                         }`}
                                     >
                                       <StatusIcon className="w-3 h-3 mr-1" />
@@ -776,12 +776,12 @@ const Payments = () => {
                                 <div className="flex flex-wrap gap-1 sm:gap-2">
                                   <span
                                     className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${statusBadge.variant === "success"
-                                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
-                                        : statusBadge.variant === "warning"
-                                          ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                          : statusBadge.variant === "danger"
-                                            ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                                            : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                      ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+                                      : statusBadge.variant === "warning"
+                                        ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                        : statusBadge.variant === "danger"
+                                          ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                          : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                       }`}
                                   >
                                     <StatusIcon className="w-3 h-3 mr-1" />
@@ -789,28 +789,28 @@ const Payments = () => {
                                   </span>
                                   <span
                                     className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${typeBadge.variant === "primary"
-                                        ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
-                                        : typeBadge.variant === "info"
-                                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
-                                          : typeBadge.variant === "warning"
-                                            ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                            : typeBadge.variant === "danger"
-                                              ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                                              : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                      ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                                      : typeBadge.variant === "info"
+                                        ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                        : typeBadge.variant === "warning"
+                                          ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                          : typeBadge.variant === "danger"
+                                            ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                            : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                       }`}
                                   >
                                     {typeBadge.text}
                                   </span>
                                   <span
                                     className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${methodBadge.variant === "success"
-                                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
-                                        : methodBadge.variant === "info"
-                                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
-                                          : methodBadge.variant === "warning"
-                                            ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
-                                            : methodBadge.variant === "primary"
-                                              ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
-                                              : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
+                                      ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+                                      : methodBadge.variant === "info"
+                                        ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                        : methodBadge.variant === "warning"
+                                          ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20"
+                                          : methodBadge.variant === "primary"
+                                            ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                                            : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
                                       }`}
                                   >
                                     {methodBadge.text}

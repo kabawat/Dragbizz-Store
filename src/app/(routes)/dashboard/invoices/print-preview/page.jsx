@@ -3,8 +3,8 @@ import { ArrowLeft, CheckCircle, Settings } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { TEMPLATE_OPTIONS } from "@/components/templates/invoice";
 import { AnimatedBackground } from "@/components/ui";
 
@@ -109,8 +109,8 @@ const InvoiceTemplateSettingsContent = () => {
                       key={template.value}
                       onClick={() => handleTemplateChange(template.value)}
                       className={`relative p-1 rounded-lg border-2 overflow-hidden transition-all ${selectedTemplate === template.value
-                          ? "border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/40 bg-[rgb(var(--color-primary))]/10"
-                          : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]"
+                        ? "border-[rgb(var(--color-primary))] ring-2 ring-[rgb(var(--color-primary))]/40 bg-[rgb(var(--color-primary))]/10"
+                        : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]"
                         }`}
                     >
                       {selectedTemplate === template.value && (

@@ -2,8 +2,8 @@
 import { Grid3X3, List, Package, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 // Import inventory components
 import { InventoryCard, InventoryTable } from "@/components/inventory";
 import { Button, Input, StockInDrawer } from "@/components/ui";
@@ -351,8 +351,8 @@ const InventoryPage = () => {
                       <button
                         onClick={() => handleViewModeChange("table")}
                         className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                            ? "bg-[rgb(var(--color-primary))] text-white"
-                            : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                          ? "bg-[rgb(var(--color-primary))] text-white"
+                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                           }`}
                       >
                         <List className="w-4 h-4" />

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import storeService from "@/service/retailer/store.service";
 import useErrorHandling from "@/hooks/useErrorHandling";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -71,8 +71,8 @@ const ManageUpiPage = () => {
       } else {
         showError(
           error?.response?.data?.message ||
-            error?.message ||
-            "Failed to fetch stores"
+          error?.message ||
+          "Failed to fetch stores"
         );
         setStores([]);
       }

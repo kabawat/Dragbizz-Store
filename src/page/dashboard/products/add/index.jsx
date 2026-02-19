@@ -3,9 +3,9 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
+import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/sidebar";
 import { AIProductExtract, ProductForm } from "@/components/product";
 import { AIButton, Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/useErrorHandling";

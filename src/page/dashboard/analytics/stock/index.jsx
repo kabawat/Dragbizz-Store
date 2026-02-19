@@ -25,8 +25,8 @@ import {
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import StockChart from "@/components/analytics/stock/StockChart";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import StockReportTemplate from "@/components/templates/analytics/stock/StockReportTemplate";
 import { Button, Card } from "@/components/ui";

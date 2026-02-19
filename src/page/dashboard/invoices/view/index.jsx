@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { UpdatePaymentStatusModal } from "@/components/invoice";
 import InvoiceLoadingState from "@/components/invoice/view/InvoiceLoadingState";
 import InvoicePageLayout from "@/components/invoice/view/InvoicePageLayout";

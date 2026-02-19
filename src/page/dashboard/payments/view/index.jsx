@@ -17,9 +17,9 @@ import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
+import Header from "@/components/dashboard/header";
 // Import components
-import Sidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/sidebar";
 import PaymentDetailsTemplate from "@/components/templates/payment/PaymentDetailsTemplate";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/useTranslation";

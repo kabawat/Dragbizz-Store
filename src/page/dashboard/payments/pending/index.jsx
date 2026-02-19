@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { Badge, Button, Card, Input, Select } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPayments } from "@/store/slices/paymentsSlice";
@@ -318,15 +318,14 @@ const PendingPayments = () => {
                         </td>
                         <td className="p-4">
                           <span
-                            className={`font-medium ${
-                              daysPending <= 1
-                                ? "text-green-600"
-                                : daysPending <= 3
-                                  ? "text-blue-600"
-                                  : daysPending <= 7
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                            }`}
+                            className={`font-medium ${daysPending <= 1
+                              ? "text-green-600"
+                              : daysPending <= 3
+                                ? "text-blue-600"
+                                : daysPending <= 7
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
+                              }`}
                           >
                             {daysPending === 0
                               ? "Today"

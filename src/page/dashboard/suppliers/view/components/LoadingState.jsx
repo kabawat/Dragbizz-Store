@@ -1,6 +1,6 @@
 "use client";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const LoadingState = () => {

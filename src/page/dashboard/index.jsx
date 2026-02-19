@@ -47,8 +47,8 @@ import {
 } from "@/components/dashboard/AnalyticsWrappers";
 
 // Lazy load components
-const Sidebar = lazy(() => import("@/components/dashboard/Sidebar"));
-const Header = lazy(() => import("@/components/dashboard/Header"));
+const Sidebar = lazy(() => import("@/components/dashboard/sidebar"));
+const Header = lazy(() => import("@/components/dashboard/header"));
 
 const formatPercentChange = (value) => {
   const numericValue = Number(value);

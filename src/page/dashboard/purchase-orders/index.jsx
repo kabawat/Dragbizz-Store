@@ -12,8 +12,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BillDeleteConfirmModal as PurchaseOrderDeleteConfirmModal } from "@/components/bills";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import AdvancePaymentDrawer from "@/components/purchaseOrders/AdvancePaymentDrawer";
 import CreateBillDrawer from "@/components/purchaseOrders/CreateBillDrawer";
 import PurchaseOrderGrid from "@/components/purchaseOrders/PurchaseOrderGrid";

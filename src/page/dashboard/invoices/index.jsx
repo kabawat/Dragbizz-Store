@@ -2,8 +2,8 @@
 import { Download, FileText, Grid3X3, List, Plus, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import {
   InvoiceCard,
   InvoiceDeleteConfirmModal,

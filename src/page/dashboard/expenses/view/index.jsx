@@ -15,8 +15,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
 import {

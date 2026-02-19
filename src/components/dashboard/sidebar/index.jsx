@@ -1,6 +1,5 @@
 "use client";
 import {
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -9,12 +8,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSelectedStore } from "@/store/slices/profileSlice";
+import { useAppSelector } from "@/store/hooks";
+import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import {
   getSalesSubMenuItems,
   getInventorySubMenuItems,
@@ -24,17 +23,12 @@ import {
   getBottomItems,
   getMenuToFeatureMap,
   getSubMenuToFeatureMap,
-} from "./constants/sidebarData";
+} from "../constants/sidebarData";
 
 const Sidebar = ({ onStoreChange }) => {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const dispatch = useAppDispatch();
-  const {
-    agency,
-    stores: reduxStores,
-    selectedStore,
-  } = useAppSelector((state) => state.profile);
+  const { agency, selectedStore } = useAppSelector((state) => state.profile);
   const {
     features,
     isLoading: featuresLoading,
@@ -43,7 +37,6 @@ const Sidebar = ({ onStoreChange }) => {
   } = useFeatureAccess();
 
   // Unified state management
-  const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [upgradeModal, setUpgradeModal] = useState({
@@ -51,9 +44,6 @@ const Sidebar = ({ onStoreChange }) => {
     featureName: "",
     requiredFeature: "",
   });
-
-  // Refs
-  const storeDropdownRef = useRef(null);
 
   // Memoized Menu Items
   const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
@@ -211,46 +201,6 @@ const Sidebar = ({ onStoreChange }) => {
     }
   }, [pathname, navigationItems]);
 
-  const handleStoreSelect = (store) => {
-    dispatch(setSelectedStore(store));
-    setIsStoreDropdownOpen(false);
-    if (onStoreChange) {
-      onStoreChange(store);
-    }
-  };
-
-  // Close dropdown when clicking outside (only for store dropdown)
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const isDropdownToggle = event.target.closest(
-        "button[data-dropdown-toggle]"
-      );
-      if (isDropdownToggle) return;
-
-      if (
-        storeDropdownRef.current &&
-        !storeDropdownRef.current.contains(event.target)
-      ) {
-        setIsStoreDropdownOpen(false);
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("click", handleClickOutside);
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isCollapsed) {
-      setIsStoreDropdownOpen(false);
-    }
-  }, [isCollapsed]);
-
   return (
     <div
       className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] flex-shrink-0"
@@ -301,69 +251,7 @@ const Sidebar = ({ onStoreChange }) => {
         </div>
 
         {/* Store Selection */}
-        {!isCollapsed && (
-          <div className="p-3 border-b border-[rgb(var(--color-border-primary))]">
-            <div className="relative" ref={storeDropdownRef}>
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsStoreDropdownOpen(!isStoreDropdownOpen);
-                }}
-                data-dropdown-toggle
-                className="flex items-center justify-between p-2 bg-[rgb(var(--color-primary))]/5 border-2 border-[rgb(var(--color-primary))]/10 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-primary))]/10 transition-colors"
-              >
-                <div>
-                  <div className="font-semibold text-sm text-gray-900">
-                    {selectedStore?.name ||
-                      selectedStore?.storeName ||
-                      t("sidebar.selectStore")}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    GST: {selectedStore?.gst || t("common.notAvailable")}
-                  </div>
-                </div>
-                <ChevronDown
-                  className={`w-3 h-3 text-[rgb(var(--color-primary))] transition-transform ${isStoreDropdownOpen ? "rotate-180" : ""}`}
-                />
-              </div>
-
-              {isStoreDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-[9999]">
-                  <div className="p-1">
-                    {reduxStores.map((store) => {
-                      const isSelected =
-                        selectedStore &&
-                        store.storeName === selectedStore.storeName;
-                      return (
-                        <div
-                          key={store.storeName || store.name || store.id}
-                          onClick={() => handleStoreSelect(store)}
-                          className={`flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] transition-colors ${isSelected ? "bg-[rgb(var(--color-primary))]/5" : ""}`}
-                        >
-                          <div>
-                            <div
-                              className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-gray-900"}`}
-                            >
-                              {store.storeName}
-                            </div>
-                            <div
-                              className={`text-xs ${isSelected ? "text-gray-600" : "text-gray-500"}`}
-                            >
-                              GST: {store.gst}
-                            </div>
-                          </div>
-                          {isSelected && (
-                            <Check className="w-3 h-3 text-[rgb(var(--color-primary))]" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        <StoreSelector isCollapsed={isCollapsed} onStoreChange={onStoreChange} />
       </div>
 
       {/* Scrollable Navigation Section */}
@@ -375,7 +263,6 @@ const Sidebar = ({ onStoreChange }) => {
               pathname === item.href ||
               (item.hasSubMenu && pathname.startsWith(item.href));
             const hasAccess = hasMenuItemAccess(item.name);
-            const isDropdownOpen = item.hasSubMenu && !isCollapsed;
 
             if (item.hasSubMenu && item.key) {
               const isExpanded = expandedMenus[item.key];

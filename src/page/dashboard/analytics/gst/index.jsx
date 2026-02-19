@@ -21,8 +21,8 @@ import {
   RefreshCw,
   TrendingUp,
 } from "lucide-react";
-import Header from "@/components/dashboard/Header";
-import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
 import { SortableCard, SortableMetricCard } from "@/components/templates/analytics/SortableComponents";
 import GstMismatchList from "@/components/analytics/gst/GstMismatchList";
 import GstHealthScoreWidget from "@/components/analytics/gst/GstHealthScoreWidget";
