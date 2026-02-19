@@ -8,7 +8,6 @@ import {
     IndianRupee,
     LayoutDashboard,
     LineChart,
-    Lightbulb,
     Package,
     PieChart,
     Receipt,
@@ -16,94 +15,38 @@ import {
     ShoppingCart,
     ShoppingBag,
     Users,
-    LifeBuoy,
+    Headphones,
     Warehouse,
 } from "lucide-react";
 
 export const getSalesSubMenuItems = (t) => [
-    { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers" },
-    {
-        name: t("sidebar.invoices"),
-        icon: FileText,
-        href: "/dashboard/invoices",
-    },
-    {
-        name: t("sidebar.expenses"),
-        icon: IndianRupee,
-        href: "/dashboard/expenses",
-    },
-    {
-        name: t("sidebar.sellOrders") || "Sell Orders",
-        icon: ShoppingBag,
-        href: "/dashboard/sales-order",
-    },
+    { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c" },
+    { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i" },
+    { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e" },
+    { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "l" },
 ];
 
 export const getInventorySubMenuItems = (t) => [
-    { name: t("sidebar.products"), icon: Package, href: "/dashboard/products" },
-    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock" },
+    { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p" },
+    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "k" },
 ];
 
 export const getPurchaseSubMenuItems = (t) => [
-    {
-        name: t("sidebar.suppliers"),
-        icon: Building2,
-        href: "/dashboard/suppliers",
-    },
-    {
-        name: t("sidebar.purchaseOrders"),
-        icon: ShoppingCart,
-        href: "/dashboard/purchase-orders",
-    },
-    { name: t("sidebar.bills"), icon: Receipt, href: "/dashboard/bills" },
-    {
-        name: t("sidebar.payments"),
-        icon: IndianRupee,
-        href: "/dashboard/payments",
-    },
+    { name: t("sidebar.suppliers"), icon: Building2, href: "/dashboard/suppliers", shortcut: "u" },
+    { name: t("sidebar.purchaseOrders"), icon: ShoppingCart, href: "/dashboard/purchase-orders", shortcut: "o" },
+    { name: t("sidebar.bills"), icon: Receipt, href: "/dashboard/bills", shortcut: "b" },
+    { name: t("sidebar.payments"), icon: IndianRupee, href: "/dashboard/payments", shortcut: "m" },
 ];
 
 export const getAnalyticsSubMenuItems = (t, selectedStore) => [
-    {
-        name: t("dashboard.revenueAnalytics") || "Revenue Analytics",
-        icon: LineChart,
-        href: "/dashboard/analytics/revenue",
-    },
-    {
-        name: t("dashboard.salesAnalytics") || "Sales Analytics",
-        icon: BarChart3,
-        href: "/dashboard/analytics/sales",
-    },
-    {
-        name: t("dashboard.stockAnalytics") || "Stock Analytics",
-        icon: Warehouse,
-        href: "/dashboard/analytics/stock",
-    },
-    {
-        name: t("dashboard.productAnalytics") || "Product Analytics",
-        icon: PieChart,
-        href: "/dashboard/analytics/products",
-    },
-    {
-        name: t("dashboard.customerAnalytics") || "Customer Analytics",
-        icon: Activity,
-        href: "/dashboard/analytics/customers",
-    },
-    {
-        name: t("dashboard.supplierAnalytics") || "Supplier Analytics",
-        icon: Building2,
-        href: "/dashboard/analytics/suppliers",
-    },
-    {
-        name: t("dashboard.billAnalytics") || "Bill Analytics",
-        icon: Receipt,
-        href: "/dashboard/analytics/bills",
-    },
-    {
-        name: t("dashboard.expenseAnalytics") || "Expense Analytics",
-        icon: DollarSign,
-        href: "/dashboard/analytics/expenses",
-    },
+    { name: t("dashboard.revenueAnalytics") || "Revenue Analytics", icon: LineChart, href: "/dashboard/analytics/revenue" },
+    { name: t("dashboard.salesAnalytics") || "Sales Analytics", icon: BarChart3, href: "/dashboard/analytics/sales" },
+    { name: t("dashboard.stockAnalytics") || "Stock Analytics", icon: Warehouse, href: "/dashboard/analytics/stock" },
+    { name: t("dashboard.productAnalytics") || "Product Analytics", icon: PieChart, href: "/dashboard/analytics/products" },
+    { name: t("dashboard.customerAnalytics") || "Customer Analytics", icon: Activity, href: "/dashboard/analytics/customers" },
+    { name: t("dashboard.supplierAnalytics") || "Supplier Analytics", icon: Building2, href: "/dashboard/analytics/suppliers" },
+    { name: t("dashboard.billAnalytics") || "Bill Analytics", icon: Receipt, href: "/dashboard/analytics/bills" },
+    { name: t("dashboard.expenseAnalytics") || "Expense Analytics", icon: DollarSign, href: "/dashboard/analytics/expenses" },
     ...(selectedStore?.gst ? [{
         name: t("gst.gstAnalytics") || "GST Analytics",
         icon: BadgePercent,
@@ -112,7 +55,7 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
 ];
 
 export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems) => [
-    { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard" },
+    { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard", shortcut: "d" },
     {
         name: t("sidebar.salesTransactions"),
         icon: Receipt,
@@ -148,16 +91,8 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
 ];
 
 export const getBottomItems = (t) => [
-    {
-        name: t("sidebar.supportCenter") || "Support Center",
-        icon: LifeBuoy,
-        href: "/dashboard/support",
-    },
-    {
-        name: t("sidebar.settings"),
-        icon: Settings,
-        href: "/dashboard/settings",
-    },
+    { name: t("sidebar.supportCenter") || "Support Center", icon: Headphones, href: "/dashboard/support", shortcut: "h" },
+    { name: t("sidebar.settings"), icon: Settings, href: "/dashboard/settings", shortcut: "," },
 ];
 
 export const getMenuToFeatureMap = (t) => ({

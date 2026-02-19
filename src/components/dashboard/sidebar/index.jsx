@@ -6,12 +6,14 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { toggleSidebar, toggleExpandedMenu, expandMenu } from "@/store/slices/uiSlice";
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
+import { usePathname } from "next/navigation";
+import { toggleSidebar, toggleExpandedMenu, expandMenu } from "@/store/slices/uiSlice";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
+
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   getSalesSubMenuItems,
   getInventorySubMenuItems,
@@ -28,6 +30,10 @@ const Sidebar = ({ onStoreChange }) => {
   const { agency, selectedStore } = useAppSelector((state) => state.profile);
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
   const expandedMenus = useAppSelector((state) => state.ui.expandedMenus);
+
+  // Flyout for collapsed sidebar
+  const [hoveredItem, setHoveredItem] = useState(null); // { item, rect }
+  const hideTimerRef = useRef(null);
 
   // Memoized Menu Items
   const salesSubMenuItems = useMemo(() => getSalesSubMenuItems(t), [t]);
@@ -76,6 +82,42 @@ const Sidebar = ({ onStoreChange }) => {
     }
   }, [pathname, navigationItems]);
 
+  // Close flyout when sidebar expands
+  useEffect(() => {
+    if (!isCollapsed) setHoveredItem(null);
+  }, [isCollapsed]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, []);
+
+  // Flyout hover handlers — 100ms grace period so mouse can travel icon → flyout
+  const handleMouseEnterItem = (item, e, isBottom = false) => {
+    if (!isCollapsed) return;
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const anchorBottom = isBottom
+      ? window.innerHeight - rect.bottom
+      : null;
+    setHoveredItem({ item, rect, anchorBottom });
+  };
+
+  const handleMouseLeaveItem = () => {
+    if (!isCollapsed) return;
+    hideTimerRef.current = setTimeout(() => setHoveredItem(null), 100);
+  };
+
+  const handleMouseEnterFlyout = () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+  };
+
+  const handleMouseLeaveFlyout = () => {
+    hideTimerRef.current = setTimeout(() => setHoveredItem(null), 100);
+  };
+
   return (
     <div
       className="bg-[rgb(var(--color-bg-primary))]/80 backdrop-blur-md border-r border-[rgb(var(--color-border-primary))]/40 h-screen flex flex-col shadow-lg relative z-[150] flex-shrink-0"
@@ -83,8 +125,7 @@ const Sidebar = ({ onStoreChange }) => {
         width: isCollapsed ? "64px" : "256px",
         minWidth: isCollapsed ? "64px" : "256px",
         maxWidth: isCollapsed ? "64px" : "256px",
-        transition:
-          "width 0.3s ease-in-out, min-width 0.3s ease-in-out, max-width 0.3s ease-in-out",
+        transition: "width 0.3s ease-in-out, min-width 0.3s ease-in-out, max-width 0.3s ease-in-out",
         willChange: "width",
       }}
     >
@@ -139,7 +180,12 @@ const Sidebar = ({ onStoreChange }) => {
               const isExpanded = expandedMenus[item.key];
 
               return (
-                <div key={item.name} className="relative">
+                <div
+                  key={item.name}
+                  className="relative"
+                  onMouseEnter={(e) => handleMouseEnterItem(item, e)}
+                  onMouseLeave={handleMouseLeaveItem}
+                >
                   <div
                     onClick={(e) => !isCollapsed && handleSubMenuToggle(item, e)}
                     className={`w-full group flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"
@@ -163,7 +209,7 @@ const Sidebar = ({ onStoreChange }) => {
                         </span>
                       </div>
                     ) : (
-                      <Icon className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
+                      <Icon className={`${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} text-[rgb(var(--color-text-tertiary))]`} />
                     )}
 
                     {!isCollapsed && (
@@ -176,7 +222,7 @@ const Sidebar = ({ onStoreChange }) => {
                     )}
                   </div>
 
-                  {/* Sub-menu */}
+                  {/* Sub-menu (expanded sidebar) */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded && !isCollapsed
                       ? "max-h-96 opacity-100 mt-1"
@@ -208,6 +254,7 @@ const Sidebar = ({ onStoreChange }) => {
                               <span className="text-sm font-medium">
                                 {subItem.name}
                               </span>
+
                             </Link>
                           );
                         })}
@@ -220,25 +267,25 @@ const Sidebar = ({ onStoreChange }) => {
             // Simple menu item without submenu
             const isActive = pathname === item.href;
             return (
-              <div key={item.name}>
+              <div key={item.name} onMouseEnter={(e) => handleMouseEnterItem(item, e)} onMouseLeave={handleMouseLeaveItem} >
                 <Link
                   href={item.href}
-                  className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "space-x-2 px-2"
-                    } py-1.5 rounded-lg transition-all duration-300 cursor-pointer ${isActive
+                  className={
+                    `w-full flex items-center py-1.5 rounded-lg transition-all duration-300 cursor-pointer
+                    ${isCollapsed ? "justify-center px-0" : "space-x-2 px-2"} 
+                    ${isActive
                       ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-r-2 border-[rgb(var(--color-primary))]"
                       : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                    }`}
+                    }`
+                  }
                   title={isCollapsed ? item.name : ""}
                 >
                   <Icon
-                    className={`w-4 h-4 transition-all duration-300 ${isActive
-                      ? "text-[rgb(var(--color-primary))]"
-                      : "text-[rgb(var(--color-text-tertiary))]"
-                      }`}
+                    className={`transition-all duration-300 
+                    ${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} 
+                    ${isActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
                   />
-                  {!isCollapsed && (
-                    <span className="font-medium text-sm">{item.name}</span>
-                  )}
+                  {!isCollapsed && (<span className="font-medium text-sm">{item.name}</span>)}
                 </Link>
               </div>
             );
@@ -252,22 +299,104 @@ const Sidebar = ({ onStoreChange }) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
-            <Link
+            <div
               key={item.name}
-              href={item.href}
-              className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"
-                } px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer ${isActive
-                  ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
-                  : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                }`}
-              title={isCollapsed ? item.name : ""}
+              onMouseEnter={(e) => handleMouseEnterItem(item, e, true)}
+              onMouseLeave={handleMouseLeaveItem}
             >
-              <Icon className="w-6 h-6 text-[rgb(var(--color-text-tertiary))] transition-all duration-300" />
-              {!isCollapsed && <span className="font-medium">{item.name}</span>}
-            </Link>
+              <Link
+                href={item.href}
+                className={`flex items-center ml-2 py-2 rounded-lg transition-all duration-300 cursor-pointer 
+                  ${isCollapsed ? "justify-center" : "space-x-3"}
+                  ${isActive
+                    ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                    : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                  }`}
+                title={isCollapsed ? item.name : ""}
+              >
+                <Icon className={`${isCollapsed ? "w-[24px] h-[24px]" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))] transition-all duration-300`} />
+                {!isCollapsed && (<span className="font-medium">{item.name}</span>)}
+              </Link>
+            </div>
           );
         })}
       </div>
+
+      {/* ── Collapsed Flyout Menu ── */}
+      {isCollapsed && hoveredItem && (
+        <div
+          className="fixed z-[200] min-w-[190px] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-xl overflow-hidden"
+          style={{
+            ...(hoveredItem.anchorBottom !== null
+              ? { bottom: hoveredItem.anchorBottom } // bottom items → flyout opens upward
+              : { top: hoveredItem.rect.top }         // top items → flyout opens downward
+            ),
+            left: 72, // 64px sidebar width + 8px gap
+          }}
+          onMouseEnter={handleMouseEnterFlyout}
+          onMouseLeave={handleMouseLeaveFlyout}
+        >
+          {/* Flyout Header */}
+          <div className="px-3 py-2.5 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--color-text-secondary))]">
+              {hoveredItem.item.name}
+            </span>
+          </div>
+
+          {/* Flyout Links */}
+          <div className="p-1.5 space-y-0.5">
+            {hoveredItem.item.subMenuItems ? (
+              // Submenu items
+              hoveredItem.item.subMenuItems.map((subItem) => {
+                const SubIcon = subItem.icon;
+                const isSubActive =
+                  pathname === subItem.href ||
+                  pathname.startsWith(`${subItem.href}/`);
+                return (
+                  <Link
+                    key={subItem.name}
+                    href={subItem.href}
+                    onClick={() => setHoveredItem(null)}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
+                      ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                      : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                      }`}
+                  >
+                    <SubIcon
+                      className={`w-4 h-4 flex-shrink-0 ${isSubActive
+                        ? "text-[rgb(var(--color-primary))]"
+                        : "text-[rgb(var(--color-text-tertiary))]"
+                        }`}
+                    />
+                    <span className="text-sm font-medium">{subItem.name}</span>
+
+                    {isSubActive && (
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
+                    )}
+                  </Link>
+                );
+              })
+            ) : (
+              // Simple item (e.g. Dashboard) — single link
+              <Link
+                href={hoveredItem.item.href}
+                onClick={() => setHoveredItem(null)}
+                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${pathname === hoveredItem.item.href
+                  ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
+                  : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
+                  }`}
+              >
+                <span className="text-sm font-medium">
+                  {hoveredItem.item.name}
+                </span>
+                {pathname === hoveredItem.item.href && (
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
+                )}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
