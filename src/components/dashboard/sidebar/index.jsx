@@ -178,6 +178,10 @@ const Sidebar = ({ onStoreChange }) => {
 
             if (item.hasSubMenu && item.key) {
               const isExpanded = expandedMenus[item.key];
+              // collapsed me active child hai to parent icon bhi active dikhao
+              const isChildActive = isCollapsed && item.subMenuItems?.some(
+                (sub) => pathname === sub.href || pathname.startsWith(`${sub.href}/`)
+              );
 
               return (
                 <div
@@ -189,7 +193,10 @@ const Sidebar = ({ onStoreChange }) => {
                   <div
                     onClick={(e) => !isCollapsed && handleSubMenuToggle(item, e)}
                     className={`w-full group flex items-center ${isCollapsed ? "justify-center px-0" : "justify-between px-2"
-                      } py-2 cursor-pointer rounded-lg hover:bg-[rgb(var(--color-bg-secondary))] transition-colors text-[rgb(var(--color-text-secondary))] ${isExpanded && !isCollapsed ? "bg-[rgb(var(--color-bg-secondary))]" : ""
+                      } py-2 cursor-pointer rounded-lg transition-colors text-[rgb(var(--color-text-secondary))] ${isChildActive
+                        ? "bg-[rgb(var(--color-primary))]/10"  // collapsed active child
+                        : "hover:bg-[rgb(var(--color-bg-secondary))]"
+                      } ${isExpanded && !isCollapsed ? "bg-[rgb(var(--color-bg-secondary))]" : ""
                       }`}
                     title={isCollapsed ? item.name : ""}
                   >
@@ -209,7 +216,10 @@ const Sidebar = ({ onStoreChange }) => {
                         </span>
                       </div>
                     ) : (
-                      <Icon className={`${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"} text-[rgb(var(--color-text-tertiary))]`} />
+                      <Icon className={`w-[18px] h-[18px] transition-colors ${isChildActive
+                        ? "text-[rgb(var(--color-primary))]"
+                        : "text-[rgb(var(--color-text-tertiary))]"
+                        }`} />
                     )}
 
                     {!isCollapsed && (
@@ -240,10 +250,11 @@ const Sidebar = ({ onStoreChange }) => {
                             <Link
                               key={subItem.name}
                               href={subItem.href}
-                              className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
+                              className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${isSubActive
                                 ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] border-l-2 border-[rgb(var(--color-primary))]"
                                 : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                                 }`}
+                              title={subItem.shortcut ? `Alt+${subItem.shortcut.toUpperCase()}` : ""}
                             >
                               <SubIcon
                                 className={`w-4 h-4 ${isSubActive
@@ -251,10 +262,14 @@ const Sidebar = ({ onStoreChange }) => {
                                   : "text-[rgb(var(--color-text-tertiary))]"
                                   }`}
                               />
-                              <span className="text-sm font-medium">
+                              <span className="text-sm font-medium flex-1">
                                 {subItem.name}
                               </span>
-
+                              {subItem.shortcut && (
+                                <kbd className="absolute right-2 opacity-0 group-hover:opacity-50 transition-opacity duration-200 delay-300 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none">
+                                  ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
+                                </kbd>
+                              )}
                             </Link>
                           );
                         })}
@@ -278,7 +293,7 @@ const Sidebar = ({ onStoreChange }) => {
                       : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                     }`
                   }
-                  title={isCollapsed ? item.name : ""}
+                  title={isCollapsed && item.shortcut ? `${item.name}  ⌥${item.shortcut.toUpperCase()}` : isCollapsed ? item.name : ""}
                 >
                   <Icon
                     className={`transition-all duration-300 
@@ -312,7 +327,7 @@ const Sidebar = ({ onStoreChange }) => {
                     ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                     : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                   }`}
-                title={isCollapsed ? item.name : ""}
+                title={isCollapsed && item.shortcut ? `${item.name}  ⌥${item.shortcut.toUpperCase()}` : isCollapsed ? item.name : ""}
               >
                 <Icon className={`${isCollapsed ? "w-[24px] h-[24px]" : "w-5 h-5"} text-[rgb(var(--color-text-tertiary))] transition-all duration-300`} />
                 {!isCollapsed && (<span className="font-medium">{item.name}</span>)}
@@ -325,7 +340,7 @@ const Sidebar = ({ onStoreChange }) => {
       {/* ── Collapsed Flyout Menu ── */}
       {isCollapsed && hoveredItem && (
         <div
-          className="fixed z-[200] min-w-[190px] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-xl overflow-hidden"
+          className="fixed z-[200] w-auto whitespace-nowrap bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-xl overflow-hidden"
           style={{
             ...(hoveredItem.anchorBottom !== null
               ? { bottom: hoveredItem.anchorBottom } // bottom items → flyout opens upward
@@ -357,7 +372,7 @@ const Sidebar = ({ onStoreChange }) => {
                     key={subItem.name}
                     href={subItem.href}
                     onClick={() => setHoveredItem(null)}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
+                    className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${isSubActive
                       ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                       : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                       }`}
@@ -368,7 +383,12 @@ const Sidebar = ({ onStoreChange }) => {
                         : "text-[rgb(var(--color-text-tertiary))]"
                         }`}
                     />
-                    <span className="text-sm font-medium">{subItem.name}</span>
+                    <span className="text-sm font-medium flex-1 pr-6">{subItem.name}</span>
+                    {subItem.shortcut && (
+                      <kbd className="absolute right-2 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
+                        ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
+                      </kbd>
+                    )}
 
                     {isSubActive && (
                       <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
@@ -381,14 +401,19 @@ const Sidebar = ({ onStoreChange }) => {
               <Link
                 href={hoveredItem.item.href}
                 onClick={() => setHoveredItem(null)}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${pathname === hoveredItem.item.href
+                className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-150 ${pathname === hoveredItem.item.href
                   ? "bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))]"
                   : "text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:text-[rgb(var(--color-text-primary))]"
                   }`}
               >
-                <span className="text-sm font-medium">
+                <span className="text-sm font-medium flex-1 pr-6">
                   {hoveredItem.item.name}
                 </span>
+                {hoveredItem.item.shortcut && (
+                  <kbd className="absolute right-2 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))]/60 text-[rgb(var(--color-text-tertiary))] font-mono opacity-0 group-hover:opacity-40 transition-opacity duration-200 delay-300 pointer-events-none">
+                    ⌥{hoveredItem.item.shortcut === "," ? "," : hoveredItem.item.shortcut.toUpperCase()}
+                  </kbd>
+                )}
                 {pathname === hoveredItem.item.href && (
                   <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-primary))]" />
                 )}
