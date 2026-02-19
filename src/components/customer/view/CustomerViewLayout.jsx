@@ -6,7 +6,7 @@ import AccountDetails from "@/page/dashboard/customers/view/components/AccountDe
 import Addresses from "@/page/dashboard/customers/view/components/Addresses";
 import CustomerActions from "@/page/dashboard/customers/view/components/CustomerActions";
 import DeleteModal from "@/page/dashboard/customers/view/components/DeleteModal";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { customerService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useRouter } from "next/navigation";

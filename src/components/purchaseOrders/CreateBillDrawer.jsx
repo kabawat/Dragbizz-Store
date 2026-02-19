@@ -19,7 +19,7 @@ import {
   SideDrawer,
   Textarea,
 } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService, productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 

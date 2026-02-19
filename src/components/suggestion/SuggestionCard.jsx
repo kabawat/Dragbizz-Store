@@ -3,7 +3,7 @@
 import { MessageSquare, ThumbsUp, Calendar, Tag, ChevronRight } from "lucide-react";
 import React from "react";
 import Link from "next/link";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Badge } from "@/components/ui/Badge";
 
 const SuggestionCard = ({ item, onVote }) => {

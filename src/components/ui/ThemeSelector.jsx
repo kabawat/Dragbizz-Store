@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { localeNames } from "@/i18n/config";
 import { useAppSelector } from "@/store/hooks";
 import { useTheme } from "../../contexts/ThemeContext";

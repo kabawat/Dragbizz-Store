@@ -1,6 +1,6 @@
 "use client";
 import moment from "moment";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import styles from "./analyticsReport.module.scss";
 
 const ReportFooter = ({ reportType = "analytics" }) => {

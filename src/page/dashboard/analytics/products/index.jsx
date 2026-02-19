@@ -29,8 +29,8 @@ import Sidebar from "@/components/dashboard/sidebar";
 import ProductsReportTemplate from "@/components/templates/analytics/products/ProductsReportTemplate";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");

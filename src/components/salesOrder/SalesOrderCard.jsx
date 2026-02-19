@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Eye, Printer, Clock, CheckCircle, Package, XCircle, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { IconButton } from "../ui";
 
 const StatusBadge = ({ status }) => {

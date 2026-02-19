@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { exportToCSV } from "@/utils/exportUtils";
 import exportGstr2bExcel from "@/utils/excel/gst/exportGstr2bExcel";
 import { useAppSelector } from "@/store/hooks";

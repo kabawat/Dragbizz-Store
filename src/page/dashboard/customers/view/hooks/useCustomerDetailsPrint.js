@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import logger from "@/utils/logger";
 
 export const useCustomerDetailsPrint = (fetching, customerData) => {

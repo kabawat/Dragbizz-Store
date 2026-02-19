@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const PasswordInput = ({
   password,

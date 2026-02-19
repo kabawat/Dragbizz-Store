@@ -1,7 +1,7 @@
 import React from "react";
 import { Package } from "lucide-react";
 import { Badge } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const OrderItems = ({ order }) => {
     const { t } = useTranslation();

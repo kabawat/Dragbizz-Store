@@ -12,7 +12,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { AnimatedBackground, AnimatedGridPattern, Button, Input } from "../ui";
 
 const BasicInfoStep = ({

@@ -18,7 +18,7 @@ import {
   ExpenseTable,
 } from "@/components/expenses";
 import { Button, Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   deleteExpense,
@@ -26,7 +26,7 @@ import {
   setSortOptions,
   setViewMode,
 } from "@/store/slices/expensesSlice";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const ExpensesPage = () => {
   const { t } = useTranslation();

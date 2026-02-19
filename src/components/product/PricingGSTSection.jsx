@@ -1,7 +1,7 @@
 "use client";
 import { Calculator, Hash, Info, Package, Percent } from "lucide-react";
 import { CURRENCY_OPTIONS, GST_RATE_OPTIONS, UOM_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Input, Select, Toggle } from "../ui";
 import { useAppSelector } from "@/store/hooks";
 import { useEffect } from "react";

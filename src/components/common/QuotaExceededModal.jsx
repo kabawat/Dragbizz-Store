@@ -2,7 +2,7 @@
 import { AlertTriangle, Clock, TrendingUp, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 // Modal component for displaying quota exceeded messages
 const QuotaExceededModal = ({

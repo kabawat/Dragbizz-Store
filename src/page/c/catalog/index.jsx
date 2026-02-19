@@ -10,7 +10,7 @@ import {
 import { Search, Sparkles, X, Building2, Package } from "lucide-react";
 import publicCatalogService from "@/service/public/catalog.service";
 import { copyToClipboard } from "@/utils/clipboard";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks/ui/useToast";
 import ProductCard from "@/components/public/ProductCard";
 import CatalogHeader from "@/components/public/CatalogHeader";
 import CategoryFilter from "@/components/public/CategoryFilter";
@@ -18,7 +18,7 @@ import LoadingSkeleton from "@/components/public/LoadingSkeleton";
 import EmptyState from "@/components/public/EmptyState";
 import CartDrawer from "@/components/public/CartDrawer";
 import { Card, CardBody, Input } from "@/components/ui";
-import useDebounce from "@/hooks/useDebounce";
+import useDebounce from "@/hooks/form/useDebounce";
 // Order Modal State (Removed)
 
 export default function CatalogPage({ catalogId }) {

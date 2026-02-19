@@ -12,7 +12,7 @@ import {
   ProductInfoModal,
 } from "@/components/product";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 

@@ -7,7 +7,7 @@ import Select from "./Select";
 import UpgradeModal from "./UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { stockService, supplierService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 

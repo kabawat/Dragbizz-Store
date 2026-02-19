@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FormDrawer } from "@/components/common";
 import storeService from "@/service/retailer/store.service";
 import StoreEditForm from "./StoreEditForm";
-import { useGstVerification } from "@/hooks/useGstVerification";
+import { useGstVerification } from "@/hooks/form/useGstVerification";
 
 const StoreAddDrawer = ({ isOpen, agency, onClose, onSuccess, onError }) => {
   const [form, setForm] = useState({

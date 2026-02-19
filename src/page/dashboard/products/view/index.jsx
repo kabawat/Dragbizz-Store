@@ -34,7 +34,7 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import ProductDetailsTemplate from "@/components/templates/product/ProductDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";

@@ -22,7 +22,7 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import PaymentDetailsTemplate from "@/components/templates/payment/PaymentDetailsTemplate";
 import { Button } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { usePaymentDetailsPrint } from "./hooks/usePaymentDetailsPrint";

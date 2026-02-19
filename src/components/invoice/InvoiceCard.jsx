@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge } from "@/utils/statusBadge";
 import { Card, Badge, IconButton } from "../ui";
 import { useTheme } from "@/contexts/ThemeContext";

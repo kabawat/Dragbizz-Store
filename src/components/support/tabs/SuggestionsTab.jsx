@@ -3,7 +3,7 @@ import { Lightbulb, Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { CreateSuggestionDrawer, SuggestionCard } from "@/components/suggestion";
 import { Button, Input } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuggestions, upvoteSuggestion } from "@/store/slices/suggestionsSlice";
 

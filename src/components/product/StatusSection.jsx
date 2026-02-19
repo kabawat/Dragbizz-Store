@@ -1,7 +1,7 @@
 "use client";
 import { Award, Sparkles, Star } from "lucide-react";
 import { PRODUCT_STATUS_OPTIONS, PRODUCT_VISIBILITY_OPTIONS } from "@/data";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { Select, Toggle } from "../ui";
 
 const StatusSection = ({ formData, onChange, errors = {}, ...props }) => {

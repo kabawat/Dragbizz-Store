@@ -14,8 +14,8 @@ import {
 } from "@/components/invoice";
 import { Button, Input, Select } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices, setViewMode } from "@/store/slices/invoicesSlice";
 

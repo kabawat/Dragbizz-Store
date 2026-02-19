@@ -1,6 +1,6 @@
 import React from "react";
 import { User, MapPin, Phone, Mail } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const CustomerAndAddress = ({ order }) => {
     const { t } = useTranslation();

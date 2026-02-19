@@ -1,7 +1,7 @@
 import React from "react";
 import { Clock } from "lucide-react";
 import moment from "moment";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ActivityHistory = ({ order }) => {
     const { t } = useTranslation();

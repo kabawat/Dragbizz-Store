@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { FileSignature, ShieldCheck, Upload as UploadIcon, Type as TypeIcon, Fingerprint, CheckCircle2, AlertCircle, Info, PenTool, RotateCcw } from "lucide-react";
 import { Tabs, TabPanel, Button, FileUpload, Input, SideDrawer, Card } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { signatureService } from "@/service/retailer";
 import uploadService from "@/service/auth/upload.service";
 import { useGlobalToast } from "@/contexts/ToastContext";

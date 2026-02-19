@@ -30,7 +30,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import RevenueReportTemplate from "@/components/templates/analytics/revenue/RevenueReportTemplate";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRevenueAnalytics } from "@/store/slices/analyticsSlice";
 import { useRevenueReportPrint } from "./hooks/useRevenueReportPrint";

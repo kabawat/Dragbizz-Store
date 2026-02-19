@@ -2,7 +2,7 @@
 import { Camera, User, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
 import { uploadService, authService } from "@/service";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
 

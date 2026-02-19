@@ -1,7 +1,7 @@
 "use client";
 import { FileText } from "lucide-react";
 import { Badge } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   getPaymentStatusColor,
   getStatusColor,

@@ -1,7 +1,7 @@
 "use client";
 import { Edit, Eye, MoreVertical, Trash2, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const CustomerTable = ({
   customers = [],

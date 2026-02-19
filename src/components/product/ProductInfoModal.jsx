@@ -8,7 +8,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ProductInfoModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();

@@ -2,7 +2,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const AppearanceSettings = ({ animationKey, handleToggleVariant }) => {
   const { t } = useTranslation();

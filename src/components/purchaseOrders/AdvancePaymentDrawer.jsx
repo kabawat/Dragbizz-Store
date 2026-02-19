@@ -10,8 +10,8 @@ import {
   Textarea,
 } from "@/components/ui";
 import SideDrawer from "@/components/ui/SideDrawer";
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useTranslation } from "@/hooks/useTranslation";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 

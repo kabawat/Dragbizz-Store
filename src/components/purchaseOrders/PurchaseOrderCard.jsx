@@ -1,7 +1,7 @@
 "use client";
 import { Building2, Calendar, FileText, Mail, Phone } from "lucide-react";
 import { ActionMenu, SendMenu } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { normalizePurchaseOrder, getPurchaseOrderStatus } from "@/utils/purchaseOrder";
 import { getStatusBadge as getBaseStatusBadge } from "@/utils/statusBadge";
 

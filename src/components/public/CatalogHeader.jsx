@@ -5,7 +5,7 @@ import { Building2, MapPin, Phone, Share2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useSelector, useDispatch } from "react-redux";
 import { setCartOpen } from "@/store/slices/publicCartSlice";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const COPIED_DURATION_MS = 2500;
 

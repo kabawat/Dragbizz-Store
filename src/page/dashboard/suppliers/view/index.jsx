@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useSupplierDetailsPrint } from "./hooks/useSupplierDetailsPrint";

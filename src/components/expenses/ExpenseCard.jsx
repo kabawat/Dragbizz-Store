@@ -3,7 +3,7 @@ import { Building, Calendar, CreditCard, Edit, Eye, FileText, IndianRupee, Trash
 import { getCategoryLabel, getPaymentMethodIcon, getPaymentMethodLabel, getStatusLabel, } from "@/data/constants/expenses";
 import { useState, useRef, useEffect } from "react";
 import { renderStatusBadge } from "@/utils/statusBadge";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { IconButton } from "../ui";
 
 const ExpenseCard = ({

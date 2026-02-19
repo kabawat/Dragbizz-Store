@@ -13,7 +13,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   getSalesSubMenuItems,
   getInventorySubMenuItems,

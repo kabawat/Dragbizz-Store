@@ -5,8 +5,8 @@ import { AlertTriangle, Calendar, CheckCircle, ChevronDown, DollarSign, Download
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SortableCard, SortableMetricCard, } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenseAnalytics } from "@/store/slices/analyticsSlice";
 import Header from "@/components/dashboard/header";

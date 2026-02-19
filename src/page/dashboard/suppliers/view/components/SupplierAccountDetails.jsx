@@ -9,7 +9,7 @@ import {
   Wallet,
 } from "lucide-react";
 import moment from "moment";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const SupplierAccountDetails = ({ account }) => {
   const { t } = useTranslation();

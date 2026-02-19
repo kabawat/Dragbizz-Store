@@ -5,7 +5,7 @@ import CustomerDeleteModal from "./CustomerDeleteModal";
 import { useAppDispatch } from "@/store/hooks";
 import { deleteCustomer } from "@/store/slices/customersSlice";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const CustomerListContent = ({
     customers,

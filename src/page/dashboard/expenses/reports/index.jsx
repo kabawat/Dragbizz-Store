@@ -11,7 +11,7 @@ import Header from "@/components/dashboard/header";
 // Import components
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, CardBody, CardHeader, CardTitle } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const ExpenseReportsPage = () => {
   const { t } = useTranslation();

@@ -13,7 +13,7 @@ import {
   getPaymentMethodIcon,
   getPaymentMethodLabel,
 } from "@/data/constants/expenses";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge, renderStatusBadge } from "@/utils/statusBadge";
 
 const ExpenseTable = ({

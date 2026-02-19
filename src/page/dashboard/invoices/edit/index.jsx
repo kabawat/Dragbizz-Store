@@ -20,7 +20,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Input, Select } from "@/components/ui";
 import { SignatureDrawer, SignaturePreview } from "@/components/common";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   customerService,
   invoiceService,
@@ -28,7 +28,7 @@ import {
   signatureService,
 } from "@/service";
 import { useAppSelector } from "@/store/hooks";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();

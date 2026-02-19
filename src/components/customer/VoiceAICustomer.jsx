@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Button, Input } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, voiceAIService } from "@/service";
 import { getErrorMessage } from "@/utils/errorHandling";
 import logger from "@/utils/logger";

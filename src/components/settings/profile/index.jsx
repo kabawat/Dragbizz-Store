@@ -1,7 +1,7 @@
 "use client";
 import { Save, User } from "lucide-react";
 import { FormDrawer } from "@/components/common";
-import useErrorHandling from "@/hooks/useErrorHandling";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
 import authService from "@/service/auth/auth.service";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";

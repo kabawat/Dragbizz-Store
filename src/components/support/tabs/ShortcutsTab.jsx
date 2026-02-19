@@ -1,5 +1,5 @@
 import { Keyboard, Plus, Zap } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useMemo } from "react";
 import { getShortcutCategories } from "@/data/constants/supportData";
 

@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreateCustomer } from "@/components/customer";
 import { SideDrawer } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { customerService, invoiceService, productService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 
-import useErrorHandling from "@/hooks/useErrorHandling";
-import { useCommonHotkeys } from "@/hooks/useCommonHotkeys";
+import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 import QuotaProgressBar from "@/components/product/QuotaProgressBar";
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";

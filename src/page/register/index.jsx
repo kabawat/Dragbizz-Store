@@ -7,7 +7,7 @@ import SuccessScreen from "@/components/auth/SuccessScreen";
 import VerificationStep from "@/components/auth/VerificationStep";
 import WelcomeScreen from "@/components/auth/WelcomeScreen";
 import { AnimatedBackground } from "@/components/ui";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { authService } from "@/service/auth";
 
 export default function Register() {

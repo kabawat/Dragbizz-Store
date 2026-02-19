@@ -26,8 +26,8 @@ import BillsChart from "@/components/analytics/bills/BillsChart";
 import BillsReportTemplate from "@/components/templates/analytics/bills/BillsReportTemplate";
 import { SortableCard } from "@/components/templates/analytics/SortableComponents";
 import { Button, Card, Select } from "@/components/ui";
-import { useAnalyticsReportPrint } from "@/hooks/useAnalyticsReportPrint";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getBillAnalytics } from "@/store/slices/analyticsSlice";
 

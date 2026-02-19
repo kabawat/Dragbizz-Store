@@ -1,6 +1,6 @@
 import React from "react";
 import { User } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const CustomerDetails = ({ customer, shipping }) => {
     const { t } = useTranslation();

@@ -1,6 +1,6 @@
 import React from "react";
 import { Package } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const AddressDetails = ({ order }) => {
     const { t } = useTranslation();

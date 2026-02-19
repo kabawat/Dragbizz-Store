@@ -1,7 +1,7 @@
 "use client";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
-import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+import { useInactivityLogout } from "@/hooks/auth/useInactivityLogout";
 import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function RoutesLayout({ children }) {

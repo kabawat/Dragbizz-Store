@@ -1,6 +1,6 @@
 "use client";
 import { Barcode, FileText, Mail, Phone } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const PurchaseOrderDetails = ({ purchaseOrder }) => {

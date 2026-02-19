@@ -10,7 +10,7 @@ import { CatalogQRModal } from "@/components/common";
 import { salesOrderService } from "@/service/retailer";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 // Extracted Components
 import {

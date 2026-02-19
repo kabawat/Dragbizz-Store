@@ -3,7 +3,7 @@ import { Download } from "lucide-react";
 import { useState } from "react";
 import { Button, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
