@@ -1,13 +1,23 @@
 "use client";
 
 import { useHotkeys } from "@/hooks/useHotkeys";
+import { useAppDispatch } from "@/store/hooks";
+import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useRouter } from "next/navigation";
+
 
 // GlobalHotkeys Component Handles strictly global navigation shortcuts (Alt + Key) and global Help navigation.
 const GlobalHotkeys = () => {
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     useHotkeys({
+        // --- Sidebar Toggle ---
+        "alt+\\": (e) => {  // Alt+\ → toggle sidebar (VS Code style)
+            e.preventDefault();
+            dispatch(toggleSidebar());
+        },
+
         // --- Global Navigation ---
         "alt+h": (e) => {
             e.preventDefault();
