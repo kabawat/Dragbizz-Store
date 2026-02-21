@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const OrderItems = ({ order }) => {
     const { t } = useTranslation();
-    
+
     return (
         <div className="w-full">
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] overflow-hidden flex flex-col">
@@ -20,6 +20,7 @@ const OrderItems = ({ order }) => {
                                 <th className="px-6 py-4 text-left text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.product")}</th>
                                 <th className="px-6 py-4 text-center text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("products.qty")}</th>
                                 <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.price")}</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("invoice.gst")}</th>
                                 <th className="px-6 py-4 text-right text-[10px] font-bold text-[rgb(var(--color-text-secondary))] uppercase tracking-widest">{t("common.total")}</th>
                             </tr>
                         </thead>
@@ -57,6 +58,16 @@ const OrderItems = ({ order }) => {
                                     </td>
                                     <td className="px-6 py-4 text-center text-sm font-medium text-[rgb(var(--color-text-secondary))]">{item.quantity}</td>
                                     <td className="px-6 py-4 text-right text-sm font-medium text-[rgb(var(--color-text-secondary))]">₹{item.price.toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-right text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                                        {item.gst ? (
+                                            <div className="flex flex-col items-end">
+                                                <span>₹{item.gst.amount?.toLocaleString()}</span>
+                                                <span className="text-[10px] text-[rgb(var(--color-text-tertiary))]">({item.gst.rate}%)</span>
+                                            </div>
+                                        ) : (
+                                            "-"
+                                        )}
+                                    </td>
                                     <td className="px-6 py-4 text-right text-sm font-bold text-[rgb(var(--color-text-primary))]">₹{item.total.toLocaleString()}</td>
                                 </tr>
                             ))}

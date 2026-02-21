@@ -151,6 +151,24 @@
     }
 }
 
+.gstNote {
+    font-size: 11px !important;
+    color: #9ca3af !important;
+    margin: 4px 40px 8px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    td {
+        border-top: 2px solid #374151 !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background: #2c2c2c !important;
+        font-size: 13px !important;
+        color: #f3f4f6 !important;
+    }
+}
+
 @media print {
     .eclipseInvoice {
         background: white !important;

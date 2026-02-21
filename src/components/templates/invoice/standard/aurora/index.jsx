@@ -2,30 +2,28 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const AuroraTemplate = ({ invoiceData, selectedStore }) => {
-    // Helper function to safely format currency
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
 
     return (
         <InvoiceContainer>
-            <div className={styles.auroraInvoice} >
+            <div className={styles.auroraInvoice}>
                 {/* Header */}
                 <div className={styles.header}>
                     <div>
                         <h1>INVOICE</h1>
                         <p>{selectedStore?.storeName || "Your Store"}</p>
+                        {selectedStore?.gst && <p style={{ fontSize: "11px" }}>GSTIN: {selectedStore.gst}</p>}
                     </div>
                     <div className={styles.headerRight}>
-                        <p>
-                            Invoice No: <strong>{invoiceData.invoiceNumber}</strong>
-                        </p>
-                        <p>Date: {moment(invoiceData.createdAt).format("MMM DD, YYYY")}</p>
+                        <p>Invoice No: <strong>{invoiceData.invoiceNumber}</strong></p>
+                        <p>Date: {moment(invoiceData.createdAt).format("DD MMM YYYY")}</p>
                     </div>
                 </div>
 
@@ -35,80 +33,78 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
                         <div className={styles.infoBox}>
                             <h4>Bill To</h4>
                             <p>{invoiceData.customer?.name || "Walk-in Customer"}</p>
-                            {invoiceData.customer?.phone && (
-                                <p>{invoiceData.customer.phone}</p>
-                            )}
-                            {invoiceData.customer?.email && (
-                                <p>{invoiceData.customer.email}</p>
-                            )}
+                            {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
+                            {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
                         </div>
-
                         <div className={styles.infoBox}>
                             <h4>From</h4>
                             <p>{selectedStore?.storeName || "Your Store"}</p>
-                            <p>{selectedStore?.email || "info@yourstore.com"}</p>
-                            <p>{selectedStore?.phone || "+91 9876543210"}</p>
+                            {selectedStore?.email && <p>{selectedStore.email}</p>}
+                            {selectedStore?.phone && <p>{selectedStore.phone}</p>}
                         </div>
                     </div>
 
+                    {/* B2C Items Table */}
                     <table className={styles.table}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Item</th>
-                                <th style={{ width: "15%" }}>Qty</th>
-                                <th style={{ width: "20%" }}>Price</th>
-                                <th style={{ width: "15%" }}>Total</th>
+                                <td style={{ width: "40%", textAlign: "left" }}>Product</td>
+                                <td style={{ width: "12%", textAlign: "center" }}>Qty</td>
+                                <td style={{ width: "16%", textAlign: "right" }}>Unit Price</td>
+                                <td style={{ width: "14%", textAlign: "right" }}>Discount</td>
+                                <td style={{ width: "18%", textAlign: "right" }}>Amount</td>
                             </tr>
                         </thead>
                         <tbody>
-                            {invoiceData.items?.map((item, index) => (
+                            {getItemRows(items).map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
                                 <tr key={index}>
-                                    <td>
-                                        <div className={styles.productName}>
-                                            {item.product?.name || "Unnamed Product"}
-                                        </div>
-                                        {item.product?.sku && (
-                                            <span className={styles.productSku}>
-                                                SKU: {item.product.sku}
-                                            </span>
-                                        )}
+                                    <td><div className={styles.productName}>{item.product?.name || item.productName || "Product"}</div></td>
+                                    <td style={{ textAlign: "center" }}>{qty}{item.uom ? ` ${item.uom}` : ""}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: lineDiscount > 0 ? "#ef4444" : "#aaa" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "—"}
                                     </td>
-                                    <td>{item.quantity}</td>
-                                    <td>{formatCurrency(item.price)}</td>
-                                    <td>{formatCurrency(item.quantity * item.price)}</td>
+                                    <td style={{ textAlign: "right", fontWeight: 600 }}>{fmt(lineAmount)}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td style={{ textAlign: "left", fontWeight: 700 }}>Total</td>
+                                <td style={{ textAlign: "center", fontWeight: 700 }}>{tableTotalQty}</td>
+                                <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(grossTotal)}</td>
+                                <td style={{ textAlign: "right", fontWeight: 700, color: tableTotalDiscount > 0 ? "#ef4444" : "inherit" }}>
+                                    {tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "—"}
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(tableTotalAmount)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
 
+                    {/* B2C Totals */}
                     <div className={styles.totalsSection}>
                         <div className={styles.totals}>
                             <div className={styles.totalRow}>
-                                <span className={styles.totalLabel}>Subtotal:</span>
-                                <span className={styles.totalAmount}>
-                                    {formatCurrency(invoiceData.subtotal)}
-                                </span>
+                                <span className={styles.totalLabel}>Item Total:</span>
+                                <span className={styles.totalAmount}>{fmt(grossTotal)}</span>
                             </div>
-                            <div className={styles.totalRow}>
-                                <span className={styles.totalLabel}>GST:</span>
-                                <span className={styles.totalAmount}>
-                                    {formatCurrency(invoiceData.gstAmount || 0)}
-                                </span>
-                            </div>
-                            {invoiceData.totalDiscount > 0 && (
+                            {totalDiscount > 0 && (
                                 <div className={styles.totalRow}>
-                                    <span className={styles.totalLabel}>Discount:</span>
-                                    <span className={styles.totalAmount} style={{ color: "#ef4444" }}>
-                                        -{formatCurrency(invoiceData.totalDiscount)}
-                                    </span>
+                                    <span className={styles.totalLabel}>Discount (-):</span>
+                                    <span className={styles.totalAmount} style={{ color: "#ef4444" }}>-{fmt(totalDiscount)}</span>
+                                </div>
+                            )}
+                            {totalGst > 0 && (
+                                <div className={styles.totalRow}>
+                                    <span className={styles.totalLabel}>{allInclusive ? "GST (included):" : "GST (+):"}</span>
+                                    <span className={styles.totalAmount}>{fmt(totalGst)}</span>
                                 </div>
                             )}
                             <div className={`${styles.totalRow} ${styles.finalTotal}`}>
-                                <span className={styles.totalLabel}>Total:</span>
-                                <span className={styles.totalAmount}>
-                                    {formatCurrency(invoiceData.totalAmount)}
-                                </span>
+                                <span className={styles.totalLabel}>Total Payable:</span>
+                                <span className={styles.totalAmount}>{fmt(totalAmount)}</span>
                             </div>
+                            {hasAnyGst && <div className={styles.gstNote}>{allInclusive ? "* Prices are inclusive of GST" : "* GST is charged separately"}</div>}
                         </div>
                     </div>
                 </div>
@@ -116,10 +112,7 @@ const AuroraTemplate = ({ invoiceData, selectedStore }) => {
                 {/* Footer */}
                 <div className={styles.footer}>
                     <p>Thank you for your purchase!</p>
-                    <p>
-                        Generated on{" "}
-                        {moment(invoiceData.createdAt).format("MMMM DD, YYYY [at] HH:mm")}
-                    </p>
+                    <p>Generated on {moment(invoiceData.createdAt).format("DD MMM YYYY [at] HH:mm")}</p>
                 </div>
             </div>
         </InvoiceContainer>

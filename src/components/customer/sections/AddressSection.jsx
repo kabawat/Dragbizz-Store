@@ -1,7 +1,8 @@
 "use client";
 import { MapPin, Plus, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, Select } from "@/components/ui";
+import INDIAN_STATES from "@/constants/indianStates";
 
 const AddressForm = ({
     type,
@@ -54,14 +55,16 @@ const AddressForm = ({
                     errorMessage={fieldErrors[`addresses.${type}.city`]}
                     size="sm"
                 />
-                <Input
-                    type="text"
+                <Select
                     label={t("customers.state")}
-                    placeholder={t("customers.enterState")}
-                    value={addressData?.state || ""}
-                    onChange={(value) => handleFieldChange("state", value)}
-                    error={!!fieldErrors[`addresses.${type}.state`]}
-                    errorMessage={fieldErrors[`addresses.${type}.state`]}
+                    placeholder={t("customers.selectState")}
+                    options={INDIAN_STATES}
+                    value={addressData?.stateCode || ""}
+                    onChange={(value) => handleFieldChange("stateCode", value)}
+                    error={!!fieldErrors[`addresses.${type}.stateCode`]}
+                    errorMessage={fieldErrors[`addresses.${type}.stateCode`]}
+                    searchable
+                    clearable
                     size="sm"
                 />
                 <Input

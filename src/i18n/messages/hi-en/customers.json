@@ -59,6 +59,7 @@
   "enterCity": "City enter karo",
   "state": "State",
   "enterState": "State enter karo",
+  "selectState": "State select karo",
   "pincode": "Pincode",
   "enterPincode": "Pincode enter karo",
   "country": "Country",

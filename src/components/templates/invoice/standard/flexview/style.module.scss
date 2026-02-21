@@ -153,6 +153,24 @@
     }
 }
 
+.gstNote {
+    font-size: 11px !important;
+    color: #888 !important;
+    margin: 4px 0 8px 0 !important;
+    font-style: italic !important;
+    padding: 0 0 0 0 !important;
+}
+
+.tableFooterRow {
+    td {
+        border-top: 2px solid #16a085 !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background: #f7fcfb !important;
+        font-size: 13px !important;
+    }
+}
+
 @media print {
     .flexviewInvoice {
         box-shadow: none !important;

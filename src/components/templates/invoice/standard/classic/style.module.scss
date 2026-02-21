@@ -123,6 +123,27 @@
     }
 }
 
+// ── B2C shared ────────────────────────────────────────────────────────────────
+.gstNote {
+    font-size: 10px !important;
+    color: #666 !important;
+    margin-top: 6px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    background-color: #f5f5f5 !important;
+    border-top: 3px double #000 !important;
+
+    :global(td) {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding: 10px 8px !important;
+        color: #000 !important;
+        border-bottom: none !important;
+    }
+}
+
 @media print {
     .classicInvoice {
         max-width: 100% !important;

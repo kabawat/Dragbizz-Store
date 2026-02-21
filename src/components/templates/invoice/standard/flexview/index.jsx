@@ -1,16 +1,17 @@
 "use client";
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
-import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -37,6 +38,7 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
                         <p><strong>{invoiceData.customer?.name || "Walk-in Customer"}</strong></p>
                         {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
                         {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+                        {invoiceData.customer?.address && <p>{invoiceData.customer.address}</p>}
                     </div>
                     <div className={styles.infoBlock} style={{ textAlign: "right" }}>
                         <h3>Invoice Details</h3>
@@ -47,58 +49,82 @@ const FlexviewTemplate = ({ invoiceData, selectedStore }) => {
                             <b>Date:</b>{" "}
                             {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
                         </p>
+                        {invoiceData.paymentMode && (
+                            <p><b>Payment:</b> {invoiceData.paymentMode}</p>
+                        )}
                     </div>
                 </div>
 
-                {/* Table Selection */}
+                {/* Items Table */}
                 <div className={styles.tableContainer}>
-                    <InvoiceItemsTable
-                        items={invoiceData.items}
-                        className={styles.flexviewTable}
-                        columnWidths={{
-                            product: "40%",
-                            quantity: "12%",
-                            unitPrice: "18%",
-                            gst: "12%",
-                            total: "18%",
-                        }}
-                        renderProductCell={(item) => item.product?.name || "Unnamed Item"}
-                        renderUnitPriceCell={(item) => formatCurrency(item.price)}
-                        renderTotalCell={(item) => {
-                            const total = item.calculatedTotal || item.quantity * item.price;
-                            return formatCurrency(total);
-                        }}
-                    />
+                    <table className={styles.flexviewTable}>
+                        <thead>
+                            <tr>
+                                <td className="font-bold" style={{ width: "50%" }}>Product</td>
+                                <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "15%", textAlign: "right" }}>Unit Price</td>
+                                <td className="font-bold" style={{ width: "15%", textAlign: "right" }}>Discount</td>
+                                <td className="font-bold" style={{ width: "15%", textAlign: "right" }}>Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
+                                    <td>{item.product?.name || "Unnamed Item"}</td>
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>{fmt(lineAmount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsSection}>
                     <div className={styles.totalsBox}>
                         <div className={styles.totalRow}>
-                            <div className={styles.label}>Subtotal</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
-                            </div>
+                            <div className={styles.label}>Item Total</div>
+                            <div className={styles.amount}>{fmt(grossTotal)}</div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.label}>GST</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount || 0)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <div className={styles.label}>Discount</div>
                                 <div className={styles.amount} style={{ color: "#e74c3c" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
                                 </div>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.totalRow}>
+                                <div className={styles.label}>GST</div>
+                                <div className={styles.amount}>{fmt(totalGst)}</div>
                             </div>
                         )}
                         <div className={styles.grandTotal}>
                             <div className={styles.label}>Total Due</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.totalAmount)}
-                            </div>
+                            <div className={styles.amount}>{fmt(totalAmount)}</div>
                         </div>
                     </div>
                 </div>

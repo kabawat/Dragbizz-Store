@@ -48,16 +48,6 @@ class SocketService {
             console.error("⚠️ Socket Connection Error:", error);
             this.isConnected = false;
         });
-
-        // Listen for Customer Created Notification
-        this.socket.on("customer_created", (data) => {
-
-        });
-
-        // Listen for Sales Order Created Notification
-        this.socket.on("sales_order_created", (data) => {
-
-        });
     }
 
     // Add event listener

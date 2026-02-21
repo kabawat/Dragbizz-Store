@@ -2,154 +2,121 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
-const CleanDataSheetTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+const CleanDataSheet = ({ invoiceData, selectedStore }) => {
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
 
     return (
         <InvoiceContainer>
-            <div className={styles.cleanInvoice} >
-                {/* Header Section */}
+            <div className={styles.cleanInvoice}>
+                {/* Header */}
                 <div className={styles.header}>
                     <h1>INVOICE</h1>
-                    <div className={styles.storeName}>
-                        {selectedStore?.storeName || "Data Stream Accounting"}
-                    </div>
+                    <div className={styles.storeName}>{selectedStore?.storeName || "Your Store"}</div>
                     <div className={styles.storeInfo}>
-                        <p>
-                            {selectedStore?.address || "456 Minimalist Way, Clarity City"}
-                        </p>
+                        {selectedStore?.address && <p>{selectedStore.address}</p>}
                         <p>
                             {selectedStore?.phone && <span>Ph: {selectedStore.phone} | </span>}
-                            {selectedStore?.email && <span>Email: {selectedStore.email}</span>}
+                            {selectedStore?.email && <span>{selectedStore.email}</span>}
+                            {selectedStore?.gst && <span> | GSTIN: {selectedStore.gst}</span>}
                         </p>
                     </div>
                 </div>
 
-                {/* Info Section */}
+                {/* Info */}
                 <div className={styles.infoSection}>
                     <div className={styles.infoBlock}>
                         <div className={styles.label}>Invoice Details</div>
-                        <p>
-                            Invoice #:{" "}
-                            <span className={styles.invoiceNumber}>
-                                {invoiceData.invoiceNumber}
-                            </span>
-                        </p>
-                        <p>
-                            Date Issued:{" "}
-                            <span className={styles.valueBold}>
-                                {moment(invoiceData.createdAt).format("MMM DD, YYYY")}
-                            </span>
-                        </p>
-                        {invoiceData.paymentMode && (
-                            <p>
-                                Payment: <span className={styles.valueBold}>{invoiceData.paymentMode}</span>
-                            </p>
-                        )}
+                        <p>Invoice #: <span className={styles.invoiceNumber}>{invoiceData.invoiceNumber}</span></p>
+                        <p>Date: <span className={styles.valueBold}>{moment(invoiceData.createdAt).format("DD MMM YYYY")}</span></p>
+                        {invoiceData.paymentMode && <p>Payment: <span className={styles.valueBold}>{invoiceData.paymentMode}</span></p>}
                     </div>
-
                     <div className={styles.infoBlock}>
                         <div className={styles.label}>Bill To</div>
-                        <p className={styles.valueBold}>
-                            {invoiceData.customer?.name || "Walk-in Customer"}
-                        </p>
-                        {invoiceData.customer?.email && (
-                            <p>{invoiceData.customer.email}</p>
-                        )}
-                        {invoiceData.customer?.phone && (
-                            <p>{invoiceData.customer.phone}</p>
-                        )}
-                        {invoiceData.customer?.address && (
-                            <p>{invoiceData.customer.address}</p>
-                        )}
+                        <p className={styles.valueBold}>{invoiceData.customer?.name || "Walk-in Customer"}</p>
+                        {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
+                        {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
                     </div>
                 </div>
 
-                {/* Table Selection */}
+                {/* B2C Items Table */}
                 <div className={styles.tableContainer}>
                     <table className={styles.cleanTable}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Description</th>
-                                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Total</th>
+                                <td style={{ width: "40%", textAlign: "left" }}>Product</td>
+                                <td style={{ width: "12%", textAlign: "center" }}>Qty</td>
+                                <td style={{ width: "16%", textAlign: "right" }}>Unit Price</td>
+                                <td style={{ width: "14%", textAlign: "right" }}>Discount</td>
+                                <td style={{ width: "18%", textAlign: "right" }}>Amount</td>
                             </tr>
                         </thead>
                         <tbody>
-                            {invoiceData.items?.map((item, index) => (
+                            {getItemRows(items).map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
                                 <tr key={index}>
-                                    <td>
-                                        <div className={styles.productName}>
-                                            {item.product?.name || "Unnamed Item"}
-                                        </div>
-                                        {item.product?.sku && (
-                                            <div className={styles.productSku}>
-                                                SKU: {item.product.sku}
-                                            </div>
-                                        )}
+                                    <td><div className={styles.productName}>{item.product?.name || item.productName || "Product"}</div></td>
+                                    <td style={{ textAlign: "center" }}>{qty}{item.uom ? ` ${item.uom}` : ""}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: lineDiscount > 0 ? "#ff4d4f" : "#aaa" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "—"}
                                     </td>
-                                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                                    <td style={{ textAlign: "right" }}>
-                                        {formatCurrency(item.price)}
-                                    </td>
-                                    <td style={{ textAlign: "right", fontWeight: 700 }}>
-                                        {formatCurrency(item.quantity * item.price)}
-                                    </td>
+                                    <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(lineAmount)}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td style={{ textAlign: "left", fontWeight: 700 }}>Total</td>
+                                <td style={{ textAlign: "center", fontWeight: 700 }}>{tableTotalQty}</td>
+                                <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(grossTotal)}</td>
+                                <td style={{ textAlign: "right", fontWeight: 700, color: tableTotalDiscount > 0 ? "#ff4d4f" : "inherit" }}>
+                                    {tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "—"}
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(tableTotalAmount)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 
-                {/* Totals Section */}
+                {/* B2C Totals */}
                 <div className={styles.totalsSection}>
                     <div className={styles.totalsTable}>
                         <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>Subtotal:</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
-                            </div>
+                            <div className={styles.rowLabel}>Item Total:</div>
+                            <div className={styles.amount}>{fmt(grossTotal)}</div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.rowLabel}>Tax (GST):</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
-                                <div className={styles.rowLabel}>Discount:</div>
-                                <div className={styles.amount} style={{ color: "#ff4d4f" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
-                                </div>
+                                <div className={styles.rowLabel}>Discount (-):</div>
+                                <div className={styles.amount} style={{ color: "#ff4d4f" }}>-{fmt(totalDiscount)}</div>
+                            </div>
+                        )}
+                        {totalGst > 0 && (
+                            <div className={styles.totalRow}>
+                                <div className={styles.rowLabel}>{allInclusive ? "GST (included):" : "GST (+):"}</div>
+                                <div className={styles.amount}>{fmt(totalGst)}</div>
                             </div>
                         )}
                         <div className={`${styles.totalRow} ${styles.finalRow}`}>
                             <div className={styles.finalLabel}>AMOUNT DUE:</div>
-                            <div className={styles.finalAmount}>
-                                {formatCurrency(invoiceData.totalAmount)}
-                            </div>
+                            <div className={styles.finalAmount}>{fmt(totalAmount)}</div>
                         </div>
+                        {hasAnyGst && <div className={styles.gstNote}>{allInclusive ? "* Prices are inclusive of GST" : "* GST is charged separately"}</div>}
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className={styles.footer}>
-                    <p>
-                        We appreciate your business. All figures are accurate as of the
-                        invoice date.
-                    </p>
+                    <p>Generated on {moment(invoiceData.createdAt).format("DD MMM YYYY [at] HH:mm")}</p>
                 </div>
             </div>
         </InvoiceContainer>
     );
 };
 
-export default CleanDataSheetTemplate;
+export default CleanDataSheet;

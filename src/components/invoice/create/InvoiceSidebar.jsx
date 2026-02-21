@@ -40,20 +40,13 @@ const InvoiceSidebar = ({
         return calculateInvoiceGST({
             items: mappedItems,
             totalDiscount: formData.totalDiscount || 0,
-            // State codes — default to intra-state (CGST+SGST) if not available
-            supplierStateCode: formData.supplierStateCode || "default",
-            buyerStateCode: formData.buyerStateCode || "default",
+            discountMode: formData.discountMode || "PRE_TAX",
             supplierHasGst: true,
         });
-    }, [formData.items, formData.totalDiscount, formData.supplierStateCode, formData.buyerStateCode]);
+    }, [formData.items, formData.totalDiscount, formData.discountMode]);
 
     const fmt = (num) => Number(num || 0).toFixed(2);
 
-    // Determine which GST type is active
-    const hasIGST = gstSummary.gst.igst > 0;
-    const hasCGST = gstSummary.gst.cgst > 0;
-    const hasSGST = gstSummary.gst.sgst > 0;
-    const hasUTGST = gstSummary.gst.utgst > 0;
     const hasAnyGST = gstSummary.gst.total > 0;
 
     return (
@@ -104,15 +97,17 @@ const InvoiceSidebar = ({
                         </h4>
 
                         <div className="space-y-2 text-sm">
-                            {/* Net Taxable Value */}
-                            <div className="flex justify-between">
-                                <span className="text-[rgb(var(--color-text-secondary))]">
-                                    {t("invoice.netTaxable") || "Net Taxable"}:
-                                </span>
-                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
-                                    ₹{fmt(gstSummary.netTaxable)}
-                                </span>
-                            </div>
+                            {/* Gross Total (original MRP sum) */}
+                            {gstSummary.originalTotal > 0 && (
+                                <div className="flex justify-between">
+                                    <span className="text-[rgb(var(--color-text-secondary))]">
+                                        {t("invoice.grossTotal") || "Gross Total"}:
+                                    </span>
+                                    <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                        ₹{fmt(gstSummary.originalTotal)}
+                                    </span>
+                                </div>
+                            )}
 
                             {/* Discount */}
                             {(formData.totalDiscount > 0) && (
@@ -127,47 +122,25 @@ const InvoiceSidebar = ({
                                 </div>
                             )}
 
-                            {/* GST Breakdown */}
+                            {/* Net Taxable */}
+                            <div className="flex justify-between">
+                                <span className="text-[rgb(var(--color-text-secondary))]">
+                                    {t("invoice.netTaxable") || "Net Taxable"}:
+                                </span>
+                                <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                    ₹{fmt(gstSummary.subtotal)}
+                                </span>
+                            </div>
+
+                            {/* Total GST — preview only, no breakdown */}
                             {hasAnyGST && (
-                                <div className="border-t border-[rgb(var(--color-border-primary))]/20 pt-2 mt-1 space-y-1">
-                                    <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wide mb-1">
-                                        {t("invoice.taxBreakdown") || "Tax Breakdown"}
-                                    </p>
-
-                                    {hasCGST && (
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-[rgb(var(--color-text-secondary))]">CGST:</span>
-                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.cgst)}</span>
-                                        </div>
-                                    )}
-                                    {hasSGST && (
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-[rgb(var(--color-text-secondary))]">SGST:</span>
-                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.sgst)}</span>
-                                        </div>
-                                    )}
-                                    {hasIGST && (
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-[rgb(var(--color-text-secondary))]">IGST:</span>
-                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.igst)}</span>
-                                        </div>
-                                    )}
-                                    {hasUTGST && (
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-[rgb(var(--color-text-secondary))]">UTGST:</span>
-                                            <span className="text-[rgb(var(--color-text-primary))]">₹{fmt(gstSummary.gst.utgst)}</span>
-                                        </div>
-                                    )}
-
-                                    {/* Total GST */}
-                                    <div className="flex justify-between text-xs font-semibold border-t border-[rgb(var(--color-border-primary))]/20 pt-1 mt-1">
-                                        <span className="text-[rgb(var(--color-text-secondary))]">
-                                            {t("invoice.totalGST") || "Total GST"}:
-                                        </span>
-                                        <span className="text-[rgb(var(--color-text-primary))]">
-                                            ₹{fmt(gstSummary.gst.total)}
-                                        </span>
-                                    </div>
+                                <div className="flex justify-between">
+                                    <span className="text-[rgb(var(--color-text-secondary))]">
+                                        {t("invoice.totalGST") || "Total GST"}:
+                                    </span>
+                                    <span className="font-medium text-[rgb(var(--color-text-primary))]">
+                                        ₹{fmt(gstSummary.gst.total)}
+                                    </span>
                                 </div>
                             )}
 

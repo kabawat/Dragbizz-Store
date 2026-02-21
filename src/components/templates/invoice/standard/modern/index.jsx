@@ -1,16 +1,17 @@
 "use client";
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
-import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const ModernTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -64,93 +65,81 @@ const ModernTemplate = ({ invoiceData, selectedStore }) => {
 
                 {/* Table Selection */}
                 <div className={styles.tableContainer}>
-                    <InvoiceItemsTable
-                        items={invoiceData.items}
-                        className={styles.modernTable}
-                        columnWidths={{
-                            product: "40%",
-                            quantity: "12%",
-                            unitPrice: "18%",
-                            gst: "12%",
-                            total: "18%",
-                        }}
-                        renderProductCell={(item) => (
-                            <>
-                                <div className={styles.productName}>
-                                    {item.product?.name || "Unknown Product"}
-                                </div>
-                                {item.product?.sku && (
-                                    <div className={styles.productSku}>SKU: {item.product.sku}</div>
-                                )}
-                                {item.gstRate && item.gstRate > 0 && (
-                                    <div className={styles.productSku}>
-                                        GST: {item.gstRate}%
-                                    </div>
-                                )}
-                                {item.gst?.hsnCode && (
-                                    <div className={styles.productSku}>
-                                        HSN: {item.gst.hsnCode}
-                                    </div>
-                                )}
-                            </>
-                        )}
-                        renderUnitPriceCell={(item) => formatCurrency(item.price)}
-                        renderTotalCell={(item) => {
-                            const total = item.calculatedTotal || item.quantity * item.price;
-                            return formatCurrency(total);
-                        }}
-                    />
+                    <table className={styles.modernTable}>
+                        <thead>
+                            <tr>
+                                <td className="font-bold" style={{ width: "35%" }}>Description</td>
+                                <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Discount</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
+                                    <td>
+                                        <div className={styles.productName}>
+                                            {item.product?.name || "Unknown Product"}
+                                        </div>
+                                        {item.product?.sku && (
+                                            <div className={styles.productSku} style={{ fontSize: "10px", color: "#999" }}>
+                                                SKU: {item.product.sku}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>{fmt(lineAmount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsArea}>
                     <div className={styles.totalsBox}>
                         <div className={styles.totalRow}>
-                            <span>Subtotal:</span>
-                            <span>{formatCurrency(invoiceData.subtotal)}</span>
+                            <span>Item Total:</span>
+                            <span>{fmt(grossTotal)}</span>
                         </div>
-                        <div className={styles.totalRow}>
-                            <span>GST:</span>
-                            <span>{formatCurrency(invoiceData.gstAmount || 0)}</span>
-                        </div>
-                        {/* GST Breakdown in Template */}
-                        {invoiceData.gst?.breakdown && (
-                            <div className={styles.breakdownContainer} style={{ paddingLeft: '10px', fontSize: '0.85em', opacity: 0.8 }}>
-                                {invoiceData.gst.breakdown.cgst > 0 && (
-                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
-                                        <span style={{ fontWeight: 'normal' }}>CGST:</span>
-                                        <span>{formatCurrency(invoiceData.gst.breakdown.cgst)}</span>
-                                    </div>
-                                )}
-                                {invoiceData.gst.breakdown.sgst > 0 && (
-                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
-                                        <span style={{ fontWeight: 'normal' }}>SGST:</span>
-                                        <span>{formatCurrency(invoiceData.gst.breakdown.sgst)}</span>
-                                    </div>
-                                )}
-                                {invoiceData.gst.breakdown.igst > 0 && (
-                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
-                                        <span style={{ fontWeight: 'normal' }}>IGST:</span>
-                                        <span>{formatCurrency(invoiceData.gst.breakdown.igst)}</span>
-                                    </div>
-                                )}
-                                {invoiceData.gst.breakdown.utgst > 0 && (
-                                    <div className={styles.totalRow} style={{ border: 'none', padding: '1px 0' }}>
-                                        <span style={{ fontWeight: 'normal' }}>UTGST:</span>
-                                        <span>{formatCurrency(invoiceData.gst.breakdown.utgst)}</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <span>Discount:</span>
-                                <span style={{ color: "#e74c3c" }}>-{formatCurrency(invoiceData.totalDiscount)}</span>
+                                <span style={{ color: "#e74c3c" }}>-{fmt(totalDiscount)}</span>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.totalRow}>
+                                <span>GST:</span>
+                                <span>{fmt(totalGst)}</span>
                             </div>
                         )}
                         <div className={`${styles.totalRow} ${styles.grandTotalRow}`}>
                             <span>TOTAL:</span>
-                            <span>{formatCurrency(invoiceData.totalAmount)}</span>
+                            <span>{fmt(totalAmount)}</span>
                         </div>
                     </div>
                 </div>

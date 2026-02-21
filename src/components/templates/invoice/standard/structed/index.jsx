@@ -1,16 +1,17 @@
 "use client";
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
-import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const StructuredTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -68,61 +69,92 @@ const StructuredTemplate = ({ invoiceData, selectedStore }) => {
 
                 {/* Items Table */}
                 <div className={styles.tableContainer}>
-                    <InvoiceItemsTable
-                        items={invoiceData.items}
-                        className={styles.structedTable}
-                        columnWidths={{
-                            product: "40%",
-                            quantity: "12%",
-                            unitPrice: "18%",
-                            gst: "12%",
-                            total: "18%",
-                        }}
-                        renderProductCell={(item) => (
-                            <>
-                                <span className={styles.productDetail}>
-                                    {item.product?.name || "Unknown Product"}
-                                </span>
-                                {item.product?.sku && (
-                                    <span className={styles.productSku}>SKU: {item.product.sku}</span>
-                                )}
-                            </>
-                        )}
-                        renderUnitPriceCell={(item) => formatCurrency(item.price)}
-                        renderTotalCell={(item) => {
-                            const total = item.calculatedTotal || item.quantity * item.price;
-                            return formatCurrency(total);
-                        }}
-                    />
+                    <table className={styles.structedTable}>
+                        <thead>
+                            <tr>
+                                <td className="font-bold" style={{ width: "35%" }}>Description</td>
+                                <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Discount</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
+                                    <td>
+                                        <span className={styles.productDetail}>
+                                            {item.product?.name || "Unknown Product"}
+                                        </span>
+                                        {item.product?.sku && (
+                                            <span className={styles.productSku} style={{ fontSize: "11px", color: "#666", display: "block" }}>
+                                                SKU: {item.product.sku}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
+                                    </td>
+                                    <td style={{ textAlign: "right", fontWeight: 700 }}>
+                                        {fmt(lineAmount)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 700 }}>
+                                    <strong>{fmt(tableTotalAmount)}</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsSummary}>
                     <div className={styles.totals}>
                         <div className={styles.row}>
-                            <div className={styles.totalLabel}>Subtotal:</div>
+                            <div className={styles.totalLabel}>Item Total:</div>
                             <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
+                                {fmt(grossTotal)}
                             </div>
                         </div>
-                        <div className={styles.row}>
-                            <div className={styles.totalLabel}>GST:</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount || 0)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.row}>
                                 <div className={styles.totalLabel}>Discount:</div>
                                 <div className={styles.amount} style={{ color: "#e74c3c" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
+                                </div>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.row}>
+                                <div className={styles.totalLabel}>GST:</div>
+                                <div className={styles.amount}>
+                                    {fmt(totalGst)}
                                 </div>
                             </div>
                         )}
                         <div className={`${styles.row} ${styles.finalRow}`}>
                             <div className={styles.finalLabel}>Grand Total:</div>
                             <div className={styles.finalAmount}>
-                                {formatCurrency(invoiceData.totalAmount)}
+                                {fmt(totalAmount)}
                             </div>
                         </div>
                     </div>

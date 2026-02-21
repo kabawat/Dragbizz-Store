@@ -163,6 +163,23 @@
     }
 }
 
+.gstNote {
+    font-size: 11px !important;
+    color: #888 !important;
+    margin: 4px 0 8px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    :global(td) {
+        border-top: 2px solid #3498db !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background: #f8f9fa !important;
+        font-size: 13px !important;
+    }
+}
+
 @media print {
     .elegantInvoice {
         box-shadow: none !important;

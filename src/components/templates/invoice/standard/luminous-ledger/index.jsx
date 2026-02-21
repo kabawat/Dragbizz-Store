@@ -2,14 +2,16 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const LuminousLedgerTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -77,14 +79,15 @@ const LuminousLedgerTemplate = ({ invoiceData, selectedStore }) => {
                     <table className={styles.luminousTable}>
                         <thead>
                             <tr>
-                                <th style={{ width: "50%" }}>Description</th>
+                                <th style={{ width: "40%" }}>Description</th>
                                 <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
-                                <th style={{ width: "20%", textAlign: "right" }}>Rate</th>
+                                <th style={{ width: "18%", textAlign: "right" }}>Rate</th>
+                                <th style={{ width: "12%", textAlign: "right" }}>Discount</th>
                                 <th style={{ width: "20%", textAlign: "right" }}>Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {invoiceData.items?.map((item, index) => (
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
                                 <tr key={index}>
                                     <td>
                                         <div className={styles.productName}>
@@ -96,47 +99,60 @@ const LuminousLedgerTemplate = ({ invoiceData, selectedStore }) => {
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                                    <td style={{ textAlign: "right" }}>
-                                        {formatCurrency(item.price)}
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
                                     </td>
-                                    <td style={{ textAlign: "right", fontWeight: 600 }}>
-                                        {formatCurrency(item.quantity * item.price)}
-                                    </td>
+                                    <td style={{ textAlign: "right", fontWeight: 600 }}>{fmt(lineAmount)}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 600 }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsArea}>
                     <div className={styles.totalsTable}>
                         <div className={styles.totalRow}>
-                            <div className={styles.label}>Subtotal:</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
-                            </div>
+                            <div className={styles.label}>Item Total:</div>
+                            <div className={styles.amount}>{fmt(grossTotal)}</div>
                         </div>
-                        <div className={styles.totalRow}>
-                            <div className={styles.label}>Tax (GST):</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount || 0)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <div className={styles.label}>Discount:</div>
                                 <div className={styles.amount} style={{ color: "#e74c3c" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
                                 </div>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.totalRow}>
+                                <div className={styles.label}>Tax (GST):</div>
+                                <div className={styles.amount}>{fmt(totalGst)}</div>
                             </div>
                         )}
                         <div className={styles.finalRow}>
                             <div className={styles.finalLabel}>AMOUNT DUE:</div>
-                            <div className={styles.finalAmount}>
-                                {formatCurrency(invoiceData.totalAmount)}
-                            </div>
+                            <div className={styles.finalAmount}>{fmt(totalAmount)}</div>
                         </div>
                     </div>
                 </div>

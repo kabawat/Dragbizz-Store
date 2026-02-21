@@ -190,3 +190,24 @@
 .footer p {
     margin: 5px 0;
 }
+
+// ── B2C shared ────────────────────────────────────────────────────────────────
+.gstNote {
+    font-size: 10px;
+    color: #95a5a6;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.tableFooterRow {
+    background-color: #f5f8fa;
+    border-top: 2px solid #2c3e50;
+
+    :global(td) {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 10px 0;
+        color: #2c3e50;
+        border-bottom: none;
+    }
+}

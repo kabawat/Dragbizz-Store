@@ -2,9 +2,7 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 30px !important;
     background: white !important;
-    border: 1px solid #ddd !important;
     font-family: 'Montserrat', sans-serif !important;
     color: #333 !important;
 }
@@ -168,6 +166,24 @@
 
     p {
         margin: 5px 0 !important;
+    }
+}
+
+.gstNote {
+    font-size: 11px !important;
+    color: #888 !important;
+    margin: 4px 0 8px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    td {
+        border-top: 3px solid #1b5e20 !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background: #e8f5e9 !important;
+        font-size: 13px !important;
+        color: #2c3e50 !important;
     }
 }
 

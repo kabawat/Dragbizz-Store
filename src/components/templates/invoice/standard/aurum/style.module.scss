@@ -170,6 +170,27 @@
     }
 }
 
+// ── B2C shared ────────────────────────────────────────────────────────────────
+.gstNote {
+    font-size: 10px !important;
+    color: #bbb !important;
+    margin-top: 6px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    background-color: #1a1a1a !important;
+    border-top: 2px solid #d4af37 !important;
+
+    :global(td) {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding: 10px !important;
+        color: #d4af37 !important;
+        border-bottom: none !important;
+    }
+}
+
 @media print {
     .aurumInvoice {
         border: 1px solid #d4af37 !important;

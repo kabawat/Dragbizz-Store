@@ -2,13 +2,16 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const NeoEdgeTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) =>
-        `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -62,58 +65,71 @@ const NeoEdgeTemplate = ({ invoiceData, selectedStore }) => {
                     <table className={styles.neoedgeTable}>
                         <thead>
                             <tr>
-                                <th>Description</th>
-                                <th style={{ textAlign: "center" }}>Qty</th>
-                                <th style={{ textAlign: "right" }}>Rate</th>
-                                <th style={{ textAlign: "right" }}>Total</th>
+                                <td className="font-bold" style={{ width: "35%" }}>Description</td>
+                                <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Discount</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
                             </tr>
                         </thead>
                         <tbody>
-                            {invoiceData.items?.map((item, i) => (
-                                <tr key={i}>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
                                     <td>{item.product?.name || "Unnamed Item"}</td>
-                                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                                    <td style={{ textAlign: "right" }}>
-                                        {formatCurrency(item.price)}
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#dc2626" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
                                     </td>
-                                    <td style={{ textAlign: "right", fontWeight: 600 }}>
-                                        {formatCurrency(item.quantity * item.price)}
-                                    </td>
+                                    <td style={{ textAlign: "right", fontWeight: 600 }}>{fmt(lineAmount)}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#dc2626" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 600 }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals */}
                 <div className={styles.totalsSection}>
                     <div className={styles.totalCard}>
                         <div className={styles.totalRow}>
-                            <span className={styles.totalLabel}>Subtotal:</span>
-                            <span className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
-                            </span>
+                            <span className={styles.totalLabel}>Item Total:</span>
+                            <span className={styles.amount}>{fmt(grossTotal)}</span>
                         </div>
-                        <div className={styles.totalRow}>
-                            <span className={styles.totalLabel}>Tax (GST):</span>
-                            <span className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount || 0)}
-                            </span>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <span className={styles.totalLabel}>Discount:</span>
-                                <span
-                                    className={styles.amount}
-                                    style={{ color: "#dc2626" }}
-                                >
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                <span className={styles.amount} style={{ color: "#dc2626" }}>
+                                    -{fmt(totalDiscount)}
                                 </span>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.totalRow}>
+                                <span className={styles.totalLabel}>Tax (GST):</span>
+                                <span className={styles.amount}>{fmt(totalGst)}</span>
                             </div>
                         )}
                         <div className={styles.finalRow}>
                             <span className={styles.finalLabel}>Total Due:</span>
-                            <span className={styles.finalAmount}>{formatCurrency(invoiceData.totalAmount)}</span>
+                            <span className={styles.finalAmount}>{fmt(totalAmount)}</span>
                         </div>
                     </div>
                 </div>
