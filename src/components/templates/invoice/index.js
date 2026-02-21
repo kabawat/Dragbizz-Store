@@ -8,7 +8,7 @@ export { default as AuroraTemplate } from "./standard/aurora";
 export { default as AurumTemplate } from "./standard/aurum";
 export { default as CelesteTemplate } from "./standard/celeste";
 export { default as ClassicTemplate } from "./standard/classic";
-export { default as CleanDataSheetTemplate } from "./standard/clean-datasheet";
+export { default as CleanDataSheet } from "./standard/clean-datasheet";
 export { default as CosmicReceiptTemplate } from "./standard/cosmic-receipt";
 export { default as CrystalTemplate } from "./standard/crystal";
 export { default as EclipseTemplate } from "./standard/eclipse";
@@ -100,7 +100,7 @@ export const TEMPLATE_OPTIONS = [
     preview: "/images/templates/classic-preview.png",
   },
   {
-    value: "cleandatasheet",
+    value: "CleanDataSheet",
     label: "Clean Data Sheet",
     description: "Structured and data-focused design",
     preview: "/images/templates/clean-datasheet-preview.png",

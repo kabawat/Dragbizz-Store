@@ -2,13 +2,16 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
-    const formatCurrency = (amount) =>
-        `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -79,24 +82,16 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                                 <table className={styles.itemsTable}>
                                     <thead>
                                         <tr>
-                                            <th style={{ width: "50%" }}>Description</th>
-                                            <th style={{ width: "12%", textAlign: "center" }}>Qty</th>
-                                            <th style={{ width: "18%", textAlign: "right" }}>Rate</th>
-                                            <th style={{ width: "20%", textAlign: "right" }}>Total</th>
+                                            <td className="font-bold" style={{ width: "35%" }}>Description</td>
+                                            <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                            <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                            <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Discount</td>
+                                            <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {(invoiceData.items && invoiceData.items.length > 0
-                                            ? invoiceData.items
-                                            : [
-                                                {
-                                                    product: { name: "No items" },
-                                                    quantity: 0,
-                                                    price: 0,
-                                                },
-                                            ]
-                                        ).map((item, idx) => (
-                                            <tr key={idx}>
+                                        {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                            <tr key={index}>
                                                 <td>
                                                     <div style={{ fontWeight: 600 }}>
                                                         {item.product?.name || "Unnamed Item"}
@@ -105,16 +100,26 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                                                         <div className={styles.sub}>SKU: {item.product.sku}</div>
                                                     )}
                                                 </td>
-                                                <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                                                <td style={{ textAlign: "right" }}>
-                                                    {formatCurrency(item.price)}
+                                                <td style={{ textAlign: "center" }}>{qty}</td>
+                                                <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                                    {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
                                                 </td>
-                                                <td style={{ textAlign: "right", fontWeight: 700 }}>
-                                                    {formatCurrency((item.quantity || 0) * (item.price || 0))}
-                                                </td>
+                                                <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(lineAmount)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
+                                    <tfoot>
+                                        <tr className={styles.tableFooterRow}>
+                                            <td><strong>Totals</strong></td>
+                                            <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                            <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                            <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                                <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                            </td>
+                                            <td style={{ textAlign: "right", fontWeight: 700 }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -123,25 +128,35 @@ const NeoGeometricTemplate = ({ invoiceData = {}, selectedStore = {} }) => {
                     {/* Right Column Summary */}
                     <div className={`${styles.card} ${styles.summary}`}>
                         <div className={styles.title}>Summary</div>
+
+                        {/* GST Note */}
+                        {hasAnyGst && (
+                            <p className={styles.gstNote}>
+                                * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                            </p>
+                        )}
+
                         <div className={styles.row}>
-                            <div>Subtotal</div>
-                            <div className={styles.totalVal}>{formatCurrency(invoiceData.subtotal)}</div>
+                            <div>Item Total</div>
+                            <div className={styles.totalVal}>{fmt(grossTotal)}</div>
                         </div>
-                        <div className={styles.row}>
-                            <div>Tax (GST)</div>
-                            <div className={styles.totalVal}>{formatCurrency(invoiceData.gstAmount || 0)}</div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.row}>
                                 <div>Discount</div>
                                 <div className={styles.totalVal} style={{ color: "#e74c3c" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
                                 </div>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.row}>
+                                <div>Tax (GST)</div>
+                                <div className={styles.totalVal}>{fmt(totalGst)}</div>
                             </div>
                         )}
                         <div className={styles.grand}>
                             <div>Amount Due</div>
-                            <div>{formatCurrency(invoiceData.totalAmount)}</div>
+                            <div>{fmt(totalAmount)}</div>
                         </div>
                         <div style={{ marginTop: 20 }}>
                             <div className={styles.title}>Payment Information</div>

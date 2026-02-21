@@ -21,6 +21,7 @@ import Header from "@/components/dashboard/header";
 const INITIAL_FORM_DATA = {
   customer: "",
   totalDiscount: 0,
+  discountMode: "PRE_TAX",   // PRE_TAX = discount on taxable value; POST_TOTAL = discount on inclusive MRP
   items: [],
   orderSource: "POS",
 };
@@ -190,6 +191,7 @@ const CreateInvoicePage = () => {
       })),
       store: selectedStore?.storeId,
       totalDiscount: formData.totalDiscount || 0,
+      discountMode: formData.discountMode || "PRE_TAX",
       orderSource: formData.orderSource || "POS",
     };
 

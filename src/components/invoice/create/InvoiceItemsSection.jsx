@@ -34,6 +34,10 @@ const InvoiceItemsSection = ({
             (item) => item.product === selectedProduct
         );
 
+        const gstRate = product.gstInfo?.gstRate || 0;
+        const isInclusive = product.gstInfo?.isGstIncluded ?? false;
+        const uom = product.uom || "Unit";
+
         let updatedItems;
         if (existingItemIndex !== -1) {
             // Product already exists, increment quantity
@@ -46,6 +50,9 @@ const InvoiceItemsSection = ({
                 ...existingItem,
                 quantity: newQuantity,
                 total: newTotal,
+                // Keep GST info in sync with product in case it changed
+                gstRate: existingItem.gstRate ?? gstRate,
+                isInclusive: existingItem.isInclusive ?? isInclusive,
             };
         } else {
             // Product doesn't exist, add as new item
@@ -57,6 +64,9 @@ const InvoiceItemsSection = ({
                 quantity: quantityToAdd,
                 price: productPrice,
                 total: total,
+                gstRate,
+                isInclusive,
+                uom,
             };
 
             updatedItems = [...formData.items, newItem];
@@ -158,7 +168,7 @@ const InvoiceItemsSection = ({
                                             className="group rounded-lg p-4 bg-[rgb(var(--color-bg-tertiary))]/30 hover:bg-[rgb(var(--color-bg-tertiary))]/50 transition-colors flex-shrink-0"
                                         >
                                             <div className="flex items-center justify-between">
-                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
                                                     <div>
                                                         <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
                                                             {t("invoice.product")}
@@ -173,7 +183,7 @@ const InvoiceItemsSection = ({
                                                             {t("invoice.quantity")}
                                                         </label>
                                                         <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                                                            {item.quantity}
+                                                            {item.quantity} {item.uom ? <span className="text-xs text-[rgb(var(--color-text-secondary))]">{item.uom}</span> : null}
                                                         </p>
                                                     </div>
 
@@ -183,6 +193,24 @@ const InvoiceItemsSection = ({
                                                         </label>
                                                         <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                                             ₹{item.price?.toFixed(2) || "0.00"}
+                                                        </p>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                                                            GST %
+                                                        </label>
+                                                        <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                                            {item.gstRate > 0 ? (
+                                                                <span>
+                                                                    {item.gstRate}%
+                                                                    {item.isInclusive && (
+                                                                        <span className="text-xs text-[rgb(var(--color-text-secondary))] ml-1">(incl.)</span>
+                                                                    )}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-xs text-[rgb(var(--color-text-secondary))]">Nil</span>
+                                                            )}
                                                         </p>
                                                     </div>
 
@@ -211,30 +239,63 @@ const InvoiceItemsSection = ({
                             </div>
                         </div>
 
-                        {/* Total Discount Section - Fixed at Bottom */}
+                        {/* Total Discount + Discount Mode — Fixed at Bottom */}
                         <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
-                            <div className="w-full md:w-80">
-                                <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
-                                    {t("invoice.totalDiscount")} (₹)
-                                    <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
-                                        ({t("common.optional")})
-                                    </span>
-                                </label>
-                                <Input
-                                    type="number"
-                                    value={formData.totalDiscount}
-                                    onChange={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            totalDiscount: value,
-                                        })
-                                    }
-                                    min="0"
-                                    step="0.01"
-                                    leftIcon={Calculator}
-                                    size="sm"
-                                    placeholder="Enter discount amount"
-                                />
+                            <div className="w-full flex items-end gap-3 justify-end">
+
+                                {/* Discount Mode Toggle */}
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Discount On</label>
+                                    <div className="flex rounded-lg overflow-hidden border border-[rgb(var(--color-border-primary))]/40 text-xs font-medium">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, discountMode: "PRE_TAX" })}
+                                            className={`px-3 py-2 transition-colors cursor-pointer ${(formData.discountMode || "PRE_TAX") === "PRE_TAX"
+                                                    ? "bg-[rgb(var(--color-primary))] text-white"
+                                                    : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
+                                                }`}
+                                            title="Discount applied on taxable value (before GST)"
+                                        >
+                                            Pre-Tax
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, discountMode: "POST_TOTAL" })}
+                                            className={`px-3 py-2 transition-colors cursor-pointer border-l border-[rgb(var(--color-border-primary))]/40 ${formData.discountMode === "POST_TOTAL"
+                                                    ? "bg-[rgb(var(--color-primary))] text-white"
+                                                    : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))]"
+                                                }`}
+                                            title="Discount applied on total inclusive price (after GST)"
+                                        >
+                                            Post-Total
+                                        </button>
+                                    </div>
+                                </div>
+                                {/* Discount Amount Input */}
+                                <div className="md:w-72">
+                                    <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">
+                                        {t("invoice.totalDiscount")} (₹)
+                                        <span className="text-[rgb(var(--color-text-tertiary))] ml-1">
+                                            ({t("common.optional")})
+                                        </span>
+                                    </label>
+                                    <Input
+                                        type="number"
+                                        value={formData.totalDiscount}
+                                        onChange={(value) =>
+                                            setFormData({
+                                                ...formData,
+                                                totalDiscount: value,
+                                            })
+                                        }
+                                        min="0"
+                                        step="0.01"
+                                        leftIcon={Calculator}
+                                        size="sm"
+                                        placeholder="Enter discount amount"
+                                    />
+                                </div>
+
                             </div>
                         </div>
                     </div>

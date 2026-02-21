@@ -10,7 +10,7 @@
 .header {
     background-color: #3498db !important;
     color: white !important;
-    padding: 30px 40px !important;
+    padding: 30px 20px !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -45,7 +45,7 @@
 
 .infoBar {
     background-color: #ecf0f1 !important;
-    padding: 15px 40px !important;
+    padding: 15px 20px !important;
     display: flex !important;
     justify-content: space-between !important;
     font-size: 13px !important;
@@ -63,7 +63,7 @@
 .detailsSection {
     display: flex !important;
     justify-content: space-between !important;
-    padding: 30px 40px !important;
+    padding: 30px 20px !important;
 }
 
 .detailsBlock {
@@ -98,6 +98,7 @@
 
 .tableContainer {
     margin-bottom: 30px !important;
+    padding: 0px 20px;
 }
 
 .prismTable {
@@ -114,7 +115,7 @@
     }
 
     :global(td) {
-        padding: 10px 40px !important;
+        padding: 10px 0px !important;
         border-bottom: 1px solid #eee !important;
         font-size: 14px !important;
     }
@@ -162,7 +163,7 @@
 .finalTotalBlock {
     background-color: #3498db !important;
     color: white !important;
-    padding: 20px 40px !important;
+    padding: 20px 20px !important;
     display: flex !important;
     justify-content: space-between !important;
     font-size: 24px !important;
@@ -172,11 +173,28 @@
 
 .footer {
     text-align: center !important;
-    padding: 30px 40px !important;
+    padding: 30px 20px !important;
     font-size: 11px !important;
     color: #7f8c8d !important;
 
     p {
         margin: 5px 0 !important;
+    }
+}
+
+.gstNote {
+    font-size: 11px !important;
+    color: #888 !important;
+    margin: 4px 0 8px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    td {
+        border-top: 2px solid #ccc !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background: #fafafa !important;
+        font-size: 13px !important;
     }
 }

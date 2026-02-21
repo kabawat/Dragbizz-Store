@@ -32,8 +32,7 @@ export const handleApiSuccess = (
 };
 
 export const handleApiErrorResponse = (error, context = "general") => {
-  const backendMessage =
-    error.response?.data?.message || error.response?.data?.error;
+  const backendMessage = error.response?.data?.message || error.response?.data?.error;
   const statusCode = error.response?.status;
 
   return {

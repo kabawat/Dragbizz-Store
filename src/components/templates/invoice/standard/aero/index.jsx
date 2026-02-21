@@ -2,11 +2,18 @@
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const AeroTemplate = ({ invoiceData, selectedStore }) => {
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
     return (
         <InvoiceContainer>
-            <div className={styles.aeroInvoice} >
+            <div className={styles.aeroInvoice}>
                 {/* Header */}
                 <div className={styles.aeroHeader}>
                     <div>
@@ -14,111 +21,103 @@ const AeroTemplate = ({ invoiceData, selectedStore }) => {
                             {selectedStore?.storeName || "Your Store"}
                         </div>
                         <div className={styles.storeDetails}>
-                            <p>{selectedStore?.address || "123 Market Street, City"}</p>
+                            <p>{selectedStore?.address || ""}</p>
                             {selectedStore?.phone && <p>Phone: {selectedStore.phone}</p>}
                             {selectedStore?.email && <p>Email: {selectedStore.email}</p>}
+                            {selectedStore?.gst && <p>GSTIN: {selectedStore.gst}</p>}
                         </div>
                     </div>
                     <div className={styles.invoiceTitleBox}>
                         <h1 className={styles.invoiceTitle}>INVOICE</h1>
                         <div className={styles.invoiceMeta}>
                             <p>#{invoiceData.invoiceNumber}</p>
-                            <p>{moment(invoiceData.createdAt).format("MMMM DD, YYYY")}</p>
+                            <p>{moment(invoiceData.createdAt).format("DD MMM YYYY")}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Info */}
+                {/* Bill To */}
                 <div className={styles.infoSection}>
                     <div className={styles.infoCard}>
                         <h3>Bill To</h3>
-                        <p>
-                            <strong>
-                                {invoiceData.customer?.name || "Walk-in Customer"}
-                            </strong>
-                        </p>
-                        {invoiceData.customer?.address && (
-                            <p>{invoiceData.customer.address}</p>
-                        )}
+                        <p><strong>{invoiceData.customer?.name || "Walk-in Customer"}</strong></p>
                         {invoiceData.customer?.phone && <p>{invoiceData.customer.phone}</p>}
-                    </div>
-
-                    <div className={styles.infoCard}>
-                        <h3>Payment Info</h3>
-                        <p>
-                            <strong>Mode:</strong> {invoiceData.paymentMode || "Cash"}
-                        </p>
-                        <p>
-                            <strong>Status:</strong> {invoiceData.status || "Paid"}
-                        </p>
-                        <p>
-                            <strong>Date:</strong>{" "}
-                            {moment(invoiceData.createdAt).format("DD MMM YYYY")}
-                        </p>
+                        {invoiceData.customer?.email && <p>{invoiceData.customer.email}</p>}
                     </div>
                 </div>
 
-                {/* Table */}
+                {/* B2C Items Table */}
                 <table className={styles.invoiceTable}>
                     <thead>
                         <tr>
-                            <th>Description</th>
-                            <th style={{ textAlign: "center" }}>Qty</th>
-                            <th style={{ textAlign: "right" }}>Rate</th>
-                            <th style={{ textAlign: "right" }}>Amount</th>
+                            <td style={{ width: "40%", textAlign: "left" }}>Product</td>
+                            <td style={{ width: "12%", textAlign: "center" }}>Qty</td>
+                            <td style={{ width: "16%", textAlign: "right" }}>Unit Price</td>
+                            <td style={{ width: "14%", textAlign: "right" }}>Discount</td>
+                            <td style={{ width: "18%", textAlign: "right" }}>Amount</td>
                         </tr>
                     </thead>
                     <tbody>
-                        {invoiceData.items?.map((item, index) => (
+                        {getItemRows(items).map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
                             <tr key={index}>
-                                <td>
-                                    <span className={styles.productName}>
-                                        {item.product?.name || "Product"}
-                                    </span>
+                                <td><span className={styles.productName}>{item.product?.name || item.productName || "Product"}</span></td>
+                                <td style={{ textAlign: "center" }}>{qty}{item.uom ? ` ${item.uom}` : ""}</td>
+                                <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                <td style={{ textAlign: "right", color: lineDiscount > 0 ? "#e74c3c" : "#aaa" }}>
+                                    {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "—"}
                                 </td>
-                                <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                                <td style={{ textAlign: "right" }}>
-                                    ₹{(item.price || 0).toLocaleString()}
-                                </td>
-                                <td style={{ textAlign: "right" }}>
-                                    ₹{((item.quantity || 0) * (item.price || 0)).toLocaleString()}
-                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 600 }}>{fmt(lineAmount)}</td>
                             </tr>
                         ))}
                     </tbody>
+                    <tfoot>
+                        <tr className={styles.tableFooterRow}>
+                            <td style={{ textAlign: "left", fontWeight: 700 }}>Total</td>
+                            <td style={{ textAlign: "center", fontWeight: 700 }}>{tableTotalQty}</td>
+                            <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(grossTotal)}</td>
+                            <td style={{ textAlign: "right", fontWeight: 700, color: tableTotalDiscount > 0 ? "#e74c3c" : "inherit" }}>
+                                {tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "—"}
+                            </td>
+                            <td style={{ textAlign: "right", fontWeight: 700 }}>{fmt(tableTotalAmount)}</td>
+                        </tr>
+                    </tfoot>
                 </table>
 
-                {/* Totals */}
+                {/* B2C Totals */}
                 <div className={styles.totals}>
                     <div className={styles.totalsBox}>
                         <div className={styles.totalRow}>
-                            <span>Subtotal:</span>
-                            <span>₹{invoiceData.subtotal?.toLocaleString()}</span>
+                            <span>Item Total:</span>
+                            <span>{fmt(grossTotal)}</span>
                         </div>
-                        <div className={styles.totalRow}>
-                            <span>GST:</span>
-                            <span>₹{invoiceData.gstAmount?.toLocaleString() || "0"}</span>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
-                                <span>Discount:</span>
-                                <span>-₹{invoiceData.totalDiscount?.toLocaleString()}</span>
+                                <span>Discount (-):</span>
+                                <span style={{ color: "#e74c3c" }}>-{fmt(totalDiscount)}</span>
+                            </div>
+                        )}
+                        {totalGst > 0 && (
+                            <div className={styles.totalRow}>
+                                <span>{allInclusive ? "GST (included):" : "GST (+):"}</span>
+                                <span>{fmt(totalGst)}</span>
                             </div>
                         )}
                         <div className={`${styles.totalRow} ${styles.grandTotal}`}>
-                            <span>Total:</span>
-                            <span>₹{invoiceData.totalAmount?.toLocaleString()}</span>
+                            <span>Total Payable:</span>
+                            <span>{fmt(totalAmount)}</span>
                         </div>
+                        {hasAnyGst && (
+                            <div className={styles.gstNote}>
+                                {allInclusive ? "* Prices are inclusive of GST" : "* GST is charged separately"}
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className={styles.footer}>
                     <p>Thank you for your purchase!</p>
-                    <p>
-                        This invoice was generated on{" "}
-                        {moment(invoiceData.createdAt).format("DD/MM/YYYY")}.
-                    </p>
+                    <p>Generated on {moment(invoiceData.createdAt).format("DD MMM YYYY [at] HH:mm")}</p>
                 </div>
             </div>
         </InvoiceContainer>

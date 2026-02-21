@@ -144,3 +144,24 @@
     font-size: 12px !important;
     color: #64748b !important;
 }
+
+// ── B2C shared ────────────────────────────────────────────────────────────────
+.gstNote {
+    font-size: 10px !important;
+    color: #94a3b8 !important;
+    margin-top: 6px !important;
+    font-style: italic !important;
+}
+
+.tableFooterRow {
+    background-color: #eff6ff !important;
+    border-top: 2px solid #2563eb !important;
+
+    :global(td) {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding: 10px !important;
+        color: #1e293b !important;
+        border-bottom: none !important;
+    }
+}

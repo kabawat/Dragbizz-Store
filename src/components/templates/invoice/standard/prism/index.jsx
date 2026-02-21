@@ -1,16 +1,17 @@
 "use client";
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
-import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const PrismTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) => {
-        return `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
-    };
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -82,56 +83,81 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
 
                 {/* Items Table */}
                 <div className={styles.tableContainer}>
-                    <InvoiceItemsTable
-                        items={invoiceData.items}
-                        className={styles.prismTable}
-                        columnWidths={{
-                            product: "40%",
-                            quantity: "12%",
-                            unitPrice: "18%",
-                            gst: "12%",
-                            total: "18%",
-                        }}
-                        renderProductCell={(item) => (
-                            <>
-                                <div className={styles.productName}>
-                                    {item.product?.name || "Unnamed Item"}
-                                </div>
-                                {item.product?.sku && (
-                                    <div className={styles.productSku}>
-                                        SKU: {item.product.sku}
-                                    </div>
-                                )}
-                            </>
-                        )}
-                        renderUnitPriceCell={(item) => formatCurrency(item.price)}
-                        renderTotalCell={(item) => {
-                            const total = item.calculatedTotal || item.quantity * item.price;
-                            return formatCurrency(total);
-                        }}
-                    />
+                    <table className={styles.prismTable}>
+                        <thead>
+                            <tr>
+                                <td className="font-bold" style={{ width: "35%" }}>Description</td>
+                                <td className="font-bold" style={{ width: "5%", textAlign: "center" }}>Qty</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Rate</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Discount</td>
+                                <td className="font-bold" style={{ width: "20%", textAlign: "right" }}>Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
+                                    <td>
+                                        <div className={styles.productName}>
+                                            {item.product?.name || "Unnamed Item"}
+                                        </div>
+                                        {item.product?.sku && (
+                                            <div className={styles.productSku} style={{ fontSize: "11px", color: "#666" }}>
+                                                SKU: {item.product.sku}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td style={{ textAlign: "center" }}>{qty}</td>
+                                    <td style={{ textAlign: "right" }}>{fmt(unitPrice)}</td>
+                                    <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                        {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
+                                    </td>
+                                    <td style={{ textAlign: "right", fontWeight: 600 }}>{fmt(lineAmount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td style={{ textAlign: "center" }}><strong>{tableTotalQty}</strong></td>
+                                <td style={{ textAlign: "right" }}><strong>{fmt(grossTotal)}</strong></td>
+                                <td style={{ textAlign: "right", color: "#e74c3c" }}>
+                                    <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                </td>
+                                <td style={{ textAlign: "right", fontWeight: 600 }}><strong>{fmt(tableTotalAmount)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsContainer}>
                     <div className={styles.totals}>
                         <div className={styles.row}>
-                            <div className={styles.totalLabel}>Subtotal:</div>
+                            <div className={styles.totalLabel}>Item Total:</div>
                             <div className={styles.amount}>
-                                {formatCurrency(invoiceData.subtotal)}
+                                {fmt(grossTotal)}
                             </div>
                         </div>
-                        <div className={styles.row}>
-                            <div className={styles.totalLabel}>Tax (GST):</div>
-                            <div className={styles.amount}>
-                                {formatCurrency(invoiceData.gstAmount || 0)}
-                            </div>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.row}>
                                 <div className={styles.totalLabel}>Discount:</div>
                                 <div className={styles.amount} style={{ color: "#e74c3c" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
+                                </div>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.row}>
+                                <div className={styles.totalLabel}>Tax (GST):</div>
+                                <div className={styles.amount}>
+                                    {fmt(totalGst)}
                                 </div>
                             </div>
                         )}
@@ -141,7 +167,7 @@ const PrismTemplate = ({ invoiceData, selectedStore }) => {
                 {/* Final Total Block */}
                 <div className={styles.finalTotalBlock}>
                     <span>TOTAL AMOUNT DUE:</span>
-                    <span>{formatCurrency(invoiceData.totalAmount)}</span>
+                    <span>{fmt(totalAmount)}</span>
                 </div>
 
                 {/* Footer */}

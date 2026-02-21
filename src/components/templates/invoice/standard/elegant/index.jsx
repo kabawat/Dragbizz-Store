@@ -1,15 +1,17 @@
 "use client";
 import moment from "moment";
 import InvoiceContainer from "../../InvoiceContainer";
-import InvoiceItemsTable from "@/components/invoice/InvoiceItemsTable";
 import styles from "./style.module.scss";
+import { fmt, computeB2CTotals, getItemRows } from "@/components/templates/invoice/b2cHelpers";
 
 const ElegantTemplate = ({ invoiceData, selectedStore }) => {
-    const formatCurrency = (amount) =>
-        `₹${(amount || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })}`;
+    const {
+        items, grossTotal, totalDiscount, totalGst, totalAmount,
+        tableTotalQty, tableTotalDiscount, tableTotalAmount,
+        hasAnyGst, allInclusive,
+    } = computeB2CTotals(invoiceData);
+
+    const rows = getItemRows(items);
 
     return (
         <InvoiceContainer>
@@ -63,61 +65,82 @@ const ElegantTemplate = ({ invoiceData, selectedStore }) => {
 
                 {/* Items Table */}
                 <div className={styles.tableContainer}>
-                    <InvoiceItemsTable
-                        items={invoiceData.items}
-                        className={styles.elegantTable}
-                        columnWidths={{
-                            product: "35%",
-                            quantity: "12%",
-                            unitPrice: "18%",
-                            gst: "15%",
-                            total: "20%",
-                        }}
-                        renderQuantityCell={(item) => (
-                            <div className={styles.alignCenter}>{item.quantity}</div>
-                        )}
-                        renderUnitPriceCell={(item) => (
-                            <div className={styles.alignRight}>{formatCurrency(item.price)}</div>
-                        )}
-                        renderGstCell={(item) => {
-                            const itemGst = item.calculatedGst || 0;
-                            return (
-                                <div className={styles.alignRight}>
-                                    {itemGst > 0 ? formatCurrency(itemGst) : "-"}
-                                </div>
-                            );
-                        }}
-                        renderTotalCell={(item) => {
-                            const total = item.calculatedTotal || (item.quantity * item.price);
-                            return (
-                                <div className={styles.alignRight}>{formatCurrency(total)}</div>
-                            );
-                        }}
-                    />
+                    <table className={styles.elegantTable}>
+                        <thead>
+                            <tr>
+                                <th style={{ width: "40%" }}>Product</th>
+                                <th style={{ width: "10%", textAlign: "center" }}>Qty</th>
+                                <th style={{ width: "18%", textAlign: "right" }}>Unit Price</th>
+                                <th style={{ width: "12%", textAlign: "right" }}>Discount</th>
+                                <th style={{ width: "20%", textAlign: "right" }}>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(({ index, item, qty, unitPrice, lineDiscount, lineAmount }) => (
+                                <tr key={index}>
+                                    <td>
+                                        <div className={styles.alignLeft}>
+                                            {item.product?.name || "Unnamed Product"}
+                                        </div>
+                                    </td>
+                                    <td><div className={styles.alignCenter}>{qty}</div></td>
+                                    <td><div className={styles.alignRight}>{fmt(unitPrice)}</div></td>
+                                    <td>
+                                        <div className={styles.alignRight} style={{ color: "#ff4d4f" }}>
+                                            {lineDiscount > 0 ? `-${fmt(lineDiscount)}` : "-"}
+                                        </div>
+                                    </td>
+                                    <td><div className={styles.alignRight}>{fmt(lineAmount)}</div></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className={styles.tableFooterRow}>
+                                <td><strong>Totals</strong></td>
+                                <td><div className={styles.alignCenter}><strong>{tableTotalQty}</strong></div></td>
+                                <td><div className={styles.alignRight}><strong>{fmt(grossTotal)}</strong></div></td>
+                                <td>
+                                    <div className={styles.alignRight} style={{ color: "#ff4d4f" }}>
+                                        <strong>{tableTotalDiscount > 0 ? `-${fmt(tableTotalDiscount)}` : "-"}</strong>
+                                    </div>
+                                </td>
+                                <td><div className={styles.alignRight}><strong>{fmt(tableTotalAmount)}</strong></div></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+
+                {/* GST Note */}
+                {hasAnyGst && (
+                    <p className={styles.gstNote}>
+                        * Prices are GST {allInclusive ? "inclusive" : "exclusive"}
+                    </p>
+                )}
 
                 {/* Totals Section */}
                 <div className={styles.totalsSection}>
                     <div className={styles.totalsBox}>
                         <div className={styles.totalRow}>
-                            <span>Subtotal:</span>
-                            <span>{formatCurrency(invoiceData.subtotal)}</span>
+                            <span>Item Total:</span>
+                            <span>{fmt(grossTotal)}</span>
                         </div>
-                        <div className={styles.totalRow}>
-                            <span>GST:</span>
-                            <span>{formatCurrency(invoiceData.gstAmount || 0)}</span>
-                        </div>
-                        {invoiceData.totalDiscount > 0 && (
+                        {totalDiscount > 0 && (
                             <div className={styles.totalRow}>
                                 <span>Discount:</span>
                                 <span style={{ color: "#ff4d4f" }}>
-                                    -{formatCurrency(invoiceData.totalDiscount)}
+                                    -{fmt(totalDiscount)}
                                 </span>
+                            </div>
+                        )}
+                        {hasAnyGst && (
+                            <div className={styles.totalRow}>
+                                <span>GST:</span>
+                                <span>{fmt(totalGst)}</span>
                             </div>
                         )}
                         <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                             <span>Total:</span>
-                            <span>{formatCurrency(invoiceData.totalAmount)}</span>
+                            <span>{fmt(totalAmount)}</span>
                         </div>
                     </div>
                 </div>

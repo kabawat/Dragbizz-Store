@@ -58,6 +58,7 @@
   "city": "City",
   "enterCity": "Enter city",
   "state": "State",
+  "selectState": "Select State",
   "enterState": "Enter state",
   "pincode": "Pincode",
   "enterPincode": "Enter pincode",
