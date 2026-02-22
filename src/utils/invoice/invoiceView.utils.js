@@ -17,7 +17,7 @@ export const getPaymentStatusColor = (status) => {
       return "bg-[rgb(var(--color-success))]/10 text-[rgb(var(--color-success))]";
     case "UNPAID":
       return "bg-[rgb(var(--color-warning))]/10 text-[rgb(var(--color-warning))]";
-    case "PAY_LATTER":
+    case "PARTIAL":
       return "bg-[rgb(var(--color-warning))]/10 text-[rgb(var(--color-warning))]";
     case "CANCELLED":
       return "bg-[rgb(var(--color-danger))]/10 text-[rgb(var(--color-danger))]";

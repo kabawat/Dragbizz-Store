@@ -42,8 +42,8 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
     setErrors({});
     if (value === "UNPAID") {
       setPaidAmount("");
-    } else if (value === "PAID" || value === "PAY_LATTER") {
-      // Set default to totalAmount for PAID and PAY_LATTER
+    } else if (value === "PAID" || value === "PARTIAL") {
+      // Set default to totalAmount for PAID and PARTIAL
       setPaidAmount(totalAmount ? totalAmount.toString() : "");
     }
   };
@@ -59,9 +59,9 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   };
 
   const handleConfirm = async () => {
-    // Validate if PAY_LATTER or PAID with paidAmount
+    // Validate if PARTIAL or PAID with paidAmount
     if (
-      (paymentStatus === "PAY_LATTER" || paymentStatus === "PAID") &&
+      (paymentStatus === "PARTIAL" || paymentStatus === "PAID") &&
       paidAmount
     ) {
       const numPaidAmount = parseFloat(paidAmount);
@@ -156,14 +156,14 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
             options={[
               { value: "PAID", label: t("invoice.paid") },
               { value: "UNPAID", label: t("invoice.unpaid") },
-              { value: "PAY_LATTER", label: t("invoice.payLater") },
+              { value: "PARTIAL", label: t("invoice.partialPayment") },
               { value: "CANCELLED", label: t("invoice.cancelled") },
             ]}
             placeholder={t("invoice.selectPaymentStatus")}
           />
         </div>
 
-        {(paymentStatus === "PAY_LATTER" || paymentStatus === "PAID") && (
+        {(paymentStatus === "PARTIAL" || paymentStatus === "PAID") && (
           <div className="mb-6">
             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
               {t("invoice.paidAmount")} {t("common.optional")}
@@ -185,11 +185,23 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
             <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
               {t("invoice.totalInvoiceAmount")}: ₹
               {totalAmount?.toLocaleString() || 0}
-              {paymentStatus === "PAY_LATTER" &&
+              {paymentStatus === "PARTIAL" &&
                 ` • ${t("invoice.leaveEmptyForZero")}`}
               {paymentStatus === "PAID" &&
                 ` • ${t("invoice.leaveEmptyForFullPayment")}`}
             </p>
+            {paymentStatus === "PAID" &&
+              paidAmount &&
+              parseFloat(paidAmount) > 0 &&
+              parseFloat(paidAmount) < totalAmount && (
+                <div className="mt-3 p-3 bg-[rgb(var(--color-warning))]/10 border border-[rgb(var(--color-warning))]/20 rounded-md">
+                  <p className="text-xs text-[rgb(var(--color-warning))] font-medium">
+                    {t("invoice.settlementDiscountWarning", {
+                      amount: (totalAmount - parseFloat(paidAmount)).toLocaleString(),
+                    })}
+                  </p>
+                </div>
+              )}
           </div>
         )}
 

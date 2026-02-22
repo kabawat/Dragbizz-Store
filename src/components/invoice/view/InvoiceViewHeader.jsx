@@ -21,7 +21,7 @@ const InvoiceViewHeader = ({
                 <span className="text-sm font-medium">Back to Invoices</span>
             </Link>
             <div className="flex items-center gap-3">
-                {invoiceData?.invoiceStatus === "RELEASED" && (
+                {invoiceData?.invoiceStatus === "RELEASED" && invoiceData?.paymentStatus !== "PAID" && (
                     <Button
                         variant="outline"
                         onClick={onUpdatePaymentStatus}

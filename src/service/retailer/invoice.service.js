@@ -96,7 +96,7 @@ class InvoiceService {
         paymentStatus,
       };
 
-      // Add paidAmount if provided (for PAY_LATTER or PAID with partial payment)
+      // Add paidAmount if provided (for PARTIAL or PAID with partial payment)
       if (paidAmount !== null && paidAmount !== undefined) {
         payload.paidAmount = paidAmount;
       }

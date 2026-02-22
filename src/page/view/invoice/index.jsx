@@ -31,7 +31,7 @@ const getStatusBadgeCommon = (status, _type = "invoice") => {
   } else if (s === "UNPAID") {
     config.variant = "danger";
     config.text = "Unpaid";
-  } else if (s === "PAY_LATER" || s === "PAY_LATTER" || s === "DRAFT") {
+  } else if (s === "PAY_LATER" || s === "PARTIAL" || s === "DRAFT") {
     config.variant = "warning";
     config.text = "Pending";
   } else if (s === "CANCELLED") {
@@ -53,7 +53,7 @@ const getStatusBadgeCommon = (status, _type = "invoice") => {
     PAID: CheckCircle,
     UNPAID: AlertTriangle,
     PAY_LATER: Clock,
-    PAY_LATTER: Clock,
+    PARTIAL: Clock,
     RELEASED: CheckCircle,
     DRAFT: Clock,
     CANCELLED: AlertTriangle,

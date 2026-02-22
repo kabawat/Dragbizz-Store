@@ -165,7 +165,7 @@ const InvoiceCard = ({
       icon: FileText,
       onClick: () => onDuplicate?.(invoice.id || invoice._id),
     },
-    ...(isReleased && onUpdatePaymentStatus
+    ...(isReleased && onUpdatePaymentStatus && invoice.paymentStatus !== "PAID"
       ? [
         {
           value: "paymentStatus",

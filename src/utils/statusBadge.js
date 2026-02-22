@@ -59,7 +59,7 @@ export const getStatusBadge = (status, type = "general") => {
       text: "Unpaid",
       variant: "warning",
     },
-    PAY_LATTER: {
+    PARTIAL: {
       style: {
         backgroundColor: "rgba(var(--color-primary), 0.2)",
         color: "rgb(var(--color-primary))",
