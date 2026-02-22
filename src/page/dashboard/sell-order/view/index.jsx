@@ -1,0 +1,220 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Printer, Download, XCircle, QrCode } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Header from "@/components/dashboard/header";
+import Sidebar from "@/components/dashboard/sidebar";
+import { Button } from "@/components/ui";
+import { CatalogQRModal } from "@/components/common";
+import { salesOrderService } from "@/service/retailer";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { useAppSelector } from "@/store/hooks";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+
+// Extracted Components
+import {
+  ActivityHistory,
+  CustomerAndAddress,
+  OrderActions,
+  OrderItems,
+  OrderNotes
+} from "@/components/salesOrder";
+
+const SALES_ORDER_STATUSES = Object.freeze({
+  DRAFT: 'DRAFT',
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  RETURNED: 'RETURNED'
+});
+
+const ViewSellOrderPage = ({ orderId }) => {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { showError, showSuccess } = useGlobalToast();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId;
+
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+
+  const fetchOrder = React.useCallback(async () => {
+    if (!orderId || !storeId) return;
+    try {
+      const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
+      if (result.success) {
+        setOrder(result.data);
+      }
+    } catch (error) {
+
+      showError("An unexpected error occurred while fetching order");
+    }
+  }, [orderId, storeId, showError]);
+
+  const handleUpdateStatus = async (status, payload = {}) => {
+    if (!orderId || !storeId) return;
+    setUpdatingStatus(true);
+    try {
+      const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
+      if (result.success) {
+        showSuccess(result.message || "Order updated successfully");
+        await fetchOrder();
+      } else {
+        showError(result.message || "Failed to update order");
+      }
+    } catch (error) {
+
+      showError("An unexpected error occurred while updating status");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!orderId || !storeId) return;
+
+    const timeoutId = setTimeout(async () => {
+      setLoading(true);
+      await fetchOrder();
+      setLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchOrder, orderId, storeId]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
+        <Sidebar />
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
+        <Sidebar />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+            <XCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-[rgb(var(--color-text-primary))] mb-2">{t("common.error")}</h2>
+          <p className="text-[rgb(var(--color-text-secondary))] mb-6">{t("common.doesntExistOrRemoved", { item: "Order" })}</p>
+          <Button onClick={() => router.push("/dashboard/sales-order")}>{t("salesOrder.backToOrders")}</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
+      {/* Sidebar */}
+      <div className="no-print">
+        <Sidebar />
+      </div>
+
+      {/* Main Content */}
+      <div className="h-full w-full flex flex-col main-content">
+        {/* Header */}
+        <div className="no-print">
+          <Header
+            title={t("salesOrder.viewOrder")}
+            description={
+              <div className="flex flex-col gap-2">
+                <span className="inline-flex items-center gap-2">
+                  <span>{t("common.details")} #{order.orderNumber}</span>
+                </span>
+              </div>
+            }
+          />
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 p-6 overflow-hidden flex flex-col">
+          <div className="max-w-8xl mx-auto w-full flex-1 flex flex-col min-h-0">
+
+            {/* Navigation & Actions Bar */}
+            <div className="mb-6 flex items-center justify-between no-print">
+              <Link
+                href="/dashboard/sales-order"
+                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-primary))] rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium">{t("salesOrder.backToOrders")}</span>
+              </Link>
+              <div className="flex gap-3">
+                {selectedStore?.catalogId && (
+                  <>
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsCatalogModalOpen(true)}
+                      leftIcon={QrCode}
+                      className="h-9 font-semibold"
+                    >
+                      {t("settings.publicCatalog")}
+                    </Button>
+
+                    <CatalogQRModal
+                      isOpen={isCatalogModalOpen}
+                      onClose={() => setIsCatalogModalOpen(false)}
+                      store={selectedStore}
+                    />
+                  </>
+                )}
+                <Button variant="outline" leftIcon={Printer}>{t("common.print")}</Button>
+                <Button variant="outline" leftIcon={Download}>{t("common.download")}</Button>
+              </div>
+            </div>
+
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0  overflow-hidden">
+
+              {/* Left Column: Order Content View */}
+              <div className="lg:col-span-2 flex flex-col min-h-0 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 space-y-6">
+                <CustomerAndAddress order={order} />
+                <OrderItems order={order} />
+
+                {/* Additional Info Footer */}
+                <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-transparent rounded-xl border border-[rgb(var(--color-border-primary)/0.5)] border-l-[4px] border-l-[rgb(var(--color-primary))]">
+                  <h4 className="text-[10px] font-bold text-[rgb(var(--color-text-primary))] mb-2 uppercase tracking-[0.2em]">{t("salesOrder.termsConditions")}</h4>
+                  <p className="text-xs text-[rgb(var(--color-text-secondary))] leading-relaxed font-medium">{t("salesOrder.standardTerms")}</p>
+                </div>
+              </div>
+
+              {/* Right Column: Actions & Status */}
+              <div className="flex flex-col min-h-0 no-print">
+                <div className="flex-1 overflow-y-auto px-1 space-y-6">
+                  <OrderActions
+                    order={order}
+                    statusList={SALES_ORDER_STATUSES}
+                    updatingStatus={updatingStatus}
+                    onUpdateStatus={handleUpdateStatus}
+                  />
+                  <div className="space-y-4">
+                    <ActivityHistory order={order} />
+                    <OrderNotes />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewSellOrderPage;

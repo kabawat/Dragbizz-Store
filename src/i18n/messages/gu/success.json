@@ -1,0 +1,9 @@
+{
+  "deletedSuccessfully": "{item} સફળતાપૂર્વક કાઢી નાખ્યું",
+  "updatedSuccessfully": "{item} સફળતાપૂર્વક અપડેટ થયું",
+  "hasBeenUpdatedSuccessfully": "સફળતાપૂર્વક અપડેટ થયું છે",
+  "createdSuccessfully": "{item} સફળતાપૂર્વક બનાવ્યું",
+  "savedSuccessfully": "{item} સફળતાપૂર્વક સાચવ્યું",
+  "cancelledSuccessfully": "{item} સફળતાપૂર્વક રદ કર્યું",
+  "releasedSuccessfully": "{item} સફળતાપૂર્વક રિલીઝ કર્યું"
+}
