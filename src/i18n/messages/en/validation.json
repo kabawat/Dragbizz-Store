@@ -1,0 +1,12 @@
+{
+  "required": "This field is required",
+  "invalidEmail": "Please enter a valid email address",
+  "invalidPhone": "Please enter a valid phone number",
+  "minLength": "Minimum {min} characters required",
+  "maxLength": "Maximum {max} characters allowed",
+  "invalidNumber": "Please enter a valid number",
+  "invalidDate": "Please enter a valid date",
+  "invalidUrl": "Please enter a valid URL",
+  "fixErrors": "Please fix the validation errors in the form.",
+  "eitherPhoneOrEmailRequired": "Either Phone or Email is required"
+}

@@ -1,0 +1,9 @@
+{
+  "deletedSuccessfully": "{item} deleted successfully",
+  "updatedSuccessfully": "{item} Updated Successfully",
+  "createdSuccessfully": "{item} created successfully",
+  "hasBeenUpdatedSuccessfully": "has been updated successfully",
+  "savedSuccessfully": "{item} saved successfully",
+  "cancelledSuccessfully": "{item} cancelled successfully",
+  "releasedSuccessfully": "{item} released successfully"
+}

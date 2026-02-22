@@ -1,0 +1,34 @@
+{
+    "faqs": {
+        "createInvoice": {
+            "q": "How do I create a new invoice?",
+            "a": "Go to the Invoices page and click 'Add Invoice' or just use the Shift+N shortcut from anywhere. Fill in the client details and items, then click save."
+        },
+        "multipleStores": {
+            "q": "Can I manage multiple stores?",
+            "a": "Yes! Use the store switcher in the sidebar to create and manage multiple business stores from a single account."
+        },
+        "voiceAI": {
+            "q": "How does Voice AI work?",
+            "a": "Click on the microphone icon in Customer or Product pages (or use Alt+V). Speak the details naturally, and our AI will automatically fill the form fields for you."
+        },
+        "exportData": {
+            "q": "How do I export my data?",
+            "a": "Most list pages have a 'Download' button or Ctrl+D shortcut. You can export data to PDF or CSV based on the page."
+        }
+    },
+    "steps": {
+        "completeProfile": "Complete your business profile",
+        "configureStore": "Configure your first store",
+        "addProducts": "Add your initial products to inventory",
+        "createInvoice": "Create your first professional invoice"
+    },
+    "ui": {
+        "docsTitle": "Detailed Documentation",
+        "docsDesc": "Step-by-step guides on how to use every feature of DragBizz Pro.",
+        "contactTitle": "Contact Support",
+        "contactDesc": "Need direct help? Our support team is available via chat and email 24/7.",
+        "faqTitle": "Frequently Asked Questions",
+        "checklistTitle": "Quick Start Checklist"
+    }
+}

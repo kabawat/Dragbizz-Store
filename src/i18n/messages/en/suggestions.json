@@ -1,0 +1,64 @@
+{
+    "title": "Support Center",
+    "description": "Get help, share ideas, and master shortcuts.",
+    "tabs": {
+        "suggestions": "Suggestions",
+        "help": "Help Center",
+        "shortcuts": "Shortcuts"
+    },
+    "submitNew": "Submit New Suggestion",
+    "mySuggestions": "My Suggestions",
+    "allSuggestions": "All Suggestions",
+    "trending": "Trending",
+    "latest": "Latest",
+    "searchPlaceholder": "Search suggestions...",
+    "noSuggestions": "No suggestions yet",
+    "form": {
+        "title": "Title",
+        "titlePlaceholder": "Brief title of your idea",
+        "description": "Description",
+        "descriptionPlaceholder": "Explain your suggestion in detail...",
+        "category": "Category",
+        "submit": "Submit Idea",
+        "cancel": "Cancel",
+        "success": "Thank you! Your suggestion has been submitted successfully."
+    },
+    "categories": {
+        "FEATURE": "New Feature",
+        "UI_UX": "UI/UX Design",
+        "REPORT": "Bug Report",
+        "THEME": "Theme / Styling",
+        "INTEGRATION": "Integrations",
+        "OTHER": "Other"
+    },
+    "status": {
+        "REQUESTED": "Requested",
+        "UNDER_REVIEW": "Under Review",
+        "PLANNED": "Planned",
+        "IN_PROGRESS": "In Progress",
+        "COMPLETED": "Completed",
+        "DISCARDED": "Discarded"
+    },
+    "votes": "votes",
+    "vote": "Vote",
+    "upvoted": "Upvoted",
+    "submitFirstIdea": "Submit First Idea",
+    "noSuggestionsDesc": "Have an idea to improve DragBizz? Be the first to suggest a new feature or improvement!",
+    "shortcuts": {
+        "ui": {
+            "masterWorkflow": "Master the Workflow",
+            "workflowDescription": "DragBizz Pro supports deep keyboard integration. Every shortcut is designed to keep your hands on the keyboard and your business moving faster. Start with Shift+N for new entries or Alt+H to go home.",
+            "proTip": "Pro tip: Use these shortcuts to work up to 2x faster."
+        }
+    },
+    "help": {
+        "ui": {
+            "docsTitle": "Detailed Documentation",
+            "docsDesc": "Step-by-step guides on how to use every feature of DragBizz Pro.",
+            "contactTitle": "Contact Support",
+            "contactDesc": "Need direct help? Our support team is available via chat and email 24/7.",
+            "faqTitle": "Frequently Asked Questions",
+            "checklistTitle": "Quick Start Checklist"
+        }
+    }
+}

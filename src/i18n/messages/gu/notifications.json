@@ -1,0 +1,13 @@
+{
+  "title": "સૂચનાઓ",
+  "noNotifications": "કોઈ સૂચના નથી",
+  "markAllRead": "બધીને વાંચેલી ચિહ્નિત કરો",
+  "viewAll": "બધી સૂચનાઓ જુઓ",
+  "newOrderReceived": "નવો ઓર્ડર પ્રાપ્ત થયો",
+  "inventoryLowAlert": "ઇન્વેન્ટરી ઓછી ચેતવણી",
+  "paymentReceived": "ચુકવણી પ્રાપ્ત થઈ",
+  "twoMinAgo": "2 મિનિટ પહેલાં",
+  "fifteenMinAgo": "15 મિનિટ પહેલાં",
+  "oneHourAgo": "1 કલાક પહેલાં",
+  "justNow": "Just now"
+}
