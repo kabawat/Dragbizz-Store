@@ -17,9 +17,6 @@ const SupplierTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
-  selectable = false,
-  selectedIds = [],
-  onSelectionChange,
 }) => {
   const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -54,13 +51,13 @@ const SupplierTable = ({
     },
     ...(onPrint
       ? [
-          {
-            value: "print",
-            label: t("common.print"),
-            icon: Printer,
-            onClick: () => onPrint?.(supplier.id),
-          },
-        ]
+        {
+          value: "print",
+          label: t("common.print"),
+          icon: Printer,
+          onClick: () => onPrint?.(supplier.id),
+        },
+      ]
       : []),
     {
       value: "edit",
@@ -75,28 +72,6 @@ const SupplierTable = ({
       onClick: () => onDelete?.(supplier.id),
     },
   ];
-
-  const handleSelectAll = (checked) => {
-    if (!onSelectionChange) return;
-    if (checked) {
-      onSelectionChange(suppliers.map((s) => s.id));
-    } else {
-      onSelectionChange([]);
-    }
-  };
-
-  const handleSelectRow = (supplierId, checked) => {
-    if (!onSelectionChange) return;
-    if (checked) {
-      onSelectionChange([...selectedIds, supplierId]);
-    } else {
-      onSelectionChange(selectedIds.filter((id) => id !== supplierId));
-    }
-  };
-
-  const isAllSelected =
-    selectable && suppliers.length > 0 && selectedIds.length === suppliers.length;
-  const isSomeSelected = selectable && selectedIds.length > 0;
 
   const handleMenuToggle = (supplierId) => {
     setOpenMenuId(openMenuId === supplierId ? null : supplierId);
@@ -160,16 +135,6 @@ const SupplierTable = ({
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              {selectable && (
-                <th className="w-12 px-4 py-2 text-left">
-                  <Checkbox
-                    checked={isAllSelected}
-                    indeterminate={isSomeSelected && !isAllSelected}
-                    onChange={(checked) => handleSelectAll(checked)}
-                    aria-label={t("common.selectAll")}
-                  />
-                </th>
-              )}
               <th className="px-4 py-2 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   Supplier
@@ -199,27 +164,15 @@ const SupplierTable = ({
               return (
                 <tr
                   key={supplier.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index
-                      ? "bg-[rgb(var(--color-bg-tertiary))]"
-                      : ""
-                  }`}
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${hoveredRow === index
+                    ? "bg-[rgb(var(--color-bg-tertiary))]"
+                    : ""
+                    }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  {selectable && (
-                    <td className="w-12 px-4 py-2">
-                      <Checkbox
-                        checked={selectedIds.includes(supplier.id)}
-                        onChange={(checked) =>
-                          handleSelectRow(supplier.id, checked)
-                        }
-                        aria-label={t("common.select")}
-                      />
-                    </td>
-                  )}
                   {/* Supplier Column */}
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 cursor-pointer" onClick={() => onViewDetails?.(supplier.id)}>
                     <div className="flex items-center gap-4">
                       {/* Supplier Avatar */}
                       <div className="w-10 h-10 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
@@ -228,7 +181,7 @@ const SupplierTable = ({
 
                       {/* Supplier Details */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate">
+                        <h3 className="font-semibold text-[rgb(var(--color-text-primary))] text-sm truncate group-hover:text-[rgb(var(--color-primary))] transition-colors duration-200">
                           {supplier.name || "N/A"}
                         </h3>
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] font-medium">
@@ -247,10 +200,13 @@ const SupplierTable = ({
                   </td>
 
                   {/* Contact Column */}
-                  <td className="px-4 py-2">
+                  <td
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => onViewDetails?.(supplier.id)}
+                  >
                     <div className="space-y-1">
                       <div className="flex items-center">
-                        <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                        <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] group-hover:text-[rgb(var(--color-primary))] transition-colors duration-200">
                           {supplier.agency || "N/A"}
                         </span>
                       </div>
@@ -293,11 +249,10 @@ const SupplierTable = ({
                   <td className="px-4 py-2">
                     <div className="space-y-1">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          supplier.isActive
-                            ? "bg-green-500/10 text-green-600 border-green-500/20"
-                            : "bg-red-500/10 text-red-600 border-red-500/20"
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${supplier.isActive
+                          ? "bg-green-500/10 text-green-600 border-green-500/20"
+                          : "bg-red-500/10 text-red-600 border-red-500/20"
+                          }`}
                       >
                         {supplier.isActive
                           ? t("common.active")

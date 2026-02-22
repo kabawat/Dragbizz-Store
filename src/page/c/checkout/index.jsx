@@ -21,7 +21,7 @@ const initialFormData = {
   deliveryAddress: {
     line1: "",
     city: "",
-    state: "",
+    stateCode: "",
     pincode: "",
   },
 };

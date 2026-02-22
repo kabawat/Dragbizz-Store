@@ -1,6 +1,7 @@
 "use client";
 import { ArrowRight, MapPin, Mail, Phone, User } from "lucide-react";
-import { Button, Input, Card, CardBody } from "@/components/ui";
+import { Button, Input, Card, CardBody, Select } from "@/components/ui";
+import INDIAN_STATES from "@/constants/indianStates";
 
 export default function CheckoutContactForm({
   formData,
@@ -114,10 +115,12 @@ export default function CheckoutContactForm({
                     <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] mb-1.5 block">
                       State
                     </label>
-                    <Input
-                      placeholder="Maharashtra"
-                      value={formData.deliveryAddress.state}
-                      onChange={(val) => setForm("deliveryAddress.state", val)}
+                    <Select
+                      placeholder="Select State"
+                      value={formData.deliveryAddress.stateCode}
+                      onChange={(val) => setForm("deliveryAddress.stateCode", val)}
+                      options={INDIAN_STATES}
+                      searchable
                       required
                       className="bg-[rgb(var(--color-bg-secondary))] border-[rgb(var(--color-border-primary))] focus:bg-[rgb(var(--color-bg-primary))] transition-colors"
                     />
