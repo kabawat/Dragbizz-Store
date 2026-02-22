@@ -51,7 +51,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
       setErrors({ paidAmount: "Paid amount cannot be negative" });
       return;
     }
-    if (paymentStatus === "PAY_LATTER" && numValue > totalAmount) {
+    if (paymentStatus === "PARTIAL" && numValue > totalAmount) {
       setErrors({
         paidAmount: `Paid amount cannot exceed total amount (₹${totalAmount.toLocaleString()})`,
       });
@@ -65,7 +65,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
     // Validate
     const newErrors = {};
     if (
-      paymentStatus === "PAY_LATTER" &&
+      paymentStatus === "PARTIAL" &&
       paidAmount &&
       parseFloat(paidAmount) > totalAmount
     ) {
@@ -103,7 +103,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
         paymentStatus,
         null, // paymentMode (optional)
         storeId, // storeId (required for middleware)
-        paidAmount ? parseFloat(paidAmount) : null // paidAmount (optional, for PAY_LATTER)
+        paidAmount ? parseFloat(paidAmount) : null // paidAmount (optional, for PARTIAL)
       );
 
       if (result.success) {
@@ -167,13 +167,13 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
             options={[
               { value: "PAID", label: t("invoice.paid") },
               { value: "UNPAID", label: t("invoice.unpaid") },
-              { value: "PAY_LATTER", label: t("invoice.payLater") },
+              { value: "PARTIAL", label: t("invoice.partialPayment") },
             ]}
             placeholder={t("invoice.selectPaymentStatus")}
           />
         </div>
 
-        {(paymentStatus === "PAY_LATTER" || paymentStatus === "PAID") && (
+        {(paymentStatus === "PARTIAL" || paymentStatus === "PAID") && (
           <div className="mb-6">
             <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-2">
               {t("invoice.paidAmount")} {t("common.optional")}
@@ -183,7 +183,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
               value={paidAmount}
               onChange={(value) => handlePaidAmountChange(value)}
               placeholder={
-                paymentStatus === "PAY_LATTER"
+                paymentStatus === "PARTIAL"
                   ? t("invoice.enterPaidAmount", {
                     max: totalAmount?.toLocaleString() || 0,
                   })
@@ -192,7 +192,7 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
                   })
               }
               min="0"
-              max={paymentStatus === "PAY_LATTER" ? totalAmount : undefined}
+              max={paymentStatus === "PARTIAL" ? totalAmount : undefined}
               step="0.01"
               className={errors.paidAmount ? "border-red-500" : ""}
             />
@@ -202,11 +202,23 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
             <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
               {t("invoice.totalInvoiceAmount")}: ₹
               {totalAmount?.toLocaleString() || 0}
-              {paymentStatus === "PAY_LATTER" &&
+              {paymentStatus === "PARTIAL" &&
                 ` • ${t("invoice.leaveEmptyForZero")}`}
               {paymentStatus === "PAID" &&
                 ` • ${t("invoice.leaveEmptyForFullPayment")}`}
             </p>
+            {paymentStatus === "PAID" &&
+              paidAmount &&
+              parseFloat(paidAmount) > 0 &&
+              parseFloat(paidAmount) < totalAmount && (
+                <div className="mt-3 p-3 bg-[rgb(var(--color-warning))]/10 border border-[rgb(var(--color-warning))]/20 rounded-md">
+                  <p className="text-xs text-[rgb(var(--color-warning))] font-medium">
+                    {t("invoice.settlementDiscountWarning", {
+                      amount: (totalAmount - parseFloat(paidAmount)).toLocaleString(),
+                    })}
+                  </p>
+                </div>
+              )}
           </div>
         )}
 

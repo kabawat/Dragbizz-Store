@@ -356,7 +356,7 @@ const InvoicesPage = () => {
                         { value: "", label: t("invoice.paymentStatus") },
                         { value: "UNPAID", label: t("invoice.unpaid") },
                         { value: "PAID", label: t("invoice.paid") },
-                        { value: "PAY_LATTER", label: t("invoice.payLatter") },
+                        { value: "PARTIAL", label: t("invoice.partialPayment") },
                         { value: "CANCELLED", label: t("invoice.cancelled") },
                       ]}
                       placeholder={t("invoice.paymentStatus")}

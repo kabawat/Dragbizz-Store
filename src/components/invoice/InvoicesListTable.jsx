@@ -371,7 +371,7 @@ const InvoicesListTable = ({
                                 </button>
                               </>
                             )}
-                            {invoice.invoiceStatus === "RELEASED" && (
+                            {invoice.invoiceStatus === "RELEASED" && invoice.paymentStatus !== "PAID" && (
                               <button
                                 onClick={() => {
                                   onUpdatePaymentStatus?.(invoiceId, invoice);
