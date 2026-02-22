@@ -36,6 +36,7 @@
   "invoiceNumber": "चालान संख्या",
   "invoiceDate": "चालान तारीख",
   "editInvoice": "चालान संपादित करें",
+  "updateInvoice": "चालान अपडेट करें",
   "editInvoiceDescription": "चालान विवरण और आइटम अपडेट करें",
   "viewInvoice": "चालान देखें",
   "viewInvoiceDescription": "चालान जानकारी और विवरण",

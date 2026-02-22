@@ -37,7 +37,7 @@ function distributeByLRM(values, total) {
 export function calculateInvoiceGST({
   items = [],
   totalDiscount = 0,
-  discountMode = "PRE_TAX",
+  discountMode = "POST_TOTAL",
   supplierHasGst = true,
 }) {
   if (!items || items.length === 0) {

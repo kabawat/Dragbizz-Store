@@ -243,7 +243,8 @@ const InvoiceItemsSection = ({
                         <div className="mt-4 flex justify-end flex-shrink-0 pt-4 border-t border-[rgb(var(--color-border-primary))]/30">
                             <div className="w-full flex items-end gap-3 justify-end">
 
-                                {/* Discount Mode Toggle */}
+                                {/* Discount Mode Toggle (Hidden for now, defaults to POST_TOTAL in payload) */}
+                                {/* 
                                 <div className="flex flex-col gap-1">
                                     <label className="text-xs font-medium text-[rgb(var(--color-text-secondary))]">Discount On</label>
                                     <div className="flex rounded-lg overflow-hidden border border-[rgb(var(--color-border-primary))]/40 text-xs font-medium">
@@ -271,6 +272,7 @@ const InvoiceItemsSection = ({
                                         </button>
                                     </div>
                                 </div>
+                                */}
                                 {/* Discount Amount Input */}
                                 <div className="md:w-72">
                                     <label className="block text-xs font-medium text-[rgb(var(--color-text-primary))] mb-1 text-right">

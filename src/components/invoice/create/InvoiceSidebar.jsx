@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ArrowLeft, Check, Plus, User, Receipt, Tag } from "lucide-react";
+import { ArrowLeft, Check, Plus, User, Receipt, Tag, Save } from "lucide-react";
 import { Button, Select } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import { calculateInvoiceGST } from "@/utils/gstCalculator";
@@ -14,6 +14,7 @@ const InvoiceSidebar = ({
     customersLoading,
     invoiceLoading,
     handleSubmit,
+    isEditMode = false,
 }) => {
     const themeVariant = useAppSelector((state) => state.theme.variant);
 
@@ -40,7 +41,7 @@ const InvoiceSidebar = ({
         return calculateInvoiceGST({
             items: mappedItems,
             totalDiscount: formData.totalDiscount || 0,
-            discountMode: formData.discountMode || "PRE_TAX",
+            discountMode: formData.discountMode || "POST_TOTAL",
             supplierHasGst: true,
         });
     }, [formData.items, formData.totalDiscount, formData.discountMode]);
@@ -182,10 +183,10 @@ const InvoiceSidebar = ({
                             className="w-full md:flex-1"
                             onClick={handleSubmit}
                             loading={invoiceLoading}
-                            leftIcon={Plus}
+                            leftIcon={isEditMode ? Save : Plus}
                             disabled={formData.items.length === 0}
                         >
-                            {t("invoice.createInvoiceButton")}
+                            {isEditMode ? (t("invoice.updateInvoice") || "Update Invoice") : t("invoice.createInvoiceButton")}
                         </Button>
 
                         <Button
