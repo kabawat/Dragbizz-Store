@@ -7,6 +7,7 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useSupplierDetailsPrint } from "./hooks/useSupplierDetailsPrint";
@@ -40,6 +41,18 @@ const ViewSupplierPage = ({ supplierId }) => {
     fetching,
     supplierData
   );
+
+  useCommonHotkeys({
+    onEdit: () => setShowEditDrawer(true),
+    onDelete: () => setShowDeleteModal(true),
+    onBack: () => router.push("/dashboard/suppliers"),
+    onClose: () => {
+      if (showEditDrawer) setShowEditDrawer(false);
+      if (showDeleteModal) setShowDeleteModal(false);
+      if (showDeleteSuccessModal) setShowDeleteSuccessModal(false);
+    },
+    onPrint: () => handleDownloadPDF(),
+  });
 
   useEffect(() => {
     const fetchSupplierData = async () => {
@@ -129,32 +142,6 @@ const ViewSupplierPage = ({ supplierId }) => {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          .no-print,
-          nav,
-          header,
-          .sidebar,
-          .header,
-          button,
-          .btn,
-          .action-buttons {
-            display: none !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          @page {
-            margin: 1cm;
-            size: A4;
-          }
-        }
-      `}</style>
-
       <div
         id="supplier-details-report-area"
         className="hidden"
@@ -206,9 +193,7 @@ const ViewSupplierPage = ({ supplierId }) => {
                       }}
                     >
                       <SupplierBasicInfo supplierData={supplierData} />
-
                       <SupplierAddress address={supplierData.address} />
-
                       <SupplierAccountDetails account={supplierData.account} />
                     </div>
                   </div>

@@ -59,16 +59,16 @@ const OrderItems = ({ order }) => {
                                     <td className="px-6 py-4 text-center text-sm font-medium text-[rgb(var(--color-text-secondary))]">{item.quantity}</td>
                                     <td className="px-6 py-4 text-right text-sm font-medium text-[rgb(var(--color-text-secondary))]">₹{item.price.toLocaleString()}</td>
                                     <td className="px-6 py-4 text-right text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-                                        {item.gst ? (
+                                        {(item.gst || item.gstAmount > 0) ? (
                                             <div className="flex flex-col items-end">
-                                                <span>₹{item.gst.amount?.toLocaleString()}</span>
-                                                <span className="text-[10px] text-[rgb(var(--color-text-tertiary))]">({item.gst.rate}%)</span>
+                                                <span>₹{(item.gstAmount || item.gst?.breakdown?.total || 0).toLocaleString()}</span>
+                                                <span className="text-[10px] text-[rgb(var(--color-text-tertiary))]">({item.gstRate || item.gst?.rate || 0}%)</span>
                                             </div>
                                         ) : (
                                             "-"
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-right text-sm font-bold text-[rgb(var(--color-text-primary))]">₹{item.total.toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-right text-sm font-bold text-[rgb(var(--color-text-primary))]">₹{(item.total || item.totalAmount || 0).toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>

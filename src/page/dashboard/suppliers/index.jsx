@@ -22,6 +22,7 @@ import {
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   deleteSupplier,
@@ -90,6 +91,28 @@ const SuppliersPage = () => {
   const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
   const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
   const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);
+
+  // Global page Hotkeys
+  useCommonHotkeys({
+    onNew: () => setShowAddSupplierDrawer(true),
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+    onDownload: () => setShowDownloadDrawer(true),
+    onVoiceAI: () => setShowVoiceAIDrawer(true),
+    onSearch: () => {
+      // Focus the nearest input element which is likely the search bar
+      const searchInput = document.querySelector('input[placeholder*="search"]');
+      if (searchInput) searchInput.focus();
+    },
+    onClose: () => {
+      if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
+      if (showEditSupplierDrawer) setShowEditSupplierDrawer(false);
+      if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
+      if (showDownloadDrawer) setShowDownloadDrawer(false);
+      if (showDeleteModal) setShowDeleteModal(false);
+    },
+    onBack: () => router.push("/dashboard"),
+  });
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -513,9 +536,6 @@ const SuppliersPage = () => {
                         hasMore={pagination.hasNextPage}
                         onLoadMore={handleLoadMore}
                         isLoadingMore={isLoadingMore}
-                        selectable
-                        selectedIds={selectedSupplierIds}
-                        onSelectionChange={setSelectedSupplierIds}
                       />
                     </div>
                   ) : (
@@ -559,22 +579,6 @@ const SuppliersPage = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Bulk selection bar */}
-                {selectedSupplierIds.length > 0 && (
-                  <div className="bg-[rgb(var(--color-primary))]/10 border-t border-[rgb(var(--color-border-primary))] px-6 py-3 flex items-center justify-between">
-                    <span className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                      {selectedSupplierIds.length} {t("common.selected")}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSupplierIds([])}
-                      className="text-sm text-[rgb(var(--color-primary))] hover:underline cursor-pointer"
-                    >
-                      {t("common.deselectAll")}
-                    </button>
-                  </div>
-                )}
 
                 {/* Fixed Footer */}
                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
