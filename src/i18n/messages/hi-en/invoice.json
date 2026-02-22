@@ -36,6 +36,7 @@
   "invoiceNumber": "Invoice Number",
   "invoiceDate": "Invoice Date",
   "editInvoice": "Invoice edit karo",
+  "updateInvoice": "Invoice update karo",
   "editInvoiceDescription": "Invoice details aur items update karo",
   "viewInvoice": "Invoice dekho",
   "viewInvoiceDescription": "Invoice information aur details",

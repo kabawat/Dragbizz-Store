@@ -36,6 +36,7 @@
   "invoiceNumber": "Invoice Number",
   "invoiceDate": "Invoice Date",
   "editInvoice": "Edit Invoice",
+  "updateInvoice": "Update Invoice",
   "editInvoiceDescription": "Update invoice details and items",
   "viewInvoice": "View Invoice",
   "viewInvoiceDescription": "Invoice information and details",
