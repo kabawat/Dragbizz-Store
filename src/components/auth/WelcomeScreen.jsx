@@ -156,7 +156,6 @@ const WelcomeScreen = ({ onGetStarted }) => {
 
           </div>
         </div>
-
       </div>
     </div>
   );
