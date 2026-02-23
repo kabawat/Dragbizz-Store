@@ -28,7 +28,7 @@ const ProductHeader = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const profileDropdownRef = useRef(null);
-  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } =
+  const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen, isLoggingOut } =
     useLogout();
 
   // Get user data from Redux
@@ -458,6 +458,7 @@ const ProductHeader = () => {
           isOpen={isModalOpen}
           onClose={hideLogoutModal}
           onConfirm={confirmLogout}
+          isLoggingOut={isLoggingOut}
         />
       )}
     </header>

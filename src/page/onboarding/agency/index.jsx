@@ -28,7 +28,7 @@ export default function AgencyCreation() {
   const { isLoading, error, agency, stores } = useAppSelector(
     (state) => state.profile
   );
-  const isCreatingRef = useRef(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -71,16 +71,20 @@ export default function AgencyCreation() {
     if (!validateForm()) return;
 
     setErrors({});
-    isCreatingRef.current = true;
+    setIsCreating(true);
 
     try {
       // Call API directly instead of Redux thunk
-      await storeService.createAgency(formData);
+      const response = await storeService.createAgency(formData);
+      if (response && response.success === false) {
+        throw new Error(response.message || "An error occurred while creating agency.");
+      }
+
       // tenant + agency_id updated via backend-to-backend gRPC (retailer → auth)
       window.location.href = "/onboarding/store";
-      isCreatingRef.current = false;
+      // Intentionally not setting isCreating to false here so the loader spins until navigation completes
     } catch (_error) {
-      isCreatingRef.current = false;
+      setIsCreating(false);
       setErrors({
         general: _error.message || "An error occurred while creating agency. Please try again.",
       });
@@ -101,14 +105,14 @@ export default function AgencyCreation() {
 
   // Only redirect if we're not currently creating an agency
   useEffect(() => {
-    if (agency && !isLoading && !isCreatingRef.current) {
+    if (agency && !isLoading && !isCreating) {
       if (stores && stores.length > 0) {
         router.push("/dashboard");
       } else {
         router.push("/onboarding/store");
       }
     }
-  }, [agency, stores, isLoading, router]);
+  }, [agency, stores, isLoading, isCreating, router]);
 
   // Don't show "agency already exists" screen - just redirect
   if (agency) {
@@ -328,13 +332,13 @@ export default function AgencyCreation() {
                   <Button
                     type="submit"
                     variant="primary"
-                    disabled={isLoading || !formData.name.trim() || !formData.subdomain.trim()}
+                    disabled={isLoading || isCreating || !formData.name.trim() || !formData.subdomain.trim()}
                     rightIcon={ArrowRight}
-                    loading={isLoading}
+                    loading={isCreating}
                     fullWidth
                     className="sm:w-auto"
                   >
-                    {isLoading ? "Creating Agency..." : "Create Agency"}
+                    {isCreating ? "Creating Agency..." : "Create Agency"}
                   </Button>
                 </div>
               </form>
