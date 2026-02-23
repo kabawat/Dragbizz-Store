@@ -22,6 +22,7 @@ const redirectToMainDomain = () => {
 
 export function useLogout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dispatch = useAppDispatch();
 
   const showLogoutModal = () => {
@@ -29,11 +30,13 @@ export function useLogout() {
   };
 
   const hideLogoutModal = () => {
+    if (isLoggingOut) return; // Prevent closing while logging out
     setIsModalOpen(false);
   };
 
   const confirmLogout = async () => {
     try {
+      setIsLoggingOut(true);
       // 1. Call backend logout (deletes HttpOnly cookies)
       await authService.logout();
 
@@ -63,6 +66,8 @@ export function useLogout() {
         domain: isLocalhost ? undefined : `.${hostname.split(".").slice(-2).join(".")}`,
       });
       redirectToMainDomain();
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -71,5 +76,6 @@ export function useLogout() {
     hideLogoutModal,
     confirmLogout,
     isModalOpen,
+    isLoggingOut,
   };
 }

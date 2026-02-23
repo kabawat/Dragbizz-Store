@@ -1341,6 +1341,94 @@ input:-moz-autofill-preview {
   }
 }
 
+@keyframes radar-wave {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(2.0);
+    opacity: 0;
+  }
+}
+
+@keyframes radar-wave-orbit {
+  0% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: scale(1.8) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes float-no-rotate {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes float-reverse-no-rotate {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(20px) scale(1.05);
+  }
+}
+
+@keyframes drift-no-rotate {
+
+  0%,
+  100% {
+    transform: translateX(0px) translateY(0px) scale(1);
+  }
+
+  33% {
+    transform: translateX(10px) translateY(-10px) scale(1.02);
+  }
+
+  66% {
+    transform: translateX(-10px) translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes drift-slow-no-rotate {
+
+  0%,
+  100% {
+    transform: translateX(0px) translateY(0px) scale(1);
+  }
+
+  33% {
+    transform: translateX(15px) translateY(-15px) scale(1.05);
+  }
+
+  66% {
+    transform: translateX(-15px) translateY(15px) scale(0.95);
+  }
+}
+
 @keyframes pulse-glow {
 
   0%,
@@ -1579,6 +1667,30 @@ input:-moz-autofill-preview {
 
 .animate-drift-slow {
   animation: drift-slow 15s ease-in-out infinite;
+}
+
+.animate-float-no-rotate {
+  animation: float-no-rotate 6s ease-in-out infinite;
+}
+
+.animate-float-reverse-no-rotate {
+  animation: float-reverse-no-rotate 8s ease-in-out infinite;
+}
+
+.animate-drift-no-rotate {
+  animation: drift-no-rotate 10s ease-in-out infinite;
+}
+
+.animate-drift-slow-no-rotate {
+  animation: drift-slow-no-rotate 15s ease-in-out infinite;
+}
+
+.animate-radar-wave {
+  animation: radar-wave 4s cubic-bezier(0.0, 0.2, 0.8, 1) infinite;
+}
+
+.animate-radar-wave-orbit {
+  animation: radar-wave-orbit 6s linear infinite;
 }
 
 .animate-pulse-glow {

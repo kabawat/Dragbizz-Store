@@ -65,14 +65,18 @@ export const useHotkeys = (keyMap, inputs = []) => {
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            const tagName = event.target.tagName.toLowerCase();
-            if ((tagName === 'input' || tagName === 'textarea' || event.target.isContentEditable) &&
-                event.key.toLowerCase() !== 'escape') {
+            if (!event || !event.key) return; // Safeguard against missing event data
+
+            const tagName = event.target?.tagName?.toLowerCase() || '';
+            const pressedKeyStr = event.key.toLowerCase();
+
+            if ((tagName === 'input' || tagName === 'textarea' || event.target?.isContentEditable) &&
+                pressedKeyStr !== 'escape') {
                 return;
             }
 
             const activeModifiers = getActiveModifiers(event);
-            const pressedKey = event.key.toLowerCase();
+            const pressedKey = pressedKeyStr;
 
             // Loop through all defined hotkeys
             Object.entries(handlersRef.current).forEach(([combo, handler]) => {
