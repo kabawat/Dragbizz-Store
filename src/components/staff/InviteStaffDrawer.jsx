@@ -1,0 +1,332 @@
+"use client";
+import { useState } from "react";
+import { Mail, Briefcase, ChevronDown, ChevronUp, Check, AlertCircle, Loader2, Send, User } from "lucide-react";
+import Input from "@/components/ui/Input";
+import staffService from "@/service/retailer/staff.service";
+import { useGlobalToast } from "@/contexts/ToastContext";
+
+const MODULES = [
+    { key: "billing", label: "Billing", description: "Create & manage bills" },
+    { key: "invoice", label: "Invoice", description: "Create & manage invoices" },
+    { key: "product", label: "Products", description: "Manage product catalog" },
+    { key: "inventory", label: "Inventory", description: "Track stock levels" },
+    { key: "supplier", label: "Suppliers", description: "Manage supplier records" },
+    { key: "customer", label: "Customers", description: "Manage customer data" },
+    { key: "expense", label: "Expenses", description: "Track store expenses" },
+];
+
+const ACTIONS = [
+    { key: "create", label: "Create" },
+    { key: "read", label: "View" },
+    { key: "edit", label: "Edit" },
+    { key: "delete", label: "Delete" },
+    { key: "report", label: "Reports" },
+    { key: "analytics", label: "Analytics" },
+];
+
+const PRESET_ROLES = [
+    {
+        label: "Manager",
+        description: "Full access to all modules",
+        permissions: MODULES.map((m) => ({
+            module: m.key, create: true, read: true, edit: true, delete: true, report: true, analytics: true,
+        })),
+    },
+    {
+        label: "Cashier",
+        description: "Billing & invoices only",
+        permissions: [
+            { module: "billing", create: true, read: true, edit: true, delete: false, report: false, analytics: false },
+            { module: "invoice", create: true, read: true, edit: false, delete: false, report: false, analytics: false },
+            { module: "customer", create: false, read: true, edit: false, delete: false, report: false, analytics: false },
+        ],
+    },
+    {
+        label: "Inventory Staff",
+        description: "Products & inventory only",
+        permissions: [
+            { module: "product", create: false, read: true, edit: true, delete: false, report: false, analytics: false },
+            { module: "inventory", create: true, read: true, edit: true, delete: false, report: true, analytics: false },
+        ],
+    },
+];
+
+const DEFAULT_PERMISSION = (moduleKey) => ({
+    module: moduleKey, create: false, read: false, edit: false, delete: false, report: false, analytics: false,
+});
+
+const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [roleName, setRoleName] = useState("");
+    const [permissions, setPermissions] = useState([]);
+    const [expandedModules, setExpandedModules] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [selectedPreset, setSelectedPreset] = useState(null);
+    const { showSuccess, showError } = useGlobalToast();
+
+    const toggleModule = (moduleKey) => {
+        const existing = permissions.find((p) => p.module === moduleKey);
+        if (existing) {
+            setPermissions((prev) => prev.filter((p) => p.module !== moduleKey));
+        } else {
+            setPermissions((prev) => [...prev, { ...DEFAULT_PERMISSION(moduleKey), read: true }]);
+            setExpandedModules((prev) => ({ ...prev, [moduleKey]: true }));
+        }
+    };
+
+    const toggleAction = (moduleKey, actionKey) => {
+        setPermissions((prev) =>
+            prev.map((p) => p.module === moduleKey ? { ...p, [actionKey]: !p[actionKey] } : p)
+        );
+    };
+
+    const applyPreset = (preset) => {
+        setSelectedPreset(preset.label);
+        setRoleName(preset.label);
+        setPermissions(preset.permissions);
+        const expanded = {};
+        preset.permissions.forEach((p) => { expanded[p.module] = false; });
+        setExpandedModules(expanded);
+    };
+
+    const isModuleEnabled = (moduleKey) => permissions.some((p) => p.module === moduleKey);
+    const getModulePerms = (moduleKey) => permissions.find((p) => p.module === moduleKey);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!storeId) {
+            setError("Store ID is missing. Please select a store first.");
+            return;
+        }
+
+        if (!name || !email || !roleName || permissions.length === 0) {
+            setError("Please fill all fields and select at least one permission module.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const data = {
+                stores: [storeId],
+                name,
+                email,
+                roleName,
+                permissions,
+            };
+
+            const response = await staffService.inviteStaff(data);
+
+            showSuccess(response?.message || "Staff invitation sent successfully!");
+            onSuccess?.();
+
+            // Note: Not clearing form here because drawer usually closes on success.
+            // If it stays open, we would clear states here.
+
+        } catch (err) {
+            setError(err?.response?.data?.message || err?.message || "Failed to send invitation. Please try again.");
+            showError(err?.response?.data?.message || "Error sending invitation");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+
+            {/* ── Scrollable Body ── */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+                {/* Basic Info Row */}
+                <div className="grid grid-cols-3 gap-3">
+
+                    {/* Staff Name */}
+                    <div>
+                        <Input
+                            label="Name"
+                            type="text"
+                            value={name}
+                            onChange={(val) => setName(val)}
+                            placeholder="Ravi Kumar"
+                            leftIcon={User}
+                            required
+                        />
+                    </div>
+
+                    {/* Staff Email */}
+                    <div>
+                        <Input
+                            label="Email"
+                            type="email"
+                            value={email}
+                            onChange={(val) => setEmail(val)}
+                            placeholder="staff@example.com"
+                            leftIcon={Mail}
+                            required
+                        />
+                    </div>
+
+                    {/* Role Name */}
+                    <div>
+                        <Input
+                            label="Role"
+                            type="text"
+                            value={roleName}
+                            onChange={(val) => { setRoleName(val); setSelectedPreset(null); }}
+                            placeholder="e.g. Cashier"
+                            leftIcon={Briefcase}
+                            required
+                        />
+                    </div>
+
+                </div>
+
+                {/* Quick Presets */}
+                <div>
+                    <label className="block text-xs font-semibold text-[rgb(var(--color-text-secondary))] mb-2 uppercase tracking-wide">
+                        Quick Role Presets
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {PRESET_ROLES.map((preset) => (
+                            <button
+                                key={preset.label}
+                                type="button"
+                                onClick={() => applyPreset(preset)}
+                                className={`p-3 rounded-lg border text-left transition-all ${selectedPreset === preset.label
+                                    ? "border-[rgb(var(--color-primary))] bg-[rgba(var(--color-primary),0.05)]"
+                                    : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))]/50 bg-[rgb(var(--color-bg-secondary))]"
+                                    }`}
+                            >
+                                <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{preset.label}</p>
+                                <p className="text-[10px] text-[rgb(var(--color-text-secondary))] mt-0.5 leading-tight">{preset.description}</p>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Module Permissions */}
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <label className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">
+                            Module Permissions
+                        </label>
+                        <span className="text-xs text-[rgb(var(--color-text-secondary))]">
+                            {permissions.length}/{MODULES.length} enabled
+                        </span>
+                    </div>
+
+                    <div className="space-y-2">
+                        {MODULES.map((mod) => {
+                            const enabled = isModuleEnabled(mod.key);
+                            const perms = getModulePerms(mod.key);
+                            const expanded = expandedModules[mod.key];
+
+                            return (
+                                <div
+                                    key={mod.key}
+                                    className={`rounded-xl border transition-all ${enabled
+                                        ? "border-[rgb(var(--color-primary))]/30 bg-[rgba(var(--color-primary),0.03)]"
+                                        : "border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))]"
+                                        }`}
+                                >
+                                    {/* Module Header */}
+                                    <div className="flex items-center gap-3 p-3">
+                                        {/* Toggle Switch */}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleModule(mod.key)}
+                                            className={`w-9 h-5 rounded-full transition-all flex-shrink-0 relative ${enabled ? "bg-[rgb(var(--color-primary))]" : "bg-[rgb(var(--color-border-primary))]"
+                                                }`}
+                                        >
+                                            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${enabled ? "left-4" : "left-0.5"
+                                                }`} />
+                                        </button>
+
+                                        <div className="flex-1">
+                                            <p className={`text-sm font-medium ${enabled ? "text-[rgb(var(--color-text-primary))]" : "text-[rgb(var(--color-text-secondary))]"}`}>
+                                                {mod.label}
+                                            </p>
+                                            <p className="text-xs text-[rgb(var(--color-text-secondary))]">{mod.description}</p>
+                                        </div>
+
+                                        {enabled && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setExpandedModules((prev) => ({ ...prev, [mod.key]: !prev[mod.key] }))}
+                                                className="p-1 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] transition-colors"
+                                            >
+                                                {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Actions Grid */}
+                                    {enabled && expanded && perms && (
+                                        <div className="px-3 pb-3">
+                                            <div className="flex flex-wrap gap-2">
+                                                {ACTIONS.map((action) => (
+                                                    <button
+                                                        key={action.key}
+                                                        type="button"
+                                                        onClick={() => toggleAction(mod.key, action.key)}
+                                                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${perms[action.key]
+                                                            ? "bg-[rgb(var(--color-primary))] text-white"
+                                                            : "bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-secondary))] hover:border-[rgb(var(--color-primary))]/50"
+                                                            }`}
+                                                    >
+                                                        {perms[action.key] && <Check size={10} />}
+                                                        {action.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Error */}
+                {error && (
+                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-red-500">{error}</p>
+                    </div>
+                )}
+
+            </div>
+
+            {/* ── Sticky Footer ── */}
+            <div className="flex-shrink-0 border-t border-[rgb(var(--color-border-primary))] p-4 bg-[rgb(var(--color-bg-primary))]">
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="flex-1 py-2.5 text-sm border border-[rgb(var(--color-border-primary))] rounded-lg text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex-1 py-2.5 text-sm bg-[rgb(var(--color-primary))] text-white font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {isLoading ? (
+                            <><Loader2 size={15} className="animate-spin" /> Sending...</>
+                        ) : (
+                            <><Send size={14} /> Send Invite</>
+                        )}
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    );
+};
+
+export default InviteStaffDrawer;

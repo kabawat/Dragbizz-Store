@@ -125,8 +125,8 @@ export const getAuthProfile = createAsyncThunk(
 
       const data = result.data?.data || result.data || null;
 
-      // Check if agency_id is null/missing - user needs onboarding
-      if (data && data.agency_id === null) {
+      // Check if agencyId is null/missing - user needs onboarding
+      if (data && data.agencyId === null) {
         return {
           success: true,
           data,
@@ -281,7 +281,7 @@ const profileSlice = createSlice({
           state.redirectTo = null;
         }
 
-        if (!data?.agency_id || redirectTo) {
+        if (!data?.agencyId || redirectTo) {
           state.isInitialized = true;
         }
       })

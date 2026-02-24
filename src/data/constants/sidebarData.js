@@ -15,6 +15,7 @@ import {
     ShoppingCart,
     ShoppingBag,
     Users,
+    UserCog,
     Headphones,
     Warehouse,
 } from "lucide-react";
@@ -88,6 +89,7 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
         subMenuItems: analyticsSubMenuItems,
         key: "analytics",
     },
+    { name: t("sidebar.staff") || "Staff", icon: UserCog, href: "/dashboard/staff", shortcut: "f" },
 ];
 
 export const getBottomItems = (t) => [

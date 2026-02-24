@@ -54,6 +54,7 @@ const API_CONFIG = {
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
+    STAFF: "/retailer/staff",
   },
 
   // Utility Service Endpoints
