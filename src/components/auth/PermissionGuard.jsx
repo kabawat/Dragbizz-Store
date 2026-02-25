@@ -13,35 +13,34 @@ export const PermissionGuard = ({ children }) => {
     const [hasAccess, setHasAccess] = useState(true);
 
     useEffect(() => {
-        // Only apply checks if user is store_staff
+        // If not staff → full access
         if (authProfile?.role !== "store_staff") {
             setHasAccess(true);
             return;
         }
 
+        const permissions = staffProfile?.permissions || [];
+
         // Always allowed paths for staff
-        const ALLOWED_EXACT_PATHS = ["/dashboard", "/dashboard/support", "/dashboard/settings", "/dashboard/pos"];
+        const ALLOWED_EXACT_PATHS = [
+            "/dashboard",
+            "/dashboard/support",
+            "/dashboard/settings",
+            "/dashboard/pos",
+        ];
+
         if (ALLOWED_EXACT_PATHS.includes(pathname)) {
             setHasAccess(true);
             return;
         }
 
-        // Staff can never access staff management page
+        // Staff can never access staff management
         if (pathname === "/dashboard/staff" || pathname.startsWith("/dashboard/staff/")) {
             setHasAccess(false);
             return;
         }
 
-        const permissions = staffProfile?.permissions || [];
-
-        // Check analytics routes
-        if (pathname.startsWith("/dashboard/analytics")) {
-            const pm = permissions.find(p => p.module === "analytics" || p.module === "reports");
-            setHasAccess(!!(pm?.read || pm?.analytics || pm?.report));
-            return;
-        }
-
-        // Map routes to their respective modules
+        // Route to module mapping
         const ROUTE_MODULE_MAP = {
             "/dashboard/customers": "customer",
             "/dashboard/invoices": "invoice",
@@ -53,26 +52,48 @@ export const PermissionGuard = ({ children }) => {
             "/dashboard/purchase-orders": "purchase_order",
             "/dashboard/bills": "billing",
             "/dashboard/payments": "billing",
+            "/dashboard/analytics": "analytics",
+            "/dashboard/reports": "reports",
         };
 
-        // Find which module this route belongs to
-        const getModuleForPath = (path) => {
-            for (const [key, module] of Object.entries(ROUTE_MODULE_MAP)) {
-                if (path === key || path.startsWith(`${key}/`)) {
+        // Detect module from path
+        const getModuleFromPath = (path) => {
+            for (const [route, module] of Object.entries(ROUTE_MODULE_MAP)) {
+                if (path === route || path.startsWith(route + "/")) {
                     return module;
                 }
             }
             return null;
         };
 
-        const moduleName = getModuleForPath(pathname);
+        // Detect action from path
+        const getActionFromPath = (path) => {
+            if (path.includes("/create")) return "create";
+            if (path.includes("/edit")) return "edit";
+            if (path.includes("/analytics")) return "analytics";
+            if (path.includes("/report")) return "report";
+            return "read";
+        };
 
-        if (moduleName) {
-            const pm = permissions.find(p => p.module === moduleName);
-            setHasAccess(pm?.read === true);
-        } else {
+        const moduleName = getModuleFromPath(pathname);
+        const action = getActionFromPath(pathname);
+
+        // Route not in map → allow by default
+        if (!moduleName) {
             setHasAccess(true);
+            return;
         }
+
+        const modulePermission = permissions.find((p) => p.module === moduleName);
+
+        // Module permission not assigned at all → deny
+        if (!modulePermission) {
+            setHasAccess(false);
+            return;
+        }
+
+        // Check exact action permission
+        setHasAccess(modulePermission[action] === true);
 
     }, [pathname, authProfile, staffProfile]);
 
