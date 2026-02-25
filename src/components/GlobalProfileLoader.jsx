@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getAuthProfile,
   getRetailerDetails,
+  getStaffProfileDetails,
   setInitialized,
 } from "@/store/slices/profileSlice";
 import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
@@ -21,7 +22,7 @@ function isAuthPath(pathname) {
 export default function GlobalProfileLoader() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { authProfile, user, agency, stores, isLoading, error } = useAppSelector(
+  const { authProfile, staffProfile, user, agency, stores, isLoading, error } = useAppSelector(
     (state) => state.profile
   );
 
@@ -29,6 +30,7 @@ export default function GlobalProfileLoader() {
   const refreshSucceededRef = useRef(false);
   const hasFetchedAuthRef = useRef(false);
   const hasFetchedRetailerRef = useRef(false);
+  const hasFetchedStaffRef = useRef(false);
 
   useEffect(() => {
     const isAuth = isAuthPath(pathname);
@@ -80,6 +82,16 @@ export default function GlobalProfileLoader() {
     hasFetchedRetailerRef.current = true;
     dispatch(getRetailerDetails());
   }, [pathname, authProfile, user, agency, stores, dispatch]);
+
+  // Staff profile: after we have authProfile and role is "store_staff"
+  useEffect(() => {
+    if (!authProfile || authProfile.role !== 'store_staff') return;
+
+    if (staffProfile || hasFetchedStaffRef.current) return;
+
+    hasFetchedStaffRef.current = true;
+    dispatch(getStaffProfileDetails());
+  }, [authProfile, staffProfile, dispatch]);
 
   const shouldShowModal = !!authProfile && authProfile.ispwds === false;
 

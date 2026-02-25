@@ -12,6 +12,11 @@ class StaffService extends BaseService {
         return this.get(`${this.endpoint}`);
     }
 
+    // Get a single staff member's profile
+    async getStaffProfile(id = "profile") {
+        return this.get(`${this.endpoint}/${id}`);
+    }
+
     // Invite a new staff member to the store
     async inviteStaff(data) {
         return this.post(`${this.endpoint}`, data);

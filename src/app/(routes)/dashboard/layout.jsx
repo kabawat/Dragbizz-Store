@@ -4,20 +4,23 @@ import { useEffect } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
 import updateSubdomain from "@/utils/helper/domain";
+import { PermissionGuard } from "@/components/auth/PermissionGuard";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   // Get profile state from Redux (authProfile already has tenant from getAuthProfile - no need to call /auth/refresh again)
-  const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile } = useAppSelector((state) => state.profile);
+  const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile, authProfileLoading, staffProfileLoading } = useAppSelector((state) => state.profile);
 
   // Get subscription from context (no duplicate API call)
   const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
 
+  const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
+
   // Handle redirects and missing data checks
   useEffect(() => {
     // Don't redirect while loading
-    if (isLoading || subscriptionLoading) {
+    if (isProfileLoading || subscriptionLoading) {
       return;
     }
 
@@ -48,7 +51,7 @@ export default function DashboardLayout({ children }) {
       router.push("/onboarding/store");
       return;
     }
-  }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isLoading, agency, stores, router]);
+  }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
 
   // Subdomain redirect: use tenant from authProfile (already loaded by routes layout) so we don't call /auth/refresh again
   useEffect(() => {
@@ -61,7 +64,7 @@ export default function DashboardLayout({ children }) {
   }, [authProfile?.tenant]);
 
   // Show loading while checking data
-  if (isLoading || subscriptionLoading) {
+  if (isProfileLoading || subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
@@ -102,7 +105,9 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] relative">
-      {children}
+      <PermissionGuard>
+        {children}
+      </PermissionGuard>
     </div>
   );
 }

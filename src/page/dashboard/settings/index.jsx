@@ -37,12 +37,12 @@ const SettingsPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const { user, selectedStore } = useAppSelector((state) => state.profile);
+    const { user, selectedStore, authProfile } = useAppSelector((state) => state.profile);
     const { toggleVariant } = useTheme();
     const [activeTab, setActiveTab] = useState("appearance");
     const [animationKey, setAnimationKey] = useState(0);
 
-    const settingsTabs = [
+    const allTabs = [
         { id: "appearance", label: t("settings.appearance"), icon: Palette },
         { id: "language", label: t("settings.language"), icon: Languages },
         { id: "profile", label: t("settings.profile"), icon: User },
@@ -58,15 +58,22 @@ const SettingsPage = () => {
         },
     ];
 
+    const settingsTabs = authProfile?.role === "store_staff"
+        ? allTabs.filter(tab => ["appearance", "language", "profile"].includes(tab.id))
+        : allTabs;
+
     useEffect(() => {
         const tabFromUrl = searchParams.get("tab");
         if (tabFromUrl) {
             const isValidTab = settingsTabs.some((tab) => tab.id === tabFromUrl);
             if (isValidTab) {
                 setActiveTab(tabFromUrl);
+            } else if (settingsTabs.length > 0) {
+                // If URL has an invalid tab for the user's role, redirect to their first available tab
+                setActiveTab(settingsTabs[0].id);
             }
         }
-    }, [searchParams]);
+    }, [searchParams, settingsTabs]);
 
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);

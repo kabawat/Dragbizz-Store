@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
+import staffService from "@/service/retailer/staff.service";
 
 const SELECTED_STORE_STORAGE_KEY = "dragbizz_selected_store_id";
 
@@ -148,6 +149,29 @@ export const getAuthProfile = createAsyncThunk(
   }
 );
 
+export const getStaffProfileDetails = createAsyncThunk(
+  "profile/getStaffProfileDetails",
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await staffService.getStaffProfile();
+      if (!result?.success) {
+        return rejectWithValue({
+          message: result?.message || "Failed to fetch staff profile",
+        });
+      }
+      return {
+        success: true,
+        data: result.data?.data || result.data || null,
+        message: "Staff profile fetched successfully",
+      };
+    } catch {
+      return rejectWithValue({
+        message: "Failed to fetch staff profile",
+      });
+    }
+  }
+);
+
 const initialState = {
   user: null,
   agency: null,
@@ -157,6 +181,10 @@ const initialState = {
   authProfile: null,
   authProfileLoading: false,
   authProfileError: null,
+
+  staffProfile: null,
+  staffProfileLoading: false,
+  staffProfileError: null,
 
   isAuthenticated: false,
   isLoading: false,
@@ -175,6 +203,8 @@ const profileSlice = createSlice({
       state.agency = null;
       state.stores = [];
       state.selectedStore = null;
+      state.authProfile = null;
+      state.staffProfile = null;
       state.isAuthenticated = false;
       state.error = null;
       state.redirectTo = null;
@@ -291,11 +321,27 @@ const profileSlice = createSlice({
           action.payload?.message || "Failed to fetch auth profile";
         state.isAuthenticated = false;
         state.isInitialized = true;
+      })
+      .addCase(getStaffProfileDetails.pending, (state) => {
+        state.staffProfileLoading = true;
+        state.staffProfileError = null;
+      })
+      .addCase(getStaffProfileDetails.fulfilled, (state, action) => {
+        state.staffProfileLoading = false;
+        state.staffProfileError = null;
+        if (action.payload?.data) {
+          state.staffProfile = action.payload.data;
+        }
+      })
+      .addCase(getStaffProfileDetails.rejected, (state, action) => {
+        state.staffProfileLoading = false;
+        state.staffProfileError =
+          action.payload?.message || "Failed to fetch staff profile";
       });
   },
 });
 
 export const { clearAuth, setSelectedStore, setInitialized } = profileSlice.actions;
-export { getAuthProfile };
+export { getAuthProfile, getRetailerDetails }; // Exporting getRetailerDetails as well if not already exported properly.
 
 export default profileSlice.reducer;
