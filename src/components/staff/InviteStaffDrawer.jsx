@@ -13,6 +13,9 @@ const MODULES = [
     { key: "supplier", label: "Suppliers", description: "Manage supplier records" },
     { key: "customer", label: "Customers", description: "Manage customer data" },
     { key: "expense", label: "Expenses", description: "Track store expenses" },
+    { key: "purchase_order", label: "Purchase Orders", description: "Manage purchase orders" },
+    { key: "sales_order", label: "Sales Orders", description: "Manage sales orders" },
+    { key: "reports", label: "Reports", description: "View reports & analytics" },
 ];
 
 const ACTIONS = [
