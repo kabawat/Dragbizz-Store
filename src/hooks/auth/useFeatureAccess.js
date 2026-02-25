@@ -1,11 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  FEATURE_NAMES,
-  FEATURE_ROUTES,
-  getRequiredFeatureForMenuItem,
-  getRequiredFeatureForRoute,
-} from "@/constants/featureMapping";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
 // Hook to check feature access based on user's active subscription
@@ -77,59 +71,11 @@ export function useFeatureAccess() {
     );
   };
 
-  // Check if user has access to a route
-  const checkRouteAccess = (route) => {
-    const requiredFeature = getRequiredFeatureForRoute(route);
-    if (!requiredFeature) return true; // No feature required for this route
-
-    const featureData = FEATURE_ROUTES[requiredFeature];
-    if (!featureData) return true;
-
-    const displayName = FEATURE_NAMES[requiredFeature.toUpperCase()];
-
-    return (
-      checkFeatureAccess(requiredFeature) ||
-      (displayName ? checkFeatureAccess(displayName) : false)
-    );
-  };
-
-  // Check if user has access to a menu item
-  const checkMenuItemAccess = (menuItemName) => {
-    const requiredFeature = getRequiredFeatureForMenuItem(menuItemName);
-    if (!requiredFeature) return true; // No feature required for this menu item
-
-    const featureData = FEATURE_ROUTES[requiredFeature];
-    if (!featureData) return true;
-
-    const displayName = FEATURE_NAMES[requiredFeature.toUpperCase()];
-
-    return (
-      checkFeatureAccess(requiredFeature) ||
-      (displayName ? checkFeatureAccess(displayName) : false)
-    );
-  };
-
-  // Get all accessible routes based on features
-  const getAccessibleRoutes = () => {
-    const accessibleRoutes = [];
-
-    Object.entries(FEATURE_ROUTES).forEach(([featureKey, featureData]) => {
-      if (checkFeatureAccess(featureKey)) {
-        accessibleRoutes.push(...featureData.routes);
-      }
-    });
-
-    return accessibleRoutes;
-  };
-
   return {
     features,
     subscription,
     isLoading: isLoading || subscriptionLoading,
     hasAccess: features.length > 0,
     checkFeatureAccess,
-    checkRouteAccess,
-    checkMenuItemAccess,
-    getAccessibleRoutes,
   };
 }

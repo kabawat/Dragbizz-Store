@@ -67,7 +67,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
   useCommonHotkeys({
     onPrint: handlePrint,
     onDownload: () => handleDownloadPDF(invoiceData, invoiceId),
-    onEdit: () => router.push(`/dashboard/invoices/edit/${invoiceId}`),
+    onEdit: () => router.push(`/dashboard/invoices/${invoiceId}/edit`),
     onNew: () => router.push("/dashboard/invoices/add"),
     onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
     onBack: () => router.push("/dashboard/invoices"),
@@ -97,7 +97,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
               itemsWithGst={itemsWithGst}
               calculatedSubtotal={calculatedSubtotal}
               calculatedGstAmount={calculatedGstAmount}
-              onEdit={() => router.push(`/dashboard/invoices/edit/${invoiceId}`)}
+              onEdit={() => router.push(`/dashboard/invoices/${invoiceId}/edit`)}
               onUpdatePaymentStatus={() => setShowPaymentStatusModal(true)}
               onPrint={handlePrint}
             />

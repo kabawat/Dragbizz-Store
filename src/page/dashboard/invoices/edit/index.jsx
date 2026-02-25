@@ -214,7 +214,7 @@ const EditInvoicePage = ({ invoiceId }) => {
       );
       if (result.success) {
         // Redirect to the updated invoice view page
-        router.push(`/dashboard/invoices/view/${invoiceId}`);
+        router.push(`/dashboard/invoices/${invoiceId}`);
       } else {
         showError(t("invoice.updateError"));
       }

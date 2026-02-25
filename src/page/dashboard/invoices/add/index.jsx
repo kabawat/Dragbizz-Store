@@ -206,7 +206,7 @@ const CreateInvoicePage = () => {
 
         router.push(
           invoiceId
-            ? `/dashboard/invoices/view/${invoiceId}`
+            ? `/dashboard/invoices/${invoiceId}`
             : "/dashboard/invoices"
         );
       }
