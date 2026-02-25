@@ -3,6 +3,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
 import { ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
+import Sidebar from "@/components/dashboard/sidebar";
+import Header from "@/components/dashboard/header";
 
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
@@ -35,11 +37,7 @@ export const PermissionGuard = ({ children }) => {
         // Check analytics routes
         if (pathname.startsWith("/dashboard/analytics")) {
             const pm = permissions.find(p => p.module === "analytics" || p.module === "reports");
-            if (pm?.read || pm?.analytics || pm?.report) {
-                setHasAccess(true);
-            } else {
-                setHasAccess(false);
-            }
+            setHasAccess(!!(pm?.read || pm?.analytics || pm?.report));
             return;
         }
 
@@ -64,21 +62,15 @@ export const PermissionGuard = ({ children }) => {
                     return module;
                 }
             }
-            return null; // Route is not restricted by standard mapping
+            return null;
         };
 
         const moduleName = getModuleForPath(pathname);
 
         if (moduleName) {
             const pm = permissions.find(p => p.module === moduleName);
-            // Default check is minimum `read` access for navigating to the page
-            if (pm?.read === true) {
-                setHasAccess(true);
-            } else {
-                setHasAccess(false);
-            }
+            setHasAccess(pm?.read === true);
         } else {
-            // Unmapped routes are accessible by default once they load, unless restricted explicitly
             setHasAccess(true);
         }
 
@@ -86,56 +78,94 @@ export const PermissionGuard = ({ children }) => {
 
     if (!hasAccess) {
         return (
-            <div className="relative flex flex-col items-center justify-center min-h-[80vh] overflow-hidden px-6">
-                {/* Ambient background glow */}
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[120px]" />
-                    <div className="absolute top-1/3 left-1/3 w-[200px] h-[200px] bg-[rgb(var(--color-primary))]/5 rounded-full blur-[80px]" />
-                </div>
+            <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] overflow-hidden">
+                <Sidebar />
 
-                {/* Card */}
-                <div className="relative z-10 w-full max-w-md bg-[rgb(var(--color-bg-primary))]/60 backdrop-blur-xl border border-[rgb(var(--color-border-primary))]/50 rounded-2xl shadow-2xl p-10 flex flex-col items-center text-center">
+                <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+                    <Header title="Access Restricted" description="You do not have permission to view this page" />
 
-                    {/* Icon with pulse rings */}
-                    <div className="relative mb-8">
-                        <span className="absolute inset-0 rounded-full bg-red-500/10 animate-ping" style={{ animationDuration: "2s" }} />
-                        <span className="absolute -inset-3 rounded-full bg-red-500/5" />
-                        <div className="relative w-20 h-20 bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 rounded-full flex items-center justify-center shadow-lg shadow-red-500/20">
-                            <ShieldAlert className="w-9 h-9 text-red-500" />
+                    {/* Content area */}
+                    <div className="flex-1 relative overflow-hidden flex items-center justify-center">
+
+                        {/* Subtle background glows */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                            <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-red-500/6 rounded-full blur-[120px]" />
+                            <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-[rgb(var(--color-primary))]/5 rounded-full blur-[100px]" />
+                        </div>
+
+                        {/* Main layout — two column */}
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-16 px-8 max-w-4xl w-full">
+
+                            {/* Left — large decorative 403 block */}
+                            <div className="flex flex-col items-center select-none">
+                                <div className="relative">
+                                    {/* Big 403 number */}
+                                    <span className="text-[140px] font-black leading-none tracking-tighter text-[rgb(var(--color-text-primary))]/5 select-none">
+                                        403
+                                    </span>
+
+                                    {/* Centered shield over 403 */}
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="relative">
+                                            {/* Outer ping */}
+                                            <span
+                                                className="absolute inset-0 rounded-full bg-red-500/20 animate-ping"
+                                                style={{ animationDuration: "2.5s" }}
+                                            />
+                                            {/* Icon container */}
+                                            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-red-500/25 to-red-700/10 border border-red-500/30 shadow-xl shadow-red-500/20 flex items-center justify-center">
+                                                <ShieldAlert className="w-11 h-11 text-red-500 drop-shadow-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Pulsing status pill below 403 */}
+                                <span className="mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 px-4 py-1.5 rounded-full">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                    Permission Denied
+                                </span>
+                            </div>
+
+                            {/* Vertical divider (desktop only) */}
+                            <div className="hidden md:block w-px h-48 bg-gradient-to-b from-transparent via-[rgb(var(--color-border-primary))] to-transparent flex-shrink-0" />
+
+                            {/* Right — text + button */}
+                            <div className="flex flex-col items-start max-w-sm">
+                                <h1 className="text-3xl font-bold text-[rgb(var(--color-text-primary))] mb-3 leading-tight">
+                                    Access <span className="text-red-500">Restricted</span>
+                                </h1>
+
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-2">
+                                    You don&apos;t have the required permissions to view this section.
+                                </p>
+                                <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
+                                    Please contact your{" "}
+                                    <span className="text-[rgb(var(--color-primary))] font-semibold">store owner</span>{" "}
+                                    to request access.
+                                </p>
+
+                                {/* Divider */}
+                                <div className="w-full h-px bg-[rgb(var(--color-border-primary))]/40 mb-8" />
+
+                                {/* Return button */}
+                                <button
+                                    onClick={() => router.push("/dashboard")}
+                                    className="group flex items-center gap-2.5 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" strokeWidth={2.5}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                    </svg>
+                                    Return to Dashboard
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    {/* Badge */}
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-full mb-5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                        Permission Denied
-                    </span>
-
-                    {/* Title */}
-                    <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-3">
-                        Access Restricted
-                    </h1>
-
-                    {/* Description */}
-                    <p className="text-sm text-[rgb(var(--color-text-secondary))] leading-relaxed mb-8">
-                        You don&apos;t have permission to view this page. Please contact your{" "}
-                        <span className="text-[rgb(var(--color-primary))] font-medium">store owner</span>{" "}
-                        to request access to this section.
-                    </p>
-
-                    {/* Divider */}
-                    <div className="w-full h-px bg-[rgb(var(--color-border-primary))]/50 mb-8" />
-
-                    {/* Button */}
-                    <button
-                        onClick={() => router.push("/dashboard")}
-                        className="group w-full flex items-center justify-center gap-2 px-6 py-3 bg-[rgb(var(--color-primary))] text-white font-semibold rounded-xl hover:bg-[rgb(var(--color-primary))]/90 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-[rgb(var(--color-primary))]/25"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                        </svg>
-                        Return to Dashboard
-                    </button>
                 </div>
             </div>
         );
