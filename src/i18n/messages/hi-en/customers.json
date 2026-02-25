@@ -132,5 +132,6 @@
   "invalidDateRangeCustomers": "Invalid date range",
   "updateCustomer": "Customer Update karo",
   "updateTipsTitle": "Customer Update Tips",
-  "updateTipsSubtitle": "Details sahi rakhon"
+  "updateTipsSubtitle": "Details sahi rakhon",
+  "viewDetails": "Customer ki details dekho"
 }

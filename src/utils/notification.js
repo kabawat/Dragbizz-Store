@@ -7,7 +7,7 @@ export const getNotificationConfig = (type, data) => {
             icon: <User className="w-5 h-5 text-blue-500" />
         },
         SALES_ORDER: {
-            url: data?.order ? `/dashboard/sales-order/view/${data.order}` : "#",
+            url: data?.order ? `/dashboard/sales-order/${data.order}` : "#",
             icon: <ShoppingCart className="w-5 h-5 text-green-500" />
         },
         STOCK_ALERT: {

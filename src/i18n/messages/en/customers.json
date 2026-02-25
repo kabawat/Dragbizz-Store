@@ -131,5 +131,6 @@
   "fieldUpdatedAt": "Updated At",
   "updateCustomer": "Update Customer",
   "updateTipsTitle": "Customer Update Tips",
-  "updateTipsSubtitle": "Keep details accurate"
+  "updateTipsSubtitle": "Keep details accurate",
+  "viewDetails": "View Customer Details"
 }

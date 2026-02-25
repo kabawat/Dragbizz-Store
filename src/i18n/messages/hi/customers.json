@@ -131,5 +131,6 @@
   "fieldUpdatedAt": "अपडेट किया गया",
   "updateCustomer": "ग्राहक अपडेट करें",
   "updateTipsTitle": "ग्राहक अपडेट सुझाव",
-  "updateTipsSubtitle": "विवरण सटीक रखें"
+  "updateTipsSubtitle": "विवरण सटीक रखें",
+  "viewDetails": "ग्राहक विवरण देखें"
 }

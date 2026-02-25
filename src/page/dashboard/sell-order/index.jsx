@@ -12,6 +12,7 @@ import { salesOrderService } from "@/service/retailer";
 import SalesOrderTable from "@/components/salesOrder/SalesOrderTable";
 import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
 import { CatalogQRModal } from "@/components/common";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const SalesOrdersPage = () => {
     const { t } = useTranslation();
@@ -34,6 +35,7 @@ const SalesOrdersPage = () => {
     const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
     const scrollRef = useRef(null);
+    const searchInputRef = useRef(null);
 
     const storeId = selectedStore?.storeId;
 
@@ -86,7 +88,7 @@ const SalesOrdersPage = () => {
     };
 
     const handleViewDetails = (id) => {
-        router.push(`/dashboard/sales-order/view/${id}`);
+        router.push(`/dashboard/sales-order/${id}`);
     };
 
     const handleUpdateStatus = async (orderId, status, payload = {}) => {
@@ -114,6 +116,17 @@ const SalesOrdersPage = () => {
         // Implementation for printing
     };
 
+    useCommonHotkeys({
+        onNew: () => setIsCatalogModalOpen(true),
+        onClose: () => setIsCatalogModalOpen(false),
+        onSearch: () => {
+            if (searchInputRef.current) searchInputRef.current.focus();
+        },
+        onViewTable: () => handleViewModeChange("table"),
+        onViewGrid: () => handleViewModeChange("card"),
+        onBack: () => router.push("/dashboard"),
+    });
+
     return (
         <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
             <Sidebar />
@@ -136,6 +149,7 @@ const SalesOrdersPage = () => {
                                         placeholder={t("common.searchOrders")}
                                         value={searchTerm}
                                         onChange={(value) => setSearchTerm(value)}
+                                        ref={searchInputRef}
                                         leftIcon={Search}
                                         className="w-100"
                                     />
@@ -200,16 +214,6 @@ const SalesOrdersPage = () => {
                                             />
                                         </>
                                     )}
-
-
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => { }}
-                                        leftIcon={Download}
-                                        className="h-9"
-                                    >
-                                        {t("common.download")}
-                                    </Button>
                                 </div>
                             </div>
                         </div>
