@@ -81,10 +81,6 @@ const ViewInventoryPage = ({ inventoryId }) => {
     fetchInventory();
   }, [inventoryId, storeId]);
 
-  const handleEdit = () => {
-    router.push(`/dashboard/stock/edit/${inventoryId}`);
-  };
-
   const handleAddStock = () => {
     router.push(`/dashboard/stock/add?productId=${inventory?.product?.id}`);
   };
@@ -718,15 +714,6 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="primary"
-                            className="flex-1"
-                            onClick={handleEdit}
-                            leftIcon={Edit}
-                          >
-                            Edit
-                          </Button>
-
                           <Button
                             variant="outline"
                             className="flex-1"

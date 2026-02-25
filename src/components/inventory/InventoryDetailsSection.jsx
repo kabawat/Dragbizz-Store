@@ -1,6 +1,6 @@
 "use client";
 import { ArrowUp, Calculator, Package, Warehouse } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardBody, Input, Select } from "@/components/ui";
 import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
@@ -23,15 +23,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     FEATURES.SUPPLIER_MANAGEMENT
   );
 
-  // Fetch products and suppliers on mount and when store changes
-  useEffect(() => {
-    fetchProducts();
-    if (hasSupplierManagement) {
-      fetchSuppliers();
-    }
-  }, [hasSupplierManagement, fetchProducts, fetchSuppliers]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setIsLoading(true);
       const result = await productService.getProducts({
@@ -46,9 +38,9 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [formData?.store]);
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     if (!hasSupplierManagement || !formData?.store) return;
 
     try {
@@ -65,7 +57,15 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     } finally {
       setSuppliersLoading(false);
     }
-  };
+  }, [hasSupplierManagement, formData?.store]);
+
+  // Fetch products and suppliers on mount and when store changes
+  useEffect(() => {
+    fetchProducts();
+    if (hasSupplierManagement) {
+      fetchSuppliers();
+    }
+  }, [hasSupplierManagement, fetchProducts, fetchSuppliers]);
 
   const handleProductChange = (productId) => {
     onChange("productId", productId);

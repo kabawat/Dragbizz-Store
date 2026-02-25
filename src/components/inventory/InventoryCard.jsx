@@ -16,7 +16,6 @@ import { Badge, IconButton } from "../ui";
 
 const InventoryCard = ({
   inventory,
-  onEdit,
   onDelete,
   onDuplicate,
   onViewDetails,
@@ -97,9 +96,6 @@ const InventoryCard = ({
         break;
       case "stock-in":
         onStockIn?.(inventoryId);
-        break;
-      case "edit":
-        onEdit?.(inventoryId);
         break;
       case "duplicate":
         onDuplicate?.(inventoryId);
@@ -185,13 +181,6 @@ const InventoryCard = ({
                 >
                   <TrendingUp className="w-4 h-4 text-green-500" />
                   {t("inventory.addStock")}
-                </button>
-                <button
-                  onClick={() => handleMenuAction(inventory.id, "edit")}
-                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                >
-                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t("common.edit")}
                 </button>
                 <button
                   onClick={() => handleMenuAction(inventory.id, "duplicate")}
