@@ -9,6 +9,7 @@
   "addSuccess": "Supplier successfully create ho gaya!",
   "phoneOrEmailRequired": "Phone ya email required hai",
   "editSupplier": "Supplier edit karo",
+  "updateSupplier": "Supplier update karo",
   "updateSupplierInformationAndDetails": "Supplier information aur details update karo",
   "deleteSupplier": "Supplier delete karo",
   "supplierName": "Supplier Name",

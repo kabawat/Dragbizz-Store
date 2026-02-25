@@ -198,19 +198,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                   />
                 </div>
 
-                <div
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                  style={{ height: "calc(100vh - 300px)" }}
-                >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-300px)]">
                   {/* Left Side - Stock Info */}
                   <div className="lg:col-span-2 flex flex-col h-full">
-                    <div
-                      className="overflow-y-auto pe-3 space-y-6"
-                      style={{
-                        height: "calc(100vh - 200px)",
-                        maxHeight: "calc(100vh - 200px)",
-                      }}
-                    >
+                    <div className="overflow-y-auto pe-3 space-y-6 h-[calc(100vh-200px)] max-h-[calc(100vh-200px)]">
                       {/* Stats Cards */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Available Stock */}
