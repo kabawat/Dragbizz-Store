@@ -9,6 +9,7 @@ import {
   getRetailerDetails,
   setInitialized,
 } from "@/store/slices/profileSlice";
+import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
 
 const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
 
@@ -67,8 +68,6 @@ export default function GlobalProfileLoader() {
 
   // Retailer profile: after we have authProfile
   useEffect(() => {
-    // If no auth profile or agencyId is null, it means user needs onboarding.
-    // In this case, we definitely should NOT call retailer profile API.
     if (!authProfile || !authProfile.agencyId) return;
 
     const isAuth = isAuthPath(pathname);
@@ -82,5 +81,11 @@ export default function GlobalProfileLoader() {
     dispatch(getRetailerDetails());
   }, [pathname, authProfile, user, agency, stores, dispatch]);
 
-  return null;
+  const shouldShowModal = !!authProfile && authProfile.ispwds === false;
+
+  return (
+    <>
+      <ForcePasswordModal isOpen={shouldShowModal} />
+    </>
+  );
 }
