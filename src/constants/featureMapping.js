@@ -67,11 +67,10 @@ export const FEATURE_ROUTES = {
   // Customer Management
   customer_management: {
     routes: [
-      "/dashboard/customers",
-      "/dashboard/customers/add",
-      "/dashboard/customers/edit",
-      "/dashboard/customers/view",
+      "/dashboard/customers",       // list + add drawer + edit drawer
+      "/dashboard/customers/add",   // add page (if any)
       "/dashboard/customers/inactive",
+      // /dashboard/customers/[id]  → view page (matches via startsWith /dashboard/customers)
     ],
     menuItems: ["Customers"],
     subMenuItems: ["All Customers", "Add New Customer", "Inactive Customers"],

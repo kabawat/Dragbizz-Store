@@ -2,7 +2,7 @@
 import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CreateCustomer } from "@/components/customer";
+import { CreateCustomer, EditCustomer } from "@/components/customer";
 import CustomerEmptyState from "@/components/customer/list/CustomerEmptyState";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
@@ -31,6 +31,8 @@ const CustomersPage = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
+  const [editCustomerId, setEditCustomerId] = useState(null);
 
   const scrollRef = useRef(null);
   const lastFetchRef = useRef(null);
@@ -124,6 +126,19 @@ const CustomersPage = () => {
     setShowCustomerDrawer(false);
   };
 
+  const handleEditSuccess = async () => {
+    lastFetchRef.current = null;
+    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
+    await fetchCustomers(false);
+    setShowEditDrawer(false);
+    setEditCustomerId(null);
+  };
+
+  const handleEditOpen = (id) => {
+    setEditCustomerId(id);
+    setShowEditDrawer(true);
+  };
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <Sidebar />
@@ -170,8 +185,8 @@ const CustomersPage = () => {
               isLoadingMore={isLoadingMore}
               pagination={pagination}
               onLoadMore={handleLoadMore}
-              onEdit={(id) => router.push(`/dashboard/customers/edit/${id}`)}
-              onViewDetails={(id) => router.push(`/dashboard/customers/view/${id}`)}
+              onEdit={handleEditOpen}
+              onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
               scrollRef={scrollRef}
               selectedStore={selectedStore}
               t={t}
@@ -196,6 +211,26 @@ const CustomersPage = () => {
             autoRedirect={false}
             mode="drawer"
           />
+        </div>
+      </SideDrawer>
+
+      <SideDrawer
+        isOpen={showEditDrawer}
+        onClose={() => { setShowEditDrawer(false); setEditCustomerId(null); }}
+        title={t("customers.editCustomer") || "Edit Customer"}
+        icon={Users}
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="p-6 h-full">
+          {editCustomerId && (
+            <EditCustomer
+              customerId={editCustomerId}
+              onSuccess={handleEditSuccess}
+              onCancel={() => { setShowEditDrawer(false); setEditCustomerId(null); }}
+              showCancelButton={true}
+              mode="drawer"
+            />
+          )}
         </div>
       </SideDrawer>
     </div>

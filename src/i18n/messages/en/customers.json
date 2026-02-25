@@ -128,5 +128,8 @@
   "fieldEmail": "Email",
   "fieldAddress": "Address",
   "fieldCreatedAt": "Created At",
-  "fieldUpdatedAt": "Updated At"
+  "fieldUpdatedAt": "Updated At",
+  "updateCustomer": "Update Customer",
+  "updateTipsTitle": "Customer Update Tips",
+  "updateTipsSubtitle": "Keep details accurate"
 }

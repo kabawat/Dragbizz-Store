@@ -46,7 +46,7 @@ const ViewCustomerPage = ({ customerId }) => {
 
   // Page-level Shortcuts
   useCommonHotkeys({
-    onEdit: () => router.push(`/dashboard/customers/edit/${customerId}`),
+    onEdit: () => router.push("/dashboard/customers"),
     onDownload: () => handleDownloadPDF(customerData),
     onBack: () => router.push("/dashboard/customers"),
     // onClose is handled in Child Layout for Delete Modal
@@ -80,7 +80,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 customerData={customerData}
                 customerId={customerId}
                 storeId={storeId}
-                onEdit={() => router.push(`/dashboard/customers/edit/${customerId}`)}
+                onEdit={() => router.push("/dashboard/customers")}
                 onDownloadPDF={handleDownloadPDF}
                 t={t}
               />
