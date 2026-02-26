@@ -28,7 +28,7 @@ const NetworkError = () => {
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg"
       style={{
         backgroundColor: `rgb(var(--color-bg-primary))`,
         color: `rgb(var(--color-text-primary))`,
@@ -45,18 +45,6 @@ const NetworkError = () => {
           Check your connection
         </p>
       </div>
-      <style jsx>{`
-        @keyframes slideUp {
-          from {
-            transform: translate(-50%, 100%);
-            opacity: 0;
-          }
-          to {
-            transform: translate(-50%, 0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 };
