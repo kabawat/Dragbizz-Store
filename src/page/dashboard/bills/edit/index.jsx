@@ -36,7 +36,7 @@ const EditBill = ({ billId }) => {
   const [errors, setErrors] = useState({});
   const hasFetched = useRef(false);
 
-  const { handleApiError, handleApiResult, QuotaModal, showError, } = useErrorHandling();
+  const { handleApiError, handleApiResult, showError, } = useErrorHandling();
 
   // Fetch existing bill data
   useEffect(() => {
@@ -252,9 +252,7 @@ const EditBill = ({ billId }) => {
           </div>
         </div>
       </div>
-      {QuotaModal}
-    </div>
-  );
+      );
 };
 
-export default EditBill;
+      export default EditBill;

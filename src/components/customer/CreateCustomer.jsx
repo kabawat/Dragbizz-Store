@@ -5,7 +5,6 @@ import { CustomerForm } from "@/components/customer";
 import { Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { customerService } from "@/service";
 
@@ -18,14 +17,6 @@ const CreateCustomer = ({
   mode = "page", // 'page' or 'drawer'
 }) => {
   const { t } = useTranslation();
-  const quotaRefreshRef = useRef(null);
-
-  // Get quota information for frontend validation
-  const {
-    quota,
-    isLoading: quotaLoading,
-    refresh: refreshQuota,
-  } = useUsageQuota("customer_management");
 
   const [loading, setLoading] = useState(false);
   const {
@@ -33,10 +24,8 @@ const CreateCustomer = ({
     handleApiResult,
     fieldErrors,
     setFieldErrors,
-    QuotaModal,
     showSuccess,
     clearFieldErrors,
-    setQuotaErrorManually,
   } = useErrorHandling();
 
   // GST Verification Hook
@@ -60,25 +49,6 @@ const CreateCustomer = ({
       }));
     },
   });
-
-  // Check if quota is available
-  const isQuotaAvailable = () => {
-    // If quota is loading or not loaded, allow (enable button)
-    if (quotaLoading || !quota) return true;
-    // If unlimited, allow
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    // If hasAccess is explicitly false, disallow
-    if (quota.hasAccess === false) return false;
-    // If remaining is explicitly 0 or less, disallow
-    if (quota.remaining !== undefined && quota.remaining <= 0) return false;
-    // Default: allow (enable button)
-    return true;
-  };
-
-  // Set quota refresh ref
-  useEffect(() => {
-    quotaRefreshRef.current = refreshQuota;
-  }, [refreshQuota]);
 
   // Initial form data
   const getInitialFormData = () => ({
@@ -165,28 +135,7 @@ const CreateCustomer = ({
     }));
   };
 
-  // Handle save and publish
   const handleSaveAndPublish = async () => {
-    // Frontend validation: Check quota before making API call
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message:
-          quota.remaining === 0
-            ? `Daily limit reached. You have used all ${quota.limit} customers for today. Please try again tomorrow or upgrade your plan.`
-            : "Quota exceeded. Please upgrade your plan to continue.",
-        quota: quotaData,
-        resetTime:
-          quota.usageType === "DAILY_FIXED"
-            ? "tomorrow"
-            : quota.usageType === "MONTHLY_TOTAL"
-              ? "next month"
-              : null,
-        canUpgrade: true,
-      });
-      return;
-    }
-
     try {
       setLoading(true);
       clearFieldErrors();
@@ -232,9 +181,6 @@ const CreateCustomer = ({
       );
 
       if (handled.type === "success") {
-        if (quotaRefreshRef.current) {
-          quotaRefreshRef.current();
-        }
         if (onSuccess) {
           onSuccess(result.data);
         }
@@ -299,12 +245,8 @@ const CreateCustomer = ({
             )}
           </div>
         )}
-      </div>
-
-      {/* Quota Modal from useErrorHandling hook */}
-      {QuotaModal}
-    </>
-  );
+      </>
+      );
 };
 
-export default CreateCustomer;
+      export default CreateCustomer;

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { CreateCustomer } from "@/components/customer";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { customerService, invoiceService, productService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 
@@ -48,26 +47,15 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const { quota, isLoading: quotaLoading } = useUsageQuota("invoice_management");
   const {
     handleApiError,
     handleApiResult,
-    QuotaModal,
     showError,
-    setQuotaErrorManually,
   } = useErrorHandling();
 
   // 5. Derived Values
   const storeId = selectedStore?.storeId;
   const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
-
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true;
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
-
-  const quotaExceeded = !isQuotaAvailable();
 
   // 6. Data Fetching Callbacks
   const fetchProducts = useCallback(async () => {
@@ -167,19 +155,6 @@ const CreateInvoicePage = () => {
 
     if (validItems.length === 0) {
       showError(t("invoice.addAtLeastOneItem"));
-      return;
-    }
-
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message: quota.remaining === 0
-          ? t("invoice.dailyLimitReached", { limit: quota.limit })
-          : t("invoice.quotaExceededMessage"),
-        quota: quotaData,
-        resetTime: quota.usageType === "DAILY_FIXED" ? "tomorrow" : quota.usageType === "MONTHLY_TOTAL" ? "next month" : null,
-        canUpgrade: true,
-      });
       return;
     }
 
@@ -295,8 +270,6 @@ const CreateInvoicePage = () => {
                 handleCustomerChange={handleCustomerChange}
                 customers={customers}
                 customersLoading={customersLoading}
-                quotaExceeded={quotaExceeded}
-                quotaLoading={quotaLoading}
                 invoiceLoading={invoiceLoading}
                 handleSubmit={handleSubmit}
               />
@@ -304,8 +277,6 @@ const CreateInvoicePage = () => {
           </div>
         </div>
       </div>
-
-      {QuotaModal}
 
       <SideDrawer
         isOpen={showCustomerDrawer}

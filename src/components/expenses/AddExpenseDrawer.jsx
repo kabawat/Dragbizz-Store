@@ -5,7 +5,6 @@ import { ExpenseForm } from "@/components/expenses";
 import { Button, SideDrawer } from "@/components/ui";
 import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createExpense } from "@/store/slices/expensesSlice";
 
@@ -21,42 +20,10 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
   const {
     handleApiError,
     handleApiResult,
-    QuotaModal,
     showSuccess,
-    setQuotaErrorManually,
   } = useErrorHandling();
 
-  // Get quota information (for validation only, not displayed)
-  const { quota, isLoading: quotaLoading } =
-    useUsageQuota("expense_management");
-
-  // Check if quota is available (validation only)
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true;
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
-
   const handleExpenseSubmit = async (formData) => {
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message:
-          quota.remaining === 0
-            ? t("expenses.dailyLimitReached", { limit: quota.limit })
-            : t("quota.quotaExceeded"),
-        quota: quotaData,
-        resetTime:
-          quota.usageType === "DAILY_FIXED"
-            ? "tomorrow"
-            : quota.usageType === "MONTHLY_TOTAL"
-              ? "next month"
-              : null,
-        canUpgrade: true,
-      });
-      return;
-    }
-
     try {
       setLoading(true);
       const expenseData = {
@@ -140,8 +107,6 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
           </div>
         </div>
       </SideDrawer>
-
-      {QuotaModal}
     </>
   );
 };
