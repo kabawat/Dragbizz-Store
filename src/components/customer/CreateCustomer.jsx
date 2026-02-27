@@ -245,8 +245,9 @@ const CreateCustomer = ({
             )}
           </div>
         )}
-      </>
-      );
+      </div>
+    </>
+  );
 };
 
-      export default CreateCustomer;
+export default CreateCustomer;
