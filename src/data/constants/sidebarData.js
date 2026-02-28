@@ -26,6 +26,7 @@ export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c" },
     { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i" },
     { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e" },
+    { name: t("sidebar.pos") || "POS", icon: ShoppingBag, href: "/dashboard/pos", shortcut: "k" },
     { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o" },
 ];
 
@@ -133,6 +134,7 @@ export const getMenuToFeatureMap = (t) => ({
 export const getSubMenuToFeatureMap = (t) => ({
     [t("sidebar.customers")]: ["Customer Management", "customer_management"],
     [t("sidebar.invoices")]: ["Invoice Management", "invoice_management"],
+    [t("sidebar.pos") || "POS"]: ["Invoice Management", "invoice_management"],
     [t("sidebar.sellOrders") || "Sell Orders"]: ["Invoice Management", "invoice_management"],
     [t("sidebar.expenses")]: ["Expense Management", "expense_management"],
     [t("sidebar.products")]: ["Product Management", "product_management"],

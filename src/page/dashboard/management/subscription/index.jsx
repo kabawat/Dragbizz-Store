@@ -35,7 +35,7 @@ const SubscriptionManagementPage = () => {
                             {/* Left Side (3/4) */}
                             <div className="lg:col-span-3 space-y-6">
                                 {/* Plan Overview Card */}
-                                <Card className="bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden">
+                                <Card className="bg-[rgb(var(--color-bg-primary))] border-[rgb(var(--color-border-primary))] overflow-hidden">
                                     <div className="absolute top-0 right-0 p-4">
                                         <Badge variant="success" className="px-4 py-1 text-xs font-bold uppercase tracking-wider">
                                             {subscription?.plan?.name || "Trial Plan"}
@@ -103,7 +103,7 @@ const SubscriptionManagementPage = () => {
                                 </Card>
 
                                 {/* Support Footer */}
-                                <div className="flex items-center gap-6 p-6 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl shadow-sm">
+                                <div className="flex items-center gap-6 p-6 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary)/0.4)] rounded-xl">
                                     <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--color-primary))]/10 flex items-center justify-center flex-shrink-0 animate-pulse-slow">
                                         <Info className="w-6 h-6 text-[rgb(var(--color-primary))]" />
                                     </div>
@@ -119,8 +119,6 @@ const SubscriptionManagementPage = () => {
                             {/* Right Side Column (1/4 Width) */}
                             <div className="lg:col-span-1 space-y-4">
                                 <ManagementShortcuts />
-
-                                {/* This area stays empty as per user request */}
                             </div>
 
                         </div>

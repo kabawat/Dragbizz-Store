@@ -84,7 +84,7 @@ export const SidebarNavItem = ({
                                         <SubIcon className={`w-4 h-4 ${isSubActive ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`} />
                                         <span className="text-sm font-medium flex-1">{subItem.name}</span>
                                         {subItem.shortcut && (
-                                            <kbd className="absolute right-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))] shadow-sm">
+                                            <kbd className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[9px] px-1 py-px rounded border border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-tertiary))] font-mono pointer-events-none bg-[rgb(var(--color-bg-secondary))]">
                                                 ⌥{subItem.shortcut === "," ? "," : subItem.shortcut.toUpperCase()}
                                             </kbd>
                                         )}

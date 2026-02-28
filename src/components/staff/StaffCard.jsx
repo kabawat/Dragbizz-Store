@@ -72,7 +72,7 @@ const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onRefresh }) => {
     const isBusy = isDeleting || isRemoving;
 
     return (
-        <div className={`bg-[rgb(var(--color-bg-primary))] border rounded-xl transition-all hover:border-[rgb(var(--color-primary))]/30 ${isBusy ? "opacity-50 pointer-events-none" : "border-[rgb(var(--color-border-primary))]"}`}>
+        <div className={`bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary)/0.3)] rounded-xl transition-all ${isBusy ? "opacity-50 pointer-events-none" : "border-[rgb(var(--color-border-primary))]"}`}>
 
             {/* Pending banner */}
             {isTempStaff && (

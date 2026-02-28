@@ -91,7 +91,7 @@ const StaffPage = () => {
                             {/* Main Content (3/4) */}
                             <div className="lg:col-span-3 space-y-4">
                                 {/* Header Bar */}
-                                <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl p-4 shadow-sm">
+                                <div className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary)/0.4)] rounded-xl p-4">
                                     <div className="flex items-center justify-between gap-4 flex-wrap">
                                         {/* Search */}
                                         <div className="relative flex-1 min-w-[200px] max-w-sm">

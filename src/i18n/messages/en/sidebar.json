@@ -22,5 +22,9 @@
   "sellOrders": "Sales Orders",
   "suggestions": "Suggestions",
   "supportCenter": "Support Center",
-  "staff": "Staff Management"
+  "staff": "Staff Management",
+  "pos": "POS",
+  "subscription": "Subscription",
+  "planLimits": "Plan Limits",
+  "management": "Management"
 }
