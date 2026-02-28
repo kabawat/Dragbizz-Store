@@ -1,4 +1,4 @@
-import StaffPage from "@/page/dashboard/staff";
+import StaffPage from "@/page/dashboard/management/staff";
 
 export const metadata = {
     title: "Staff Management - DragBizz Store",

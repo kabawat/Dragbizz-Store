@@ -14,6 +14,7 @@ import {
   getInventorySubMenuItems,
   getPurchaseSubMenuItems,
   getAnalyticsSubMenuItems,
+  getManagementSubMenuItems,
   getNavigationItems,
   getBottomItems,
 } from "@/data/constants/sidebarData";
@@ -38,6 +39,7 @@ const Sidebar = ({ onStoreChange }) => {
     () => getAnalyticsSubMenuItems(t, selectedStore),
     [t, selectedStore]
   );
+  const managementSubMenuItems = useMemo(() => getManagementSubMenuItems(t), [t]);
 
   const rawNavigationItems = useMemo(
     () =>
@@ -46,9 +48,10 @@ const Sidebar = ({ onStoreChange }) => {
         salesSubMenuItems,
         inventorySubMenuItems,
         purchaseSubMenuItems,
-        analyticsSubMenuItems
+        analyticsSubMenuItems,
+        managementSubMenuItems
       ),
-    [t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems]
+    [t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems, managementSubMenuItems]
   );
 
   const navigationItems = useMemo(() => {
@@ -58,8 +61,8 @@ const Sidebar = ({ onStoreChange }) => {
       // Default always allowed routes for staff
       if (["/dashboard", "/dashboard/support", "/dashboard/settings",].includes(href)) return true;
 
-      // Staff cannot manage other staff
-      if (href === "/dashboard/staff") return false;
+      // Staff cannot manage other staff or plan settings
+      if (href.startsWith("/dashboard/management")) return false;
 
       const permissions = staffProfile?.permissions || [];
 

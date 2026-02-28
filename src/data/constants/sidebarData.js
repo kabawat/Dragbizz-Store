@@ -1,5 +1,6 @@
 import {
     Activity,
+    Headphones,
     BadgePercent,
     BarChart3,
     Building2,
@@ -16,27 +17,28 @@ import {
     ShoppingBag,
     Users,
     UserCog,
-    Headphones,
     Warehouse,
+    Shield,
+    CreditCard
 } from "lucide-react";
 
 export const getSalesSubMenuItems = (t) => [
     { name: t("sidebar.customers"), icon: Users, href: "/dashboard/customers", shortcut: "c" },
     { name: t("sidebar.invoices"), icon: FileText, href: "/dashboard/invoices", shortcut: "i" },
     { name: t("sidebar.expenses"), icon: IndianRupee, href: "/dashboard/expenses", shortcut: "e" },
-    { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "l" },
+    { name: t("sidebar.sellOrders") || "Sell Orders", icon: ShoppingBag, href: "/dashboard/sales-order", shortcut: "o" },
 ];
 
 export const getInventorySubMenuItems = (t) => [
     { name: t("sidebar.products"), icon: Package, href: "/dashboard/products", shortcut: "p" },
-    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "k" },
+    { name: t("sidebar.stocks"), icon: Warehouse, href: "/dashboard/stock", shortcut: "s" },
 ];
 
 export const getPurchaseSubMenuItems = (t) => [
     { name: t("sidebar.suppliers"), icon: Building2, href: "/dashboard/suppliers", shortcut: "u" },
-    { name: t("sidebar.purchaseOrders"), icon: ShoppingCart, href: "/dashboard/purchase-orders", shortcut: "o" },
+    { name: t("sidebar.purchaseOrders"), icon: ShoppingCart, href: "/dashboard/purchase-orders", shortcut: "shift+o" },
     { name: t("sidebar.bills"), icon: Receipt, href: "/dashboard/bills", shortcut: "b" },
-    { name: t("sidebar.payments"), icon: IndianRupee, href: "/dashboard/payments", shortcut: "m" },
+    { name: t("sidebar.payments"), icon: IndianRupee, href: "/dashboard/payments", shortcut: "y" },
 ];
 
 export const getAnalyticsSubMenuItems = (t, selectedStore) => [
@@ -55,7 +57,13 @@ export const getAnalyticsSubMenuItems = (t, selectedStore) => [
     }] : []),
 ];
 
-export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems) => [
+export const getManagementSubMenuItems = (t) => [
+    { name: t("sidebar.staff") || "Staff", icon: UserCog, href: "/dashboard/management/staff", shortcut: "f" },
+    { name: t("sidebar.subscription") || "Subscription", icon: CreditCard, href: "/dashboard/management/subscription", shortcut: "m" },
+    { name: t("sidebar.planLimits") || "Plan Limits", icon: Activity, href: "/dashboard/management/limits", shortcut: "l" },
+];
+
+export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems, managementSubMenuItems) => [
     { name: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/dashboard", shortcut: "d" },
     {
         name: t("sidebar.salesTransactions"),
@@ -89,7 +97,14 @@ export const getNavigationItems = (t, salesSubMenuItems, inventorySubMenuItems, 
         subMenuItems: analyticsSubMenuItems,
         key: "analytics",
     },
-    { name: t("sidebar.staff") || "Staff", icon: UserCog, href: "/dashboard/staff", shortcut: "f" },
+    {
+        name: t("sidebar.management") || "Management",
+        icon: Shield,
+        href: "/dashboard/management/staff",
+        hasSubMenu: true,
+        subMenuItems: managementSubMenuItems,
+        key: "management",
+    },
 ];
 
 export const getBottomItems = (t) => [

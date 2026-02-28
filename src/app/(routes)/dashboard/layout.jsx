@@ -29,12 +29,6 @@ export default function DashboardLayout({ children }) {
       return;
     }
 
-    // Check subscription first - redirect to packages if no subscription
-    if (!hasSubscription) {
-      router.push("/packages");
-      return;
-    }
-
     // Handle explicit redirects
     if (redirectTo) {
       router.push(redirectTo);
@@ -70,14 +64,10 @@ export default function DashboardLayout({ children }) {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-            {subscriptionLoading
-              ? "Checking Subscription..."
-              : "Checking Profile..."}
+            Verifying Profile...
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">
-            {subscriptionLoading
-              ? "Verifying your subscription status"
-              : "Verifying your retailer information"}
+            Checking your retailer information
           </p>
         </div>
       </div>
@@ -85,7 +75,7 @@ export default function DashboardLayout({ children }) {
   }
 
   // Don't render children if redirecting or no subscription
-  if (!hasSubscription || redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
+  if (redirectTo || !agency || (agency && (!stores || stores.length === 0))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-primary))]">
         <div className="text-center">
@@ -94,9 +84,7 @@ export default function DashboardLayout({ children }) {
             Redirecting...
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">
-            {!hasSubscription
-              ? "Please select a subscription plan to continue"
-              : "Please wait while we redirect you"}
+            Please wait while we redirect you
           </p>
         </div>
       </div>

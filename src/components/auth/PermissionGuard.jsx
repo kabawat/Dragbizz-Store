@@ -34,8 +34,8 @@ export const PermissionGuard = ({ children }) => {
             return;
         }
 
-        // Staff can never access staff management
-        if (pathname === "/dashboard/staff" || pathname.startsWith("/dashboard/staff/")) {
+        // Staff can never access management features (Staff, Subscription, Plan limits)
+        if (pathname === "/dashboard/management" || pathname.startsWith("/dashboard/management/")) {
             setHasAccess(false);
             return;
         }

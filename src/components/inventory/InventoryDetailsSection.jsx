@@ -2,7 +2,6 @@
 import { ArrowUp, Calculator, Package, Warehouse } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardBody, Input, Select } from "@/components/ui";
-import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -14,14 +13,10 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [_searchTerm, _setSearchTerm] = useState("");
   const [_isLoading, setIsLoading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
-  // Check if supplier_management feature is available
-  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT
-  );
+  // Hook to fetch subscription info if needed for other purposes
+  const { isLoading: featuresLoading } = useFeatureAccess();
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -41,7 +36,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   }, [formData?.store]);
 
   const fetchSuppliers = useCallback(async () => {
-    if (!hasSupplierManagement || !formData?.store) return;
+    if (!formData?.store) return;
 
     try {
       setSuppliersLoading(true);
@@ -57,26 +52,19 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     } finally {
       setSuppliersLoading(false);
     }
-  }, [hasSupplierManagement, formData?.store]);
+  }, [formData?.store]);
 
   // Fetch products and suppliers on mount and when store changes
   useEffect(() => {
     fetchProducts();
-    if (hasSupplierManagement) {
-      fetchSuppliers();
-    }
-  }, [hasSupplierManagement, fetchProducts, fetchSuppliers]);
+    fetchSuppliers();
+  }, [fetchProducts, fetchSuppliers]);
 
   const handleProductChange = (productId) => {
     onChange("productId", productId);
   };
 
   const handleSupplierChange = (supplierId) => {
-    // Check if user has supplier management access
-    if (!hasSupplierManagement && supplierId) {
-      setShowUpgradeModal(true);
-      return;
-    }
     onChange("batchData.supplier", supplierId);
   };
 
@@ -214,7 +202,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             />
           </div>
 
-          {/* Supplier */}
           <div className="md:col-span-2 relative">
             <Select
               label={t("inventory.supplierOptional")}
@@ -222,41 +209,17 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
               clearable
               value={formData.batchData?.supplier || ""}
               onChange={handleSupplierChange}
-              options={hasSupplierManagement ? supplierOptions : []}
-              placeholder={
-                !hasSupplierManagement
-                  ? t("inventory.enableSupplierManagementToSelect")
-                  : t("inventory.searchAndSelectSupplierOptional")
-              }
+              options={supplierOptions}
+              placeholder={t("inventory.searchAndSelectSupplierOptional")}
               error={!!errors["batchData.supplier"]}
               errorMessage={errors["batchData.supplier"]}
               helperText={
-                !hasSupplierManagement
-                  ? t("inventory.enableSupplierManagementFeature")
-                  : !errors["batchData.supplier"]
-                    ? t("inventory.optionalTypeToSearchSuppliers")
-                    : undefined
+                !errors["batchData.supplier"]
+                  ? t("inventory.optionalTypeToSearchSuppliers")
+                  : undefined
               }
-              disabled={
-                !hasSupplierManagement || suppliersLoading || featuresLoading
-              }
+              disabled={suppliersLoading || featuresLoading}
             />
-
-            {/* Upgrade Button - Right Side */}
-            {!hasSupplierManagement && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowUpgradeModal(true);
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                title={t("inventory.upgradeToEnableSupplierManagement")}
-              >
-                <ArrowUp className="w-3.5 h-3.5" />
-                <span>{t("common.upgrade")}</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -305,16 +268,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
         </div>
       )}
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        featureName="Supplier Management"
-        requiredFeature={
-          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
-          "Supplier Management"
-        }
-      />
     </div>
   );
 };
