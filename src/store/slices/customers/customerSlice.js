@@ -62,7 +62,7 @@ const customerSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getCustomers.pending, (state, action) => {
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+                const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
                 if (isFreshLoad) {
                     state.isLoading = true;
                 } else {
@@ -71,7 +71,7 @@ const customerSlice = createSlice({
                 state.error = null;
             })
             .addCase(getCustomers.fulfilled, (state, action) => {
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+                const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
                 if (isFreshLoad) {
                     state.isLoading = false;
                 } else {
@@ -82,7 +82,7 @@ const customerSlice = createSlice({
                 const { data = [], pagination } = action.payload;
 
                 // Normalize _id → id at ingestion so all components safely use c.id
-                const normalize = (c) => ({ ...c, id: c.id ?? c._id });
+                const normalize = (c) => ({ ...c, id: c.id || c._id });
 
                 if (isFreshLoad) {
                     state.customers = data.map(normalize);
@@ -93,13 +93,13 @@ const customerSlice = createSlice({
                 }
 
                 state.pagination = {
-                    hasNextPage: pagination?.hasNextPage ?? false,
-                    nextCursor: pagination?.nextCursor ?? null,
-                    total: pagination?.total ?? (isFreshLoad ? data.length : state.pagination.total + data.length),
+                    hasNextPage: pagination && pagination.hasNextPage ? true : false,
+                    nextCursor: pagination && pagination.nextCursor ? pagination.nextCursor : null,
+                    total: pagination && pagination.total !== undefined ? pagination.total : (isFreshLoad ? data.length : state.pagination.total + data.length),
                 };
             })
             .addCase(getCustomers.rejected, (state, action) => {
-                const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+                const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
                 if (isFreshLoad) {
                     state.isLoading = false;
                 } else {

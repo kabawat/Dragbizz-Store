@@ -1,213 +1,143 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { invoiceService } from "@/service";
-
-export const getInvoices = createAsyncThunk(
-  "invoices/getInvoices",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const result = await invoiceService.getInvoices(params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch invoices",
-        });
-      }
-
-      const payload = {
-        success: true,
-        data: result.data,
-        message: "Invoices fetched successfully",
-      };
-
-      if (result.nextCursor) {
-        payload.nextCursor = result.nextCursor;
-      }
-
-      return payload;
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch invoices. Please try again.",
-      });
-    }
-  }
-);
-
-export const deleteInvoice = createAsyncThunk(
-  "invoices/deleteInvoice",
-  async ({ invoiceId, storeId }, { rejectWithValue }) => {
-    try {
-      const result = await invoiceService.deleteInvoice(invoiceId, storeId);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to delete invoice",
-        });
-      }
-
-      return {
-        success: true,
-        invoiceId: invoiceId,
-        message: "Invoice deleted successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to delete invoice. Please try again.",
-      });
-    }
-  }
-);
-
-// Analytics: use analyticsSlice.getInvoiceAnalytics instead
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
   invoices: [],
-  selectedInvoices: [],
   pagination: {
     hasNextPage: false,
     nextCursor: null,
-    limit: 20,
     total: 0,
   },
-  analytics: {
-    counts: {},
-    amounts: {},
-    today: {},
+  filters: {
+    paymentStatus: "",
+    invoiceStatus: "",
+    startDate: "",
+    endDate: "",
   },
   isLoading: false,
+  isFetchingMore: false,
   error: null,
   viewMode: "table",
 };
+
+export const getInvoices = createAsyncThunk(
+  "invoices/getInvoices",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await invoiceService.getInvoices(params);
+      return handleSuccess(response);
+    } catch (error) {
+      const result = handleError(error);
+      return rejectWithValue(result.message);
+    }
+  },
+  {
+    condition: (params, { getState }) => {
+      const { isLoading, isFetchingMore } = getState().invoices;
+      if (params?.isFreshLoad && isLoading) return false;
+      if (!params?.isFreshLoad && isFetchingMore) return false;
+      return true;
+    },
+  }
+);
+
 
 const invoicesSlice = createSlice({
   name: "invoices",
   initialState,
   reducers: {
-    setSelectedInvoices: (state, action) => {
-      state.selectedInvoices = action.payload;
-    },
-    toggleInvoiceSelection: (state, action) => {
-      const invoiceId = action.payload;
-      const index = state.selectedInvoices.indexOf(invoiceId);
-
-      if (index > -1) {
-        state.selectedInvoices.splice(index, 1);
-      } else {
-        state.selectedInvoices.push(invoiceId);
-      }
-    },
-    selectAllInvoices: (state) => {
-      state.selectedInvoices = state.invoices.map(
-        (invoice) => invoice.id || invoice._id
-      );
-    },
-    deselectAllInvoices: (state) => {
-      state.selectedInvoices = [];
-    },
     setViewMode: (state, action) => {
       state.viewMode = action.payload;
     },
-    addMoreInvoices: (state, action) => {
-      state.invoices = [...state.invoices, ...action.payload];
+    removeInvoice: (state, action) => {
+      state.invoices = state.invoices.filter((i) => i.id !== action.payload);
+      if (state.pagination.total > 0) state.pagination.total -= 1;
+    },
+    updateInvoice: (state, action) => {
+      const index = state.invoices.findIndex((i) => i.id === (action.payload.id || action.payload._id));
+      if (index !== -1) {
+        state.invoices[index] = { ...state.invoices[index], ...action.payload, id: action.payload.id || action.payload._id };
+      }
+    },
+    addInvoice: (state, action) => {
+      const newInvoice = { ...action.payload, id: action.payload.id || action.payload._id };
+      state.invoices.unshift(newInvoice);
+      state.pagination.total += 1;
+    },
+    setFilters: (state, action) => {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+    clearFilters: (state) => {
+      state.filters = {
+        paymentStatus: "",
+        invoiceStatus: "",
+        startDate: "",
+        endDate: "",
+      };
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getInvoices.pending, (state) => {
-        state.isLoading = true;
+      .addCase(getInvoices.pending, (state, action) => {
+        const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
+        if (isFreshLoad) {
+          state.isLoading = true;
+        } else {
+          state.isFetchingMore = true;
+        }
         state.error = null;
       })
       .addCase(getInvoices.fulfilled, (state, action) => {
-        state.isLoading = false;
-
-        if (action.payload.success) {
-          const { data } = action.payload;
-          let invoicesData = [];
-          let nextCursor = null;
-
-          nextCursor = action.payload.nextCursor ?? null;
-
-          if (Array.isArray(data)) {
-            invoicesData = data;
-          } else if (data && typeof data === "object") {
-            if (Array.isArray(data.data)) {
-              invoicesData = data.data;
-              if (!nextCursor) {
-                nextCursor = data.nextCursor ?? data.meta?.nextCursor ?? null;
-              }
-            } else if (Array.isArray(data)) {
-              invoicesData = data;
-            }
-          }
-
-          if (!nextCursor) {
-            const fullPayload = action.payload;
-            nextCursor =
-              fullPayload.nextCursor ??
-              fullPayload.data?.nextCursor ??
-              fullPayload.data?.meta?.nextCursor ??
-              (data && typeof data === "object"
-                ? (data.nextCursor ?? data.meta?.nextCursor)
-                : null) ??
-              null;
-          }
-
-          const isFreshLoad = action.meta?.arg?.isFreshLoad !== false;
-
-          if (isFreshLoad) {
-            state.invoices = invoicesData;
-          } else {
-            state.invoices = [...state.invoices, ...invoicesData];
-          }
-
-          const hasNextPage =
-            nextCursor !== null &&
-            nextCursor !== undefined &&
-            nextCursor !== "";
-
-          state.pagination.hasNextPage = hasNextPage;
-          state.pagination.nextCursor = nextCursor;
-          state.pagination.limit =
-            action.meta?.arg?.limit ?? data?.limit ?? data?.meta?.limit ?? 20;
-          state.pagination.total =
-            data?.total ?? data?.meta?.total ?? state.invoices.length;
+        const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
+        if (isFreshLoad) {
+          state.isLoading = false;
+        } else {
+          state.isFetchingMore = false;
         }
+        state.error = null;
+
+        const payloadData = action.payload || {};
+        const data = payloadData.data || [];
+        const pagination = payloadData.pagination || payloadData.meta?.pagination || {};
+
+        // Normalize _id → id at ingestion so all components safely use i.id
+        const normalize = (i) => ({ ...i, id: i.id || i._id });
+
+        if (isFreshLoad) {
+          state.invoices = data.map(normalize);
+        } else {
+          const existingIds = new Set(state.invoices.map((i) => i.id));
+          const newInvoices = data.map(normalize).filter((i) => !existingIds.has(i.id));
+          state.invoices = [...state.invoices, ...newInvoices];
+        }
+
+        state.pagination = {
+          hasNextPage: pagination.hasNextPage || false,
+          nextCursor: pagination.nextCursor || null,
+          total: pagination.total !== undefined ? pagination.total : (isFreshLoad ? data.length : state.pagination.total + data.length),
+        };
       })
       .addCase(getInvoices.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch invoices";
-      })
-      .addCase(deleteInvoice.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(deleteInvoice.fulfilled, (state, action) => {
-        state.isLoading = false;
-
-        if (action.payload.success) {
-          const { invoiceId } = action.payload;
-          state.invoices = state.invoices.filter(
-            (inv) => (inv.id || inv._id) !== invoiceId
-          );
-          state.selectedInvoices = state.selectedInvoices.filter(
-            (id) => id !== invoiceId
-          );
+        const isFreshLoad = action.meta && action.meta.arg && action.meta.arg.isFreshLoad !== undefined ? action.meta.arg.isFreshLoad : false;
+        if (isFreshLoad) {
+          state.isLoading = false;
+        } else {
+          state.isFetchingMore = false;
         }
-      })
-      .addCase(deleteInvoice.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload?.message || "Failed to delete invoice";
-      })
-
+        state.error = action.payload;
+      });
   },
 });
 
 export const {
-  setSelectedInvoices,
-  toggleInvoiceSelection,
-  selectAllInvoices,
-  deselectAllInvoices,
   setViewMode,
-  addMoreInvoices,
+  removeInvoice,
+  updateInvoice,
+  addInvoice,
+  setFilters,
+  clearFilters,
 } = invoicesSlice.actions;
-
-export { getInvoices, deleteInvoice };
 
 export default invoicesSlice.reducer;

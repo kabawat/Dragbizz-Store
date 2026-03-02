@@ -7,7 +7,6 @@ import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { customerService } from "@/service";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import useApiResponse from "@/hooks/useApiResponse";
 import { updateCustomer } from "@/store/slices/customers/customerSlice";
@@ -70,54 +69,52 @@ const EditCustomer = ({
 
             lastFetchedId.current = customerId;
             setFieldErrors({});
-            setFetching(true);
-            try {
-                const raw = await customerService.getCustomers({
+
+            const raw = await execute(
+                customerService.getCustomers({
                     id: customerId,
                     store: storeId,
-                });
-                const result = handleSuccess(raw);
-                if (result.success && result.data) {
-                    const d = result.data;
-                    const resolveAddress = (addr) => {
-                        if (!addr) return null;
-                        let resolvedStateCode = addr.stateCode;
-                        if (!resolvedStateCode && addr.state) {
-                            const found = INDIAN_STATES.find(s => s.label.toLowerCase() === addr.state.toLowerCase());
-                            if (found) resolvedStateCode = found.value;
-                        }
-                        return { ...addr, stateCode: resolvedStateCode };
-                    };
+                }),
+                { showToast: false }
+            );
+            if (raw?.success && raw?.data) {
+                const d = raw.data;
+                const resolveAddress = (addr) => {
+                    if (!addr) return null;
+                    let resolvedStateCode = addr.stateCode;
+                    if (!resolvedStateCode && addr.state) {
+                        const found = INDIAN_STATES.find(s => s.label.toLowerCase() === addr.state.toLowerCase());
+                        if (found) resolvedStateCode = found.value;
+                    }
+                    return { ...addr, stateCode: resolvedStateCode };
+                };
 
-                    setFormData({
-                        store: storeId,
-                        name: d.name || "",
-                        phone: d.phone || "",
-                        email: d.email || "",
-                        address: d.address || "",
-                        companyDetails: {
-                            gstin: d.companyDetails?.gstin || "",
-                            companyName: d.companyDetails?.companyName || "",
-                            gstDetail: d.companyDetails?.gstDetail || "",
-                        },
-                        addresses: d.addresses
-                            ? {
-                                billing: resolveAddress(d.addresses.billing),
-                                shipping: resolveAddress(d.addresses.shipping),
-                            }
-                            : null,
-                    });
-                } else {
-                    showError(result.message || t("customers.errorLoading"));
-                }
-            } catch {
-                showError(t("customers.errorLoading"));
-            } finally {
-                setFetching(false);
+                setFormData({
+                    store: storeId,
+                    name: d.name || "",
+                    phone: d.phone || "",
+                    email: d.email || "",
+                    address: d.address || "",
+                    companyDetails: {
+                        gstin: d.companyDetails?.gstin || "",
+                        companyName: d.companyDetails?.companyName || "",
+                        gstDetail: d.companyDetails?.gstDetail || "",
+                    },
+                    addresses: d.addresses
+                        ? {
+                            billing: resolveAddress(d.addresses.billing),
+                            shipping: resolveAddress(d.addresses.shipping),
+                        }
+                        : null,
+                });
+            } else {
+                showError(raw?.message || t("customers.errorLoading"));
             }
+
+            setFetching(false);
         };
         fetchCustomerData();
-    }, [customerId, storeId, t, showError]);
+    }, [customerId, storeId, t, showError, execute, setFieldErrors]);
 
     // Handle form field changes + per-field error clearing
     const handleFormDataChange = (fieldName, value) => {

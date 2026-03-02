@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
@@ -13,7 +14,7 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { execute, loading: isDownloading } = useApiResponse();
 
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
   const [customStartDate, setCustomStartDate] = useState("");
@@ -226,7 +227,6 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    setIsDownloading(true);
     try {
       const params = buildDownloadParams(
         storeId,
@@ -234,27 +234,28 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         dateRange.endDate
       );
 
-      const result = await invoiceService.getInvoices(params);
+      const result = await execute(
+        invoiceService.getInvoices(params),
+        { showToast: false }
+      );
 
-      if (result.success && result.data) {
+      if (result?.success && result.data) {
         const invoicesData = result.data || [];
 
         if (invoicesData.length === 0) {
           showError(t("invoices.noInvoicesFoundToDownload"));
-          setIsDownloading(false);
           return;
         }
 
         await downloadInvoicesFile(invoicesData);
         showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
       } else {
-        showError(result.message || t("invoices.failedToDownloadInvoices"));
+        showError(result?.message || t("invoices.failedToDownloadInvoices"));
       }
     } catch (error) {
       logger.error("Download invoices error:", error);
       showError(t("invoices.errorDownloadingInvoices"));
     } finally {
-      setIsDownloading(false);
       handleClose();
     }
   };
@@ -283,7 +284,6 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    setIsDownloading(true);
     try {
       const params = buildDownloadParams(
         storeId,
@@ -291,27 +291,28 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
         dateRange.endDate
       );
 
-      const result = await invoiceService.getInvoices(params);
+      const result = await execute(
+        invoiceService.getInvoices(params),
+        { showToast: false }
+      );
 
-      if (result.success && result.data) {
+      if (result?.success && result.data) {
         const invoicesData = result.data || [];
 
         if (invoicesData.length === 0) {
           showError(t("invoices.noInvoicesFoundToDownload"));
-          setIsDownloading(false);
           return;
         }
 
         await downloadInvoicesFile(invoicesData);
         showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
       } else {
-        showError(result.message || t("invoices.failedToDownloadInvoices"));
+        showError(result?.message || t("invoices.failedToDownloadInvoices"));
       }
     } catch (error) {
       logger.error("Download invoices error:", error);
       showError(t("invoices.errorDownloadingInvoices"));
     } finally {
-      setIsDownloading(false);
       handleClose();
     }
   };

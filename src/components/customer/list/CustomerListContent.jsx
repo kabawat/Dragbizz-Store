@@ -39,14 +39,9 @@ const CustomerListContent = () => {
     useEffect(() => {
         const sentinel = sentinelRef.current;
         if (!sentinel || !pagination.hasNextPage) return;
-        let skipFirst = true;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                if (skipFirst) {
-                    skipFirst = false;
-                    return;
-                }
                 if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
                     dispatch(
                         getCustomers({
@@ -83,7 +78,6 @@ const CustomerListContent = () => {
                                 onEdit={setEditCustomerId}
                                 onDelete={(id) => deleteModalRef.current?.open(id)}
                                 onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
-                                loading={isLoading}
                             />
                         </div>
                     ) : (
@@ -103,7 +97,7 @@ const CustomerListContent = () => {
                     )}
 
                     {/* Sentinel — IntersectionObserver triggers load more */}
-                    {pagination.hasNextPage && !isFetchingMore && !isLoading && (
+                    {pagination.hasNextPage && (
                         <div ref={sentinelRef} className="h-4 w-full" />
                     )}
 

@@ -3,7 +3,10 @@ import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { deleteInvoice } from "@/store/slices/invoicesSlice";
+import { removeInvoice } from "@/store/slices/invoicesSlice";
+import { invoiceService } from "@/service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 import { Button } from "../ui";
 
 const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
@@ -34,26 +37,19 @@ const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
         return;
       }
 
-      const result = await dispatch(
-        deleteInvoice({
-          invoiceId: invoiceId,
-          storeId: storeId,
-        })
-      );
+      const raw = await invoiceService.deleteInvoice(invoiceId, storeId);
+      const result = handleSuccess(raw);
 
-      if (result.payload?.success) {
-        showSuccess("Invoice deleted successfully");
+      if (result.success) {
+        showSuccess(result.message || "Invoice deleted successfully");
+        dispatch(removeInvoice(invoiceId));
         onClose();
       } else {
-        showError(
-          result.payload?.message ||
-          "Failed to delete invoice. Please try again."
-        );
+        showError(result.message || "Failed to delete invoice. Please try again.");
       }
-    } catch (_error) {
-      showError(
-        "An error occurred while deleting the invoice. Please try again."
-      );
+    } catch (error) {
+      const errorResult = handleError(error);
+      showError(errorResult.message || "An error occurred while deleting the invoice. Please try again.");
     } finally {
       setIsLoading(false);
     }

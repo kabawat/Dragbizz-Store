@@ -8,9 +8,11 @@ import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, invoiceService, productService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import { handleError } from "@/utils/responseHandler/error";
 
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
@@ -47,11 +49,7 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const {
-    handleApiError,
-    handleApiResult,
-    showError,
-  } = useErrorHandling();
+  const { showError, showSuccess } = useGlobalToast();
 
   // 5. Derived Values
   const storeId = selectedStore?.storeId;
@@ -173,10 +171,11 @@ const CreateInvoicePage = () => {
 
     try {
       setInvoiceLoading(true);
-      const result = await invoiceService.createDraftInvoice(invoiceData);
-      const handled = handleApiResult(result, t("invoice.invoiceCreatedSuccess"), "invoice-creation");
+      const raw = await invoiceService.createDraftInvoice(invoiceData);
+      const result = handleSuccess(raw);
 
-      if (handled.type === "success") {
+      if (result.success) {
+        showSuccess(t("invoice.invoiceCreatedSuccess") || "Invoice created successfully");
         const invoiceId = result?.data?.id || null;
 
         router.push(
@@ -186,7 +185,8 @@ const CreateInvoicePage = () => {
         );
       }
     } catch (error) {
-      handleApiError(error, "invoice-creation");
+      const errorResult = handleError(error);
+      showError(errorResult.message || t("errors.unknown") || "Failed to create invoice");
     } finally {
       setInvoiceLoading(false);
     }
