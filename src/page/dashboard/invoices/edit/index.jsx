@@ -11,21 +11,20 @@ import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
-import {
-    customerService,
-    invoiceService,
-    productService,
-  } from "@/service";
+  customerService,
+  invoiceService,
+  productService,
+} from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { handleSuccess } from "@/utils/responseHandler/success";
-import { handleError } from "@/utils/responseHandler/error";
+import useApiResponse from "@/hooks/useApiResponse";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
+  const { execute } = useApiResponse();
 
   // Local loading state for invoice update
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -33,7 +32,7 @@ const EditInvoicePage = ({ invoiceId }) => {
   // Local state for products and customers
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [_productsLoading, setProductsLoading] = useState(false);
+  const [, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // Refs to prevent duplicate API calls
@@ -57,56 +56,57 @@ const EditInvoicePage = ({ invoiceId }) => {
     if (!selectedStore?.storeId || hasFetchedProducts.current) return;
     hasFetchedProducts.current = true;
 
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
+    setProductsLoading(true);
+    const result = await execute(
+      productService.getProducts({
         limit: 100,
         lightweight: true,
         store: selectedStore.storeId,
-      });
-      if (result.success) {
-        setProducts(result?.data || []);
-      }
-    } catch (_error) {
-      hasFetchedProducts.current = false; // Reset on error
-    } finally {
-      setProductsLoading(false);
+      }),
+      { showToast: false }
+    );
+    if (result?.success) {
+      setProducts(result?.data || []);
+    } else {
+      hasFetchedProducts.current = false;
     }
-  }, [selectedStore?.storeId]);
+    setProductsLoading(false);
+  }, [selectedStore?.storeId, execute]);
 
   // Fetch customers from API
   const fetchCustomers = useCallback(async () => {
     if (hasFetchedCustomers.current) return;
 
     hasFetchedCustomers.current = true;
+    setCustomersLoading(true);
 
-    try {
-      setCustomersLoading(true);
-      const params = {
-        limit: 100,
-        lightweight: true,
-      };
-      if (selectedStore?.storeId) {
-        params.store = selectedStore.storeId;
-      }
-
-      const result = await customerService.getCustomers(params);
-      if (result.success) {
-        const serializedOptions = [
-          { value: "", label: t("dashboard.walkInCustomer") },
-          ...(result.data || []).map((customer) => ({
-            value: customer.id || customer._id,
-            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
-          })),
-        ];
-        setCustomers(serializedOptions);
-      }
-    } catch (_error) {
-      hasFetchedCustomers.current = false; // Reset on error
-    } finally {
-      setCustomersLoading(false);
+    const params = {
+      limit: 100,
+      lightweight: true,
+    };
+    if (selectedStore?.storeId) {
+      params.store = selectedStore.storeId;
     }
-  }, [selectedStore?.storeId, t]);
+
+    const result = await execute(
+      customerService.getCustomers(params),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      const serializedOptions = [
+        { value: "", label: t("dashboard.walkInCustomer") },
+        ...(result.data || []).map((customer) => ({
+          value: customer.id || customer._id,
+          label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+        })),
+      ];
+      setCustomers(serializedOptions);
+    } else {
+      hasFetchedCustomers.current = false;
+    }
+    setCustomersLoading(false);
+  }, [selectedStore?.storeId, t, execute]);
 
   // Fetch invoice data
   const fetchInvoiceData = useCallback(async () => {
@@ -114,63 +114,58 @@ const EditInvoicePage = ({ invoiceId }) => {
       return;
     hasFetchedInvoice.current = true;
 
-    try {
-      setFetching(true);
-      setError(null);
+    setFetching(true);
+    setError(null);
 
-      const resultRaw = await invoiceService.getInvoices({
+    const result = await execute(
+      invoiceService.getInvoices({
         id: invoiceId,
         store: selectedStore.storeId,
-      });
-      const result = handleSuccess(resultRaw);
+      }),
+      { showToast: false }
+    );
 
-      if (result.success && result.data) {
-        const inv = result.data;
+    if (result?.success && result.data) {
+      const inv = result.data;
 
-        if (inv.invoiceStatus !== "DRAFT") {
-          setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
-          setFetching(false);
-          return;
-        }
-
-        // Transform invoice data to match form structure
-        const transformedItems = inv.items?.map((item) => {
-          const productObj = typeof item.product === 'object' ? item.product : {};
-          const productId = productObj.id || productObj._id || item.product;
-
-          return {
-            product: productId,
-            productName: productObj.name || "",
-            quantity: item.quantity || 1,
-            price: item.price || productObj.sellingPrice || productObj.price || 0,
-            total: item.total || 0,
-            gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
-            isInclusive: productObj.gstInfo && productObj.gstInfo.isGstIncluded !== undefined ? productObj.gstInfo.isGstIncluded : (item.isInclusive !== undefined ? item.isInclusive : false),
-            uom: productObj.uom || item.uom || "Unit",
-          };
-        }) || [];
-
-        setFormData({
-          customer: inv.customer?.id || inv.customer?._id || "",
-          totalDiscount: inv.totalDiscount || 0,
-          discountMode: inv.discountMode || "POST_TOTAL",
-          items: transformedItems,
-          orderSource: inv.orderSource || "POS",
-        });
-      } else {
-        setError(
-          result.message ||
-          t("errors.failedToFetchData", { item: t("common.invoice") })
-        );
+      if (inv.invoiceStatus !== "DRAFT") {
+        setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
+        setFetching(false);
+        return;
       }
-    } catch (_err) {
+
+      // Transform invoice data to match form structure
+      const transformedItems = inv.items?.map((item) => {
+        const productObj = typeof item.product === 'object' ? item.product : {};
+        const productId = productObj.id || productObj._id || item.product;
+
+        return {
+          product: productId,
+          productName: productObj.name || "",
+          quantity: item.quantity || 1,
+          price: item.price || productObj.sellingPrice || productObj.price || 0,
+          total: item.total || 0,
+          gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
+          isInclusive: productObj.gstInfo && productObj.gstInfo.isGstIncluded !== undefined ? productObj.gstInfo.isGstIncluded : (item.isInclusive !== undefined ? item.isInclusive : false),
+          uom: productObj.uom || item.uom || "Unit",
+        };
+      }) || [];
+
+      setFormData({
+        customer: inv.customer?.id || inv.customer?._id || "",
+        totalDiscount: inv.totalDiscount || 0,
+        discountMode: inv.discountMode || "POST_TOTAL",
+        items: transformedItems,
+        orderSource: inv.orderSource || "POS",
+      });
+    } else {
       setError(
-        t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
+        result?.message ||
+        t("errors.failedToFetchData", { item: t("common.invoice") })
       );
-    } finally {
-      setFetching(false);
     }
-  }, [invoiceId, selectedStore?.storeId, t]);
+    setFetching(false);
+  }, [invoiceId, selectedStore?.storeId, t, execute]);
 
   // Load products, customers, and invoice data on component mount
   useEffect(() => {
@@ -211,26 +206,19 @@ const EditInvoicePage = ({ invoiceId }) => {
       orderSource: formData.orderSource || "POS",
     };
 
-    try {
-      setInvoiceLoading(true);
-      const raw = await invoiceService.updateDraftInvoice(
-        invoiceId,
-        invoiceData
-      );
-      const result = handleSuccess(raw);
+    setInvoiceLoading(true);
+    const result = await execute(
+      invoiceService.updateDraftInvoice(invoiceId, invoiceData),
+      { message: t("invoice.updateSuccess") }
+    );
 
-      if (result.success) {
-        // Redirect to the updated invoice view page
-        router.push(`/dashboard/invoices/${invoiceId}`);
-      } else {
-        showError(result.message || t("invoice.updateError"));
-      }
-    } catch (_error) {
-      const errorResult = handleError(_error);
-      showError(errorResult.message || t("invoice.updateError"));
-    } finally {
-      setInvoiceLoading(false);
+    if (result?.success) {
+      // Redirect to the updated invoice view page
+      router.push(`/dashboard/invoices/${invoiceId}`);
+    } else {
+      showError(result?.message || t("invoice.updateError"));
     }
+    setInvoiceLoading(false);
   };
 
   useCommonHotkeys({

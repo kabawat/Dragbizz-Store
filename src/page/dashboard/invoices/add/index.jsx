@@ -7,12 +7,10 @@ import { CreateCustomer } from "@/components/customer";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, invoiceService, productService } from "@/service";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
-import { handleError } from "@/utils/responseHandler/error";
-
+import useApiResponse from "@/hooks/useApiResponse";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
@@ -31,9 +29,8 @@ const CreateInvoicePage = () => {
   // 1. Core Hooks & Selectors
   const router = useRouter();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   // Combine selectors for profile
-  const { selectedStore, agency: profileAgency } = useAppSelector((state) => state.profile);
+  const { selectedStore } = useAppSelector((state) => state.profile);
 
   // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -49,11 +46,11 @@ const CreateInvoicePage = () => {
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const { showError, showSuccess } = useGlobalToast();
+  const { showError } = useGlobalToast();
+  const { execute } = useApiResponse();
 
   // 5. Derived Values
   const storeId = selectedStore?.storeId;
-  const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
 
   // 6. Data Fetching Callbacks
   const fetchProducts = useCallback(async () => {
@@ -63,19 +60,21 @@ const CreateInvoicePage = () => {
     }
 
     productsFetchedRef.current = { storeId, fetched: true };
-    try {
-      const result = await productService.getProducts({
+    const result = await execute(
+      productService.getProducts({
         limit: 100,
         lightweight: true,
         store: storeId,
-      });
-      if (result.success) {
-        setProducts(result?.data || []);
-      }
-    } catch (_error) {
+      }),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      setProducts(result?.data || []);
+    } else {
       productsFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [storeId]);
+  }, [storeId, execute]);
 
   const fetchCustomers = useCallback(async () => {
     if (!storeId) return;
@@ -84,33 +83,33 @@ const CreateInvoicePage = () => {
     }
 
     customersFetchedRef.current = { storeId, fetched: true };
+    setCustomersLoading(true);
 
-    try {
-      setCustomersLoading(true);
-      const params = { limit: 100, lightweight: true, store: storeId };
-      const result = await customerService.getCustomers(params);
+    const params = { limit: 100, lightweight: true, store: storeId };
+    const result = await execute(
+      customerService.getCustomers(params),
+      { showToast: false }
+    );
 
-      if (result.success) {
-        const serializedOptions = [
-          { value: "", label: t("invoice.walkInCustomer") },
-          ...(result.data || []).map((customer) => ({
-            value: customer._id,
-            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
-          })),
-          {
-            value: "add-new-customer",
-            label: t("invoice.addNewCustomer"),
-            isAddOption: true,
-          },
-        ];
-        setCustomers(serializedOptions);
-      }
-    } catch (_error) {
+    if (result?.success) {
+      const serializedOptions = [
+        { value: "", label: t("invoice.walkInCustomer") },
+        ...(result.data || []).map((customer) => ({
+          value: customer._id || customer.id,
+          label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+        })),
+        {
+          value: "add-new-customer",
+          label: t("invoice.addNewCustomer"),
+          isAddOption: true,
+        },
+      ];
+      setCustomers(serializedOptions);
+    } else {
       customersFetchedRef.current = { storeId: null, fetched: false };
-    } finally {
-      setCustomersLoading(false);
     }
-  }, [storeId, t]);
+    setCustomersLoading(false);
+  }, [storeId, t, execute]);
 
   // 7. Effects
   useEffect(() => {
@@ -169,27 +168,24 @@ const CreateInvoicePage = () => {
       orderSource: formData.orderSource || "POS",
     };
 
-    try {
-      setInvoiceLoading(true);
-      const raw = await invoiceService.createDraftInvoice(invoiceData);
-      const result = handleSuccess(raw);
+    setInvoiceLoading(true);
+    const result = await execute(
+      invoiceService.createDraftInvoice(invoiceData),
+      { message: t("invoice.invoiceCreatedSuccess") || "Invoice created successfully" }
+    );
 
-      if (result.success) {
-        showSuccess(t("invoice.invoiceCreatedSuccess") || "Invoice created successfully");
-        const invoiceId = result?.data?.id || null;
+    if (result?.success) {
+      const createdId = result?.data?.id || null;
 
-        router.push(
-          invoiceId
-            ? `/dashboard/invoices/${invoiceId}`
-            : "/dashboard/invoices"
-        );
-      }
-    } catch (error) {
-      const errorResult = handleError(error);
-      showError(errorResult.message || t("errors.unknown") || "Failed to create invoice");
-    } finally {
-      setInvoiceLoading(false);
+      router.push(
+        createdId
+          ? `/dashboard/invoices/${createdId}`
+          : "/dashboard/invoices"
+      );
+    } else {
+      showError(result?.message || t("errors.unknown") || "Failed to create invoice");
     }
+    setInvoiceLoading(false);
   };
 
   // 9. Shortcuts
