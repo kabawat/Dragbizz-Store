@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -10,6 +10,7 @@ import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
@@ -27,10 +28,10 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
-  const [invoiceData, setInvoiceData] = useState(null);
+  const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const hasFetched = useRef(false);
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
 
@@ -44,17 +45,20 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const calculatedSubtotal = invoiceData ? calculateSubtotal(invoiceData, calculatedGstAmount, itemsWithGst) : 0;
 
   // Fetch invoice data
-  const fetchInvoiceData = useCallback(async () => {
+  const fetchInvoiceData = useCallback(async (forceRefetch = false) => {
     if (!invoiceId || !storeId) return;
-    try {
-      setFetching(true);
-      const result = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
-      if (result.success && result.data) setInvoiceData(result.data);
-      else showError(result.message || t("errors.failedToFetchData", { item: t("common.invoice") }));
-    } catch (_error) {
-      showError(t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") }));
-    } finally { setFetching(false); }
-  }, [invoiceId, storeId, showError, t]);
+    if (!forceRefetch && hasFetched.current) return;
+    hasFetched.current = true;
+
+    const result = await execute(
+      invoiceService.getInvoices({ id: invoiceId, store: storeId }),
+      { showToast: false }
+    );
+
+    if (!result?.success) {
+      showError(result?.message || t("errors.failedToFetchData", { item: t("common.invoice") }));
+    }
+  }, [invoiceId, storeId, execute, showError, t]);
 
   useEffect(() => { fetchInvoiceData(); }, [fetchInvoiceData]);
 
@@ -110,7 +114,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
           onClose={() => setShowPaymentStatusModal(false)}
           onSuccess={() => {
             showSuccess(t("invoice.paymentStatusUpdated"));
-            fetchInvoiceData();
+            fetchInvoiceData(true);
             setShowPaymentStatusModal(false);
           }}
           invoice={invoiceData}

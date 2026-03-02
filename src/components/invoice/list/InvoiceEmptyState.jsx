@@ -1,38 +1,43 @@
 "use client";
-import { Users } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 
-const CustomerEmptyState = ({ onClearSearch }) => {
+const InvoiceEmptyState = () => {
     const { t } = useTranslation();
-    const { error, searchValue } = useAppSelector((state) => state.customers);
+    const router = useRouter();
+    const { error } = useAppSelector((state) => state.invoices);
+
+    const handleAddInvoice = () => {
+        router.push("/dashboard/invoices/add");
+    };
+
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-16">
                 <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
-                    <Users className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+                    <FileText className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t("customers.noCustomers")}
+                    {t("common.noResults")}
                 </h3>
                 <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    {error
-                        ? `${t("common.error")}: ${error}`
-                        : searchValue
-                            ? t("common.noResults")
-                            : t("customers.description")}
+                    {error ? `${t("common.error")}: ${error}` : t("common.noData")}
                 </p>
                 <div className="pt-4 flex gap-3">
-                    {searchValue && onClearSearch && (
-                        <Button variant="outline" onClick={onClearSearch}>
-                            {t("common.clear")}
-                        </Button>
-                    )}
+                    <Button
+                        variant="primary"
+                        onClick={handleAddInvoice}
+                        leftIcon={Plus}
+                    >
+                        {t("invoice.createInvoice")}
+                    </Button>
                 </div>
             </div>
         </div>
     );
 };
 
-export default CustomerEmptyState;
+export default InvoiceEmptyState;

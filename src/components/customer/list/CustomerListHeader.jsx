@@ -22,8 +22,6 @@ const CustomerListHeader = ({
 
     const hasCustomers = customers.length > 0;
 
-    const storeId = selectedStore?.storeId || "";
-
     // search state lives here
     const [searchValue, setSearchValue] = useState("");
 

@@ -22,7 +22,7 @@ import { getErrorMessage } from "@/utils/errorHandling";
 import logger from "@/utils/logger";
 import { useAppSelector } from "@/store/hooks";
 
-const VoiceAICustomer = ({ onSuccess, onCancel }) => {
+const VoiceAICustomer = ({ onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";

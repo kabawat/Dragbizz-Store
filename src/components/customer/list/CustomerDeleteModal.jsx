@@ -4,9 +4,9 @@ import { Button } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeCustomer } from "@/store/slices/customers/customerSlice";
 import { customerService } from "@/service";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 
 const CustomerDeleteModal = forwardRef((_props, ref) => {
     const { t } = useTranslation();
@@ -18,7 +18,7 @@ const CustomerDeleteModal = forwardRef((_props, ref) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [customerToDelete, setCustomerToDelete] = useState(null);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const { execute, loading: isDeleting } = useApiResponse();
 
     // Expose open(customerId) to parent via ref
     useImperativeHandle(ref, () => ({
@@ -37,21 +37,18 @@ const CustomerDeleteModal = forwardRef((_props, ref) => {
 
     const handleConfirm = async () => {
         if (!customerToDelete) return;
-        setIsDeleting(true);
-        try {
-            const raw = await customerService.deleteCustomer(customerToDelete.id, storeId);
-            const result = handleSuccess(raw);
-            if (result.success) {
-                dispatch(removeCustomer(customerToDelete.id));
-                showSuccess(t("modals.deletedSuccessfully", { item: t("common.customer") }) || "Customer deleted successfully");
-                handleClose();
-            } else {
-                showError(result.message || "Failed to delete customer");
-            }
-        } catch {
-            showError("Failed to delete customer. Please try again.");
-        } finally {
-            setIsDeleting(false);
+
+        const result = await execute(
+            customerService.deleteCustomer(customerToDelete.id, storeId),
+            { showToast: false }
+        );
+
+        if (result?.success) {
+            dispatch(removeCustomer(customerToDelete.id));
+            showSuccess(t("modals.deletedSuccessfully", { item: t("common.customer") }) || "Customer deleted successfully");
+            handleClose();
+        } else {
+            showError(result?.message || "Failed to delete customer");
         }
     };
 

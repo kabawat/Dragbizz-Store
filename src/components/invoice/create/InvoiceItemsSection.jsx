@@ -35,7 +35,7 @@ const InvoiceItemsSection = ({
         );
 
         const gstRate = product.gstInfo?.gstRate || 0;
-        const isInclusive = product.gstInfo?.isGstIncluded ?? false;
+        const isInclusive = product.gstInfo && product.gstInfo.isGstIncluded !== undefined ? product.gstInfo.isGstIncluded : false;
         const uom = product.uom || "Unit";
 
         let updatedItems;
@@ -51,8 +51,8 @@ const InvoiceItemsSection = ({
                 quantity: newQuantity,
                 total: newTotal,
                 // Keep GST info in sync with product in case it changed
-                gstRate: existingItem.gstRate ?? gstRate,
-                isInclusive: existingItem.isInclusive ?? isInclusive,
+                gstRate: existingItem.gstRate !== undefined ? existingItem.gstRate : gstRate,
+                isInclusive: existingItem.isInclusive !== undefined ? existingItem.isInclusive : isInclusive,
             };
         } else {
             // Product doesn't exist, add as new item

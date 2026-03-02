@@ -8,7 +8,6 @@ const CustomerTable = ({
   onEdit,
   onDelete,
   onViewDetails,
-  loading = false,
   className = "",
 }) => {
   const { t } = useTranslation();

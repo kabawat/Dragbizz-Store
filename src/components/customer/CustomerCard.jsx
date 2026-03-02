@@ -8,16 +8,13 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
-import { Badge, IconButton } from "../ui";
+import { IconButton } from "../ui";
 
 const CustomerCard = ({
   customer,
   onEdit,
   onDelete,
-  onDuplicate,
   onViewDetails,
   className = "",
   ...props
@@ -25,7 +22,6 @@ const CustomerCard = ({
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
-  const { currentVariant, themeConfig } = useTheme();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -41,31 +37,7 @@ const CustomerCard = ({
     };
   }, []);
 
-  const _getStatusBadge = (status) => {
-    const config = getCommonStatusBadge(status, "general");
-    return <Badge variant={config.variant}>{config.text}</Badge>;
-  };
 
-  const _actionMenuItems = [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(customer.id),
-    },
-    {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(customer.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(customer.id),
-    },
-  ];
 
   const handleMenuToggle = (customerId) => {
     setOpenMenuId(openMenuId === customerId ? null : customerId);
@@ -155,10 +127,7 @@ const CustomerCard = ({
       <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4">
         {/* Customer Name */}
         <div>
-          <h3
-            className="font-bold text-md sm:text-xl mb-1"
-            style={{ color: themeConfig.text }}
-          >
+          <h3 className="font-bold text-md sm:text-xl mb-1 text-[rgb(var(--color-text-primary))]">
             {customer.name || t("common.notAvailable")}
           </h3>
         </div>
@@ -171,16 +140,10 @@ const CustomerCard = ({
               <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-blue-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p
-                className="text-xs sm:text-sm font-medium truncate"
-                style={{ color: themeConfig.text }}
-              >
+              <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
                 {customer.phone || t("common.notAvailable")}
               </p>
-              <p
-                className="text-xs"
-                style={{ color: themeConfig.textSecondary }}
-              >
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.phone")}
               </p>
             </div>
@@ -192,16 +155,10 @@ const CustomerCard = ({
               <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-green-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p
-                className="text-xs sm:text-sm font-medium truncate"
-                style={{ color: themeConfig.text }}
-              >
+              <p className="text-xs sm:text-sm font-medium truncate text-[rgb(var(--color-text-primary))]">
                 {customer.email || t("common.notAvailable")}
               </p>
-              <p
-                className="text-xs"
-                style={{ color: themeConfig.textSecondary }}
-              >
+              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
                 {t("common.email")}
               </p>
             </div>
@@ -211,10 +168,7 @@ const CustomerCard = ({
         {/* Customer Stats Section */}
         <div className="rounded-lg p-2 sm:p-3 md:p-4 space-y-1 sm:space-y-1.5 md:space-y-2 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] border border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
-            <span
-              className="text-xs sm:text-sm"
-              style={{ color: themeConfig.textSecondary }}
-            >
+            <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {t("common.status")}
             </span>
             <span className="text-xs sm:text-sm font-medium text-green-600">
@@ -222,16 +176,10 @@ const CustomerCard = ({
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span
-              className="text-xs sm:text-sm"
-              style={{ color: themeConfig.textSecondary }}
-            >
+            <span className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
               {t("customers.memberSince")}
             </span>
-            <span
-              className="text-xs sm:text-sm font-medium"
-              style={{ color: themeConfig.text }}
-            >
+            <span className="text-xs sm:text-sm font-medium text-[rgb(var(--color-text-primary))]">
               {new Date(customer.createdAt || Date.now()).toLocaleDateString()}
             </span>
           </div>

@@ -11,12 +11,15 @@ import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
-  customerService,
-  invoiceService,
-  productService,
-} from "@/service";
+import {
+    customerService,
+    invoiceService,
+    productService,
+  } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -115,10 +118,12 @@ const EditInvoicePage = ({ invoiceId }) => {
       setFetching(true);
       setError(null);
 
-      const result = await invoiceService.getInvoices({
+      const resultRaw = await invoiceService.getInvoices({
         id: invoiceId,
         store: selectedStore.storeId,
       });
+      const result = handleSuccess(resultRaw);
+
       if (result.success && result.data) {
         const inv = result.data;
 
@@ -140,7 +145,7 @@ const EditInvoicePage = ({ invoiceId }) => {
             price: item.price || productObj.sellingPrice || productObj.price || 0,
             total: item.total || 0,
             gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
-            isInclusive: productObj.gstInfo?.isGstIncluded ?? item.isInclusive ?? false,
+            isInclusive: productObj.gstInfo && productObj.gstInfo.isGstIncluded !== undefined ? productObj.gstInfo.isGstIncluded : (item.isInclusive !== undefined ? item.isInclusive : false),
             uom: productObj.uom || item.uom || "Unit",
           };
         }) || [];
@@ -208,18 +213,21 @@ const EditInvoicePage = ({ invoiceId }) => {
 
     try {
       setInvoiceLoading(true);
-      const result = await invoiceService.updateDraftInvoice(
+      const raw = await invoiceService.updateDraftInvoice(
         invoiceId,
         invoiceData
       );
+      const result = handleSuccess(raw);
+
       if (result.success) {
         // Redirect to the updated invoice view page
         router.push(`/dashboard/invoices/${invoiceId}`);
       } else {
-        showError(t("invoice.updateError"));
+        showError(result.message || t("invoice.updateError"));
       }
     } catch (_error) {
-      showError(t("invoice.updateError"));
+      const errorResult = handleError(_error);
+      showError(errorResult.message || t("invoice.updateError"));
     } finally {
       setInvoiceLoading(false);
     }
