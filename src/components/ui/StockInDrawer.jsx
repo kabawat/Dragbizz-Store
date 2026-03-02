@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import Input from "./Input";
 import Select from "./Select";
-import UpgradeModal from "./UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
@@ -28,20 +27,16 @@ const StockInDrawer = ({
   const [isLoading, setIsLoading] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Check if supplier_management feature is available
-  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT
-  );
+  // Hook to fetch subscription info if needed for other purposes
+  const { isLoading: featuresLoading } = useFeatureAccess();
   const { showError } = useGlobalToast();
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
     const storeId =
       selectedStore?.storeId;
-    if (!storeId || !hasSupplierManagement) return;
+    if (!storeId) return;
 
     try {
       setSuppliersLoading(true);
@@ -57,7 +52,7 @@ const StockInDrawer = ({
     } finally {
       setSuppliersLoading(false);
     }
-  }, [selectedStore, hasSupplierManagement]);
+  }, [selectedStore]);
 
   // Reset form when drawer opens/closes
   useEffect(() => {
@@ -68,11 +63,11 @@ const StockInDrawer = ({
         supplier: "",
       });
       setErrors({});
-      if (hasSupplierManagement) {
+      if (true) {
         fetchSuppliers();
       }
     }
-  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
+  }, [isOpen]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -149,11 +144,6 @@ const StockInDrawer = ({
   };
 
   const handleSupplierChange = (value) => {
-    // Check if user has supplier management access
-    if (!hasSupplierManagement && value) {
-      setShowUpgradeModal(true);
-      return;
-    }
     handleInputChange("supplier", value);
   };
 
@@ -281,7 +271,6 @@ const StockInDrawer = ({
               </div>
             </div>
 
-            {/* Supplier */}
             <div className="relative">
               <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                 Supplier
@@ -289,39 +278,13 @@ const StockInDrawer = ({
               <Select
                 value={formData.supplier}
                 onChange={handleSupplierChange}
-                options={hasSupplierManagement ? formattedSuppliers : []}
-                placeholder={
-                  !hasSupplierManagement
-                    ? "Enable supplier management to select supplier"
-                    : "Select supplier (optional)"
-                }
+                options={formattedSuppliers}
+                placeholder="Select supplier (optional)"
                 error={errors.supplier}
                 loading={suppliersLoading}
-                disabled={
-                  !hasSupplierManagement || suppliersLoading || featuresLoading
-                }
-                helperText={
-                  !hasSupplierManagement
-                    ? "Enable supplier management feature in your subscription to use this field"
-                    : "Optional: Choose the supplier for this stock"
-                }
+                disabled={suppliersLoading || featuresLoading}
+                helperText="Optional: Choose the supplier for this stock"
               />
-
-              {/* Upgrade Button */}
-              {!hasSupplierManagement && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowUpgradeModal(true);
-                  }}
-                  className="absolute right-3 top-9 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-warning))] hover:text-[rgb(var(--color-warning))]/80 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                  title="Upgrade to enable supplier management"
-                >
-                  <ArrowUp className="w-3.5 h-3.5" />
-                  <span>Upgrade</span>
-                </button>
-              )}
             </div>
 
             {/* Total Calculation */}
@@ -365,16 +328,6 @@ const StockInDrawer = ({
         </div>
       </div>
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        featureName="Supplier Management"
-        requiredFeature={
-          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
-          "Supplier Management"
-        }
-      />
     </div>
   );
 };

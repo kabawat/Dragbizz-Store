@@ -1,52 +1,66 @@
 "use client";
-import { useState, useRef } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Users } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
-import { VoiceAICustomer } from "@/components/customer";
+import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setViewMode } from "@/store/slices/customers/customerSlice";
 
 const CustomerListHeader = ({
-    searchValue,
-    onSearchChange,
-    viewMode,
-    onViewModeChange,
-    onAddCustomer,
     onSuccess,
-    hasCustomers,
-    selectedStore,
-    t,
+    onSearchChange, // optional: notify parent if needed
 }) => {
-    const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
-    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
-    const searchInputRef = useRef(null);
+    const dispatch = useAppDispatch();
+    const { t } = useTranslation();
+
+    // viewMode, selectedStore & customers come from Redux directly
+    const { viewMode, customers } = useAppSelector((state) => state.customers);
+    const { selectedStore } = useAppSelector((state) => state.profile);
+
+    const hasCustomers = customers.length > 0;
 
     const storeId = selectedStore?.storeId || "";
 
-    // Component-level Hotkeys
+    // search state lives here
+    const [searchValue, setSearchValue] = useState("");
+
+    const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
+    const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
+    const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
+
+    const searchInputRef = useRef(null);
+
+    const handleSearchChange = (value) => {
+        setSearchValue(value);
+        onSearchChange?.(value);
+    };
+
+    const handleViewModeChange = (mode) => {
+        dispatch(setViewMode(mode));
+        localStorage.setItem("customers-view-mode", mode);
+    };
+
+    const handleCustomerSuccess = (customerData) => {
+        setShowCustomerDrawer(false);
+        onSuccess?.(customerData);
+    };
+
     useCommonHotkeys({
+        onNew: () => setShowCustomerDrawer(true),
         onDownload: () => setShowDownloadDrawer(true),
-        onSearch: () => {
-            if (searchInputRef.current) {
-                searchInputRef.current.focus();
-            }
-        },
-        onViewTable: () => onViewModeChange("table"),
-        onViewGrid: () => onViewModeChange("card"),
+        onSearch: () => searchInputRef.current?.focus(),
+        onViewTable: () => handleViewModeChange("table"),
+        onViewGrid: () => handleViewModeChange("card"),
         onVoiceAI: () => setShowVoiceAIDrawer(true),
         onClose: () => {
-            if (showDownloadDrawer) setShowDownloadDrawer(false);
+            if (showCustomerDrawer) setShowCustomerDrawer(false);
+            else if (showDownloadDrawer) setShowDownloadDrawer(false);
             else if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
-        }
+        },
     });
-
-    const handleVoiceAICustomer = () => {
-        setShowVoiceAIDrawer(true);
-    };
-
-    const handleDownload = () => {
-        setShowDownloadDrawer(true);
-    };
 
     return (
         <div className="mb-3">
@@ -57,7 +71,7 @@ const CustomerListHeader = ({
                         type="text"
                         placeholder={`${t("common.search")} ${t("customers.title").toLowerCase()}...`}
                         value={searchValue}
-                        onChange={(value) => onSearchChange(value)}
+                        onChange={handleSearchChange}
                         leftIcon={Search}
                         className="w-100"
                     />
@@ -67,7 +81,7 @@ const CustomerListHeader = ({
                     {hasCustomers && (
                         <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
                             <button
-                                onClick={() => onViewModeChange("table")}
+                                onClick={() => handleViewModeChange("table")}
                                 className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
                                     ? "bg-[rgb(var(--color-primary))] text-white"
                                     : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
@@ -77,7 +91,7 @@ const CustomerListHeader = ({
                                 {t("common.tableView")}
                             </button>
                             <button
-                                onClick={() => onViewModeChange("card")}
+                                onClick={() => handleViewModeChange("card")}
                                 className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
                                     ? "bg-[rgb(var(--color-primary))] text-white"
                                     : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
@@ -91,7 +105,7 @@ const CustomerListHeader = ({
 
                     <Button
                         variant="secondary"
-                        onClick={handleDownload}
+                        onClick={() => setShowDownloadDrawer(true)}
                         className="flex items-center gap-2 h-9"
                     >
                         <Download className="w-4 h-4" />
@@ -100,20 +114,43 @@ const CustomerListHeader = ({
 
                     <Button
                         variant="secondary"
-                        onClick={handleVoiceAICustomer}
+                        onClick={() => setShowVoiceAIDrawer(true)}
                         className="flex items-center gap-2 h-9"
                     >
                         <Mic className="w-4 h-4" />
                         {t("customers.voiceAI")}
                     </Button>
 
-                    <Button variant="primary" onClick={onAddCustomer} leftIcon={Plus}>
+                    <Button
+                        variant="primary"
+                        onClick={() => setShowCustomerDrawer(true)}
+                        leftIcon={Plus}
+                    >
                         {t("customers.addCustomer")}
                     </Button>
                 </div>
             </div>
 
-            {/* Content-specific Drawers kept inside the component */}
+            {/* Create Customer Drawer */}
+            <SideDrawer
+                isOpen={showCustomerDrawer}
+                onClose={() => setShowCustomerDrawer(false)}
+                title={t("customers.addNewCustomer")}
+                icon={Users}
+                width="w-full md:w-2/3 lg:w-1/2"
+            >
+                <div className="p-6 h-full">
+                    <CreateCustomer
+                        onSuccess={handleCustomerSuccess}
+                        onCancel={() => setShowCustomerDrawer(false)}
+                        showCancelButton={true}
+                        autoRedirect={false}
+                        mode="drawer"
+                    />
+                </div>
+            </SideDrawer>
+
+            {/* Download Drawer */}
             {showDownloadDrawer && (
                 <CustomerDownloadDrawer
                     isOpen={showDownloadDrawer}
@@ -121,6 +158,7 @@ const CustomerListHeader = ({
                 />
             )}
 
+            {/* Voice AI Drawer */}
             <SideDrawer
                 isOpen={showVoiceAIDrawer}
                 onClose={() => setShowVoiceAIDrawer(false)}
@@ -131,9 +169,8 @@ const CustomerListHeader = ({
             >
                 <div className="h-full">
                     <VoiceAICustomer
-                        storeId={storeId}
                         onSuccess={(customerData) => {
-                            onSuccess(customerData);
+                            onSuccess?.(customerData);
                             setShowVoiceAIDrawer(false);
                         }}
                         onCancel={() => setShowVoiceAIDrawer(false)}

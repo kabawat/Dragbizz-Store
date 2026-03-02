@@ -10,7 +10,6 @@ import { AIProductExtract, ProductForm } from "@/components/product";
 import { AIButton, Button } from "@/components/ui";
 import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
@@ -22,11 +21,6 @@ const AddProductPage = () => {
   const storeId =
     selectedStore?.storeId || "";
 
-
-  // Get quota information for frontend validation
-  const { quota, isLoading: quotaLoading } =
-    useUsageQuota("product_management");
-
   const [loading, setLoading] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const {
@@ -34,21 +28,10 @@ const AddProductPage = () => {
     handleApiResult,
     fieldErrors,
     setFieldErrors,
-    QuotaModal,
     showSuccess,
     clearFieldErrors,
-    setShowQuotaModal,
-    setQuotaErrorManually,
   } = useErrorHandling();
 
-  // Check if quota is available
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true; // Allow if quota not loaded yet
-    if (quota.remaining === -1 || quota.limit === -1) return true; // Unlimited
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
-
-  const quotaExceeded = !isQuotaAvailable();
   const getInitialFormData = () => ({
     store: storeId,
     name: "",
@@ -133,12 +116,6 @@ const AddProductPage = () => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
-    // Frontend validation: Check quota before making API call
-    if (!isQuotaAvailable()) {
-      setShowQuotaModal(true);
-      return;
-    }
-
     try {
       setLoading(true);
       clearFieldErrors();
@@ -357,12 +334,6 @@ const AddProductPage = () => {
               {/* Fixed Action Bar - Only show when store is loaded and available */}
               <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
                 <div className="flex items-center justify-between">
-                  {/* Quota exceeded warning message */}
-                  {quotaExceeded && !quotaLoading && (
-                    <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
-                      <span>⚠️ {t("products.quotaExceededMessage")}</span>
-                    </div>
-                  )}
                   <div className="flex items-center space-x-3 ml-auto">
                     <Button
                       variant="outline"
@@ -374,10 +345,9 @@ const AddProductPage = () => {
                     <Button
                       variant="success"
                       onClick={handleSaveAndPublish}
-                      disabled={loading || quotaExceeded || quotaLoading}
+                      disabled={loading}
                       loading={loading}
                       leftIcon={Save}
-                      title={quotaExceeded ? t("quota.quotaExceeded") : ""}
                     >
                       {t("products.saveAndPublish")}
                     </Button>
@@ -388,9 +358,6 @@ const AddProductPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Quota Exceeded Modal */}
-      {QuotaModal}
 
       {/* AI Product Extract Modal */}
       {showAIModal && (

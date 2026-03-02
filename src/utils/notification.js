@@ -3,11 +3,11 @@ import { User, ShoppingCart, Bell, AlertTriangle, CreditCard, Info, Lightbulb } 
 export const getNotificationConfig = (type, data) => {
     const configs = {
         SALE_ORDER_CUSTOMER: {
-            url: data?.customer ? `/dashboard/customers/view/${data.customer}` : "#",
+            url: data?.customer ? `/dashboard/customers/${data.customer}` : "#",
             icon: <User className="w-5 h-5 text-blue-500" />
         },
         SALES_ORDER: {
-            url: data?.order ? `/dashboard/sales-order/view/${data.order}` : "#",
+            url: data?.order ? `/dashboard/sales-order/${data.order}` : "#",
             icon: <ShoppingCart className="w-5 h-5 text-green-500" />
         },
         STOCK_ALERT: {

@@ -1,26 +1,40 @@
 "use client";
 import { useCallback, useState } from "react";
-import { QuotaExceededModal } from "@/components/common";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { handleError, handleServiceResult } from "@/utils/errorHandling";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 export const useErrorHandling = () => {
   const { showError, showSuccess } = useGlobalToast();
-  const [quotaError, setQuotaError] = useState(null);
-  const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+
+  const { showUpgradeModal } = useSubscription();
 
   const handleApiError = useCallback(
     (error, context = "general") => {
+      // Extract error payload
+      const errorData = error?.response?.data || error?.error || error;
+      const code = errorData?.code;
+      const message = errorData?.message || "An error occurred";
+
+      // Intercept Subscription / Quota errors
+      if (code === "SUBSCRIPTION_REQUIRED" || code === "FEATURE_NOT_AVAILABLE") {
+        showUpgradeModal(message, "UPGRADE");
+        return { type: "general", handled: true, message };
+      }
+
+      if (code === "QUOTA_EXCEEDED") {
+        showUpgradeModal(message, "QUOTA");
+        return { type: "general", handled: true, message };
+      }
+
       return handleError(error, {
         showToast: showError,
         setFieldErrors,
-        setQuotaError,
-        setShowQuotaModal,
         context,
       });
     },
-    [showError]
+    [showError, showUpgradeModal]
   );
 
   const handleApiResult = useCallback(
@@ -28,8 +42,6 @@ export const useErrorHandling = () => {
       return handleServiceResult(result, {
         showToast: result?.success ? showSuccess : showError,
         setFieldErrors,
-        setQuotaError,
-        setShowQuotaModal,
         successMessage,
         context,
       });
@@ -38,8 +50,6 @@ export const useErrorHandling = () => {
   );
 
   const clearErrors = useCallback(() => {
-    setQuotaError(null);
-    setShowQuotaModal(false);
     setFieldErrors({});
   }, []);
 
@@ -61,22 +71,6 @@ export const useErrorHandling = () => {
     [fieldErrors]
   );
 
-  const setQuotaErrorManually = useCallback((quotaData) => {
-    setQuotaError(quotaData);
-    setShowQuotaModal(true);
-  }, []);
-
-  const QuotaModal = showQuotaModal
-    ? <QuotaExceededModal
-        isOpen={showQuotaModal}
-        onClose={() => setShowQuotaModal(false)}
-        message={quotaError?.message}
-        quota={quotaError?.quota}
-        resetTime={quotaError?.resetTime}
-        canUpgrade={quotaError?.canUpgrade}
-      />
-    : null;
-
   return {
     handleApiError,
     handleApiResult,
@@ -86,11 +80,6 @@ export const useErrorHandling = () => {
     getFieldError,
     fieldErrors,
     setFieldErrors,
-    quotaError,
-    showQuotaModal,
-    setShowQuotaModal,
-    setQuotaErrorManually,
-    QuotaModal,
     showError,
     showSuccess,
   };

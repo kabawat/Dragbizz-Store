@@ -161,11 +161,11 @@ const ExpensesPage = () => {
   };
 
   const handleEditExpense = (expense) => {
-    router.push(`/dashboard/expenses/edit/${expense.id}`);
+    router.push(`/dashboard/expenses/${expense.id}/edit`);
   };
 
   const handleViewExpense = (expense) => {
-    router.push(`/dashboard/expenses/view/${expense.id}`);
+    router.push(`/dashboard/expenses/${expense.id}`);
   };
 
   const handleDeleteExpense = (expense) => {
