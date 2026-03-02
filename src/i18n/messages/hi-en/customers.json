@@ -129,5 +129,9 @@
   "fieldCreatedAt": "Created At",
   "fieldUpdatedAt": "Updated At",
   "pleaseSelectTimePeriod": "Kripya ek time period select karo",
-  "invalidDateRangeCustomers": "Invalid date range"
+  "invalidDateRangeCustomers": "Invalid date range",
+  "updateCustomer": "Customer Update karo",
+  "updateTipsTitle": "Customer Update Tips",
+  "updateTipsSubtitle": "Details sahi rakhon",
+  "viewDetails": "Customer ki details dekho"
 }

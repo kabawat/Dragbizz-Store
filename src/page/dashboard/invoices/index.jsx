@@ -263,16 +263,16 @@ const InvoicesPage = () => {
   };
 
   const handleEditInvoice = (invoiceId) => {
-    router.push(`/dashboard/invoices/edit/${invoiceId}`);
+    router.push(`/dashboard/invoices/${invoiceId}/edit`);
   };
 
   const handleViewInvoice = (invoiceId) => {
-    router.push(`/dashboard/invoices/view/${invoiceId}`);
+    router.push(`/dashboard/invoices/${invoiceId}`);
   };
 
   const handlePrintInvoice = (invoiceId) => {
     // Redirect to view invoice page
-    router.push(`/dashboard/invoices/view/${invoiceId}`);
+    router.push(`/dashboard/invoices/${invoiceId}`);
   };
 
   const handleReleaseInvoice = (invoice) => {

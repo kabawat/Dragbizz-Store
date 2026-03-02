@@ -19,7 +19,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
     handleApiResult,
     fieldErrors,
     setFieldErrors,
-    QuotaModal,
     clearFieldErrors,
   } = useErrorHandling();
 
@@ -186,7 +185,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </SideDrawer>
 
-      {QuotaModal}
     </>
   );
 };

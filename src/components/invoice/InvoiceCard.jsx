@@ -13,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStatusBadge } from "@/utils/statusBadge";
 import { Card, Badge, IconButton } from "../ui";
@@ -34,6 +35,7 @@ const InvoiceCard = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
   const { themeConfig } = useTheme();
+  const router = useRouter();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -225,7 +227,13 @@ const InvoiceCard = ({
 
   return (
     <Card
-      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] group overflow-hidden ${className}`}
+      className={`w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] group overflow-hidden cursor-pointer shadow-none hover:shadow-md hover:border-[rgb(var(--color-primary))]/30 transition-all duration-300 ease-out ${className}`}
+      onClick={(e) => {
+        // Prevent routing if clicking on action menu or customer section
+        if (e.target.closest('.action-menu-container') || e.target.closest('.customer-section')) return;
+        onViewDetails?.(invoice.id || invoice._id);
+      }}
+      title={t("common.viewDetails")}
       {...props}
     >
       {/* Header with Background Pattern */}
@@ -242,7 +250,7 @@ const InvoiceCard = ({
         </div>
 
         {/* Action Menu */}
-        <div className="relative" ref={menuRef}>
+        <div className="relative action-menu-container" ref={menuRef}>
           <IconButton onClick={() => setOpenMenuId(openMenuId ? null : invoiceId)} />
 
           {openMenuId === invoiceId && (
@@ -278,15 +286,24 @@ const InvoiceCard = ({
       <div className="p-4 sm:p-5 space-y-4">
         {/* Customer & Date */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
+          <div
+            className={`space-y-1 customer-section rounded-lg p-1.5 -ml-1.5 transition-colors ${invoice.customer?.id ? 'cursor-pointer group/customer hover:bg-[rgb(var(--color-bg-secondary))]' : ''}`}
+            onClick={(e) => {
+              if (invoice.customer?.id) {
+                e.stopPropagation();
+                router.push(`/dashboard/customers/${invoice.customer.id}`);
+              }
+            }}
+            title={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+          >
             <span className="text-[10px] uppercase font-bold tracking-widest text-[rgb(var(--color-text-tertiary))] block">
               {t("invoice.customer")}
             </span>
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                <User className="w-3 h-3 text-blue-500" />
+                <User className="w-3 h-3 text-blue-500 group-hover/customer:text-[rgb(var(--color-primary))]" />
               </div>
-              <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">
+              <span className={`text-sm font-semibold truncate ${invoice.customer?.id ? 'text-[rgb(var(--color-primary))] group-hover/customer:underline' : 'text-[rgb(var(--color-text-primary))]'}`}>
                 {invoice.customer?.name || t("invoice.walkInCustomer")}
               </span>
             </div>

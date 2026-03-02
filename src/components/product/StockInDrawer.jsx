@@ -2,7 +2,6 @@
 import { ArrowUp, Package, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
-import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -25,13 +24,9 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Check if supplier_management feature is available
-  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT
-  );
+  // Hook to fetch subscription info if needed for other purposes
+  const { isLoading: featuresLoading } = useFeatureAccess();
 
   // Reset form when drawer opens/closes
   useEffect(() => {
@@ -42,17 +37,17 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
         supplier: "",
       });
       setErrors({});
-      if (hasSupplierManagement) {
+      if (true) {
         fetchSuppliers();
       }
     }
-  }, [isOpen, hasSupplierManagement, fetchSuppliers]);
+  }, [isOpen]);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
     const storeId =
       selectedStore?.storeId;
-    if (!storeId || !hasSupplierManagement) return;
+    if (!storeId) return;
 
     try {
       setSuppliersLoading(true);
@@ -151,11 +146,6 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   };
 
   const handleSupplierChange = (value) => {
-    // Check if user has supplier management access
-    if (!hasSupplierManagement && value) {
-      setShowUpgradeModal(true);
-      return;
-    }
     handleInputChange("supplier", value);
   };
 
@@ -266,43 +256,17 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
             <div className="relative">
               <Select
                 label={t("inventory.supplierOptional")}
-                placeholder={
-                  !hasSupplierManagement
-                    ? t("inventory.enableSupplierManagementToSelect")
-                    : t("inventory.searchAndSelectSupplierOptional")
-                }
+                placeholder={t("inventory.searchAndSelectSupplierOptional")}
                 value={formData.supplier || ""}
                 onChange={handleSupplierChange}
                 error={errors.supplier}
                 errorMessage={errors.supplier}
                 searchable={true}
-                options={hasSupplierManagement ? formattedSuppliers : []}
+                options={formattedSuppliers}
                 loading={suppliersLoading}
-                disabled={
-                  !hasSupplierManagement || suppliersLoading || featuresLoading
-                }
-                helperText={
-                  !hasSupplierManagement
-                    ? t("inventory.enableSupplierManagementFeature")
-                    : t("inventory.optionalTypeToSearchSuppliers")
-                }
+                disabled={suppliersLoading || featuresLoading}
+                helperText={t("inventory.optionalTypeToSearchSuppliers")}
               />
-
-              {/* Upgrade Button */}
-              {!hasSupplierManagement && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowUpgradeModal(true);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-                  title={t("inventory.upgradeToEnableSupplierManagement")}
-                >
-                  <ArrowUp className="w-3.5 h-3.5" />
-                  <span>{t("common.upgrade")}</span>
-                </button>
-              )}
             </div>
 
             {/* Summary */}
@@ -378,16 +342,6 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
         </div>
       </div>
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        featureName="Supplier Management"
-        requiredFeature={
-          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
-          "Supplier Management"
-        }
-      />
     </>
   );
 };

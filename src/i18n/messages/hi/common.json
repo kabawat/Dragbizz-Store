@@ -1,5 +1,6 @@
 {
   "loading": "लोड हो रहा है...",
+  "loadingMore": "और लोड हो रहा है...",
   "error": "त्रुटि",
   "success": "सफल",
   "cancel": "रद्द करें",
@@ -149,9 +150,10 @@
   "addNew": "नया जोड़ें",
   "createNow": "अभी बनाएं",
   "confirmDelete": "क्या आप वाकई इस आइटम को हटाना चाहते हैं?",
-  "somethingWentWrong": "Something went wrong",
+  "somethingWentWrong": "कुछ गलत हो गया",
   "expense": "Expense",
   "expenses": "Expenses",
   "selected": "selected",
-  "gst": "GST"
+  "gst": "GST",
+  "scrollToLoadMore": "और लोड करने के लिए स्क्रॉल करें"
 }

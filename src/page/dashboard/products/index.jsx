@@ -41,6 +41,7 @@ import {
 // Import UI components
 import { Button, StockInDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
@@ -78,6 +79,7 @@ const ProductsPage = () => {
   const [showStockInDrawer, setShowStockInDrawer] = useState(false);
   const [productForStockIn, setProductForStockIn] = useState(null);
   const scrollRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   // Memoize storeId to avoid repeated calculations
   const storeId = useMemo(() => {
@@ -318,7 +320,8 @@ const ProductsPage = () => {
       if (result.payload?.success && result.payload?.data?.data) {
         dispatch(addMoreProducts(result.payload.data.data));
       }
-    } catch (_error) {
+    } catch (error) {
+      logger.error("Error loading more products:", error);
     } finally {
       setIsLoadingMore(false);
     }
@@ -365,10 +368,6 @@ const ProductsPage = () => {
     }
   }, [isLoadingMore, pagination.hasNextPage, handleLoadMore]);
 
-  const handleStoreChange = (_storeObject) => {
-    // Store change handled by Redux
-  };
-
   // Search
   const handleSearch = (value) => {
     setSearchValue(value);
@@ -397,7 +396,7 @@ const ProductsPage = () => {
   const handleEditProduct = useCallback(
     (productId) => {
       // Navigate to edit product
-      router.push(`/dashboard/products/edit/${productId}`);
+      router.push(`/dashboard/products/${productId}/edit`);
     },
     [router]
   );
@@ -405,7 +404,7 @@ const ProductsPage = () => {
   const handleViewProduct = useCallback(
     (productId) => {
       // Navigate to view product
-      router.push(`/dashboard/products/view/${productId}`);
+      router.push(`/dashboard/products/${productId}`);
     },
     [router]
   );
@@ -463,7 +462,9 @@ const ProductsPage = () => {
 
       setShowDeleteModal(false);
       setProductToDelete(null);
-    } catch (_error) {
+    } catch (error) {
+      logger.error("Error deleting product:", error);
+      showError(t("products.errorDeleting") || "Failed to delete product");
     } finally {
       setIsDeleting(false);
     }
@@ -483,9 +484,19 @@ const ProductsPage = () => {
     [dispatch]
   );
 
+  useCommonHotkeys({
+    onNew: handleAddProduct,
+    onSearch: () => {
+      if (searchInputRef.current) searchInputRef.current.focus();
+    },
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+    onBack: () => router.push("/dashboard"),
+  });
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar onStoreChange={handleStoreChange} />
+      <Sidebar />
 
       {/* Main content */}
       <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
@@ -525,6 +536,7 @@ const ProductsPage = () => {
                       placeholder={`${t("common.search")} ${t("products.title").toLowerCase()}...`}
                       value={searchValue}
                       onChange={(value) => handleSearch(value)}
+                      ref={searchInputRef}
                       leftIcon={Search}
                       className="w-100"
                     />

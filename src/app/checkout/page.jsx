@@ -5,7 +5,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import ProductHeader from "@/components/layout/ProductHeader";
 import { Button, Card, Input, Loading, Select } from "@/components/ui";
 import { getCurrencySymbol } from "@/data/constants/currencies";
-import { checkoutService, packageService, subscriptionService } from "@/service";
+import { checkoutService, packageService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 
 // Constants
@@ -65,8 +65,6 @@ const CheckoutContent = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [warning, setWarning] = useState(null);
-  const [existingSubscription, setExistingSubscription] = useState(null);
   const [formData, setFormData] = useState({
     months: DEFAULT_MONTHS,
     couponCode: "",
@@ -172,61 +170,12 @@ const CheckoutContent = () => {
         });
       }
     } catch (err) {
-      
+
       setError("Failed to load package. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [packageId]);
-
-  const checkExistingSubscription = useCallback(async () => {
-    if (!authProfile || !packageData) return;
-
-    try {
-      const response = await subscriptionService.getActiveSubscription();
-      if (response.success && response.data) {
-        setExistingSubscription(response.data);
-
-        const existingPackageId = response.data.packageId?._id || response.data.packageId;
-        const newPackageId = packageData._id || packageData.id;
-
-        if (existingPackageId === newPackageId) {
-          const endDate = new Date(response.data.endDate);
-          const now = new Date();
-          const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-
-          if (daysRemaining > 30) {
-            setWarning({
-              type: 'renewal',
-              message: `You already have an active subscription for this package. ${daysRemaining} days remaining.`,
-              suggestion: 'You can renew closer to the expiry date.'
-            });
-          } else {
-            setWarning({
-              type: 'renewal',
-              message: `Your subscription expires in ${daysRemaining} days. Renew now to continue uninterrupted service.`
-            });
-          }
-        } else {
-          const existingPlanType = response.data.packageId?.planType || '';
-          const newPlanType = packageData.planType || '';
-          const planTypeOrder = { 'BASIC': 1, 'PROFESSIONAL': 2, 'ENTERPRISE': 3, 'CUSTOM': 4 };
-          const existingOrder = planTypeOrder[existingPlanType] || 0;
-          const newOrder = planTypeOrder[newPlanType] || 0;
-
-          if (newOrder < existingOrder) {
-            setWarning({
-              type: 'downgrade',
-              message: 'This is a downgrade. Your current subscription will remain active until expiry.',
-              isDowngrade: true
-            });
-          }
-        }
-      }
-    } catch (err) {
-      
-    }
-  }, [authProfile, packageData]);
 
   useEffect(() => {
     if (packageId) {
@@ -237,11 +186,6 @@ const CheckoutContent = () => {
     }
   }, [packageId, fetchPackage]);
 
-  useEffect(() => {
-    if (packageData && authProfile) {
-      checkExistingSubscription();
-    }
-  }, [packageData, authProfile, checkExistingSubscription]);
 
   // Handlers
   const handleCreateOrder = async () => {
@@ -261,17 +205,6 @@ const CheckoutContent = () => {
       return;
     }
 
-    if (existingSubscription && warning?.type === 'renewal') {
-      const endDate = new Date(existingSubscription.endDate);
-      const now = new Date();
-      const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-
-      if (daysRemaining > 30) {
-        setError("You already have an active subscription for this package. Please wait until closer to expiry date to renew.");
-        return;
-      }
-    }
-
     const { email, phone } = getUserContactInfo(authProfile, user);
 
     if (!email && !phone) {
@@ -284,7 +217,6 @@ const CheckoutContent = () => {
     try {
       setProcessing(true);
       setError(null);
-      setWarning(null);
 
       const orderPayload = {
         packageId,
@@ -299,22 +231,10 @@ const CheckoutContent = () => {
       if (response.success && response.data) {
         initializeRazorpay(response.data);
       } else {
-        if (response.data?.fields) {
-          const fields = response.data.fields;
-          setError(response.message || "Validation failed");
-          if (fields.suggestion) {
-            setWarning({
-              type: 'info',
-              message: fields.suggestion,
-              daysRemaining: fields.daysRemaining ? parseInt(fields.daysRemaining) : null
-            });
-          }
-        } else {
-          setError(response.message || "Failed to create order");
-        }
+        setError(response.message || "Failed to create order");
       }
     } catch (err) {
-      
+
       setError("Failed to create payment order. Please try again.");
     } finally {
       setProcessing(false);
@@ -377,7 +297,7 @@ const CheckoutContent = () => {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (err) {
-      
+
       setError("Failed to initialize payment. Please try again.");
       setProcessing(false);
     }
@@ -418,7 +338,7 @@ const CheckoutContent = () => {
         setError(response.message || "Payment verification failed");
       }
     } catch (err) {
-      
+
       setError("Payment verification failed. Please contact support.");
     } finally {
       setProcessing(false);
@@ -699,30 +619,6 @@ const CheckoutContent = () => {
                   </div>
                 </div>
 
-                {warning && (
-                  <div className={`p-4 rounded-lg border ${warning.type === 'downgrade'
-                    ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-                    : warning.type === 'renewal'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                      : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-                    }`}>
-                    <div className={`flex items-start gap-2 ${warning.type === 'downgrade'
-                      ? 'text-orange-700 dark:text-orange-400'
-                      : warning.type === 'renewal'
-                        ? 'text-blue-700 dark:text-blue-400'
-                        : 'text-yellow-700 dark:text-yellow-400'
-                      }`}>
-                      <Shield className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{warning.message}</p>
-                        {warning.suggestion && (
-                          <p className="text-xs mt-1 opacity-80">{warning.suggestion}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Payment Button */}
                 <div className="pt-4 border-t border-[rgb(var(--color-border-primary))]">
                   <Button
@@ -731,16 +627,11 @@ const CheckoutContent = () => {
                     fullWidth
                     onClick={handleCreateOrder}
                     loading={processing}
-                    disabled={processing || (warning?.type === 'renewal' && existingSubscription && (() => {
-                      const endDate = new Date(existingSubscription.endDate);
-                      const now = new Date();
-                      const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-                      return daysRemaining > 30;
-                    })())}
+                    disabled={processing}
                     rightIcon={CreditCard}
                     className="text-lg py-4"
                   >
-                    {processing ? "Processing..." : warning?.type === 'downgrade' ? "Schedule Downgrade" : "Proceed to Payment"}
+                    {processing ? "Processing..." : "Proceed to Payment"}
                   </Button>
 
                   {error && (

@@ -1,22 +1,23 @@
-// Import all inventory components
-
-import InventoryCard from "./InventoryCard";
-import InventoryDetailsSection from "./InventoryDetailsSection";
-import InventoryForm from "./InventoryForm";
-import InventoryTable from "./InventoryTable";
+import InventoryCard from './InventoryCard';
+import InventoryDetailsSection from './InventoryDetailsSection';
+import InventoryForm from './InventoryForm';
+import InventoryTable from './InventoryTable';
+import DeleteInventoryModal from './DeleteInventoryModal';
 
 // Named exports
 export {
-  InventoryForm,
-  InventoryDetailsSection,
-  InventoryTable,
   InventoryCard,
+  InventoryDetailsSection,
+  InventoryForm,
+  InventoryTable,
+  DeleteInventoryModal,
 };
 
 // Default export
 export default {
-  InventoryForm,
-  InventoryDetailsSection,
-  InventoryTable,
   InventoryCard,
+  InventoryDetailsSection,
+  InventoryForm,
+  InventoryTable,
+  DeleteInventoryModal,
 };

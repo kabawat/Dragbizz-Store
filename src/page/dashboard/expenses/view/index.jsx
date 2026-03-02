@@ -92,7 +92,7 @@ const ViewExpensePage = ({ expenseId }) => {
 
   // Handle edit expense
   const handleEditExpense = () => {
-    router.push(`/dashboard/expenses/edit/${expenseId}`);
+    router.push(`/dashboard/expenses/${expenseId}/edit`);
   };
 
   // Handle delete expense

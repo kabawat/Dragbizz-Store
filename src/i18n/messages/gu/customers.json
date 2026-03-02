@@ -130,5 +130,9 @@
   "fieldCreatedAt": "બનાવ્યું",
   "fieldUpdatedAt": "અપડેટ કર્યું",
   "pleaseSelectTimePeriod": "કૃપા કરીને સમયગાળો પસંદ કરો",
-  "invalidDateRange": "અમાન્ય તારીખ રેંજ"
+  "invalidDateRange": "અમાન્ય તારીખ રેંજ",
+  "updateCustomer": "ગ્રાહક અપડેટ કરો",
+  "updateTipsTitle": "ગ્રાહક અપડેટ સૂચનો",
+  "updateTipsSubtitle": "વિગતો સચોટ રાખો",
+  "viewDetails": "ગ્રાહક વિગતો જુઓ"
 }

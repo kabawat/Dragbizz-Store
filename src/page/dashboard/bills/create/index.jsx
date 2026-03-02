@@ -33,12 +33,7 @@ const CreateBill = () => {
   const [formData, setFormData] = useState(formInit);
   const [errors, setErrors] = useState({});
 
-  const {
-    handleApiError,
-    handleApiResult,
-    QuotaModal,
-    showError,
-  } = useErrorHandling();
+  const { handleApiError, handleApiResult, showError } = useErrorHandling();
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -211,9 +206,7 @@ const CreateBill = () => {
           </div>
         </div>
       </div>
-      {QuotaModal}
-    </div>
-  );
+      );
 };
 
-export default CreateBill;
+      export default CreateBill;

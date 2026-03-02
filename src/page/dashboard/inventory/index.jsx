@@ -5,11 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 // Import inventory components
-import { InventoryCard, InventoryTable } from "@/components/inventory";
+import { InventoryCard, InventoryTable, DeleteInventoryModal } from "@/components/inventory";
 import { Button, Input, StockInDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-
+import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 // Import services
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
@@ -34,7 +34,6 @@ const InventoryPage = () => {
   // Modals
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [inventoryToDelete, setInventoryToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   // Stock In Drawer
   const [showStockInDrawer, setShowStockInDrawer] = useState(false);
@@ -49,6 +48,7 @@ const InventoryPage = () => {
   });
   const isFetchingRef = useRef(false);
   const lastFetchKeyRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   // Fetch inventories
   const fetchInventories = useCallback(
@@ -201,12 +201,8 @@ const InventoryPage = () => {
     router.push("/dashboard/stock/add");
   };
 
-  const handleEditStock = (inventoryId) => {
-    router.push(`/dashboard/stock/edit/${inventoryId}`);
-  };
-
   const handleViewStock = (inventoryId) => {
-    router.push(`/dashboard/stock/view/${inventoryId}`);
+    router.push(`/dashboard/stock/${inventoryId}`);
   };
 
   const handleStockIn = (inventoryId) => {
@@ -266,28 +262,11 @@ const InventoryPage = () => {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!inventoryToDelete) return;
-
-    try {
-      setIsDeleting(true);
-      await inventoryService.deleteInventory(inventoryToDelete.id);
-
-      // Remove from local state
-      setInventories((prev) =>
-        prev.filter((i) => i.id !== inventoryToDelete.id)
-      );
-      setSelectedInventories((prev) =>
-        prev.filter((id) => id !== inventoryToDelete.id)
-      );
-
-      setShowDeleteModal(false);
-      setInventoryToDelete(null);
-    } catch (_error) {
-      showError(t("common.failedToLoad"));
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDeleteSuccess = (deletedId) => {
+    setInventories((prev) => prev.filter((i) => i.id !== deletedId));
+    setSelectedInventories((prev) => prev.filter((id) => id !== deletedId));
+    setShowDeleteModal(false);
+    setInventoryToDelete(null);
   };
 
   const handleDuplicate = (_inventoryId) => { };
@@ -295,6 +274,16 @@ const InventoryPage = () => {
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
   };
+
+  useCommonHotkeys({
+    onNew: handleAddStock,
+    onSearch: () => {
+      if (searchInputRef.current) searchInputRef.current.focus();
+    },
+    onViewTable: () => handleViewModeChange("table"),
+    onViewGrid: () => handleViewModeChange("card"),
+    onBack: () => router.push("/dashboard"),
+  });
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -339,6 +328,7 @@ const InventoryPage = () => {
                       placeholder={`${t("common.search")} ${t("inventory.title").toLowerCase()}...`}
                       value={searchValue}
                       onChange={(e) => handleSearch(e.target.value)}
+                      ref={searchInputRef}
                       leftIcon={Search}
                       className="w-100"
                     />
@@ -417,7 +407,6 @@ const InventoryPage = () => {
                       <InventoryTable
                         inventories={inventories}
                         onViewDetails={handleViewStock}
-                        onEdit={handleEditStock}
                         onDelete={handleDeleteStock}
                         onDuplicate={handleDuplicate}
                         onStockIn={handleStockIn}
@@ -436,7 +425,6 @@ const InventoryPage = () => {
                             key={inventory.id}
                             inventory={inventory}
                             onViewDetails={handleViewStock}
-                            onEdit={handleEditStock}
                             onDelete={handleDeleteStock}
                             onDuplicate={handleDuplicate}
                             onStockIn={handleStockIn}
@@ -491,42 +479,12 @@ const InventoryPage = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border border-[rgb(var(--color-border-primary))]">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                Delete Stock
-              </h3>
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-6">
-                Are you sure you want to delete "{inventoryToDelete?.name}"?
-                This action cannot be undone.
-              </p>
-              <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteModal(false)}
-                  disabled={isDeleting}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={handleConfirmDelete}
-                  disabled={isDeleting}
-                  className="flex-1"
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteInventoryModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        inventoryToDelete={inventoryToDelete}
+        onDeleteSuccess={handleDeleteSuccess}
+      />
 
       {/* Stock In Drawer */}
       <StockInDrawer

@@ -5,7 +5,7 @@
   "addNewCustomer": "नया ग्राहक जोड़ें",
   "addNewCustomerDescription": "अपने डेटाबेस में एक नया ग्राहक जोड़ें",
   "saveCustomer": "ग्राहक सहेजें",
-  "createSuccess": "ग्राहक सफलतापूर्वक बनाया गया!",
+  "createSuccess": "🎉 ग्राहक सफलतापूर्वक जोड़ा गया!",
   "createError": "ग्राहक बनाने में विफल। कृपया पुनः प्रयास करें।",
   "editCustomer": "ग्राहक संपादित करें",
   "viewCustomer": "ग्राहक देखें",
@@ -127,6 +127,10 @@
   "fieldPhone": "Phone",
   "fieldEmail": "Email",
   "fieldAddress": "Address",
-  "fieldCreatedAt": "Created At",
-  "fieldUpdatedAt": "Updated At"
+  "fieldCreatedAt": "बनाया गया",
+  "fieldUpdatedAt": "अपडेट किया गया",
+  "updateCustomer": "ग्राहक अपडेट करें",
+  "updateTipsTitle": "ग्राहक अपडेट सुझाव",
+  "updateTipsSubtitle": "विवरण सटीक रखें",
+  "viewDetails": "ग्राहक विवरण देखें"
 }
