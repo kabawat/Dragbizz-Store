@@ -1,143 +1,35 @@
 "use client";
-import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { CreateCustomer, EditCustomer } from "@/components/customer";
+import { useEffect } from "react";
 import CustomerEmptyState from "@/components/customer/list/CustomerEmptyState";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-import { SideDrawer } from "@/components/ui";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { customerService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setViewMode } from "@/store/slices/customersSlice";
+import { getCustomers } from "@/store/slices/customers/customerSlice";
 
 const CustomersPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { viewMode } = useAppSelector((state) => state.customers);
+  const { customers, isLoading, error } = useAppSelector((state) => state.customers);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const [customers, setCustomers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({ hasNextPage: false, nextCursor: null });
-  const [searchValue, setSearchValue] = useState("");
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
-  const [showEditDrawer, setShowEditDrawer] = useState(false);
-  const [editCustomerId, setEditCustomerId] = useState(null);
-
-  const scrollRef = useRef(null);
-  const lastFetchRef = useRef(null);
-  const hasFetchedRef = useRef({ storeId: null, searchValue: null, fetched: false });
-
-  // Global page Hotkeys
-  useCommonHotkeys({
-    onNew: () => setShowCustomerDrawer(true),
-    onClose: () => {
-      if (showCustomerDrawer) setShowCustomerDrawer(false);
-    },
-    onBack: () => router.push("/dashboard"),
-  });
-
-  const fetchCustomers = useCallback(
-    async (isLoadMore = false, cursor = null) => {
-      if (!storeId && !isLoadMore) return;
-
-      const params = {
-        search: searchValue,
-        limit: 10,
-        nextCursor: isLoadMore ? cursor : null,
-        ...(storeId && { store: storeId })
-      };
-
-      const fetchKey = `${storeId}-${searchValue}-${isLoadMore}-${cursor}`;
-      if (lastFetchRef.current === fetchKey) return;
-
-      if (!isLoadMore) {
-        const lastFetched = hasFetchedRef.current;
-        if (lastFetched.fetched && lastFetched.storeId === storeId && lastFetched.searchValue === searchValue) return;
-      }
-
-      lastFetchRef.current = fetchKey;
-
-      try {
-        if (isLoadMore) setIsLoadingMore(true); else setIsLoading(!isLoadMore && customers.length === 0);
-        setError(null);
-
-        const result = await customerService.getCustomers(params);
-        if (result.success) {
-          const customersData = result.data?.data || result.data || [];
-          if (isLoadMore) setCustomers((prev) => [...prev, ...customersData]);
-          else {
-            setCustomers(customersData);
-            hasFetchedRef.current = { storeId, searchValue, fetched: true };
-          }
-          const p = result.pagination || result.data?.pagination;
-          setPagination({
-            hasNextPage: p?.hasNextPage ?? p?.hasNext ?? false,
-            nextCursor: p?.nextCursor ?? result.nextCursor ?? null,
-          });
-        } else setError(result.message || "Error");
-      } catch (err) { setError(err.message || "Error"); }
-      finally { if (isLoadMore) setIsLoadingMore(false); else setIsLoading(false); }
-    },
-    [storeId, searchValue, customers.length]
-  );
-
-  useEffect(() => {
-    lastFetchRef.current = null;
-    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
-    setPagination({ hasNextPage: false, nextCursor: null });
-  }, [storeId, searchValue]);
-
+  // ─── Initial fetch — skip if data already in Redux ──────────────────────
   useEffect(() => {
     if (!storeId) return;
-    const timer = setTimeout(() => fetchCustomers(false), 350);
-    return () => clearTimeout(timer);
-  }, [storeId, searchValue, fetchCustomers]);
+    if (customers.length > 0) return; // already cached, no need to refetch
+    dispatch(getCustomers({ store: storeId, isFreshLoad: true }));
+  }, [dispatch, storeId]);
 
-  const handleLoadMore = useCallback(async () => {
-    if (isLoadingMore || !pagination.hasNextPage || !pagination.nextCursor) return;
-    await fetchCustomers(true, pagination.nextCursor);
-  }, [isLoadingMore, pagination, fetchCustomers]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !pagination.hasNextPage || !pagination.nextCursor) return;
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      if (scrollTop + clientHeight >= scrollHeight - 100) handleLoadMore();
-    };
-    const el = scrollRef.current;
-    if (el) { el.addEventListener("scroll", handleScroll); return () => el.removeEventListener("scroll", handleScroll); }
-  }, [isLoadingMore, pagination, handleLoadMore]);
-
-  const handleCustomerSuccess = async () => {
-    lastFetchRef.current = null;
-    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
-    await fetchCustomers(false);
-    setShowCustomerDrawer(false);
-  };
-
-  const handleEditSuccess = async () => {
-    lastFetchRef.current = null;
-    hasFetchedRef.current = { storeId: null, searchValue: null, fetched: false };
-    await fetchCustomers(false);
-    setShowEditDrawer(false);
-    setEditCustomerId(null);
-  };
-
-  const handleEditOpen = (id) => {
-    setEditCustomerId(id);
-    setShowEditDrawer(true);
-  };
+  useCommonHotkeys({
+    onBack: () => router.push("/dashboard"),
+  });
 
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -146,18 +38,11 @@ const CustomersPage = () => {
         <Header title={t("customers.title")} description={t("customers.description")} />
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
-            <CustomerListHeader
-              searchValue={searchValue}
-              onSearchChange={setSearchValue}
-              viewMode={viewMode}
-              onViewModeChange={(m) => { dispatch(setViewMode(m)); localStorage.setItem("customers-view-mode", m); }}
-              onAddCustomer={() => setShowCustomerDrawer(true)}
-              onSuccess={handleCustomerSuccess}
-              hasCustomers={customers.length > 0}
-              selectedStore={selectedStore}
-              t={t}
-            />
 
+            {/* Header manages: search, viewMode, voiceAI, download, create — all internally */}
+            <CustomerListHeader />
+
+            {/* State 1: Initial loading — no customers yet */}
             {isLoading && customers.length === 0 && !error && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
                 <div className="text-center">
@@ -167,72 +52,14 @@ const CustomersPage = () => {
               </div>
             )}
 
-            <CustomerEmptyState
-              isLoading={isLoading}
-              customersCount={customers.length}
-              error={error}
-              searchValue={searchValue}
-              onClearSearch={() => setSearchValue("")}
-              onAddCustomer={() => setShowCustomerDrawer(true)}
-              t={t}
-            />
+            {/* State 2: Empty state — no customers after load */}
+            {!isLoading && customers.length === 0 && <CustomerEmptyState />}
 
-            <CustomerListContent
-              customers={customers}
-              setCustomers={setCustomers}
-              viewMode={viewMode}
-              isLoading={isLoading}
-              isLoadingMore={isLoadingMore}
-              pagination={pagination}
-              onLoadMore={handleLoadMore}
-              onEdit={handleEditOpen}
-              onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
-              scrollRef={scrollRef}
-              selectedStore={selectedStore}
-              t={t}
-            />
+            {/* State 3: Customer list + edit drawer + delete modal */}
+            {customers.length > 0 && <CustomerListContent />}
           </div>
         </div>
       </div>
-
-      <SideDrawer
-        isOpen={showCustomerDrawer}
-        onClose={() => setShowCustomerDrawer(false)}
-        title={t("customers.addNewCustomer")}
-        icon={Users}
-        width="w-full md:w-2/3 lg:w-1/2"
-      >
-        <div className="p-6 h-full">
-          <CreateCustomer
-            storeId={storeId || ""}
-            onSuccess={handleCustomerSuccess}
-            onCancel={() => setShowCustomerDrawer(false)}
-            showCancelButton={true}
-            autoRedirect={false}
-            mode="drawer"
-          />
-        </div>
-      </SideDrawer>
-
-      <SideDrawer
-        isOpen={showEditDrawer}
-        onClose={() => { setShowEditDrawer(false); setEditCustomerId(null); }}
-        title={t("customers.editCustomer") || "Edit Customer"}
-        icon={Users}
-        width="w-full md:w-2/3 lg:w-1/2"
-      >
-        <div className="p-6 h-full">
-          {editCustomerId && (
-            <EditCustomer
-              customerId={editCustomerId}
-              onSuccess={handleEditSuccess}
-              onCancel={() => { setShowEditDrawer(false); setEditCustomerId(null); }}
-              showCancelButton={true}
-              mode="drawer"
-            />
-          )}
-        </div>
-      </SideDrawer>
     </div>
   );
 };

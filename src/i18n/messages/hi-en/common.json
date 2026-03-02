@@ -1,5 +1,6 @@
 {
   "loading": "Loading ho raha hai...",
+  "loadingMore": "Aur load ho raha hai...",
   "error": "Error",
   "success": "Success",
   "cancel": "Cancel",
@@ -153,5 +154,6 @@
   "copied": "Copy ho gaya",
   "somethingWentWrong": "Something went wrong",
   "selected": "selected",
-  "gst": "GST"
+  "gst": "GST",
+  "scrollToLoadMore": "scroll To Load More"
 }

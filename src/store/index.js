@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import accountsSlice from "./slices/accountsSlice";
 import analyticsSlice from "./slices/analyticsSlice";
 import billsSlice from "./slices/billsSlice";
-import customersSlice from "./slices/customersSlice";
+import customerSlice from "./slices/customers/customerSlice";
 import expensesSlice from "./slices/expensesSlice";
 import gstSlice from "./slices/gstSlice";
 import invoicesSlice from "./slices/invoicesSlice";
@@ -28,7 +28,7 @@ export const store = configureStore({
     notifications: notificationsSlice,
     notificationSettings: notificationSettingsSlice,
     products: productsSlice,
-    customers: customersSlice,
+    customers: customerSlice,
     suppliers: suppliersSlice,
     bills: billsSlice,
     payments: paymentsSlice,

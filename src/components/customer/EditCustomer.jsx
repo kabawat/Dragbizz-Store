@@ -7,7 +7,11 @@ import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { customerService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import useApiResponse from "@/hooks/useApiResponse";
+import { updateCustomer } from "@/store/slices/customers/customerSlice";
+import INDIAN_STATES from "@/constants/indianStates";
 
 const EditCustomer = ({
     customerId,
@@ -17,13 +21,20 @@ const EditCustomer = ({
     mode = "drawer", // 'page' or 'drawer'
 }) => {
     const { t } = useTranslation();
-    const { showSuccess, showError } = useGlobalToast();
+    const { showError } = useGlobalToast();
+    const dispatch = useAppDispatch();
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
 
-    const [loading, setLoading] = useState(false);
+    const {
+        execute,
+        fieldErrors,
+        setFieldErrors,
+        clearAll,
+        loading
+    } = useApiResponse();
+
     const [fetching, setFetching] = useState(true);
-    const [fieldErrors, setFieldErrors] = useState({});
 
     // GST Verification Hook
     const gstVerification = useGstVerification({
@@ -49,28 +60,35 @@ const EditCustomer = ({
         addresses: null,
     });
 
-    const hasFetched = useRef(false);
-
-    // Reset fetch guard when customerId changes (e.g. drawer opens for different customer)
-    useEffect(() => {
-        hasFetched.current = false;
-        setFetching(true);
-        setFieldErrors({});
-    }, [customerId]);
+    const lastFetchedId = useRef(null);
 
     // Fetch existing customer data
     useEffect(() => {
         const fetchCustomerData = async () => {
-            if (!customerId || !storeId || hasFetched.current) return;
-            hasFetched.current = true;
+            if (!customerId || !storeId) return;
+            if (lastFetchedId.current === customerId) return;
+
+            lastFetchedId.current = customerId;
+            setFieldErrors({});
+            setFetching(true);
             try {
-                setFetching(true);
-                const result = await customerService.getCustomers({
+                const raw = await customerService.getCustomers({
                     id: customerId,
                     store: storeId,
                 });
+                const result = handleSuccess(raw);
                 if (result.success && result.data) {
                     const d = result.data;
+                    const resolveAddress = (addr) => {
+                        if (!addr) return null;
+                        let resolvedStateCode = addr.stateCode;
+                        if (!resolvedStateCode && addr.state) {
+                            const found = INDIAN_STATES.find(s => s.label.toLowerCase() === addr.state.toLowerCase());
+                            if (found) resolvedStateCode = found.value;
+                        }
+                        return { ...addr, stateCode: resolvedStateCode };
+                    };
+
                     setFormData({
                         store: storeId,
                         name: d.name || "",
@@ -84,8 +102,8 @@ const EditCustomer = ({
                         },
                         addresses: d.addresses
                             ? {
-                                billing: d.addresses.billing || null,
-                                shipping: d.addresses.shipping || null,
+                                billing: resolveAddress(d.addresses.billing),
+                                shipping: resolveAddress(d.addresses.shipping),
                             }
                             : null,
                     });
@@ -100,9 +118,6 @@ const EditCustomer = ({
         };
         fetchCustomerData();
     }, [customerId, storeId, t, showError]);
-
-    // Clear all field errors
-    const clearFieldErrors = () => setFieldErrors({});
 
     // Handle form field changes + per-field error clearing
     const handleFormDataChange = (fieldName, value) => {
@@ -133,53 +148,44 @@ const EditCustomer = ({
 
     // Handle save & update
     const handleSaveAndUpdate = async () => {
-        try {
-            setLoading(true);
-            clearFieldErrors();
+        // Frontend validation
+        const errors = {};
+        if (!formData.name?.trim()) {
+            errors.name = t("validation.required", {
+                field: t("customers.customerName"),
+            });
+        }
+        if (!formData.phone?.trim() && !formData.email?.trim()) {
+            const errorMsg =
+                t("validation.eitherPhoneOrEmailRequired") ||
+                "Either Phone or Email is required";
+            errors.phone = errorMsg;
+            errors.email = errorMsg;
+        }
 
-            // Frontend validation
-            const errors = {};
-            if (!formData.name?.trim()) {
-                errors.name = t("validation.required", {
-                    field: t("customers.customerName"),
-                });
-            }
-            if (!formData.phone?.trim() && !formData.email?.trim()) {
-                const errorMsg =
-                    t("validation.eitherPhoneOrEmailRequired") ||
-                    "Either Phone or Email is required";
-                errors.phone = errorMsg;
-                errors.email = errorMsg;
-            }
-            if (Object.keys(errors).length > 0) {
-                setFieldErrors(errors);
-                setLoading(false);
-                return;
-            }
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+        }
 
-            const result = await customerService.updateCustomer(
-                customerId,
-                formData,
-                storeId
-            );
+        clearAll();
 
-            if (result.success) {
-                showSuccess(t("customers.updateSuccess"));
-                if (onSuccess) onSuccess(result.data);
-            } else if (result?.error?.data?.fields) {
-                setFieldErrors(result.error.data.fields);
-            } else {
-                showError(
-                    result.message ||
-                    t("errors.failedToUpdate", { item: t("common.customer") })
-                );
-            }
-        } catch {
-            showError(
-                t("errors.failedToUpdateTryAgain", { item: t("common.customer") })
-            );
-        } finally {
-            setLoading(false);
+        const payload = { ...formData };
+        const gstin = payload.companyDetails?.gstin?.trim() || "";
+        const companyName = payload.companyDetails?.companyName?.trim() || "";
+        if (!gstin && !companyName) {
+            delete payload.companyDetails;
+        }
+
+        const result = await execute(
+            customerService.updateCustomer(customerId, payload, storeId),
+            { message: t("customers.updateSuccess") || "Customer updated successfully" }
+        );
+
+        if (result?.success && result?.data) {
+            const updatedCustomer = result.data.customer || result.data;
+            dispatch(updateCustomer(updatedCustomer));
+            if (onSuccess) onSuccess(updatedCustomer);
         }
     };
 
@@ -233,11 +239,10 @@ const EditCustomer = ({
             className={`flex flex-col ${mode === "drawer" ? "h-full" : "min-h-full"}`}
         >
             {/* Form Area */}
-            <div
-                className={`${mode === "drawer"
-                        ? "flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0"
-                        : "space-y-4 sm:space-y-6"
-                    }`}
+            <div className={`${mode === "drawer"
+                ? "flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0"
+                : "space-y-4 sm:space-y-6"
+                }`}
             >
                 <CustomerForm
                     formData={formData}
@@ -251,8 +256,8 @@ const EditCustomer = ({
             {(mode === "drawer" || showCancelButton) && (
                 <div
                     className={`flex-shrink-0 ${mode === "drawer"
-                            ? "bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6"
-                            : "mt-6 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4"
+                        ? "bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6"
+                        : "mt-6 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] pt-4"
                         } flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3`}
                 >
                     <Button
