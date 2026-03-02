@@ -107,8 +107,8 @@ export default function LoginForm({ onSuccess }) {
         const authData = authActionResult.payload?.data;
         const authRedirect = authActionResult.payload?.redirectTo;
 
-        // If agency_id is null, the auth redirect will point to onboarding
-        if (!authData?.agency_id) {
+        // If agencyId is null, the auth redirect will point to onboarding
+        if (!authData?.agencyId) {
             const successData = {
                 firstName: result.data?.user?.firstName || result.data?.firstName || "User",
             };
@@ -116,7 +116,7 @@ export default function LoginForm({ onSuccess }) {
             return;
         }
 
-        // 2. Fetch retailer details ONLY if we have an agency_id
+        // 2. Fetch retailer details ONLY if we have an agencyId
         const actionResult = await dispatch(getRetailerDetails({ forceRefresh: true }));
         const retailerData = actionResult.payload?.data;
         const thunkRedirectTo = actionResult.payload?.redirectTo;

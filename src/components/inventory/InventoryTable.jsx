@@ -15,7 +15,6 @@ import { renderStatusBadge } from "@/utils/statusBadge";
 
 const InventoryTable = ({
   inventories = [],
-  onEdit,
   onDelete,
   onDuplicate,
   onViewDetails,
@@ -87,12 +86,6 @@ const InventoryTable = ({
       className: "text-green-600 hover:text-green-700",
     },
     {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(inventory.id),
-    },
-    {
       value: "duplicate",
       label: t("common.duplicate"),
       icon: Copy,
@@ -118,9 +111,6 @@ const InventoryTable = ({
         break;
       case "stock-in":
         onStockIn?.(inventoryId);
-        break;
-      case "edit":
-        onEdit?.(inventoryId);
         break;
       case "duplicate":
         onDuplicate?.(inventoryId);
@@ -201,11 +191,10 @@ const InventoryTable = ({
               return (
                 <tr
                   key={inventory.id}
-                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${
-                    hoveredRow === index
+                  className={`group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] ${hoveredRow === index
                       ? "bg-[rgb(var(--color-bg-tertiary))]"
                       : ""
-                  }`}
+                    }`}
                   onMouseEnter={() => setHoveredRow(index)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
@@ -215,7 +204,7 @@ const InventoryTable = ({
                       {/* Product Image */}
                       <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-border-primary))]">
                         {inventory.product?.image &&
-                        !imageError[inventory.id] ? (
+                          !imageError[inventory.id] ? (
                           <Image
                             src={inventory.product.image}
                             alt={inventory.product.name}
@@ -342,15 +331,6 @@ const InventoryTable = ({
                           >
                             <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
                             Add Stock
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(inventory.id, "edit")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
                           </button>
                           <button
                             onClick={() =>

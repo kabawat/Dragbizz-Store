@@ -80,7 +80,7 @@ export default function AgencyCreation() {
         throw new Error(response.message || "An error occurred while creating agency.");
       }
 
-      // tenant + agency_id updated via backend-to-backend gRPC (retailer → auth)
+      // tenant + agencyId updated via backend-to-backend gRPC (retailer → auth)
       window.location.href = "/onboarding/store";
       // Intentionally not setting isCreating to false here so the loader spins until navigation completes
     } catch (_error) {

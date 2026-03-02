@@ -9,6 +9,7 @@
   "addSuccess": "Supplier created successfully!",
   "phoneOrEmailRequired": "Phone or email is required",
   "editSupplier": "Edit Supplier",
+  "updateSupplier": "Update Supplier",
   "updateSupplierInformationAndDetails": "Update supplier information and details",
   "deleteSupplier": "Delete Supplier",
   "supplierName": "Supplier Name",
