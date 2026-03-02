@@ -108,8 +108,8 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
         onClose();
 
         // Auto-redirect to view invoice page after successful release
-        if (router.pathname !== `/dashboard/invoices/view/[invoiceId]`) {
-          router.push(`/dashboard/invoices/view/${invoiceId}`);
+        if (router.pathname !== `/dashboard/invoices/${invoiceId}`) {
+          router.push(`/dashboard/invoices/${invoiceId}`);
         }
       } else {
         showError(

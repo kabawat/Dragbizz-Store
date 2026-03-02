@@ -7,17 +7,9 @@ import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStoreUpi } from "@/store/slices/storeUpiSlice";
-import {
-  UpiHeader,
-  UpiList,
-  UpiAddDrawer,
-  UpiEditDrawer,
-  UpiDeleteModal,
-} from "@/components/settings/upi";
+import { UpiHeader, UpiList, UpiAddDrawer, UpiEditDrawer, UpiDeleteModal, } from "@/components/settings/upi";
 
-/**
- * Payment tab - shows all agency UPI IDs (not store-specific)
- */
+// Payment tab - shows all agency UPI IDs (not store-specific)
 const ManageUpiSettings = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -72,8 +64,8 @@ const ManageUpiSettings = () => {
       } else {
         showError(
           error?.response?.data?.message ||
-            error?.message ||
-            "Failed to fetch stores"
+          error?.message ||
+          "Failed to fetch stores"
         );
         setStores([]);
       }

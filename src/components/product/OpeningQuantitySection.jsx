@@ -1,7 +1,6 @@
 "use client";
 import { ArrowUp, Calculator, Package, Truck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -19,16 +18,10 @@ const OpeningQuantitySection = ({
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Ref to prevent duplicate API calls
   const hasFetchedSuppliers = useRef(false);
-
-  // Check if supplier_management feature is available
-  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT
-  );
+  const { isLoading: featuresLoading } = useFeatureAccess();
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -36,7 +29,7 @@ const OpeningQuantitySection = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
-    if (!storeId || hasFetchedSuppliers.current || !hasSupplierManagement)
+    if (!storeId || hasFetchedSuppliers.current)
       return;
 
     hasFetchedSuppliers.current = true;
@@ -56,14 +49,14 @@ const OpeningQuantitySection = ({
     } finally {
       setSuppliersLoading(false);
     }
-  }, [storeId, hasSupplierManagement]);
+  }, [storeId]);
 
   // Fetch suppliers on component mount and when storeId or feature access changes
   useEffect(() => {
-    if (storeId && hasSupplierManagement && !featuresLoading) {
+    if (storeId && !featuresLoading) {
       fetchSuppliers();
     }
-  }, [storeId, fetchSuppliers, hasSupplierManagement, featuresLoading]);
+  }, [storeId, fetchSuppliers, featuresLoading]);
 
   // Format supplier options for dropdown
   const supplierOptions = [
@@ -136,7 +129,6 @@ const OpeningQuantitySection = ({
           </div>
         </div>
 
-        {/* Supplier Selection - Enabled only if supplier_management feature is available */}
         <div className="mb-6 relative">
           <Select
             label={t("products.supplier")}
@@ -153,32 +145,10 @@ const OpeningQuantitySection = ({
             errorMessage={errors.supplier}
             leftIcon={Truck}
             searchable={true}
-            options={hasSupplierManagement ? supplierOptions : []}
-            disabled={
-              !hasSupplierManagement || suppliersLoading || featuresLoading
-            }
-            helperText={
-              !hasSupplierManagement
-                ? t("products.enableSupplierManagement")
-                : t("products.selectSupplierHelperText")
-            }
+            options={supplierOptions}
+            disabled={suppliersLoading || featuresLoading}
+            helperText={t("products.selectSupplierHelperText")}
           />
-
-          {/* Upgrade Button - Right Side */}
-          {!hasSupplierManagement && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowUpgradeModal(true);
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-              title={t("products.upgradeToEnableSupplier")}
-            >
-              <ArrowUp className="w-3.5 h-3.5" />
-              <span>{t("common.upgrade")}</span>
-            </button>
-          )}
         </div>
 
         {/* Expiry Date - only when store/category has hasExpiryDate */}
@@ -201,7 +171,7 @@ const OpeningQuantitySection = ({
 
         {/* Opening Stock Summary */}
         {formData.openingStock?.quantity ||
-        formData.openingStock?.purchasePrice ? (
+          formData.openingStock?.purchasePrice ? (
           <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
@@ -260,16 +230,6 @@ const OpeningQuantitySection = ({
         )}
       </div>
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        featureName={t("products.supplierManagement")}
-        requiredFeature={
-          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
-          t("products.supplierManagement")
-        }
-      />
     </>
   );
 };

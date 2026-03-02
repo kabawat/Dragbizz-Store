@@ -1,6 +1,6 @@
 {
   "title": "Products",
-  "description": "Description",
+  "description": "Apne store inventory aur products ko manage karein",
   "addProduct": "Product add karo",
   "editProduct": "Product edit karo",
   "deleteProduct": "Product delete karo",

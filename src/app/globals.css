@@ -2432,3 +2432,15 @@ body>div[style*="z-index: 999999"] {
     transform: rotate(0);
   }
 }
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

@@ -1,21 +1,16 @@
 "use client";
-import {
-  Building,
-  Download,
-  Grid3X3,
-  List,
-  Mic,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Mic } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import {
   AddSupplierDrawer,
+  DeleteSupplierModal,
   EditSupplierDrawer,
   SupplierCard,
+  SupplierEmptyState,
+  SupplierHeaderActions,
   SupplierTable,
   VoiceAISupplier,
 } from "@/components/supplier";
@@ -275,11 +270,11 @@ const SuppliersPage = () => {
   };
 
   const handleViewSupplier = (supplierId) => {
-    router.push(`/dashboard/suppliers/view/${supplierId}`);
+    router.push(`/dashboard/suppliers/${supplierId}`);
   };
 
   const handlePrintSupplier = (supplierId) => {
-    router.push(`/dashboard/suppliers/view/${supplierId}?print=true`);
+    router.push(`/dashboard/suppliers/${supplierId}?print=true`);
   };
 
   // Menu action handler
@@ -360,112 +355,22 @@ const SuppliersPage = () => {
         <div className="flex-1 p-5">
           <div className="max-w-8xl mx-auto">
             {/* Search and actions */}
-            <div className="mb-3">
-              <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                {/* Search (always visible) */}
-                <div className="w-100">
-                  <Input
-                    type="text"
-                    placeholder={`${t("common.search")} ${t("suppliers.title").toLowerCase()}...`}
-                    value={searchValue}
-                    onChange={(value) => handleSearch(value)}
-                    leftIcon={Search}
-                    className="w-100"
-                  />
-                </div>
-
-                {/* Filters & Actions */}
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className="min-w-[160px]">
-                    <Select
-                      placeholder="Account Status"
-                      value={accountStatus}
-                      onChange={setAccountStatus}
-                      options={[
-                        { value: "", label: "All statuses" },
-                        { value: "ACTIVE", label: "Active" },
-                        { value: "INACTIVE", label: "Inactive" },
-                        { value: "SUSPENDED", label: "Suspended" },
-                      ]}
-                      clearable
-                    />
-                  </div>
-                  <div className="min-w-[150px]">
-                    <Select
-                      placeholder="Risk Level"
-                      value={riskLevel}
-                      onChange={setRiskLevel}
-                      options={[
-                        { value: "", label: "All risk levels" },
-                        { value: "LOW", label: "Low" },
-                        { value: "MEDIUM", label: "Medium" },
-                        { value: "HIGH", label: "High" },
-                      ]}
-                      clearable
-                    />
-                  </div>
-                  <div className="min-w-[140px]">
-                    <Select
-                      placeholder="Status"
-                      value={isActive}
-                      onChange={setIsActive}
-                      options={[
-                        { value: "", label: "All" },
-                        { value: "true", label: "Active" },
-                        { value: "false", label: "Inactive" },
-                      ]}
-                      clearable
-                    />
-                  </div>
-                  {/* View Toggle (hide when no data) */}
-                  {suppliers.length > 0 && (
-                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                          ? "bg-[rgb(var(--color-primary))] text-white"
-                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                          }`}
-                      >
-                        <List className="w-4 h-4" />
-                        {t("common.tableView")}
-                      </button>
-                      <button
-                        onClick={() => handleViewModeChange("card")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card"
-                          ? "bg-[rgb(var(--color-primary))] text-white"
-                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                          }`}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        {t("common.cardView")}
-                      </button>
-                    </div>
-                  )}
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowDownloadDrawer(true)}
-                    leftIcon={Download}
-                  >
-                    {t("common.download")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowVoiceAIDrawer(true)}
-                    leftIcon={Mic}
-                  >
-                    {t("customers.voiceAI")}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleAddSupplier}
-                    leftIcon={Plus}
-                  >
-                    {t("suppliers.addSupplier")}
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <SupplierHeaderActions
+              searchValue={searchValue}
+              onSearchChange={(value) => handleSearch(value)}
+              accountStatus={accountStatus}
+              onAccountStatusChange={setAccountStatus}
+              riskLevel={riskLevel}
+              onRiskLevelChange={setRiskLevel}
+              isActive={isActive}
+              onIsActiveChange={setIsActive}
+              suppliersCount={suppliers.length}
+              viewMode={viewMode}
+              onViewModeChange={handleViewModeChange}
+              onDownloadClick={() => setShowDownloadDrawer(true)}
+              onVoiceAIClick={() => setShowVoiceAIDrawer(true)}
+              onAddSupplierClick={handleAddSupplier}
+            />
 
             {isLoading && suppliers.length === 0 && (
               <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
@@ -485,35 +390,10 @@ const SuppliersPage = () => {
 
             {/* Empty State */}
             {!isLoading && suppliers.length === 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
-                <div className="flex flex-col items-center justify-center py-16">
-                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
-                    <Building className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t("suppliers.noSuppliers")}
-                  </h3>
-                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    {t("common.noData")}
-                  </p>
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
-                      <p className="text-red-600 text-sm">
-                        <strong>{t("common.error")}:</strong> {error}
-                      </p>
-                    </div>
-                  )}
-                  <div className="pt-4">
-                    <Button
-                      variant="primary"
-                      onClick={handleAddSupplier}
-                      leftIcon={Plus}
-                    >
-                      {t("suppliers.addSupplier")}
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <SupplierEmptyState
+                error={error}
+                onAddSupplier={handleAddSupplier}
+              />
             )}
 
             {/* Suppliers List */}
@@ -617,66 +497,17 @@ const SuppliersPage = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-              Delete Supplier
-            </h3>
-            <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{supplierToDelete?.name}"? This
-              action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleConfirmDelete}
-                loading={isDeleting}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Success Modal */}
-      {showDeleteSuccessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Building className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t("modals.deletedSuccessfully", {
-                  item: t("common.supplier"),
-                })}
-              </h3>
-              <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                {t("common.hasBeenRemovedFromList", {
-                  name: deletedSupplierName,
-                  item: t("common.suppliers"),
-                })}
-              </p>
-              <Button
-                variant="primary"
-                onClick={() => setShowDeleteSuccessModal(false)}
-              >
-                Continue
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Modals */}
+      <DeleteSupplierModal
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+        supplierToDelete={supplierToDelete}
+        onConfirmDelete={handleConfirmDelete}
+        isDeleting={isDeleting}
+        showSuccessModal={showDeleteSuccessModal}
+        onCloseSuccess={() => setShowDeleteSuccessModal(false)}
+        deletedSupplierName={deletedSupplierName}
+      />
 
       {/* Error Modal */}
       {showErrorModal && (

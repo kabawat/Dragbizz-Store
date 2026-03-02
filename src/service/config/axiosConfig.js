@@ -14,14 +14,8 @@ import {
 } from "@/utils/requestDeduplication";
 
 let globalToastShowError = null;
-let networkErrorHandler = null;
-
 export const setGlobalToast = (showErrorFn) => {
   globalToastShowError = showErrorFn;
-};
-
-export const setNetworkErrorHandler = (handler) => {
-  networkErrorHandler = handler;
 };
 
 // Base configuration
@@ -147,28 +141,7 @@ authAxios.interceptors.response.use(
       removeCancelToken(originalRequest.metadata.cancelKey);
     }
 
-    // Check for network errors
-    const isNetworkError =
-      error.code === "ERR_NETWORK" ||
-      error.message === "Network Error" ||
-      (!error.response && error.request) ||
-      error.message?.includes("Network Error");
 
-    if (isNetworkError) {
-      if (typeof window !== "undefined") {
-        if (networkErrorHandler) {
-          networkErrorHandler();
-        }
-        if (globalToastShowError) {
-          globalToastShowError(
-            "Network error. Please check your internet connection and try again."
-          );
-        }
-      }
-      return Promise.reject(error);
-    }
-
-    // If 401 and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         // If already refreshing, queue this request
@@ -232,25 +205,7 @@ unauthAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Check for network errors
-    const isNetworkError =
-      error.code === "ERR_NETWORK" ||
-      error.message === "Network Error" ||
-      (!error.response && error.request) ||
-      error.message?.includes("Network Error");
 
-    if (isNetworkError) {
-      if (typeof window !== "undefined") {
-        if (networkErrorHandler) {
-          networkErrorHandler();
-        }
-        if (globalToastShowError) {
-          globalToastShowError(
-            "Network error. Please check your internet connection and try again."
-          );
-        }
-      }
-    }
     return Promise.reject(error);
   }
 );

@@ -1,13 +1,11 @@
 import "@/app/globals.css";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
-import NetworkErrorInitializer from "@/components/NetworkErrorInitializer";
-import NetworkErrorWrapper from "@/components/NetworkErrorWrapper";
 import ToastInitializer from "@/components/ToastInitializer";
 import { SettingsPanel } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
+import NetworkError from "@/components/ui/NetworkError";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { NetworkErrorProvider } from "@/contexts/NetworkErrorContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { SocketProvider } from "@/contexts/SocketContext";
@@ -30,24 +28,21 @@ export default function RootLayout({ children }) {
           <ThemeProvider>
             <LanguageProvider>
               <ToastProvider>
-                <NetworkErrorProvider>
-                  <SocketProvider>
-                    <SocketNotificationProvider>
-                      <ErrorBoundary>
-                        <ToastInitializer />
-                        <NetworkErrorInitializer />
-                        <GlobalProfileLoader />
-                        <LocationProvider>
-                          <GlobalHotkeys />
-                          {children}
-                          <GlobalToastContainer />
-                          <NetworkErrorWrapper />
-                          <SettingsPanel />
-                        </LocationProvider>
-                      </ErrorBoundary>
-                    </SocketNotificationProvider>
-                  </SocketProvider>
-                </NetworkErrorProvider>
+                <SocketProvider>
+                  <SocketNotificationProvider>
+                    <ErrorBoundary>
+                      <ToastInitializer />
+                      <GlobalProfileLoader />
+                      <LocationProvider>
+                        <GlobalHotkeys />
+                        {children}
+                        <GlobalToastContainer />
+                        <NetworkError />
+                        <SettingsPanel />
+                      </LocationProvider>
+                    </ErrorBoundary>
+                  </SocketNotificationProvider>
+                </SocketProvider>
               </ToastProvider>
             </LanguageProvider>
           </ThemeProvider>

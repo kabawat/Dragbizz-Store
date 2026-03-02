@@ -67,7 +67,7 @@ const CreatePayment = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { handleApiError, handleApiResult, QuotaModal, showSuccess } =
+  const { handleApiError, handleApiResult, showSuccess } =
     useErrorHandling();
 
   // Refs to prevent duplicate API calls
@@ -1245,7 +1245,6 @@ const CreatePayment = () => {
         </div>
       </div>
 
-      {QuotaModal}
     </div>
   );
 };

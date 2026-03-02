@@ -1,151 +1,49 @@
-import { API_CONFIG } from "@/config";
 import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
 import { attachQueryParams } from "@/utils/queryParams";
 
 export class BaseService {
-  constructor(baseURL = null) {
-    this.baseURL = baseURL || API_CONFIG.BASE.URL;
+  constructor() {
     this.authAxios = authAxios;
     this.unauthAxios = unauthAxios;
   }
 
   buildUrl(endpoint, params = {}) {
-    if (!endpoint) return null;
     return attachQueryParams(endpoint, params);
   }
 
-  async handleRequest(requestFn, context = "general", successMessage = null) {
-    try {
-      const response = await requestFn();
-      return handleApiSuccess(
-        response?.data || response,
-        successMessage || "Operation successful"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, context);
-    }
+  // Auth methods
+  async get(url, params = {}) {
+    return this.authAxios.get(this.buildUrl(url, params));
   }
 
-  async get(url, params = {}, context = "general", successMessage = null) {
-    return this.handleRequest(
-      () => this.authAxios.get(this.buildUrl(url, params)),
-      context,
-      successMessage
-    );
+  async post(url, data = {}, params = {}) {
+    return this.authAxios.post(this.buildUrl(url, params), data);
   }
 
-  async post(
-    url,
-    data = {},
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.authAxios.post(this.buildUrl(url, params), data),
-      context,
-      successMessage
-    );
+  async put(url, data = {}, params = {}) {
+    return this.authAxios.put(this.buildUrl(url, params), data);
   }
 
-  async put(
-    url,
-    data = {},
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.authAxios.put(this.buildUrl(url, params), data),
-      context,
-      successMessage
-    );
+  async patch(url, data = {}, params = {}) {
+    return this.authAxios.patch(this.buildUrl(url, params), data);
   }
 
-  async patch(
-    url,
-    data = {},
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.authAxios.patch(this.buildUrl(url, params), data),
-      context,
-      successMessage
-    );
+  async delete(url, params = {}) {
+    return this.authAxios.delete(this.buildUrl(url, params));
   }
 
-  async delete(url, params = {}, context = "general", successMessage = null) {
-    return this.handleRequest(
-      () => this.authAxios.delete(this.buildUrl(url, params)),
-      context,
-      successMessage
-    );
+  // Unauth methods
+  async unauthGet(url, params = {}) {
+    return this.unauthAxios.get(this.buildUrl(url, params));
   }
 
-  async unauthGet(
-    url,
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.unauthAxios.get(this.buildUrl(url, params)),
-      context,
-      successMessage
-    );
+  async unauthPost(url, data = {}, params = {}) {
+    return this.unauthAxios.post(this.buildUrl(url, params), data);
   }
 
-  async unauthPost(
-    url,
-    data = {},
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.unauthAxios.post(this.buildUrl(url, params), data),
-      context,
-      successMessage
-    );
-  }
-
-  async unauthPut(
-    url,
-    data = {},
-    params = {},
-    context = "general",
-    successMessage = null
-  ) {
-    return this.handleRequest(
-      () => this.unauthAxios.put(this.buildUrl(url, params), data),
-      context,
-      successMessage
-    );
-  }
-
+  // Helper
   buildResourceUrl(resourceEndpoint, resourceId, storeId = null) {
-    let url = resourceId
-      ? `${resourceEndpoint}/${resourceId}`
-      : resourceEndpoint;
-
-    if (storeId) {
-      const params = { store: storeId };
-      url = this.buildUrl(url, params);
-    }
-
-    return url;
-  }
-
-  cleanPayload(payload) {
-    const cleaned = { ...payload };
-    Object.keys(cleaned).forEach((key) => {
-      if (cleaned[key] === undefined) {
-        delete cleaned[key];
-      }
-    });
-    return cleaned;
+    let url = resourceId ? `${resourceEndpoint}/${resourceId}` : resourceEndpoint;
+    return storeId ? this.buildUrl(url, { store: storeId }) : url;
   }
 }
