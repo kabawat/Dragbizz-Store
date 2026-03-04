@@ -14,7 +14,7 @@ import {
   getPaymentMethodLabel,
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { getStatusBadge, renderStatusBadge } from "@/utils/statusBadge";
+import { renderStatusBadge } from "@/utils/statusBadge";
 
 const ExpenseTable = ({
   expenses = [],
@@ -28,6 +28,8 @@ const ExpenseTable = ({
   loading = false,
   emptyMessage,
   className = "",
+  headerOnly = false,
+  bodyOnly = false,
 }) => {
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -53,19 +55,18 @@ const ExpenseTable = ({
     };
   }, [openMenuId]);
 
-
   const handleMenuAction = (expenseId, action) => {
     setOpenMenuId(null);
     const expense = expenses.find((e) => e.id === expenseId);
     switch (action) {
       case "view":
-        onView?.(expense);
+        onView?.(expense?.id?.toString());
         break;
       case "edit":
-        onEdit?.(expense);
+        onEdit?.(expense?.id?.toString());
         break;
       case "delete":
-        onDelete?.(expense);
+        onDelete?.(expense?.id?.toString());
         break;
       default:
         break;
@@ -86,30 +87,204 @@ const ExpenseTable = ({
     }).format(amount);
   };
 
+  // headerOnly: sirf header render karo (fixed, non-scrolling)
+  if (headerOnly) {
+    return (
+      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] shrink-0 overflow-x-auto">
+        <table className="w-full min-w-[900px] table-fixed">
+          <thead>
+            <tr>
+              <th className="w-[22%] px-6 py-4 text-left">
+                <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                  {t("expenses.expenseTitle")}
+                </span>
+              </th>
+              <th className="w-[12%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.date")}
+              </th>
+              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("expenses.category")}
+              </th>
+              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.amount")}
+              </th>
+              <th className="w-[16%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("expenses.paymentMethod")}
+              </th>
+              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("expenses.vendor")}
+              </th>
+              <th className="w-[10%] px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.status")}
+              </th>
+              <th className="w-24 px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.actions")}
+              </th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    );
+  }
 
+  // bodyOnly: sirf rows render karo (scrollable container mein hoga)
+  if (bodyOnly) {
+    if (isLoading || loading) {
+      return (
+        <table className="w-full min-w-[900px] table-fixed">
+          <tbody>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
+                <td className="w-[22%] px-6 py-4">
+                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-3/4 animate-pulse mb-2" />
+                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/2 animate-pulse" />
+                </td>
+                <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-16 animate-pulse" /></td>
+                <td className="w-[16%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-24 animate-pulse" /></td>
+                <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                <td className="w-[10%] px-6 py-4"><div className="h-6 bg-[rgb(var(--color-bg-tertiary))] rounded-full w-16 animate-pulse" /></td>
+                <td className="w-24 px-6 py-4" />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    return (
+      <table className="w-full min-w-[900px] table-fixed">
+        <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
+          {expenses.map((expense) => (
+            <tr
+              key={expense.id}
+              className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+            >
+              <td
+                className="w-[22%] px-6 py-4 cursor-pointer group/cell"
+                onClick={() => onView?.(expense)}
+              >
+                <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
+                  {expense.title}
+                </div>
+                <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                  {expense.billNumber || t("expenses.noBillNumber")}
+                </div>
+              </td>
+              <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
+                  <span>{formatDate(expense.date)}</span>
+                </div>
+              </td>
+              <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
+                {getCategoryLabel(expense.category?.name || expense.category)}
+              </td>
+              <td className="w-[12%] px-6 py-4 text-right">
+                <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">₹{formatCurrency(expense.amount)}</div>
+              </td>
+              <td className="w-[16%] px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm shrink-0">{getPaymentMethodIcon(expense.paymentMethod)}</span>
+                  <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">{getPaymentMethodLabel(expense.paymentMethod)}</span>
+                </div>
+              </td>
+              <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
+                {expense.vendor?.name || expense.vendor || "-"}
+              </td>
+              <td className="w-[10%] px-6 py-4 text-center">
+                <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
+              </td>
+              <td className="w-24 px-6 py-4 text-center">
+                <div
+                  className="relative inline-block"
+                  ref={(el) => (menuRefs.current[expense.id] = el)}
+                >
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === expense.id ? null : expense.id)}
+                    className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                    title={t("common.actions")}
+                  >
+                    <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                  </button>
+                  {openMenuId === expense.id && (
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                      <button
+                        onClick={() => handleMenuAction(expense.id, "view")}
+                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                      >
+                        <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                        {t("common.viewDetails")}
+                      </button>
+                      <button
+                        onClick={() => handleMenuAction(expense.id, "edit")}
+                        className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                      >
+                        <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                        {t("common.edit")}
+                      </button>
+                      <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                      <button
+                        onClick={() => handleMenuAction(expense.id, "delete")}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                        {t("common.delete")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  // Default full render (standalone use without headerOnly/bodyOnly)
   if (isLoading || loading) {
     return (
-      <div
-        className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}
-      >
-        <div className="animate-pulse">
-          <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-20 border-b border-[rgb(var(--color-border-primary))]"
-            >
-              <div className="flex items-center h-full px-6">
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
-                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/6"></div>
-                </div>
-                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
-                <div className="w-16 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
-                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded"></div>
-              </div>
-            </div>
-          ))}
+      <div className={`h-full ${className}`}>
+        {/* Fixed Header Skeleton */}
+        <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
+          <table className="w-full min-w-[900px] table-fixed">
+            <thead>
+              <tr>
+                <th className="w-[22%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-20 animate-pulse" /></th>
+                <th className="w-[12%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-14 animate-pulse" /></th>
+                <th className="w-[14%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
+                <th className="w-[12%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
+                <th className="w-[16%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-20 animate-pulse" /></th>
+                <th className="w-[14%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-16 animate-pulse" /></th>
+                <th className="w-[10%] px-6 py-4"><div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-12 animate-pulse" /></th>
+                <th className="w-24 px-6 py-4" />
+              </tr>
+            </thead>
+          </table>
+        </div>
+        {/* Body Skeleton */}
+        <div>
+          <table className="w-full min-w-[900px] table-fixed">
+            <tbody>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index} className="border-b border-[rgb(var(--color-border-primary))]">
+                  <td className="w-[22%] px-6 py-4">
+                    <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-3/4 animate-pulse mb-2" />
+                    <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/2 animate-pulse" />
+                  </td>
+                  <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                  <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                  <td className="w-[12%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-16 animate-pulse" /></td>
+                  <td className="w-[16%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-24 animate-pulse" /></td>
+                  <td className="w-[14%] px-6 py-4"><div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-20 animate-pulse" /></td>
+                  <td className="w-[10%] px-6 py-4"><div className="h-6 bg-[rgb(var(--color-bg-tertiary))] rounded-full w-16 animate-pulse" /></td>
+                  <td className="w-24 px-6 py-4" />
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     );
@@ -134,160 +309,158 @@ const ExpenseTable = ({
   }
 
   return (
-    <div className={`${className}`}>
-      <div className="relative">
-        <table className="w-full min-w-[800px]">
-          {/* Table Header */}
-          <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
+    <div className={`h-full ${className}`}>
+      {/* Fixed Header */}
+      <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
+        <table className="w-full min-w-[900px] table-fixed">
+          <thead>
             <tr>
-              <th className="px-4 py-2 text-left">
-                <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[22%] px-6 py-4 text-left">
+                <span className="text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   {t("expenses.expenseTitle")}
                 </span>
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.date")}
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.category")}
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[12%] px-6 py-4 text-right text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.amount")}
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[16%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.paymentMethod")}
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[14%] px-6 py-4 text-left text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("expenses.vendor")}
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="w-[10%] px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 {t("common.status")}
               </th>
-              <th className="w-24 px-4 py-2 text-center">
-                <MoreVertical className="w-4 h-4 mx-auto" />
+              <th className="w-24 px-6 py-4 text-center text-xs font-bold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+                {t("common.actions")}
               </th>
             </tr>
           </thead>
+        </table>
+      </div>
 
-          {/* Table Body */}
+      {/* Scrollable Body */}
+      <div>
+        <table className="w-full min-w-[900px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-            {expenses.map((expense, index) => {
-              return (
-                <tr
-                  key={expense.id}
-                  className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+            {expenses.map((expense) => (
+              <tr
+                key={expense.id}
+                className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
+              >
+                {/* Title + Bill Number */}
+                <td
+                  className="w-[22%] px-6 py-4 cursor-pointer group/cell"
+                  onClick={() => onView?.(expense)}
                 >
-                  <td
-                    className="px-4 py-2 cursor-pointer group/cell"
-                    onClick={() => onView?.(expense)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <div className="font-medium text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200">
-                          {expense.title}
-                        </div>
-                        <div className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
-                          {expense.billNumber || t("expenses.noBillNumber")}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
+                  <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
+                    {expense.title}
+                  </div>
+                  <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                    {expense.billNumber || t("expenses.noBillNumber")}
+                  </div>
+                </td>
 
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[rgb(var(--color-text-tertiary))]" />
-                      <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                        {formatDate(expense.date)}
-                      </span>
-                    </div>
-                  </td>
+                {/* Date */}
+                <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
+                    <span>{formatDate(expense.date)}</span>
+                  </div>
+                </td>
 
-                  <td className="px-4 py-2">
-                    <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                      {getCategoryLabel(
-                        expense.category?.name || expense.category
-                      )}
-                    </div>
-                  </td>
+                {/* Category */}
+                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
+                  {getCategoryLabel(expense.category?.name || expense.category)}
+                </td>
 
-                  <td className="px-4 py-2">
-                    <div className="font-semibold text-[rgb(var(--color-text-primary))]">
-                      ₹{formatCurrency(expense.amount)}
-                    </div>
-                  </td>
+                {/* Amount */}
+                <td className="w-[12%] px-6 py-4 text-right">
+                  <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
+                    ₹{formatCurrency(expense.amount)}
+                  </div>
+                </td>
 
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {getPaymentMethodIcon(expense.paymentMethod)}
-                      </span>
-                      <span className="text-sm text-[rgb(var(--color-text-primary))]">
-                        {getPaymentMethodLabel(expense.paymentMethod)}
-                      </span>
-                    </div>
-                  </td>
+                {/* Payment Method */}
+                <td className="w-[16%] px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm shrink-0">
+                      {getPaymentMethodIcon(expense.paymentMethod)}
+                    </span>
+                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">
+                      {getPaymentMethodLabel(expense.paymentMethod)}
+                    </span>
+                  </div>
+                </td>
 
-                  <td className="px-4 py-2">
-                    <div className="text-sm text-[rgb(var(--color-text-primary))]">
-                      {expense.vendor?.name || expense.vendor || "-"}
-                    </div>
-                  </td>
+                {/* Vendor */}
+                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
+                  {expense.vendor?.name || expense.vendor || "-"}
+                </td>
 
-                  <td className="px-4 py-2">
+                {/* Status */}
+                <td className="w-[10%] px-6 py-4 text-center">
+                  <div className="inline-flex">
                     {renderStatusBadge(expense.status, "general")}
-                  </td>
+                  </div>
+                </td>
 
-                  <td className="w-24 px-4 py-2 text-center">
-                    <div
-                      className="relative inline-block"
-                      ref={(el) => (menuRefs.current[expense.id] = el)}
+                {/* Actions */}
+                <td className="w-24 px-6 py-4 text-center">
+                  <div
+                    className="relative inline-block"
+                    ref={(el) => (menuRefs.current[expense.id] = el)}
+                  >
+                    <button
+                      onClick={() =>
+                        setOpenMenuId(
+                          openMenuId === expense.id ? null : expense.id
+                        )
+                      }
+                      className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                      title={t("common.actions")}
                     >
-                      <button
-                        onClick={() =>
-                          setOpenMenuId(
-                            openMenuId === expense.id ? null : expense.id
-                          )
-                        }
-                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                        title={t("common.actions")}
-                      >
-                        <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                      </button>
+                      <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                    </button>
 
-                      {/* Popup Menu */}
-                      {openMenuId === expense.id && (
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() => handleMenuAction(expense.id, "view")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.viewDetails")}
-                          </button>
-                          <button
-                            onClick={() => handleMenuAction(expense.id, "edit")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.edit")}
-                          </button>
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(expense.id, "delete")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                            {t("common.delete")}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    {/* Popup Menu */}
+                    {openMenuId === expense.id && (
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+                        <button
+                          onClick={() => handleMenuAction(expense.id, "view")}
+                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                        >
+                          <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                          {t("common.viewDetails")}
+                        </button>
+                        <button
+                          onClick={() => handleMenuAction(expense.id, "edit")}
+                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                        >
+                          <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                          {t("common.edit")}
+                        </button>
+                        <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                        <button
+                          onClick={() => handleMenuAction(expense.id, "delete")}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                          {t("common.delete")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

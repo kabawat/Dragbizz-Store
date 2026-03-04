@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { expenseService } from "@/service";
+import { expenseService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
 import logger from "@/utils/logger";
@@ -204,10 +205,13 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
         dateRange.endDate
       );
 
-      const result = await expenseService.getExpenses(params);
+      const rawResponse = await expenseService.getExpenses(params);
+      const result = handleSuccess(rawResponse);
 
       if (result.success && result.data) {
-        const expensesData = result.data || [];
+        const expensesData = Array.isArray(result.data)
+          ? result.data
+          : (result.data.data || []);
 
         if (expensesData.length === 0) {
           showError(t("expenses.noExpensesFoundToDownload"));
@@ -261,10 +265,13 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
         dateRange.endDate
       );
 
-      const result = await expenseService.getExpenses(params);
+      const rawResponse = await expenseService.getExpenses(params);
+      const result = handleSuccess(rawResponse);
 
       if (result.success && result.data) {
-        const expensesData = result.data || [];
+        const expensesData = Array.isArray(result.data)
+          ? result.data
+          : (result.data.data || []);
 
         if (expensesData.length === 0) {
           showError(t("expenses.noExpensesFoundToDownload"));
