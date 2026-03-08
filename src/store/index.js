@@ -7,7 +7,8 @@ import expensesSlice from "./slices/expenses/expenseSlice";
 import gstSlice from "./slices/gstSlice";
 import invoicesSlice from "./slices/invoicesSlice";
 import paymentsSlice from "./slices/paymentsSlice";
-import productsSlice from "./slices/productsSlice";
+import productsSlice from "./slices/products/productSlice";
+import productAnalyticsSlice from "./slices/products/analyticsSlice";
 import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
 import storeUpiSlice from "./slices/storeUpiSlice";
@@ -28,6 +29,7 @@ export const store = configureStore({
     notifications: notificationsSlice,
     notificationSettings: notificationSettingsSlice,
     products: productsSlice,
+    productAnalytics: productAnalyticsSlice,
     customers: customerSlice,
     suppliers: suppliersSlice,
     bills: billsSlice,

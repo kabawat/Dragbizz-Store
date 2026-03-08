@@ -18,22 +18,25 @@ const CartPanel = ({ cart, setCart, onCheckout }) => {
     const [discountInput, setDiscountInput] = useState("");
 
     // Cart operations
-    const increaseQty = (id) => setCart((p) => p.map((i) => i.id === id ? { ...i, qty: i.qty + 1 } : i));
-    const decreaseQty = (id) => setCart((p) => p.map((i) => i.id === id ? { ...i, qty: Math.max(1, i.qty - 1) } : i));
-    const removeItem = (id) => setCart((p) => p.filter((i) => i.id !== id));
+    const increaseQty = (id) => setCart((p) => p.map((i) => (i.id || i._id) === id ? { ...i, qty: i.qty + 1 } : i));
+    const decreaseQty = (id) => setCart((p) => p.map((i) => (i.id || i._id) === id ? { ...i, qty: Math.max(1, i.qty - 1) } : i));
+    const removeItem = (id) => setCart((p) => p.filter((i) => (i.id || i._id) !== id));
 
     const applyItemDiscount = () => {
         const val = parseFloat(discountInput) || 0;
-        setCart((p) => p.map((i) => i.id === showDiscountModal ? { ...i, discount: Math.min(100, Math.max(0, val)) } : i));
+        setCart((p) => p.map((i) => (i.id || i._id) === showDiscountModal ? { ...i, discount: Math.min(100, Math.max(0, val)) } : i));
         setShowDiscountModal(null);
         setDiscountInput("");
     };
 
     // Calculations
-    const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty * (1 - (i.discount || 0) / 100)), 0);
+    const getPrice = (i) => i.pricing?.sellingPrice || i.price || 0;
+    const getTax = (i) => i.gstInfo?.gstRate || i.tax || 0;
+
+    const subtotal = cart.reduce((sum, i) => sum + (getPrice(i) * i.qty * (1 - (i.discount || 0) / 100)), 0);
     const taxTotal = cart.reduce((sum, i) => {
-        const lineAmt = i.price * i.qty * (1 - (i.discount || 0) / 100);
-        return sum + (lineAmt * (i.tax || 0) / 100);
+        const lineAmt = getPrice(i) * i.qty * (1 - (i.discount || 0) / 100);
+        return sum + (lineAmt * getTax(i) / 100);
     }, 0);
     const discountAmt = subtotal * ((globalDiscount || 0) / 100);
     const grandTotal = subtotal - discountAmt + taxTotal;
@@ -93,15 +96,18 @@ const CartPanel = ({ cart, setCart, onCheckout }) => {
 
                 {/* Cart items */}
                 <div className="flex-1 overflow-y-auto px-4 min-h-0 custom-scrollbar">
-                    {cart.map((item) => (
-                        <CartItem
-                            key={item.id} item={item}
-                            onIncrease={increaseQty}
-                            onDecrease={decreaseQty}
-                            onRemove={removeItem}
-                            onDiscount={() => { setShowDiscountModal(item.id); setDiscountInput(String(item.discount || "")); }}
-                        />
-                    ))}
+                    {cart.map((item) => {
+                        const itemId = item.id || item._id;
+                        return (
+                            <CartItem
+                                key={itemId} item={item}
+                                onIncrease={() => increaseQty(itemId)}
+                                onDecrease={() => decreaseQty(itemId)}
+                                onRemove={() => removeItem(itemId)}
+                                onDiscount={() => { setShowDiscountModal(itemId); setDiscountInput(String(item.discount || "")); }}
+                            />
+                        );
+                    })}
                 </div>
 
                 {/* Totals + Payment */}
