@@ -17,9 +17,10 @@ const POSPage = () => {
     // ── Cart operations ──────────────────
     const addToCart = (product) => {
         setCart((prev) => {
-            const exists = prev.find((i) => i.id === product.id);
-            if (exists) return prev.map((i) => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
-            return [...prev, { ...product, qty: 1, discount: 0 }];
+            const prodId = product.id || product._id;
+            const exists = prev.find((i) => (i.id || i._id) === prodId);
+            if (exists) return prev.map((i) => (i.id || i._id) === prodId ? { ...i, qty: i.qty + 1 } : i);
+            return [...prev, { ...product, id: prodId, qty: 1, discount: 0 }];
         });
     };
 

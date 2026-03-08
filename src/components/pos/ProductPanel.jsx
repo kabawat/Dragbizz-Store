@@ -1,21 +1,104 @@
-import React, { useState, useMemo } from "react";
-import { Search, Grid3X3, List, Package } from "lucide-react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { Search, Grid3X3, List, Package, Loader2 } from "lucide-react";
 import { Select } from "@/components/ui";
 import ProductCard from "./ProductCard";
-import { CATEGORIES, PRODUCTS } from "@/page/dashboard/pos/data/mockData";
+import { CATEGORIES as MOCK_CATEGORIES } from "@/page/dashboard/pos/data/mockData";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { categoryService } from "@/service/retailer";
+import { getProducts } from "@/store/slices/products/productSlice";
 
 const ProductPanel = ({ addToCart }) => {
+    const dispatch = useAppDispatch();
+
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [viewMode, setViewMode] = useState("grid");
 
+    const [categories, setCategories] = useState([{ id: "all", name: "All Items" }]);
+
+    // Select products from redux
+    const { products, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.products);
+    const { selectedStore } = useAppSelector((state) => state.profile);
+
+    const storeId = selectedStore?.storeId;
+
+    const hasFetchedRef = useRef(false);
+
+    const sentinelRef = useRef(null);
+    const isFetchingMoreRef = useRef(isFetchingMore);
+    const storeIdRef = useRef(storeId);
+    const paginationRef = useRef(pagination);
+
+    isFetchingMoreRef.current = isFetchingMore;
+    storeIdRef.current = storeId;
+    paginationRef.current = pagination;
+
+    // Fetch Products via Redux
+    useEffect(() => {
+        if (!storeId || hasFetchedRef.current) return;
+
+        hasFetchedRef.current = true;
+        // Fetch products via redux (100 limit for POS)
+        dispatch(getProducts({ store: storeId, limit: 100, isFreshLoad: true }));
+
+        // Fetch categories directly
+        const fetchCategories = async () => {
+            try {
+                const catResponse = await categoryService.getCategories({ store: storeId, limit: 100, lightweight: true });
+                if (catResponse?.success && catResponse?.data) {
+                    const mappedCats = [
+                        { id: "all", name: "All Items" },
+                        ...catResponse.data.map(c => ({ id: c._id || c.id, name: c.name }))
+                    ];
+                    setCategories(mappedCats);
+                } else {
+                    setCategories(MOCK_CATEGORIES);
+                }
+            } catch (err) {
+                setCategories(MOCK_CATEGORIES);
+            }
+        };
+        fetchCategories();
+
+    }, [storeId, dispatch]);
+
+    // IntersectionObserver for Infinite scroll
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel || !pagination.hasNextPage) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isFetchingMoreRef.current && storeIdRef.current) {
+                    dispatch(
+                        getProducts({
+                            store: storeIdRef.current,
+                            limit: 100,
+                            nextCursor: paginationRef.current.nextCursor,
+                            isFreshLoad: false,
+                        })
+                    );
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [dispatch, pagination.hasNextPage]);
+
     const filteredProducts = useMemo(() => {
-        return PRODUCTS.filter((p) => {
-            const matchCat = selectedCategory === "all" || p.category === selectedCategory;
-            const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+        return (products || []).filter((p) => {
+            const catId = p.category?._id || p.category || "other";
+            const matchCat = selectedCategory === "all" || catId === selectedCategory;
+
+            const matchSearch = !search ||
+                (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
+                (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()));
+
             return matchCat && matchSearch;
         });
-    }, [search, selectedCategory]);
+    }, [search, selectedCategory, products]);
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden p-4 gap-3 min-h-0">
@@ -37,7 +120,7 @@ const ProductPanel = ({ addToCart }) => {
                         <Select
                             value={selectedCategory}
                             onChange={(val) => setSelectedCategory(val)}
-                            options={CATEGORIES.map(c => ({ label: c.name, value: c.id }))}
+                            options={categories.map(c => ({ label: c.name, value: c.id }))}
                             placeholder="All Categories"
                             className="h-[40px]"
                             searchable={true}
@@ -72,15 +155,29 @@ const ProductPanel = ({ addToCart }) => {
                 ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 content-start"
                 : "flex flex-col gap-2"
                 }`}>
-                {filteredProducts.length === 0 ? (
+                {isLoading && !products.length ? (
+                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
+                        <Loader2 className="w-8 h-8 mb-3 animate-spin opacity-50" />
+                        <p className="text-sm">Loading products...</p>
+                    </div>
+                ) : filteredProducts.length === 0 ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 text-[rgb(var(--color-text-secondary))]">
                         <Package className="w-12 h-12 mb-3 opacity-30" />
                         <p className="text-sm">No products found</p>
                     </div>
                 ) : (
-                    filteredProducts.map((p) => (
-                        <ProductCard key={p.id} product={p} onAdd={addToCart} viewMode={viewMode} />
-                    ))
+                    <>
+                        {filteredProducts.map((p) => (
+                            <ProductCard key={p._id || p.id} product={p} onAdd={addToCart} viewMode={viewMode} />
+                        ))}
+
+                        {/* Sentinel — IntersectionObserver triggers load more */}
+                        {pagination.hasNextPage && (
+                            <div ref={sentinelRef} className="col-span-full h-8 w-full flex items-center justify-center text-[rgb(var(--color-text-secondary))]">
+                                {isFetchingMore ? <Loader2 className="w-5 h-5 animate-spin opacity-50" /> : null}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

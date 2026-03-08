@@ -3,15 +3,19 @@ import { Plus, Minus, X, Tag } from "lucide-react";
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
 export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDiscount }) {
-    const lineTotal = item.price * item.qty * (1 - item.discount / 100);
+    const price = item.pricing?.sellingPrice || item.price || 0;
+    const name = item.name || "Unknown Product";
+    const emoji = item.emoji || item.icon || "📦";
+
+    const lineTotal = price * item.qty * (1 - item.discount / 100);
     return (
         <div className="flex items-start gap-2 py-2.5 border-b border-[rgb(var(--color-border-primary))] last:border-0">
             <div className="w-8 h-8 bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center text-base flex-shrink-0">
-                {item.emoji}
+                {emoji}
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate">{item.name}</p>
-                <p className="text-xs text-[rgb(var(--color-text-secondary))]">{fmt(item.price)} each</p>
+                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate">{name}</p>
+                <p className="text-xs text-[rgb(var(--color-text-secondary))]">{fmt(price)} each</p>
                 {/* Qty + Discount */}
                 <div className="flex items-center gap-2 mt-1.5">
                     <div className="flex items-center gap-1 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
