@@ -206,7 +206,8 @@ const CreateBill = () => {
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default CreateBill;
+export default CreateBill;
