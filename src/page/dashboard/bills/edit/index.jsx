@@ -252,7 +252,8 @@ const EditBill = ({ billId }) => {
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default EditBill;
+export default EditBill;
