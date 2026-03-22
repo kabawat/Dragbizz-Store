@@ -13,7 +13,7 @@ const ProductEmptyState = ({ searchValue = "" }) => {
     if (isLoading) return null;
 
     return (
-        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+        <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl">
             <div className="flex flex-col items-center justify-center py-16">
                 <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
                     <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />

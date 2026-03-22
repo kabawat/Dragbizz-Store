@@ -3,9 +3,13 @@ import React from "react";
 import { Building, Plus } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
-const SupplierEmptyState = ({ error, onAddSupplier }) => {
+const SupplierEmptyState = ({ searchValue = "" }) => {
     const { t } = useTranslation();
+    const { isLoading } = useAppSelector((state) => state.suppliers);
+
+    if (isLoading) return null;
 
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
@@ -17,19 +21,12 @@ const SupplierEmptyState = ({ error, onAddSupplier }) => {
                     {t("suppliers.noSuppliers")}
                 </h3>
                 <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md mb-4">
-                    {t("common.noData")}
+                    {searchValue ? t("common.noResults") : t("common.noData")}
                 </p>
-                {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 max-w-md">
-                        <p className="text-red-600 text-sm">
-                            <strong>{t("common.error")}:</strong> {error}
-                        </p>
-                    </div>
-                )}
                 <div className="pt-4">
                     <Button
                         variant="primary"
-                        onClick={onAddSupplier}
+                        onClick={() => window.dispatchEvent(new CustomEvent("open-add-supplier-drawer"))}
                         leftIcon={Plus}
                     >
                         {t("suppliers.addSupplier")}
