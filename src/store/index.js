@@ -11,8 +11,11 @@ import productsSlice from "./slices/products/productSlice";
 import productAnalyticsSlice from "./slices/products/analyticsSlice";
 import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
+import salesOrdersSlice from "./slices/salesOrdersSlice";
 import storeUpiSlice from "./slices/storeUpiSlice";
-import suppliersSlice from "./slices/suppliersSlice";
+import customersSlice from "./slices/customersSlice";
+import suppliersSlice from "./slices/supplier/supplierSlice";
+import supplierAnalyticsSlice from "./slices/supplier/analyticsSlice";
 import signaturesSlice from "./slices/signaturesSlice";
 import themeSlice from "./slices/themeSlice";
 import suggestionsSlice from "./slices/suggestionsSlice";
@@ -32,11 +35,13 @@ export const store = configureStore({
     productAnalytics: productAnalyticsSlice,
     customers: customerSlice,
     suppliers: suppliersSlice,
+    supplierAnalytics: supplierAnalyticsSlice,
     bills: billsSlice,
     payments: paymentsSlice,
     accounts: accountsSlice,
     invoices: invoicesSlice,
     purchaseOrders: purchaseOrdersSlice,
+    salesOrders: salesOrdersSlice,
     expenses: expensesSlice,
     gst: gstSlice,
     analytics: analyticsSlice,

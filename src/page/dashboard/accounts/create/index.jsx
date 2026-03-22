@@ -14,7 +14,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Input, Modal, Select, Textarea } from "@/components/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createAccount } from "@/store/slices/accountsSlice";
-import { getSuppliers } from "@/store/slices/suppliersSlice";
+import { getSuppliers } from "@/store/slices/supplier/supplierSlice";
 import logger from "@/utils/logger";
 
 const CreateAccount = () => {
