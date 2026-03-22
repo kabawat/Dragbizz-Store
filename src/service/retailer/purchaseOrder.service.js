@@ -1,115 +1,56 @@
 import { API_CONFIG } from "@/config";
-import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class PurchaseOrderService {
+class PurchaseOrderService extends BaseService {
   constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
-  }
-  async createPurchaseOrder(poData) {
-    try {
-      const payload = poData;
-      Object.keys(payload).forEach((key) => {
-        if (payload[key] === undefined) {
-          delete payload[key];
-        }
-      });
-
-      const response = await authAxios.post(
-        API_CONFIG?.RETAILER?.PURCHASE_ORDER,
-        payload
-      );
-      return handleApiSuccess(
-        response?.data,
-        "Purchase order created successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "po-creation");
-    }
+    super();
+    this.endpoint = API_CONFIG?.RETAILER?.PURCHASE_ORDER;
   }
 
-  async getPurchaseOrders(params = {}) {
-    try {
-      const url = attachQueryParams(
-        API_CONFIG?.RETAILER?.PURCHASE_ORDER,
-        params
-      );
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Purchase orders fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "po-list");
-    }
-  }
-
-  async updatePurchaseOrder(poId, updateData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PURCHASE_ORDER}/${poId}`;
-      if (storeId) {
-        url = attachQueryParams(url, { store: storeId });
+  // Create a new purchase order
+  createPurchaseOrder(poData) {
+    const payload = { ...poData };
+    // Strip undefined properties
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === undefined) {
+        delete payload[key];
       }
-      const response = await authAxios.put(url, updateData);
-      return handleApiSuccess(
-        response?.data,
-        "Purchase order updated successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "po-update");
-    }
+    });
+
+    return this.post(this.endpoint, payload);
   }
 
-  async getPurchaseOrder(poId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PURCHASE_ORDER}/${poId}`;
-      if (storeId) {
-        url = attachQueryParams(url, { store: storeId });
-      }
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Purchase order fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "po-details");
-    }
+  // Get purchase orders (list)
+  getPurchaseOrders(params = {}) {
+    return this.get(this.endpoint, params);
   }
 
-  async getPublicPurchaseOrder(poId) {
-    try {
-      const response = await unauthAxios.post(
-        "/retailer/public/purchase-orders",
-        {
-          id: poId,
-        }
-      );
-      return handleApiSuccess(
-        response?.data,
-        "Public purchase order fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "public-po-details");
-    }
+  // Update a purchase order
+  updatePurchaseOrder(poId, updateData, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, poId, storeId);
+    return this.put(url, updateData);
   }
 
-  async deletePurchaseOrder(poId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PURCHASE_ORDER}/${poId}`;
-      if (storeId) {
-        url = attachQueryParams(url, { store: storeId });
-      }
-      const response = await authAxios.delete(url);
-      return handleApiSuccess(
-        response?.data,
-        "Purchase order deleted successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "po-deletion");
-    }
+  // Get single purchase order details
+  getPurchaseOrder(poId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, poId, storeId);
+    return this.get(url);
+  }
+
+  // Get public purchase order (unauthenticated)
+  getPublicPurchaseOrder(poId) {
+    return this.unauthPost("/retailer/public/purchase-orders", {
+      id: poId,
+    });
+  }
+
+  // Delete a purchase order
+  deletePurchaseOrder(poId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, poId, storeId);
+    return this.delete(url);
   }
 }
 
-const purchaseOrderService = new PurchaseOrderService();
+// Create and export a singleton instance
+export const purchaseOrderService = new PurchaseOrderService();
 export default purchaseOrderService;
