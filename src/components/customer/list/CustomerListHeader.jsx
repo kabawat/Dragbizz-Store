@@ -1,9 +1,10 @@
 "use client";
 import { useRef, useState } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search, Users } from "lucide-react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
 import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
 import CustomerDownloadDrawer from "@/components/customer/CustomerDownloadDrawer";
+import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDrawer";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -28,6 +29,7 @@ const CustomerListHeader = ({
     const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
+    const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     const searchInputRef = useRef(null);
 
@@ -57,6 +59,7 @@ const CustomerListHeader = ({
             if (showCustomerDrawer) setShowCustomerDrawer(false);
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
             else if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
+            else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
     });
 
@@ -100,6 +103,15 @@ const CustomerListHeader = ({
                             </button>
                         </div>
                     )}
+
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowBulkUploadDrawer(true)}
+                        className="flex items-center gap-2 h-9"
+                    >
+                        <Upload className="w-4 h-4" />
+                        {t("customers.bulkUpload", "Bulk Upload")}
+                    </Button>
 
                     <Button
                         variant="secondary"
@@ -153,6 +165,18 @@ const CustomerListHeader = ({
                 <CustomerDownloadDrawer
                     isOpen={showDownloadDrawer}
                     onClose={() => setShowDownloadDrawer(false)}
+                />
+            )}
+
+            {/* Bulk Upload Drawer */}
+            {showBulkUploadDrawer && (
+                <CustomerBulkUploadDrawer
+                    isOpen={showBulkUploadDrawer}
+                    onClose={() => setShowBulkUploadDrawer(false)}
+                    onSuccess={() => {
+                        onSuccess?.();
+                        setShowBulkUploadDrawer(false);
+                    }}
                 />
             )}
 

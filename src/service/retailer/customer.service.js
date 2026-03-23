@@ -40,6 +40,16 @@ class CustomerService extends BaseService {
     const url = `${this.endpoint}/stats`;
     return this.get(url, storeId ? { store: storeId } : {});
   }
+
+  // Bulk upload customers
+  bulkUploadCustomers(file, storeId) {
+    const url = `${this.endpoint}/bulk`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("store", storeId);
+
+    return this.uploadAxios.post(url, formData);
+  }
 }
 
 // Create and export a singleton instance
