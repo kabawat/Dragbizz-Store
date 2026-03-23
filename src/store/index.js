@@ -13,7 +13,6 @@ import profileSlice from "./slices/profileSlice";
 import purchaseOrdersSlice from "./slices/purchaseOrdersSlice";
 import salesOrdersSlice from "./slices/salesOrdersSlice";
 import storeUpiSlice from "./slices/storeUpiSlice";
-import customersSlice from "./slices/customersSlice";
 import suppliersSlice from "./slices/supplier/supplierSlice";
 import supplierAnalyticsSlice from "./slices/supplier/analyticsSlice";
 import signaturesSlice from "./slices/signaturesSlice";

@@ -1,10 +1,11 @@
-import { authAxios, unauthAxios } from "@/service/config/axiosConfig";
+import { authAxios, unauthAxios, uploadAxios } from "@/service/config/axiosConfig";
 import { attachQueryParams } from "@/utils/queryParams";
 
 export class BaseService {
   constructor() {
     this.authAxios = authAxios;
     this.unauthAxios = unauthAxios;
+    this.uploadAxios = uploadAxios;
   }
 
   buildUrl(endpoint, params = {}) {

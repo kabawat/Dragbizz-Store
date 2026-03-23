@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Grid3X3, List, Mic, Plus, Search } from "lucide-react";
+import { Download, Grid3X3, List, Mic, Plus, Search, Upload } from "lucide-react";
 import { Button, Input, Select, SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuppliers, setViewMode } from "@/store/slices/supplier/supplierSlice";
 import { AddSupplierDrawer, VoiceAISupplier } from "@/components/supplier";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
+import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
 
 const SupplierListHeader = () => {
     const { t } = useTranslation();
@@ -27,6 +28,7 @@ const SupplierListHeader = () => {
     const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
     const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
+    const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
@@ -87,6 +89,7 @@ const SupplierListHeader = () => {
             if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
             if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
             if (showDownloadDrawer) setShowDownloadDrawer(false);
+            if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
@@ -184,6 +187,13 @@ const SupplierListHeader = () => {
                     )}
                     <Button
                         variant="secondary"
+                        onClick={() => setShowBulkUploadDrawer(true)}
+                        leftIcon={Upload}
+                    >
+                        {t("suppliers.bulkUpload", "Bulk Upload")}
+                    </Button>
+                    <Button
+                        variant="secondary"
                         onClick={() => setShowDownloadDrawer(true)}
                         leftIcon={Download}
                     >
@@ -232,6 +242,14 @@ const SupplierListHeader = () => {
                 isOpen={showDownloadDrawer}
                 onClose={() => setShowDownloadDrawer(false)}
             />
+
+            {showBulkUploadDrawer && (
+                <SupplierBulkUploadDrawer
+                    isOpen={showBulkUploadDrawer}
+                    onClose={() => setShowBulkUploadDrawer(false)}
+                    onSuccess={handleSupplierSuccess}
+                />
+            )}
         </div>
     );
 };
