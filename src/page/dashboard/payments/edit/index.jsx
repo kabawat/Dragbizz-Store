@@ -14,7 +14,6 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Modal } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
-import {
   billService,
   paymentService,
   supplierService,
@@ -124,7 +123,10 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
         } else {
           setErrors(prev => ({ ...prev, fetch: result?.message || "Failed to fetch payment" }));
         }
-
+      } catch (error) {
+        console.error("Fetch payment error:", error);
+        setErrors(prev => ({ ...prev, fetch: "An error occurred while fetching payment data" }));
+      } finally {
         setStatus(prev => ({ ...prev, fetching: false }));
       }
     };
