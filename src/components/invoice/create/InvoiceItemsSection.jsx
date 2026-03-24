@@ -13,14 +13,13 @@ const InvoiceItemsSection = ({
     // Local state for item addition
     const [selectedProduct, setSelectedProduct] = useState("");
     const [selectedQuantity, setSelectedQuantity] = useState(1);
-
     const handleAddItem = () => {
         if (!selectedProduct) {
             showError(t("invoice.pleaseSelectProduct"));
             return;
         }
 
-        const product = products.find((p) => p._id === selectedProduct);
+        const product = products.find((p) => p.id === selectedProduct);
         if (!product) {
             showError(t("invoice.productNotFound"));
             return;
@@ -108,10 +107,10 @@ const InvoiceItemsSection = ({
                                         label: t("invoice.selectProductPlaceholder"),
                                     },
                                     ...products
-                                        .filter((product) => product._id)
+                                        .filter((product) => product.id)
                                         .map((product) => ({
-                                            value: product._id,
-                                            label: `${product.name} - ₹${product.price || product.sellingPrice || 0
+                                            value: product.id,
+                                            label: `${product.name} - ₹${product.pricing?.sellingPrice || 0
                                                 }`,
                                         })),
                                 ]}
@@ -161,7 +160,7 @@ const InvoiceItemsSection = ({
                                 className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 pr-2 min-h-0"
                             >
                                 {formData.items.map((item, index) => {
-                                    const product = products.find((p) => p._id === item.product);
+                                    const product = products.find((p) => p.id === item.product);
                                     return (
                                         <div
                                             key={index}
