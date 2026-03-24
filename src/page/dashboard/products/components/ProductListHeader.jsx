@@ -1,5 +1,5 @@
 "use client";
-import { Grid3X3, List, Plus, Search } from "lucide-react";
+import { Grid3X3, List, Plus, Search, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useRouter } from "next/navigation";
+import ProductBulkUpload from "@/components/product/ProductBulkUpload";
 
 const getCatalogOptions = (t) => [
     { value: "", label: t("products.allVisibility") },
@@ -41,6 +42,9 @@ const ProductListHeader = () => {
     const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
     const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+    // Drawers
+    const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
@@ -126,6 +130,9 @@ const ProductListHeader = () => {
 
     useCommonHotkeys({
         onNew: () => router.push("/dashboard/products/add"),
+        onClose: () => {
+            if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
+        },
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -206,6 +213,13 @@ const ProductListHeader = () => {
                     </div>
 
                     <Button
+                        variant="secondary"
+                        onClick={() => setShowBulkUploadDrawer(true)}
+                        leftIcon={Upload}
+                    >
+                        {t("products.bulkUpload", "Bulk Upload")}
+                    </Button>
+                    <Button
                         variant="primary"
                         onClick={() => router.push("/dashboard/products/add")}
                         leftIcon={Plus}
@@ -214,6 +228,17 @@ const ProductListHeader = () => {
                     </Button>
                 </div>
             </div>
+
+            {showBulkUploadDrawer && (
+                <ProductBulkUpload
+                    isOpen={showBulkUploadDrawer}
+                    onClose={() => setShowBulkUploadDrawer(false)}
+                    onSuccess={() => {
+                        hasFetchedRef.current.fetched = false;
+                        fetchProducts();
+                    }}
+                />
+            )}
         </div>
     );
 };

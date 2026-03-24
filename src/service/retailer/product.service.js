@@ -28,6 +28,16 @@ class ProductService extends BaseService {
     const url = this.buildResourceUrl(this.endpoint, productId, storeId);
     return this.delete(url);
   }
+
+  // Bulk upload products
+  bulkUploadProducts(file, storeId) {
+    const url = `${this.endpoint}/bulk`;
+    const formData = new FormData();
+    formData.append("file", file);
+    if (storeId) formData.append("store", storeId);
+
+    return this.uploadAxios.post(url, formData);
+  }
 }
 
 // Create and export a singleton instance

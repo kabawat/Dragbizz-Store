@@ -1,0 +1,602 @@
+[
+    {
+        "name": "John Doe",
+        "phone": "9876543210",
+        "email": "john.doe@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5000,
+            "totalPaid": 2000,
+            "totalDue": 3000,
+            "notes": "Opening balance from previous ledger"
+        }
+    },
+    {
+        "name": "Amit Sharma",
+        "phone": "9123456780",
+        "email": "amit.sharma@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 8000,
+            "totalPaid": 5000,
+            "totalDue": 3000,
+            "notes": "Regular customer"
+        }
+    },
+    {
+        "name": "Priya Verma",
+        "phone": "9234567810",
+        "email": "priya.verma@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6000,
+            "totalPaid": 6000,
+            "totalDue": 0,
+            "notes": "All dues cleared"
+        }
+    },
+    {
+        "name": "Rahul Singh",
+        "phone": "9345678120",
+        "email": "rahul.singh@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 10000,
+            "totalPaid": 7000,
+            "totalDue": 3000,
+            "notes": "Inactive account"
+        }
+    },
+    {
+        "name": "Neha Gupta",
+        "phone": "9456781230",
+        "email": "neha.gupta@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7500,
+            "totalPaid": 3500,
+            "totalDue": 4000,
+            "notes": "Pending payments"
+        }
+    },
+    {
+        "name": "Rohit Kumar",
+        "phone": "9567812340",
+        "email": "rohit.kumar@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 9000,
+            "totalPaid": 4000,
+            "totalDue": 5000,
+            "notes": "New customer"
+        }
+    },
+    {
+        "name": "Sneha Patel",
+        "phone": "9678123450",
+        "email": "sneha.patel@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4500,
+            "totalPaid": 2000,
+            "totalDue": 2500,
+            "notes": "Frequent buyer"
+        }
+    },
+    {
+        "name": "Vikas Yadav",
+        "phone": "9781234560",
+        "email": "vikas.yadav@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 12000,
+            "totalPaid": 8000,
+            "totalDue": 4000,
+            "notes": "High value client"
+        }
+    },
+    {
+        "name": "Anjali Mehta",
+        "phone": "9892345670",
+        "email": "anjali.mehta@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 3000,
+            "totalPaid": 3000,
+            "totalDue": 0,
+            "notes": "No dues"
+        }
+    },
+    {
+        "name": "Deepak Chauhan",
+        "phone": "9012345678",
+        "email": "deepak.chauhan@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 11000,
+            "totalPaid": 5000,
+            "totalDue": 6000,
+            "notes": "Account on hold"
+        }
+    },
+    {
+        "name": "Pooja Singh",
+        "phone": "9023456781",
+        "email": "pooja.singh@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6500,
+            "totalPaid": 2500,
+            "totalDue": 4000,
+            "notes": "Pending balance"
+        }
+    },
+    {
+        "name": "Karan Malhotra",
+        "phone": "9034567812",
+        "email": "karan.malhotra@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7000,
+            "totalPaid": 3500,
+            "totalDue": 3500,
+            "notes": "Installment plan"
+        }
+    },
+    {
+        "name": "Simran Kaur",
+        "phone": "9045678123",
+        "email": "simran.kaur@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5500,
+            "totalPaid": 1500,
+            "totalDue": 4000,
+            "notes": "New entry"
+        }
+    },
+    {
+        "name": "Arjun Reddy",
+        "phone": "9056781234",
+        "email": "arjun.reddy@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 9500,
+            "totalPaid": 6500,
+            "totalDue": 3000,
+            "notes": "Regular payments"
+        }
+    },
+    {
+        "name": "Meera Iyer",
+        "phone": "9067812345",
+        "email": "meera.iyer@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4000,
+            "totalPaid": 1000,
+            "totalDue": 3000,
+            "notes": "Follow-up needed"
+        }
+    },
+    {
+        "name": "Suresh Nair",
+        "phone": "9078123456",
+        "email": "suresh.nair@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 8500,
+            "totalPaid": 4500,
+            "totalDue": 4000,
+            "notes": "Inactive customer"
+        }
+    },
+    {
+        "name": "Ritika Jain",
+        "phone": "9081234567",
+        "email": "ritika.jain@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7200,
+            "totalPaid": 3200,
+            "totalDue": 4000,
+            "notes": "Payment pending"
+        }
+    },
+    {
+        "name": "Manish Tiwari",
+        "phone": "9092345678",
+        "email": "manish.tiwari@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6700,
+            "totalPaid": 3700,
+            "totalDue": 3000,
+            "notes": "Regular account"
+        }
+    },
+    {
+        "name": "Kavita Joshi",
+        "phone": "9103456789",
+        "email": "kavita.joshi@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4800,
+            "totalPaid": 2800,
+            "totalDue": 2000,
+            "notes": "Low due"
+        }
+    },
+    {
+        "name": "Nitin Agarwal",
+        "phone": "9114567890",
+        "email": "nitin.agarwal@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 10200,
+            "totalPaid": 8200,
+            "totalDue": 2000,
+            "notes": "Premium customer"
+        }
+    },
+    {
+        "name": "Shweta Mishra",
+        "phone": "9125678901",
+        "email": "shweta.mishra@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5300,
+            "totalPaid": 2300,
+            "totalDue": 3000,
+            "notes": "Due pending"
+        }
+    },
+    {
+        "name": "Aditya Roy",
+        "phone": "9136789012",
+        "email": "aditya.roy@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 8900,
+            "totalPaid": 3900,
+            "totalDue": 5000,
+            "notes": "Stopped transactions"
+        }
+    },
+    {
+        "name": "Divya Bansal",
+        "phone": "9147890123",
+        "email": "divya.bansal@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6100,
+            "totalPaid": 3100,
+            "totalDue": 3000,
+            "notes": "Average customer"
+        }
+    },
+    {
+        "name": "Harsh Vardhan",
+        "phone": "9158901234",
+        "email": "harsh.vardhan@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7800,
+            "totalPaid": 5800,
+            "totalDue": 2000,
+            "notes": "Good payment history"
+        }
+    },
+    {
+        "name": "Tanvi Kapoor",
+        "phone": "9169012345",
+        "email": "tanvi.kapoor@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5000,
+            "totalPaid": 2500,
+            "totalDue": 2500,
+            "notes": "Balance due"
+        }
+    },
+    {
+        "name": "Ramesh Gupta",
+        "phone": "9170123456",
+        "email": "ramesh.gupta@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 8200,
+            "totalPaid": 4200,
+            "totalDue": 4000,
+            "notes": "Regular buyer"
+        }
+    },
+    {
+        "name": "Sunita Sharma",
+        "phone": "9181234567",
+        "email": "sunita.sharma@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6100,
+            "totalPaid": 2100,
+            "totalDue": 4000,
+            "notes": "Pending follow-up"
+        }
+    },
+    {
+        "name": "Alok Verma",
+        "phone": "9192345678",
+        "email": "alok.verma@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 9400,
+            "totalPaid": 5400,
+            "totalDue": 4000,
+            "notes": "Inactive"
+        }
+    },
+    {
+        "name": "Pankaj Singh",
+        "phone": "9203456789",
+        "email": "pankaj.singh@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7200,
+            "totalPaid": 3200,
+            "totalDue": 4000,
+            "notes": "Installment ongoing"
+        }
+    },
+    {
+        "name": "Komal Jain",
+        "phone": "9214567890",
+        "email": "komal.jain@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5300,
+            "totalPaid": 5300,
+            "totalDue": 0,
+            "notes": "Cleared"
+        }
+    },
+    {
+        "name": "Yash Thakur",
+        "phone": "9225678901",
+        "email": "yash.thakur@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 8800,
+            "totalPaid": 4800,
+            "totalDue": 4000,
+            "notes": "High value"
+        }
+    },
+    {
+        "name": "Ankit Dubey",
+        "phone": "9236789012",
+        "email": "ankit.dubey@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4500,
+            "totalPaid": 1500,
+            "totalDue": 3000,
+            "notes": "New account"
+        }
+    },
+    {
+        "name": "Preeti Sinha",
+        "phone": "9247890123",
+        "email": "preeti.sinha@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 9900,
+            "totalPaid": 3900,
+            "totalDue": 6000,
+            "notes": "Hold"
+        }
+    },
+    {
+        "name": "Gaurav Bansal",
+        "phone": "9258901234",
+        "email": "gaurav.bansal@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6700,
+            "totalPaid": 4700,
+            "totalDue": 2000,
+            "notes": "Stable account"
+        }
+    },
+    {
+        "name": "Seema Kapoor",
+        "phone": "9269012345",
+        "email": "seema.kapoor@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7600,
+            "totalPaid": 2600,
+            "totalDue": 5000,
+            "notes": "Large due"
+        }
+    },
+    {
+        "name": "Aakash Meena",
+        "phone": "9270123456",
+        "email": "aakash.meena@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 8400,
+            "totalPaid": 6400,
+            "totalDue": 2000,
+            "notes": "On track"
+        }
+    },
+    {
+        "name": "Rekha Yadav",
+        "phone": "9281234567",
+        "email": "rekha.yadav@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 5200,
+            "totalPaid": 2200,
+            "totalDue": 3000,
+            "notes": "Inactive user"
+        }
+    },
+    {
+        "name": "Naveen Pillai",
+        "phone": "9292345678",
+        "email": "naveen.pillai@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 9100,
+            "totalPaid": 5100,
+            "totalDue": 4000,
+            "notes": "Regular payments"
+        }
+    },
+    {
+        "name": "Kriti Arora",
+        "phone": "9303456789",
+        "email": "kriti.arora@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6000,
+            "totalPaid": 2000,
+            "totalDue": 4000,
+            "notes": "Pending"
+        }
+    },
+    {
+        "name": "Varun Khanna",
+        "phone": "9314567890",
+        "email": "varun.khanna@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7800,
+            "totalPaid": 5800,
+            "totalDue": 2000,
+            "notes": "Good client"
+        }
+    },
+    {
+        "name": "Isha Choudhary",
+        "phone": "9325678901",
+        "email": "isha.choudhary@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4300,
+            "totalPaid": 1300,
+            "totalDue": 3000,
+            "notes": "New entry"
+        }
+    },
+    {
+        "name": "Rajat Saxena",
+        "phone": "9336789012",
+        "email": "rajat.saxena@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 8700,
+            "totalPaid": 4700,
+            "totalDue": 4000,
+            "notes": "Stopped"
+        }
+    },
+    {
+        "name": "Payal Aggarwal",
+        "phone": "9347890123",
+        "email": "payal.aggarwal@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 5600,
+            "totalPaid": 2600,
+            "totalDue": 3000,
+            "notes": "Average"
+        }
+    },
+    {
+        "name": "Tarun Joshi",
+        "phone": "9358901234",
+        "email": "tarun.joshi@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 9200,
+            "totalPaid": 7200,
+            "totalDue": 2000,
+            "notes": "Reliable"
+        }
+    },
+    {
+        "name": "Nisha Bhatt",
+        "phone": "9369012345",
+        "email": "nisha.bhatt@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 6100,
+            "totalPaid": 4100,
+            "totalDue": 2000,
+            "notes": "Low due"
+        }
+    },
+    {
+        "name": "Sanjay Rawat",
+        "phone": "9370123456",
+        "email": "sanjay.rawat@example.com",
+        "isActive": false,
+        "accountDetails": {
+            "totalAmount": 8800,
+            "totalPaid": 3800,
+            "totalDue": 5000,
+            "notes": "Delayed"
+        }
+    },
+    {
+        "name": "Heena Sheikh",
+        "phone": "9381234567",
+        "email": "heena.sheikh@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 4700,
+            "totalPaid": 1700,
+            "totalDue": 3000,
+            "notes": "Pending"
+        }
+    },
+    {
+        "name": "Lokesh Saini",
+        "phone": "9392345678",
+        "email": "lokesh.saini@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 7300,
+            "totalPaid": 3300,
+            "totalDue": 4000,
+            "notes": "Regular"
+        }
+    },
+    {
+        "name": "Monika Tyagi",
+        "phone": "9403456789",
+        "email": "monika.tyagi@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 8200,
+            "totalPaid": 6200,
+            "totalDue": 2000,
+            "notes": "Consistent"
+        }
+    },
+    {
+        "name": "Deepanshu Goyal",
+        "phone": "9414567890",
+        "email": "deepanshu.goyal@example.com",
+        "isActive": true,
+        "accountDetails": {
+            "totalAmount": 9500,
+            "totalPaid": 4500,
+            "totalDue": 5000,
+            "notes": "High due"
+        }
+    }
+]
