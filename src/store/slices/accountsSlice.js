@@ -1,15 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { accountService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 // Async thunk for getting accounts
 export const getAccounts = createAsyncThunk(
   "accounts/getAccounts",
   async (params = {}, { rejectWithValue }) => {
     try {
-      const result = await accountService.getAccounts(params);
-      return { success: true, data: result.data };
+      const response = await accountService.getAccounts(params);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch accounts." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -19,10 +21,10 @@ export const createAccount = createAsyncThunk(
   "accounts/createAccount",
   async (accountData, { rejectWithValue }) => {
     try {
-      const result = await accountService.createAccount(accountData);
-      return { success: true, data: result.data };
+      const response = await accountService.createAccount(accountData);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to create account." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -32,10 +34,10 @@ export const getAccountStats = createAsyncThunk(
   "accounts/getAccountStats",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await accountService.getAccountStats(storeId);
-      return { success: true, data: result.data };
+      const response = await accountService.getAccountStats(storeId);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch account statistics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -136,29 +138,19 @@ const accountsSlice = createSlice({
       .addCase(getAccounts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-
-        const { data } = action.payload;
-
-        // Update accounts data
-        if (data?.data) {
-          state.accounts = data.data;
-        } else if (data) {
-          state.accounts = data;
-        }
-
-        // Update pagination
-        if (data?.meta?.pagination) {
+        state.accounts = action.payload.data || [];
+        if (action.payload.pagination) {
           state.pagination = {
-            hasNextPage: data.meta.pagination.hasNextPage || false,
-            nextCursor: data.meta.pagination.nextCursor || null,
-            limit: data.meta.pagination.limit || 20,
-            total: data.meta.pagination.total || 0,
+            hasNextPage: action.payload.pagination.hasNextPage || false,
+            nextCursor: action.payload.pagination.nextCursor || null,
+            limit: action.payload.pagination.limit || 20,
+            total: action.payload.pagination.total || 0,
           };
         }
       })
       .addCase(getAccounts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch accounts";
+        state.error = action.payload || "Failed to fetch accounts";
       })
 
       // Create account
@@ -178,7 +170,7 @@ const accountsSlice = createSlice({
       })
       .addCase(createAccount.rejected, (state, action) => {
         state.isCreating = false;
-        state.error = action.payload?.message || "Failed to create account";
+        state.error = action.payload || "Failed to create account";
       })
 
       // Get account statistics
@@ -209,11 +201,5 @@ export const {
   clearError,
   addMoreAccounts,
 } = accountsSlice.actions;
-
-export {
-  getAccounts,
-  createAccount,
-  getAccountStats,
-};
 
 export default accountsSlice.reducer;

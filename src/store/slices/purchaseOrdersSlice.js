@@ -89,7 +89,6 @@ const purchaseOrdersSlice = createSlice({
           state.list = [...state.list, ...newPOs];
         }
 
-        console.log("pagination : ", pagination)
         if (pagination) {
           state.pagination = {
             hasNextPage: pagination.hasNextPage || false,

@@ -1,49 +1,25 @@
-// src/service/retailer/signature.service.js
-
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class SignatureService {
+class SignatureService extends BaseService {
     constructor() {
-        this.baseURL = API_CONFIG.BASE.URL;
+        super();
+        this.baseEndpoint = API_CONFIG?.RETAILER?.SIGNATURE;
     }
 
     // Create a new signature
-    async createSignature(signatureData) {
-        try {
-            const response = await authAxios.post(
-                API_CONFIG?.RETAILER?.SIGNATURE,
-                signatureData
-            );
-            return handleApiSuccess(response?.data, "Signature saved successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "signature-creation");
-        }
+    createSignature(signatureData) {
+        return this.post(this.baseEndpoint, signatureData);
     }
 
     // Get signatures for an agency or a single signature by ID
-    async getSignatures(params = {}) {
-        try {
-            const url = attachQueryParams(API_CONFIG?.RETAILER?.SIGNATURE, params);
-            const response = await authAxios.get(url);
-            return handleApiSuccess(response?.data, "Signatures fetched successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "signatures-fetch");
-        }
+    getSignatures(params = {}) {
+        return this.get(this.baseEndpoint, params);
     }
 
     // Delete a signature
-    async deleteSignature(id) {
-        try {
-            const response = await authAxios.delete(
-                `${API_CONFIG?.RETAILER?.SIGNATURE}/${id}`
-            );
-            return handleApiSuccess(response?.data, "Signature deleted successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "signature-deletion");
-        }
+    deleteSignature(id) {
+        return this.delete(`${this.baseEndpoint}/${id}`);
     }
 }
 

@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
   revenue: { summary: {}, today: {}, change: {} },
@@ -24,21 +26,15 @@ const initialState = {
   error: null,
 };
 
-// Helper: unwrap BaseService axios response body
-const unwrap = (result) => {
-  const body = result?.data;
-  return body?.data !== undefined ? body.data : body;
-};
-
 // ── Revenue Analytics ────────────────────────────────────────────────
 export const getRevenueAnalytics = createAsyncThunk(
   "analytics/getRevenueAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getRevenueAnalytics({ store: storeId });
-      return { success: true, data: unwrap(result) || initialState.revenue };
+      const response = await analyticsService.getRevenueAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch revenue analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -49,10 +45,10 @@ export const getInvoiceAnalytics = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const params = typeof payload === "object" && payload !== null ? payload : { store: payload };
-      const result = await analyticsService.getInvoiceAnalytics(params);
-      return { success: true, data: unwrap(result) || initialState.invoice };
+      const response = await analyticsService.getInvoiceAnalytics(params);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch invoice analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -63,10 +59,10 @@ export const getExpenseAnalytics = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const params = typeof payload === "object" && payload !== null ? payload : { store: payload };
-      const result = await analyticsService.getExpenseAnalytics(params);
-      return { success: true, data: unwrap(result) || initialState.expense };
+      const response = await analyticsService.getExpenseAnalytics(params);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch expense analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -77,10 +73,10 @@ export const getBillAnalytics = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const params = typeof payload === "object" && payload !== null ? payload : { store: payload };
-      const result = await analyticsService.getBillAnalytics(params);
-      return { success: true, data: unwrap(result) || initialState.bill };
+      const response = await analyticsService.getBillAnalytics(params);
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch bill analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -90,10 +86,10 @@ export const getStockAnalytics = createAsyncThunk(
   "analytics/getStockAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getStockAnalytics({ store: storeId });
-      return { success: true, data: unwrap(result) || initialState.stock };
+      const response = await analyticsService.getStockAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch stock analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -103,10 +99,10 @@ export const getProductAnalytics = createAsyncThunk(
   "analytics/getProductAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getProductAnalytics({ store: storeId });
-      return { success: true, data: unwrap(result) || initialState.product };
+      const response = await analyticsService.getProductAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch product analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -116,10 +112,10 @@ export const getCustomerAnalytics = createAsyncThunk(
   "analytics/getCustomerAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getCustomerAnalytics({ store: storeId });
-      return { success: true, data: unwrap(result) || initialState.customer };
+      const response = await analyticsService.getCustomerAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch customer analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -129,10 +125,10 @@ export const getSupplierAnalytics = createAsyncThunk(
   "analytics/getSupplierAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getSupplierAnalytics({ store: storeId });
-      return { success: true, data: unwrap(result) || initialState.supplier };
+      const response = await analyticsService.getSupplierAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch supplier analytics." });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -159,7 +155,7 @@ const analyticsSlice = createSlice({
         })
         .addCase(thunk.rejected, (state, action) => {
           state[loadingKey] = false;
-          state.error = action.payload?.message || `Failed to fetch ${dataKey} analytics`;
+          state.error = action.payload || `Failed to fetch ${dataKey} analytics`;
         });
     };
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Mail, Briefcase, ChevronDown, ChevronUp, Check, AlertCircle, Loader2, Send, User } from "lucide-react";
 import Input from "@/components/ui/Input";
 import staffService from "@/service/retailer/staff.service";
-import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 
 const MODULES = [
     { key: "billing", label: "Billing", description: "Create & manage bills" },
@@ -64,10 +64,9 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
     const [expandedModules, setExpandedModules] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedPreset, setSelectedPreset] = useState(null);
-    const { showSuccess, showError } = useGlobalToast();
+    const { execute, loading: isLoading } = useApiResponse();
 
     const toggleModule = (moduleKey) => {
         const existing = permissions.find((p) => p.module === moduleKey);
@@ -110,31 +109,19 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
             return;
         }
 
-        setIsLoading(true);
         setError(null);
 
-        try {
-            const data = {
-                stores: [storeId],
-                name,
-                email,
-                roleName,
-                permissions,
-            };
+        const data = { stores: [storeId], name, email, roleName, permissions };
 
-            const response = await staffService.inviteStaff(data);
+        const result = await execute(
+            staffService.inviteStaff(data),
+            { message: "Staff invitation sent successfully!" }
+        );
 
-            showSuccess(response?.message || "Staff invitation sent successfully!");
+        if (result?.success) {
             onSuccess?.();
-
-            // Note: Not clearing form here because drawer usually closes on success.
-            // If it stays open, we would clear states here.
-
-        } catch (err) {
-            setError(err?.response?.data?.message || err?.message || "Failed to send invitation. Please try again.");
-            showError(err?.response?.data?.message || "Error sending invitation");
-        } finally {
-            setIsLoading(false);
+        } else {
+            setError(result?.message || "Failed to send invitation. Please try again.");
         }
     };
 

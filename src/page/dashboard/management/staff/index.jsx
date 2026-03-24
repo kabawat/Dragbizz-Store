@@ -10,7 +10,7 @@ import StaffCard from "@/components/staff/StaffCard";
 import StaffEmptyState from "@/components/staff/StaffEmptyState";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 import staffService from "@/service/retailer/staff.service";
-import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 
 const STATUS_TABS = [
     { label: "All", value: "ALL" },
@@ -29,43 +29,44 @@ const StaffPage = () => {
     const [activeTab, setActiveTab] = useState("ALL");
 
     const [staffList, setStaffList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const { showError } = useGlobalToast();
+    const { execute: executeFetch, loading: isLoading } = useApiResponse();
+    const { execute: executeDelete } = useApiResponse();
+    const { execute: executeRemove } = useApiResponse();
 
     const fetchStaff = useCallback(async () => {
         if (!storeId) return;
-        setIsLoading(true);
-        try {
-            const response = await staffService.getStaff();
-            setStaffList(Array.isArray(response?.data) ? response.data : []);
-        } catch (err) {
-            showError(err?.response?.data?.message || "Failed to load staff");
-        } finally {
-            setIsLoading(false);
+        const result = await executeFetch(
+            staffService.getStaff(),
+            { showToast: false }
+        );
+        if (result?.success) {
+            setStaffList(Array.isArray(result.data) ? result.data : []);
         }
-    }, [storeId]);
+    }, [storeId, executeFetch]);
 
     useEffect(() => {
         fetchStaff();
     }, [fetchStaff]);
 
     const handleDeleteTempStaff = async (staffId) => {
-        try {
-            await staffService.deleteTempStaff(staffId);
+        const result = await executeDelete(
+            staffService.deleteTempStaff(staffId),
+            { message: "Invitation cancelled successfully" }
+        );
+        if (result?.success) {
             setStaffList((prev) => prev.filter((s) => s._id !== staffId));
-        } catch (err) {
-            showError(err?.response?.data?.message || "Failed to cancel invitation");
         }
     };
 
     const handleRemoveStaff = async (staffId) => {
-        try {
-            await staffService.removeStaff(staffId);
+        const result = await executeRemove(
+            staffService.removeStaff(staffId),
+            { message: "Staff member removed successfully" }
+        );
+        if (result?.success) {
             setStaffList((prev) =>
                 prev.map((s) => s._id === staffId ? { ...s, status: "REMOVED" } : s)
             );
-        } catch (err) {
-            showError(err?.response?.data?.message || "Failed to remove staff member");
         }
     };
 
