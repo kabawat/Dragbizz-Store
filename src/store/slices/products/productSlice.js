@@ -77,8 +77,6 @@ const productsSlice = createSlice({
                 state.error = null;
 
                 const { data, pagination } = action.payload;
-                console.log("pagination : ", pagination)
-
                 // Normalize product data
                 const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
                 const normalize = (p) => ({ ...p, id: p.id || p._id });

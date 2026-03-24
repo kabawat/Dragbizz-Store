@@ -2,6 +2,8 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { suggestionService } from "@/service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 // Initial state
 const initialState = {
@@ -24,14 +26,10 @@ export const getSuggestions = createAsyncThunk(
     "suggestions/getSuggestions",
     async (params, { rejectWithValue }) => {
         try {
-            const result = await suggestionService.getSuggestions(params);
-            if (result.success) {
-                return result;
-            } else {
-                return rejectWithValue(result.message || "Failed to fetch suggestions");
-            }
+            const response = await suggestionService.getSuggestions(params);
+            return handleSuccess(response);
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to fetch suggestions");
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -40,14 +38,10 @@ export const getSuggestionById = createAsyncThunk(
     "suggestions/getSuggestionById",
     async ({ id, storeId }, { rejectWithValue }) => {
         try {
-            const result = await suggestionService.getSuggestions({ id, store: storeId });
-            if (result.success) {
-                return result.data;
-            } else {
-                return rejectWithValue(result.message || "Failed to fetch suggestion details");
-            }
+            const response = await suggestionService.getSuggestions({ id, store: storeId });
+            return handleSuccess(response).data;
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to fetch suggestion details");
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -56,14 +50,10 @@ export const createSuggestion = createAsyncThunk(
     "suggestions/createSuggestion",
     async (suggestionData, { rejectWithValue }) => {
         try {
-            const result = await suggestionService.createSuggestion(suggestionData);
-            if (result.success) {
-                return result.data;
-            } else {
-                return rejectWithValue(result.message || "Failed to create suggestion");
-            }
+            const response = await suggestionService.createSuggestion(suggestionData);
+            return handleSuccess(response).data;
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to create suggestion");
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -72,14 +62,10 @@ export const upvoteSuggestion = createAsyncThunk(
     "suggestions/upvoteSuggestion",
     async (id, { rejectWithValue }) => {
         try {
-            const result = await suggestionService.upvoteSuggestion(id);
-            if (result.success) {
-                return { id, data: result.data };
-            } else {
-                return rejectWithValue(result.message || "Failed to upvote suggestion");
-            }
+            const response = await suggestionService.upvoteSuggestion(id);
+            return { id, data: handleSuccess(response).data };
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to upvote suggestion");
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -88,14 +74,10 @@ export const deleteSuggestion = createAsyncThunk(
     "suggestions/deleteSuggestion",
     async ({ id, storeId }, { rejectWithValue }) => {
         try {
-            const result = await suggestionService.deleteSuggestion(id, storeId);
-            if (result.success) {
-                return id;
-            } else {
-                return rejectWithValue(result.message || "Failed to delete suggestion");
-            }
+            await suggestionService.deleteSuggestion(id, storeId);
+            return id;
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to delete suggestion");
+            return rejectWithValue(handleError(error).message);
         }
     }
 );

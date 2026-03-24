@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const initialState = {
   analytics: { totalCustomers: 0, todayCustomers: 0, newCustomers: {} },
@@ -11,14 +13,10 @@ export const getCustomerAnalytics = createAsyncThunk(
   "customers/getCustomerAnalytics",
   async (storeId, { rejectWithValue }) => {
     try {
-      const result = await analyticsService.getCustomerAnalytics({ store: storeId });
-      const body = result?.data;
-      const data = body?.data !== undefined ? body.data : body;
-      return { success: true, data: data || initialState.analytics };
+      const response = await analyticsService.getCustomerAnalytics({ store: storeId });
+      return handleSuccess(response);
     } catch (error) {
-      return rejectWithValue({
-        message: error?.response?.data?.message || "Failed to fetch customer analytics. Please try again.",
-      });
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -40,7 +38,7 @@ const customersSlice = createSlice({
       })
       .addCase(getCustomerAnalytics.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch customer analytics";
+        state.error = action.payload || "Failed to fetch customer analytics";
       });
   },
 });
