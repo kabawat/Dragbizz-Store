@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { supplierService } from "@/service/retailer";
 import { Input, Select } from "../ui";
 
@@ -18,6 +19,7 @@ const OpeningQuantitySection = ({
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const { execute } = useApiResponse();
 
   // Ref to prevent duplicate API calls
   const hasFetchedSuppliers = useRef(false);
@@ -36,13 +38,16 @@ const OpeningQuantitySection = ({
 
     try {
       setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
+      const result = await execute(
+        supplierService.getSuppliers({
+          limit: 100,
+          lightweight: true,
+          store: storeId,
+        }),
+        { showToast: false }
+      );
       if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
+        setSuppliers(result.data || []);
       }
     } catch (_error) {
       hasFetchedSuppliers.current = false; // Reset on error
