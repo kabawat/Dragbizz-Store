@@ -101,7 +101,7 @@ const CustomerListContent = () => {
                         <div ref={sentinelRef} className="h-4 w-full" />
                     )}
 
-                    {isFetchingMore || isLoading && (
+                    {(isFetchingMore || isLoading) && customers.length > 0 && (
                         <div className="flex items-center justify-center py-16">
                             <div className="flex items-center gap-3">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />

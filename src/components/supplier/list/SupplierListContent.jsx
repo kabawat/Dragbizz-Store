@@ -117,7 +117,7 @@ const SupplierListContent = () => {
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
                 <div className="h-[calc(100vh-200px)] overflow-y-auto">
                     {viewMode === "table" ? (
-                        <div className="h-full">
+                        <div className="h-auto">
                             <SupplierTable
                                 suppliers={suppliers}
                                 onEdit={handleEditSupplier}
@@ -151,18 +151,16 @@ const SupplierListContent = () => {
                         </div>
                     )}
 
-                    {/* Sentinel — IntersectionObserver triggers load more */}
                     {pagination.hasNextPage && (
                         <div ref={sentinelRef} className="h-4 w-full" />
                     )}
 
-                    {/* Infinite scroll loading indicator */}
-                    {(isFetchingMore || (isLoading && suppliers.length > 0)) && (
-                        <div className="col-span-full flex items-center justify-center py-8">
+                    {(isFetchingMore || isLoading) && suppliers.length > 0 && (
+                        <div className="flex items-center justify-center py-16">
                             <div className="flex items-center gap-3">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]" />
                                 <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                                    {t("common.loadingMore")}
+                                    {t("common.loadingMore") || "Loading more..."}
                                 </span>
                             </div>
                         </div>

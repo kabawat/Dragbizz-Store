@@ -28,8 +28,6 @@ const ProductsPage = () => {
     }
   }, [dispatch]);
 
-
-
   useCommonHotkeys({
     onBack: () => router.push("/dashboard"),
   });

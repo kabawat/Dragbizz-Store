@@ -39,21 +39,6 @@ export const getGstHealthScore = createAsyncThunk(
   }
 );
 
-export const syncGstStats = createAsyncThunk(
-  "gst/syncGstStats",
-  async ({ storeId, params = {} }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await gstService.syncGstStats(storeId, params);
-      handleSuccess(response);
-      dispatch(getGstSummary({ storeId, params }));
-      dispatch(getGstHealthScore({ storeId, params: { year: params.year } }));
-      return { success: true };
-    } catch (error) {
-      return rejectWithValue(handleError(error).message);
-    }
-  }
-);
-
 const initialState = {
   summary: null,
   mismatches: null,
@@ -61,7 +46,6 @@ const initialState = {
   isLoading: false,
   isLoadingMismatches: false,
   isLoadingHealthScore: false,
-  isSyncing: false,
   error: null,
 };
 
@@ -107,16 +91,6 @@ const gstSlice = createSlice({
       })
       .addCase(getGstHealthScore.rejected, (state) => {
         state.isLoadingHealthScore = false;
-      })
-      .addCase(syncGstStats.pending, (state) => {
-        state.isSyncing = true;
-      })
-      .addCase(syncGstStats.fulfilled, (state) => {
-        state.isSyncing = false;
-      })
-      .addCase(syncGstStats.rejected, (state, action) => {
-        state.isSyncing = false;
-        state.error = action.payload || "Failed to sync GST stats";
       });
   },
 });

@@ -1,96 +1,33 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class GstService {
+class GstService extends BaseService {
   constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
+    super();
+    this.endpoint = API_CONFIG.RETAILER.GST;
   }
 
-  async getGstSummary(storeId, params = {}) {
-    try {
-      const url = attachQueryParams(
-        `${API_CONFIG.RETAILER.GST}/summary`,
-        { store: storeId, ...params }
-      );
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response.data,
-        "GST summary fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "gst-summary-fetch");
-    }
+  getGstSummary(storeId, params = {}) {
+    return this.get(`${this.endpoint}/summary`, { store: storeId, ...params });
   }
 
-  async getGstMismatches(storeId, params = {}) {
-    try {
-      const url = attachQueryParams(
-        `${API_CONFIG.RETAILER.GST}/mismatches`,
-        { store: storeId, ...params }
-      );
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response.data,
-        "GST mismatches fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "gst-mismatches-fetch");
-    }
+  getGstMismatches(storeId, params = {}) {
+    return this.get(`${this.endpoint}/mismatches`, { store: storeId, ...params });
   }
 
-  /**
-   * Returns JSON only. Frontend generates CSV/XLSX using exportUtils.
-   */
-  async getGstExport(storeId, params = {}) {
-    try {
-      const url = attachQueryParams(
-        `${API_CONFIG.RETAILER.GST}/export`,
-        { store: storeId, ...params }
-      );
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response.data,
-        "GST export data fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "gst-export-fetch");
-    }
+  // Returns JSON only. Frontend generates CSV/XLSX using exportUtils.
+  getGstExport(storeId, params = {}) {
+    return this.get(`${this.endpoint}/export`, { store: storeId, ...params });
   }
 
-  async getGstHealthScore(storeId, params = {}) {
-    try {
-      const url = attachQueryParams(
-        `${API_CONFIG.RETAILER.GST}/health-score`,
-        { store: storeId, ...params }
-      );
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response.data,
-        "GST health score fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "gst-health-score-fetch");
-    }
+  getGstHealthScore(storeId, params = {}) {
+    return this.get(`${this.endpoint}/health-score`, { store: storeId, ...params });
   }
 
-  async syncGstStats(storeId, params = {}) {
-    try {
-      const url = attachQueryParams(
-        `${API_CONFIG.RETAILER.GST}/sync`,
-        { store: storeId }
-      );
-      const response = await authAxios.post(url, params);
-      return handleApiSuccess(
-        response.data,
-        "GST statistics synced successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "gst-sync-stats");
-    }
+  syncGstStats(storeId, params = {}) {
+    return this.post(`${this.endpoint}/sync`, params, { store: storeId });
   }
 }
 
-const gstService = new GstService();
+export const gstService = new GstService();
 export default gstService;
