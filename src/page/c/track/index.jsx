@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import publicSalesOrderService from "@/service/public/salesOrder.service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 import moment from "moment";
 import {
     Building2,
@@ -41,16 +43,18 @@ export default function OrderTrackingPage({ publicId }) {
 
     useEffect(() => {
         const fetchOrder = async () => {
+            setLoading(true);
             try {
-                setLoading(true);
                 const response = await publicSalesOrderService.getOrder(publicId);
-                if (response.success) {
-                    setOrder(response.data);
+                const result = handleSuccess(response);
+                if (result.success && result.data) {
+                    setOrder(result.data);
                 } else {
-                    setError(response.message || "Order not found");
+                    setError("Order not found or an error occurred.");
                 }
-            } catch (err) {
-                setError("Failed to load order details");
+            } catch (error) {
+                const errResult = handleError(error);
+                setError(errResult.message || "Failed to load order details");
             } finally {
                 setLoading(false);
             }

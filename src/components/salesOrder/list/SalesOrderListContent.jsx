@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { salesOrderService } from "@/service/retailer";
 import { getSalesOrders } from "@/store/slices/salesOrdersSlice";
@@ -22,7 +23,7 @@ const SalesOrderListContent = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || "";
 
-    const [updatingStatus, setUpdatingStatus] = useState(false);
+    const { execute: executeUpdate, loading: updatingStatus } = useApiResponse();
     const scrollRef = useRef(null);
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
@@ -66,22 +67,16 @@ const SalesOrderListContent = () => {
     const handleUpdateStatus = useCallback(async (orderId, status, payload = {}) => {
         if (!orderId || !storeId) return;
 
-        setUpdatingStatus(true);
-        try {
-            const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
-            if (result.success) {
-                showSuccess(result.message || "Order updated successfully");
-                // Immediately refresh fresh data upon local side effect completion
-                dispatch(getSalesOrders({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }));
-            } else {
-                showError(result.message || "Failed to update order");
-            }
-        } catch (error) {
-            showError("An unexpected error occurred while updating status");
-        } finally {
-            setUpdatingStatus(false);
+        const result = await executeUpdate(
+            salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId }),
+            { showToast: true, message: "Order updated successfully" }
+        );
+
+        if (result?.success) {
+            // Immediately refresh fresh data upon local side effect completion
+            dispatch(getSalesOrders({ store: storeId, limit: 20, cursor: null, isFreshLoad: true }));
         }
-    }, [dispatch, storeId, showSuccess, showError]);
+    }, [dispatch, storeId, executeUpdate]);
 
     const handlePrint = useCallback((order) => {
         // Implementation for printing
