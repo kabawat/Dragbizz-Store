@@ -47,12 +47,18 @@ export default function DashboardLayout({ children }) {
     }
   }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
 
-  // Redirect to tenant subdomain if missing
+  // Redirect to correct tenant subdomain (also handles wrong subdomain)
   useEffect(() => {
     const tenant = authProfile?.tenant;
     if (!tenant || typeof window === "undefined") return;
-    const domain = updateSubdomain(window.location.href, tenant);
-    if (!domain?.hasSubdomain) {
+
+    const hostname = window.location.hostname;
+    const parts = hostname.split(".");
+    const currentSubdomain = parts.length > 2 ? parts[0] : null;
+
+    // If no subdomain OR wrong subdomain → redirect to correct one
+    if (currentSubdomain !== tenant) {
+      const domain = updateSubdomain(window.location.href, tenant);
       window.location.replace(domain.url);
     }
   }, [authProfile?.tenant]);
