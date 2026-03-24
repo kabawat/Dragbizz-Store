@@ -4,11 +4,11 @@ import { useCallback, useRef, useState } from "react";
 import { Button, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { supplierService } from "@/service/retailer/supplier.service";
+import { productService } from "@/service/retailer/product.service";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 
-const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
+const ProductBulkUpload = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
@@ -22,7 +22,6 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { execute, loading: isUploading, clearAll } = useApiResponse();
 
   const accept = ".csv, .xlsx, .json";
-  // Convert standard extensions to actual mime types for validation if needed, or just check extensions
   const validExtensions = ["csv", "xlsx", "json"];
 
   const validateFile = (file) => {
@@ -31,13 +30,13 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     // Check extension
     const extension = file.name.split('.').pop().toLowerCase();
     if (!validExtensions.includes(extension)) {
-      showError(t("suppliers.invalidFileType", "Please upload a valid CSV, XLSX, or JSON file."));
+      showError(t("products.invalidFileType", "Please upload a valid CSV, XLSX, or JSON file."));
       return false;
     }
 
     // Check size (e.g. max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showError(t("suppliers.fileTooLarge", "File size should be less than 5MB."));
+      showError(t("products.fileTooLarge", "File size should be less than 5MB."));
       return false;
     }
 
@@ -97,32 +96,32 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      showError(t("suppliers.pleaseSelectFile", "Please select a file to upload."));
+      showError(t("products.pleaseSelectFile", "Please select a file to upload."));
       return;
     }
 
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
     // Using execute with showToast: false because we want to run custom toast and success logic based on 'summary'
-    const result = await execute(supplierService.bulkUploadSuppliers(selectedFile, storeId), { showToast: false });
+    const result = await execute(productService.bulkUploadProducts(selectedFile, storeId), { showToast: false });
 
     if (result?.success && result?.data && result.data.summary) {
       setUploadResult({ data: result.data });
 
       if (result.data.summary.failed === 0) {
-        showSuccess(t("suppliers.bulkUploadSuccess", "Bulk upload completed successfully"));
+        showSuccess(t("products.bulkUploadSuccess", "Bulk upload completed successfully"));
       } else {
-        showSuccess(t("suppliers.partialSuccess", "Bulk upload partially successful"));
+        showSuccess(t("products.partialSuccess", "Bulk upload partially successful"));
       }
       onSuccess?.();
     } else {
-      // showError(result?.message || t("suppliers.uploadError", "Failed to upload suppliers"));
+      // showError(result?.message || t("products.uploadError", "Failed to upload products"));
     }
   };
 
   const handleDownloadSample = () => {
     // Mock sample download
-    showSuccess(t("suppliers.sampleDownloaded", "Sample file downloading..."));
+    showSuccess(t("products.sampleDownloaded", "Sample file downloading..."));
   };
 
   const getFileIcon = (fileName) => {
@@ -170,10 +169,10 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
               {allSuccess
                 ? <CheckCircle2 className="w-5 h-5 text-green-500" />
                 : <AlertCircle className="w-5 h-5 text-amber-500" />}
-              {t("suppliers.uploadResults", "Upload Results")}
+              {t("products.uploadResults", "Upload Results")}
             </h4>
             <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] px-2.5 py-1 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
-              {t("suppliers.totalRows", "Total Rows")}: {summary.total}
+              {t("products.totalRows", "Total Rows")}: {summary.total}
             </span>
           </div>
 
@@ -182,19 +181,19 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-green-500">{summary.created}</span>
               <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                {t("suppliers.createdCount", "Created")}
+                {t("products.createdCount", "Created")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
               <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                {t("suppliers.skippedCount", "Skipped")}
+                {t("products.skippedCount", "Skipped")}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center py-5 gap-1">
               <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
               <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                {t("suppliers.failedCount", "Failed")}
+                {t("products.failedCount", "Failed")}
               </span>
             </div>
           </div>
@@ -211,7 +210,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
             >
               <span className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
                 <AlertCircle className="w-4 h-4 text-red-500" />
-                {t("suppliers.errorsFound", "Errors Found")}
+                {t("products.errorsFound", "Errors Found")}
                 <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
                   {errors.length}
                 </span>
@@ -230,7 +229,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <span className="inline-block text-[10px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
-                          {t("suppliers.rowNumber", { row: error.row }, `Row ${error.row}`)}
+                          {t("products.rowNumber", { row: error.row }, `Row ${error.row}`)}
                         </span>
                         <p className="text-sm text-[rgb(var(--color-text-primary))] leading-snug">
                           {error.reason}
@@ -242,7 +241,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                     {error.data && Object.keys(error.data).length > 0 && (
                       <div className="rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] p-2.5">
                         <p className="text-[10px] font-semibold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1.5">
-                          {t("suppliers.rowData", "Data")}
+                          {t("products.rowData", "Data")}
                         </p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           {Object.entries(error.data).map(([key, val]) => (
@@ -268,9 +267,9 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
     <SideDrawer
       isOpen={isOpen}
       onClose={handleClose}
-      title={t("suppliers.bulkUploadTitle", "Bulk Upload Suppliers")}
+      title={t("products.bulkUploadTitle", "Bulk Upload Products")}
       icon={Upload}
-      description={t("suppliers.bulkUploadDesc", "Upload a CSV, XLSX, or JSON file to add multiple suppliers at once.")}
+      description={t("products.bulkUploadDesc", "Upload a CSV, XLSX, or JSON file to add multiple products at once.")}
       width="w-full md:w-[600px] lg:w-[600px]"
     >
       <div className="p-4 sm:p-6 h-full flex flex-col">
@@ -280,12 +279,12 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
               {/* Information Section */}
               <div className="bg-[rgb(var(--color-primary)/0.1)] rounded-lg border border-[rgb(var(--color-primary)/0.2)] p-4">
                 <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                  {t("suppliers.instructions", "Instructions")}
+                  {t("products.instructions", "Instructions")}
                 </h4>
                 <ul className="list-disc pl-5 text-sm text-[rgb(var(--color-text-secondary))] space-y-1 mb-4">
-                  <li>{t("suppliers.instruction1", "Ensure file format is either .csv, .xlsx, or .json")}</li>
-                  <li>{t("suppliers.instruction2", "Maximum allowed file size is 5MB. ")}</li>
-                  <li>{t("suppliers.instruction3", "Make sure required fields (e.g., name) are present.")}</li>
+                  <li>{t("products.instruction1", "Ensure file format is either .csv, .xlsx, or .json")}</li>
+                  <li>{t("products.instruction2", "Maximum allowed file size is 5MB. ")}</li>
+                  <li>{t("products.instruction3", "Make sure required fields (e.g., name, price) are present.")}</li>
                 </ul>
                 <Button
                   size="sm"
@@ -293,7 +292,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                   className="flex items-center gap-2"
                 >
                   <FileDown className="w-4 h-4" />
-                  {t("suppliers.downloadSample", "Download Sample File")}
+                  {t("products.downloadSample", "Download Sample File")}
                 </Button>
               </div>
 
@@ -318,10 +317,10 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                         }`}
                     />
                     <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-                      {t("suppliers.dropZoneLabel", "Click to upload or drag and drop")}
+                      {t("products.dropZoneLabel", "Click to upload or drag and drop")}
                     </p>
                     <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                      {t("suppliers.supportedFormats", "Supported formats: CSV, XLSX, JSON")}
+                      {t("products.supportedFormats", "Supported formats: CSV, XLSX, JSON")}
                     </p>
                   </div>
 
@@ -379,7 +378,7 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
                 disabled={!selectedFile || isUploading}
                 loading={isUploading}
               >
-                {isUploading ? t("suppliers.uploading", "Uploading...") : t("suppliers.upload", "Upload File")}
+                {isUploading ? t("products.uploading", "Uploading...") : t("products.upload", "Upload File")}
               </Button>
               <Button variant="secondary" onClick={handleClose} disabled={isUploading}>
                 {t("common.cancel", "Cancel")}
@@ -388,10 +387,10 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
           ) : (
             <>
               <Button variant="primary" onClick={handleClose}>
-                {t("suppliers.done", "Done")}
+                {t("products.done", "Done")}
               </Button>
               <Button variant="secondary" onClick={resetUpload}>
-                {t("suppliers.uploadAnother", "Upload Another")}
+                {t("products.uploadAnother", "Upload Another")}
               </Button>
             </>
           )}
@@ -401,4 +400,4 @@ const SupplierBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   );
 };
 
-export default SupplierBulkUploadDrawer;
+export default ProductBulkUpload;
