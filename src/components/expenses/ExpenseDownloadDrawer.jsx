@@ -3,9 +3,9 @@ import { Calendar, Download } from "lucide-react";
 import { useState } from "react";
 import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { expenseService } from "@/service/retailer";
-import { handleSuccess } from "@/utils/responseHandler/success";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
 import logger from "@/utils/logger";
@@ -14,7 +14,7 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { execute: executeDownload, loading: isDownloading } = useApiResponse();
 
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
   const [customStartDate, setCustomStartDate] = useState("");
@@ -190,47 +190,31 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("expenses.storeIdMissing"));
       return;
     }
 
-    setIsDownloading(true);
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+    const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
+    const result = await executeDownload(
+      expenseService.getExpenses(params),
+      { showToast: false }
+    );
 
-      const rawResponse = await expenseService.getExpenses(params);
-      const result = handleSuccess(rawResponse);
-
-      if (result.success && result.data) {
-        const expensesData = Array.isArray(result.data)
-          ? result.data
-          : (result.data.data || []);
-
-        if (expensesData.length === 0) {
-          showError(t("expenses.noExpensesFoundToDownload"));
-          setIsDownloading(false);
-          return;
-        }
-
-        await downloadExpensesFile(expensesData);
-        showSuccess(t("expenses.expensesDownloadedSuccessfully"));
-      } else {
-        showError(result.message || t("expenses.failedToDownloadExpenses"));
+    if (result) {
+      const raw = result.data?.data || result.data;
+      const expensesData = Array.isArray(raw) ? raw : (raw?.data || []);
+      if (expensesData.length === 0) {
+        showError(t("expenses.noExpensesFoundToDownload"));
+        return;
       }
-    } catch (error) {
-      logger.error("Download expenses error:", error);
-      showError(t("expenses.errorDownloadingExpenses"));
-    } finally {
-      setIsDownloading(false);
-      handleClose();
+      await downloadExpensesFile(expensesData);
+      showSuccess(t("expenses.expensesDownloadedSuccessfully"));
+    } else {
+      showError(t("expenses.failedToDownloadExpenses"));
     }
+    handleClose();
   };
 
   const handleCustomRangeDownload = async () => {
@@ -250,47 +234,31 @@ const ExpenseDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("expenses.storeIdMissing"));
       return;
     }
 
-    setIsDownloading(true);
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+    const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
+    const result = await executeDownload(
+      expenseService.getExpenses(params),
+      { showToast: false }
+    );
 
-      const rawResponse = await expenseService.getExpenses(params);
-      const result = handleSuccess(rawResponse);
-
-      if (result.success && result.data) {
-        const expensesData = Array.isArray(result.data)
-          ? result.data
-          : (result.data.data || []);
-
-        if (expensesData.length === 0) {
-          showError(t("expenses.noExpensesFoundToDownload"));
-          setIsDownloading(false);
-          return;
-        }
-
-        await downloadExpensesFile(expensesData);
-        showSuccess(t("expenses.expensesDownloadedSuccessfully"));
-      } else {
-        showError(result.message || t("expenses.failedToDownloadExpenses"));
+    if (result) {
+      const raw = result.data?.data || result.data;
+      const expensesData = Array.isArray(raw) ? raw : (raw?.data || []);
+      if (expensesData.length === 0) {
+        showError(t("expenses.noExpensesFoundToDownload"));
+        return;
       }
-    } catch (error) {
-      logger.error("Download expenses error:", error);
-      showError(t("expenses.errorDownloadingExpenses"));
-    } finally {
-      setIsDownloading(false);
-      handleClose();
+      await downloadExpensesFile(expensesData);
+      showSuccess(t("expenses.expensesDownloadedSuccessfully"));
+    } else {
+      showError(t("expenses.failedToDownloadExpenses"));
     }
+    handleClose();
   };
 
   const sortExpenses = (expenses) => {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Search, Grid3X3, List, Package, Loader2 } from "lucide-react";
 import { Select } from "@/components/ui";
 import ProductCard from "./ProductCard";
@@ -6,6 +6,7 @@ import { CATEGORIES as MOCK_CATEGORIES } from "@/page/dashboard/pos/data/mockDat
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { categoryService } from "@/service/retailer";
 import { getProducts } from "@/store/slices/products/productSlice";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const ProductPanel = ({ addToCart }) => {
     const dispatch = useAppDispatch();
@@ -15,6 +16,7 @@ const ProductPanel = ({ addToCart }) => {
     const [viewMode, setViewMode] = useState("grid");
 
     const [categories, setCategories] = useState([{ id: "all", name: "All Items" }]);
+    const { execute: executeGetCategories } = useApiResponse();
 
     // Select products from redux
     const { products, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.products);
@@ -33,34 +35,31 @@ const ProductPanel = ({ addToCart }) => {
     storeIdRef.current = storeId;
     paginationRef.current = pagination;
 
-    // Fetch Products via Redux
+    const fetchCategories = useCallback(async () => {
+        if (!storeId) return;
+        const result = await executeGetCategories(
+            categoryService.getCategories({ store: storeId, limit: 100, lightweight: true }),
+            { showToast: false }
+        );
+        if (result) {
+            const data = result.data?.data || result.data || [];
+            const list = Array.isArray(data) ? data : [];
+            setCategories([
+                { id: "all", name: "All Items" },
+                ...list.map(c => ({ id: c._id || c.id, name: c.name }))
+            ]);
+        } else {
+            setCategories(MOCK_CATEGORIES);
+        }
+    }, [storeId, executeGetCategories]);
+
+    // Fetch Products + Categories via Redux
     useEffect(() => {
         if (!storeId || hasFetchedRef.current) return;
-
         hasFetchedRef.current = true;
-        // Fetch products via redux (100 limit for POS)
         dispatch(getProducts({ store: storeId, limit: 100, isFreshLoad: true }));
-
-        // Fetch categories directly
-        const fetchCategories = async () => {
-            try {
-                const catResponse = await categoryService.getCategories({ store: storeId, limit: 100, lightweight: true });
-                if (catResponse?.success && catResponse?.data) {
-                    const mappedCats = [
-                        { id: "all", name: "All Items" },
-                        ...catResponse.data.map(c => ({ id: c._id || c.id, name: c.name }))
-                    ];
-                    setCategories(mappedCats);
-                } else {
-                    setCategories(MOCK_CATEGORIES);
-                }
-            } catch (err) {
-                setCategories(MOCK_CATEGORIES);
-            }
-        };
         fetchCategories();
-
-    }, [storeId, dispatch]);
+    }, [storeId, dispatch, fetchCategories]);
 
     // IntersectionObserver for Infinite scroll
     useEffect(() => {

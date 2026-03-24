@@ -44,13 +44,13 @@ const ExpenseDeleteModal = forwardRef(({ onDeleteSuccess } = {}, ref) => {
             { showToast: false }
         );
 
-        if (result?.success) {
+        if (result) {
             dispatch(removeExpense(expenseToDelete.id));
             showSuccess(t("modals.deletedSuccessfully", { item: t("common.expense") }) || "Expense deleted successfully");
             handleClose();
             onDeleteSuccess?.();
         } else {
-            showError(result?.message || "Failed to delete expense");
+            showError(t("modals.deleteFailed") || "Failed to delete expense");
         }
     };
 

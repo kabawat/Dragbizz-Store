@@ -7,21 +7,9 @@ export const getAccounts = createAsyncThunk(
   async (params = {}, { rejectWithValue }) => {
     try {
       const result = await accountService.getAccounts(params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch accounts",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Accounts fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch accounts. Please try again.",
-      });
+      return { success: true, data: result.data };
+    } catch (error) {
+      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch accounts." });
     }
   }
 );
@@ -32,21 +20,9 @@ export const createAccount = createAsyncThunk(
   async (accountData, { rejectWithValue }) => {
     try {
       const result = await accountService.createAccount(accountData);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to create account",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Account created successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to create account. Please try again.",
-      });
+      return { success: true, data: result.data };
+    } catch (error) {
+      return rejectWithValue({ message: error?.response?.data?.message || "Failed to create account." });
     }
   }
 );
@@ -57,21 +33,9 @@ export const getAccountStats = createAsyncThunk(
   async (storeId, { rejectWithValue }) => {
     try {
       const result = await accountService.getAccountStats(storeId);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch account statistics",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Account statistics fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch account statistics. Please try again.",
-      });
+      return { success: true, data: result.data };
+    } catch (error) {
+      return rejectWithValue({ message: error?.response?.data?.message || "Failed to fetch account statistics." });
     }
   }
 );

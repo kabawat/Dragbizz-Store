@@ -19,6 +19,7 @@ import {
   SideDrawer,
   Textarea,
 } from "@/components/ui";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService, productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
@@ -38,37 +39,26 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
   });
 
   const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Fetch products
-  const fetchProducts = useCallback(async () => {
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        const productsData = result.data || [];
-        setProducts(productsData);
+  const { execute: executeFetchProducts, loading: productsLoading } = useApiResponse();
+  const { execute: executeCreateBill, loading: isCreating } = useApiResponse();
 
-        // Update product names in form data
-        setFormData((prev) => ({
-          ...prev,
-          items: prev.items.map((item) => ({
-            ...item,
-            productName:
-              productsData.find((p) => (p.id || p._id) === item.product)
-                ?.name || "",
-          })),
-        }));
-      }
-    } catch (_error) {
-    } finally {
-      setProductsLoading(false);
+  const fetchProducts = useCallback(async () => {
+    const result = await executeFetchProducts(
+      productService.getProducts({ limit: 100, lightweight: true, store: storeId })
+    );
+    if (result) {
+      const productsData = result.data?.data || result.data || [];
+      const list = Array.isArray(productsData) ? productsData : [];
+      setProducts(list);
+      setFormData((prev) => ({
+        ...prev,
+        items: prev.items.map((item) => ({
+          ...item,
+          productName: list.find((p) => (p.id || p._id) === item.product)?.name || "",
+        })),
+      }));
     }
   }, [storeId]);
 
@@ -162,36 +152,26 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
       setErrors({ items: t("bills.atLeastOneItemRequired") });
       return;
     }
+    setErrors({});
 
-    try {
-      setIsCreating(true);
-      setErrors({});
+    const billData = {
+      ...formData,
+      goodsReceived: !!formData.goodsReceived,
+      store: storeId,
+      totalAmount: calculateTotal(),
+      items: formData.items.map((item) => ({
+        product: item.product,
+        quantity: item.quantity,
+        purchasePrice: item.purchasePrice,
+        expiryDate: item.expiryDate,
+      })),
+    };
 
-      const billData = {
-        ...formData,
-        goodsReceived: !!formData.goodsReceived,
-        store: storeId,
-        totalAmount: calculateTotal(),
-        items: formData.items.map((item) => ({
-          product: item.product,
-          quantity: item.quantity,
-          purchasePrice: item.purchasePrice,
-          expiryDate: item.expiryDate,
-        })),
-      };
-
-      const result = await billService.createBill(billData);
-
-      if (result.success) {
-        onSuccess?.(result.data);
-        onClose();
-      } else {
-        setErrors({ submit: result.message || t("bills.failedToCreateBill") });
-      }
-    } catch (error) {
-      setErrors({ submit: error.message || t("bills.failedToCreateBill") });
-    } finally {
-      setIsCreating(false);
+    const result = await executeCreateBill(billService.createBill(billData));
+    if (result) {
+      const body = result.data?.data || result.data;
+      onSuccess?.(body);
+      onClose();
     }
   };
 
@@ -494,14 +474,6 @@ const CreateBillDrawer = ({ isOpen, onClose, purchaseOrder, onSuccess }) => {
                 </div>
               </Card>
 
-              {/* Error Message */}
-              {errors.submit && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    {errors.submit}
-                  </p>
-                </div>
-              )}
             </form>
           </div>
 

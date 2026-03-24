@@ -2,10 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
 
 const initialState = {
-    analytics: {
-        totals: {},
-        valueSummary: {},
-    },
+    analytics: { totals: {}, valueSummary: {} },
     isLoading: false,
     error: null,
 };
@@ -15,13 +12,13 @@ export const getStockAnalytics = createAsyncThunk(
     async (storeId, { rejectWithValue }) => {
         try {
             const result = await analyticsService.getStockAnalytics({ store: storeId });
-            if (!result.success) {
-                return rejectWithValue({ message: result.message || "Failed to fetch stock analytics" });
-            }
-            const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
-            return { data: analyticsData || initialState.analytics };
-        } catch {
-            return rejectWithValue({ message: "Failed to fetch stock analytics. Please try again." });
+            const body = result?.data;
+            const data = body?.data !== undefined ? body.data : body;
+            return { data: data || initialState.analytics };
+        } catch (error) {
+            return rejectWithValue({
+                message: error?.response?.data?.message || "Failed to fetch stock analytics. Please try again.",
+            });
         }
     }
 );
@@ -30,9 +27,7 @@ const productAnalyticsSlice = createSlice({
     name: "productAnalytics",
     initialState,
     reducers: {
-        resetAnalytics: (state) => {
-            state.analytics = initialState.analytics;
-        },
+        resetAnalytics: (state) => { state.analytics = initialState.analytics; },
     },
     extraReducers: (builder) => {
         builder

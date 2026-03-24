@@ -42,9 +42,8 @@ const ProductListHeader = () => {
     const [showInCatalog, setShowInCatalog] = useState("");
     const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
-    const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-    const { execute: executeCategories } = useApiResponse();
+    const { execute: executeCategories, loading: categoriesLoading } = useApiResponse();
 
     // Drawers
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
@@ -74,14 +73,12 @@ const ProductListHeader = () => {
     const fetchCategories = useCallback(async () => {
         if (!storeId || hasFetchedCategories.current) return;
         hasFetchedCategories.current = true;
-        setCategoriesLoading(true);
         const response = await executeCategories(
             categoryService.getCategories({ limit: 100, store: storeId, lightweight: true }),
             { showToast: false }
         );
-        setCategoriesLoading(false);
-        if (response?.success) {
-            const data = response.data?.data || response.data || [];
+        if (response) {
+            const data = response.data || [];
             setCategories(data.map((cat) => ({ value: cat.id || cat._id, label: cat.name })));
         } else {
             hasFetchedCategories.current = false;

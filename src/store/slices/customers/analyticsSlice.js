@@ -2,11 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { analyticsService } from "@/service/retailer";
 
 const initialState = {
-    analytics: {
-        totalCustomers: 0,
-        todayCustomers: 0,
-        newCustomers: {},
-    },
+    analytics: { totalCustomers: 0, todayCustomers: 0, newCustomers: {} },
     isLoading: false,
     error: null,
 };
@@ -15,24 +11,13 @@ export const getCustomerAnalytics = createAsyncThunk(
     "customerAnalytics/getCustomerAnalytics",
     async (storeId, { rejectWithValue }) => {
         try {
-            const result = await analyticsService.getCustomerAnalytics({
-                store: storeId,
-            });
-
-            if (!result.success) {
-                return rejectWithValue({
-                    message: result.message || "Failed to fetch customer analytics",
-                });
-            }
-
-            const analyticsData = result.data?.data !== undefined ? result.data.data : result.data;
-
-            return {
-                data: analyticsData || initialState.analytics,
-            };
-        } catch (_error) {
+            const result = await analyticsService.getCustomerAnalytics({ store: storeId });
+            const body = result?.data;
+            const data = body?.data !== undefined ? body.data : body;
+            return { data: data || initialState.analytics };
+        } catch (error) {
             return rejectWithValue({
-                message: "Failed to fetch customer analytics. Please try again.",
+                message: error?.response?.data?.message || "Failed to fetch customer analytics. Please try again.",
             });
         }
     }
@@ -42,9 +27,7 @@ const customerAnalyticsSlice = createSlice({
     name: "customerAnalytics",
     initialState,
     reducers: {
-        resetAnalytics: (state) => {
-            state.analytics = initialState.analytics;
-        },
+        resetAnalytics: (state) => { state.analytics = initialState.analytics; },
     },
     extraReducers: (builder) => {
         builder

@@ -29,19 +29,7 @@ class CustomerService extends BaseService {
     return this.delete(url);
   }
 
-  // Search customers by name, phone, or email
-  searchCustomers(searchTerm, storeId = null) {
-    const url = `${this.endpoint}/search`;
-    return this.get(url, { q: searchTerm, ...(storeId && { store: storeId }) });
-  }
 
-  // Get customer statistics
-  getCustomerStats(storeId = null) {
-    const url = `${this.endpoint}/stats`;
-    return this.get(url, storeId ? { store: storeId } : {});
-  }
-
-  // Bulk upload customers
   bulkUploadCustomers(file, storeId) {
     const url = `${this.endpoint}/bulk`;
     const formData = new FormData();

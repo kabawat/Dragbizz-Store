@@ -18,6 +18,7 @@ import { Button, Input } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { supplierService, voiceAIService } from "@/service";
+import useApiResponse from "@/hooks/useApiResponse";
 import logger from "@/utils/logger";
 
 const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
@@ -32,6 +33,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const { execute: executeCreate } = useApiResponse();
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -161,59 +163,44 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
           aiResponse.status === "ready_to_create" &&
           aiResponse.extractedData
         ) {
-          // Create supplier via retailer API
-          try {
-            const supplierData = {
-              store: storeId,
-              name: aiResponse.extractedData.name,
-              agency: aiResponse.extractedData.agency,
-              phone: aiResponse.extractedData.phone || null,
-              email: aiResponse.extractedData.email || null,
-              ...(aiResponse.extractedData.address && {
-                address: aiResponse.extractedData.address,
-              }),
-              ...(aiResponse.extractedData.gstNumber && {
-                gstNumber: aiResponse.extractedData.gstNumber,
-              }),
-            };
+          const supplierData = {
+            store: storeId,
+            name: aiResponse.extractedData.name,
+            agency: aiResponse.extractedData.agency,
+            phone: aiResponse.extractedData.phone || null,
+            email: aiResponse.extractedData.email || null,
+            ...(aiResponse.extractedData.address && {
+              address: aiResponse.extractedData.address,
+            }),
+            ...(aiResponse.extractedData.gstNumber && {
+              gstNumber: aiResponse.extractedData.gstNumber,
+            }),
+          };
 
-            const createResult =
-              await supplierService.createSupplier(supplierData);
+          const createResult = await executeCreate(
+            supplierService.createSupplier(supplierData),
+            { showToast: false }
+          );
 
-            if (createResult.success) {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  type: "ai",
-                  content: `Supplier "${aiResponse.extractedData.name}" (${aiResponse.extractedData.agency}) has been successfully created! 🎉`,
-                  timestamp: new Date(),
-                  isSuccess: true,
-                },
-              ]);
-
-              // Call onSuccess after a short delay
-              setTimeout(() => {
-                if (onSuccess) {
-                  onSuccess(createResult.data);
-                }
-              }, 1500);
-            } else {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  type: "ai",
-                  content: `Error: ${createResult.message || "There was a problem creating the supplier. Please try again."}`,
-                  timestamp: new Date(),
-                  isError: true,
-                },
-              ]);
-            }
-          } catch (_error) {
+          if (createResult?.success) {
             setMessages((prev) => [
               ...prev,
               {
                 type: "ai",
-                content: `Error: There was a problem creating the supplier. Please try again.`,
+                content: `Supplier "${aiResponse.extractedData.name}" (${aiResponse.extractedData.agency}) has been successfully created! 🎉`,
+                timestamp: new Date(),
+                isSuccess: true,
+              },
+            ]);
+            setTimeout(() => {
+              if (onSuccess) onSuccess(createResult.data);
+            }, 1500);
+          } else {
+            setMessages((prev) => [
+              ...prev,
+              {
+                type: "ai",
+                content: `Error: ${createResult?.message || "There was a problem creating the supplier. Please try again."}`,
                 timestamp: new Date(),
                 isError: true,
               },
@@ -385,8 +372,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
               className={`flex flex-col gap-1 max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}
             >
               <div
-                className={`rounded-2xl px-4 py-3 shadow-sm ${
-                  message.type === "user"
+                className={`rounded-2xl px-4 py-3 shadow-sm ${message.type === "user"
                     ? "bg-[rgb(var(--color-primary))] text-white rounded-br-sm"
                     : message.isError
                       ? currentVariant === "dark"
@@ -397,7 +383,7 @@ const VoiceAISupplier = ({ storeId, onSuccess, onCancel }) => {
                           ? "bg-green-900/30 text-green-200 border-2 border-green-700 rounded-bl-sm"
                           : "bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm"
                         : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] border border-[rgb(var(--color-border-primary))] rounded-bl-sm"
-                }`}
+                  }`}
               >
                 {message.isSuccess && (
                   <div className="flex items-center gap-2 mb-2">

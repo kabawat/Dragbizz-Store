@@ -21,13 +21,12 @@ const CreateCustomer = ({
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
-  // Replace useErrorHandling and local loading state with useApiResponse
   const {
     execute,
+    loading,
+    clearAll,
     fieldErrors,
     setFieldErrors,
-    clearAll,
-    loading
   } = useApiResponse();
 
   // GST Verification Hook

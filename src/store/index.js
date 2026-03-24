@@ -3,6 +3,7 @@ import accountsSlice from "./slices/accountsSlice";
 import analyticsSlice from "./slices/analyticsSlice";
 import billsSlice from "./slices/billsSlice";
 import customerSlice from "./slices/customers/customerSlice";
+import customerAnalyticsSlice from "./slices/customers/analyticsSlice";
 import expensesSlice from "./slices/expenses/expenseSlice";
 import gstSlice from "./slices/gstSlice";
 import invoicesSlice from "./slices/invoicesSlice";
@@ -33,6 +34,7 @@ export const store = configureStore({
     products: productsSlice,
     productAnalytics: productAnalyticsSlice,
     customers: customerSlice,
+    customerAnalytics: customerAnalyticsSlice,
     suppliers: suppliersSlice,
     supplierAnalytics: supplierAnalyticsSlice,
     bills: billsSlice,
