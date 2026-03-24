@@ -1,140 +1,116 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { billService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
-// Async thunk for getting bills
-export const getBills = createAsyncThunk(
-  "bills/getBills",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const result = await billService.getBills({
-        lightweight: true,
-        ...params,
-      });
-
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch bills",
-        });
-      }
-
-      return {
-        success: true,
-        data: result.data,
-        message: "Bills fetched successfully",
-      };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch bills. Please try again.",
-      });
-    }
-  }
-);
-
-// Note: CRUD operations (create, update, delete) are handled in separate pages/components
-// Analytics: use analyticsSlice.getBillAnalytics instead
 const initialState = {
-  // Bills data
   bills: [],
   pagination: {
     hasNextPage: false,
     nextCursor: null,
-    limit: 20,
     total: 0,
   },
-
-  // Statistics
-  stats: {
-    totalBills: 0,
-    pendingBills: 0,
-    overdueBills: 0,
-    totalAmount: 0,
-    paidAmount: 0,
-    dueAmount: 0,
-  },
-
-  // Analytics (now managed by analyticsSlice)
-  // Kept for backward compatibility — do not use directly
-  analytics: {
-    counts: {},
-    amounts: {},
-  },
-
-  // Loading states
   isLoading: false,
-
-  // Error handling
+  isFetchingMore: false,
   error: null,
-
-  // View settings
-  currentFilter: "all", // 'all', 'pending', 'overdue'
+  viewMode: "table",
 };
+
+export const getBills = createAsyncThunk(
+  "bills/getBills",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await billService.getBills(params);
+      return handleSuccess(response);
+    } catch (error) {
+      const result = handleError(error);
+      return rejectWithValue(result.message);
+    }
+  },
+  {
+    condition: (params, { getState }) => {
+      const { isLoading, isFetchingMore } = getState().bills;
+      if (params?.isFreshLoad && isLoading) return false;
+      if (!params?.isFreshLoad && isFetchingMore) return false;
+      return true;
+    },
+  }
+);
 
 const billsSlice = createSlice({
   name: "bills",
   initialState,
   reducers: {
-    // Set current filter
-    setCurrentFilter: (state, action) => {
-      state.currentFilter = action.payload;
+    setViewMode: (state, action) => {
+      state.viewMode = action.payload;
     },
-
-    // Add more bills (for pagination)
-    addMoreBills: (state, action) => {
-      const newBills = action.payload;
-      const existingIds = new Set(
-        state.bills.map((bill) => bill.id || bill._id)
-      );
-      const uniqueNewBills = newBills.filter(
-        (bill) => !existingIds.has(bill.id || bill._id)
-      );
-      state.bills = [...state.bills, ...uniqueNewBills];
+    removeBill: (state, action) => {
+      state.bills = state.bills.filter((b) => b.id !== action.payload);
+      if (state.pagination.total > 0) state.pagination.total -= 1;
     },
-
-    // Clear bills
-    clearBills: (state) => {
-      state.bills = [];
-      state.pagination = initialState.pagination;
-    },
-
-    // Update single bill
     updateBill: (state, action) => {
-      const { id, updates } = action.payload;
       const index = state.bills.findIndex(
-        (bill) => (bill.id || bill._id) === id
+        (b) => b.id === (action.payload.id || action.payload._id)
       );
       if (index !== -1) {
-        state.bills[index] = { ...state.bills[index], ...updates };
+        state.bills[index] = {
+          ...state.bills[index],
+          ...action.payload,
+          id: action.payload.id || action.payload._id,
+        };
       }
+    },
+    addBill: (state, action) => {
+      const newBill = { ...action.payload, id: action.payload.id || action.payload._id };
+      state.bills.unshift(newBill);
+      state.pagination.total += 1;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Get bills
-      .addCase(getBills.pending, (state) => {
-        state.isLoading = true;
+      .addCase(getBills.pending, (state, action) => {
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = true;
+        else state.isFetchingMore = true;
         state.error = null;
       })
       .addCase(getBills.fulfilled, (state, action) => {
-        state.isLoading = false;
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
         state.error = null;
-        state.bills = action.payload.data || [];
-        state.pagination =
-          action.payload.data?.meta?.pagination || initialState.pagination;
+
+        const payloadData = action.payload || {};
+        const data = payloadData.data || [];
+        const pagination = payloadData.pagination || payloadData.meta?.pagination || {};
+
+        // Normalize _id → id at ingestion so all components safely use b.id
+        const normalize = (b) => ({ ...b, id: b.id || b._id });
+
+        if (isFreshLoad) {
+          state.bills = data.map(normalize);
+        } else {
+          const existingIds = new Set(state.bills.map((b) => b.id));
+          const newBills = data.map(normalize).filter((b) => !existingIds.has(b.id));
+          state.bills = [...state.bills, ...newBills];
+        }
+
+        state.pagination = {
+          hasNextPage: pagination.hasNextPage || false,
+          nextCursor: pagination.nextCursor || null,
+          total: pagination.total !== undefined
+            ? pagination.total
+            : (isFreshLoad ? data.length : state.pagination.total + data.length),
+        };
       })
       .addCase(getBills.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload.message;
-      })
-
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
+        state.error = action.payload;
+      });
   },
 });
 
-// Export actions
-export const { setCurrentFilter, addMoreBills, clearBills, updateBill } =
-  billsSlice.actions;
-
-// Export async thunks
-export { getBills };
-
-// Export reducer
+export const { setViewMode, removeBill, updateBill, addBill } = billsSlice.actions;
 export default billsSlice.reducer;

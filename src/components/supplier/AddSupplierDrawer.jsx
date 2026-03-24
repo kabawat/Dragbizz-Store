@@ -3,24 +3,21 @@ import SupplierForm from "./SupplierForm";
 import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
-  const {
-    handleApiError,
-    handleApiResult,
-    fieldErrors,
-    setFieldErrors,
-    clearFieldErrors,
-  } = useErrorHandling();
+  const [fieldErrors, setFieldErrors] = useState({});
+  const clearFieldErrors = () => setFieldErrors({});
+
+  const { execute, loading } = useApiResponse();
 
   // Initial form data
   const getInitialFormData = useCallback(() => ({
@@ -34,7 +31,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   }), [storeId]);
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [loading, setLoading] = useState(false);
 
   // GST Verification Hook
   const gstVerification = useGstVerification({
@@ -93,39 +89,26 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
-    try {
-      setLoading(true);
+    clearFieldErrors();
+
+    if (!formData.phone && !formData.email) {
+      const errorMsg = t("suppliers.phoneOrEmailRequired");
+      setFieldErrors({ phone: errorMsg, email: errorMsg });
+      return;
+    }
+
+    const result = await execute(
+      supplierService.createSupplier(formData),
+      { message: t("suppliers.addSuccess") }
+    );
+
+    if (result?.success) {
+      setFormData(getInitialFormData());
       clearFieldErrors();
-
-      if (!formData.phone && !formData.email) {
-        const errorMsg = t("suppliers.phoneOrEmailRequired");
-        setFieldErrors({
-          phone: errorMsg,
-          email: errorMsg,
-        });
-        setLoading(false);
-        return;
-      }
-
-      const result = await supplierService.createSupplier(formData);
-      const handled = handleApiResult(
-        result,
-        t("suppliers.addSuccess"),
-        "supplier-creation"
-      );
-
-      if (handled.type === "success") {
-        setFormData(getInitialFormData());
-        clearFieldErrors();
-        onClose();
-        if (onSuccess) {
-          onSuccess(result.data);
-        }
-      }
-    } catch (error) {
-      handleApiError(error, "supplier-creation");
-    } finally {
-      setLoading(false);
+      onClose();
+      onSuccess?.(result.data);
+    } else if (result?.fieldErrors) {
+      setFieldErrors(result.fieldErrors);
     }
   };
 

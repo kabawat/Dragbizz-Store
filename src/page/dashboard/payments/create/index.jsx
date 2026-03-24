@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import {
   billService,
@@ -31,11 +31,7 @@ const CreatePayment = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [suppliers, setSuppliers] = useState([]);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
-
-  // Local state for bills
   const [bills, setBills] = useState([]);
-  const [billsLoading, setBillsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     supplierId: "",
@@ -66,9 +62,9 @@ const CreatePayment = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const { handleApiError, handleApiResult, showSuccess } =
-    useErrorHandling();
+  const { execute: executeSubmit, loading } = useApiResponse();
+  const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
+  const { execute: fetchBillsApi, loading: billsLoading } = useApiResponse();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -97,94 +93,33 @@ const CreatePayment = () => {
   }, [billId]);
 
   const fetchSuppliers = async () => {
-    if (!storeId) {
-      setSuppliers([]);
-      return;
-    }
-
-    // Prevent duplicate calls for the same store
-    if (
-      suppliersFetchedRef.current.storeId === storeId &&
-      suppliersFetchedRef.current.fetched
-    ) {
-      return;
-    }
-
-    // Prevent call if already loading
-    if (suppliersLoading) {
-      return;
-    }
+    if (!storeId) { setSuppliers([]); return; }
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) return;
 
     suppliersFetchedRef.current = { storeId, fetched: true };
 
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-
-      if (result.success) {
-        const suppliersData = result.data?.data || result.data || [];
-        setSuppliers(suppliersData);
-      } else {
-        setSuppliers([
-          { id: "1", name: "Supplier 1" },
-          { id: "2", name: "Supplier 2" },
-          { id: "3", name: "Supplier 3" },
-        ]);
-      }
-    } catch (_error) {
-      setSuppliers([
-        { id: "1", name: "Supplier 1" },
-        { id: "2", name: "Supplier 2" },
-        { id: "3", name: "Supplier 3" },
-      ]);
-    } finally {
-      setSuppliersLoading(false);
-    }
+    const result = await fetchSuppliersApi(
+      supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setSuppliers(result?.success ? (result.data?.data || result.data || []) : []);
   };
 
-  // Fetch bills from API
   const fetchBills = async (supplierId) => {
-    if (!supplierId || !storeId) {
-      setBills([]);
-      return;
-    }
+    if (!supplierId || !storeId) { setBills([]); return; }
     if (
       billsFetchedRef.current.storeId === storeId &&
       billsFetchedRef.current.supplierId === supplierId &&
       billsFetchedRef.current.fetched
-    ) {
-      return;
-    }
-
-    if (billsLoading) {
-      return;
-    }
+    ) return;
 
     billsFetchedRef.current = { storeId, supplierId, fetched: true };
 
-    try {
-      setBillsLoading(true);
-      const result = await billService.getBills({
-        store: storeId,
-        supplier: supplierId,
-        lightweight: true,
-        limit: 100,
-      });
-      if (result.success) {
-        const billsData = result.data?.data || result.data || [];
-        setBills(billsData);
-      } else {
-        setBills([]);
-      }
-    } catch (_error) {
-      setBills([]);
-    } finally {
-      setBillsLoading(false);
-    }
+    const result = await fetchBillsApi(
+      billService.getBills({ store: storeId, supplier: supplierId, lightweight: true, limit: 100 }),
+      { showToast: false }
+    );
+    setBills(result?.success ? (result.data?.data || result.data || []) : []);
   };
 
   // Reset refs when storeId changes
@@ -448,47 +383,26 @@ const CreatePayment = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-      setErrors({});
+    setErrors({});
+    const paymentData = {
+      ...formData,
+      store: selectedStore?.storeId,
+    };
 
-      // Prepare payment data according to new API structure
-      const paymentData = {
-        ...formData,
-        store: selectedStore?.storeId,
-      };
+    const result = await executeSubmit(
+      paymentService.createPayment(paymentData),
+      { message: t("payments.paymentCreatedSuccess") }
+    );
 
-      const result = await paymentService.createPayment(paymentData);
-      const handled = handleApiResult(
-        result,
-        t("payments.paymentCreatedSuccess"),
-        "payment-creation"
-      );
-
-      if (handled.type === "success") {
-        setTimeout(() => {
-          if (billId) {
-            router.push(`/dashboard/bills/${billId}`);
-          } else {
-            router.push("/dashboard/payments");
-          }
-        }, 1500);
-      } else if (handled.type === "field") {
-        setErrors(handled.fieldErrors);
-      }
-    } catch (error) {
-      const handled = handleApiError(error, "payment-creation");
-      if (handled.type === "field") {
-        setErrors(handled.fieldErrors);
-      }
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      setTimeout(() => {
+        router.push(billId ? `/dashboard/bills/${billId}` : "/dashboard/payments");
+      }, 1500);
+    } else if (result?.fieldErrors) {
+      setErrors(result.fieldErrors);
     }
   };
 

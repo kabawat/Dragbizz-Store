@@ -10,8 +10,8 @@ import {
   Textarea,
 } from "@/components/ui";
 import SideDrawer from "@/components/ui/SideDrawer";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 
@@ -23,7 +23,7 @@ const AdvancePaymentDrawer = ({
 }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { handleApiError, handleApiResult, showSuccess } = useErrorHandling();
+  const { execute, loading } = useApiResponse();
 
   // Payment methods options with translations
   const PAYMENT_METHODS = [
@@ -57,7 +57,6 @@ const AdvancePaymentDrawer = ({
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
 
   // Reset form when drawer opens
   useEffect(() => {
@@ -232,76 +231,48 @@ const AdvancePaymentDrawer = ({
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-      setErrors({});
-
-      const transformedPaymentMethods = formData.paymentMethods.map(
-        (method) => {
-          const methodLower = method.method.toLowerCase();
-          const transformed = {
-            amount: parseFloat(method.amount) || 0,
-            method:
-              methodLower === "bank_transfer" ? "bank_transfer" : methodLower,
-            reference: method.reference || "",
-          };
-
-          if (
-            method.method === "BANK_TRANSFER" ||
-            methodLower === "bank_transfer"
-          ) {
-            transformed.bankName = method.bankName || "";
-            transformed.ifscCode = method.ifscCode || "";
-            transformed.accountNumber = method.accountNumber || "";
-            transformed.holderName = method.holderName || "";
-          } else if (method.method === "UPI" || methodLower === "upi") {
-            transformed.upiId = method.upiId || "";
-            transformed.transactionId = method.transactionId || "";
-          } else if (method.method === "CHEQUE" || methodLower === "cheque") {
-            transformed.chequeNumber = method.chequeNumber || "";
-            transformed.chequeDate = method.chequeDate || "";
-            transformed.chequeBankName = method.chequeBankName || "";
-            transformed.chequeBranchName = method.chequeBranchName || "";
-          }
-
-          return transformed;
+    setErrors({});
+    const paymentData = {
+      supplierId: formData.supplierId,
+      paymentType: "ADVANCE_PAYMENT",
+      purchaseOrder: purchaseOrder._id || purchaseOrder.id || purchaseOrder,
+      paymentMethods: formData.paymentMethods.map((method) => {
+        const methodLower = method.method.toLowerCase();
+        const transformed = {
+          amount: parseFloat(method.amount) || 0,
+          method: methodLower === "bank_transfer" ? "bank_transfer" : methodLower,
+          reference: method.reference || "",
+        };
+        if (method.method === "BANK_TRANSFER" || methodLower === "bank_transfer") {
+          transformed.bankName = method.bankName || "";
+          transformed.ifscCode = method.ifscCode || "";
+          transformed.accountNumber = method.accountNumber || "";
+          transformed.holderName = method.holderName || "";
+        } else if (method.method === "UPI" || methodLower === "upi") {
+          transformed.upiId = method.upiId || "";
+          transformed.transactionId = method.transactionId || "";
+        } else if (method.method === "CHEQUE" || methodLower === "cheque") {
+          transformed.chequeNumber = method.chequeNumber || "";
+          transformed.chequeDate = method.chequeDate || "";
+          transformed.chequeBankName = method.chequeBankName || "";
+          transformed.chequeBranchName = method.chequeBranchName || "";
         }
-      );
+        return transformed;
+      }),
+      notes: formData.notes || "",
+      store: selectedStore?.storeId,
+    };
 
-      const paymentData = {
-        supplierId: formData.supplierId,
-        paymentType: "ADVANCE_PAYMENT",
-        purchaseOrder: purchaseOrder._id || purchaseOrder.id || purchaseOrder, // Optional
-        paymentMethods: transformedPaymentMethods,
-        notes: formData.notes || "",
-        store:
-          selectedStore?.storeId,
-      };
+    const result = await execute(
+      paymentService.createPayment(paymentData),
+      { message: t("payments.paymentCreatedSuccess") }
+    );
 
-      const result = await paymentService.createPayment(paymentData);
-
-      if (result.success) {
-        showSuccess(t("payments.paymentCreatedSuccess"));
-        onSuccess?.();
-        onClose();
-      } else {
-        setErrors({
-          general: result.message || t("payments.failedToCreateAdvancePayment"),
-        });
-        handleApiError(result, "payment-creation");
-      }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        t("payments.failedToCreateAdvancePayment");
-      setErrors({ general: errorMessage });
-      handleApiError(error, "payment-creation");
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      onSuccess?.();
+      onClose();
     }
   };
 
