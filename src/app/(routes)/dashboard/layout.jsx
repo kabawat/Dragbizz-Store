@@ -3,16 +3,16 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAppSelector } from "@/store/hooks";
-import updateSubdomain from "@/utils/helper/domain";
+import { updateSubdomain } from "@/utils/helper/domain";
 import { PermissionGuard } from "@/components/auth/PermissionGuard";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  // Get profile state from Redux (authProfile already has tenant from getAuthProfile - no need to call /auth/refresh again)
+  // Get profile state
   const { redirectTo, agency, stores, isLoading, isAuthenticated, authProfile, authProfileLoading, staffProfileLoading } = useAppSelector((state) => state.profile);
 
-  // Get subscription from context (no duplicate API call)
+  // Subscription context
   const { isLoading: subscriptionLoading, hasSubscription } = useSubscription();
 
   const isProfileLoading = isLoading || authProfileLoading || staffProfileLoading;
@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }) {
     }
   }, [subscriptionLoading, isAuthenticated, hasSubscription, redirectTo, isProfileLoading, agency, stores, router]);
 
-  // Subdomain redirect: use tenant from authProfile (already loaded by routes layout) so we don't call /auth/refresh again
+  // Redirect to tenant subdomain if missing
   useEffect(() => {
     const tenant = authProfile?.tenant;
     if (!tenant || typeof window === "undefined") return;
