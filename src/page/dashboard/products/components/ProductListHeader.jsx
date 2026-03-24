@@ -128,6 +128,11 @@ const ProductListHeader = () => {
         localStorage.setItem("products-view-mode", mode);
     }, [dispatch]);
 
+    const handleBulkUploadSuccess = useCallback(() => {
+        if (!storeId) return;
+        dispatch(getProducts({ store: storeId, limit: 20, isFreshLoad: true }));
+    }, [dispatch, storeId]);
+
     useCommonHotkeys({
         onNew: () => router.push("/dashboard/products/add"),
         onClose: () => {
@@ -233,10 +238,7 @@ const ProductListHeader = () => {
                 <ProductBulkUpload
                     isOpen={showBulkUploadDrawer}
                     onClose={() => setShowBulkUploadDrawer(false)}
-                    onSuccess={() => {
-                        hasFetchedRef.current.fetched = false;
-                        fetchProducts();
-                    }}
+                    onSuccess={handleBulkUploadSuccess}
                 />
             )}
         </div>

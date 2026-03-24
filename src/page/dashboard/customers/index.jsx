@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import CustomerEmptyState from "@/components/customer/list/CustomerEmptyState";
 import CustomerListContent from "@/components/customer/list/CustomerListContent";
 import CustomerListHeader from "@/components/customer/list/CustomerListHeader";
@@ -31,6 +31,11 @@ const CustomersPage = () => {
     onBack: () => router.push("/dashboard"),
   });
 
+  const handleBulkSuccess = useCallback(() => {
+    if (!storeId) return;
+    dispatch(getCustomers({ store: storeId, limit: 20, isFreshLoad: true }));
+  }, [dispatch, storeId]);
+
   return (
     <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
       <Sidebar />
@@ -40,7 +45,7 @@ const CustomersPage = () => {
           <div className="max-w-8xl mx-auto">
 
             {/* Header manages: search, viewMode, voiceAI, download, create — all internally */}
-            <CustomerListHeader />
+            <CustomerListHeader onSuccess={handleBulkSuccess} />
 
             {/* State 1: Initial loading — no customers yet */}
             {isLoading && customers.length === 0 && !error && (

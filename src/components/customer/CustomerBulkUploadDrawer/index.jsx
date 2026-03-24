@@ -156,75 +156,99 @@ const CustomerBulkUploadDrawer = ({ isOpen, onClose, onSuccess }) => {
   const renderResults = () => {
     if (!uploadResult) return null;
     const { summary, errors } = uploadResult.data;
+    const allSuccess = summary.failed === 0;
 
     return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="bg-white rounded-xl overflow-hidden">
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+
+        {/* Summary Card */}
+        <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+
+          {/* Header */}
           <div className="p-4 border-b border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-secondary))] flex items-center justify-between">
             <h4 className="font-semibold text-[rgb(var(--color-text-primary))] flex items-center gap-2">
-              {summary.failed === 0 ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertCircle className="w-5 h-5 text-amber-500" />}
+              {allSuccess
+                ? <CheckCircle2 className="w-5 h-5 text-green-500" />
+                : <AlertCircle className="w-5 h-5 text-amber-500" />}
               {t("customers.uploadResults", "Upload Results")}
             </h4>
-            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] px-2 py-1 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
+            <span className="text-xs font-medium text-[rgb(var(--color-text-secondary))] px-2.5 py-1 rounded-full bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))]">
               {t("customers.totalRows", "Total Rows")}: {summary.total}
             </span>
           </div>
 
-          <div className="p-6 grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{summary.created}</p>
-              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">{t("customers.createdCount", "Created")}</p>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 divide-x divide-[rgb(var(--color-border-primary))]">
+            <div className="flex flex-col items-center justify-center py-5 gap-1">
+              <span className="text-2xl font-bold text-green-500">{summary.created}</span>
+              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                {t("customers.createdCount", "Created")}
+              </span>
             </div>
-            <div className="text-center border-x border-[rgb(var(--color-border-primary))]">
-              <p className="text-2xl font-bold text-amber-500">{summary.skipped}</p>
-              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">{t("customers.skippedCount", "Skipped")}</p>
+            <div className="flex flex-col items-center justify-center py-5 gap-1">
+              <span className="text-2xl font-bold text-amber-500">{summary.skipped}</span>
+              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                {t("customers.skippedCount", "Skipped")}
+              </span>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-red-500">{summary.failed}</p>
-              <p className="text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">{t("customers.failedCount", "Failed")}</p>
+            <div className="flex flex-col items-center justify-center py-5 gap-1">
+              <span className="text-2xl font-bold text-red-500">{summary.failed}</span>
+              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                {t("customers.failedCount", "Failed")}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* Errors Section */}
         {errors && errors.length > 0 && (
-          <div className="space-y-3">
+          <div className="rounded-xl overflow-hidden border border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))]">
+
+            {/* Errors toggle header */}
             <button
               onClick={() => setShowErrors(!showErrors)}
-              className="flex items-center justify-between w-full p-3 bg-red-50 rounded-lg border border-red-100 text-red-700 font-medium text-sm transition-all hover:bg-red-100"
+              className="flex items-center justify-between w-full p-4 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-secondary)/0.8)] transition-colors text-left"
             >
-              <span className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                {t("customers.errorsFound", "Errors Found")} ({errors.length})
+              <span className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                {t("customers.errorsFound", "Errors Found")}
+                <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                  {errors.length}
+                </span>
               </span>
-              {showErrors ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {showErrors
+                ? <ChevronUp className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                : <ChevronDown className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />}
             </button>
 
             {showErrors && (
-              <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+              <div className="max-h-[280px] overflow-y-auto divide-y divide-[rgb(var(--color-border-primary))] custom-scrollbar">
                 {errors.map((error, idx) => (
-                  <div key={idx} className="p-4 rounded-lg bg-white border border-red-100 shadow-sm space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className="text-xs font-bold text-red-600 uppercase mb-1">
+                  <div key={idx} className="p-4 space-y-2.5 bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors">
+
+                    {/* Row label + reason */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <span className="inline-block text-[10px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5 mb-1.5">
                           {t("customers.rowNumber", { row: error.row }, `Row ${error.row}`)}
-                        </p>
-                        <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                        </span>
+                        <p className="text-sm text-[rgb(var(--color-text-primary))] leading-snug">
                           {error.reason}
                         </p>
                       </div>
-                      <div className="px-2 py-1 rounded bg-red-50 text-[10px] font-bold text-red-600">
-                        {t("customers.failedCount", "FAILED")}
-                      </div>
                     </div>
 
-                    {error.data && (
-                      <div className="bg-gray-50 rounded p-2 text-[11px] font-mono text-gray-600 border border-gray-100">
-                        <p className="font-bold mb-1">{t("customers.rowData", "Data")}:</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    {/* Row data preview */}
+                    {error.data && Object.keys(error.data).length > 0 && (
+                      <div className="rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] p-2.5">
+                        <p className="text-[10px] font-semibold text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider mb-1.5">
+                          {t("customers.rowData", "Data")}
+                        </p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           {Object.entries(error.data).map(([key, val]) => (
-                            <div key={key} className="flex gap-2">
-                              <span className="text-gray-400">{key}:</span>
-                              <span className="truncate">{val || "-"}</span>
+                            <div key={key} className="flex gap-1.5 text-[11px] font-mono">
+                              <span className="text-[rgb(var(--color-text-tertiary))] shrink-0">{key}:</span>
+                              <span className="text-[rgb(var(--color-text-secondary))] truncate">{val || "—"}</span>
                             </div>
                           ))}
                         </div>
