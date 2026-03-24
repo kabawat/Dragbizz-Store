@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
 import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
@@ -8,7 +8,7 @@ import CustomerBulkUploadDrawer from "@/components/customer/CustomerBulkUploadDr
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setViewMode } from "@/store/slices/customers/customerSlice";
+import { getCustomers, setViewMode } from "@/store/slices/customers/customerSlice";
 
 const CustomerListHeader = ({
     onSuccess,
@@ -20,6 +20,7 @@ const CustomerListHeader = ({
     // viewMode, selectedStore & customers come from Redux directly
     const { viewMode, customers } = useAppSelector((state) => state.customers);
     const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
 
     const hasCustomers = customers.length > 0;
 
@@ -47,6 +48,11 @@ const CustomerListHeader = ({
         setShowCustomerDrawer(false);
         onSuccess?.(customerData);
     };
+
+    const handleBulkUploadSuccess = useCallback(() => {
+        if (!storeId) return;
+        dispatch(getCustomers({ store: storeId, limit: 20, isFreshLoad: true }));
+    }, [dispatch, storeId]);
 
     useCommonHotkeys({
         onNew: () => setShowCustomerDrawer(true),
@@ -173,10 +179,7 @@ const CustomerListHeader = ({
                 <CustomerBulkUploadDrawer
                     isOpen={showBulkUploadDrawer}
                     onClose={() => setShowBulkUploadDrawer(false)}
-                    onSuccess={() => {
-                        onSuccess?.();
-                        setShowBulkUploadDrawer(false);
-                    }}
+                    onSuccess={handleBulkUploadSuccess}
                 />
             )}
 

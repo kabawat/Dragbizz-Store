@@ -99,9 +99,9 @@ const SupplierListHeader = () => {
     });
 
     const handleSupplierSuccess = useCallback(() => {
-        hasFetchedRef.current.fetched = false; // Force re-fetch on success
-        fetchSuppliers();
-    }, [fetchSuppliers]);
+        if (!storeId) return;
+        dispatch(getSuppliers({ store: storeId, limit: 20, isFreshLoad: true }));
+    }, [dispatch, storeId]);
 
     return (
         <div className="mb-3">
