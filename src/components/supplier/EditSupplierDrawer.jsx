@@ -3,45 +3,31 @@ import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import SupplierForm from "./SupplierForm";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
     const { t } = useTranslation();
     const { selectedStore } = useAppSelector((state) => state.profile);
-    const storeId =
-        selectedStore?.storeId || "";
+    const storeId = selectedStore?.storeId || "";
 
-    const [loading, setLoading] = useState(false);
-    const [fetching, setFetching] = useState(false);
-    const {
-        handleApiError,
-        handleApiResult,
-        fieldErrors,
-        setFieldErrors,
-        clearFieldErrors,
-    } = useErrorHandling();
+    const [fieldErrors, setFieldErrors] = useState({});
+    const { execute: executeFetch, loading: fetching } = useApiResponse();
+    const { execute: executeSave, loading } = useApiResponse();
 
     // GST Verification Hook
     const gstVerification = useGstVerification({
         onNameAutoFill: (name) => {
-            setFormData((prev) => ({
-                ...prev,
-                agency: name,
-            }));
+            setFormData((prev) => ({ ...prev, agency: name }));
         },
         ongstDetailChange: (id) => {
-            setFormData((prev) => ({
-                ...prev,
-                gstDetail: id,
-            }));
+            setFormData((prev) => ({ ...prev, gstDetail: id }));
         },
     });
 
-    // Initial form data
     const getInitialFormData = useCallback(() => ({
         store: storeId,
         name: "",
@@ -54,54 +40,37 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
 
     const [formData, setFormData] = useState(getInitialFormData());
 
-    // Reset form when drawer opens/closes
+    // Fetch or reset on open/close
     useEffect(() => {
-        const fetchSupplierData = async () => {
-            if (!supplierId || !storeId || !isOpen) return;
-
-            try {
-                setFetching(true);
-                clearFieldErrors();
-
-                const result = await supplierService.getSuppliers({
-                    id: supplierId,
-                    store: storeId,
-                });
-
-                if (result.success && result.data) {
-                    const supplierData = result.data;
+        if (isOpen && supplierId) {
+            setFieldErrors({});
+            executeFetch(
+                supplierService.getSuppliers({ id: supplierId, store: storeId }),
+                { showToast: false }
+            ).then((result) => {
+                if (result?.success && result.data) {
+                    const s = result.data?.data || result.data;
                     setFormData({
                         store: storeId,
-                        name: supplierData.name || "",
-                        agency: supplierData.agency || "",
-                        gstNumber: supplierData.gstNumber || "",
-                        gstDetail: supplierData.gstDetail || "",
-                        phone: supplierData.phone || "",
-                        email: supplierData.email || "",
+                        name: s.name || "",
+                        agency: s.agency || "",
+                        gstNumber: s.gstNumber || "",
+                        gstDetail: s.gstDetail || "",
+                        phone: s.phone || "",
+                        email: s.email || "",
                     });
                 }
-            } catch (error) {
-                handleApiError(error, "supplier-fetch");
-            } finally {
-                setFetching(false);
-            }
-        };
-
-        if (isOpen && supplierId) {
-            fetchSupplierData();
+            });
         } else if (!isOpen) {
             setFormData(getInitialFormData());
-            clearFieldErrors();
+            setFieldErrors({});
         }
-    }, [isOpen, supplierId, storeId, clearFieldErrors, getInitialFormData, handleApiError]);
+    }, [isOpen, supplierId, storeId]);
 
-    // Handle form data changes
+    // Handle form field changes
     const handleFormDataChange = (fieldName, value) => {
-        if (typeof fieldName !== "string") {
-            return;
-        }
+        if (typeof fieldName !== "string") return;
 
-        // Clear error for this field when user starts typing
         if (fieldErrors[fieldName]) {
             setFieldErrors((prev) => {
                 const newErrors = { ...prev };
@@ -110,70 +79,51 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
             });
         }
 
-        setFormData((prevData) => ({
-            ...prevData,
-            [fieldName]: value,
-        }));
+        setFormData((prevData) => ({ ...prevData, [fieldName]: value }));
     };
 
     // Handle save
     const handleSave = async () => {
-        try {
-            setLoading(true);
-            clearFieldErrors();
+        setFieldErrors({});
 
-            if (!formData.phone && !formData.email) {
-                const errorMsg = t("suppliers.phoneOrEmailRequired");
-                setFieldErrors({
-                    phone: errorMsg,
-                    email: errorMsg,
-                });
-                setLoading(false);
-                return;
-            }
-
-            const result = await supplierService.updateSupplier(supplierId, formData, storeId);
-            const handled = handleApiResult(
-                result,
-                t("suppliers.updateSuccess") || "Supplier updated successfully",
-                "supplier-update"
-            );
-
-            if (handled.type === "success") {
-                onClose();
-                if (onSuccess) {
-                    onSuccess(result.data);
-                }
-            }
-        } catch (error) {
-            handleApiError(error, "supplier-update");
-        } finally {
-            setLoading(false);
+        if (!formData.phone && !formData.email) {
+            const errorMsg = t("suppliers.phoneOrEmailRequired");
+            setFieldErrors({ phone: errorMsg, email: errorMsg });
+            return;
         }
-    };
 
-    const handleClose = () => {
-        onClose();
+        const result = await executeSave(
+            supplierService.updateSupplier(supplierId, formData, storeId),
+            { message: t("suppliers.updateSuccess") }
+        );
+
+        if (result?.success) {
+            onClose();
+            onSuccess?.(result.data);
+        } else if (result?.fieldErrors) {
+            setFieldErrors(result.fieldErrors);
+        }
     };
 
     return (
         <SideDrawer
             isOpen={isOpen}
-            onClose={handleClose}
-            title={t("suppliers.editSupplier") || "Edit Supplier"}
+            onClose={onClose}
+            title={t("suppliers.editSupplier")}
             icon={Building2}
-            description={t("suppliers.editSupplierDescription") || "Update supplier information"}
+            description={t("suppliers.editSupplierDescription")}
             width="w-full md:w-2/3 lg:w-1/2"
         >
             <div className="p-3 sm:p-4 md:p-6 h-full">
                 {fetching ? (
                     <div className="flex flex-col items-center justify-center h-64 space-y-4">
-                        <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-[rgb(var(--color-text-secondary))] font-medium">Loading supplier details...</p>
+                        <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin" />
+                        <p className="text-[rgb(var(--color-text-secondary))] font-medium">
+                            {t("common.loading")}
+                        </p>
                     </div>
                 ) : (
                     <div className="flex flex-col h-full">
-                        {/* Main Content Area */}
                         <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0 pb-4">
                             <SupplierForm
                                 formData={formData}
@@ -184,7 +134,6 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
                             />
                         </div>
 
-                        {/* Footer - Action Buttons */}
                         <div className="flex-shrink-0 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3">
                             <Button
                                 variant="success"
@@ -195,11 +144,11 @@ const EditSupplierDrawer = ({ isOpen, onClose, onSuccess, supplierId }) => {
                                 className="w-full sm:w-auto"
                                 size="sm"
                             >
-                                {t("suppliers.updateSupplier") || "Update Supplier"}
+                                {t("suppliers.updateSupplier")}
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={handleClose}
+                                onClick={onClose}
                                 disabled={loading}
                                 className="w-full sm:w-auto"
                                 size="sm"

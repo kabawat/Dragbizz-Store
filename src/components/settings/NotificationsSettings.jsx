@@ -8,7 +8,7 @@ import {
   resetNotificationSettings
 } from "@/store/slices/notificationSettingsSlice";
 import authService from "@/service/auth/auth.service";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { Bell, Mail, MessageSquare, Smartphone, Shield, ShoppingCart, Percent, CreditCard, User, RotateCcw, Loader2 } from "lucide-react";
 
 const WhatsAppIcon = ({ className }) => (
@@ -25,7 +25,7 @@ const WhatsAppIcon = ({ className }) => (
 const NotificationsSettings = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { showSuccess, showError } = useErrorHandling();
+  const { showSuccess, showError } = useGlobalToast();
 
   const settings = useAppSelector((state) => state.notificationSettings?.settings);
   const loading = useAppSelector((state) => state.notificationSettings?.loading);

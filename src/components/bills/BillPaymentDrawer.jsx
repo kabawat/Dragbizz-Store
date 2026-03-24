@@ -20,6 +20,7 @@ import SideDrawer from "@/components/ui/SideDrawer";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
   const { t } = useTranslation();
@@ -50,9 +51,10 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdPaymentNumber, setCreatedPaymentNumber] = useState("");
+
+  const { execute, loading } = useApiResponse();
 
   // Reset form when drawer opens
   useEffect(() => {
@@ -231,36 +233,21 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-      setErrors({});
+    setErrors({});
+    const paymentData = { ...formData, store: selectedStore?.storeId };
 
-      const paymentData = {
-        ...formData,
-        store:
-          selectedStore?.storeId,
-      };
+    const result = await execute(
+      paymentService.createPayment(paymentData),
+      { message: t("payments.paymentCreatedSuccessfully") }
+    );
 
-      const result = await paymentService.createPayment(paymentData);
-
-      if (result.success) {
-        setCreatedPaymentNumber(
-          result.data?.paymentNumber || t("payments.payment")
-        );
-        setShowSuccessModal(true);
-      } else {
-        setErrors({
-          general: result.message || t("payments.failedToCreatePayment"),
-        });
-      }
-    } catch (_error) {
-      setErrors({ general: t("payments.failedToCreatePayment") });
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      setCreatedPaymentNumber(result.data?.paymentNumber || t("payments.payment"));
+      setShowSuccessModal(true);
+    } else {
+      setErrors({ general: result?.message || t("payments.failedToCreatePayment") });
     }
   };
 

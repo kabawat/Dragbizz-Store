@@ -4,6 +4,7 @@ import { Package, Plus, Trash2 } from "lucide-react";
 import { Button, Card, Input, Select } from "@/components/ui";
 import { productService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const BillItemsSection = ({
     t,
@@ -18,29 +19,25 @@ const BillItemsSection = ({
 
     // Local state for products
     const [products, setProducts] = React.useState([]);
-    const [productsLoading, setProductsLoading] = React.useState(false);
     const productsFetchedRef = React.useRef({ storeId: null, fetched: false });
 
-    const fetchProducts = async () => {
-        if (!storeId || productsFetchedRef.current.fetched) return;
-        productsFetchedRef.current = { storeId, fetched: true };
-        try {
-            setProductsLoading(true);
-            const result = await productService.getProducts({
-                limit: 100, lightweight: true, store: storeId
-            });
-            if (result.success) setProducts(result.data || []);
-        } catch (_error) {
-            setProducts([]);
-            productsFetchedRef.current.fetched = false;
-        } finally {
-            setProductsLoading(false);
-        }
-    };
+    const { execute: fetchProducts, loading: productsLoading } = useApiResponse();
 
     React.useEffect(() => {
-        if (storeId) fetchProducts();
-    }, [storeId]);
+        if (!storeId || productsFetchedRef.current.fetched) return;
+        productsFetchedRef.current = { storeId, fetched: true };
+
+        fetchProducts(
+            productService.getProducts({ limit: 100, lightweight: true, store: storeId }),
+            { showToast: false }
+        ).then((result) => {
+            if (result?.success) {
+                setProducts(result.data || []);
+            } else {
+                productsFetchedRef.current = { storeId: null, fetched: false };
+            }
+        });
+    }, [storeId, fetchProducts]);
 
     // Local state for item addition
     const [selectedProduct, setSelectedProduct] = useState("");

@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuppliers, removeSupplier } from "@/store/slices/supplier/supplierSlice";
-
-import { useGlobalToast } from "@/contexts/ToastContext";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { supplierService } from "@/service";
 import {
     DeleteSupplierModal,
@@ -15,19 +14,17 @@ import {
 } from "@/components/supplier";
 
 const SupplierListContent = () => {
-    const { showError } = useGlobalToast();
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const { suppliers, isLoading, isFetchingMore, error, pagination, viewMode } = useAppSelector(
+    const { suppliers, isLoading, isFetchingMore, pagination, viewMode } = useAppSelector(
         (state) => state.suppliers
     );
 
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
-    const scrollRef = useRef(null);
 
     // Contextual Component Variables
     const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);
@@ -35,9 +32,8 @@ const SupplierListContent = () => {
     // Deletion Modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [supplierToDelete, setSupplierToDelete] = useState(null);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-    const [deletedSupplierName, setDeletedSupplierName] = useState("");
+
+    const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
     // Editor Drawer
     const [showEditSupplierDrawer, setShowEditSupplierDrawer] = useState(false);
@@ -99,24 +95,18 @@ const SupplierListContent = () => {
 
     const handleConfirmDelete = useCallback(async () => {
         if (!supplierToDelete) return;
-        setIsDeleting(true);
-        try {
-            const result = await supplierService.deleteSupplier(supplierToDelete.id, storeId);
-            if (result.success || result?.data?.success) {
-                dispatch(removeSupplier(supplierToDelete.id));
-                setDeletedSupplierName(supplierToDelete.name);
-                setShowDeleteSuccessModal(true);
-            } else {
-                showError("Failed to delete supplier");
-            }
-            setShowDeleteModal(false);
-            setSupplierToDelete(null);
-        } catch (error) {
-            showError("An unexpected error occurred deleting supplier");
-        } finally {
-            setIsDeleting(false);
+
+        const result = await executeDelete(
+            supplierService.deleteSupplier(supplierToDelete.id, storeId),
+            { message: `${supplierToDelete.name} deleted successfully`, showToast: true }
+        );
+
+        if (result?.success || result?.data?.success) {
+            dispatch(removeSupplier(supplierToDelete.id));
         }
-    }, [dispatch, supplierToDelete, storeId, showError]);
+        setShowDeleteModal(false);
+        setSupplierToDelete(null);
+    }, [dispatch, supplierToDelete, storeId, executeDelete]);
 
     const handleSupplierSuccess = useCallback(() => {
         dispatch(getSuppliers({ store: storeId, limit: 20, nextCursor: null, isFreshLoad: true }));
@@ -125,7 +115,7 @@ const SupplierListContent = () => {
     return (
         <>
             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div className="h-[calc(100vh-200px)] overflow-y-auto" ref={scrollRef}>
+                <div className="h-[calc(100vh-200px)] overflow-y-auto">
                     {viewMode === "table" ? (
                         <div className="h-full">
                             <SupplierTable
@@ -208,9 +198,6 @@ const SupplierListContent = () => {
                 supplierToDelete={supplierToDelete}
                 onConfirmDelete={handleConfirmDelete}
                 isDeleting={isDeleting}
-                showSuccessModal={showDeleteSuccessModal}
-                onCloseSuccess={() => setShowDeleteSuccessModal(false)}
-                deletedSupplierName={deletedSupplierName}
             />
 
             <EditSupplierDrawer

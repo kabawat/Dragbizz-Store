@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import storeService from "@/service/retailer/store.service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRetailerDetails } from "@/store/slices/profileSlice";
@@ -20,7 +20,7 @@ const StoreSettings = () => {
   } = useAppSelector((state) => state.profile);
   const [stores, setStores] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { showError, showSuccess } = useErrorHandling();
+  const { showError, showSuccess } = useGlobalToast();
 
   // Drawer/Modal state
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);

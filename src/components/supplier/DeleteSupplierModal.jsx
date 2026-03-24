@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Building } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
@@ -10,26 +10,48 @@ const DeleteSupplierModal = ({
     supplierToDelete,
     onConfirmDelete,
     isDeleting,
-    showSuccessModal,
-    onCloseSuccess,
-    deletedSupplierName,
 }) => {
     const { t } = useTranslation();
+
+    // Internal success state — no need to bubble up to parent
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [deletedSupplierName, setDeletedSupplierName] = useState("");
+
+    // Reset internal state when modal closes externally
+    useEffect(() => {
+        if (!isOpen) {
+            setShowSuccessModal(false);
+            setDeletedSupplierName("");
+        }
+    }, [isOpen]);
+
+    const handleConfirm = async () => {
+        const name = supplierToDelete?.name || "";
+        await onConfirmDelete();
+        // Show success only after parent confirms deletion (no error)
+        setDeletedSupplierName(name);
+        setShowSuccessModal(true);
+    };
+
+    const handleCloseSuccess = () => {
+        setShowSuccessModal(false);
+        setDeletedSupplierName("");
+        onClose();
+    };
 
     if (!isOpen && !showSuccessModal) return null;
 
     return (
         <>
             {/* Delete Confirmation Modal */}
-            {isOpen && (
+            {isOpen && !showSuccessModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999]">
                     <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 mt-20">
                         <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-                            Delete Supplier
+                            {t("modals.deleteItem", { item: t("common.supplier") })}
                         </h3>
                         <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                            Are you sure you want to delete "{supplierToDelete?.name}"? This
-                            action cannot be undone.
+                            {t("modals.deleteConfirmMessage", { name: supplierToDelete?.name })}
                         </p>
                         <div className="flex gap-3 justify-end">
                             <Button
@@ -37,14 +59,14 @@ const DeleteSupplierModal = ({
                                 onClick={onClose}
                                 disabled={isDeleting}
                             >
-                                Cancel
+                                {t("common.cancel")}
                             </Button>
                             <Button
                                 variant="danger"
-                                onClick={onConfirmDelete}
+                                onClick={handleConfirm}
                                 loading={isDeleting}
                             >
-                                Delete
+                                {t("common.delete")}
                             </Button>
                         </div>
                     </div>
@@ -60,9 +82,7 @@ const DeleteSupplierModal = ({
                                 <Building className="w-8 h-8 text-green-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                                {t("modals.deletedSuccessfully", {
-                                    item: t("common.supplier"),
-                                })}
+                                {t("modals.deletedSuccessfully", { item: t("common.supplier") })}
                             </h3>
                             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
                                 {t("common.hasBeenRemovedFromList", {
@@ -70,8 +90,8 @@ const DeleteSupplierModal = ({
                                     item: t("common.suppliers"),
                                 })}
                             </p>
-                            <Button variant="primary" onClick={onCloseSuccess}>
-                                Continue
+                            <Button variant="primary" onClick={handleCloseSuccess}>
+                                {t("common.continue")}
                             </Button>
                         </div>
                     </div>

@@ -6,13 +6,14 @@ import { useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
-import BillItemsSection from "@/components/bill/create/BillItemsSection";
-import BillSidebar from "@/components/bill/create/BillSidebar";
+import BillItemsSection from "@/components/bills/create/BillItemsSection";
+import BillSidebar from "@/components/bills/create/BillSidebar";
 
 const formInit = {
   supplier: "",
@@ -29,11 +30,11 @@ const CreateBill = () => {
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState(formInit);
   const [errors, setErrors] = useState({});
 
-  const { handleApiError, handleApiResult, showError } = useErrorHandling();
+  const { showError } = useGlobalToast();
+  const { execute, loading: isSubmitting } = useApiResponse();
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -97,43 +98,33 @@ const CreateBill = () => {
   const handleSubmit = async (isDraft = false) => {
     if (!validateForm() && !isDraft) return;
 
-    try {
-      setIsCreating(true);
-      const billData = {
-        store: selectedStore.storeId,
-        supplier: formData.supplier,
-        purchaseOrder: formData.purchaseOrder || undefined,
-        goodsReceived: !!formData.goodsReceived,
-        items: formData.items.map((item) => ({
-          product: item.product,
-          quantity: parseInt(item.quantity, 10),
-          purchasePrice: parseFloat(item.purchasePrice),
-        })),
-        dueDate: formData.dueDate || undefined,
-        notes: formData.notes || undefined,
-      };
+    const billData = {
+      store: selectedStore.storeId,
+      supplier: formData.supplier,
+      purchaseOrder: formData.purchaseOrder || undefined,
+      goodsReceived: !!formData.goodsReceived,
+      items: formData.items.map((item) => ({
+        product: item.product,
+        quantity: parseInt(item.quantity, 10),
+        purchasePrice: parseFloat(item.purchasePrice),
+      })),
+      dueDate: formData.dueDate || undefined,
+      notes: formData.notes || undefined,
+    };
 
-      const result = await billService.createBill(billData);
-      const handled = handleApiResult(
-        result,
-        t("success.createdSuccessfully", { item: t("common.bill") }),
-        "bill-creation"
-      );
+    const result = await execute(
+      billService.createBill(billData),
+      { message: t("success.createdSuccessfully", { item: t("common.bill") }) }
+    );
 
-      if (handled.type === "success") {
-        setTimeout(() => {
-          const billId = result.data?.id || result.data?._id;
-          if (billId) router.push(`/dashboard/bills/${billId}`);
-          else router.push("/dashboard/bills");
-        }, 1500);
-      } else if (handled.type === "field") {
-        setErrors(handled.fieldErrors);
-      }
-    } catch (error) {
-      const handled = handleApiError(error, "bill-creation");
-      if (handled.type === "field") setErrors(handled.fieldErrors);
-    } finally {
-      setIsCreating(false);
+    if (result?.success) {
+      setTimeout(() => {
+        const billId = result.data?.id || result.data?._id;
+        if (billId) router.push(`/dashboard/bills/${billId}`);
+        else router.push("/dashboard/bills");
+      }, 1500);
+    } else if (result?.fieldErrors) {
+      setErrors(result.fieldErrors);
     }
   };
 
@@ -199,7 +190,7 @@ const CreateBill = () => {
                 handleInputChange={handleInputChange}
                 setFormData={setFormData}
                 errors={errors}
-                isCreating={isCreating}
+                isCreating={isSubmitting}
                 handleSubmit={handleSubmit}
               />
             </div>
