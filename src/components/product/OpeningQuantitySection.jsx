@@ -31,30 +31,26 @@ const OpeningQuantitySection = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
-    if (!storeId || hasFetchedSuppliers.current)
-      return;
-
+    if (!storeId || hasFetchedSuppliers.current) return;
     hasFetchedSuppliers.current = true;
 
-    try {
-      setSuppliersLoading(true);
-      const result = await execute(
-        supplierService.getSuppliers({
-          limit: 100,
-          lightweight: true,
-          store: storeId,
-        }),
-        { showToast: false }
-      );
-      if (result.success) {
-        setSuppliers(result.data || []);
-      }
-    } catch (_error) {
-      hasFetchedSuppliers.current = false; // Reset on error
-    } finally {
-      setSuppliersLoading(false);
+    setSuppliersLoading(true);
+    const result = await execute(
+      supplierService.getSuppliers({
+        limit: 100,
+        lightweight: true,
+        store: storeId,
+      }),
+      { showToast: false }
+    );
+    setSuppliersLoading(false);
+
+    if (result?.success) {
+      setSuppliers(result.data || []);
+    } else {
+      hasFetchedSuppliers.current = false; // Reset on error so it can retry
     }
-  }, [storeId]);
+  }, [storeId, execute]);
 
   // Fetch suppliers on component mount and when storeId or feature access changes
   useEffect(() => {

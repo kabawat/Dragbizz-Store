@@ -3,6 +3,7 @@ import { Grid3X3, List, Plus, Search, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { categoryService } from "@/service/retailer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
@@ -43,6 +44,8 @@ const ProductListHeader = () => {
     const [categories, setCategories] = useState([]);
     const [categoriesLoading, setCategoriesLoading] = useState(false);
 
+    const { execute: executeCategories } = useApiResponse();
+
     // Drawers
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
@@ -71,19 +74,19 @@ const ProductListHeader = () => {
     const fetchCategories = useCallback(async () => {
         if (!storeId || hasFetchedCategories.current) return;
         hasFetchedCategories.current = true;
-        try {
-            setCategoriesLoading(true);
-            const response = await categoryService.getCategories({ limit: 100, store: storeId, lightweight: true });
-            if (response.success) {
-                const data = response.data?.data || response.data || [];
-                setCategories(data.map((cat) => ({ value: cat.id || cat._id, label: cat.name })));
-            }
-        } catch {
+        setCategoriesLoading(true);
+        const response = await executeCategories(
+            categoryService.getCategories({ limit: 100, store: storeId, lightweight: true }),
+            { showToast: false }
+        );
+        setCategoriesLoading(false);
+        if (response?.success) {
+            const data = response.data?.data || response.data || [];
+            setCategories(data.map((cat) => ({ value: cat.id || cat._id, label: cat.name })));
+        } else {
             hasFetchedCategories.current = false;
-        } finally {
-            setCategoriesLoading(false);
         }
-    }, [storeId]);
+    }, [storeId, executeCategories]);
 
     useEffect(() => {
         if (storeId) fetchCategories();
@@ -106,13 +109,10 @@ const ProductListHeader = () => {
         if (showInCatalog) params.showInCatalog = showInCatalog;
         if (category) params.category = category;
 
-        try {
-            await dispatch(getProducts(params));
-            hasFetchedRef.current = { fetched: true, storeId, searchValue, sortBy, showInCatalog, category };
-        } catch {
-            lastFetchRef.current = null;
-        }
+        await dispatch(getProducts(params));
+        hasFetchedRef.current = { fetched: true, storeId, searchValue, sortBy, showInCatalog, category };
     }, [dispatch, storeId, searchValue, sortBy, showInCatalog, category]);
+
 
     useEffect(() => {
         if (!storeId) return;

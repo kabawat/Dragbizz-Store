@@ -18,7 +18,7 @@ import PurchaseOrderDetailsTemplate from "@/components/templates/purchaseOrder/P
 import { Button, Card, Loading } from "@/components/ui";
 import { purchaseOrderService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
-import logger from "@/utils/logger";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { usePurchaseOrderDetailsPrint } from "./hooks/usePurchaseOrderDetailsPrint";
 
 export default function ViewPurchaseOrderPage() {
@@ -27,9 +27,10 @@ export default function ViewPurchaseOrderPage() {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const poId = params?.id;
 
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [po, setPo] = useState(null);
+
+  const { execute: executeFetch, loading } = useApiResponse();
 
   const { handleDownloadPDF } = usePurchaseOrderDetailsPrint(loading, po);
 
@@ -69,40 +70,28 @@ export default function ViewPurchaseOrderPage() {
   useEffect(() => {
     const fetchPo = async () => {
       if (!poId) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const storeId =
-          selectedStore?.storeId ||
-          selectedStore?._id ||
-          selectedStore?.id ||
-          null;
-        const result = await purchaseOrderService.getPurchaseOrders({
-          id: poId,
-          store: storeId,
-        });
-        if (result.success) {
-          const data = result.data?.data || result.data;
-          if (data) {
-            setPo(data);
-            setError(null);
-          } else {
-            setError("Purchase order not found");
-          }
+
+      const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || null;
+      const result = await executeFetch(
+        purchaseOrderService.getPurchaseOrders({ id: poId, store: storeId }),
+        { showToast: false }
+      );
+
+      if (result?.success) {
+        const data = result.data?.data || result.data;
+        if (data) {
+          setPo(data);
+          setError(null);
         } else {
-          setError(result.message || "Failed to load purchase order");
-          setPo(null);
+          setError("Purchase order not found");
         }
-      } catch (e) {
-        logger.error("Error fetching purchase order:", e);
-        setError("Unexpected error while loading purchase order");
+      } else {
+        setError(result?.message || "Failed to load purchase order");
         setPo(null);
-      } finally {
-        setLoading(false);
       }
     };
     fetchPo();
-  }, [poId, selectedStore]);
+  }, [poId, selectedStore, executeFetch]);
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">

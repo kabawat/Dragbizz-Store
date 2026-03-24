@@ -30,6 +30,7 @@ import {
   supplierService,
 } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const formInit = {
   supplier: "",
@@ -49,9 +50,7 @@ const EditPurchaseOrder = ({ poId }) => {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
 
-  const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState(null);
-  const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
   const [formData, setFormData] = useState(formInit);
@@ -66,29 +65,28 @@ const EditPurchaseOrder = ({ poId }) => {
   const [tempProduct, setTempProduct] = useState("");
   const [tempQuantity, setTempQuantity] = useState(1);
 
+  const { execute: executeFetchPO, loading: fetching } = useApiResponse();
+  const { execute: executeFetchSuppliers } = useApiResponse();
+  const { execute: executeFetchProducts } = useApiResponse();
+  const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
+
   // Fetch suppliers
   const fetchSuppliers = async () => {
     const storeId = selectedStore?.storeId;
     if (!storeId) return;
-    if (
-      suppliersFetchedRef.current.storeId === storeId &&
-      suppliersFetchedRef.current.fetched
-    ) {
-      return;
-    }
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) return;
     suppliersFetchedRef.current = { storeId, fetched: true };
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } finally {
-      setSuppliersLoading(false);
+
+    setSuppliersLoading(true);
+    const result = await executeFetchSuppliers(
+      supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setSuppliersLoading(false);
+    if (result?.success) {
+      setSuppliers(result.data?.data || result.data || []);
+    } else {
+      suppliersFetchedRef.current = { storeId: null, fetched: false };
     }
   };
 
@@ -96,25 +94,19 @@ const EditPurchaseOrder = ({ poId }) => {
   const fetchProducts = async () => {
     const storeId = selectedStore?.storeId;
     if (!storeId) return;
-    if (
-      productsFetchedRef.current.storeId === storeId &&
-      productsFetchedRef.current.fetched
-    ) {
-      return;
-    }
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) return;
     productsFetchedRef.current = { storeId, fetched: true };
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        setProducts(result.data?.data || result.data || []);
-      }
-    } finally {
-      setProductsLoading(false);
+
+    setProductsLoading(true);
+    const result = await executeFetchProducts(
+      productService.getProducts({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setProductsLoading(false);
+    if (result?.success) {
+      setProducts(result.data?.data || result.data || []);
+    } else {
+      productsFetchedRef.current = { storeId: null, fetched: false };
     }
   };
 
@@ -123,44 +115,40 @@ const EditPurchaseOrder = ({ poId }) => {
     const load = async () => {
       if (!poId || !selectedStore?.storeId || hasFetched.current) return;
       hasFetched.current = true;
-      try {
-        setFetching(true);
-        setFetchError(null);
-        const result = await purchaseOrderService.getPurchaseOrders({
+
+      const result = await executeFetchPO(
+        purchaseOrderService.getPurchaseOrders({
           id: poId,
           paymentType: "ADVANCE_PAYMENT",
           store: selectedStore.storeId,
-        });
-        if (result.success && result.data) {
-          const po = result.data;
-          const mappedProducts = (po.items || po.products || []).map((it) => ({
-            product: it.product?._id || it.product?.id || it.product || "",
-            productName: it.product?.name || it.productName || it.name || "",
-            quantity: parseInt(it.quantity, 10) || 1,
-          }));
+        }),
+        { showToast: false }
+      );
 
-          setFormData({
-            supplier: po.supplier?.id || po.supplier?._id || po.supplier || "",
-            expectedDeliveryDate: po.expectedDeliveryDate
-              ? new Date(po.expectedDeliveryDate).toISOString().split("T")[0]
-              : "",
-            paymentBy: po.paymentBy || po.paymentTerms || "30_DAYS",
-            reference: po.reference || "",
-            note: po.note || po.notes || "",
-            products: mappedProducts.length ? mappedProducts : [],
-          });
-          setUpdatedPONumber(po.poNumber || po.reference || "");
-        } else {
-          setFetchError(result.message || "Failed to load purchase order");
-        }
-      } catch (_e) {
-        setFetchError("Unexpected error while loading purchase order");
-      } finally {
-        setFetching(false);
+      if (result?.success && result.data) {
+        const po = result.data;
+        const mappedProducts = (po.items || po.products || []).map((it) => ({
+          product: it.product?._id || it.product?.id || it.product || "",
+          productName: it.product?.name || it.productName || it.name || "",
+          quantity: parseInt(it.quantity, 10) || 1,
+        }));
+        setFormData({
+          supplier: po.supplier?.id || po.supplier?._id || po.supplier || "",
+          expectedDeliveryDate: po.expectedDeliveryDate
+            ? new Date(po.expectedDeliveryDate).toISOString().split("T")[0]
+            : "",
+          paymentBy: po.paymentBy || po.paymentTerms || "30_DAYS",
+          reference: po.reference || "",
+          note: po.note || po.notes || "",
+          products: mappedProducts.length ? mappedProducts : [],
+        });
+        setUpdatedPONumber(po.poNumber || po.reference || "");
+      } else {
+        setFetchError(result?.message || "Failed to load purchase order");
       }
     };
     load();
-  }, [poId, selectedStore]);
+  }, [poId, selectedStore, executeFetchPO]);
 
   useEffect(() => {
     const storeId = selectedStore?.storeId;
@@ -289,40 +277,31 @@ const EditPurchaseOrder = ({ poId }) => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    try {
-      setIsUpdating(true);
-      setUpdateError(null);
-      const payload = {
-        store: selectedStore.storeId,
-        supplier: formData.supplier,
-        products: formData.products.map((it) => ({
-          product: it.product,
-          quantity: parseInt(it.quantity, 10),
-        })),
-        paymentBy: formData.paymentBy,
-        reference: formData.reference || undefined,
-        note: formData.note || undefined,
-        expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
-      };
-      const result = await purchaseOrderService.updatePurchaseOrder(
-        poId,
-        payload,
-        selectedStore.storeId
-      );
-      if (result.success) {
-        setUpdatedPONumber(
-          result.data?.poNumber || updatedPONumber || `PO-${Date.now()}`
-        );
-        setShowSuccessModal(true);
-      } else {
-        setUpdateError(result.message || "Failed to update purchase order");
-      }
-    } catch (_e) {
-      setUpdateError(
-        "An unexpected error occurred while updating the purchase order"
-      );
-    } finally {
-      setIsUpdating(false);
+    setUpdateError(null);
+
+    const payload = {
+      store: selectedStore.storeId,
+      supplier: formData.supplier,
+      products: formData.products.map((it) => ({
+        product: it.product,
+        quantity: parseInt(it.quantity, 10),
+      })),
+      paymentBy: formData.paymentBy,
+      reference: formData.reference || undefined,
+      note: formData.note || undefined,
+      expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
+    };
+
+    const result = await executeUpdate(
+      purchaseOrderService.updatePurchaseOrder(poId, payload, selectedStore.storeId),
+      { message: "Purchase order updated successfully" }
+    );
+
+    if (result?.success) {
+      setUpdatedPONumber(result.data?.poNumber || updatedPONumber || `PO-${Date.now()}`);
+      setShowSuccessModal(true);
+    } else {
+      setUpdateError(result?.message || "Failed to update purchase order");
     }
   };
 

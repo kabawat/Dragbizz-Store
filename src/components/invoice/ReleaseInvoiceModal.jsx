@@ -8,17 +8,18 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showError, showSuccess } = useGlobalToast();
+  const { showError } = useGlobalToast();
+  const { execute, loading } = useApiResponse();
   const [paymentStatus, setPaymentStatus] = useState("PAID");
   const [paidAmount, setPaidAmount] = useState("");
   const [errors, setErrors] = useState({});
-  const [isReleasing, setIsReleasing] = useState(false);
 
   const totalAmount = invoice?.totalAmount || 0;
   const invoiceNumber =
@@ -73,55 +74,42 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
 
     if (!invoice) return;
 
-    setIsReleasing(true);
-    try {
-      const invoiceId = invoice.id || invoice._id;
-      const storeId =
-        selectedStore?.storeId;
+    const invoiceId = invoice.id || invoice._id;
+    const storeId = selectedStore?.storeId;
 
-      if (!storeId) {
-        showError("Store ID is missing. Please select a store.");
-        setIsReleasing(false);
-        return;
-      }
+    if (!storeId) {
+      showError("Store ID is missing. Please select a store.");
+      return;
+    }
 
-      const result = await invoiceService.releaseInvoice(
+    const result = await execute(
+      invoiceService.releaseInvoice(
         invoiceId,
         paymentStatus,
         storeId,
         paidAmount ? parseFloat(paidAmount) : null
-      );
+      ),
+      { message: "Invoice released successfully" }
+    );
 
-      if (result.success) {
-        showSuccess("Invoice released successfully");
-        const refreshParams = {
-          store: storeId,
-          limit: 20,
-          cursor: null,
-          isFreshLoad: true,
-        };
-        await dispatch(getInvoices(refreshParams));
+    if (result?.success) {
+      const refreshParams = {
+        store: storeId,
+        limit: 20,
+        cursor: null,
+        isFreshLoad: true,
+      };
+      await dispatch(getInvoices(refreshParams));
 
-        if (onSuccess) {
-          onSuccess(result.data || invoiceId);
-        }
-        onClose();
-
-        // Auto-redirect to view invoice page after successful release
-        if (router.pathname !== `/dashboard/invoices/${invoiceId}`) {
-          router.push(`/dashboard/invoices/${invoiceId}`);
-        }
-      } else {
-        showError(
-          result.message || "Failed to release invoice. Please try again."
-        );
+      if (onSuccess) {
+        onSuccess(result.data || invoiceId);
       }
-    } catch (_error) {
-      showError(
-        "An error occurred while releasing the invoice. Please try again."
-      );
-    } finally {
-      setIsReleasing(false);
+      onClose();
+
+      // Auto-redirect to view invoice page after successful release
+      if (router.pathname !== `/dashboard/invoices/${invoiceId}`) {
+        router.push(`/dashboard/invoices/${invoiceId}`);
+      }
     }
   };
 
@@ -210,17 +198,17 @@ const ReleaseInvoiceModal = ({ onClose, invoice, onSuccess }) => {
             onClick={onClose}
             variant="outline"
             className="flex-1"
-            disabled={isReleasing}
+            disabled={loading}
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             className="flex-1"
-            disabled={isReleasing}
-            loading={isReleasing}
+            disabled={loading}
+            loading={loading}
           >
-            {isReleasing ? t("invoice.releasing") : t("invoice.releaseInvoice")}
+            {loading ? t("invoice.releasing") : t("invoice.releaseInvoice")}
           </Button>
         </div>
       </div>

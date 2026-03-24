@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useGlobalToast } from "@/contexts/ToastContext";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { stockService, supplierService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 
@@ -14,18 +14,17 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
   const { t } = useTranslation();
   const { themeConfig } = useTheme();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showError } = useGlobalToast();
   const [formData, setFormData] = useState({
     quantity: "",
     purchasePrice: "",
     supplier: "",
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
-  // Hook to fetch subscription info if needed for other purposes
+  const { execute: executeFetch } = useApiResponse();
+  const { execute: executeSubmit, loading: isLoading } = useApiResponse();
   const { isLoading: featuresLoading } = useFeatureAccess();
 
   // Reset form when drawer opens/closes
@@ -45,23 +44,17 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) return;
 
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } catch (_error) {
-    } finally {
-      setSuppliersLoading(false);
+    setSuppliersLoading(true);
+    const result = await executeFetch(
+      supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setSuppliersLoading(false);
+    if (result?.success) {
+      setSuppliers(result.data?.data || result.data || []);
     }
   };
 
@@ -97,42 +90,29 @@ const StockInDrawer = ({ isOpen, onClose, product, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
-    if (!validateForm()) {
-      return;
-    }
+    const storeId = selectedStore?.storeId;
+    if (!storeId) return;
 
-    setIsLoading(true);
-    try {
-      const storeId =
-        selectedStore?.storeId;
+    const apiPayload = {
+      productId: product.id,
+      store: storeId,
+      batchData: {
+        quantity: parseInt(formData.quantity, 10),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        supplier: formData.supplier,
+      },
+    };
 
-      if (!storeId) {
-        throw new Error("Store not selected");
-      }
+    const result = await executeSubmit(
+      stockService.addStock(apiPayload),
+      { message: t("products.stockAddedSuccessfully") }
+    );
 
-      const apiPayload = {
-        productId: product.id,
-        store: storeId,
-        batchData: {
-          quantity: parseInt(formData.quantity, 10),
-          purchasePrice: parseFloat(formData.purchasePrice),
-          supplier: formData.supplier,
-        },
-      };
-
-      const response = await stockService.addStock(apiPayload);
-
-      if (response.success) {
-        onClose();
-        onSuccess?.(t("products.stockAddedSuccessfully"));
-      } else {
-        throw new Error(response.message || "Failed to add stock");
-      }
-    } catch (error) {
-      showError(`${t("products.errorAddingStock")}: ${error.message || t("products.pleaseTryAgain")}`);
-    } finally {
-      setIsLoading(false);
+    if (result?.success) {
+      onClose();
+      onSuccess?.(t("products.stockAddedSuccessfully"));
     }
   };
 

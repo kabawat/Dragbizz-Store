@@ -8,8 +8,8 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { AIProductExtract, ProductForm } from "@/components/product";
 import { AIButton, Button } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
@@ -18,19 +18,16 @@ const AddProductPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || "";
+  const storeId = selectedStore?.storeId || "";
 
-  const [loading, setLoading] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const {
-    handleApiError,
-    handleApiResult,
+    execute,
+    loading,
     fieldErrors,
     setFieldErrors,
-    showSuccess,
-    clearFieldErrors,
-  } = useErrorHandling();
+    clearAll: clearFieldErrors,
+  } = useApiResponse();
 
   const getInitialFormData = () => ({
     store: storeId,
@@ -116,47 +113,34 @@ const AddProductPage = () => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
-    try {
-      setLoading(true);
-      clearFieldErrors();
+    clearFieldErrors();
 
-      // Calculate discount percentage based on MRP and sellingPrice
-      const payload = { ...formData };
-      const mrp = parseFloat(payload.mrp) || 0;
-      const sellingPrice = parseFloat(payload.sellingPrice) || 0;
+    // Calculate discount percentage based on MRP and sellingPrice
+    const payload = { ...formData };
+    const mrp = parseFloat(payload.mrp) || 0;
+    const sellingPrice = parseFloat(payload.sellingPrice) || 0;
 
-      if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-        // Calculate discount percentage: ((MRP - SellingPrice) / MRP) * 100
-        const discountPercentage =
-          Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100; // Round to 2 decimal places
-        payload.discount = String(discountPercentage);
-      } else if (payload.discount) {
-        // If discount is already provided, keep it (might be percentage already)
-        payload.discount = String(payload.discount);
-      } else {
-        // No discount if MRP <= SellingPrice
-        payload.discount = "0";
-      }
+    if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
+      const discountPercentage =
+        Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100;
+      payload.discount = String(discountPercentage);
+    } else if (payload.discount) {
+      payload.discount = String(payload.discount);
+    } else {
+      payload.discount = "0";
+    }
 
-      const result = await productService.createProduct(payload);
-      const handled = handleApiResult(
-        result,
-        t("products.createSuccess"),
-        "product-creation"
-      );
+    const result = await execute(
+      productService.createProduct(payload),
+      { message: t("products.createSuccess") }
+    );
 
-      if (handled.type === "success") {
-
-        setTimeout(() => {
-          setFormData(getInitialFormData());
-          clearFieldErrors();
-          router.push("/dashboard/products");
-        }, 1500);
-      }
-    } catch (error) {
-      handleApiError(error, "product-creation");
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      setTimeout(() => {
+        setFormData(getInitialFormData());
+        clearFieldErrors();
+        router.push("/dashboard/products");
+      }, 1500);
     }
   };
 
