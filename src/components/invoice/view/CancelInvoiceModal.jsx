@@ -1,10 +1,9 @@
 "use client";
 import { AlertCircle } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useGlobalToast } from "@/contexts/ToastContext";
 import { invoiceService } from "@/service";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const CancelInvoiceModal = ({
   isOpen,
@@ -14,39 +13,21 @@ const CancelInvoiceModal = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const { showSuccess, showError } = useGlobalToast();
-  const [isCancelling, setIsCancelling] = useState(false);
+  const { execute, loading: isCancelling } = useApiResponse();
 
   if (!isOpen) return null;
 
   const handleConfirm = async () => {
     if (!invoiceId) return;
 
-    setIsCancelling(true);
-    try {
-      const result = await invoiceService.cancelInvoice(
-        invoiceId,
-        "Cancelled by user"
-      );
+    const result = await execute(
+      invoiceService.cancelInvoice(invoiceId, "Cancelled by user"),
+      { message: t("success.cancelledSuccessfully", { item: t("common.invoice") }) }
+    );
 
-      if (result.success) {
-        showSuccess(
-          t("success.cancelledSuccessfully", { item: t("common.invoice") })
-        );
-        if (onSuccess) onSuccess();
-        onClose();
-      } else {
-        showError(
-          result.message ||
-          t("errors.failedToCancel", { item: t("common.invoice") })
-        );
-      }
-    } catch (_error) {
-      showError(
-        t("errors.failedToCancelTryAgain", { item: t("common.invoice") })
-      );
-    } finally {
-      setIsCancelling(false);
+    if (result?.success) {
+      if (onSuccess) onSuccess();
+      onClose();
     }
   };
 

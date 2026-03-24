@@ -11,6 +11,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import ProductDetailsTemplate from "@/components/templates/product/ProductDetailsTemplate";
 import { Badge, Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
@@ -23,14 +24,15 @@ const ViewProductPage = ({ productId }) => {
   const storeId =
     selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedProductName, setDeletedProductName] = useState("");
   const hasFetched = useRef(false);
+
+  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useProductDetailsPrint(
     fetching,
@@ -41,55 +43,40 @@ const ViewProductPage = ({ productId }) => {
   useEffect(() => {
     const fetchProductData = async () => {
       if (!productId || !storeId || hasFetched.current) return;
-
       hasFetched.current = true;
-      try {
-        setFetching(true);
-        setError(null);
 
-        const params = {
-          store: storeId,
-          id: productId,
-        };
-        const result = await productService.getProducts(params);
+      const result = await executeFetch(
+        productService.getProducts({ store: storeId, id: productId }),
+        { showToast: false }
+      );
 
-        if (result.success && result.data) {
-          // Handle various response structures:
-          let product = null;
-          if (Array.isArray(result.data.data)) {
-            product = result.data.data[0];
-          } else if (Array.isArray(result.data)) {
-            product = result.data[0];
-          } else if (result.data.data) {
-            product = result.data.data;
-          } else {
-            product = result.data;
-          }
-
-          if (product) {
-            setProductData(product);
-          } else {
-            setError(
-              t("errors.failedToFetchData", { item: t("common.product") })
-            );
-          }
+      if (result?.success && result.data) {
+        let product = null;
+        if (Array.isArray(result.data.data)) {
+          product = result.data.data[0];
+        } else if (Array.isArray(result.data)) {
+          product = result.data[0];
+        } else if (result.data.data) {
+          product = result.data.data;
         } else {
-          setError(
-            result.message ||
-            t("errors.failedToFetchData", { item: t("common.product") })
-          );
+          product = result.data;
         }
-      } catch (_error) {
+
+        if (product) {
+          setProductData(product);
+        } else {
+          setError(t("errors.failedToFetchData", { item: t("common.product") }));
+        }
+      } else {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.product") })
+          result?.message ||
+          t("errors.failedToFetchData", { item: t("common.product") })
         );
-      } finally {
-        setFetching(false);
       }
     };
 
     fetchProductData();
-  }, [productId, storeId, t]);
+  }, [productId, storeId, t, executeFetch]);
 
   // Handle edit product
   const handleEditProduct = () => {
@@ -105,28 +92,17 @@ const ViewProductPage = ({ productId }) => {
   const handleConfirmDelete = async () => {
     if (!productId || !storeId) return;
 
-    setIsDeleting(true);
-    try {
-      const result = await productService.deleteProduct(productId, storeId);
+    const result = await executeDelete(
+      productService.deleteProduct(productId, storeId),
+      { message: t("success.deletedSuccessfully", { item: t("common.product") }) }
+    );
 
-      if (result.success) {
-        setDeletedProductName(productData?.name || "Product");
-        setShowDeleteSuccessModal(true);
-        setShowDeleteModal(false);
-      } else {
-        setError(
-          result.message ||
-          t("errors.failedToDelete", { item: t("common.product") })
-        );
-        setShowDeleteModal(false);
-      }
-    } catch (_error) {
-      setError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.product") })
-      );
+    if (result?.success) {
+      setDeletedProductName(productData?.name || "Product");
+      setShowDeleteSuccessModal(true);
       setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
+    } else {
+      setShowDeleteModal(false);
     }
   };
 

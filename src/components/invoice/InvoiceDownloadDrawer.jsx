@@ -220,44 +220,38 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;
     }
 
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+    const params = buildDownloadParams(
+      storeId,
+      dateRange.startDate,
+      dateRange.endDate
+    );
 
-      const result = await execute(
-        invoiceService.getInvoices(params),
-        { showToast: false }
-      );
+    const result = await execute(
+      invoiceService.getInvoices(params),
+      { showToast: false }
+    );
 
-      if (result?.success && result.data) {
-        const invoicesData = result.data || [];
+    if (result?.success && result.data) {
+      const invoicesData = result.data || [];
 
-        if (invoicesData.length === 0) {
-          showError(t("invoices.noInvoicesFoundToDownload"));
-          return;
-        }
-
-        await downloadInvoicesFile(invoicesData);
-        showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
-      } else {
-        showError(result?.message || t("invoices.failedToDownloadInvoices"));
+      if (invoicesData.length === 0) {
+        showError(t("invoices.noInvoicesFoundToDownload"));
+        return;
       }
-    } catch (error) {
-      logger.error("Download invoices error:", error);
-      showError(t("invoices.errorDownloadingInvoices"));
-    } finally {
-      handleClose();
+
+      await downloadInvoicesFile(invoicesData);
+      showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
+    } else {
+      showError(result?.message || t("invoices.failedToDownloadInvoices"));
     }
+
+    handleClose();
   };
 
   const handleCustomRangeDownload = async () => {
@@ -277,44 +271,38 @@ const InvoiceDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("invoices.storeIdMissing"));
       return;
     }
 
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+    const params = buildDownloadParams(
+      storeId,
+      dateRange.startDate,
+      dateRange.endDate
+    );
 
-      const result = await execute(
-        invoiceService.getInvoices(params),
-        { showToast: false }
-      );
+    const result = await execute(
+      invoiceService.getInvoices(params),
+      { showToast: false }
+    );
 
-      if (result?.success && result.data) {
-        const invoicesData = result.data || [];
+    if (result?.success && result.data) {
+      const invoicesData = result.data || [];
 
-        if (invoicesData.length === 0) {
-          showError(t("invoices.noInvoicesFoundToDownload"));
-          return;
-        }
-
-        await downloadInvoicesFile(invoicesData);
-        showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
-      } else {
-        showError(result?.message || t("invoices.failedToDownloadInvoices"));
+      if (invoicesData.length === 0) {
+        showError(t("invoices.noInvoicesFoundToDownload"));
+        return;
       }
-    } catch (error) {
-      logger.error("Download invoices error:", error);
-      showError(t("invoices.errorDownloadingInvoices"));
-    } finally {
-      handleClose();
+
+      await downloadInvoicesFile(invoicesData);
+      showSuccess(t("invoices.invoicesDownloadedSuccessfully"));
+    } else {
+      showError(result?.message || t("invoices.failedToDownloadInvoices"));
     }
+
+    handleClose();
   };
 
   const sortInvoices = (invoices) => {

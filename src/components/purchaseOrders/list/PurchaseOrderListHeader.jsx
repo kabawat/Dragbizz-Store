@@ -43,12 +43,8 @@ const PurchaseOrderListHeader = () => {
 
         const params = { store: storeId, search: searchValue, limit: 20, cursor: null, isFreshLoad: true };
 
-        try {
-            await dispatch(getPOs(params));
-            hasFetchedRef.current = { fetched: true, storeId, searchValue };
-        } catch {
-            lastFetchRef.current = null;
-        }
+        await dispatch(getPOs(params));
+        hasFetchedRef.current = { fetched: true, storeId, searchValue };
     }, [dispatch, storeId, searchValue]);
 
     // Debounce hook replacement
