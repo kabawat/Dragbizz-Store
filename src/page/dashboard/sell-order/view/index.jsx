@@ -11,6 +11,7 @@ import { salesOrderService } from "@/service/retailer";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 // Extracted Components
 import {
@@ -43,38 +44,35 @@ const ViewSellOrderPage = ({ orderId }) => {
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+
+  const { execute: executeFetch } = useApiResponse();
+  const { execute: executeUpdate, loading: updatingStatus } = useApiResponse();
 
   const fetchOrder = React.useCallback(async () => {
     if (!orderId || !storeId) return;
     try {
-      const result = await salesOrderService.getSalesOrders({ id: orderId, store: storeId });
-      if (result.success) {
+      const result = await executeFetch(
+        salesOrderService.getSalesOrders({ id: orderId, store: storeId }),
+        { showToast: false }
+      );
+      if (result?.success) {
         setOrder(result.data);
       }
     } catch (error) {
-
       showError("An unexpected error occurred while fetching order");
     }
-  }, [orderId, storeId, showError]);
+  }, [orderId, storeId, showError, executeFetch]);
 
   const handleUpdateStatus = async (status, payload = {}) => {
     if (!orderId || !storeId) return;
-    setUpdatingStatus(true);
-    try {
-      const result = await salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId });
-      if (result.success) {
-        showSuccess(result.message || "Order updated successfully");
-        await fetchOrder();
-      } else {
-        showError(result.message || "Failed to update order");
-      }
-    } catch (error) {
+    const result = await executeUpdate(
+      salesOrderService.updateStatus(orderId, { status, ...payload }, { store: storeId }),
+      { showToast: true, message: "Order updated successfully" }
+    );
 
-      showError("An unexpected error occurred while updating status");
-    } finally {
-      setUpdatingStatus(false);
+    if (result?.success) {
+      await fetchOrder();
     }
   };
 

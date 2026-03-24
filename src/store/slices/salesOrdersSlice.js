@@ -3,8 +3,6 @@ import salesOrderService from "@/service/retailer/salesOrder.service";
 import { handleSuccess } from "@/utils/responseHandler/success";
 import { handleError } from "@/utils/responseHandler/error";
 const { API_CONFIG } = require("@/config");
-const { attachQueryParams } = require("@/utils/queryParams");
-const { authAxios } = require("@/service/config/axiosConfig");
 
 const initialState = {
     list: [],
@@ -20,10 +18,7 @@ export const getSalesOrders = createAsyncThunk(
     "salesOrders/getSalesOrders",
     async (params, { rejectWithValue }) => {
         try {
-
-            const url = attachQueryParams(API_CONFIG.RETAILER.SALES_ORDER, params);
-            const response = await authAxios.get(url);
-
+            const response = await salesOrderService.getSalesOrders(params);
             return handleSuccess(response); // Standard global payload formatter!
         } catch (error) {
             const result = handleError(error);

@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import staffService from "@/service/retailer/staff.service";
-import useApiResponse from "@/hooks/useApiResponse";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 import { CheckCircle2, XCircle, Loader2, ArrowRight, ShieldCheck, MailOpen } from "lucide-react";
 import Link from "next/link";
 import { AnimatedBackground, AnimatedGridPattern } from "@/components/ui";
@@ -18,9 +19,6 @@ export default function VerifyInvitation() {
     const [status, setStatus] = useState("loading");
     const [message, setMessage] = useState("We are verifying your invitation code...");
     const hasVerifiedRef = useRef(false);
-    const { execute } = useApiResponse();
-    const { showSuccess, showError } = useGlobalToast();
-
     useEffect(() => {
         // Only verify once strictly
         if (hasVerifiedRef.current) return;
@@ -34,20 +32,25 @@ export default function VerifyInvitation() {
         const verifyToken = async () => {
             hasVerifiedRef.current = true;
 
-            const result = await execute(
-                staffService.verifyStaff(token),
-                { showToast: false }
-            );
+            try {
+                const response = await staffService.verifyStaff(token);
+                const result = handleSuccess(response);
 
-            if (result?.success) {
-                setStatus("success");
-                setMessage(result?.message || "Your staff invitation has been verified successfully! You can now join your store.");
-                showSuccess(result?.message || "Invitation verified successfully!");
-                setTimeout(() => { router.push("/login"); }, 4000);
-            } else {
+                if (result.success) {
+                    setStatus("success");
+                    setMessage(result.message || "Your staff invitation has been verified successfully! You can now join your store.");
+                    showSuccess(result.message || "Invitation verified successfully!");
+                    setTimeout(() => { router.push("/login"); }, 4000);
+                } else {
+                    setStatus("error");
+                    setMessage(result.message || "Failed to verify invitation. The link may have expired or is invalid.");
+                    showError(result.message || "Failed to verify invitation");
+                }
+            } catch (error) {
+                const errResult = handleError(error);
                 setStatus("error");
-                setMessage(result?.message || "Failed to verify invitation. The link may have expired or is invalid.");
-                showError(result?.message || "Failed to verify invitation");
+                setMessage(errResult.message || "Failed to verify invitation. The link may have expired or is invalid.");
+                showError(errResult.message || "Failed to verify invitation");
             }
         };
 
