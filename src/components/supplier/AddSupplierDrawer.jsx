@@ -14,10 +14,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
-  const [fieldErrors, setFieldErrors] = useState({});
-  const clearFieldErrors = () => setFieldErrors({});
-
-  const { execute, loading } = useApiResponse();
+  const { execute, loading, clearAll, fieldErrors, setFieldErrors } = useApiResponse();
 
   // Initial form data
   const getInitialFormData = useCallback(() => ({
@@ -48,13 +45,12 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
     },
   });
 
-  // Reset form when drawer opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData(getInitialFormData());
-      clearFieldErrors();
+      clearAll();
     }
-  }, [isOpen, clearFieldErrors, getInitialFormData]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -89,7 +85,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
-    clearFieldErrors();
+    clearAll();
 
     if (!formData.phone && !formData.email) {
       const errorMsg = t("suppliers.phoneOrEmailRequired");
@@ -104,7 +100,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
     if (result?.success) {
       setFormData(getInitialFormData());
-      clearFieldErrors();
+      clearAll();
       onClose();
       onSuccess?.(result.data);
     } else if (result?.fieldErrors) {
@@ -114,7 +110,7 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   const handleClose = () => {
     setFormData(getInitialFormData());
-    setFieldErrors({});
+    clearAll();
     onClose();
   };
 

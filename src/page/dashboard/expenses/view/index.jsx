@@ -58,12 +58,12 @@ const ViewExpensePage = ({ expenseId }) => {
         { showToast: false }
       );
 
-      if (result?.success) {
+      if (result) {
         const data = result.data?.data || result.data;
         setExpenseData(data || null);
         if (!data) setError("Expense not found");
       } else {
-        setError(result?.message || "Failed to fetch expense data");
+        setError("Failed to fetch expense data");
       }
     };
 

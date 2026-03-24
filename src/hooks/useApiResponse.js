@@ -11,6 +11,7 @@ export const useApiResponse = () => {
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const handleApiSuccess = useCallback((response, options = {}) => {
         const result = handleSuccess(response);
@@ -64,6 +65,7 @@ export const useApiResponse = () => {
     const clearAll = useCallback(() => {
         setData(null);
         setLoading(false);
+        setFieldErrors({});
     }, []);
 
     return {
@@ -71,6 +73,8 @@ export const useApiResponse = () => {
         loading,
         data,
         clearAll,
+        fieldErrors,
+        setFieldErrors,
     };
 };
 

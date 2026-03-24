@@ -31,25 +31,39 @@ import { SortableCard, SortableMetricCard, } from "@/components/templates/analyt
 import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getStockAnalytics } from "@/store/slices/products/analyticsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
 const ProductAnalytics = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-
-  // Mock data structure matching API: { totals: { totalProducts, activeProducts, inactiveProducts } }
-  const analytics = useMemo(
-    () => ({
-      totals: {
-        totalProducts: 0,
-        activeProducts: 0,
-        inactiveProducts: 0,
-      },
-    }),
-    []
+  const storeId = selectedStore?.storeId;
+  const { analytics: reduxAnalytics, isLoading } = useAppSelector(
+    (state) => state.productAnalytics
   );
+
+  const analytics = useMemo(
+    () => reduxAnalytics || { totals: { totalProducts: 0, activeProducts: 0, inactiveProducts: 0 } },
+    [reduxAnalytics]
+  );
+
+  // Fetch once per store
+  useEffect(() => {
+    if (storeId && !hasFetchedRef.current.fetched) {
+      hasFetchedRef.current = { storeId, fetched: true };
+      dispatch(getStockAnalytics(storeId));
+    }
+  }, [storeId, dispatch]);
+
+  // Reset ref if store changes
+  useEffect(() => {
+    if (storeId && hasFetchedRef.current.storeId !== storeId) {
+      hasFetchedRef.current = { storeId: null, fetched: false };
+    }
+  }, [storeId]);
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
     false,

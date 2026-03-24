@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import useApiResponse from "@/hooks/useApiResponse";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import SupplierDetailsTemplate from "@/components/templates/supplier/SupplierDetailsTemplate";
@@ -27,15 +28,16 @@ const ViewSupplierPage = ({ supplierId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
   const [supplierData, setSupplierData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedSupplierName, setDeletedSupplierName] = useState("");
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const hasFetched = useRef(false);
+
+  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useSupplierDetailsPrint(
     fetching,
@@ -57,35 +59,25 @@ const ViewSupplierPage = ({ supplierId }) => {
   useEffect(() => {
     const fetchSupplierData = async () => {
       if (!supplierId || !storeId || hasFetched.current) return;
-
       hasFetched.current = true;
-      try {
-        setFetching(true);
-        setError(null);
 
-        const result = await supplierService.getSuppliers({
-          id: supplierId,
-          store: storeId,
-        });
-        if (result.success && result.data) {
-          setSupplierData(result.data);
-        } else {
-          setError(
-            result.message ||
-            t("errors.failedToFetchData", { item: t("common.supplier") })
-          );
-        }
-      } catch (_error) {
+      const result = await executeFetch(
+        supplierService.getSuppliers({ id: supplierId, store: storeId }),
+        { showToast: false }
+      );
+
+      if (result?.success && result?.data) {
+        setSupplierData(result.data);
+      } else {
         setError(
-          t("errors.failedToFetchDataTryAgain", { item: t("common.supplier") })
+          result?.message ||
+          t("errors.failedToFetchData", { item: t("common.supplier") })
         );
-      } finally {
-        setFetching(false);
       }
     };
 
     fetchSupplierData();
-  }, [supplierId, storeId, t]);
+  }, [supplierId, storeId, t, executeFetch]);
 
   const handleEditSupplier = () => {
     setShowEditDrawer(true);
@@ -102,28 +94,21 @@ const ViewSupplierPage = ({ supplierId }) => {
   const handleConfirmDelete = async () => {
     if (!supplierId || !storeId) return;
 
-    setIsDeleting(true);
-    try {
-      const result = await supplierService.deleteSupplier(supplierId, storeId);
+    const result = await executeDelete(
+      supplierService.deleteSupplier(supplierId, storeId),
+      { message: t("suppliers.deleteSuccess") }
+    );
 
-      if (result.success) {
-        setDeletedSupplierName(supplierData?.name || t("common.supplier"));
-        setShowDeleteSuccessModal(true);
-        setShowDeleteModal(false);
-      } else {
-        setError(
-          result.message ||
-          t("errors.failedToDelete", { item: t("common.supplier") })
-        );
-        setShowDeleteModal(false);
-      }
-    } catch (_error) {
+    if (result?.success) {
+      setDeletedSupplierName(supplierData?.name || t("common.supplier"));
+      setShowDeleteSuccessModal(true);
+      setShowDeleteModal(false);
+    } else {
       setError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.supplier") })
+        result?.message ||
+        t("errors.failedToDelete", { item: t("common.supplier") })
       );
       setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
     }
   };
 

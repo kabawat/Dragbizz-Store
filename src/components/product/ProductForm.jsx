@@ -325,8 +325,8 @@ const ProductForm = ({
       { showToast: false }
     );
 
-    if (result?.success) {
-      const categories = result.data?.data || result.data || [];
+    if (result) {
+      const categories = result.data || [];
       const formattedCategories = categories.map((category) => ({
         value: category.id || category._id,
         label: category.name,
@@ -383,10 +383,11 @@ const ProductForm = ({
       categoryService.createCategory(apiPayload, storeId)
     );
 
-    if (result?.success) {
+    if (result) {
+      const body = result.data?.data || result.data;
       const newCategory = {
         value:
-          result.data?.id ||
+          body?.id || body?._id ||
           `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, "-")}`,
         label: newCategoryData.name.trim(),
       };

@@ -8,7 +8,6 @@ import { updateExpense } from "@/store/slices/expenses/expenseSlice";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { expenseService } from "@/service/retailer";
-import { handleSuccess } from "@/utils/responseHandler/success";
 
 const EditExpenseDrawer = ({ isOpen, expenseId, onClose, onSuccess }) => {
     const { t } = useTranslation();
@@ -17,8 +16,8 @@ const EditExpenseDrawer = ({ isOpen, expenseId, onClose, onSuccess }) => {
     const storeId = selectedStore?.storeId;
 
     const { execute, loading: isSaving } = useApiResponse();
+    const { execute: executeFetch, loading: isFetching } = useApiResponse();
     const [expense, setExpense] = useState(null);
-    const [isFetching, setIsFetching] = useState(false);
 
     // Ref for the form — same pattern as AddExpenseDrawer
     const formRef = useRef(null);
@@ -28,19 +27,14 @@ const EditExpenseDrawer = ({ isOpen, expenseId, onClose, onSuccess }) => {
         if (!isOpen || !expenseId || !storeId) return;
 
         const fetchExpense = async () => {
-            setIsFetching(true);
             setExpense(null);
-            try {
-                const rawResponse = await expenseService.getExpenses({
-                    id: expenseId,
-                    store: storeId,
-                });
-                const result = handleSuccess(rawResponse);
-                if (result.success && result.data) {
-                    setExpense(result.data);
-                }
-            } finally {
-                setIsFetching(false);
+            const result = await executeFetch(
+                expenseService.getExpenses({ id: expenseId, store: storeId }),
+                { showToast: false }
+            );
+            if (result) {
+                const data = result.data?.data || result.data;
+                setExpense(data || null);
             }
         };
 
@@ -66,8 +60,9 @@ const EditExpenseDrawer = ({ isOpen, expenseId, onClose, onSuccess }) => {
             }
         );
 
-        if (result?.success && result?.data) {
-            const updatedExpense = result.data.expense || result.data;
+        if (result) {
+            const body = result.data?.data || result.data;
+            const updatedExpense = body?.expense || body;
             dispatch(updateExpense(updatedExpense));
             handleClose();
             if (onSuccess) onSuccess(updatedExpense);

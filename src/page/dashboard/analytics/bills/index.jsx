@@ -54,13 +54,18 @@ const BillAnalytics = () => {
   const { bill: analytics, isLoadingBill: isLoading } = useAppSelector((state) => state.analytics);
   const { suppliers } = useAppSelector((state) => state.suppliers || { suppliers: [] });
 
+  const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id;
+
   const [dateRange, setDateRange] = useState("month");
   const [supplierId, setSupplierId] = useState("all");
+  const lastFetchParams = useRef(null);
 
   const fetchAnalytics = () => {
-    const storeId = selectedStore?.storeId
-
     if (!storeId) return;
+
+    const params = JSON.stringify({ store: storeId, dateRange, supplierId });
+    if (lastFetchParams.current === params) return;
+    lastFetchParams.current = params;
 
     dispatch(getBillAnalytics({
       store: `${storeId}`,
@@ -71,7 +76,7 @@ const BillAnalytics = () => {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [dispatch, selectedStore?._id, selectedStore?.id, selectedStore?.storeId, dateRange, supplierId]);
+  }, [storeId, dateRange, supplierId]);
 
 
   const { handleDownloadPDF, handleDownloadXLSX } = useAnalyticsReportPrint(
