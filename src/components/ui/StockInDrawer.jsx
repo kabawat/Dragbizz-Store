@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUp, Package, X } from "lucide-react";
+import { Package, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import Input from "./Input";

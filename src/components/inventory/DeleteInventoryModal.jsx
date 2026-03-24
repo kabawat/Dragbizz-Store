@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Package } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useApiResponse } from '@/hooks/useApiResponse';
 import inventoryService from '@/service/retailer/inventory.service';
-import { useGlobalToast } from '@/contexts/ToastContext';
 import { useTranslation } from '@/hooks/ui/useTranslation';
 
 const DeleteInventoryModal = ({
@@ -11,30 +11,22 @@ const DeleteInventoryModal = ({
     inventoryToDelete,
     onDeleteSuccess,
 }) => {
-    const [isDeleting, setIsDeleting] = useState(false);
-    const { showError, showSuccess } = useGlobalToast();
     const { t } = useTranslation();
+    const { execute, loading: isDeleting } = useApiResponse();
 
     if (!isOpen) return null;
 
     const handleConfirmDelete = async () => {
         if (!inventoryToDelete) return;
 
-        try {
-            setIsDeleting(true);
-            await inventoryService.deleteInventory(inventoryToDelete.id);
+        const result = await execute(
+            inventoryService.deleteInventory(inventoryToDelete.id),
+            { message: t('inventory.deleteSuccess', { defaultValue: 'Stock deleted successfully.' }) }
+        );
 
-            showSuccess(t('inventory.deleteSuccess', { defaultValue: 'Stock deleted successfully.' }));
-
-            if (onDeleteSuccess) {
-                onDeleteSuccess(inventoryToDelete.id);
-            }
-
+        if (result?.success) {
+            onDeleteSuccess?.(inventoryToDelete.id);
             onClose();
-        } catch (_error) {
-            showError(t('common.failedToLoad', { defaultValue: 'Failed to process request.' }));
-        } finally {
-            setIsDeleting(false);
         }
     };
 

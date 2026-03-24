@@ -24,21 +24,20 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
-import logger from "@/utils/logger";
 import { useInventoryDetailsPrint } from "./hooks/useInventoryDetailsPrint";
 
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || "";
+  const storeId = selectedStore?.storeId || "";
 
   const [inventory, setInventory] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { execute, loading } = useApiResponse();
   const { handleDownloadPDF } = useInventoryDetailsPrint(loading, inventory);
 
   // Fetch inventory details
@@ -46,35 +45,25 @@ const ViewInventoryPage = ({ inventoryId }) => {
     const fetchInventory = async () => {
       if (!inventoryId || !storeId) return;
 
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await inventoryService.getInventoryById(
-          inventoryId,
-          storeId
-        );
+      setError(null);
+      const result = await execute(
+        inventoryService.getInventoryById(inventoryId, storeId),
+        { showToast: false }
+      );
 
-        if (response.success) {
-          const data =
-            response.data?.data?.inventory ||
-            response.data?.inventory ||
-            response.data;
-          if (data) {
-            setInventory(data);
-            setError(null);
-          } else {
-            setError("Stock not found");
-          }
+      if (result?.success) {
+        const data =
+          result.data?.data?.inventory ||
+          result.data?.inventory ||
+          result.data;
+
+        if (data) {
+          setInventory(data);
         } else {
-          setError(response.message || "Failed to fetch inventory details");
-          setInventory(null);
+          setError("Stock not found");
         }
-      } catch (error) {
-        logger.error("Error fetching inventory:", error);
-        setError("Error loading inventory details");
-        setInventory(null);
-      } finally {
-        setLoading(false);
+      } else {
+        setError(result?.message || "Error loading inventory details");
       }
     };
 

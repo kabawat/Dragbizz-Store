@@ -31,13 +31,14 @@ const ViewPaymentPage = ({ paymentId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
   const [paymentData, setPaymentData] = useState(null);
   const hasFetched = useRef(false);
+
+  // API hooks
+  const { execute, loading: fetching } = useApiResponse();
 
   const { handleDownloadPDF } = usePaymentDetailsPrint(
     fetching,
@@ -50,32 +51,33 @@ const ViewPaymentPage = ({ paymentId }) => {
       if (!paymentId || !storeId || hasFetched.current) return;
 
       hasFetched.current = true;
-      try {
-        setFetching(true);
-        setError(null);
+      setError(null);
 
-        const params = {
-          store: storeId,
-          id: paymentId,
-        };
-        const result = await paymentService.getPayments(params);
+      const params = {
+        store: storeId,
+        id: paymentId,
+      };
 
-        if (result.success && result.data) {
-          setPaymentData(result.data);
+      const result = await execute(paymentService.getPayments(params), {
+        showToast: false,
+      });
+
+      if (result?.success) {
+        const data =
+          result.data?.data?.payment ||
+          result.data?.payment ||
+          result.data;
+
+        if (data) {
+          setPaymentData(data);
         } else {
-          setError(
-            result.message ||
-            t("errors.failedToFetchData", { item: t("payments.payment") })
-          );
+          setError(t("errors.failedToFetchData", { item: t("payments.payment") }));
         }
-      } catch (_error) {
+      } else {
         setError(
-          t("errors.failedToFetchDataTryAgain", {
-            item: t("payments.payment"),
-          })
+          result?.message ||
+          t("errors.failedToFetchData", { item: t("payments.payment") })
         );
-      } finally {
-        setFetching(false);
       }
     };
 

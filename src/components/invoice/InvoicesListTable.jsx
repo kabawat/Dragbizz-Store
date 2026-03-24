@@ -181,31 +181,31 @@ const InvoicesListTable = ({
       <table className="w-full">
         <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.invoiceNumber")}
             </th>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.customer")}
             </th>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.date")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.subtotal")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.gst")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
-            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.status")}
             </th>
-            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.payment")}
             </th>
-            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.actions")}
             </th>
           </tr>

@@ -6,7 +6,9 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { deletePayment, getPayments } from "@/store/slices/paymentsSlice";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { paymentService } from "@/service/retailer";
+import { removePayment, getPayments } from "@/store/slices/paymentsSlice";
 import {
   PaymentHeaderActions,
   PaymentEmptyState,
@@ -228,6 +230,8 @@ const Payments = () => {
     setShowDeleteModal(true);
   };
 
+  const { execute: executeDelete } = useApiResponse();
+
   // Confirm delete
   const confirmDelete = async () => {
     if (paymentToDelete) {
@@ -235,20 +239,15 @@ const Payments = () => {
       const paymentId = paymentToDelete._id || paymentToDelete.id;
 
       if (storeId && paymentId) {
-        try {
-          await dispatch(deletePayment({ paymentId, storeId })).unwrap();
+        const result = await executeDelete(
+          paymentService.deletePayment(paymentId, storeId),
+          { message: "Payment deleted successfully" }
+        );
+
+        if (result?.success) {
+          dispatch(removePayment(paymentId));
           setShowDeleteModal(false);
           setPaymentToDelete(null);
-          // Refresh payments list
-          dispatch(
-            getPayments({
-              store: storeId,
-              limit: pagination?.limit || 20,
-              page: 1,
-            })
-          );
-        } catch (_error) {
-          // Error is already handled by the slice
         }
       }
     }

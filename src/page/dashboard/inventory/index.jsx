@@ -8,6 +8,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { InventoryCard, InventoryTable, DeleteInventoryModal } from "@/components/inventory";
 import { Button, Input, StockInDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 // Import services
@@ -18,17 +19,18 @@ const InventoryPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showSuccess, showError } = useGlobalToast();
-  const storeId =
-    selectedStore?.storeId || "";
+  const { showSuccess } = useGlobalToast();
+  const storeId = selectedStore?.storeId || "";
+
+  // API hooks — separate instances for initial load vs pagination append
+  const { execute: executeList, loading } = useApiResponse();
+  const { execute: executeMore, loading: isLoadingMore } = useApiResponse();
 
   // State management
   const [inventories, setInventories] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [selectedInventories, setSelectedInventories] = useState([]);
   const [viewMode, setViewMode] = useState("table");
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
   // Modals
@@ -59,9 +61,7 @@ const InventoryPage = () => {
       const fetchKey = `${storeId}-${searchValue}-${page}-${append}`;
 
       // Prevent duplicate calls with same parameters
-      if (lastFetchKeyRef.current === fetchKey) {
-        return;
-      }
+      if (lastFetchKeyRef.current === fetchKey) return;
 
       // For initial load (page 1, not append), check if we've already fetched
       if (page === 1 && !append) {
@@ -77,56 +77,41 @@ const InventoryPage = () => {
       }
 
       // Prevent call if already fetching
-      if (isFetchingRef.current && !append) {
-        return;
-      }
+      if (isFetchingRef.current && !append) return;
 
       lastFetchKeyRef.current = fetchKey;
       isFetchingRef.current = true;
 
-      try {
-        if (page === 1) {
-          setLoading(true);
+      const params = {
+        store: storeId,
+        page,
+        limit: 20,
+        search: searchValue || undefined,
+      };
+
+      const execute = append ? executeMore : executeList;
+      const result = await execute(
+        inventoryService.getInventories(params),
+        { showToast: false }
+      );
+
+      if (result?.success) {
+        const data = result.data;
+        const newInventories = data?.inventories || data?.data || [];
+
+        if (append) {
+          setInventories((prev) => [...prev, ...newInventories]);
         } else {
-          setIsLoadingMore(true);
+          setInventories(newInventories);
+          hasFetchedRef.current = { storeId, searchValue, fetched: true };
         }
 
-        const params = {
-          store: storeId,
-          page: page,
-          limit: 20,
-          search: searchValue || undefined,
-        };
-
-        const response = await inventoryService.getInventories(params);
-
-        if (response.success) {
-          const newInventories =
-            response.data?.inventories || response.data || [];
-
-          if (append) {
-            setInventories((prev) => [...prev, ...newInventories]);
-          } else {
-            setInventories(newInventories);
-            // Update fetch ref for initial load
-            hasFetchedRef.current = {
-              storeId,
-              searchValue,
-              fetched: true,
-            };
-          }
-
-          setHasMore(response.data?.pagination?.hasNext || false);
-        }
-      } catch (error) {
-        showError(error?.message || t("common.failedToLoad"));
-      } finally {
-        setLoading(false);
-        setIsLoadingMore(false);
-        isFetchingRef.current = false;
+        setHasMore(data?.pagination?.hasNext || false);
       }
+
+      isFetchingRef.current = false;
     },
-    [storeId, searchValue, showError, t]
+    [storeId, searchValue, executeList, executeMore]
   );
 
   // Fetch inventories on mount or when dependencies change

@@ -135,24 +135,24 @@ const SupplierTable = ({
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   Supplier
                 </span>
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Account
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Total Bills
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="w-24 px-4 py-2 text-center">
+              <th className="w-24 px-4 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>

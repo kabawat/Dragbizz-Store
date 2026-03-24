@@ -134,36 +134,6 @@ const ProductTable = ({
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        className={`bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-sm overflow-hidden ${className}`}
-      >
-        <div className="animate-pulse">
-          <div className="h-16 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"></div>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-20 border-b border-[rgb(var(--color-border-primary))]"
-            >
-              <div className="flex items-center h-full px-6">
-                <div className="w-12 h-12 bg-[rgb(var(--color-bg-tertiary))] rounded-lg mr-4"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/4"></div>
-                  <div className="h-3 bg-[rgb(var(--color-bg-tertiary))] rounded w-1/6"></div>
-                </div>
-                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
-                <div className="w-16 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
-                <div className="w-20 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded mr-4"></div>
-                <div className="w-24 h-6 bg-[rgb(var(--color-bg-tertiary))] rounded"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`${className}`}>
       <div className="relative">
