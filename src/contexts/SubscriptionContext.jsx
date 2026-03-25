@@ -2,7 +2,15 @@
 import { createContext, useContext, useState, useMemo } from "react";
 import SubscriptionUpgradeModal from "@/components/subscription/SubscriptionUpgradeModal";
 
-const SubscriptionContext = createContext();
+const defaultContext = {
+  subscription: null,
+  isLoading: false,
+  error: null,
+  hasSubscription: false,
+  showUpgradeModal: () => {}, // no-op outside Provider
+};
+
+const SubscriptionContext = createContext(defaultContext);
 
 export const SubscriptionProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,9 +52,6 @@ export const SubscriptionProvider = ({ children }) => {
 };
 
 export const useSubscription = () => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error("useSubscription must be used within a SubscriptionProvider");
-  }
-  return context;
+  // Returns the default context (with no-op functions) when used outside SubscriptionProvider
+  return useContext(SubscriptionContext);
 };
