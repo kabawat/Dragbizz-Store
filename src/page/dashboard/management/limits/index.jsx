@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, BarChart3, Users, FileText, ShoppingCart, ShoppingBag, Store, Package, Zap, ChevronRight, AlertCircle } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -7,16 +7,54 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
 
-const UsageLimitsPage = () => {
-    const { isLoading } = useSubscription();
+import { subscriptionService } from "@/service/retailer";
+import useApiResponse from "@/hooks/useApiResponse";
+import { Loader2 } from "lucide-react";
 
-    const stats = [
-        { name: "Staff Members", icon: Users, limit: 10, used: 8, color: "#3b82f6", usageType: 'TOTAL', hasAnalytics: true },
-        { name: "Inventory Items", icon: Package, limit: 5000, used: 3420, color: "#10b981", usageType: 'TOTAL', hasAnalytics: true },
-        { name: "Monthly Invoices", icon: FileText, limit: 500, used: 412, color: "#f59e0b", usageType: 'MONTHLY_TOTAL', hasAnalytics: true },
-        { name: "Sales Orders", icon: ShoppingBag, limit: 200, used: 165, color: "#f43f5e", usageType: 'MONTHLY_TOTAL', hasAnalytics: false },
-        { name: "Customer Profiles", icon: Users, limit: Infinity, used: 1240, color: "#6366f1", usageType: 'TOTAL', hasAnalytics: true },
-    ];
+const UsageLimitsPage = () => {
+    const { isLoading: isContextLoading } = useSubscription();
+    const { execute: executeFetch, loading: isApiLoading } = useApiResponse();
+    const [subscriptionData, setSubscriptionData] = useState(null);
+
+    const fetchSubscriptionData = useCallback(async () => {
+        const result = await executeFetch(
+            subscriptionService.getSubscription(),
+            { showToast: false }
+        );
+        if (result?.success) {
+            setSubscriptionData(result.data);
+        }
+    }, [executeFetch]);
+
+    useEffect(() => {
+        fetchSubscriptionData();
+    }, [fetchSubscriptionData]);
+
+    const isLoading = isContextLoading || isApiLoading;
+    const MODULE_CONFIG = {
+        'billing': { name: "Billing Cycles", icon: Activity, color: "#3b82f6" },
+        'invoice': { name: "Sales Invoices", icon: FileText, color: "#f59e0b" },
+        'product': { name: "Inventory Products", icon: Package, color: "#10b981" },
+        'customer': { name: "Customer Profiles", icon: Users, color: "#6366f1" },
+        'supplier': { name: "Supplier Profiles", icon: Store, color: "#8b5cf6" },
+        'purchase_order': { name: "Purchase Orders", icon: ShoppingBag, color: "#ec4899" },
+        'expense': { name: "Expenses Tracking", icon: Zap, color: "#f43f5e" },
+    };
+
+    const features = subscriptionData?.features || [];
+
+    const stats = features.map(feature => {
+        const config = MODULE_CONFIG[feature.module] || { name: feature.module, icon: Activity, color: "#888888" };
+        return {
+            name: config.name,
+            icon: config.icon,
+            limit: feature.usageType === "UNLIMITED" ? Infinity : (feature.maxLimit ?? Infinity),
+            used: feature.currentUsage ?? 0,
+            color: config.color,
+            usageType: feature.usageType,
+            hasAnalytics: feature.analytics,
+        };
+    });
 
     return (
         <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -46,80 +84,86 @@ const UsageLimitsPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="p-4 space-y-1">
-                                        {stats.map((stat, idx) => {
-                                            const Icon = stat.icon;
-                                            const isUnlimited = stat.limit === Infinity || stat.limit === null;
-                                            const percentage = isUnlimited ? 0 : (stat.used / stat.limit) * 100;
-                                            const isAtRisk = percentage > 80;
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center p-12">
+                                            <Loader2 size={32} className="animate-spin text-[rgb(var(--color-primary))]" />
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 space-y-1">
+                                            {stats.map((stat, idx) => {
+                                                const Icon = stat.icon;
+                                                const isUnlimited = stat.limit === Infinity || stat.limit === null;
+                                                const percentage = isUnlimited ? 0 : (stat.used / stat.limit) * 100;
+                                                const isAtRisk = percentage > 80;
 
-                                            return (
-                                                <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-sm p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
+                                                return (
+                                                    <div key={idx} className="group relative overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--color-bg-secondary))] rounded-sm p-4 flex flex-col md:flex-row md:items-center gap-6 border-b border-[rgb(var(--color-border-primary))]/30 last:border-0 shadow-none">
 
-                                                    <div className="flex items-center gap-4 w-full md:w-[220px] flex-shrink-0">
-                                                        <span className="text-[10px] font-black text-[rgb(var(--color-text-tertiary))] opacity-40 w-4">
-                                                            {String(idx + 1).padStart(2, '0')}
-                                                        </span>
-                                                        <div className="w-10 h-10 rounded-sm flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
-                                                            <Icon size={20} className="stroke-[2]" />
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <h3 className="text-sm font-black text-[rgb(var(--color-text-primary))] truncate tracking-tight">{stat.name}</h3>
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))] opacity-80">
-                                                                {stat.usageType?.replace('_', ' ')}
+                                                        <div className="flex items-center gap-4 w-full md:w-[220px] flex-shrink-0">
+                                                            <span className="text-[10px] font-black text-[rgb(var(--color-text-tertiary))] opacity-40 w-4">
+                                                                {String(idx + 1).padStart(2, '0')}
                                                             </span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <div className="flex justify-between items-end">
+                                                            <div className="w-10 h-10 rounded-sm flex items-center justify-center shadow-none" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                                                                <Icon size={20} className="stroke-[2]" />
+                                                            </div>
                                                             <div className="flex flex-col">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-lg font-black text-[rgb(var(--color-text-primary))]">
-                                                                        {stat.used.toLocaleString()}
-                                                                    </span>
-                                                                    {!isUnlimited && (
-                                                                        <span className="text-xs font-bold text-[rgb(var(--color-text-tertiary))] opacity-60">
-                                                                            / {stat.limit.toLocaleString()}
-                                                                        </span>
-                                                                    )}
-                                                                    <span className="text-[9px] font-black text-[rgb(var(--color-primary))] uppercase tracking-widest mb-0.5">Consumed</span>
-                                                                </div>
+                                                                <h3 className="text-sm font-black text-[rgb(var(--color-text-primary))] truncate tracking-tight">{stat.name}</h3>
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--color-text-tertiary))] opacity-80">
+                                                                    {stat.usageType?.replace('_', ' ')}
+                                                                </span>
                                                             </div>
-                                                            <span className={`text-[10px] font-black uppercase tracking-widest ${isAtRisk ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
-                                                                {isUnlimited ? '∞ Lifetime Access' : `${percentage.toFixed(0)}% Utilized`}
-                                                            </span>
                                                         </div>
-                                                        {!isUnlimited ? (
-                                                            <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-sm overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
-                                                                <div
-                                                                    className="h-full transition-all duration-1000 ease-out relative"
-                                                                    style={{
-                                                                        width: `${Math.min(percentage, 100)}%`,
-                                                                        backgroundColor: stat.color,
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-[1px] flex-1 bg-gradient-to-r from-[rgb(var(--color-border-primary))]/30 to-transparent" />
-                                                                <span className="text-[9px] font-black text-green-500 uppercase tracking-tighter">Unlimited Plan</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
 
-                                                    <div className="w-full md:w-[100px] flex items-center justify-end gap-3">
-                                                        {isAtRisk && (
-                                                            <AlertCircle size={16} className="text-red-500" />
-                                                        )}
-                                                        <Button variant="ghost" size="xs" className="rounded-sm bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white transition-all px-3 py-1.5 border border-[rgb(var(--color-border-primary))]/50 shadow-none">
-                                                            Details
-                                                        </Button>
+                                                        <div className="flex-1 flex flex-col gap-2">
+                                                            <div className="flex justify-between items-end">
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-lg font-black text-[rgb(var(--color-text-primary))]">
+                                                                            {stat.used.toLocaleString()}
+                                                                        </span>
+                                                                        {!isUnlimited && (
+                                                                            <span className="text-xs font-bold text-[rgb(var(--color-text-tertiary))] opacity-60">
+                                                                                / {stat.limit.toLocaleString()}
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="text-[9px] font-black text-[rgb(var(--color-primary))] uppercase tracking-widest mb-0.5">Consumed</span>
+                                                                    </div>
+                                                                </div>
+                                                                <span className={`text-[10px] font-black uppercase tracking-widest ${isAtRisk ? 'text-red-500' : 'text-[rgb(var(--color-text-tertiary))]'}`}>
+                                                                    {isUnlimited ? '∞ Lifetime Access' : `${percentage.toFixed(0)}% Utilized`}
+                                                                </span>
+                                                            </div>
+                                                            {!isUnlimited ? (
+                                                                <div className="h-2 w-full bg-[rgb(var(--color-bg-secondary))] rounded-sm overflow-hidden p-0 border border-[rgb(var(--color-border-primary))]/30 shadow-none">
+                                                                    <div
+                                                                        className="h-full transition-all duration-1000 ease-out relative"
+                                                                        style={{
+                                                                            width: `${Math.min(percentage, 100)}%`,
+                                                                            backgroundColor: stat.color,
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="h-[1px] flex-1 bg-gradient-to-r from-[rgb(var(--color-border-primary))]/30 to-transparent" />
+                                                                    <span className="text-[9px] font-black text-green-500 uppercase tracking-tighter">Unlimited Plan</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="w-full md:w-[100px] flex items-center justify-end gap-3">
+                                                            {isAtRisk && (
+                                                                <AlertCircle size={16} className="text-red-500" />
+                                                            )}
+                                                            <Button variant="ghost" size="xs" className="rounded-sm bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-primary))] hover:text-white transition-all px-3 py-1.5 border border-[rgb(var(--color-border-primary))]/50 shadow-none">
+                                                                Details
+                                                            </Button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
 
                                     <div className="bg-[rgb(var(--color-bg-secondary))]/30 border-t border-[rgb(var(--color-border-primary))] p-4 px-6 md:px-10 shadow-none">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -141,10 +185,10 @@ const UsageLimitsPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="p-6 rounded-lg bg-gradient-to-br from-[rgb(var(--color-primary))] to-blue-600 text-white relative shadow-none min-h-[160px] flex flex-col justify-center">
-                                        <h3 className="text-lg font-black mb-2 italic uppercase tracking-tighter">Upgrade Intelligence</h3>
+                                    <div className="p-6 rounded-lg bg-[rgb(var(--color-primary)/0.1)] relative shadow-none min-h-[160px] flex flex-col justify-center">
+                                        <h3 className="text-lg mb-2 italic uppercase tracking-tighter">Upgrade Intelligence</h3>
                                         <p className="text-xs opacity-90 mb-6 font-bold leading-relaxed max-w-[80%]">Need custom quotas for your enterprise scale? Talk to our sales team for bespoke limits.</p>
-                                        <Button size="sm" className="rounded-sm font-black text-[10px] uppercase px-4 bg-white text-[rgb(var(--color-primary))] border-none hover:bg-white/90 w-fit shadow-none">Custom Inquiry</Button>
+                                        <Button size="sm" className="rounded-sm text-[10px] uppercase px-4  border-none w-fit shadow-none">Custom Inquiry</Button>
                                     </div>
 
                                     <div className="p-6 rounded-lg bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] relative flex flex-col justify-center shadow-none">

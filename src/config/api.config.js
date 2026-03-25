@@ -55,6 +55,7 @@ const API_CONFIG = {
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
     STAFF: "/retailer/staff",
+    SUBSCRIPTION: "/retailer/subscription",
   },
 
   // Utility Service Endpoints

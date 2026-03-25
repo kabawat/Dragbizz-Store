@@ -89,7 +89,6 @@ const SettingsPage = () => {
 
     return (
         <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-            <AnimatedBackground variant="default" />
             <Sidebar />
 
             <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
