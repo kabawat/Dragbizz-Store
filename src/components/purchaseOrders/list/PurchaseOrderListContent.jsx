@@ -205,6 +205,7 @@ const PurchaseOrderListContent = () => {
                                 formatCurrency={formatCurrency}
                                 formatDate={formatDate}
                                 enableSendMenu={true}
+                                showToast={showToast}
                             />
                         </div>
                     ) : (
@@ -221,6 +222,7 @@ const PurchaseOrderListContent = () => {
                                 formatCurrency={formatCurrency}
                                 formatDate={formatDate}
                                 enableSendMenu={true}
+                                showToast={showToast}
                             />
                         </div>
                     )}

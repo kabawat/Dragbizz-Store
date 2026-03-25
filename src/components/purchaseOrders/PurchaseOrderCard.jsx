@@ -18,6 +18,7 @@ const PurchaseOrderCard = ({
   formatDate,
   enableSendMenu = true,
   getShareUrl,
+  showToast,
 }) => {
   const { t } = useTranslation();
   const normalizedData = normalizePurchaseOrder(purchaseOrder);
@@ -78,6 +79,7 @@ const PurchaseOrderCard = ({
               getShareUrl={getShareUrl}
               formatCurrency={formatCurrency}
               formatDate={formatDate}
+              showToast={showToast}
               buttonClassName="bg-white/90 hover:bg-white"
             />
           </div>
