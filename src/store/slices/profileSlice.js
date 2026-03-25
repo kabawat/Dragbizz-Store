@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
 import { storeService } from "@/service/retailer";
 import staffService from "@/service/retailer/staff.service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const SELECTED_STORE_STORAGE_KEY = "dragbizz_selected_store_id";
 
@@ -64,15 +66,9 @@ export const getRetailerDetails = createAsyncThunk(
         };
       }
 
-      const profileResult = await storeService.getRetailerProfile();
-      if (!profileResult.success) {
-        return rejectWithValue({
-          message: profileResult.message || "Failed to get retailer profile",
-          redirectTo: "/login",
-        });
-      }
-
-      const actualData = profileResult.data.data || profileResult.data;
+      const response = await storeService.getRetailerProfile();
+      const handledResponse = handleSuccess(response);
+      const actualData = handledResponse.data || {};
       const combinedData = {
         user: actualData.user || null,
         agency: actualData.agency || null,
@@ -103,9 +99,9 @@ export const getRetailerDetails = createAsyncThunk(
         data: combinedData,
         message: "Retailer details fetched successfully",
       };
-    } catch {
+    } catch (error) {
       return rejectWithValue({
-        message: "Failed to get retailer details. Please login again.",
+        message: handleError(error).message || "Failed to get retailer details. Please login again.",
         redirectTo: "/login",
       });
     }
@@ -116,15 +112,9 @@ export const getAuthProfile = createAsyncThunk(
   "profile/getAuthProfile",
   async (_, { rejectWithValue }) => {
     try {
-      const result = await authService.getProfile();
-
-      if (!result?.success) {
-        return rejectWithValue({
-          message: result?.message || "Failed to fetch auth profile",
-        });
-      }
-
-      const data = result.data?.data || result.data || null;
+      const response = await authService.getProfile();
+      const handled = handleSuccess(response);
+      const data = handled.data || null;
 
       // Check if agencyId is null/missing - user needs onboarding
       if (data && data.agencyId === null) {
@@ -139,11 +129,11 @@ export const getAuthProfile = createAsyncThunk(
       return {
         success: true,
         data,
-        message: "Auth profile fetched successfully",
+        message: handled.message || "Auth profile fetched successfully",
       };
-    } catch {
+    } catch (error) {
       return rejectWithValue({
-        message: "Failed to fetch auth profile",
+        message: handleError(error).message || "Failed to fetch auth profile",
       });
     }
   }
@@ -153,20 +143,12 @@ export const getStaffProfileDetails = createAsyncThunk(
   "profile/getStaffProfileDetails",
   async (_, { rejectWithValue }) => {
     try {
-      const result = await staffService.getStaffProfile();
-      if (!result?.success) {
-        return rejectWithValue({
-          message: result?.message || "Failed to fetch staff profile",
-        });
-      }
-      return {
-        success: true,
-        data: result.data?.data || result.data || null,
-        message: "Staff profile fetched successfully",
-      };
-    } catch {
+      const response = await staffService.getStaffProfile();
+      return handleSuccess(response);
+    } catch (error) {
+      const handledError = handleError(error);
       return rejectWithValue({
-        message: "Failed to fetch staff profile",
+        message: handledError.message || "Failed to fetch staff profile",
       });
     }
   }

@@ -6,6 +6,7 @@ import Sidebar from "@/components/dashboard/sidebar";
 import { SideDrawer, Button } from "@/components/ui";
 import { useAppSelector } from "@/store/hooks";
 import InviteStaffDrawer from "@/components/staff/InviteStaffDrawer";
+import UpdateStaffDrawer from "@/components/staff/UpdateStaffDrawer";
 import StaffCard from "@/components/staff/StaffCard";
 import StaffEmptyState from "@/components/staff/StaffEmptyState";
 import ManagementShortcuts from "@/components/dashboard/management/Shortcuts";
@@ -25,6 +26,7 @@ const StaffPage = () => {
     const storeId = selectedStore?._id || selectedStore?.storeId;
 
     const [showInviteDrawer, setShowInviteDrawer] = useState(false);
+    const [editingStaff, setEditingStaff] = useState(null);
     const [searchValue, setSearchValue] = useState("");
     const [activeTab, setActiveTab] = useState("ALL");
 
@@ -152,6 +154,7 @@ const StaffPage = () => {
                                                 staff={staff}
                                                 onDeleteTemp={handleDeleteTempStaff}
                                                 onRemoveStaff={handleRemoveStaff}
+                                                onEditStaff={(s) => setEditingStaff(s)}
                                                 onRefresh={fetchStaff}
                                             />
                                         ))}
@@ -187,6 +190,21 @@ const StaffPage = () => {
                     storeId={storeId}
                     onSuccess={() => { setShowInviteDrawer(false); fetchStaff(); }}
                     onCancel={() => setShowInviteDrawer(false)}
+                />
+            </SideDrawer>
+
+            {/* Update Staff Drawer */}
+            <SideDrawer
+                isOpen={!!editingStaff}
+                onClose={() => setEditingStaff(null)}
+                title="Edit Staff Permissions"
+                icon={Users}
+                width="max-w-[768px]"
+            >
+                <UpdateStaffDrawer
+                    staff={editingStaff}
+                    onSuccess={() => { setEditingStaff(null); fetchStaff(); }}
+                    onCancel={() => setEditingStaff(null)}
                 />
             </SideDrawer>
         </div>
