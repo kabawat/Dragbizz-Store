@@ -42,6 +42,7 @@ const PurchaseOrderTable = ({
   formatDate,
   enableSendMenu = true,
   getShareUrl,
+  showToast,
 }) => {
   const { t } = useTranslation();
   const _defaultEmptyMessage =
@@ -78,9 +79,24 @@ const PurchaseOrderTable = ({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
+        if (showToast) showToast("Link copied to clipboard!", "success");
+      } else {
+        // Fallback for non-secure contexts
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          if (showToast) showToast("Link copied to clipboard!", "success");
+        } catch (err) {
+          if (showToast) showToast("Failed to copy link", "error");
+        }
+        document.body.removeChild(textArea);
       }
     } catch (error) {
       logger.error("Failed to copy to clipboard:", error);
+      if (showToast) showToast("Failed to copy link", "error");
     }
   };
 

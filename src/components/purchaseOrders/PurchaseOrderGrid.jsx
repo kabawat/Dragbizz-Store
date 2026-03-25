@@ -16,6 +16,7 @@ const PurchaseOrderGrid = ({
   formatDate,
   enableSendMenu = true,
   getShareUrl,
+  showToast,
 }) => {
   const { t } = useTranslation();
 
@@ -39,6 +40,7 @@ const PurchaseOrderGrid = ({
             formatDate={formatDate}
             enableSendMenu={enableSendMenu}
             getShareUrl={getShareUrl}
+            showToast={showToast}
           />
         ))}
 
