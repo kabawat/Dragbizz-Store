@@ -1,486 +1,83 @@
 "use client";
-import { Grid3X3, List, Package, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-// Import inventory components
-import { InventoryCard, InventoryTable, DeleteInventoryModal } from "@/components/inventory";
-import { Button, Input, StockInDrawer } from "@/components/ui";
-import { useGlobalToast } from "@/contexts/ToastContext";
-import { useApiResponse } from "@/hooks/useApiResponse";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setViewMode } from "@/store/slices/inventory/inventorySlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-// Import services
-import inventoryService from "@/service/retailer/inventory.service";
-import { useAppSelector } from "@/store/hooks";
+import {
+    InventoryListHeader,
+    InventoryListContent,
+    InventoryEmptyState
+} from "@/components/inventory";
 
 const InventoryPage = () => {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showSuccess } = useGlobalToast();
-  const storeId = selectedStore?.storeId || "";
+    const { t } = useTranslation();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
 
-  // API hooks — separate instances for initial load vs pagination append
-  const { execute: executeList, loading } = useApiResponse();
-  const { execute: executeMore, loading: isLoadingMore } = useApiResponse();
+    const [showInventoryDrawer, setShowInventoryDrawer] = useState(false);
 
-  // State management
-  const [inventories, setInventories] = useState([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [selectedInventories, setSelectedInventories] = useState([]);
-  const [viewMode, setViewMode] = useState("table");
-  const [hasMore, setHasMore] = useState(false);
+    const { inventories, isLoading, error } = useAppSelector((state) => state.inventory);
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId;
 
-  // Modals
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [inventoryToDelete, setInventoryToDelete] = useState(null);
-
-  // Stock In Drawer
-  const [showStockInDrawer, setShowStockInDrawer] = useState(false);
-  const [inventoryForStockIn, setInventoryForStockIn] = useState(null);
-
-  // Refs
-  const scrollRef = useRef(null);
-  const hasFetchedRef = useRef({
-    storeId: null,
-    searchValue: null,
-    fetched: false,
-  });
-  const isFetchingRef = useRef(false);
-  const lastFetchKeyRef = useRef(null);
-  const searchInputRef = useRef(null);
-
-  // Fetch inventories
-  const fetchInventories = useCallback(
-    async (page = 1, append = false) => {
-      if (!storeId) return;
-
-      // Create a unique key for this fetch
-      const fetchKey = `${storeId}-${searchValue}-${page}-${append}`;
-
-      // Prevent duplicate calls with same parameters
-      if (lastFetchKeyRef.current === fetchKey) return;
-
-      // For initial load (page 1, not append), check if we've already fetched
-      if (page === 1 && !append) {
-        const lastFetched = hasFetchedRef.current;
-        if (
-          lastFetched.fetched &&
-          lastFetched.storeId === storeId &&
-          lastFetched.searchValue === searchValue &&
-          !isFetchingRef.current
-        ) {
-          return;
+    // Restore saved view mode on mount
+    useEffect(() => {
+        const savedViewMode = localStorage.getItem("inventory-view-mode");
+        if (savedViewMode === "table" || savedViewMode === "card") {
+            dispatch(setViewMode(savedViewMode));
         }
-      }
+    }, [dispatch]);
 
-      // Prevent call if already fetching
-      if (isFetchingRef.current && !append) return;
-
-      lastFetchKeyRef.current = fetchKey;
-      isFetchingRef.current = true;
-
-      const params = {
-        store: storeId,
-        page,
-        limit: 20,
-        search: searchValue || undefined,
-      };
-
-      const execute = append ? executeMore : executeList;
-      const result = await execute(
-        inventoryService.getInventories(params),
-        { showToast: false }
-      );
-
-      if (result?.success) {
-        const data = result.data;
-        const newInventories = data?.inventories || data?.data || [];
-
-        if (append) {
-          setInventories((prev) => [...prev, ...newInventories]);
-        } else {
-          setInventories(newInventories);
-          hasFetchedRef.current = { storeId, searchValue, fetched: true };
-        }
-
-        setHasMore(data?.pagination?.hasNext || false);
-      }
-
-      isFetchingRef.current = false;
-    },
-    [storeId, searchValue, executeList, executeMore]
-  );
-
-  // Fetch inventories on mount or when dependencies change
-  useEffect(() => {
-    if (!storeId) return;
-
-    const lastFetched = hasFetchedRef.current;
-    const storeChanged = lastFetched.storeId !== storeId;
-    const searchChanged = lastFetched.searchValue !== searchValue;
-
-    if (storeChanged || searchChanged) {
-      hasFetchedRef.current = {
-        storeId: null,
-        searchValue: null,
-        fetched: false,
-      };
-      lastFetchKeyRef.current = null;
-    }
-
-    if (
-      !storeChanged &&
-      !searchChanged &&
-      lastFetched.fetched &&
-      lastFetched.storeId === storeId &&
-      lastFetched.searchValue === searchValue
-    ) {
-      return;
-    }
-
-    // Prevent call if already fetching (but allow if store/search changed)
-    if (isFetchingRef.current && !storeChanged && !searchChanged) {
-      return;
-    }
-
-    fetchInventories(1, false);
-  }, [storeId, searchValue, fetchInventories]);
-
-  // Load more function
-  const handleLoadMore = useCallback(async () => {
-    if (hasMore && !isLoadingMore && !isFetchingRef.current) {
-      const nextPage = Math.floor(inventories.length / 20) + 1;
-      await fetchInventories(nextPage, true);
-    }
-  }, [hasMore, isLoadingMore, inventories.length, fetchInventories]);
-
-  // Infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || isLoadingMore || !hasMore) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      const threshold = 100;
-
-      if (scrollTop + clientHeight >= scrollHeight - threshold) {
-        handleLoadMore();
-      }
-    };
-
-    const scrollElement = scrollRef.current;
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-      return () => scrollElement.removeEventListener("scroll", handleScroll);
-    }
-  }, [isLoadingMore, hasMore, handleLoadMore]);
-
-  // Search
-  const handleSearch = (value) => {
-    setSearchValue(value);
-  };
-
-  const handleAddStock = () => {
-    router.push("/dashboard/stock/add");
-  };
-
-  const handleViewStock = (inventoryId) => {
-    router.push(`/dashboard/stock/${inventoryId}`);
-  };
-
-  const handleStockIn = (inventoryId) => {
-    const inventory = inventories.find((i) => i.id === inventoryId);
-    setInventoryForStockIn(inventory);
-    setShowStockInDrawer(true);
-  };
-
-  const handleStockInSuccess = (message) => {
-    // Show success message
-    showSuccess(message);
-    // Refresh the inventory list
-    hasFetchedRef.current = {
-      storeId: null,
-      searchValue: null,
-      fetched: false,
-    };
-    lastFetchKeyRef.current = null;
-    fetchInventories(1, false);
-  };
-
-  const handleCloseStockInDrawer = () => {
-    setShowStockInDrawer(false);
-    setInventoryForStockIn(null);
-  };
-
-  // Selection handlers
-  const _handleInventorySelect = (inventoryIds) => {
-    const idsArray = Array.isArray(inventoryIds)
-      ? inventoryIds
-      : [inventoryIds];
-    setSelectedInventories(idsArray);
-  };
-
-  const _handleCardSelect = (inventoryId) => {
-    setSelectedInventories((prev) =>
-      prev.includes(inventoryId)
-        ? prev.filter((id) => id !== inventoryId)
-        : [...prev, inventoryId]
-    );
-  };
-
-  const _handleSelectAll = (isSelected) => {
-    if (isSelected) {
-      setSelectedInventories(inventories.map((i) => i.id));
-    } else {
-      setSelectedInventories([]);
-    }
-  };
-
-  const handleDeleteStock = (inventoryId) => {
-    const inventory = inventories.find((i) => i.id === inventoryId);
-    setInventoryToDelete({
-      id: inventoryId,
-      name: inventory?.product?.name || "Stock",
+    useCommonHotkeys({
+        onBack: () => router.push("/dashboard"),
     });
-    setShowDeleteModal(true);
-  };
 
-  const handleDeleteSuccess = (deletedId) => {
-    setInventories((prev) => prev.filter((i) => i.id !== deletedId));
-    setSelectedInventories((prev) => prev.filter((id) => id !== deletedId));
-    setShowDeleteModal(false);
-    setInventoryToDelete(null);
-  };
+    return (
+        <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
+            <Sidebar />
 
-  const handleDuplicate = (_inventoryId) => { };
+            <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
+                <Header
+                    title={t("inventory.title")}
+                    description={t("inventory.description")}
+                />
 
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode);
-  };
+                <div className="flex-1 p-5">
+                    <div className="max-w-8xl mx-auto">
 
-  useCommonHotkeys({
-    onNew: handleAddStock,
-    onSearch: () => {
-      if (searchInputRef.current) searchInputRef.current.focus();
-    },
-    onViewTable: () => handleViewModeChange("table"),
-    onViewGrid: () => handleViewModeChange("card"),
-    onBack: () => router.push("/dashboard"),
-  });
+                        {/* Search, filters, view toggle, add button */}
+                        <InventoryListHeader
+                            showInventoryDrawer={showInventoryDrawer}
+                            setShowInventoryDrawer={setShowInventoryDrawer}
+                        />
 
-  return (
-    <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
-      <Sidebar />
+                        {/* State 1: Initial loading */}
+                        {isLoading && inventories.length === 0 && !error && (
+                            <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
+                                <div className="text-center">
+                                    <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                    <p className="text-[rgb(var(--color-text-secondary))]">{t("common.loading")}</p>
+                                </div>
+                            </div>
+                        )}
 
-      {/* Main content */}
-      <div className="flex-1 bg-[rgb(var(--color-bg-secondary))] min-h-screen flex flex-col">
-        {/* Header */}
-        <Header
-          title={t("inventory.title")}
-          description={t("inventory.description")}
-        />
+                        {/* State 2: Empty state */}
+                        {!isLoading && inventories.length === 0 && (
+                            <InventoryEmptyState onAddStock={() => setShowInventoryDrawer(true)} />
+                        )}
 
-        {/* Main content */}
-        <div className="flex-1 p-5">
-          <div className="max-w-8xl mx-auto">
-            {/* Loading */}
-            {loading && inventories.length === 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      {t("common.loadingData")}
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      {t("common.loading")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+                        {/* State 3: Inventory list + modals + drawers */}
+                        {inventories.length > 0 && <InventoryListContent />}
 
-            {/* Search and Filter Card */}
-            {inventories.length > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
-                  {/* Search */}
-                  <div className="w-100">
-                    <Input
-                      type="text"
-                      placeholder={`${t("common.search")} ${t("inventory.title").toLowerCase()}...`}
-                      value={searchValue}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      ref={searchInputRef}
-                      leftIcon={Search}
-                      className="w-100"
-                    />
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex gap-3">
-                    {/* View toggle */}
-                    <div className="flex bg-[rgb(var(--color-bg-secondary))] rounded-lg">
-                      <button
-                        onClick={() => handleViewModeChange("table")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "table"
-                          ? "bg-[rgb(var(--color-primary))] text-white"
-                          : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"
-                          }`}
-                      >
-                        <List className="w-4 h-4" />
-                        {t("common.tableView")}
-                      </button>
-                      <button
-                        onClick={() => handleViewModeChange("card")}
-                        className={`px-3 cursor-pointer py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "card" ? "bg-[rgb(var(--color-primary))] text-white" : "text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]"}`}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        {t("common.cardView")}
-                      </button>
                     </div>
-
-                    <Button
-                      variant="primary"
-                      onClick={handleAddStock}
-                      leftIcon={Plus}
-                    >
-                      {t("inventory.addStock")}
-                    </Button>
-                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!loading && inventories.length === 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
-                <div className="flex flex-col items-center justify-center py-16">
-                  <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
-                    <Package className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                    {t("common.noData")}
-                  </h3>
-                  <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
-                    {t("inventory.description")}
-                  </p>
-                  <div className="pt-4">
-                    <Button
-                      variant="primary"
-                      onClick={handleAddStock}
-                      leftIcon={Plus}
-                    >
-                      {t("inventory.addStock")}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Stock List */}
-            {inventories.length > 0 && (
-              <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] overflow-hidden">
-                <div
-                  className="h-[calc(100vh-200px)] overflow-y-auto"
-                  ref={scrollRef}
-                >
-                  {viewMode === "table" ? (
-                    <div className="h-full">
-                      <InventoryTable
-                        inventories={inventories}
-                        onViewDetails={handleViewStock}
-                        onDelete={handleDeleteStock}
-                        onDuplicate={handleDuplicate}
-                        onStockIn={handleStockIn}
-                        loading={loading}
-                        hasMore={hasMore}
-                        onLoadMore={handleLoadMore}
-                        isLoadingMore={isLoadingMore}
-                        emptyMessage={t("common.noData")}
-                      />
-                    </div>
-                  ) : (
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {inventories.map((inventory) => (
-                          <InventoryCard
-                            key={inventory.id}
-                            inventory={inventory}
-                            onViewDetails={handleViewStock}
-                            onDelete={handleDeleteStock}
-                            onDuplicate={handleDuplicate}
-                            onStockIn={handleStockIn}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Fixed Footer */}
-                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {hasMore ? (
-                        <>
-                          Showing{" "}
-                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                            {inventories.length}
-                          </span>{" "}
-                          stock items
-                          <span className="ml-2 text-xs text-[rgb(var(--color-primary))]">
-                            • Scroll down to load more
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          Showing{" "}
-                          <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                            {inventories.length}
-                          </span>{" "}
-                          stock items
-                          <span className="ml-2 text-xs text-[rgb(var(--color-text-tertiary))]">
-                            • No more stock items
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      {selectedInventories.length > 0 && (
-                        <span className="font-semibold text-[rgb(var(--color-primary))]">
-                          {selectedInventories.length} selected
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
         </div>
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      <DeleteInventoryModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        inventoryToDelete={inventoryToDelete}
-        onDeleteSuccess={handleDeleteSuccess}
-      />
-
-      {/* Stock In Drawer */}
-      <StockInDrawer
-        isOpen={showStockInDrawer}
-        onClose={handleCloseStockInDrawer}
-        item={inventoryForStockIn}
-        onSuccess={handleStockInSuccess}
-        type="inventory"
-      />
-    </div>
-  );
+    );
 };
 
 export default InventoryPage;

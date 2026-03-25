@@ -6,53 +6,50 @@ import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { productService, supplierService } from "@/service/retailer";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const InventoryDetailsSection = ({ formData, onChange, errors }) => {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [_searchTerm, _setSearchTerm] = useState("");
-  const [_isLoading, setIsLoading] = useState(false);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
+
+  const { execute: fetchProductsApi, loading: productsLoading } = useApiResponse();
+  const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
 
   // Hook to fetch subscription info if needed for other purposes
   const { isLoading: featuresLoading } = useFeatureAccess();
 
   const fetchProducts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const result = await productService.getProducts({
+    if (!formData?.store) return;
+    const result = await fetchProductsApi(
+      productService.getProducts({
         limit: 100,
         lightweight: true,
-        store: formData?.store,
-      });
-      if (result.success) {
-        setProducts(result.data?.data || result.data || []);
-      }
-    } catch (_error) {
-    } finally {
-      setIsLoading(false);
+        store: formData.store,
+      }),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      setProducts(result.data?.products || result.data?.data || result.data || []);
     }
-  }, [formData?.store]);
+  }, [formData?.store, fetchProductsApi]);
 
   const fetchSuppliers = useCallback(async () => {
     if (!formData?.store) return;
-
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
+    const result = await fetchSuppliersApi(
+      supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
-        store: formData?.store,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } catch (_error) {
-    } finally {
-      setSuppliersLoading(false);
+        store: formData.store,
+      }),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      setSuppliers(result.data?.suppliers || result.data?.data || result.data || []);
     }
-  }, [formData?.store]);
+  }, [formData?.store, fetchSuppliersApi]);
 
   // Fetch products and suppliers on mount and when store changes
   useEffect(() => {
@@ -129,16 +126,7 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
     <div className="space-y-8">
       {/* Product Selection */}
       <div className="space-y-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
-            <Package className="w-4 h-4 text-[rgb(var(--color-primary))]" />
-          </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-            {t("inventory.productSelection")}
-          </h3>
-        </div>
-
-        <div>
+        <div className="md:col-span-2 relative">
           <Select
             label={t("inventory.selectProduct")}
             required
@@ -150,26 +138,26 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
             placeholder={t("inventory.searchAndSelectProduct")}
             error={!!errors.productId}
             errorMessage={errors.productId}
-            helperText={
-              !errors.productId
-                ? t("inventory.typeToSearchProducts")
-                : undefined
-            }
+          />
+        </div>
+        <div className="md:col-span-2 relative">
+          <Select
+            label={t("inventory.supplierOptional")}
+            searchable
+            clearable
+            value={formData.batchData?.supplier || ""}
+            onChange={handleSupplierChange}
+            options={supplierOptions}
+            placeholder={t("inventory.searchAndSelectSupplierOptional")}
+            error={!!errors["batchData.supplier"]}
+            errorMessage={errors["batchData.supplier"]}
+            disabled={suppliersLoading || featuresLoading}
           />
         </div>
       </div>
 
       {/* Stock Information - Same as Product Table Stock In */}
       <div className="space-y-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-            <Warehouse className="w-4 h-4 text-green-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-            {t("inventory.stockInformation")}
-          </h3>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quantity */}
           <div>
@@ -199,26 +187,6 @@ const InventoryDetailsSection = ({ formData, onChange, errors }) => {
               placeholder={t("inventory.enterPurchasePricePerUnit")}
               error={errors["batchData.purchasePrice"]}
               helperText={t("inventory.pricePaidToSupplierPerUnit")}
-            />
-          </div>
-
-          <div className="md:col-span-2 relative">
-            <Select
-              label={t("inventory.supplierOptional")}
-              searchable
-              clearable
-              value={formData.batchData?.supplier || ""}
-              onChange={handleSupplierChange}
-              options={supplierOptions}
-              placeholder={t("inventory.searchAndSelectSupplierOptional")}
-              error={!!errors["batchData.supplier"]}
-              errorMessage={errors["batchData.supplier"]}
-              helperText={
-                !errors["batchData.supplier"]
-                  ? t("inventory.optionalTypeToSearchSuppliers")
-                  : undefined
-              }
-              disabled={suppliersLoading || featuresLoading}
             />
           </div>
         </div>

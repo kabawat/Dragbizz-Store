@@ -24,6 +24,11 @@ class InventoryService extends BaseService {
     const url = this.buildResourceUrl(this.endpoint, inventoryId, storeId);
     return this.delete(url);
   }
+
+  // Add new inventory
+  addInventory(data) {
+    return this.post(this.endpoint, data);
+  }
 }
 
 export const inventoryService = new InventoryService();
