@@ -440,7 +440,7 @@ const BillPaymentDrawer = ({ isOpen, onClose, bill, onSuccess }) => {
                         options={[
                           { value: "CASH", label: "CASH" },
                           { value: "UPI", label: "UPI" },
-                          { value: "BANK_TRANSFER", label: "BANK_TRANSFER" },
+                          { value: "BANK_TRANSFER", label: "BANK TRANSFER" },
                           { value: "CHEQUE", label: "CHEQUE" },
                           { value: "CREDIT", label: "CREDIT" },
                         ]}

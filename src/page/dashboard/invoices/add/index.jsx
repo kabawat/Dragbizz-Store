@@ -218,16 +218,16 @@ const CreateInvoicePage = () => {
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
 
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="min-h-0 h-screen w-full flex flex-col">
         <Header
           title={t("invoice.createInvoice")}
           description={t("invoice.createInvoiceDescription")}
         />
 
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             {/* Back Button with Quota Progress Bar */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex-shrink-0 flex items-center justify-between">
               <Link
                 href="/dashboard/invoices"
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
@@ -242,10 +242,10 @@ const CreateInvoicePage = () => {
 
             {/* Form Container - Two Column Layout */}
             <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-150px)]"
+              className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 h-full">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}

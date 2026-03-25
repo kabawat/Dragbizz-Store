@@ -7,8 +7,9 @@ import Select from "./Select";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
-import { stockService, supplierService } from "@/service/retailer";
+import { inventoryService, supplierService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const StockInDrawer = ({
   isOpen,
@@ -24,9 +25,9 @@ const StockInDrawer = ({
     supplier: "",
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const { execute, loading: isLoading } = useApiResponse();
+  const { execute: fetchSuppliersApi, loading: suppliersLoading } = useApiResponse();
   const [suppliers, setSuppliers] = useState([]);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   // Hook to fetch subscription info if needed for other purposes
   const { isLoading: featuresLoading } = useFeatureAccess();
@@ -34,25 +35,22 @@ const StockInDrawer = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) return;
 
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
+    const result = await fetchSuppliersApi(
+      supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
         store: storeId,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } catch (_error) {
-    } finally {
-      setSuppliersLoading(false);
+      }),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      setSuppliers(result.data?.data || result.data || []);
     }
-  }, [selectedStore]);
+  }, [selectedStore, fetchSuppliersApi]);
 
   // Reset form when drawer opens/closes
   useEffect(() => {
@@ -106,40 +104,33 @@ const StockInDrawer = ({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const storeId =
-        selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
 
-      if (!storeId) {
-        throw new Error("Store not selected");
-      }
+    if (!storeId) {
+      showError("Store not selected");
+      return;
+    }
 
-      // Determine product ID based on type
-      const productId = type === "product" ? item?.id : item?.product?.id;
+    // Determine product ID based on type
+    const productId = type === "product" ? item?.id : item?.product?.id;
 
-      const apiPayload = {
-        productId: productId,
-        store: storeId,
-        batchData: {
-          quantity: parseInt(formData.quantity, 10),
-          purchasePrice: parseFloat(formData.purchasePrice),
-          supplier: formData.supplier,
-        },
-      };
+    const apiPayload = {
+      productId: productId,
+      store: storeId,
+      batchData: {
+        quantity: parseInt(formData.quantity, 10),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        supplier: formData.supplier,
+      },
+    };
 
-      const response = await stockService.addStock(apiPayload);
+    const response = await execute(inventoryService.addInventory(apiPayload), {
+      message: "Stock added successfully!",
+    });
 
-      if (response.success) {
-        onClose();
-        onSuccess?.("Stock added successfully!");
-      } else {
-        throw new Error(response.message || "Failed to add stock");
-      }
-    } catch (error) {
-      showError(`Error adding stock: ${error.message || "Please try again."}`);
-    } finally {
-      setIsLoading(false);
+    if (response?.success) {
+      onClose();
+      onSuccess?.("Stock added successfully!");
     }
   };
 
