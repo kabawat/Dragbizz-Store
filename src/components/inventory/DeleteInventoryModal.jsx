@@ -4,6 +4,7 @@ import { Button } from '@/components/ui';
 import { useApiResponse } from '@/hooks/useApiResponse';
 import inventoryService from '@/service/retailer/inventory.service';
 import { useTranslation } from '@/hooks/ui/useTranslation';
+import { useAppSelector } from '@/store/hooks';
 
 const DeleteInventoryModal = ({
     isOpen,
@@ -11,6 +12,8 @@ const DeleteInventoryModal = ({
     inventoryToDelete,
     onDeleteSuccess,
 }) => {
+    const { selectedStore } = useAppSelector((state) => state.profile);
+    const storeId = selectedStore?.storeId || "";
     const { t } = useTranslation();
     const { execute, loading: isDeleting } = useApiResponse();
 
@@ -20,7 +23,7 @@ const DeleteInventoryModal = ({
         if (!inventoryToDelete) return;
 
         const result = await execute(
-            inventoryService.deleteInventory(inventoryToDelete.id),
+            inventoryService.deleteInventory(inventoryToDelete.id, storeId),
             { message: t('inventory.deleteSuccess', { defaultValue: 'Stock deleted successfully.' }) }
         );
 
