@@ -1,17 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/service/auth";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 export const getNotificationSettings = createAsyncThunk(
     "notificationSettings/get",
     async (_, { rejectWithValue }) => {
         try {
             const response = await authService.getNotificationSettings();
-            if (response.success) {
-                return response.data.data || response.data;
-            }
-            return rejectWithValue(response.message);
+            return handleSuccess(response);
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -21,12 +20,9 @@ export const updateNotificationSettings = createAsyncThunk(
     async (settingsData, { rejectWithValue }) => {
         try {
             const response = await authService.updateNotificationSettings(settingsData);
-            if (response.success) {
-                return response.data.data || response.data;
-            }
-            return rejectWithValue(response.message);
+            return handleSuccess(response);
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -36,12 +32,9 @@ export const resetNotificationSettings = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await authService.resetNotificationSettings();
-            if (response.success) {
-                return response.data.data || response.data;
-            }
-            return rejectWithValue(response.message);
+            return handleSuccess(response);
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
@@ -71,7 +64,7 @@ const notificationSettingsSlice = createSlice({
             })
             .addCase(getNotificationSettings.fulfilled, (state, action) => {
                 state.loading = false;
-                state.settings = action.payload;
+                state.settings = action.payload.data;
                 state.error = null;
             })
             .addCase(getNotificationSettings.rejected, (state, action) => {
@@ -85,7 +78,7 @@ const notificationSettingsSlice = createSlice({
             })
             .addCase(updateNotificationSettings.fulfilled, (state, action) => {
                 state.loading = false;
-                state.settings = action.payload;
+                state.settings = action.payload.data;
                 state.error = null;
             })
             .addCase(updateNotificationSettings.rejected, (state, action) => {
@@ -99,7 +92,7 @@ const notificationSettingsSlice = createSlice({
             })
             .addCase(resetNotificationSettings.fulfilled, (state, action) => {
                 state.loading = false;
-                state.settings = action.payload;
+                state.settings = action.payload.data;
                 state.error = null;
             })
             .addCase(resetNotificationSettings.rejected, (state, action) => {

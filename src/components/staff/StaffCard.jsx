@@ -28,7 +28,7 @@ const STATUS_CONFIG = {
     REMOVED: { label: "Removed", icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
 };
 
-const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onRefresh }) => {
+const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onEditStaff, onRefresh }) => {
     const [showPermissions, setShowPermissions] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -150,7 +150,10 @@ const StaffCard = ({ staff, onDeleteTemp, onRemoveStaff, onRefresh }) => {
 
                                     {/* Active STAFF actions */}
                                     {!isTempStaff && staff.status === "ACTIVE" && (
-                                        <button className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors">
+                                        <button 
+                                            onClick={() => { setShowMenu(false); onEditStaff?.(staff); }}
+                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] transition-colors"
+                                        >
                                             <Shield size={13} />
                                             Edit Permissions
                                         </button>

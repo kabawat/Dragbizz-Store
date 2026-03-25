@@ -32,6 +32,11 @@ class StaffService extends BaseService {
         return this.delete(`${this.endpoint}/${staffId}`);
     }
 
+    // Update staff details
+    async updateStaff(staffId, data) {
+        return this.put(`${this.endpoint}/${staffId}`, data);
+    }
+
 
     // Verify staff account using token from email
     async verifyStaff(token) {

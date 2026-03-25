@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Mail, Briefcase, ChevronDown, ChevronUp, Check, AlertCircle, Send, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, Briefcase, ChevronDown, ChevronUp, Check, AlertCircle, Save, User } from "lucide-react";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui";
 import staffService from "@/service/retailer/staff.service";
@@ -59,15 +59,29 @@ const DEFAULT_PERMISSION = (moduleKey) => ({
     module: moduleKey, create: false, read: false, edit: false, delete: false, report: false, analytics: false,
 });
 
-const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [roleName, setRoleName] = useState("");
-    const [permissions, setPermissions] = useState([]);
+const UpdateStaffDrawer = ({ staff, onSuccess, onCancel }) => {
+    const [roleName, setRoleName] = useState(staff?.roleName || "");
+    const [permissions, setPermissions] = useState(staff?.permissions || []);
     const [expandedModules, setExpandedModules] = useState({});
     const [error, setError] = useState(null);
     const [selectedPreset, setSelectedPreset] = useState(null);
     const { execute, loading: isLoading } = useApiResponse();
+
+    useEffect(() => {
+        if (staff) {
+            setRoleName(staff.roleName || "");
+            setPermissions(staff.permissions || []);
+
+            // Auto expand modules that have permissions enabled
+            const expanded = {};
+            if (staff.permissions) {
+                staff.permissions.forEach(p => {
+                    expanded[p.module] = true;
+                });
+            }
+            setExpandedModules(expanded);
+        }
+    }, [staff]);
 
     const toggleModule = (moduleKey) => {
         const existing = permissions.find((p) => p.module === moduleKey);
@@ -100,31 +114,28 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!storeId) {
-            setError("Store ID is missing. Please select a store first.");
-            return;
-        }
-
-        if (!name || !email || !roleName || permissions.length === 0) {
-            setError("Please fill all fields and select at least one permission module.");
+        if (!roleName || permissions.length === 0) {
+            setError("Please provide a role and select at least one permission module.");
             return;
         }
 
         setError(null);
 
-        const data = { stores: [storeId], name, email, roleName, permissions };
+        const data = { roleName, permissions };
 
         const result = await execute(
-            staffService.inviteStaff(data),
-            { message: "Staff invitation sent successfully!" }
+            staffService.updateStaff(staff._id, data),
+            { message: "Staff permissions updated successfully!" }
         );
 
         if (result?.success) {
             onSuccess?.();
         } else {
-            setError(result?.message || "Failed to send invitation. Please try again.");
+            setError(result?.message || "Failed to update staff. Please try again.");
         }
     };
+
+    if (!staff) return null;
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
@@ -135,29 +146,27 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                 {/* Basic Info Row */}
                 <div className="grid grid-cols-3 gap-3">
 
-                    {/* Staff Name */}
+                    {/* Staff Name (Read Only) */}
                     <div>
                         <Input
                             label="Name"
                             type="text"
-                            value={name}
-                            onChange={(val) => setName(val)}
-                            placeholder="Ravi Kumar"
+                            value={staff.name}
+                            onChange={() => { }}
+                            disabled
                             leftIcon={User}
-                            required
                         />
                     </div>
 
-                    {/* Staff Email */}
+                    {/* Staff Email (Read Only) */}
                     <div>
                         <Input
                             label="Email"
                             type="email"
-                            value={email}
-                            onChange={(val) => setEmail(val)}
-                            placeholder="staff@example.com"
+                            value={staff.email}
+                            onChange={() => { }}
+                            disabled
                             leftIcon={Mail}
-                            required
                         />
                     </div>
 
@@ -298,9 +307,9 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                     <Button
                         type="submit"
                         loading={isLoading}
-                        leftIcon={Send}
+                        leftIcon={Save}
                     >
-                        {isLoading ? "Sending..." : "Send Invite"}
+                        {isLoading ? "Saving..." : "Update Staff"}
                     </Button>
                     <Button
                         type="button"
@@ -312,9 +321,8 @@ const InviteStaffDrawer = ({ storeId, onSuccess, onCancel }) => {
                     </Button>
                 </div>
             </div>
-
         </form>
     );
 };
 
-export default InviteStaffDrawer;
+export default UpdateStaffDrawer;
