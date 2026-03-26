@@ -24,6 +24,7 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
@@ -36,9 +37,18 @@ const ViewInventoryPage = ({ inventoryId }) => {
 
   const [inventory, setInventory] = useState(null);
   const [error, setError] = useState(null);
+  const { can, edit: canEdit, loading: permissionsLoading } = useModulePermissions("inventory");
 
-  const { execute, loading } = useApiResponse();
-  const { handleDownloadPDF } = useInventoryDetailsPrint(loading, inventory);
+  const { execute, loading: apiLoading } = useApiResponse();
+  const loading = apiLoading || permissionsLoading;
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("read")) {
+      router.push("/dashboard/stock");
+    }
+  }, [can, permissionsLoading, router]);
+
+  const { handleDownloadPDF } = useInventoryDetailsPrint(apiLoading, inventory);
 
   // Fetch inventory details
   useEffect(() => {
@@ -694,14 +704,16 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="outline"
-                            className="flex-1"
-                            onClick={handleAddStock}
-                            leftIcon={TrendingUp}
-                          >
-                            Add Stock
-                          </Button>
+                          {canEdit && (
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={handleAddStock}
+                              leftIcon={TrendingUp}
+                            >
+                              Add Stock
+                            </Button>
+                          )}
 
                           <Button
                             variant="outline"

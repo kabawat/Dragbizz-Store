@@ -26,6 +26,9 @@ const InventoryTable = ({
   hasMore = false,
   onLoadMore,
   isLoadingMore = false,
+  canEdit = false,
+  canDelete = false,
+  canCreate = false,
 }) => {
   const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
@@ -292,34 +295,40 @@ const InventoryTable = ({
                             <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                             View Details
                           </button>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(inventory.id, "stock-in")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
-                          >
-                            <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
-                            Add Stock
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(inventory.id, "duplicate")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Duplicate
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(inventory.id, "stock-in")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
+                            >
+                              <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
+                              {t("inventory.addStock")}
+                            </button>
+                          )}
+                          {canCreate && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(inventory.id, "duplicate")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              {t("common.duplicate")}
+                            </button>
+                          )}
                           <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(inventory.id, "delete")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                            Delete
-                          </button>
+                          {canDelete && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(inventory.id, "delete")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
+                              {t("common.delete")}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

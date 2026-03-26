@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInventories, setViewMode } from "@/store/slices/inventory/inventorySlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 
-const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer }) => {
+const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer, canCreate = false }) => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -68,7 +68,7 @@ const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer }) =>
     };
 
     useCommonHotkeys({
-        onNew: () => setShowInventoryDrawer?.(true),
+        onNew: () => canCreate && setShowInventoryDrawer?.(true),
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -116,9 +116,11 @@ const InventoryListHeader = ({ showInventoryDrawer, setShowInventoryDrawer }) =>
                         </button>
                     </div>
 
-                    <Button variant="primary" onClick={() => setShowInventoryDrawer(true)} leftIcon={Plus}>
-                        {t("inventory.addStock", { defaultValue: "Add Stock" })}
-                    </Button>
+                    {canCreate && (
+                        <Button variant="primary" onClick={() => setShowInventoryDrawer(true)} leftIcon={Plus}>
+                            {t("inventory.addStock", { defaultValue: "Add Stock" })}
+                        </Button>
+                    )}
                 </div>
             </div>
 

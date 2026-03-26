@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInventories, removeInventoryLocal } from "@/store/slices/inventory/inventorySlice";
 import { useRouter } from "next/navigation";
 
-const InventoryListContent = () => {
+const InventoryListContent = ({ canEdit = false, canDelete = false, canCreate = false }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -128,6 +128,9 @@ const InventoryListContent = () => {
                                 onStockIn={handleStockIn}
                                 loading={isLoading}
                                 emptyMessage={t("common.noData")}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
+                                canCreate={canCreate}
                             />
                         </div>
                     ) : (
@@ -141,6 +144,9 @@ const InventoryListContent = () => {
                                         onDelete={handleDeleteStock}
                                         onDuplicate={handleDuplicate}
                                         onStockIn={handleStockIn}
+                                        canEdit={canEdit}
+                                        canDelete={canDelete}
+                                        canCreate={canCreate}
                                     />
                                 ))}
                             </div>

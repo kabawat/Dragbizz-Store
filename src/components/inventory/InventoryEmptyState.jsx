@@ -18,13 +18,15 @@ const InventoryEmptyState = ({ onAddStock }) => {
                     {t("inventory.description")}
                 </p>
                 <div className="pt-4">
-                    <Button
-                        variant="primary"
-                        onClick={onAddStock}
-                        leftIcon={Plus}
-                    >
-                        {t("inventory.addStock")}
-                    </Button>
+                    {onAddStock && (
+                        <Button
+                            variant="primary"
+                            onClick={onAddStock}
+                            leftIcon={Plus}
+                        >
+                            {t("inventory.addStock")}
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>
