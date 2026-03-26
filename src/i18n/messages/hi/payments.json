@@ -1,8 +1,8 @@
 {
+  "payment": "भुगतान",
   "title": "भुगतान",
   "description": "भुगतान प्रबंधित करें",
-  "manageUpiIds": "UPI ID प्रबंधित करें",
-  "payment": "भुगतान",
+  "manageUpiIds": "UPI ID प्रबंधિત करें",
   "viewPayment": "भुगतान देखें",
   "paymentInformationAndDetails": "भुगतान जानकारी और विवरण",
   "updatePaymentInformationAndDetails": "भुगतान जानकारी और विवरण अपडेट करें",
@@ -23,6 +23,7 @@
   "backToPayments": "भुगतान पर वापस जाएं",
   "basicDetails": "मूल विवरण",
   "paymentType": "भुगतान प्रकार",
+  "type": "प्रकार",
   "supplier": "आपूर्तिकर्ता",
   "selectSupplier": "आपूर्तिकर्ता चुनें",
   "loadingSuppliers": "आपूर्तिकर्ता लोड हो रहे हैं...",

@@ -13,7 +13,7 @@ import {
 
 const PaymentTableHeader = () => {
   const { t } = useTranslation();
-  
+
   return (
     <div className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-20">
       <table className="w-full min-w-[1000px] table-fixed">
@@ -144,31 +144,31 @@ const PaymentTableRow = ({
 
           {openMenuId === paymentId && (
             <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
+              <button
+                onClick={() => handleMenuAction(paymentId, "view")}
+                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+              >
+                <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                {t("common.viewDetails")}
+              </button>
+              {canEdit && (
                 <button
-                  onClick={() => handleMenuAction(paymentId, "view")}
+                  onClick={() => handleMenuAction(paymentId, "edit")}
                   className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                 >
-                  <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                  {t("common.viewDetails")}
+                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  {t("common.edit")}
                 </button>
-                {canEdit && (
-                  <button
-                    onClick={() => handleMenuAction(paymentId, "edit")}
-                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                  >
-                    <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                    {t("common.edit")}
-                  </button>
-                )}
-                {canDelete && (
-                  <button
-                    onClick={() => handleMenuAction(paymentId, "delete")}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                    {t("common.delete")}
-                  </button>
-                )}
+              )}
+              {canDelete && (
+                <button
+                  onClick={() => handleMenuAction(paymentId, "delete")}
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                  {t("common.delete")}
+                </button>
+              )}
             </div>
           )}
         </div>

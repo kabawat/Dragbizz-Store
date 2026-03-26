@@ -43,6 +43,9 @@ const PurchaseOrderTable = ({
   enableSendMenu = true,
   getShareUrl,
   showToast,
+  canRead = false,
+  canEdit = false,
+  canDelete = false,
 }) => {
   const { t } = useTranslation();
   const _defaultEmptyMessage =
@@ -321,16 +324,18 @@ const PurchaseOrderTable = ({
                         {/* Popup Menu */}
                         {openMenuId === (row._id || row.id) && (
                           <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                            <button
-                              onClick={() =>
-                                onMenuAction(row._id || row.id, "view")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                            >
-                              <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                              {t("common.viewDetails")}
-                            </button>
-                            {!hasAdvancePayment && !isDeleted && (
+                            {canRead && (
+                              <button
+                                onClick={() =>
+                                  onMenuAction(row._id || row.id, "view")
+                                }
+                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                              >
+                                <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                                {t("common.viewDetails")}
+                              </button>
+                            )}
+                            {!hasAdvancePayment && !isDeleted && canEdit && (
                               <button
                                 onClick={() =>
                                   onMenuAction(
@@ -344,7 +349,7 @@ const PurchaseOrderTable = ({
                                 {t("purchaseOrders.advancePayment")}
                               </button>
                             )}
-                            {!isDeleted && (
+                            {!isDeleted && canEdit && (
                               <button
                                 onClick={() =>
                                   onMenuAction(row._id || row.id, "createBill")
@@ -355,7 +360,7 @@ const PurchaseOrderTable = ({
                                 {t("purchaseOrders.createBill")}
                               </button>
                             )}
-                            {!isDeleted && (
+                            {!isDeleted && canEdit && (
                               <button
                                 onClick={() =>
                                   onMenuAction(row._id || row.id, "edit")
@@ -366,15 +371,17 @@ const PurchaseOrderTable = ({
                                 {t("common.edit")}
                               </button>
                             )}
-                            <button
-                              onClick={() =>
-                                onMenuAction(row._id || row.id, "delete")
-                              }
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                              {t("common.delete")}
-                            </button>
+                            {canDelete && (
+                              <button
+                                onClick={() =>
+                                  onMenuAction(row._id || row.id, "delete")
+                                }
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
+                                {t("common.delete")}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

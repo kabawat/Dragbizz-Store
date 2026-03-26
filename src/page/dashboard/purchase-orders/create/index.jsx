@@ -19,6 +19,8 @@ import POActions from "@/components/purchaseOrders/create/POActions";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
 
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+
 const formInit = {
   supplier: "",
   expectedDeliveryDate: "",
@@ -35,6 +37,14 @@ const CreatePurchaseOrder = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+
+  const { can, loading: permissionsLoading } = useModulePermissions("purchase_order");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("create")) {
+      router.push("/dashboard/purchase-orders");
+    }
+  }, [can, permissionsLoading, router]);
 
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);

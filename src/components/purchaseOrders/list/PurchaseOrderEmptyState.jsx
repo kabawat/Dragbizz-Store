@@ -1,12 +1,14 @@
-"use client";
 import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const PurchaseOrderEmptyState = () => {
     const { t } = useTranslation();
     const router = useRouter();
+    const { can } = useModulePermissions("purchase_order");
+    const canCreate = can("create");
 
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
@@ -20,15 +22,17 @@ const PurchaseOrderEmptyState = () => {
                 <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {t("common.noData")}
                 </p>
-                <div className="pt-4">
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push("/dashboard/purchase-orders/create")}
-                    >
-                        <Plus className="w-4 h-4 mr-2 text-white" />
-                        {t("purchaseOrders.createPO")}
-                    </Button>
-                </div>
+                {canCreate && (
+                    <div className="pt-4">
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push("/dashboard/purchase-orders/create")}
+                        >
+                            <Plus className="w-4 h-4 mr-2 text-white" />
+                            {t("purchaseOrders.createPO")}
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
