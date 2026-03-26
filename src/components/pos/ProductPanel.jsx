@@ -8,7 +8,7 @@ import { categoryService } from "@/service/retailer";
 import { getProducts } from "@/store/slices/products/productSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
 
-const ProductPanel = ({ addToCart }) => {
+const ProductPanel = ({ addToCart, searchRef }) => {
     const dispatch = useAppDispatch();
 
     const [search, setSearch] = useState("");
@@ -107,6 +107,7 @@ const ProductPanel = ({ addToCart }) => {
                     <div className="relative flex-1 min-w-[200px] max-w-sm">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-secondary))]" />
                         <input
+                            ref={searchRef}
                             type="text"
                             placeholder="Search product or SKU..."
                             value={search}

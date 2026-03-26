@@ -3,12 +3,14 @@
         "navigation": "Global Navigation",
         "management": "Management",
         "actions": "Action & Management",
+        "pos": "POS",
         "view": "View & Control"
     },
     "descriptions": {
         "navigation": "Jump to any section from anywhere",
         "management": "Navigate management & settings sections",
         "actions": "Speed up your data entry and operations",
+        "pos": "Fast billing shortcuts for Point of Sale",
         "view": "Change layouts and navigate menus"
     },
     "actions": {
@@ -50,6 +52,11 @@
         "voiceAI": "Trigger Voice AI Assistant",
         "close": "Close Drawer or Modal",
         "back": "Navigate Back",
-        "globalBack": "Global Navigate Back"
+        "globalBack": "Global Navigate Back",
+        "posSearch": "Focus Product Search",
+        "posSearchAlt": "Focus Search (Alternate)",
+        "posCheckout": "Checkout / Charge",
+        "posClearCart": "Clear Cart",
+        "posNewSale": "New Sale (after success)"
     }
 }

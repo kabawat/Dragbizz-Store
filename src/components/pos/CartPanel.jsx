@@ -14,7 +14,7 @@ const quickAmounts = [50, 100, 200, 500, 1000, 2000];
 
 const generateBillNo = () => `POS-${Date.now().toString().slice(-6)}`;
 
-const CartPanel = ({ cart, setCart, onCheckout }) => {
+const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
     const [customerName, setCustomerName] = useState("");
     const [globalDiscount, setGlobalDiscount] = useState(""); // flat ₹ amount same as invoice
     const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -251,6 +251,7 @@ const CartPanel = ({ cart, setCart, onCheckout }) => {
 
                     {/* Checkout button */}
                     <button
+                        ref={checkoutRef}
                         onClick={handleCheckout}
                         disabled={
                             invoiceLoading ||

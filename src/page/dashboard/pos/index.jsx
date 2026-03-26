@@ -1,18 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-
-// ─── Extracted Components ────────
 import POSSuccessScreen from "@/components/pos/POSSuccessScreen";
 import ProductPanel from "@/components/pos/ProductPanel";
 import CartPanel from "@/components/pos/CartPanel";
+import { useHotkeys } from "@/hooks/keyboard/useHotkeys";
 
-// ─── Main POS Page ───────────────────────
 const POSPage = () => {
     const [cart, setCart] = useState([]);
     const [showSuccess, setShowSuccess] = useState(false);
     const [lastBill, setLastBill] = useState(null);
+
+    // Refs exposed to shortcuts
+    const searchRef = useRef(null);
+    const checkoutRef = useRef(null);
 
     // ── Cart operations ──────────────────
     const addToCart = (product) => {
@@ -36,12 +38,38 @@ const POSPage = () => {
         setLastBill(null);
     };
 
-    // SUCCESS SCREEN
+    // ── POS Keyboard Shortcuts ────────────
+    useHotkeys({
+        // Focus search
+        "/": (e) => {
+            e.preventDefault();
+            searchRef.current?.focus();
+        },
+        "ctrl+k": (e) => {
+            e.preventDefault();
+            searchRef.current?.focus();
+        },
+        // Clear cart
+        "ctrl+delete": (e) => {
+            e.preventDefault();
+            setCart([]);
+        },
+        // Checkout (trigger button click)
+        "ctrl+enter": (e) => {
+            e.preventDefault();
+            checkoutRef.current?.click();
+        },
+        // New sale (after success screen)
+        "ctrl+shift+n": (e) => {
+            e.preventDefault();
+            if (showSuccess) handleNewSale();
+        },
+    });
+
     if (showSuccess && lastBill) {
         return <POSSuccessScreen lastBill={lastBill} handleNewSale={handleNewSale} />;
     }
 
-    // MAIN POS LAYOUT
     return (
         <div className="flex h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
             <Sidebar />
@@ -50,12 +78,13 @@ const POSPage = () => {
                 <Header title="POS" description="Point of Sale — fast billing at your fingertips" />
 
                 <div className="flex flex-1 overflow-hidden gap-0">
-                    <ProductPanel addToCart={addToCart} />
+                    <ProductPanel addToCart={addToCart} searchRef={searchRef} />
 
                     <CartPanel
                         cart={cart}
                         setCart={setCart}
                         onCheckout={handleCheckoutSuccess}
+                        checkoutRef={checkoutRef}
                     />
                 </div>
             </div>

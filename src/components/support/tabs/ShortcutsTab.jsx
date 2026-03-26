@@ -6,10 +6,12 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getShortcutCategories } from "@/data/constants/supportData";
 import ShortcutCard from "@/components/support/ShortcutCard";
 
+const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+
 const ShortcutsTab = () => {
     const { t } = useTranslation();
 
-    const shortcutCategories = useMemo(() => getShortcutCategories(t), [t]);
+    const shortcutCategories = useMemo(() => getShortcutCategories(t, isMac), [t]);
 
     const [expandedCards, setExpandedCards] = useState(() =>
         shortcutCategories.map(() => true)
