@@ -1,6 +1,9 @@
 {
   "title": "Bills",
   "description": "Apne bills ko manage karo",
+  "backToBills": "Bills par wapas jao",
+  "viewBill": "Bill dekhein",
+  "viewBillDescription": "Bill information aur details",
   "createBill": "Bill create karo",
   "createBillDescription": "Inventory purchases track karne ke liye naya purchase bill add karo",
   "billForPO": "Purchase Order #{poNumber} ke liye Bill",

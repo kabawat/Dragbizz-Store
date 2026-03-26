@@ -11,6 +11,8 @@ import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
 import BillHeader from "./components/BillHeader";
@@ -24,10 +26,15 @@ import LoadingState from "./components/LoadingState";
 import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 
 const ViewBillPage = ({ billId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
+
+  const { can } = useModulePermissions("billing");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+  const canRead = can("read");
 
   const [error, setError] = useState(null);
   const [billData, setBillData] = useState(null);
@@ -104,7 +111,10 @@ const ViewBillPage = ({ billId }) => {
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
       <div className="h-screen w-full flex flex-col overflow-hidden">
-        <Header title="View Bill" description="Bill information and details" />
+        <Header
+          title={t("bills.viewBill")}
+          description={t("bills.viewBillDescription")}
+        />
         <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">
@@ -113,7 +123,7 @@ const ViewBillPage = ({ billId }) => {
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Bills</span>
+                <span className="text-sm font-medium">{t("bills.backToBills", { defaultValue: "Back to Bills" })}</span>
               </Link>
             </div>
 
@@ -168,9 +178,9 @@ const ViewBillPage = ({ billId }) => {
                   <div className="lg:col-span-1 h-full overflow-y-auto px-1">
                     <BillActions
                       billData={billData}
-                      onEditBill={handleEditBill}
-                      onDeleteBill={handleDeleteBill}
-                      onDownloadPDF={handleDownloadPDF}
+                      onEditBill={canEdit ? handleEditBill : undefined}
+                      onDeleteBill={canDelete ? handleDeleteBill : undefined}
+                      onDownloadPDF={canRead ? handleDownloadPDF : undefined}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       formatDateTime={formatDateTime}
