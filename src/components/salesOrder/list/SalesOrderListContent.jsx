@@ -10,7 +10,7 @@ import { getSalesOrders } from "@/store/slices/salesOrdersSlice";
 import SalesOrderTable from "@/components/salesOrder/SalesOrderTable";
 import SalesOrderCard from "@/components/salesOrder/SalesOrderCard";
 
-const SalesOrderListContent = () => {
+const SalesOrderListContent = ({ canCreate = false, canEdit = false, canDelete = false }) => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -92,6 +92,8 @@ const SalesOrderListContent = () => {
                             onViewDetails={handleViewDetails}
                             onUpdateStatus={handleUpdateStatus}
                             onPrint={handlePrint}
+                            canEdit={canEdit}
+                            canDelete={canDelete}
                         />
                     </div>
                 ) : (
@@ -104,6 +106,8 @@ const SalesOrderListContent = () => {
                                     onViewDetails={handleViewDetails}
                                     onUpdateStatus={handleUpdateStatus}
                                     onPrint={handlePrint}
+                                    canEdit={canEdit}
+                                    canDelete={canDelete}
                                 />
                             ))}
                         </div>

@@ -10,7 +10,7 @@ import { getSalesOrders, setViewMode } from "@/store/slices/salesOrdersSlice";
 import { CatalogQRModal } from "@/components/common";
 import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
-const SalesOrderListHeader = () => {
+const SalesOrderListHeader = ({ canCreate: canCreateProp }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -20,7 +20,7 @@ const SalesOrderListHeader = () => {
     const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
 
     const { can, loading } = useModulePermissions("sales_order");
-    const canCreate = can("create");
+    const canCreate = canCreateProp ?? can("create");
 
     const [searchValue, setSearchValue] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -142,7 +142,7 @@ const SalesOrderListHeader = () => {
                         </button>
                     </div>
 
-                    {selectedStore?.catalogId && (
+                    {canCreate && selectedStore?.catalogId && (
                         <>
                             <Button
                                 variant="outline"
@@ -152,7 +152,7 @@ const SalesOrderListHeader = () => {
                             >
                                 {t("settings.publicCatalog")}
                             </Button>
-
+ 
                             <CatalogQRModal
                                 isOpen={isCatalogModalOpen}
                                 onClose={() => setIsCatalogModalOpen(false)}

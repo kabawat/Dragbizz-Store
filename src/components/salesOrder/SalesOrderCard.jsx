@@ -53,7 +53,7 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
+const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit = false }) => {
     const { t } = useTranslation();
     const router = useRouter();
     const [openMenuId, setOpenMenuId] = useState(null);
@@ -79,7 +79,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     ];
 
     // Quick Workflow Actions
-    if (order.status === "PROCESSING") {
+    if (canEdit && order.status === "PROCESSING") {
         _actionMenuItems.push(
             {
                 value: "ship",
@@ -91,7 +91,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
         );
     }
 
-    if (["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
+    if (canEdit && ["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
         _actionMenuItems.push({
             value: "mark_paid",
             label: t("salesOrder.markAsPaid"),
