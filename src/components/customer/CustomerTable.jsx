@@ -9,6 +9,8 @@ const CustomerTable = ({
   onDelete,
   onViewDetails,
   className = "",
+  canEdit = true,
+  canDelete = true,
 }) => {
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -146,21 +148,27 @@ const CustomerTable = ({
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           {t("common.viewDetails")}
                         </button>
-                        <button
-                          onClick={() => handleMenuAction(customer.id, "edit")}
-                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                        >
-                          <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          {t("common.edit")}
-                        </button>
-                        <div className="border-t border-[rgb(var(--color-border-primary))] my-1" />
-                        <button
-                          onClick={() => handleMenuAction(customer.id, "delete")}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                          {t("common.delete")}
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={() => handleMenuAction(customer.id, "edit")}
+                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
+                          >
+                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            {t("common.edit")}
+                          </button>
+                        )}
+                        {canEdit && canDelete && (
+                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1" />
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleMenuAction(customer.id, "delete")}
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors cursor-pointer focus:outline-none"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                            {t("common.delete")}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

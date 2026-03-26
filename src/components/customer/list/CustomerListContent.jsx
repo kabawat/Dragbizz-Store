@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers } from "@/store/slices/customers/customerSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { Users } from "lucide-react";
 
 const CustomerListContent = () => {
@@ -19,6 +20,10 @@ const CustomerListContent = () => {
         useAppSelector((state) => state.customers);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
+
+    const customerPerm = useModulePermissions("customer");
+    const canEdit = customerPerm.edit === true;
+    const canDelete = customerPerm.delete === true;
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
     const sentinelRef = useRef(null);
@@ -75,9 +80,11 @@ const CustomerListContent = () => {
                         <div className="h-auto">
                             <CustomerTable
                                 customers={customers}
-                                onEdit={setEditCustomerId}
-                                onDelete={(id) => deleteModalRef.current?.open(id)}
+                                onEdit={canEdit ? setEditCustomerId : undefined}
+                                onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
                                 onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         </div>
                     ) : (
@@ -87,9 +94,11 @@ const CustomerListContent = () => {
                                     <CustomerCard
                                         key={customer.id}
                                         customer={customer}
-                                        onEdit={setEditCustomerId}
-                                        onDelete={(id) => deleteModalRef.current?.open(id)}
+                                        onEdit={canEdit ? setEditCustomerId : undefined}
+                                        onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
                                         onViewDetails={(id) => router.push(`/dashboard/customers/${id}`)}
+                                        canEdit={canEdit}
+                                        canDelete={canDelete}
                                     />
                                 ))}
                             </div>

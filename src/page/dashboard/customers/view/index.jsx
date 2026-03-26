@@ -17,12 +17,16 @@ import useApiResponse from "@/hooks/useApiResponse";
 import { SideDrawer } from "@/components/ui";
 import { EditCustomer } from "@/components/customer";
 import { Users } from "lucide-react";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  const customerPerm = useModulePermissions("customer");
+  const canEdit = customerPerm.edit;
 
   const { execute, data: customerData, loading } = useApiResponse();
   const [error, setError] = useState(null);
@@ -60,7 +64,7 @@ const ViewCustomerPage = ({ customerId }) => {
 
   // Page-level Shortcuts
   useCommonHotkeys({
-    onEdit: () => setIsEditDrawerOpen(true),
+    onEdit: canEdit ? () => setIsEditDrawerOpen(true) : undefined,
     onDownload: () => handleDownloadPDF(customerData),
     onBack: () => router.push("/dashboard/customers"),
     onClose: () => setIsEditDrawerOpen(false),
@@ -94,7 +98,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 customerData={customerData}
                 customerId={customerId}
                 storeId={storeId}
-                onEdit={() => setIsEditDrawerOpen(true)}
+                onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
                 onDownloadPDF={handleDownloadPDF}
                 t={t}
               />

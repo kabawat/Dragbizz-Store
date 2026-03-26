@@ -55,7 +55,7 @@ const Sidebar = ({ onStoreChange }) => {
   );
 
   const navigationItems = useMemo(() => {
-    if (authProfile?.role !== "store_staff") return rawNavigationItems;
+    if (authProfile?.role === "store_owner") return rawNavigationItems;
 
     const hasPermission = (href) => {
       // Default always allowed routes for staff
@@ -75,6 +75,7 @@ const Sidebar = ({ onStoreChange }) => {
       const ROUTE_MODULE_MAP = {
         "/dashboard/customers": "customer",
         "/dashboard/invoices": "invoice",
+        "/dashboard/pos": "invoice",
         "/dashboard/expenses": "expense",
         "/dashboard/sales-order": "sales_order",
         "/dashboard/products": "product",
