@@ -42,6 +42,8 @@ const ProductListHeader = () => {
     const [showInCatalog, setShowInCatalog] = useState("");
     const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
+    const { can, loading: permissionsLoading } = useModulePermissions("product");
+    const canCreate = can("create");
 
     const { execute: executeCategories, loading: categoriesLoading } = useApiResponse();
 
@@ -131,7 +133,7 @@ const ProductListHeader = () => {
     }, [dispatch, storeId]);
 
     useCommonHotkeys({
-        onNew: () => router.push("/dashboard/products/create"),
+        onNew: canCreate ? () => router.push("/dashboard/products/create") : undefined,
         onClose: () => {
             if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
@@ -214,20 +216,24 @@ const ProductListHeader = () => {
                         </button>
                     </div>
 
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowBulkUploadDrawer(true)}
-                        leftIcon={Upload}
-                    >
-                        {t("products.bulkUpload", "Bulk Upload")}
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push("/dashboard/products/create")}
-                        leftIcon={Plus}
-                    >
-                        {t("products.addProduct")}
-                    </Button>
+                    {canCreate && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowBulkUploadDrawer(true)}
+                            leftIcon={Upload}
+                        >
+                            {t("products.bulkUpload", "Bulk Upload")}
+                        </Button>
+                    )}
+                    {canCreate && (
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push("/dashboard/products/create")}
+                            leftIcon={Plus}
+                        >
+                            {t("products.addProduct")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

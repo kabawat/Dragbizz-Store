@@ -12,6 +12,7 @@ import {
     InventoryListContent,
     InventoryEmptyState
 } from "@/components/inventory";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const InventoryPage = () => {
     const { t } = useTranslation();
@@ -19,10 +20,22 @@ const InventoryPage = () => {
     const dispatch = useAppDispatch();
 
     const [showInventoryDrawer, setShowInventoryDrawer] = useState(false);
-
-    const { inventories, isLoading, error } = useAppSelector((state) => state.inventory);
+    const { inventories, isLoading: inventoryLoading, error } = useAppSelector((state) => state.inventory);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
+    const {
+        can,
+        create: canCreate,
+        edit: canEdit,
+        delete: canDelete,
+        loading: permissionsLoading
+    } = useModulePermissions("inventory");
+
+    useEffect(() => {
+        if (!permissionsLoading && !can("read")) {
+            router.push("/dashboard");
+        }
+    }, [can, permissionsLoading, router]);
 
     // Restore saved view mode on mount
     useEffect(() => {
@@ -53,10 +66,11 @@ const InventoryPage = () => {
                         <InventoryListHeader
                             showInventoryDrawer={showInventoryDrawer}
                             setShowInventoryDrawer={setShowInventoryDrawer}
+                            canCreate={canCreate}
                         />
 
                         {/* State 1: Initial loading */}
-                        {isLoading && inventories.length === 0 && !error && (
+                        {(inventoryLoading || permissionsLoading) && inventories.length === 0 && !error && (
                             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
                                 <div className="text-center">
                                     <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -66,13 +80,18 @@ const InventoryPage = () => {
                         )}
 
                         {/* State 2: Empty state */}
-                        {!isLoading && inventories.length === 0 && (
-                            <InventoryEmptyState onAddStock={() => setShowInventoryDrawer(true)} />
+                        {!(inventoryLoading || permissionsLoading) && inventories.length === 0 && (
+                            <InventoryEmptyState onAddStock={canCreate ? () => setShowInventoryDrawer(true) : null} />
                         )}
 
                         {/* State 3: Inventory list + modals + drawers */}
-                        {inventories.length > 0 && <InventoryListContent />}
-
+                        {inventories.length > 0 && (
+                            <InventoryListContent
+                                canEdit={canEdit}
+                                canDelete={canDelete}
+                                canCreate={canCreate}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

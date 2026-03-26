@@ -8,6 +8,7 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSalesOrders, setViewMode } from "@/store/slices/salesOrdersSlice";
 import { CatalogQRModal } from "@/components/common";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const SalesOrderListHeader = () => {
     const { t } = useTranslation();
@@ -17,6 +18,9 @@ const SalesOrderListHeader = () => {
     const { viewMode } = useAppSelector((state) => state.salesOrders);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
+
+    const { can, loading } = useModulePermissions("sales_order");
+    const canCreate = can("create");
 
     const [searchValue, setSearchValue] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -77,7 +81,7 @@ const SalesOrderListHeader = () => {
     }, [dispatch]);
 
     useCommonHotkeys({
-        onNew: () => setIsCatalogModalOpen(true),
+        onNew: canCreate ? () => setIsCatalogModalOpen(true) : undefined,
         onClose: () => setIsCatalogModalOpen(false),
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
