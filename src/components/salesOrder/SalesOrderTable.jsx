@@ -52,7 +52,7 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => {
+const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEdit = false }) => {
     const { t } = useTranslation();
     const router = useRouter();
     const [openMenuId, setOpenMenuId] = useState(null);
@@ -220,7 +220,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                         {t("common.viewDetails")}
                                                     </button>
 
-                                                    {order.status === "PROCESSING" && (
+                                                    {canEdit && order.status === "PROCESSING" && (
                                                         <>
                                                             <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
                                                             <button
@@ -233,7 +233,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                         </>
                                                     )}
 
-                                                    {(order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
+                                                    {canEdit && (order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
                                                         <>
                                                             <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
                                                             <button

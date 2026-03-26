@@ -7,6 +7,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode } from "@/store/slices/salesOrdersSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 // Modularized Sales Order Components
 import SalesOrderListHeader from "@/components/salesOrder/list/SalesOrderListHeader";
@@ -20,6 +21,19 @@ const SalesOrdersPage = () => {
 
     // Smooth deterministic tracking using global Redux Architecture
     const { list: orders, isLoading, error } = useAppSelector((state) => state.salesOrders);
+    const { 
+        can, 
+        create: canCreate, 
+        edit: canEdit, 
+        delete: canDelete, 
+        loading: permissionsLoading 
+    } = useModulePermissions("sales_order");
+
+    useEffect(() => {
+        if (!permissionsLoading && !can("read")) {
+            router.push("/dashboard");
+        }
+    }, [can, permissionsLoading, router]);
 
     // Initial configuration check
     useEffect(() => {
@@ -47,10 +61,10 @@ const SalesOrdersPage = () => {
                     <div className="max-w-8xl mx-auto">
 
                         {/* Modular Header Logic */}
-                        <SalesOrderListHeader />
+                        <SalesOrderListHeader canCreate={canCreate} />
 
                         {/* Loading State Wrapper */}
-                        {isLoading && orders.length === 0 && !error && (
+                        {(isLoading || permissionsLoading) && orders.length === 0 && !error && (
                             <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 mb-6 flex justify-center">
                                 <div className="text-center">
                                     <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -60,10 +74,16 @@ const SalesOrdersPage = () => {
                         )}
 
                         {/* Completely Empty State Fallback */}
-                        {!isLoading && orders.length === 0 && <SalesOrderEmptyState />}
+                        {!(isLoading || permissionsLoading) && orders.length === 0 && <SalesOrderEmptyState />}
 
                         {/* Hydrated Container Mapping */}
-                        {orders.length > 0 && <SalesOrderListContent />}
+                        {orders.length > 0 && (
+                            <SalesOrderListContent 
+                                canCreate={canCreate}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
+                            />
+                        )}
 
                     </div>
                 </div>

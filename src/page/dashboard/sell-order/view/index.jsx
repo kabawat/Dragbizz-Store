@@ -12,6 +12,7 @@ import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 // Extracted Components
 import {
@@ -45,6 +46,19 @@ const ViewSellOrderPage = ({ orderId }) => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+
+  const { 
+    can, 
+    create: canCreate, 
+    edit: canEdit, 
+    loading: permissionsLoading 
+  } = useModulePermissions("sales_order");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("read")) {
+      router.push("/dashboard");
+    }
+  }, [can, permissionsLoading, router]);
 
   const { execute: executeFetch } = useApiResponse();
   const { execute: executeUpdate, loading: updatingStatus } = useApiResponse();
@@ -88,7 +102,7 @@ const ViewSellOrderPage = ({ orderId }) => {
     return () => clearTimeout(timeoutId);
   }, [fetchOrder, orderId, storeId]);
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <div className="flex h-screen relative w-full overflow-hidden bg-[rgb(var(--color-bg-secondary))]">
         <Sidebar />
@@ -153,7 +167,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                 <span className="text-sm font-medium">{t("salesOrder.backToOrders")}</span>
               </Link>
               <div className="flex gap-3">
-                {selectedStore?.catalogId && (
+                {canCreate && selectedStore?.catalogId && (
                   <>
                     <Button
                       variant="primary"
@@ -199,6 +213,7 @@ const ViewSellOrderPage = ({ orderId }) => {
                     statusList={SALES_ORDER_STATUSES}
                     updatingStatus={updatingStatus}
                     onUpdateStatus={handleUpdateStatus}
+                    canEdit={canEdit}
                   />
                   <div className="space-y-4">
                     <ActivityHistory order={order} />
