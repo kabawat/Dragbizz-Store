@@ -1,74 +1,93 @@
-import { Navigation2, Zap, MousePointer2, Settings2 } from "lucide-react";
+import { Navigation2, Zap, MousePointer2, Settings2, ShoppingBag } from "lucide-react";
 
-export const getShortcutCategories = (t) => [
-    {
-        title: t("shortcuts.categories.navigation") || "Global Navigation",
-        description: t("shortcuts.descriptions.navigation") || "Jump to any section from anywhere",
-        icon: Navigation2,
-        items: [
-            { keys: ["Alt", "H"], action: t("shortcuts.actions.home") || "Home / Dashboard" },
-            { keys: ["Alt", "D"], action: t("shortcuts.actions.dashboard") || "Dashboard (Sidebar)" },
-            { keys: ["Alt", "C"], action: t("shortcuts.actions.customers") || "Customers List" },
-            { keys: ["Alt", "I"], action: t("shortcuts.actions.invoices") || "Invoices Management" },
-            { keys: ["Alt", "P"], action: t("shortcuts.actions.products") || "Products / Inventory" },
-            { keys: ["Alt", "E"], action: t("shortcuts.actions.expenses") || "Expense Tracker" },
-            { keys: ["Alt", "S"], action: t("shortcuts.actions.stock") || "Stock Management" },
-            { keys: ["Alt", "A"], action: t("shortcuts.actions.analytics") || "Business Analytics" },
-            { keys: ["Alt", "K"], action: t("shortcuts.actions.pos") || "POS" },
-            { keys: ["Alt", "O"], action: t("shortcuts.actions.salesOrders") || "Sales Orders" },
-            { keys: ["Alt", "U"], action: t("shortcuts.actions.suppliers") || "Suppliers Directory" },
-            { keys: ["Alt", "Shift", "O"], action: t("shortcuts.actions.purchaseOrders") || "Purchase Orders" },
-            { keys: ["Alt", "B"], action: t("shortcuts.actions.bills") || "Bills Management" },
-            { keys: ["Alt", "Y"], action: t("shortcuts.actions.payments") || "Payments History" },
-            { keys: ["Alt", "Q"], action: t("shortcuts.actions.support") || "Support Center" },
-        ]
-    },
-    {
-        title: t("shortcuts.categories.actions") || "Action & Management",
-        description: t("shortcuts.descriptions.actions") || "Speed up your data entry and operations",
-        icon: Zap,
-        items: [
-            { keys: ["Shift", "N"], action: t("shortcuts.actions.createNew") || "Create New Entry" },
-            { keys: ["Ctrl", "S"], action: t("shortcuts.actions.save") || "Save Current Form" },
-            { keys: ["F1"], action: t("shortcuts.actions.saveAlt") || "Save (Alternate)" },
-            { keys: ["Ctrl", "P"], action: t("shortcuts.actions.print") || "Print Document / Receipt" },
-            { keys: ["F2"], action: t("shortcuts.actions.printAlt") || "Print (Alternate)" },
-            { keys: ["Ctrl", "D"], action: t("shortcuts.actions.download") || "Download PDF/Report" },
-            { keys: ["Ctrl", "E"], action: t("shortcuts.actions.edit") || "Edit Current Selection" },
-            { keys: ["Ctrl", "Delete"], action: t("shortcuts.actions.delete") || "Delete Current Item" },
-            { keys: ["Delete"], action: t("shortcuts.actions.deleteAlt") || "Delete (Alternate)" },
-            { keys: ["/"], action: t("shortcuts.actions.focusSearch") || "Focus Search Input" },
-            { keys: ["Ctrl", "K"], action: t("shortcuts.actions.toggleSearch") || "Toggle Search Bar" },
-            { keys: ["Shift", "?"], action: t("shortcuts.actions.toggleHelp") || "Open Support / Help Center" },
-        ]
-    },
-    {
-        title: t("shortcuts.categories.management") || "Management",
-        description: t("shortcuts.descriptions.management") || "Navigate management & settings sections",
-        icon: Settings2,
-        items: [
-            { keys: ["Alt", "G"], action: t("shortcuts.actions.settings") || "Application Settings" },
-            { keys: ["Alt", ","], action: t("shortcuts.actions.settingsSidebar") || "Settings (Sidebar)" },
-            { keys: ["Alt", "F"], action: t("shortcuts.actions.staff") || "Staff Management" },
-            { keys: ["Alt", "M"], action: t("shortcuts.actions.subscription") || "Subscription" },
-            { keys: ["Alt", "L"], action: t("shortcuts.actions.limits") || "Plan Limits" },
-            { keys: ["Alt", "\\"], action: t("shortcuts.actions.toggleSidebar") || "Toggle Sidebar" },
-        ]
-    },
-    {
-        title: t("shortcuts.categories.view") || "View & Control",
-        description: t("shortcuts.descriptions.view") || "Change layouts and navigate menus",
-        icon: MousePointer2,
-        items: [
-            { keys: ["Alt", "1"], action: t("shortcuts.actions.tableView") || "Switch to Table View" },
-            { keys: ["Alt", "2"], action: t("shortcuts.actions.cardView") || "Switch to Card View" },
-            { keys: ["Alt", "V"], action: t("shortcuts.actions.voiceAI") || "Trigger Voice AI Assistant" },
-            { keys: ["Esc"], action: t("shortcuts.actions.close") || "Close Drawer or Modal" },
-            { keys: ["Ctrl", "Esc"], action: t("shortcuts.actions.back") || "Navigate Back" },
-            { keys: ["Shift", "Backspace"], action: t("shortcuts.actions.globalBack") || "Global Navigate Back" },
-        ]
-    }
-];
+// On Mac: Ctrl → Cmd (⌘), Alt → Option (⌥)
+export const getShortcutCategories = (t, isMac = false) => {
+    const ctrl = isMac ? "Cmd" : "Ctrl";
+    const alt = isMac ? "Option" : "Alt";
+
+    return [
+        {
+            title: t("shortcuts.categories.navigation") || "Global Navigation",
+            description: t("shortcuts.descriptions.navigation") || "Jump to any section from anywhere",
+            icon: Navigation2,
+            items: [
+                { keys: [alt, "H"], action: t("shortcuts.actions.home") || "Home / Dashboard" },
+                { keys: [alt, "D"], action: t("shortcuts.actions.dashboard") || "Dashboard (Sidebar)" },
+                { keys: [alt, "C"], action: t("shortcuts.actions.customers") || "Customers List" },
+                { keys: [alt, "I"], action: t("shortcuts.actions.invoices") || "Invoices Management" },
+                { keys: [alt, "P"], action: t("shortcuts.actions.products") || "Products / Inventory" },
+                { keys: [alt, "E"], action: t("shortcuts.actions.expenses") || "Expense Tracker" },
+                { keys: [alt, "S"], action: t("shortcuts.actions.stock") || "Stock Management" },
+                { keys: [alt, "A"], action: t("shortcuts.actions.analytics") || "Business Analytics" },
+                { keys: [alt, "K"], action: t("shortcuts.actions.pos") || "POS" },
+                { keys: [alt, "O"], action: t("shortcuts.actions.salesOrders") || "Sales Orders" },
+                { keys: [alt, "U"], action: t("shortcuts.actions.suppliers") || "Suppliers Directory" },
+                { keys: [alt, "Shift", "O"], action: t("shortcuts.actions.purchaseOrders") || "Purchase Orders" },
+                { keys: [alt, "B"], action: t("shortcuts.actions.bills") || "Bills Management" },
+                { keys: [alt, "Y"], action: t("shortcuts.actions.payments") || "Payments History" },
+                { keys: [alt, "Q"], action: t("shortcuts.actions.support") || "Support Center" },
+            ]
+        },
+        {
+            title: t("shortcuts.categories.actions") || "Action & Management",
+            description: t("shortcuts.descriptions.actions") || "Speed up your data entry and operations",
+            icon: Zap,
+            items: [
+                { keys: ["Shift", "N"], action: t("shortcuts.actions.createNew") || "Create New Entry" },
+                { keys: [ctrl, "S"], action: t("shortcuts.actions.save") || "Save Current Form" },
+                { keys: ["F1"], action: t("shortcuts.actions.saveAlt") || "Save (Alternate)" },
+                { keys: [ctrl, "P"], action: t("shortcuts.actions.print") || "Print Document / Receipt" },
+                { keys: ["F2"], action: t("shortcuts.actions.printAlt") || "Print (Alternate)" },
+                { keys: [ctrl, "D"], action: t("shortcuts.actions.download") || "Download PDF/Report" },
+                { keys: [ctrl, "E"], action: t("shortcuts.actions.edit") || "Edit Current Selection" },
+                { keys: [ctrl, "Delete"], action: t("shortcuts.actions.delete") || "Delete Current Item" },
+                { keys: ["Delete"], action: t("shortcuts.actions.deleteAlt") || "Delete (Alternate)" },
+                { keys: ["/"], action: t("shortcuts.actions.focusSearch") || "Focus Search Input" },
+                { keys: [ctrl, "K"], action: t("shortcuts.actions.toggleSearch") || "Toggle Search Bar" },
+                { keys: ["Shift", "?"], action: t("shortcuts.actions.toggleHelp") || "Open Support / Help Center" },
+            ]
+        },
+        {
+            title: t("shortcuts.categories.management") || "Management",
+            description: t("shortcuts.descriptions.management") || "Navigate management & settings sections",
+            icon: Settings2,
+            items: [
+                { keys: [alt, "G"], action: t("shortcuts.actions.settings") || "Application Settings" },
+                { keys: [alt, ","], action: t("shortcuts.actions.settingsSidebar") || "Settings (Sidebar)" },
+                { keys: [alt, "F"], action: t("shortcuts.actions.staff") || "Staff Management" },
+                { keys: [alt, "M"], action: t("shortcuts.actions.subscription") || "Subscription" },
+                { keys: [alt, "L"], action: t("shortcuts.actions.limits") || "Plan Limits" },
+                { keys: [alt, "\\"], action: t("shortcuts.actions.toggleSidebar") || "Toggle Sidebar" },
+            ]
+        },
+        {
+            title: t("shortcuts.categories.pos") || "POS",
+            description: t("shortcuts.descriptions.pos") || "Fast billing shortcuts for Point of Sale",
+            icon: ShoppingBag,
+            items: [
+                { keys: ["/"], action: t("shortcuts.actions.posSearch") || "Focus Product Search" },
+                { keys: [ctrl, "K"], action: t("shortcuts.actions.posSearchAlt") || "Focus Search (Alternate)" },
+                { keys: [ctrl, "Enter"], action: t("shortcuts.actions.posCheckout") || "Checkout / Charge" },
+                { keys: [ctrl, "Delete"], action: t("shortcuts.actions.posClearCart") || "Clear Cart" },
+                { keys: [ctrl, "Shift", "N"], action: t("shortcuts.actions.posNewSale") || "New Sale (after success)" },
+            ]
+        },
+        {
+            title: t("shortcuts.categories.view") || "View & Control",
+            description: t("shortcuts.descriptions.view") || "Change layouts and navigate menus",
+            icon: MousePointer2,
+            items: [
+                { keys: [alt, "1"], action: t("shortcuts.actions.tableView") || "Switch to Table View" },
+                { keys: [alt, "2"], action: t("shortcuts.actions.cardView") || "Switch to Card View" },
+                { keys: [alt, "V"], action: t("shortcuts.actions.voiceAI") || "Trigger Voice AI Assistant" },
+                { keys: ["Esc"], action: t("shortcuts.actions.close") || "Close Drawer or Modal" },
+                { keys: [ctrl, "Esc"], action: t("shortcuts.actions.back") || "Navigate Back" },
+                { keys: ["Shift", "Backspace"], action: t("shortcuts.actions.globalBack") || "Global Navigate Back" },
+            ]
+        }
+    ];
+};
+
 
 export const getFaqs = (t) => [
     {

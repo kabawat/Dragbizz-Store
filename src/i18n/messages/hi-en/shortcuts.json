@@ -3,12 +3,14 @@
         "navigation": "Global Navigation",
         "management": "Management",
         "actions": "Action & Management",
+        "pos": "POS",
         "view": "View & Control"
     },
     "descriptions": {
         "navigation": "Kahbi bhi kisi bhi section par turant jump karein",
         "management": "Management aur settings sections par jayein",
         "actions": "Apni data entry aur operations ko fast karein",
+        "pos": "POS pe fast billing ke liye shortcuts",
         "view": "Layout change karein aur menus navigate karein"
     },
     "actions": {
@@ -50,6 +52,11 @@
         "voiceAI": "Voice AI assistant trigger karein",
         "close": "Drawer ya Modal close karein",
         "back": "Peeche jayein",
-        "globalBack": "Global peeche jayein"
+        "globalBack": "Global peeche jayein",
+        "posSearch": "Product search par focus karein",
+        "posSearchAlt": "Search (Alternate)",
+        "posCheckout": "Checkout / Charge karein",
+        "posClearCart": "Cart khali karein",
+        "posNewSale": "Naya sale shuru karein"
     }
 }

@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 
+// On Mac, Cmd (metaKey) acts as Ctrl for app shortcuts
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
+
 // Modifier bit masks
 const MODIFIERS = {
     ctrl: 1,
@@ -30,13 +33,12 @@ const ALIASES = {
     f12: 'f12',
 };
 
-// Helper to confirm which modifiers are active
+// Active modifier detection — on Mac, Cmd (meta) is treated as Ctrl
 const getActiveModifiers = (event) => {
     let modifiers = 0;
-    if (event.ctrlKey) modifiers |= MODIFIERS.ctrl;
+    if (event.ctrlKey || (isMac && event.metaKey)) modifiers |= MODIFIERS.ctrl;
     if (event.altKey) modifiers |= MODIFIERS.alt;
     if (event.shiftKey) modifiers |= MODIFIERS.shift;
-    if (event.metaKey) modifiers |= MODIFIERS.meta;
     return modifiers;
 };
 
