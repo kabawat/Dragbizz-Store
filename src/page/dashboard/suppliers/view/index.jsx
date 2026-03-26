@@ -21,12 +21,17 @@ import SupplierActions from "./components/SupplierActions";
 import SupplierAddress from "./components/SupplierAddress";
 import SupplierBasicInfo from "./components/SupplierBasicInfo";
 import { EditSupplierDrawer } from "@/components/supplier";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewSupplierPage = ({ supplierId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  const supplierPerm = useModulePermissions("supplier");
+  const canEdit = supplierPerm.edit === true;
+  const canDelete = supplierPerm.delete === true;
 
   const [error, setError] = useState(null);
   const [supplierData, setSupplierData] = useState(null);
@@ -45,8 +50,8 @@ const ViewSupplierPage = ({ supplierId }) => {
   );
 
   useCommonHotkeys({
-    onEdit: () => setShowEditDrawer(true),
-    onDelete: () => setShowDeleteModal(true),
+    onEdit: canEdit ? () => setShowEditDrawer(true) : undefined,
+    onDelete: canDelete ? () => setShowDeleteModal(true) : undefined,
     onBack: () => router.push("/dashboard/suppliers"),
     onClose: () => {
       if (showEditDrawer) setShowEditDrawer(false);
@@ -80,6 +85,7 @@ const ViewSupplierPage = ({ supplierId }) => {
   }, [supplierId, storeId, t, executeFetch]);
 
   const handleEditSupplier = () => {
+    if (!canEdit) return;
     setShowEditDrawer(true);
   };
 
@@ -88,6 +94,7 @@ const ViewSupplierPage = ({ supplierId }) => {
   };
 
   const handleDeleteSupplier = () => {
+    if (!canDelete) return;
     setShowDeleteModal(true);
   };
 
@@ -185,10 +192,12 @@ const ViewSupplierPage = ({ supplierId }) => {
 
                   <SupplierActions
                     supplierData={supplierData}
-                    onEdit={handleEditSupplier}
-                    onDelete={handleDeleteSupplier}
+                    onEdit={canEdit ? handleEditSupplier : undefined}
+                    onDelete={canDelete ? handleDeleteSupplier : undefined}
                     onDownload={handleDownloadPDF}
                     fetching={fetching}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
                   />
                 </div>
               )}

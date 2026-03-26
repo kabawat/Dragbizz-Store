@@ -9,6 +9,7 @@ import { getSuppliers, setViewMode } from "@/store/slices/supplier/supplierSlice
 import { AddSupplierDrawer, VoiceAISupplier } from "@/components/supplier";
 import SupplierDownloadDrawer from "@/components/supplier/SupplierDownloadDrawer";
 import SupplierBulkUploadDrawer from "@/components/supplier/SupplierBulkUploadDrawer";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const SupplierListHeader = () => {
     const { t } = useTranslation();
@@ -29,6 +30,17 @@ const SupplierListHeader = () => {
     const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
+
+    const supplierPerm = useModulePermissions("supplier");
+    const canCreateSupplier = supplierPerm.create === true;
+
+    useEffect(() => {
+        if (!canCreateSupplier) {
+            setShowAddSupplierDrawer(false);
+            setShowVoiceAIDrawer(false);
+            setShowBulkUploadDrawer(false);
+        }
+    }, [canCreateSupplier]);
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
@@ -84,7 +96,7 @@ const SupplierListHeader = () => {
     }, [dispatch]);
 
     useCommonHotkeys({
-        onNew: () => setShowAddSupplierDrawer(true),
+        onNew: canCreateSupplier ? () => setShowAddSupplierDrawer(true) : undefined,
         onClose: () => {
             if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
             if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
@@ -95,7 +107,7 @@ const SupplierListHeader = () => {
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
         onDownload: () => setShowDownloadDrawer(true),
-        onVoiceAI: () => setShowVoiceAIDrawer(true),
+        onVoiceAI: canCreateSupplier ? () => setShowVoiceAIDrawer(true) : undefined,
     });
 
     const handleSupplierSuccess = useCallback(() => {
@@ -185,13 +197,15 @@ const SupplierListHeader = () => {
                             </button>
                         </div>
                     )}
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowBulkUploadDrawer(true)}
-                        leftIcon={Upload}
-                    >
-                        {t("suppliers.bulkUpload", "Bulk Upload")}
-                    </Button>
+                    {canCreateSupplier && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowBulkUploadDrawer(true)}
+                            leftIcon={Upload}
+                        >
+                            {t("suppliers.bulkUpload", "Bulk Upload")}
+                        </Button>
+                    )}
                     <Button
                         variant="secondary"
                         onClick={() => setShowDownloadDrawer(true)}
@@ -199,16 +213,24 @@ const SupplierListHeader = () => {
                     >
                         {t("common.download")}
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowVoiceAIDrawer(true)}
-                        leftIcon={Mic}
-                    >
-                        {t("customers.voiceAI")}
-                    </Button>
-                    <Button variant="primary" onClick={() => setShowAddSupplierDrawer(true)} leftIcon={Plus}>
-                        {t("suppliers.addSupplier")}
-                    </Button>
+                    {canCreateSupplier && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowVoiceAIDrawer(true)}
+                            leftIcon={Mic}
+                        >
+                            {t("customers.voiceAI")}
+                        </Button>
+                    )}
+                    {canCreateSupplier && (
+                        <Button
+                            variant="primary"
+                            onClick={() => setShowAddSupplierDrawer(true)}
+                            leftIcon={Plus}
+                        >
+                            {t("suppliers.addSupplier")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getSuppliers, removeSupplier } from "@/store/slices/supplier/supplierSlice";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { supplierService } from "@/service";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import {
     DeleteSupplierModal,
     EditSupplierDrawer,
@@ -25,6 +26,9 @@ const SupplierListContent = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
+    const supplierPerm = useModulePermissions("supplier");
+    const canEdit = supplierPerm.edit === true;
+    const canDelete = supplierPerm.delete === true;
 
     // Contextual Component Variables
     const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);
@@ -75,9 +79,10 @@ const SupplierListContent = () => {
 
     // Action Handlers
     const handleEditSupplier = useCallback((supplierId) => {
+        if (!canEdit) return;
         setEditingSupplierId(supplierId);
         setShowEditSupplierDrawer(true);
-    }, []);
+    }, [canEdit]);
 
     const handleViewSupplier = useCallback((supplierId) => {
         router.push(`/dashboard/suppliers/${supplierId}`);
@@ -88,10 +93,11 @@ const SupplierListContent = () => {
     }, [router]);
 
     const handleDeleteSupplier = useCallback((supplierId) => {
+        if (!canDelete) return;
         const supplier = suppliers.find((s) => s.id === supplierId || s._id === supplierId);
         setSupplierToDelete({ id: supplierId, name: supplier?.name || "Supplier" });
         setShowDeleteModal(true);
-    }, [suppliers]);
+    }, [suppliers, canDelete]);
 
     const handleConfirmDelete = useCallback(async () => {
         if (!supplierToDelete) return;
@@ -120,12 +126,14 @@ const SupplierListContent = () => {
                         <div className="h-auto">
                             <SupplierTable
                                 suppliers={suppliers}
-                                onEdit={handleEditSupplier}
-                                onDelete={handleDeleteSupplier}
+                                onEdit={canEdit ? handleEditSupplier : undefined}
+                                onDelete={canDelete ? handleDeleteSupplier : undefined}
                                 onViewDetails={handleViewSupplier}
                                 onPrint={handlePrintSupplier}
                                 loading={isLoading && suppliers.length === 0}
                                 emptyMessage={t("suppliers.noSuppliers")}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         </div>
                     ) : (
@@ -135,10 +143,12 @@ const SupplierListContent = () => {
                                     <SupplierCard
                                         key={supplier.id || supplier._id}
                                         supplier={supplier}
-                                        onEdit={handleEditSupplier}
-                                        onDelete={handleDeleteSupplier}
+                                        onEdit={canEdit ? handleEditSupplier : undefined}
+                                        onDelete={canDelete ? handleDeleteSupplier : undefined}
                                         onViewDetails={handleViewSupplier}
                                         onPrint={handlePrintSupplier}
+                                        canEdit={canEdit}
+                                        canDelete={canDelete}
                                         onSelect={(id, checked) => {
                                             setSelectedSupplierIds((prev) =>
                                                 checked ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)
