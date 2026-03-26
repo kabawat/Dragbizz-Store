@@ -23,12 +23,23 @@ import {
   supplierService,
 } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CreatePayment = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("billing");
+  const canCreate = can("create");
+
+  useEffect(() => {
+    if (!permissionLoading && !canCreate) {
+      router.replace("/dashboard/payments");
+    }
+  }, [canCreate, permissionLoading, router]);
 
   const [suppliers, setSuppliers] = useState([]);
   const [bills, setBills] = useState([]);

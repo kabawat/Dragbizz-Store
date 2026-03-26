@@ -91,7 +91,7 @@ const PaymentGrid = ({
                           className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
                         >
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          View Details
+                          {t("common.viewDetails")}
                         </button>
                         {canEdit && (
                           <button
@@ -99,7 +99,7 @@ const PaymentGrid = ({
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
                           >
                             <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
+                            {t("common.edit")}
                           </button>
                         )}
                         {canDelete && (
@@ -110,7 +110,7 @@ const PaymentGrid = ({
                               className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
                             >
                               <Trash2 className="w-4 h-4 text-red-500" />
-                              Delete
+                              {t("common.delete")}
                             </button>
                           </>
                         )}
