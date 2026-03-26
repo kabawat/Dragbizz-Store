@@ -20,6 +20,7 @@ import {
 } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { INITIAL_PAYMENT_METHOD } from "./constants";
 import { transformApiMethodsToForm } from "./utils";
 import { PaymentTipsSidebar } from "./components/PaymentTipsSidebar";
@@ -31,6 +32,16 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
   const router = useRouter();
   const params = useParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("billing");
+  const canEdit = can("edit");
+
+  useEffect(() => {
+    if (!permissionLoading && !canEdit) {
+      router.replace("/dashboard/payments");
+    }
+  }, [canEdit, permissionLoading, router]);
 
   // Derived State
   const paymentId = propPaymentId || params?.id;
