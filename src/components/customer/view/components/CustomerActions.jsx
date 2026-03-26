@@ -7,6 +7,8 @@ const CustomerActions = ({
   onEdit,
   onDelete,
   onDownloadPDF,
+  canEdit = true,
+  canDelete = true,
 }) => {
   return (
     <div className="lg:col-span-1">
@@ -27,23 +29,27 @@ const CustomerActions = ({
         </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="primary"
-            className="flex-1"
-            onClick={onEdit}
-            leftIcon={Edit}
-          >
-              Edit
-          </Button>
+          {canEdit && (
+            <Button
+              variant="primary"
+              className="flex-1"
+              onClick={onEdit}
+              leftIcon={Edit}
+            >
+                Edit
+            </Button>
+          )}
 
-          <Button
-            variant="danger"
-            className="flex-1"
-            onClick={onDelete}
-            leftIcon={Trash2}
-          >
+          {canDelete && (
+            <Button
+              variant="danger"
+              className="flex-1"
+              onClick={onDelete}
+              leftIcon={Trash2}
+            >
               Delete
             </Button>
+          )}
 
             {onDownloadPDF && (
               <Button

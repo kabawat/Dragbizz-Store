@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Download, Grid3X3, List, Mic, Plus, Search, Users, Upload } from "lucide-react";
 import { Button, Input, SideDrawer } from "@/components/ui";
 import { CreateCustomer, VoiceAICustomer } from "@/components/customer";
@@ -9,6 +9,7 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getCustomers, setViewMode } from "@/store/slices/customers/customerSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CustomerListHeader = ({
     onSuccess,
@@ -24,6 +25,9 @@ const CustomerListHeader = ({
 
     const hasCustomers = customers.length > 0;
 
+    const customerPerm = useModulePermissions("customer");
+    const canCreateCustomer = customerPerm.create === true;
+
     // search state lives here
     const [searchValue, setSearchValue] = useState("");
 
@@ -31,6 +35,10 @@ const CustomerListHeader = ({
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showVoiceAIDrawer, setShowVoiceAIDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
+
+    useEffect(() => {
+        if (!canCreateCustomer) setShowCustomerDrawer(false);
+    }, [canCreateCustomer]);
 
     const searchInputRef = useRef(null);
 
@@ -55,7 +63,7 @@ const CustomerListHeader = ({
     }, [dispatch, storeId]);
 
     useCommonHotkeys({
-        onNew: () => setShowCustomerDrawer(true),
+        onNew: canCreateCustomer ? () => setShowCustomerDrawer(true) : undefined,
         onDownload: () => setShowDownloadDrawer(true),
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
@@ -137,13 +145,15 @@ const CustomerListHeader = ({
                         {t("customers.voiceAI")}
                     </Button>
 
-                    <Button
-                        variant="primary"
-                        onClick={() => setShowCustomerDrawer(true)}
-                        leftIcon={Plus}
-                    >
-                        {t("customers.addCustomer")}
-                    </Button>
+                    {canCreateCustomer && (
+                        <Button
+                            variant="primary"
+                            onClick={() => setShowCustomerDrawer(true)}
+                            leftIcon={Plus}
+                        >
+                            {t("customers.addCustomer")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

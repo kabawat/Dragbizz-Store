@@ -10,6 +10,7 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { customerService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useRouter } from "next/navigation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CustomerViewLayout = ({
     customerData,
@@ -23,6 +24,13 @@ const CustomerViewLayout = ({
     const [isDeleting, setIsDeleting] = useState(false);
     const { showSuccess, showError } = useGlobalToast();
     const router = useRouter();
+    // Module permissions (hide/disable actions accordingly)
+    const customerPerm = useModulePermissions("customer");
+    const canEdit = customerPerm.edit === true;
+    const canDelete = customerPerm.delete === true;
+
+    const handleEdit = canEdit ? onEdit : undefined;
+    const handleDelete = canDelete ? () => setShowDeleteModal(true) : undefined;
 
     const handleConfirmDelete = async () => {
         if (!customerId || !storeId) return;
@@ -44,7 +52,7 @@ const CustomerViewLayout = ({
     };
 
     useCommonHotkeys({
-        onDelete: () => setShowDeleteModal(true),
+        onDelete: canDelete ? () => setShowDeleteModal(true) : undefined,
         onClose: () => {
             if (showDeleteModal) setShowDeleteModal(false);
         }
@@ -65,8 +73,10 @@ const CustomerViewLayout = ({
 
             <CustomerActions
                 customerData={customerData}
-                onEdit={onEdit}
-                onDelete={() => setShowDeleteModal(true)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
                 onDownloadPDF={onDownloadPDF}
             />
 
