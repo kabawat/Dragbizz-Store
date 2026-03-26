@@ -10,6 +10,7 @@ import {
   getBills,
   setViewMode as setViewModeAction,
 } from "@/store/slices/billsSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const BillListHeader = () => {
   const { t } = useTranslation();

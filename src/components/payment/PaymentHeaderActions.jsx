@@ -4,6 +4,7 @@ import { Grid3X3, List, Plus, Search } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useRouter } from "next/navigation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const PaymentHeaderActions = ({
     searchTerm,

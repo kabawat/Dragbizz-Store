@@ -8,6 +8,8 @@
   "addNewExpenseDescription": "Apne business ke liye naya expense entry create karo",
   "recordNewExpense": "Naya expense transaction record karo",
   "backToExpenses": "Expenses par wapas jao",
+  "viewExpense": "Expense dekhein",
+  "viewExpenseDescription": "Expense record ka detailed description",
   "saveExpense": "Expense save karo",
   "quotaExceededMessage": "Quota exceed ho gaya. Zyada expenses create karne ke liye apna plan upgrade karo.",
   "createSuccess": "Expense successfully create ho gaya!",

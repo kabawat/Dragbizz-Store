@@ -6,15 +6,20 @@ import ExpenseDeleteModal from "./ExpenseDeleteModal";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getExpenses, setSortOptions } from "@/store/slices/expenses/expenseSlice";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ExpenseListContent = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    const { expenses, viewMode, isLoading, isFetchingMore, pagination, sortBy, sortOrder } =
-        useAppSelector((state) => state.expenses);
+    const { expenses, viewMode, isLoading, isFetchingMore, pagination, sortBy, sortOrder } = useAppSelector((state) => state.expenses);
     const { selectedStore } = useAppSelector((state) => state.profile);
+
+    const { can } = useModulePermissions("expense");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
+    const canView = can("read");
     const storeId = selectedStore?.storeId;
 
     // Edit drawer state
@@ -82,9 +87,9 @@ const ExpenseListContent = () => {
                         {/* Fixed Table Header — outside scroll container so it never scrolls */}
                         <ExpenseTable
                             expenses={expenses}
-                            onEdit={handleOpenEdit}
-                            onDelete={(id) => deleteModalRef.current?.open(id)}
-                            onView={(id) => router.push(`/dashboard/expenses/${id}`)}
+                            onEdit={canEdit ? handleOpenEdit : undefined}
+                            onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
+                            onView={canView ? (id) => router.push(`/dashboard/expenses/${id}`) : undefined}
                             sortBy={sortBy}
                             sortOrder={sortOrder}
                             onSort={handleSort}
@@ -95,9 +100,9 @@ const ExpenseListContent = () => {
                         <div className="flex-1 overflow-y-auto overflow-x-auto">
                             <ExpenseTable
                                 expenses={expenses}
-                                onEdit={handleOpenEdit}
-                                onDelete={(id) => deleteModalRef.current?.open(id)}
-                                onView={(id) => router.push(`/dashboard/expenses/${id}`)}
+                                onEdit={canEdit ? handleOpenEdit : undefined}
+                                onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
+                                onView={canView ? (id) => router.push(`/dashboard/expenses/${id}`) : undefined}
                                 sortBy={sortBy}
                                 sortOrder={sortOrder}
                                 onSort={handleSort}
@@ -128,9 +133,9 @@ const ExpenseListContent = () => {
                                 <ExpenseCard
                                     key={expense.id}
                                     expense={expense}
-                                    onEdit={handleOpenEdit}
-                                    onDelete={(id) => deleteModalRef.current?.open(id)}
-                                    onView={(id) => router.push(`/dashboard/expenses/${id}`)}
+                                    onEdit={canEdit ? handleOpenEdit : undefined}
+                                    onDelete={canDelete ? (id) => deleteModalRef.current?.open(id) : undefined}
+                                    onView={canView ? (id) => router.push(`/dashboard/expenses/${id}`) : undefined}
                                 />
                             ))}
                         </div>
