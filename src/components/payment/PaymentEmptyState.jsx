@@ -4,10 +4,13 @@ import { CreditCard, Plus } from "lucide-react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useRouter } from "next/navigation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const PaymentEmptyState = () => {
     const { t } = useTranslation();
     const router = useRouter();
+    const { can } = useModulePermissions("billing");
+    const canCreate = can("create");
 
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
@@ -21,15 +24,17 @@ const PaymentEmptyState = () => {
                 <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
                     {t("common.noData")}
                 </p>
-                <div className="pt-4">
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push("/dashboard/payments/create")}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t("payments.createPayment")}
-                    </Button>
-                </div>
+                {canCreate && (
+                    <div className="pt-4">
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push("/dashboard/payments/create")}
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            {t("payments.createPayment")}
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );

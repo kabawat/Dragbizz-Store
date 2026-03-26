@@ -83,6 +83,11 @@ const BillListContent = () => {
   const handleMenuToggle = useCallback((id) => {
     setOpenMenuId((prev) => (prev === id ? null : id));
   }, []);
+  
+  const handleDelete = useCallback((bill) => {
+    setBillToDelete(bill);
+    setShowDeleteModal(true);
+  }, []);
 
   const handleMenuAction = useCallback((id, action) => {
     const bill = bills.find((b) => (b._id || b.id) === id);
@@ -113,11 +118,6 @@ const BillListContent = () => {
     setOpenMenuId(null);
   }, [bills, router, canEdit, canDelete, canView, handleDelete]);
 
-  const handleDelete = useCallback((bill) => {
-    setBillToDelete(bill);
-    setShowDeleteModal(true);
-  }, []);
-
   const confirmDelete = useCallback(async () => {
     if (!billToDelete) return;
 
@@ -142,8 +142,8 @@ const BillListContent = () => {
           {viewMode === "table" ? (
             <BillTable
               bills={bills}
-              onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
-              onDelete={handleDelete}
+              onEdit={canEdit ? (billId) => router.push(`/dashboard/bills/${billId}/edit`) : undefined}
+              onDelete={canDelete ? handleDelete : undefined}
               onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
               loading={isLoading && bills.length === 0}
               emptyMessage={t("bills.noBills")}
@@ -157,8 +157,8 @@ const BillListContent = () => {
           ) : (
             <BillGrid
               bills={bills}
-              onEdit={(billId) => router.push(`/dashboard/bills/${billId}/edit`)}
-              onDelete={handleDelete}
+              onEdit={canEdit ? (billId) => router.push(`/dashboard/bills/${billId}/edit`) : undefined}
+              onDelete={canDelete ? handleDelete : undefined}
               onViewDetails={(billId) => router.push(`/dashboard/bills/${billId}`)}
               openMenuId={openMenuId}
               onMenuToggle={handleMenuToggle}

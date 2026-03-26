@@ -26,8 +26,10 @@ const Payments = () => {
     useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { can } = useModulePermissions("billing");
+  const canCreate = can("create");
   const canEdit = can("edit");
   const canDelete = can("delete");
+  const canRead = can("read");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [_statusFilter, setStatusFilter] = useState("all");
