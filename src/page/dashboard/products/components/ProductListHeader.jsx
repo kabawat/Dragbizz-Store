@@ -8,7 +8,6 @@ import { categoryService } from "@/service/retailer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
-import { useRouter } from "next/navigation";
 import ProductBulkUpload from "@/components/product/ProductBulkUpload";
 
 const getCatalogOptions = (t) => [
@@ -25,7 +24,7 @@ const getSortOptions = (t) => [
     { value: "price_desc", label: t("products.priceDesc") },
 ];
 
-const ProductListHeader = () => {
+const ProductListHeader = ({ canCreate = false }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -42,9 +41,6 @@ const ProductListHeader = () => {
     const [showInCatalog, setShowInCatalog] = useState("");
     const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
-    const { can, loading: permissionsLoading } = useModulePermissions("product");
-    const canCreate = can("create");
-
     const { execute: executeCategories, loading: categoriesLoading } = useApiResponse();
 
     // Drawers

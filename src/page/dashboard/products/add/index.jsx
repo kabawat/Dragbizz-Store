@@ -12,6 +12,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import logger from "@/utils/logger";
 
 const AddProductPage = () => {
@@ -19,6 +20,14 @@ const AddProductPage = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
+
+  const { can, loading: permissionsLoading } = useModulePermissions("product");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("create")) {
+      router.push("/dashboard/products");
+    }
+  }, [can, permissionsLoading, router]);
 
   const [showAIModal, setShowAIModal] = useState(false);
   const {
@@ -283,64 +292,67 @@ const AddProductPage = () => {
           description={t("products.addNewProductDescription")}
         />
 
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto">
-            {/* Back Button with Quota Progress Bar and AI Button */}
-            <div className="mb-6 flex items-center justify-between">
-              <Link
-                href="/dashboard/products"
-                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {t("products.backToProducts")}
-                </span>
-              </Link>
-              <div className="flex items-center space-x-3">
-                <AIButton onClick={() => setShowAIModal(true)} size="sm">
-                  {t("products.aiExtract")}
-                </AIButton>
-              </div>
-            </div>
-
-            {/* Form Container - Scrollable */}
-            <div className="overflow-hidden">
-              <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
-                <ProductForm
-                  formData={formData}
-                  onChange={handleFormDataChange}
-                  fieldErrors={fieldErrors}
-                  storeId={storeId}
-                />
+        {permissionsLoading ? (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-[rgb(var(--color-text-secondary))] animate-pulse font-medium">{t("common.loadingData")}</p>
+          </div>
+        ) : (
+          <div className="flex-1 p-6">
+            <div className="max-w-8xl mx-auto">
+              <div className="mb-6 flex items-center justify-between">
+                <Link
+                  href="/dashboard/products"
+                  className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {t("products.backToProducts")}
+                  </span>
+                </Link>
+                <div className="flex items-center space-x-3">
+                  <AIButton onClick={() => setShowAIModal(true)} size="sm">
+                    {t("products.aiExtract")}
+                  </AIButton>
+                </div>
               </div>
 
-              {/* Fixed Action Bar - Only show when store is loaded and available */}
-              <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 ml-auto">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={loading}
-                    >
-                      {t("common.cancel")}
-                    </Button>
-                    <Button
-                      variant="success"
-                      onClick={handleSaveAndPublish}
-                      disabled={loading}
-                      loading={loading}
-                      leftIcon={Save}
-                    >
-                      {t("products.saveAndPublish")}
-                    </Button>
+              <div className="overflow-hidden">
+                <div className="h-[calc(100vh-210px)] overflow-y-auto pe-3">
+                  <ProductForm
+                    formData={formData}
+                    onChange={handleFormDataChange}
+                    fieldErrors={fieldErrors}
+                    storeId={storeId}
+                  />
+                </div>
+
+                <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3 ml-auto">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancel}
+                        disabled={loading}
+                      >
+                        {t("common.cancel")}
+                      </Button>
+                      <Button
+                        variant="success"
+                        onClick={handleSaveAndPublish}
+                        disabled={loading}
+                        loading={loading}
+                        leftIcon={Save}
+                      >
+                        {t("products.saveAndPublish")}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* AI Product Extract Modal */}

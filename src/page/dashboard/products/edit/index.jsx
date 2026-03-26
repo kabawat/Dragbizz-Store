@@ -16,12 +16,21 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  const { can, loading: permissionsLoading } = useModulePermissions("product");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("edit")) {
+      router.push("/dashboard/products");
+    }
+  }, [can, permissionsLoading, router]);
 
   // Separate hooks: one for fetching, one for saving
   const { execute: executeFetch, loading: initialLoading } = useApiResponse();
@@ -246,7 +255,7 @@ const UpdateProductPage = ({ productId }) => {
   };
 
   // Loading state
-  if (initialLoading) {
+  if (initialLoading || permissionsLoading) {
     return (
       <div className="flex h-screen relative overflow-hidden">
         <Sidebar />

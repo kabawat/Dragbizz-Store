@@ -15,7 +15,7 @@ import { getProducts } from "@/store/slices/products/productSlice";
 import { transformProductsArray } from "@/utils/productUtils";
 import { useRouter } from "next/navigation";
 
-const ProductListContent = () => {
+const ProductListContent = ({ canEdit = false, canDelete = false }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -140,6 +140,8 @@ const ProductListContent = () => {
                                 loading={isLoading}
                                 emptyMessage={t("products.noProducts")}
                                 hasStoreGst={!!selectedStore?.gst}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         </div>
                     ) : (
@@ -153,6 +155,8 @@ const ProductListContent = () => {
                                         onDelete={handleDeleteProduct}
                                         onViewDetails={handleViewProduct}
                                         onStockIn={handleStockIn}
+                                        canEdit={canEdit}
+                                        canDelete={canDelete}
                                     />
                                 ))}
                             </div>

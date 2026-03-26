@@ -23,6 +23,8 @@ const ProductTable = ({
   emptyMessage,
   className = "",
   hasStoreGst = false,
+  canEdit = false,
+  canDelete = false,
 }) => {
   const { t } = useTranslation();
   const [imageError, setImageError] = useState({});
@@ -73,39 +75,51 @@ const ProductTable = ({
     return Math.round(((mrp - sellingPrice) / mrp) * 100);
   };
 
-  const _actionMenuItems = (product) => [
-    {
-      value: "view",
-      label: t("common.viewDetails"),
-      icon: Eye,
-      onClick: () => onViewDetails?.(product.id),
-    },
-    {
-      value: "stock-in",
-      label: t("products.stockIn"),
-      icon: ArrowDownToLine,
-      onClick: () => onStockIn?.(product.id),
-      className: "text-green-600 hover:text-green-700",
-    },
-    {
-      value: "edit",
-      label: t("common.edit"),
-      icon: Edit,
-      onClick: () => onEdit?.(product.id),
-    },
-    {
-      value: "duplicate",
-      label: t("common.duplicate"),
-      icon: Copy,
-      onClick: () => onDuplicate?.(product.id),
-    },
-    {
-      value: "delete",
-      label: t("common.delete"),
-      icon: Trash2,
-      onClick: () => onDelete?.(product.id),
-    },
-  ];
+  const _actionMenuItems = (product) => {
+    const items = [
+      {
+        value: "view",
+        label: t("common.viewDetails"),
+        icon: Eye,
+        onClick: () => onViewDetails?.(product.id),
+      }
+    ];
+
+    if (canEdit) {
+      items.push(
+        {
+          value: "stock-in",
+          label: t("products.stockIn"),
+          icon: ArrowDownToLine,
+          onClick: () => onStockIn?.(product.id),
+          className: "text-green-600 hover:text-green-700",
+        },
+        {
+          value: "edit",
+          label: t("common.edit"),
+          icon: Edit,
+          onClick: () => onEdit?.(product.id),
+        },
+        {
+          value: "duplicate",
+          label: t("common.duplicate"),
+          icon: Copy,
+          onClick: () => onDuplicate?.(product.id),
+        }
+      );
+    }
+
+    if (canDelete) {
+      items.push({
+        value: "delete",
+        label: t("common.delete"),
+        icon: Trash2,
+        onClick: () => onDelete?.(product.id),
+      });
+    }
+
+    return items;
+  };
 
   const handleMenuToggle = (productId) => {
     setOpenMenuId(openMenuId === productId ? null : productId);
@@ -341,48 +355,16 @@ const ProductTable = ({
                       {/* Popup Menu */}
                       {openMenuId === product.id && (
                         <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                          <button
-                            onClick={() => handleMenuAction(product.id, "view")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            View Details
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(product.id, "stock-in")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-green-500/10 dark:hover:bg-green-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-green-500/10 dark:focus:bg-green-500/20"
-                          >
-                            <ArrowDownToLine className="w-4 h-4 text-green-500 dark:text-green-400" />
-                            Stock In
-                          </button>
-                          <button
-                            onClick={() => handleMenuAction(product.id, "edit")}
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(product.id, "duplicate")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Copy className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            Duplicate
-                          </button>
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(product.id, "delete")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10 dark:focus:bg-red-500/20"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                            Delete
-                          </button>
+                            {_actionMenuItems(product).map((item) => (
+                              <button
+                                key={item.value}
+                                onClick={() => handleMenuAction(product.id, item.value)}
+                                className={`w-full px-4 py-2 text-left text-sm ${item.className || 'text-[rgb(var(--color-text-primary))]'} hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]`}
+                              >
+                                <item.icon className={`w-4 h-4 ${item.className ? '' : 'text-[rgb(var(--color-text-secondary))]'}`} />
+                                {item.label}
+                              </button>
+                            ))}
                         </div>
                       )}
                     </div>
