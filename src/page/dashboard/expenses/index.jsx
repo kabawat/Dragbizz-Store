@@ -10,6 +10,7 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import ExpenseEmptyState from "@/components/expenses/list/ExpenseEmptyState";
 import ExpenseListContent from "@/components/expenses/list/ExpenseListContent";
 import ExpenseListHeader from "@/components/expenses/list/ExpenseListHeader";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ExpensesPage = () => {
   const { t } = useTranslation();
@@ -19,6 +20,16 @@ const ExpensesPage = () => {
   const { expenses, isLoading, error } = useAppSelector((state) => state.expenses);
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("expense");
+  const canRead = can("read");
+
+  useEffect(() => {
+    if (!permissionLoading && !canRead) {
+      router.replace("/dashboard");
+    }
+  }, [canRead, permissionLoading, router]);
 
   // ─── Initial fetch — skip if data already in Redux ──────────────────────
   useEffect(() => {

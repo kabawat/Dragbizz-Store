@@ -8,6 +8,8 @@
   "addNewExpenseDescription": "Create a new expense entry for your business",
   "recordNewExpense": "Record a new expense transaction",
   "backToExpenses": "Back to Expenses",
+  "viewExpense": "View Expense",
+  "viewExpenseDescription": "Detailed overview of the expense record",
   "saveExpense": "Save Expense",
   "quotaExceededMessage": "Quota exceeded. Please upgrade your plan to create more expenses.",
   "createSuccess": "Expense created successfully!",

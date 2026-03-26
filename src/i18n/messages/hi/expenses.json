@@ -8,6 +8,8 @@
   "addNewExpenseDescription": "अपने व्यवसाय के लिए एक नया व्यय प्रविष्टि बनाएं",
   "recordNewExpense": "एक नया व्यय लेनदेन रिकॉर्ड करें",
   "backToExpenses": "व्यय पर वापस जाएं",
+  "viewExpense": "व्यय देखें",
+  "viewExpenseDescription": "व्यय रिकॉर्ड का विस्तृत विवरण",
   "saveExpense": "व्यय सहेजें",
   "quotaExceededMessage": "कोटा पार हो गया। अधिक व्यय बनाने के लिए कृपया अपनी योजना अपग्रेड करें।",
   "createSuccess": "व्यय सफलतापूर्वक बनाया गया!",

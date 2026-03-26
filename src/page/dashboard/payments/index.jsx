@@ -16,6 +16,7 @@ import {
   PaymentGrid,
   DeletePaymentModal,
 } from "@/components/payment";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const Payments = () => {
   const { t } = useTranslation();
@@ -320,6 +321,8 @@ const Payments = () => {
                       openMenuId={openMenuId}
                       handleMenuToggle={handleMenuToggle}
                       handleMenuAction={handleMenuAction}
+                      canEdit={canEdit}
+                      canDelete={canDelete}
                     />
                   ) : (
                     <PaymentGrid
@@ -331,6 +334,8 @@ const Payments = () => {
                       openMenuId={openMenuId}
                       handleMenuToggle={handleMenuToggle}
                       handleMenuAction={handleMenuAction}
+                      canEdit={canEdit}
+                      canDelete={canDelete}
                     />
                   )}
                 </div>

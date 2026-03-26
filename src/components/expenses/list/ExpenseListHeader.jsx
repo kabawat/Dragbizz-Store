@@ -7,12 +7,17 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode, getExpenses } from "@/store/slices/expenses/expenseSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ExpenseListHeader = ({
     onSearchChange,
 }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
+
+    const { can, loading } = useModulePermissions("expense");
+    const canCreate = can("create");
+    const canDownload = can("report") || can("read");
 
     const { viewMode, expenses } = useAppSelector((state) => state.expenses);
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -43,8 +48,8 @@ const ExpenseListHeader = ({
     };
 
     useCommonHotkeys({
-        onNew: () => setShowAddDrawer(true),
-        onDownload: () => setShowDownloadDrawer(true),
+        onNew: canCreate ? () => setShowAddDrawer(true) : undefined,
+        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -53,6 +58,8 @@ const ExpenseListHeader = ({
             else if (showDownloadDrawer) setShowDownloadDrawer(false);
         },
     });
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
         <div className="mb-3">
@@ -95,20 +102,24 @@ const ExpenseListHeader = ({
                         </div>
                     )}
 
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowDownloadDrawer(true)}
-                        leftIcon={Download}
-                    >
-                        {t("expenses.download")}
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={() => setShowAddDrawer(true)}
-                        leftIcon={Plus}
-                    >
-                        {t("expenses.addExpense")}
-                    </Button>
+                    {canDownload && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowDownloadDrawer(true)}
+                            leftIcon={Download}
+                        >
+                            {t("expenses.download")}
+                        </Button>
+                    )}
+                    {canCreate && (
+                        <Button
+                            variant="primary"
+                            onClick={() => setShowAddDrawer(true)}
+                            leftIcon={Plus}
+                        >
+                            {t("expenses.addExpense")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

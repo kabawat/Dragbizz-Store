@@ -7,6 +7,7 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getPurchaseOrders as getPOs, setViewMode } from "@/store/slices/purchaseOrdersSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const PurchaseOrderListHeader = () => {
     const { t } = useTranslation();

@@ -92,21 +92,27 @@ const ExpenseCard = ({
                 <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                 {t("common.viewDetails")}
               </button>
-              <button
-                onClick={(e) => handleAction(e, "edit")}
-                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200"
-              >
-                <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                {t("common.edit")}
-              </button>
-              <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-              <button
-                onClick={(e) => handleAction(e, "delete")}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200"
-              >
-                <Trash2 className="w-4 h-4 text-red-500" />
-                {t("common.delete")}
-              </button>
+              {onEdit && (
+                <button
+                  onClick={(e) => handleAction(e, "edit")}
+                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200"
+                >
+                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  {t("common.edit")}
+                </button>
+              )}
+              {onDelete && (
+                <>
+                  <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                  <button
+                    onClick={(e) => handleAction(e, "delete")}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                    {t("common.delete")}
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

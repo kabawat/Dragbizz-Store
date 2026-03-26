@@ -31,6 +31,7 @@ import { expenseService } from "@/service";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
@@ -42,6 +43,18 @@ const ViewExpensePage = ({ expenseId }) => {
   const { execute, loading: fetching } = useApiResponse();
   const [error, setError] = useState(null);
   const [expenseData, setExpenseData] = useState(null);
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("expense");
+  const canRead = can("read");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+
+  useEffect(() => {
+    if (!permissionLoading && !canRead) {
+      router.replace("/dashboard/expenses");
+    }
+  }, [canRead, permissionLoading, router]);
 
   const deleteModalRef = useRef(null);
 
@@ -80,9 +93,9 @@ const ViewExpensePage = ({ expenseId }) => {
 
   // Shortcuts
   useCommonHotkeys({
-    onEdit: handleEditExpense,
-    onDelete: handleDeleteExpense,
-    onDownload: () => handleDownloadPDF(expenseData),
+    onEdit: canEdit ? handleEditExpense : undefined,
+    onDelete: canDelete ? handleDeleteExpense : undefined,
+    onDownload: canRead ? () => handleDownloadPDF(expenseData) : undefined,
     onBack: () => router.push("/dashboard/expenses"),
   });
 
@@ -101,14 +114,14 @@ const ViewExpensePage = ({ expenseId }) => {
   };
 
   // Loading state while fetching expense data
-  if (fetching) {
+  if (fetching || permissionLoading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
         <Sidebar />
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="View Expense"
-            description="Expense information and details"
+            title={t("expenses.viewExpense") || "View Expense"}
+            description={t("expenses.viewExpenseDescription") || "Expense information and details"}
           />
           <div className="flex-1 flex items-center justify-center">
             <Loading
@@ -131,8 +144,8 @@ const ViewExpensePage = ({ expenseId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title="View Expense"
-          description="Expense information and details"
+          title={t("expenses.viewExpense") || "View Expense"}
+          description={t("expenses.viewExpenseDescription") || "Expense information and details"}
         />
 
         {/* Main Content */}
@@ -428,23 +441,27 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button
-                          variant="primary"
-                          className="flex-1"
-                          onClick={handleEditExpense}
-                          leftIcon={Edit}
-                        >
-                          Edit
-                        </Button>
+                        {canEdit && (
+                          <Button
+                            variant="primary"
+                            className="flex-1"
+                            onClick={handleEditExpense}
+                            leftIcon={Edit}
+                          >
+                            Edit
+                          </Button>
+                        )}
 
-                        <Button
-                          variant="danger"
-                          className="flex-1"
-                          onClick={handleDeleteExpense}
-                          leftIcon={Trash2}
-                        >
-                          Delete
-                        </Button>
+                        {canDelete && (
+                          <Button
+                            variant="danger"
+                            className="flex-1"
+                            onClick={handleDeleteExpense}
+                            leftIcon={Trash2}
+                          >
+                            Delete
+                          </Button>
+                        )}
 
                         <Button
                           variant="outline"

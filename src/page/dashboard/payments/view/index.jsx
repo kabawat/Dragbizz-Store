@@ -26,6 +26,8 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { paymentService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
 import { usePaymentDetailsPrint } from "./hooks/usePaymentDetailsPrint";
+import useApiResponse from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewPaymentPage = ({ paymentId }) => {
   const { t } = useTranslation();
@@ -39,6 +41,17 @@ const ViewPaymentPage = ({ paymentId }) => {
 
   // API hooks
   const { execute, loading: fetching } = useApiResponse();
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("payment");
+  const canRead = can("read");
+  const canEdit = can("edit");
+
+  useEffect(() => {
+    if (!permissionLoading && !canRead) {
+      router.replace("/dashboard/payments");
+    }
+  }, [canRead, permissionLoading, router]);
 
   const { handleDownloadPDF } = usePaymentDetailsPrint(
     fetching,
@@ -112,7 +125,7 @@ const ViewPaymentPage = ({ paymentId }) => {
   };
 
   // Loading state
-  if (fetching) {
+  if (fetching || permissionLoading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
         <Sidebar />
@@ -523,21 +536,23 @@ const ViewPaymentPage = ({ paymentId }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="primary"
-                            className="flex-1"
-                            onClick={handleEditPayment}
-                            leftIcon={Edit}
-                          >
-                            Edit
-                          </Button>
+                          {canEdit && (
+                            <Button
+                              variant="primary"
+                              className="flex-1"
+                              onClick={handleEditPayment}
+                              leftIcon={Edit}
+                            >
+                              Edit
+                            </Button>
+                          )}
 
                           <Button
                             variant="outline"
                             className="flex-1"
                             leftIcon={Download}
                             onClick={() => handleDownloadPDF(paymentData)}
-                            disabled={fetching || !paymentData}
+                            disabled={fetching || !paymentData || !canRead}
                           >
                             <span className="hidden sm:inline">Download</span>
                             <span className="sm:hidden">Download</span>

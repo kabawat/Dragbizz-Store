@@ -8,6 +8,8 @@
   "addNewExpenseDescription": "તમારા વ્યવસાય માટે નવી ખર્ચ એન્ટ્રી બનાવો",
   "recordNewExpense": "નવું ખર્ચ ટ્રાન્ઝેક્શન રેકોર્ડ કરો",
   "backToExpenses": "ખર્ચો પર પાછળ જાઓ",
+  "viewExpense": "ખર્ચ જુઓ",
+  "viewExpenseDescription": "ખર્ચ રેકોર્ડની વિગતવાર વિહંગાવલોકન",
   "saveExpense": "ખર્ચ સાચવો",
   "quotaExceededMessage": "કોટા વટાવી દીધો. વધુ ખર્ચ બનાવવા માટે કૃપા કરીને તમારી યોજના અપગ્રેડ કરો.",
   "createSuccess": "ખર્ચ સફળતાપૂર્વક બનાવ્યો!",

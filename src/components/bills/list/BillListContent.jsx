@@ -10,6 +10,7 @@ import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { useState } from "react";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const BillListContent = () => {
   const { t } = useTranslation();

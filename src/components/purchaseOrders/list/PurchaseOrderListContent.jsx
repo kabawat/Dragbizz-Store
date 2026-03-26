@@ -18,6 +18,7 @@ import {
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDateShort as formatDate } from "@/utils/dateFormatter";
 import { normalizePurchaseOrder } from "@/utils/purchaseOrder";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const PurchaseOrderListContent = () => {
     const { t } = useTranslation();

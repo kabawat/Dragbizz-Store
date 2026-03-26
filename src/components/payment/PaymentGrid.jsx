@@ -27,6 +27,8 @@ const PaymentGrid = ({
   openMenuId,
   handleMenuToggle,
   handleMenuAction,
+  canEdit,
+  canDelete,
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -91,21 +93,27 @@ const PaymentGrid = ({
                           <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                           View Details
                         </button>
-                        <button
-                          onClick={() => handleMenuAction(paymentId, "edit")}
-                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
-                        >
-                          <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          Edit
-                        </button>
-                        <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                        <button
-                          onClick={() => handleMenuAction(paymentId, "delete")}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                          Delete
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={() => handleMenuAction(paymentId, "edit")}
+                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                          >
+                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && (
+                          <>
+                            <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                            <button
+                              onClick={() => handleMenuAction(paymentId, "delete")}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                              Delete
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
