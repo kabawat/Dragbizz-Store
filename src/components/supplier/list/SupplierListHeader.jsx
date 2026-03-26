@@ -31,16 +31,17 @@ const SupplierListHeader = () => {
     const [showDownloadDrawer, setShowDownloadDrawer] = useState(false);
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
-    const supplierPerm = useModulePermissions("supplier");
-    const canCreateSupplier = supplierPerm.create === true;
+    const { can, loading } = useModulePermissions("supplier");
+    const canCreate = can("create");
+    const canDownload = can("report") || can("read");
 
     useEffect(() => {
-        if (!canCreateSupplier) {
+        if (!canCreate) {
             setShowAddSupplierDrawer(false);
             setShowVoiceAIDrawer(false);
             setShowBulkUploadDrawer(false);
         }
-    }, [canCreateSupplier]);
+    }, [canCreate]);
 
     const searchInputRef = useRef(null);
     const lastFetchRef = useRef(null);
@@ -96,7 +97,7 @@ const SupplierListHeader = () => {
     }, [dispatch]);
 
     useCommonHotkeys({
-        onNew: canCreateSupplier ? () => setShowAddSupplierDrawer(true) : undefined,
+        onNew: canCreate ? () => setShowAddSupplierDrawer(true) : undefined,
         onClose: () => {
             if (showAddSupplierDrawer) setShowAddSupplierDrawer(false);
             if (showVoiceAIDrawer) setShowVoiceAIDrawer(false);
@@ -106,14 +107,16 @@ const SupplierListHeader = () => {
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
-        onDownload: () => setShowDownloadDrawer(true),
-        onVoiceAI: canCreateSupplier ? () => setShowVoiceAIDrawer(true) : undefined,
+        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
+        onVoiceAI: canCreate ? () => setShowVoiceAIDrawer(true) : undefined,
     });
 
     const handleSupplierSuccess = useCallback(() => {
         if (!storeId) return;
         dispatch(getSuppliers({ store: storeId, limit: 20, isFreshLoad: true }));
     }, [dispatch, storeId]);
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
         <div className="mb-3">
@@ -197,7 +200,7 @@ const SupplierListHeader = () => {
                             </button>
                         </div>
                     )}
-                    {canCreateSupplier && (
+                    {canCreate && (
                         <Button
                             variant="secondary"
                             onClick={() => setShowBulkUploadDrawer(true)}
@@ -206,30 +209,35 @@ const SupplierListHeader = () => {
                             {t("suppliers.bulkUpload", "Bulk Upload")}
                         </Button>
                     )}
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowDownloadDrawer(true)}
-                        leftIcon={Download}
-                    >
-                        {t("common.download")}
-                    </Button>
-                    {canCreateSupplier && (
+
+                    {canDownload && (
                         <Button
-                            variant="outline"
-                            onClick={() => setShowVoiceAIDrawer(true)}
-                            leftIcon={Mic}
+                            variant="secondary"
+                            onClick={() => setShowDownloadDrawer(true)}
+                            leftIcon={Download}
                         >
-                            {t("customers.voiceAI")}
+                            {t("common.download")}
                         </Button>
                     )}
-                    {canCreateSupplier && (
-                        <Button
-                            variant="primary"
-                            onClick={() => setShowAddSupplierDrawer(true)}
-                            leftIcon={Plus}
-                        >
-                            {t("suppliers.addSupplier")}
-                        </Button>
+
+                    {canCreate && (
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowVoiceAIDrawer(true)}
+                                leftIcon={Mic}
+                            >
+                                {t("customers.voiceAI")}
+                            </Button>
+
+                            <Button
+                                variant="primary"
+                                onClick={() => setShowAddSupplierDrawer(true)}
+                                leftIcon={Plus}
+                            >
+                                {t("suppliers.addSupplier")}
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>

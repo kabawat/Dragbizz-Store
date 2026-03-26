@@ -5,20 +5,46 @@ import { ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 export const PermissionGuard = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
-    const { authProfile, staffProfile } = useAppSelector((state) => state.profile);
+    const { 
+        authProfile, 
+        authProfileLoading, 
+        staffProfile, 
+        staffProfileLoading,
+        isAuthenticated 
+    } = useAppSelector((state) => state.profile);
+    
     const [hasAccess, setHasAccess] = useState(true);
+    const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        // If not staff → full access
-        if (authProfile?.role === "store_owner") {
-            setHasAccess(true);
+        // 1. Determine if we are still loading credentials
+        const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
+        
+        if (isLoading) {
+            setIsChecking(true);
             return;
         }
 
+        // 2. If not authenticated after loading, let AuthGuard handle it
+        if (!isAuthenticated || !authProfile) {
+            setIsChecking(false);
+            setHasAccess(true); // Don't show restricted screen for unauth users
+            return;
+        }
+
+        // 3. Store Owner has full access
+        if (authProfile?.role === ROLES.OWNER) {
+            setHasAccess(true);
+            setIsChecking(false);
+            return;
+        }
+
+        // 4. Staff logic starts here
         const permissions = staffProfile?.permissions || [];
 
         // Always allowed paths for staff
@@ -30,12 +56,14 @@ export const PermissionGuard = ({ children }) => {
 
         if (ALLOWED_EXACT_PATHS.includes(pathname)) {
             setHasAccess(true);
+            setIsChecking(false);
             return;
         }
 
         // Staff can never access management features (Staff, Subscription, Plan limits)
         if (pathname === "/dashboard/management" || pathname.startsWith("/dashboard/management/")) {
             setHasAccess(false);
+            setIsChecking(false);
             return;
         }
 
@@ -82,6 +110,7 @@ export const PermissionGuard = ({ children }) => {
         // Route not in map → allow by default
         if (!moduleName) {
             setHasAccess(true);
+            setIsChecking(false);
             return;
         }
 
@@ -90,13 +119,20 @@ export const PermissionGuard = ({ children }) => {
         // Module permission not assigned at all → deny
         if (!modulePermission) {
             setHasAccess(false);
+            setIsChecking(false);
             return;
         }
 
         // Check exact action permission
         setHasAccess(modulePermission[action] === true);
+        setIsChecking(false);
 
-    }, [pathname, authProfile, staffProfile]);
+    }, [pathname, authProfile, staffProfile, authProfileLoading, staffProfileLoading, isAuthenticated]);
+
+    // Show nothing (or a subtle loader) while checking permissions
+    if (isChecking) {
+        return null; // Or a minimalist loading bar
+    }
 
     if (!hasAccess) {
         return (

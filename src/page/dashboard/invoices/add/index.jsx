@@ -42,14 +42,14 @@ const CreateInvoicePage = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
   // Permission Guard: Ensure user can create invoices
-  const invoicePerms = useModulePermissions("invoice");
-  const canCreate = invoicePerms.create === true;
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canCreate = can("create");
 
   useEffect(() => {
-    if (!invoicePerms.loading && !canCreate) {
+    if (!permissionLoading && !canCreate) {
       router.replace("/dashboard/invoices");
     }
-  }, [canCreate, invoicePerms.loading, router]);
+  }, [canCreate, permissionLoading, router]);
 
   // 3. Refs
   const productsFetchedRef = useRef({ storeId: null, fetched: false });
@@ -205,7 +205,7 @@ const CreateInvoicePage = () => {
   });
 
   // Show loading if store or permissions are not available yet
-  if (!selectedStore?.storeId || invoicePerms.loading) {
+  if (!selectedStore?.storeId || permissionLoading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -213,7 +213,7 @@ const CreateInvoicePage = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {invoicePerms.loading
+            {permissionLoading
                 ? t("invoice.verifyingPermissions") || "Checking permissions..."
                 : t("invoice.loadingStoreData")}
             </h2>

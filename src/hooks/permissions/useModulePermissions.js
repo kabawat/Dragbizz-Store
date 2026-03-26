@@ -3,9 +3,13 @@
 import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
 
-/**
- * Default permissions object for any module.
- */
+// Roles
+export const ROLES = {
+  OWNER: "store_owner",
+  STAFF: "store_staff",
+};
+
+// Default permissions (Denied)
 const DEFAULT_PERMISSIONS = {
   create: false,
   read: false,
@@ -13,12 +17,9 @@ const DEFAULT_PERMISSIONS = {
   delete: false,
   report: false,
   analytics: false,
-  loading: false, // Useful for UI layers to know if permissions are still pending
 };
 
-/**
- * Full access permissions for administrative roles.
- */
+// Full access
 const FULL_ACCESS_PERMISSIONS = {
   create: true,
   read: true,
@@ -26,51 +27,94 @@ const FULL_ACCESS_PERMISSIONS = {
   delete: true,
   report: true,
   analytics: true,
-  loading: false,
 };
 
-const STAFF_ROLE = "store_staff";
-
-// Custom hook to lookup module-wise permissions based on user role and staff profile
 export const useModulePermissions = (moduleKey) => {
-  const { authProfile, staffProfile, staffProfileLoading, isAuthenticated } = useAppSelector((state) => state.profile);
+  const { 
+    authProfile, 
+    authProfileLoading,
+    staffProfile, 
+    staffProfileLoading, 
+    isAuthenticated 
+  } = useAppSelector((state) => state.profile);
 
   return useMemo(() => {
-    // 1. Unauthenticated or missing profile => Deny by default
+    const isInitialLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
+    
+    // Deny if unauth or profile still loading
     if (!isAuthenticated || !authProfile) {
-      return DEFAULT_PERMISSIONS;
+      return { 
+        ...DEFAULT_PERMISSIONS, 
+        loading: isInitialLoading,
+        isOwner: false,
+        isStaff: false,
+        can: () => false 
+      };
     }
 
-    // 2. Unknown or missing moduleKey => Safest defaults
+    const isOwner = authProfile.role === ROLES.OWNER;
+    const isStaff = authProfile.role === ROLES.STAFF;
+
+    // Full access for owners
+    if (isOwner) {
+      return {
+        ...FULL_ACCESS_PERMISSIONS,
+        loading: false,
+        isOwner: true,
+        isStaff: false,
+        can: () => true,
+      };
+    }
+
+    // Default if module key is missing
     if (!moduleKey) {
-      return DEFAULT_PERMISSIONS;
+      return { 
+        ...DEFAULT_PERMISSIONS, 
+        loading: isInitialLoading,
+        isOwner: false,
+        isStaff: isStaff,
+        can: () => false 
+      };
     }
 
-    // 3. User is not staff (likely Store Owner/Admin) => Full Access
-    const isStaff = authProfile.role === STAFF_ROLE;
-    if (!isStaff) return FULL_ACCESS_PERMISSIONS;
+    // Explicitly block management for staff
+    if (isStaff && moduleKey === "management") {
+      return {
+        ...DEFAULT_PERMISSIONS,
+        loading: isInitialLoading,
+        isOwner: false,
+        isStaff: true,
+        can: () => false,
+      };
+    }
 
-    // 4. Staff member - check specific module permissions
+    // Lookup staff permissions
     const permissions = staffProfile?.permissions || [];
     const modulePermission = permissions.find((p) => p.module === moduleKey);
 
-    // If staff profile is loading, or module is not found, we use DEFAULT_PERMISSIONS
-    const result = {
+    const perms = {
       ...DEFAULT_PERMISSIONS,
       ...(modulePermission || {}),
-      loading: staffProfileLoading && !staffProfile,
     };
 
-    // Clean up auxiliary 'module' field if present from API response
-    if (result.module) delete result.module;
+    if (perms.module) delete perms.module;
 
-    return result;
+    return {
+      ...perms,
+      loading: isInitialLoading,
+      isOwner: false,
+      isStaff: true,
+      can: (action) => perms[action] === true,
+    };
   }, [
-    authProfile?.role,
+    authProfile,
+    authProfileLoading,
     staffProfile?.permissions,
     staffProfileLoading,
     moduleKey,
     isAuthenticated,
   ]);
 };
+
+
 

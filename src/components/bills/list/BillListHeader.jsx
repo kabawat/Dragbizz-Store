@@ -20,6 +20,9 @@ const BillListHeader = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
 
+  const { can, loading } = useModulePermissions("billing");
+  const canCreate = can("create");
+
   const [searchValue, setSearchValue] = useState("");
   const searchInputRef = useRef(null);
 
@@ -70,11 +73,13 @@ const BillListHeader = () => {
   }, [dispatch]);
 
   useCommonHotkeys({
-    onNew: () => router.push("/dashboard/bills/create"),
+    onNew: canCreate ? () => router.push("/dashboard/bills/create") : undefined,
     onSearch: () => searchInputRef.current?.focus(),
     onViewTable: () => handleViewModeChange("table"),
     onViewGrid: () => handleViewModeChange("card"),
   });
+
+  if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
   return (
     <div className="mb-3">
@@ -117,13 +122,15 @@ const BillListHeader = () => {
             </button>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={() => router.push("/dashboard/bills/create")}
-            leftIcon={Plus}
-          >
-            {t("bills.createBill")}
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              onClick={() => router.push("/dashboard/bills/create")}
+              leftIcon={Plus}
+            >
+              {t("bills.createBill")}
+            </Button>
+          )}
         </div>
       </div>
     </div>

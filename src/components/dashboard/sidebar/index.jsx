@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { expandMenu } from "@/store/slices/uiSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 import StoreSelector from "@/components/dashboard/sidebar/StoreSelector";
 import { SidebarHeader } from "./SidebarHeader";
@@ -22,7 +23,13 @@ import {
 const Sidebar = ({ onStoreChange }) => {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { selectedStore, authProfile, staffProfile } = useAppSelector((state) => state.profile);
+  const { 
+    selectedStore, 
+    authProfile, 
+    authProfileLoading, 
+    staffProfile, 
+    staffProfileLoading 
+  } = useAppSelector((state) => state.profile);
   const isCollapsed = useAppSelector((state) => state.ui.isSidebarCollapsed);
 
   const { t } = useTranslation();
@@ -53,9 +60,12 @@ const Sidebar = ({ onStoreChange }) => {
       ),
     [t, salesSubMenuItems, inventorySubMenuItems, purchaseSubMenuItems, analyticsSubMenuItems, managementSubMenuItems]
   );
-
   const navigationItems = useMemo(() => {
-    if (authProfile?.role === "store_owner") return rawNavigationItems;
+    // If profiles are still loading, return a skeleton or nothing to prevent flashing
+    const isLoading = (authProfileLoading && !authProfile) || (staffProfileLoading && !staffProfile);
+    if (isLoading) return [];
+
+    if (authProfile?.role === ROLES.OWNER) return rawNavigationItems;
 
     const hasPermission = (href) => {
       // Default always allowed routes for staff
@@ -106,7 +116,7 @@ const Sidebar = ({ onStoreChange }) => {
       if (!item.hasSubMenu && !hasPermission(item.href)) return false;
       return true;
     });
-  }, [rawNavigationItems, authProfile?.role, staffProfile?.permissions]);
+  }, [rawNavigationItems, authProfile, staffProfile, authProfileLoading, staffProfileLoading]);
 
   const bottomItems = useMemo(() => getBottomItems(t), [t]);
 

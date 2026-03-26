@@ -31,6 +31,7 @@ import { AnimatedBackground } from "@/components/ui";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 const SettingsPage = () => {
     const { t } = useTranslation();
@@ -58,7 +59,7 @@ const SettingsPage = () => {
         },
     ];
 
-    const settingsTabs = authProfile?.role === "store_staff"
+    const settingsTabs = authProfile?.role === ROLES.STAFF
         ? allTabs.filter(tab => ["appearance", "language", "profile"].includes(tab.id))
         : allTabs;
 

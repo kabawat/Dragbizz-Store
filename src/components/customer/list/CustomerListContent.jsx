@@ -21,9 +21,9 @@ const CustomerListContent = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
 
-    const customerPerm = useModulePermissions("customer");
-    const canEdit = customerPerm.edit === true;
-    const canDelete = customerPerm.delete === true;
+    const { can } = useModulePermissions("customer");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
 
     // ─── Refs for stable IntersectionObserver callback ───────────────────────
     const sentinelRef = useRef(null);

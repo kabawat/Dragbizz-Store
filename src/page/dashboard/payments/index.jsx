@@ -24,6 +24,9 @@ const Payments = () => {
   const { payments, stats, isLoading, error, currentFilter, pagination } =
     useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
+  const { can } = useModulePermissions("billing");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [_statusFilter, setStatusFilter] = useState("all");
@@ -63,7 +66,7 @@ const Payments = () => {
 
   // Hotkeys
   useCommonHotkeys({
-    onNew: () => router.push("/dashboard/payments/create"),
+    onNew: canCreate ? () => router.push("/dashboard/payments/create") : undefined,
     onViewTable: () => handleViewModeChange("table"),
     onViewGrid: () => handleViewModeChange("card"),
     onSearch: () => {
@@ -109,9 +112,11 @@ const Payments = () => {
         router.push(`/dashboard/payments/${payment._id || payment.id}`);
         break;
       case "edit":
+        if (!canEdit) return;
         router.push(`/dashboard/payments/${payment._id || payment.id}/edit`);
         break;
       case "delete":
+        if (!canDelete) return;
         handleDeletePayment(payment);
         break;
       default:

@@ -29,6 +29,10 @@ const PurchaseOrderListContent = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || "";
     const { toasts, showToast, removeToast } = useToast();
+    const { can } = useModulePermissions("purchase_order");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
+    const canView = can("read");
 
     const [openMenuId, setOpenMenuId] = useState(null);
     const menuRefs = useRef({});
@@ -111,25 +115,27 @@ const PurchaseOrderListContent = () => {
 
             switch (action) {
                 case "view":
+                    if (!canView) return;
                     router.push(`/dashboard/purchase-orders/${po._id || po.id}`);
                     break;
                 case "edit":
-                    if (isDeleted) return;
+                    if (isDeleted || !canEdit) return;
                     router.push(`/dashboard/purchase-orders/${po._id || po.id}/edit`);
                     break;
                 case "createBill":
-                    if (isDeleted) return;
+                    if (isDeleted || !canEdit) return;
                     setSelectedPOForBill(po);
                     setShowCreateBillDrawer(true);
                     setOpenMenuId(null);
                     break;
                 case "advancePayment":
-                    if (isDeleted) return;
+                    if (isDeleted || !canEdit) return;
                     setSelectedPOForPayment(po);
                     setShowAdvancePaymentDrawer(true);
                     setOpenMenuId(null);
                     break;
                 case "delete":
+                    if (!canDelete) return;
                     handleDelete(po);
                     break;
                 default:

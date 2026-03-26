@@ -22,6 +22,11 @@ const BillListContent = () => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
+  const { can } = useModulePermissions("billing");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+  const canView = can("read");
+
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -84,24 +89,28 @@ const BillListContent = () => {
 
     switch (action) {
       case "view":
+        if (!canView) return;
         router.push(`/dashboard/bills/${bill._id || bill.id}`);
         break;
       case "edit":
+        if (!canEdit) return;
         router.push(`/dashboard/bills/${bill._id || bill.id}/edit`);
         break;
       case "payment":
+        if (!canEdit) return; // Payment is an edit/update action
         setSelectedBillForPayment(bill);
         setShowPaymentDrawer(true);
         setOpenMenuId(null);
         break;
       case "delete":
+        if (!canDelete) return;
         handleDelete(bill);
         break;
       default:
         break;
     }
     setOpenMenuId(null);
-  }, [bills, router]);
+  }, [bills, router, canEdit, canDelete, canView, handleDelete]);
 
   const handleDelete = useCallback((bill) => {
     setBillToDelete(bill);

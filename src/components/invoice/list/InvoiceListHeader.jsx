@@ -16,9 +16,9 @@ const InvoiceListHeader = () => {
     const dispatch = useAppDispatch();
     
     // Permission Management
-    const invoicePerms = useModulePermissions("invoice");
-    const canCreate = invoicePerms.create === true;
-    const canDownload = invoicePerms.report === true || invoicePerms.read === true;
+    const { can, loading } = useModulePermissions("invoice");
+    const canCreate = can("create");
+    const canDownload = can("report") || can("read");
 
     const { viewMode, invoices, filters } = useAppSelector((state) => state.invoices);
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -64,6 +64,8 @@ const InvoiceListHeader = () => {
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
     });
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
         <div className="mb-3">
