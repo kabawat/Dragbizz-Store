@@ -11,6 +11,7 @@ import { useAppSelector } from "@/store/hooks";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import useApiResponse from "@/hooks/useApiResponse";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
@@ -40,8 +41,17 @@ const CreateInvoicePage = () => {
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
-  // 3. Refs
+  // Permission Guard: Ensure user can create invoices
+  const invoicePerms = useModulePermissions("invoice");
+  const canCreate = invoicePerms.create === true;
 
+  useEffect(() => {
+    if (!invoicePerms.loading && !canCreate) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canCreate, invoicePerms.loading, router]);
+
+  // 3. Refs
   const productsFetchedRef = useRef({ storeId: null, fetched: false });
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
@@ -194,8 +204,8 @@ const CreateInvoicePage = () => {
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  // Show loading if store is not available yet
-  if (!selectedStore?.storeId) {
+  // Show loading if store or permissions are not available yet
+  if (!selectedStore?.storeId || invoicePerms.loading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -203,7 +213,9 @@ const CreateInvoicePage = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("invoice.loadingStoreData")}
+              {invoicePerms.loading
+                ? t("invoice.verifyingPermissions") || "Checking permissions..."
+                : t("invoice.loadingStoreData")}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
               {t("invoice.pleaseWaitStoreInfo")}
@@ -212,6 +224,11 @@ const CreateInvoicePage = () => {
         </div>
       </div>
     );
+  }
+
+  // Pre-render guard for non-staff/restricted users
+  if (!canCreate) {
+    return null;
   }
 
   return (

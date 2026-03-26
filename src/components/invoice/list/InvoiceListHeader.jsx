@@ -8,11 +8,18 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setViewMode, setFilters, clearFilters, getInvoices } from "@/store/slices/invoicesSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const InvoiceListHeader = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    
+    // Permission Management
+    const invoicePerms = useModulePermissions("invoice");
+    const canCreate = invoicePerms.create === true;
+    const canDownload = invoicePerms.report === true || invoicePerms.read === true;
+
     const { viewMode, invoices, filters } = useAppSelector((state) => state.invoices);
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId;
@@ -52,7 +59,8 @@ const InvoiceListHeader = () => {
     };
 
     useCommonHotkeys({
-        onNew: handleAddInvoice,
+        onNew: canCreate ? handleAddInvoice : undefined,
+        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
     });
@@ -164,18 +172,22 @@ const InvoiceListHeader = () => {
                         </div>
                     )}
 
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowDownloadDrawer(true)}
-                        className="flex items-center gap-2 h-9"
-                    >
-                        <Download className="w-4 h-4" />
-                        {t("common.download")}
-                    </Button>
+                    {canDownload && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowDownloadDrawer(true)}
+                            className="flex items-center gap-2 h-9"
+                        >
+                            <Download className="w-4 h-4" />
+                            {t("common.download")}
+                        </Button>
+                    )}
 
-                    <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
-                        {t("invoice.createInvoice")}
-                    </Button>
+                    {canCreate && (
+                        <Button variant="primary" onClick={handleAddInvoice} leftIcon={Plus}>
+                            {t("invoice.createInvoice")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

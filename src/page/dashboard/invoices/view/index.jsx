@@ -13,6 +13,7 @@ import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
 import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
 import {
@@ -27,6 +28,18 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const { showSuccess, showError } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
+
+  // Permission Management
+  const invoicePerms = useModulePermissions("invoice");
+  const canRead = invoicePerms.read === true;
+  const canEdit = invoicePerms.edit === true;
+  const canCreate = invoicePerms.create === true;
+
+  useEffect(() => {
+    if (!invoicePerms.loading && !canRead) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canRead, invoicePerms.loading, router]);
 
   const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
@@ -69,15 +82,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   // Global actions for this page
   useCommonHotkeys({
-    onPrint: handlePrint,
-    onDownload: () => handleDownloadPDF(invoiceData, invoiceId),
-    onEdit: () => router.push(`/dashboard/invoices/${invoiceId}/edit`),
-    onNew: () => router.push("/dashboard/invoices/add"),
+    onPrint: canRead ? handlePrint : undefined,
+    onDownload: canRead ? () => handleDownloadPDF(invoiceData, invoiceId) : undefined,
+    onEdit: canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined,
+    onNew: canCreate ? () => router.push("/dashboard/invoices/add") : undefined,
     onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  if (fetching) return <InvoiceLoadingState t={t} />;
+  if (fetching || invoicePerms.loading) return <InvoiceLoadingState t={t} />;
+
+  if (!canRead) return null;
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
@@ -89,8 +104,8 @@ const ViewInvoicePage = ({ invoiceId }) => {
             <InvoiceViewHeader
               invoiceData={invoiceData}
               invoiceId={invoiceId}
-              onUpdatePaymentStatus={() => setShowPaymentStatusModal(true)}
-              onDownloadPDF={handleDownloadPDF}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onDownloadPDF={canRead ? handleDownloadPDF : undefined}
               t={t}
             />
             <InvoicePageLayout
@@ -101,9 +116,9 @@ const ViewInvoicePage = ({ invoiceId }) => {
               itemsWithGst={itemsWithGst}
               calculatedSubtotal={calculatedSubtotal}
               calculatedGstAmount={calculatedGstAmount}
-              onEdit={() => router.push(`/dashboard/invoices/${invoiceId}/edit`)}
-              onUpdatePaymentStatus={() => setShowPaymentStatusModal(true)}
-              onPrint={handlePrint}
+              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onPrint={canRead ? handlePrint : undefined}
             />
           </div>
         </div>

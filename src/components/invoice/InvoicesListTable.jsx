@@ -351,79 +351,89 @@ const InvoicesListTable = ({
                       </button>
                       {isMenuOpen && (
                         <div className={`absolute right-0 ${isLastItems ? 'bottom-full mb-2' : 'top-full mt-2'} w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50`}>
-                          <div className="py-1">
-                            <button
-                              onClick={() => {
-                                onViewDetails?.(invoiceId);
-                                setOpenMenuId(null);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                              {t("common.viewDetails")}
-                            </button>
-                            {invoice.invoiceStatus === "DRAFT" && (
-                              <>
+                            <div className="py-1">
+                              {onViewDetails && (
                                 <button
                                   onClick={() => {
-                                    onEdit?.(invoiceId);
+                                    onViewDetails?.(invoiceId);
                                     setOpenMenuId(null);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                 >
-                                  <Edit className="w-4 h-4" />
-                                  {t("common.edit")}
+                                  <Eye className="w-4 h-4" />
+                                  {t("common.viewDetails")}
                                 </button>
+                              )}
+                              {invoice.invoiceStatus === "DRAFT" && (
+                                <>
+                                  {onEdit && (
+                                    <button
+                                      onClick={() => {
+                                        onEdit?.(invoiceId);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                      {t("common.edit")}
+                                    </button>
+                                  )}
+                                  {onRelease && (
+                                    <button
+                                      onClick={() => {
+                                        onRelease?.(invoice);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                    >
+                                      <CheckCircle className="w-4 h-4" />
+                                      {t("invoice.release")}
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                              {invoice.invoiceStatus === "RELEASED" &&
+                                invoice.paymentStatus !== "PAID" &&
+                                onUpdatePaymentStatus && (
+                                  <button
+                                    onClick={() => {
+                                      onUpdatePaymentStatus?.(invoiceId, invoice);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                  >
+                                    <CreditCard className="w-4 h-4" />
+                                    {t("invoice.paymentStatus")}
+                                  </button>
+                                )}
+                              {onPrint && (
                                 <button
                                   onClick={() => {
-                                    onRelease?.(invoice);
+                                    onPrint?.(invoiceId);
                                     setOpenMenuId(null);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                 >
-                                  <CheckCircle className="w-4 h-4" />
-                                  {t("invoice.release")}
+                                  <Printer className="w-4 h-4" />
+                                  {t("common.print")}
                                 </button>
-                              </>
-                            )}
-                            {invoice.invoiceStatus === "RELEASED" && invoice.paymentStatus !== "PAID" && (
-                              <button
-                                onClick={() => {
-                                  onUpdatePaymentStatus?.(invoiceId, invoice);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                              >
-                                <CreditCard className="w-4 h-4" />
-                                {t("invoice.paymentStatus")}
-                              </button>
-                            )}
-                            <button
-                              onClick={() => {
-                                onPrint?.(invoiceId);
-                                setOpenMenuId(null);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                            >
-                              <Printer className="w-4 h-4" />
-                              {t("common.print")}
-                            </button>
-                            {invoice.invoiceStatus === "DRAFT" && (
-                              <>
-                                <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                <button
-                                  onClick={() => {
-                                    onDelete?.(invoice);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  {t("common.delete")}
-                                </button>
-                              </>
-                            )}
-                          </div>
+                              )}
+                              {invoice.invoiceStatus === "DRAFT" && onDelete && (
+                                <>
+                                  <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                  <button
+                                    onClick={() => {
+                                      onDelete?.(invoice);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    {t("common.delete")}
+                                  </button>
+                                </>
+                              )}
+                            </div>
                         </div>
                       )}
                     </div>

@@ -11,7 +11,7 @@ export const getQuickActions = (t) => [
     {
         title: t("dashboard.addProduct"),
         icon: PackagePlus,
-        path: "/dashboard/products/add",
+        path: "/dashboard/products/create",
     },
     { title: t("dashboard.newInvoice"), icon: FileText, path: "/dashboard/invoices/add" },
     {

@@ -27,7 +27,7 @@ const ProductEmptyState = ({ searchValue = "" }) => {
                 <div className="pt-4">
                     <Button
                         variant="primary"
-                        onClick={() => router.push("/dashboard/products/add")}
+                        onClick={() => router.push("/dashboard/products/create")}
                         leftIcon={Plus}
                     >
                         {t("products.addProduct")}

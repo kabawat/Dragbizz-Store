@@ -18,6 +18,7 @@ import {
 import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import useApiResponse from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
@@ -39,6 +40,16 @@ const EditInvoicePage = ({ invoiceId }) => {
   const hasFetchedProducts = useRef(false);
   const hasFetchedCustomers = useRef(false);
   const hasFetchedInvoice = useRef(false);
+
+  // Permission Management
+  const invoicePerms = useModulePermissions("invoice");
+  const canEdit = invoicePerms.edit === true;
+
+  useEffect(() => {
+    if (!invoicePerms.loading && !canEdit) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canEdit, invoicePerms.loading, router]);
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -226,8 +237,8 @@ const EditInvoicePage = ({ invoiceId }) => {
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  // Show loading if store is not available yet
-  if (!selectedStore?.storeId) {
+  // Show loading if store or permissions are not available yet
+  if (!selectedStore?.storeId || invoicePerms.loading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -235,15 +246,22 @@ const EditInvoicePage = ({ invoiceId }) => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("common.loadingStoreData")}
+              {invoicePerms.loading
+                ? t("invoice.verifyingPermissions") || "Checking permissions..."
+                : t("common.loadingStoreData")}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("common.pleaseWaitWhileWeFetch", { item: t("common.store") })}
+              {t("invoice.pleaseWaitStoreInfo") || "Almost there..."}
             </p>
           </div>
         </div>
       </div>
     );
+  }
+
+  // Pre-render guard for non-staff/restricted users
+  if (!canEdit) {
+    return null;
   }
 
   if (fetching) {

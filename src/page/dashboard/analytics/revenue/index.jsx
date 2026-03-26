@@ -108,8 +108,7 @@ const RevenueAnalytics = () => {
 
 
 
-  const { handlePrint, handleDownloadPDF, handleDownloadXLSX } =
-    useRevenueReportPrint(isLoading, analytics);
+  const { handlePrint, handleDownloadPDF, handleDownloadXLSX } = useRevenueReportPrint(isLoading, analytics);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = React.useRef(null);
 
