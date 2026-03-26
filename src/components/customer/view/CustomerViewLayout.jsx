@@ -25,9 +25,9 @@ const CustomerViewLayout = ({
     const { showSuccess, showError } = useGlobalToast();
     const router = useRouter();
     // Module permissions (hide/disable actions accordingly)
-    const customerPerm = useModulePermissions("customer");
-    const canEdit = customerPerm.edit === true;
-    const canDelete = customerPerm.delete === true;
+    const { can } = useModulePermissions("customer");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
 
     const handleEdit = canEdit ? onEdit : undefined;
     const handleDelete = canDelete ? () => setShowDeleteModal(true) : undefined;

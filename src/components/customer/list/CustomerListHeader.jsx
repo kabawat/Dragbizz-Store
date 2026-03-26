@@ -25,8 +25,9 @@ const CustomerListHeader = ({
 
     const hasCustomers = customers.length > 0;
 
-    const customerPerm = useModulePermissions("customer");
-    const canCreateCustomer = customerPerm.create === true;
+    const { can, loading } = useModulePermissions("customer");
+    const canCreate = can("create");
+    const canDownload = can("report") || can("read");
 
     // search state lives here
     const [searchValue, setSearchValue] = useState("");
@@ -37,8 +38,8 @@ const CustomerListHeader = ({
     const [showBulkUploadDrawer, setShowBulkUploadDrawer] = useState(false);
 
     useEffect(() => {
-        if (!canCreateCustomer) setShowCustomerDrawer(false);
-    }, [canCreateCustomer]);
+        if (!canCreate) setShowCustomerDrawer(false);
+    }, [canCreate]);
 
     const searchInputRef = useRef(null);
 
@@ -63,8 +64,8 @@ const CustomerListHeader = ({
     }, [dispatch, storeId]);
 
     useCommonHotkeys({
-        onNew: canCreateCustomer ? () => setShowCustomerDrawer(true) : undefined,
-        onDownload: () => setShowDownloadDrawer(true),
+        onNew: canCreate ? () => setShowCustomerDrawer(true) : undefined,
+        onDownload: canDownload ? () => setShowDownloadDrawer(true) : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
@@ -76,6 +77,8 @@ const CustomerListHeader = ({
             else if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
     });
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
         <div className="mb-3">
@@ -118,41 +121,45 @@ const CustomerListHeader = ({
                         </div>
                     )}
 
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowBulkUploadDrawer(true)}
-                        className="flex items-center gap-2 h-9"
-                    >
-                        <Upload className="w-4 h-4" />
-                        {t("customers.bulkUpload", "Bulk Upload")}
-                    </Button>
-
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowDownloadDrawer(true)}
-                        className="flex items-center gap-2 h-9"
-                    >
-                        <Download className="w-4 h-4" />
-                        {t("customers.download")}
-                    </Button>
-
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowVoiceAIDrawer(true)}
-                        className="flex items-center gap-2 h-9"
-                    >
-                        <Mic className="w-4 h-4" />
-                        {t("customers.voiceAI")}
-                    </Button>
-
-                    {canCreateCustomer && (
+                    {canDownload && (
                         <Button
-                            variant="primary"
-                            onClick={() => setShowCustomerDrawer(true)}
-                            leftIcon={Plus}
+                            variant="secondary"
+                            onClick={() => setShowDownloadDrawer(true)}
+                            className="flex items-center gap-2 h-9"
                         >
-                            {t("customers.addCustomer")}
+                            <Download className="w-4 h-4" />
+                            {t("customers.download")}
                         </Button>
+                    )}
+
+                    {canCreate && (
+                        <>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setShowBulkUploadDrawer(true)}
+                                className="flex items-center gap-2 h-9"
+                            >
+                                <Upload className="w-4 h-4" />
+                                {t("customers.bulkUpload", "Bulk Upload")}
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                onClick={() => setShowVoiceAIDrawer(true)}
+                                className="flex items-center gap-2 h-9"
+                            >
+                                <Mic className="w-4 h-4" />
+                                {t("customers.voiceAI")}
+                            </Button>
+
+                            <Button
+                                variant="primary"
+                                onClick={() => setShowCustomerDrawer(true)}
+                                leftIcon={Plus}
+                            >
+                                {t("customers.addCustomer")}
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>

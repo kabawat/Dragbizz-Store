@@ -17,6 +17,9 @@ const PurchaseOrderListHeader = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = useMemo(() => selectedStore?.storeId || "", [selectedStore?.storeId]);
 
+    const { can, loading } = useModulePermissions("purchase_order");
+    const canCreate = can("create");
+
     const [searchValue, setSearchValue] = useState("");
     const searchInputRef = useRef(null);
 
@@ -63,11 +66,13 @@ const PurchaseOrderListHeader = () => {
     }, [dispatch]);
 
     useCommonHotkeys({
-        onNew: () => router.push("/dashboard/purchase-orders/create"),
+        onNew: canCreate ? () => router.push("/dashboard/purchase-orders/create") : undefined,
         onSearch: () => searchInputRef.current?.focus(),
         onViewTable: () => handleViewModeChange("table"),
         onViewGrid: () => handleViewModeChange("card"),
     });
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
 
     return (
         <div className="mb-3">
@@ -108,13 +113,15 @@ const PurchaseOrderListHeader = () => {
                         </button>
                     </div>
 
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push("/dashboard/purchase-orders/create")}
-                        leftIcon={Plus}
-                    >
-                        {t("purchaseOrders.createPO")}
-                    </Button>
+                    {canCreate && (
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push("/dashboard/purchase-orders/create")}
+                            leftIcon={Plus}
+                        >
+                            {t("purchaseOrders.createPO")}
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>

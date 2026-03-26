@@ -42,14 +42,14 @@ const EditInvoicePage = ({ invoiceId }) => {
   const hasFetchedInvoice = useRef(false);
 
   // Permission Management
-  const invoicePerms = useModulePermissions("invoice");
-  const canEdit = invoicePerms.edit === true;
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canEdit = can("edit");
 
   useEffect(() => {
-    if (!invoicePerms.loading && !canEdit) {
+    if (!permissionLoading && !canEdit) {
       router.replace("/dashboard/invoices");
     }
-  }, [canEdit, invoicePerms.loading, router]);
+  }, [canEdit, permissionLoading, router]);
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -238,7 +238,7 @@ const EditInvoicePage = ({ invoiceId }) => {
   });
 
   // Show loading if store or permissions are not available yet
-  if (!selectedStore?.storeId || invoicePerms.loading) {
+  if (!selectedStore?.storeId || permissionLoading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -246,7 +246,7 @@ const EditInvoicePage = ({ invoiceId }) => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {invoicePerms.loading
+              {permissionLoading
                 ? t("invoice.verifyingPermissions") || "Checking permissions..."
                 : t("common.loadingStoreData")}
             </h2>

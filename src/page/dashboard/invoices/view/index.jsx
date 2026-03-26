@@ -30,16 +30,16 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const storeId = selectedStore?.storeId;
 
   // Permission Management
-  const invoicePerms = useModulePermissions("invoice");
-  const canRead = invoicePerms.read === true;
-  const canEdit = invoicePerms.edit === true;
-  const canCreate = invoicePerms.create === true;
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canRead = can("read");
+  const canEdit = can("edit");
+  const canCreate = can("create");
 
   useEffect(() => {
-    if (!invoicePerms.loading && !canRead) {
+    if (!permissionLoading && !canRead) {
       router.replace("/dashboard/invoices");
     }
-  }, [canRead, invoicePerms.loading, router]);
+  }, [canRead, permissionLoading, router]);
 
   const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
@@ -90,7 +90,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  if (fetching || invoicePerms.loading) return <InvoiceLoadingState t={t} />;
+  if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
 
   if (!canRead) return null;
 
@@ -106,6 +106,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
               invoiceId={invoiceId}
               onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
               onDownloadPDF={canRead ? handleDownloadPDF : undefined}
+              canCreate={canCreate}
               t={t}
             />
             <InvoicePageLayout

@@ -26,9 +26,9 @@ const SupplierListContent = () => {
     const { selectedStore } = useAppSelector((state) => state.profile);
     const storeId = selectedStore?.storeId || selectedStore?._id || selectedStore?.id || "";
 
-    const supplierPerm = useModulePermissions("supplier");
-    const canEdit = supplierPerm.edit === true;
-    const canDelete = supplierPerm.delete === true;
+    const { can } = useModulePermissions("supplier");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
 
     // Contextual Component Variables
     const [selectedSupplierIds, setSelectedSupplierIds] = useState([]);

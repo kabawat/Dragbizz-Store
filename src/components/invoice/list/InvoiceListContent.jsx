@@ -19,10 +19,10 @@ const InvoiceListContent = () => {
     const dispatch = useAppDispatch();
 
     // Permission Management
-    const invoicePerms = useModulePermissions("invoice");
-    const canEdit = invoicePerms.edit === true;
-    const canDelete = invoicePerms.delete === true;
-    const canRead = invoicePerms.read === true;
+    const { can } = useModulePermissions("invoice");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
+    const canRead = can("read");
 
     // Using Redux state instead of props
     const { invoices, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.invoices);

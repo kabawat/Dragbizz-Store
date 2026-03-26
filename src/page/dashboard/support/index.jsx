@@ -15,6 +15,7 @@ import HelpTab from "@/components/support/tabs/HelpTab";
 import ShortcutsTab from "@/components/support/tabs/ShortcutsTab";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
+import { ROLES } from "@/hooks/permissions/useModulePermissions";
 
 const SupportPage = () => {
     const { t } = useTranslation();
@@ -32,7 +33,7 @@ const SupportPage = () => {
     ], [t]);
 
     const tabs = useMemo(() => {
-        if (authProfile?.role === "store_staff") {
+        if (authProfile?.role === ROLES.STAFF) {
             return allTabs.filter(tab => ["help", "shortcuts"].includes(tab.id));
         }
         return allTabs;

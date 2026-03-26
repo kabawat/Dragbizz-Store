@@ -29,9 +29,9 @@ const ViewSupplierPage = ({ supplierId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const supplierPerm = useModulePermissions("supplier");
-  const canEdit = supplierPerm.edit === true;
-  const canDelete = supplierPerm.delete === true;
+  const { can } = useModulePermissions("supplier");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
 
   const [error, setError] = useState(null);
   const [supplierData, setSupplierData] = useState(null);

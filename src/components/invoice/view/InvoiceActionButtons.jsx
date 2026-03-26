@@ -25,22 +25,26 @@ const InvoiceActionButtons = ({
       {/* Main Status Actions or Total Amount */}
       {isDraft ? (
         <div className="flex gap-2 mb-3">
-          <Button
-            onClick={onEdit}
-            variant="primary"
-            className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
-          >
-            <Edit className="w-4 h-4" />
-            <span>{t("invoices.editInvoice")}</span>
-          </Button>
-          <Button
-            onClick={onRelease}
-            variant="success"
-            className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
-          >
-            <CheckCircle className="w-4 h-4" />
-            <span>{t("invoices.releaseInvoice")}</span>
-          </Button>
+          {onEdit && (
+            <Button
+              onClick={onEdit}
+              variant="primary"
+              className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
+            >
+              <Edit className="w-4 h-4" />
+              <span>{t("invoices.editInvoice")}</span>
+            </Button>
+          )}
+          {onRelease && (
+            <Button
+              onClick={onRelease}
+              variant="success"
+              className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>{t("invoices.releaseInvoice")}</span>
+            </Button>
+          )}
         </div>
       ) : (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg border border-[rgb(var(--color-border-primary))] p-4 mb-3">
@@ -70,14 +74,16 @@ const InvoiceActionButtons = ({
             </Button>
 
             {/* Print Action */}
-            <Button
-              onClick={() => onPrint()}
-              variant="primary"
-              className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium text-white"
-            >
-              <Printer className="w-4 h-4" />
-              <span>{t("invoices.print")}</span>
-            </Button>
+            {onPrint && (
+              <Button
+                onClick={() => onPrint()}
+                variant="primary"
+                className="flex-1 flex items-center justify-center gap-2 h-10 text-sm font-medium text-white"
+              >
+                <Printer className="w-4 h-4" />
+                <span>{t("invoices.print")}</span>
+              </Button>
+            )}
           </div>
         </div>
       )}

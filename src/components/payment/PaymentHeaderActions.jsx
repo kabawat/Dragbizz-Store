@@ -14,6 +14,11 @@ const PaymentHeaderActions = ({
     const { t } = useTranslation();
     const router = useRouter();
 
+    const { can, loading } = useModulePermissions("billing");
+    const canCreate = can("create");
+
+    if (loading) return <div className="h-10 mb-3 animate-pulse bg-[rgb(var(--color-bg-secondary))] rounded-lg" />;
+
     return (
         <div className="mb-3">
             <div className="flex justify-between items-center lg:flex-row gap-4 mb-0">
@@ -55,13 +60,15 @@ const PaymentHeaderActions = ({
                         </button>
                     </div>
 
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push("/dashboard/payments/create")}
-                        leftIcon={Plus}
-                    >
-                        {t("payments.createPayment")}
-                    </Button>
+                    {canCreate && (
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push("/dashboard/payments/create")}
+                            leftIcon={Plus}
+                        >
+                            {t("payments.createPayment")}
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>
