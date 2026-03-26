@@ -46,7 +46,7 @@ export const FEATURE_ROUTES = {
   product_management: {
     routes: [
       "/dashboard/products",
-      "/dashboard/products/add",
+      "/dashboard/products/create",
       "/dashboard/products/edit",
     ],
     menuItems: ["Product & Stock"],

@@ -131,7 +131,7 @@ const ProductListHeader = () => {
     }, [dispatch, storeId]);
 
     useCommonHotkeys({
-        onNew: () => router.push("/dashboard/products/add"),
+        onNew: () => router.push("/dashboard/products/create"),
         onClose: () => {
             if (showBulkUploadDrawer) setShowBulkUploadDrawer(false);
         },
@@ -223,7 +223,7 @@ const ProductListHeader = () => {
                     </Button>
                     <Button
                         variant="primary"
-                        onClick={() => router.push("/dashboard/products/add")}
+                        onClick={() => router.push("/dashboard/products/create")}
                         leftIcon={Plus}
                     >
                         {t("products.addProduct")}

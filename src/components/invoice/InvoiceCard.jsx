@@ -94,12 +94,14 @@ const InvoiceCard = ({
       label: t("common.viewDetails"),
       icon: Eye,
       onClick: () => onViewDetails?.(invoice.id || invoice._id),
+      show: !!onViewDetails,
     },
     {
       value: "print",
       label: t("invoice.printInvoice"),
       icon: Printer,
       onClick: () => onPrint?.(invoice.id || invoice._id),
+      show: !!onPrint,
     },
     {
       value: "whatsapp",
@@ -129,9 +131,12 @@ const InvoiceCard = ({
           message += `\n\nLink: ${shareUrl}`;
         }
 
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+          message
+        )}`;
         window.open(whatsappUrl, "_blank");
       },
+      show: true,
     },
     {
       value: "copyLink",
@@ -139,12 +144,10 @@ const InvoiceCard = ({
       icon: Copy,
       onClick: async () => {
         const shareUrl = buildShareUrl(invoice);
-        if (!shareUrl) {
-
-          return;
-        }
+        if (!shareUrl) return;
         await handleCopy(shareUrl);
       },
+      show: true,
     },
     {
       value: "release",
@@ -153,6 +156,7 @@ const InvoiceCard = ({
       onClick: () => onRelease?.(invoice),
       disabled: !isDraft,
       className: "cursor-pointer text-green-600 hover:text-green-700",
+      show: !!onRelease,
     },
     {
       value: "edit",
@@ -160,14 +164,18 @@ const InvoiceCard = ({
       icon: Edit,
       onClick: () => onEdit?.(invoice.id || invoice._id),
       disabled: !isDraft,
+      show: !!onEdit,
     },
     {
       value: "duplicate",
       label: t("common.duplicate"),
       icon: FileText,
       onClick: () => onDuplicate?.(invoice.id || invoice._id),
+      show: !!onDuplicate,
     },
-    ...(isReleased && onUpdatePaymentStatus && invoice.paymentStatus !== "PAID"
+    ...(isReleased &&
+      onUpdatePaymentStatus &&
+      invoice.paymentStatus !== "PAID"
       ? [
         {
           value: "paymentStatus",
@@ -176,10 +184,11 @@ const InvoiceCard = ({
           onClick: () =>
             onUpdatePaymentStatus?.(invoice.id || invoice._id, invoice),
           className: "cursor-pointer",
+          show: true,
         },
       ]
       : []),
-    ...(isDraft
+    ...(isDraft && onDelete
       ? [
         {
           value: "delete",
@@ -187,10 +196,11 @@ const InvoiceCard = ({
           icon: Trash2,
           onClick: () => onDelete?.(invoice),
           className: "cursor-pointer text-red-600 hover:text-red-700",
+          show: true,
         },
       ]
       : []),
-  ];
+  ].filter((item) => item.show !== false);
 
   const formatDate = (dateString) => {
     if (!dateString) return t("common.notAvailable");

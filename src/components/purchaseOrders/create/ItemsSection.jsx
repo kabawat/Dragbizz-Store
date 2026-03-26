@@ -97,7 +97,7 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                                 value={tempProduct}
                                 onChange={(value) => {
                                     if (value === "__add_new_product__") {
-                                        router.push("/dashboard/products/add");
+                                        router.push("/dashboard/products/create");
                                         return;
                                     }
                                     setTempProduct(value);

@@ -11,10 +11,18 @@ import {
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+
 const InvoiceListContent = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    // Permission Management
+    const invoicePerms = useModulePermissions("invoice");
+    const canEdit = invoicePerms.edit === true;
+    const canDelete = invoicePerms.delete === true;
+    const canRead = invoicePerms.read === true;
 
     // Using Redux state instead of props
     const { invoices, viewMode, isLoading, isFetchingMore, pagination } = useAppSelector((state) => state.invoices);
@@ -96,12 +104,12 @@ const InvoiceListContent = () => {
                         <div className="min-h-full">
                             <InvoiceTable
                                 invoices={invoices}
-                                onEdit={handleEditInvoice}
-                                onDelete={handleDeleteInvoice}
-                                onViewDetails={handleViewInvoice}
-                                onPrint={handlePrintInvoice}
-                                onRelease={handleReleaseInvoice}
-                                onUpdatePaymentStatus={handleUpdatePaymentStatus}
+                                onEdit={canEdit ? handleEditInvoice : undefined}
+                                onDelete={canDelete ? handleDeleteInvoice : undefined}
+                                onViewDetails={canRead ? handleViewInvoice : undefined}
+                                onPrint={canRead ? handlePrintInvoice : undefined}
+                                onRelease={canEdit ? handleReleaseInvoice : undefined}
+                                onUpdatePaymentStatus={canEdit ? handleUpdatePaymentStatus : undefined}
                                 loading={isLoading}
                                 emptyMessage={t("common.noResults")}
                                 hasMore={pagination?.hasNextPage}
@@ -114,12 +122,12 @@ const InvoiceListContent = () => {
                                     <InvoiceCard
                                         key={invoice.id || invoice._id}
                                         invoice={invoice}
-                                        onEdit={handleEditInvoice}
-                                        onDelete={handleDeleteInvoice}
-                                        onViewDetails={handleViewInvoice}
-                                        onPrint={handlePrintInvoice}
-                                        onRelease={handleReleaseInvoice}
-                                        onUpdatePaymentStatus={handleUpdatePaymentStatus}
+                                        onEdit={canEdit ? handleEditInvoice : undefined}
+                                        onDelete={canDelete ? handleDeleteInvoice : undefined}
+                                        onViewDetails={canRead ? handleViewInvoice : undefined}
+                                        onPrint={canRead ? handlePrintInvoice : undefined}
+                                        onRelease={canEdit ? handleReleaseInvoice : undefined}
+                                        onUpdatePaymentStatus={canEdit ? handleUpdatePaymentStatus : undefined}
                                     />
                                 ))}
                             </div>

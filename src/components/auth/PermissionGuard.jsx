@@ -14,7 +14,7 @@ export const PermissionGuard = ({ children }) => {
 
     useEffect(() => {
         // If not staff → full access
-        if (authProfile?.role !== "store_staff") {
+        if (authProfile?.role === "store_owner") {
             setHasAccess(true);
             return;
         }
@@ -25,8 +25,7 @@ export const PermissionGuard = ({ children }) => {
         const ALLOWED_EXACT_PATHS = [
             "/dashboard",
             "/dashboard/support",
-            "/dashboard/settings",
-            "/dashboard/pos",
+            "/dashboard/settings"
         ];
 
         if (ALLOWED_EXACT_PATHS.includes(pathname)) {
@@ -44,9 +43,11 @@ export const PermissionGuard = ({ children }) => {
         const ROUTE_MODULE_MAP = {
             "/dashboard/customers": "customer",
             "/dashboard/invoices": "invoice",
+            "/dashboard/invoices/create": "invoice",
             "/dashboard/expenses": "expense",
             "/dashboard/sales-order": "sales_order",
             "/dashboard/products": "product",
+            "/dashboard/products/create": "product",
             "/dashboard/stock": "inventory",
             "/dashboard/suppliers": "supplier",
             "/dashboard/purchase-orders": "purchase_order",
