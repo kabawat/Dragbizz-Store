@@ -19,6 +19,9 @@ const PurchaseOrderCard = ({
   enableSendMenu = true,
   getShareUrl,
   showToast,
+  canRead = false,
+  canEdit = false,
+  canDelete = false,
 }) => {
   const { t } = useTranslation();
   const normalizedData = normalizePurchaseOrder(purchaseOrder);
@@ -33,15 +36,15 @@ const PurchaseOrderCard = ({
   );
   const hasAdvancePayment = normalizedData.advanceAmount > 0 || hasAdvancePayments;
 
-  // Build actions array conditionally
-  const actions = ["view"];
-  if (!hasAdvancePayment && !isDeleted) {
+  const actions = [];
+  if (canRead) actions.push("view");
+  if (!hasAdvancePayment && !isDeleted && canEdit) {
     actions.push("advancePayment");
   }
-  if (!isDeleted) {
+  if (!isDeleted && canEdit) {
     actions.push("createBill", "edit");
   }
-  actions.push("delete");
+  if (canDelete) actions.push("delete");
 
   return (
     <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden">

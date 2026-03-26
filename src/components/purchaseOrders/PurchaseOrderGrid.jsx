@@ -17,6 +17,9 @@ const PurchaseOrderGrid = ({
   enableSendMenu = true,
   getShareUrl,
   showToast,
+  canRead = false,
+  canEdit = false,
+  canDelete = false,
 }) => {
   const { t } = useTranslation();
 
@@ -41,6 +44,9 @@ const PurchaseOrderGrid = ({
             enableSendMenu={enableSendMenu}
             getShareUrl={getShareUrl}
             showToast={showToast}
+            canRead={canRead}
+            canEdit={canEdit}
+            canDelete={canDelete}
           />
         ))}
 

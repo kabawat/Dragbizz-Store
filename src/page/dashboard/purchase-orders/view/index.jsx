@@ -21,11 +21,22 @@ import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
 import { usePurchaseOrderDetailsPrint } from "./hooks/usePurchaseOrderDetailsPrint";
 
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+
 export default function ViewPurchaseOrderPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const poId = params?.id;
+  const { can, edit: canEdit, loading: permissionsLoading } = useModulePermissions("purchase_order");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("read")) {
+      router.push("/dashboard/purchase-orders");
+    }
+  }, [can, permissionsLoading, router]);
 
   const [error, setError] = useState(null);
   const [po, setPo] = useState(null);
@@ -83,15 +94,15 @@ export default function ViewPurchaseOrderPage() {
           setPo(data);
           setError(null);
         } else {
-          setError("Purchase order not found");
+          setError(t("purchaseOrders.errorLoading"));
         }
       } else {
-        setError(result?.message || "Failed to load purchase order");
+        setError(result?.message || t("purchaseOrders.errorLoading"));
         setPo(null);
       }
     };
     fetchPo();
-  }, [poId, selectedStore, executeFetch]);
+  }, [poId, selectedStore, executeFetch, t]);
 
   return (
     <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
@@ -99,8 +110,8 @@ export default function ViewPurchaseOrderPage() {
 
       <div className="min-h-screen w-full flex flex-col">
         <Header
-          title="Purchase Order"
-          description="View purchase order details"
+          title={t("purchaseOrders.purchaseOrderDetails")}
+          description={t("purchaseOrders.viewPODescription")}
         />
 
         <div className="flex-1 p-6">
@@ -112,7 +123,7 @@ export default function ViewPurchaseOrderPage() {
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  Back to Purchase Orders
+                  {t("purchaseOrders.backToPurchaseOrders")}
                 </span>
               </Link>
             </div>
@@ -165,10 +176,10 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div>
                               <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                                {po.poNumber}
+                                {po.poNumber || po.billNumber}
                               </h2>
                               <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-                                Status: {po.status}
+                                {t("common.status")}: {po.status}
                               </p>
                             </div>
                           </div>
@@ -177,7 +188,7 @@ export default function ViewPurchaseOrderPage() {
                               className="px-3 py-1 rounded-full text-xs font-medium border"
                               style={getApprovalStyles(po.approvalStatus)}
                             >
-                              Approval: {po.approvalStatus || "N/A"}
+                              {t("purchaseOrders.approvalStatus")}: {po.approvalStatus || t("common.na")}
                             </span>
                           </div>
                         </div>
@@ -187,7 +198,7 @@ export default function ViewPurchaseOrderPage() {
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                               <span className="text-sm">
-                                PO Date:{" "}
+                                {t("purchaseOrders.poDate")}:{" "}
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {formatDate(po.poDate)}
                                 </span>
@@ -196,7 +207,7 @@ export default function ViewPurchaseOrderPage() {
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                               <span className="text-sm">
-                                Expected Delivery:{" "}
+                                {t("purchaseOrders.expectedDelivery")}:{" "}
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {formatDate(po.expectedDeliveryDate)}
                                 </span>
@@ -205,7 +216,7 @@ export default function ViewPurchaseOrderPage() {
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
                               <span className="text-sm">
-                                Payment Terms:{" "}
+                                {t("purchaseOrders.paymentDueIn")}:{" "}
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {po.paymentTerms || "-"}
                                 </span>
@@ -216,7 +227,7 @@ export default function ViewPurchaseOrderPage() {
                           <div className="space-y-3">
                             <div className="text-sm">
                               <p className="text-[rgb(var(--color-text-tertiary))]">
-                                Supplier
+                                {t("purchaseOrders.supplier")}
                               </p>
                               <p className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {po.supplier?.name}
@@ -246,21 +257,21 @@ export default function ViewPurchaseOrderPage() {
                               />
                             </div>
                             <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-                              Items
+                              {t("purchaseOrders.productsItems")}
                             </h3>
                           </div>
 
                           <div className="overflow-y-auto max-h-64 border border-[rgb(var(--color-border-primary))] rounded-lg">
                             <div className="grid grid-cols-12 text-xs text-[rgb(var(--color-text-secondary))] sticky top-0 z-10 bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]">
-                              <div className="col-span-6 p-3">Product</div>
+                              <div className="col-span-6 p-3">{t("purchaseOrders.product")}</div>
                               <div className="col-span-2 p-3 text-right">
-                                Ordered
+                                {t("purchaseOrders.ordered")}
                               </div>
                               <div className="col-span-2 p-3 text-right">
-                                Received
+                                {t("purchaseOrders.received")}
                               </div>
                               <div className="col-span-2 p-3 text-right">
-                                Pending
+                                {t("purchaseOrders.pending")}
                               </div>
                             </div>
                             {po.items?.map((item, idx) => (
@@ -298,7 +309,7 @@ export default function ViewPurchaseOrderPage() {
                             <div className="w-full md:w-80 space-y-2">
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                  Total Items
+                                  {t("purchaseOrders.totalItems")}
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {(po.items || []).reduce(
@@ -309,7 +320,7 @@ export default function ViewPurchaseOrderPage() {
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                  Items Received
+                                  {t("purchaseOrders.itemsReceived")}
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {(po.items || []).reduce(
@@ -321,7 +332,7 @@ export default function ViewPurchaseOrderPage() {
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                  Pending Items
+                                  {t("purchaseOrders.pendingItems")}
                                 </span>
                                 <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                   {Math.max(
@@ -340,7 +351,7 @@ export default function ViewPurchaseOrderPage() {
                               </div>
                               <div className="flex items-center justify-between text-sm border-t border-[rgb(var(--color-border-primary))] pt-2">
                                 <span className="text-[rgb(var(--color-text-secondary))]">
-                                  Advance Paid
+                                  {t("purchaseOrders.advancePaid")}
                                 </span>
                                 <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                   {formatCurrency(po.advanceAmount)}
@@ -363,31 +374,29 @@ export default function ViewPurchaseOrderPage() {
                           </div>
                           <div>
                             <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
-                              Quick Actions
+                              {t("common.quickActions")}
                             </h3>
                             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                              Manage this purchase order
+                              {t("purchaseOrders.managePODescription")}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="primary"
-                            className="flex-1"
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/purchase-orders/${po.id || po._id}/edit`
-                              )
-                            }
-                            leftIcon={Edit}
-                          >
-                            Edit
-                          </Button>
-
-                          <Button variant="danger" className="flex-1">
-                            Delete
-                          </Button>
+                          {canEdit && (
+                            <Button
+                              variant="primary"
+                              className="flex-1"
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/purchase-orders/${po.id || po._id}/edit`
+                                )
+                              }
+                              leftIcon={Edit}
+                            >
+                              {t("common.edit")}
+                            </Button>
+                          )}
 
                           <Button
                             variant="outline"
@@ -395,20 +404,20 @@ export default function ViewPurchaseOrderPage() {
                             onClick={() => handleDownloadPDF(po)}
                             leftIcon={Download}
                           >
-                            <span className="hidden sm:inline">Download</span>
-                            <span className="sm:hidden">Download</span>
+                            <span className="hidden sm:inline">{t("common.download")}</span>
+                            <span className="sm:hidden">{t("common.download")}</span>
                           </Button>
                         </div>
 
                         {/* Purchase Order Stats */}
                         <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                           <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                            Quick Stats
+                            {t("common.quickStats")}
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Total Items:
+                                {t("purchaseOrders.totalItems")}:
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {(po.items || []).reduce(
@@ -419,7 +428,7 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Items Received:
+                                {t("purchaseOrders.itemsReceived")}:
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {(po.items || []).reduce(
@@ -431,7 +440,7 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Pending Items:
+                                {t("purchaseOrders.pendingItems")}:
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {Math.max(
@@ -450,7 +459,7 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Completion:
+                                {t("purchaseOrders.completion")}:
                               </span>
                               <span className="font-medium text-[rgb(var(--color-text-primary))]">
                                 {po.completionPercentage || 0}%
@@ -458,7 +467,7 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div className="flex justify-between border-t border-[rgb(var(--color-border-primary))] pt-2 mt-2">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Advance Paid:
+                                {t("purchaseOrders.advancePaid")}:
                               </span>
                               <span className="font-semibold text-[rgb(var(--color-text-primary))]">
                                 {formatCurrency(po.advanceAmount)}
@@ -470,12 +479,12 @@ export default function ViewPurchaseOrderPage() {
                         {/* Meta Information */}
                         <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                           <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                            Meta Information
+                            {t("common.metaInformation")}
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Created:
+                                {t("common.created")}:
                               </span>
                               <span className="text-[rgb(var(--color-text-primary))]">
                                 {formatDateTime(po.createdAt)}
@@ -483,7 +492,7 @@ export default function ViewPurchaseOrderPage() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-[rgb(var(--color-text-secondary))]">
-                                Updated:
+                                {t("common.updated")}:
                               </span>
                               <span className="text-[rgb(var(--color-text-primary))]">
                                 {formatDateTime(po.updatedAt)}
@@ -496,7 +505,7 @@ export default function ViewPurchaseOrderPage() {
                         {(po.notes || po.internalNotes || po.supplierNotes) && (
                           <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                             <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
-                              Notes
+                              {t("purchaseOrders.additionalNotes")}
                             </h4>
                             <div className="space-y-2 text-sm">
                               {po.notes && (
@@ -506,13 +515,13 @@ export default function ViewPurchaseOrderPage() {
                               )}
                               {po.internalNotes && (
                                 <p className="text-[rgb(var(--color-text-secondary))]">
-                                  <span className="font-medium">Internal:</span>{" "}
+                                  <span className="font-medium">{t("common.internal")}:</span>{" "}
                                   {po.internalNotes}
                                 </p>
                               )}
                               {po.supplierNotes && (
                                 <p className="text-[rgb(var(--color-text-secondary))]">
-                                  <span className="font-medium">Supplier:</span>{" "}
+                                  <span className="font-medium">{t("purchaseOrders.supplier")}:</span>{" "}
                                   {po.supplierNotes}
                                 </p>
                               )}

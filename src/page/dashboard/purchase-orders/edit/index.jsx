@@ -32,6 +32,8 @@ import {
 import { useAppSelector } from "@/store/hooks";
 import { useApiResponse } from "@/hooks/useApiResponse";
 
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+
 const formInit = {
   supplier: "",
   expectedDeliveryDate: "",
@@ -44,6 +46,14 @@ const formInit = {
 const EditPurchaseOrder = ({ poId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
+
+  const { can, loading: permissionsLoading } = useModulePermissions("purchase_order");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("edit")) {
+      router.push("/dashboard/purchase-orders");
+    }
+  }, [can, permissionsLoading, router]);
 
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);

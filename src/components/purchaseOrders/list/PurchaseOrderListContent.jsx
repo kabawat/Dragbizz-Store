@@ -213,6 +213,9 @@ const PurchaseOrderListContent = () => {
                                 formatDate={formatDate}
                                 enableSendMenu={true}
                                 showToast={showToast}
+                                canRead={canView}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         </div>
                     ) : (
@@ -230,6 +233,9 @@ const PurchaseOrderListContent = () => {
                                 formatDate={formatDate}
                                 enableSendMenu={true}
                                 showToast={showToast}
+                                canRead={canView}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         </div>
                     )}
