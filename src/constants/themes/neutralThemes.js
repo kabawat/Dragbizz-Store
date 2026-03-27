@@ -26,11 +26,11 @@ class NeutralThemes {
             {
                 primary: "#06b6d4",
                 secondary: "#22d3ee",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -49,11 +49,11 @@ class NeutralThemes {
             {
                 primary: "#06b6d4",
                 secondary: "#22d3ee",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -72,11 +72,11 @@ class NeutralThemes {
             {
                 primary: "#64748b",
                 secondary: "#475569",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }

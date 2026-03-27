@@ -72,12 +72,12 @@
 
 /* Dark Theme Variant */
 [data-theme="default"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
+  --color-bg-primary: 9 9 11;
+  /* zinc-950 */
+  --color-bg-secondary: 18 18 18;
+  /* zinc-900 */
+  --color-bg-tertiary: 30 30 32;
+  /* zinc-800 */
 
   --color-text-primary: 255 255 255;
   /* white - more light */
@@ -86,10 +86,10 @@
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
 
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
+  --color-border-primary: 30 30 32;
+  /* zinc-800 */
+  --color-border-secondary: 45 45 48;
+  /* zinc-700 */
   --color-border-primary-light: rgba(75, 85, 99, 0.4);
   /* light border with opacity for dark mode - more visible */
 
@@ -97,7 +97,7 @@
   --theme-variant: 'dark';
 
   /* Premium Design Tokens - Dark */
-  --glass-bg: rgba(17, 24, 39, 0.7);
+  --glass-bg: rgba(9, 9, 11, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
@@ -140,25 +140,17 @@
 }
 
 [data-theme="ocean"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
-
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   /* white - more light */
   --color-text-secondary: 229 231 235;
   /* gray-200 - more light */
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
-
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
-
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -199,12 +191,9 @@
 }
 
 [data-theme="forest"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
 
   --color-text-primary: 255 255 255;
   /* white - more light */
@@ -213,10 +202,8 @@
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
 
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
 
   --theme-variant: 'dark';
 }
@@ -258,12 +245,9 @@
 }
 
 [data-theme="sunset"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
 
   --color-text-primary: 255 255 255;
   /* white - more light */
@@ -272,10 +256,8 @@
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
 
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
 
   --theme-variant: 'dark';
 }
@@ -317,12 +299,9 @@
 }
 
 [data-theme="rose"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
 
   --color-text-primary: 255 255 255;
   /* white - more light */
@@ -331,10 +310,8 @@
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
 
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
 
   --theme-variant: 'dark';
 }
@@ -376,12 +353,9 @@
 }
 
 [data-theme="violet"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
 
   --color-text-primary: 255 255 255;
   /* white - more light */
@@ -390,10 +364,8 @@
   --color-text-tertiary: 209 213 219;
   /* gray-300 - more light */
 
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
 
   --theme-variant: 'dark';
 }
@@ -435,25 +407,14 @@
 }
 
 [data-theme="amber"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
-
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
-  /* white - more light */
   --color-text-secondary: 229 231 235;
-  /* gray-200 - more light */
   --color-text-tertiary: 209 213 219;
-  /* gray-300 - more light */
-
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
-
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -494,25 +455,14 @@
 }
 
 [data-theme="teal"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
-
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
-  /* white - more light */
   --color-text-secondary: 229 231 235;
-  /* gray-200 - more light */
   --color-text-tertiary: 209 213 219;
-  /* gray-300 - more light */
-
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
-
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -553,25 +503,14 @@
 }
 
 [data-theme="indigo"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
-
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
-  /* white - more light */
   --color-text-secondary: 229 231 235;
-  /* gray-200 - more light */
   --color-text-tertiary: 209 213 219;
-  /* gray-300 - more light */
-
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
-
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -612,25 +551,14 @@
 }
 
 [data-theme="slate"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  /* gray-900 */
-  --color-bg-secondary: 31 41 55;
-  /* gray-800 */
-  --color-bg-tertiary: 55 65 81;
-  /* gray-700 */
-
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
-  /* white - more light */
   --color-text-secondary: 229 231 235;
-  /* gray-200 - more light */
   --color-text-tertiary: 209 213 219;
-  /* gray-300 - more light */
-
-  --color-border-primary: 55 65 81;
-  /* gray-700 */
-  --color-border-secondary: 75 85 99;
-  /* gray-600 */
-
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -663,14 +591,14 @@
 }
 
 [data-theme="coral"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -696,14 +624,14 @@
 }
 
 [data-theme="emerald"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -729,14 +657,14 @@
 }
 
 [data-theme="sky"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -762,14 +690,14 @@
 }
 
 [data-theme="pink"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -795,14 +723,14 @@
 }
 
 [data-theme="lime"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -828,14 +756,14 @@
 }
 
 [data-theme="cyan"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -861,14 +789,14 @@
 }
 
 [data-theme="purple"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -894,14 +822,14 @@
 }
 
 [data-theme="blue"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 
@@ -927,14 +855,14 @@
 }
 
 [data-theme="green"][data-variant="dark"] {
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
+  --color-bg-primary: 9 9 11;
+  --color-bg-secondary: 18 18 18;
+  --color-bg-tertiary: 30 30 32;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 229 231 235;
   --color-text-tertiary: 209 213 219;
-  --color-border-primary: 55 65 81;
-  --color-border-secondary: 75 85 99;
+  --color-border-primary: 30 30 32;
+  --color-border-secondary: 45 45 48;
   --theme-variant: 'dark';
 }
 

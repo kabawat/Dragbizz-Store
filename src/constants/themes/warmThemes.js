@@ -26,11 +26,11 @@ class WarmThemes {
             {
                 primary: "#3b82f6",
                 secondary: "#6b7280",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -49,11 +49,11 @@ class WarmThemes {
             {
                 primary: "#0ea5e9",
                 secondary: "#06b6d4",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -72,11 +72,11 @@ class WarmThemes {
             {
                 primary: "#22c55e",
                 secondary: "#10b981",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -95,11 +95,11 @@ class WarmThemes {
             {
                 primary: "#fb923c",
                 secondary: "#f97316",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -118,11 +118,11 @@ class WarmThemes {
             {
                 primary: "#f43f5e",
                 secondary: "#fb7185",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }

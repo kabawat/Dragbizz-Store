@@ -26,11 +26,11 @@ class CoolThemes {
             {
                 primary: "#8b5cf6",
                 secondary: "#7c3aed",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -49,11 +49,11 @@ class CoolThemes {
             {
                 primary: "#6366f1",
                 secondary: "#4f46e5",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -72,11 +72,11 @@ class CoolThemes {
             {
                 primary: "#a855f7",
                 secondary: "#c084fc",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -95,11 +95,11 @@ class CoolThemes {
             {
                 primary: "#2563eb",
                 secondary: "#3b82f6",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }
