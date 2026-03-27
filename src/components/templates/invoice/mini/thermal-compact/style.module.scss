@@ -1,7 +1,7 @@
 .thermalInvoice {
     width: 58mm;
     margin: 0 auto;
-    font-family: 'monospace';
+    font-family: var(--font-primary) !important;
     font-size: 8pt;
     padding: 1mm;
     background: white;
