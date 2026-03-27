@@ -34,8 +34,8 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
                 </div>
             </div>
             <div className="flex flex-col items-end gap-1">
-                <button onClick={() => onRemove(item.id)} className="text-[rgb(var(--color-text-secondary))] hover:text-red-500 transition-colors">
-                    <X className="w-4 h-4" />
+                <button onClick={() => onRemove(item.id)} className="text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-danger))] transition-colors">
+                    <Trash2 className="w-4 h-4" />
                 </button>
                 <span className="text-sm font-bold text-[rgb(var(--color-text-primary))]">{fmt(lineTotal)}</span>
             </div>
