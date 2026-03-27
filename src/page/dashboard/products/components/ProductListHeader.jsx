@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProducts, setViewMode } from "@/store/slices/products/productSlice";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import ProductBulkUpload from "@/components/product/ProductBulkUpload";
+import { useRouter } from "next/navigation";
 
 const getCatalogOptions = (t) => [
     { value: "", label: t("products.allVisibility") },
