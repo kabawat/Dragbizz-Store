@@ -17,6 +17,8 @@ export const themes = {
     indigo: coolThemes.indigo,
     purple: coolThemes.purple,
     blue: coolThemes.blue,
+    sapphire: coolThemes.sapphire,
+    midnight: coolThemes.midnight,
 
     // Green Themes
     emerald: greenThemes.emerald,
@@ -33,4 +35,5 @@ export const themes = {
     sky: neutralThemes.sky,
     cyan: neutralThemes.cyan,
     slate: neutralThemes.slate,
+    zinc: neutralThemes.zinc,
 };

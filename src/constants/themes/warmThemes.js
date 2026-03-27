@@ -40,10 +40,10 @@ class WarmThemes {
             {
                 primary: "#0ea5e9",
                 secondary: "#06b6d4",
-                background: "#f0f9ff",
-                surface: "#e0f2fe",
-                text: "#075985",
-                textSecondary: "#0c4a6e",
+                background: "#f7fbff",
+                surface: "#f0f9ff",
+                text: "#082f49",
+                textSecondary: "#075985",
                 border: "#bae6fd",
             },
             {
@@ -63,10 +63,10 @@ class WarmThemes {
             {
                 primary: "#22c55e",
                 secondary: "#10b981",
-                background: "#f0fdf4",
-                surface: "#dcfce7",
-                text: "#14532d",
-                textSecondary: "#166534",
+                background: "#f8fef9",
+                surface: "#f0fdf4",
+                text: "#052e16",
+                textSecondary: "#14532d",
                 border: "#bbf7d0",
             },
             {
@@ -86,10 +86,10 @@ class WarmThemes {
             {
                 primary: "#fb923c",
                 secondary: "#f97316",
-                background: "#fff7ed",
-                surface: "#fed7aa",
-                text: "#9a3412",
-                textSecondary: "#c2410c",
+                background: "#fffaf5",
+                surface: "#fff7ed",
+                text: "#431407",
+                textSecondary: "#9a3412",
                 border: "#fdba74",
             },
             {
@@ -109,10 +109,10 @@ class WarmThemes {
             {
                 primary: "#f43f5e",
                 secondary: "#fb7185",
-                background: "#fff1f2",
-                surface: "#ffe4e6",
-                text: "#881337",
-                textSecondary: "#be123c",
+                background: "#fffafb",
+                surface: "#fff1f2",
+                text: "#4c0519",
+                textSecondary: "#881337",
                 border: "#fecdd3",
             },
             {
