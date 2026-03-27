@@ -18,10 +18,7 @@ const Select = ({
   multiple = false,
   clearable = false,
   className = "",
-  name,
-  id,
   size = "sm",
-  ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,13 +64,14 @@ const Select = ({
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
+    if (searchable && isOpen) {
+      searchRef.current?.focus();
+    }
+
     if (!isOpen) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         setIsOpen(true);
-        if (searchable) {
-          setTimeout(() => searchRef.current?.focus(), 0);
-        }
       }
       return;
     }
@@ -114,12 +112,11 @@ const Select = ({
     onChange?.(multiple ? [] : "");
   };
 
-  // Close dropdown when clicking outside or when another select opens
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside both the select container and the portal dropdown
       const isClickInsideSelect = selectRef.current?.contains(event.target);
-      const isClickInsideDropdown = event.target.closest(".select-dropdown");
+      const isClickInsideDropdown = event.target.closest(".select-dropdown-portal");
 
       if (!isClickInsideSelect && !isClickInsideDropdown) {
         setIsOpen(false);
@@ -128,32 +125,18 @@ const Select = ({
       }
     };
 
-    const handleSelectOpen = (event) => {
-      // If another select opens, close this one
-      const isClickInsideSelect = selectRef.current?.contains(event.target);
-      const isClickInsideDropdown = event.target.closest(".select-dropdown");
-
-      if (isOpen && !isClickInsideSelect && !isClickInsideDropdown) {
-        setIsOpen(false);
-        setSearchTerm("");
-        setHighlightedIndex(-1);
-      }
-    };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("click", handleSelectOpen);
       return () => {
         document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("click", handleSelectOpen);
       };
     }
   }, [isOpen]);
 
-  // Reset highlighted index when options change
+  // Reset highlighted index when options or search term changes
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, []);
+  }, [filteredOptions]);
 
   // Calculate dropdown position for portal
   const getDropdownPosition = () => {
@@ -212,16 +195,12 @@ const Select = ({
                     <span
                       key={option.value}
                       className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))]"
-                      style={{ color: "rgb(var(--color-primary))" }}
                     >
                       {option.label}
                     </span>
                   ))
                 ) : (
-                  <span
-                    className="text-[rgb(var(--color-text-tertiary))] truncate"
-                    style={{ color: "rgb(var(--color-text-tertiary))" }}
-                  >
+                  <span className="text-[rgb(var(--color-text-tertiary))] truncate">
                     {placeholder}
                   </span>
                 )}
@@ -229,11 +208,6 @@ const Select = ({
             ) : (
               <span
                 className={`${selectedOption ? "text-[rgb(var(--color-text-primary))]" : "text-[rgb(var(--color-text-tertiary))]"} ${size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm"} truncate`}
-                style={{
-                  color: selectedOption
-                    ? "rgb(var(--color-text-primary))"
-                    : "rgb(var(--color-text-tertiary))",
-                }}
               >
                 {selectedOption?.label || placeholder}
               </span>
@@ -267,13 +241,11 @@ const Select = ({
           createPortal(
             <div
               style={{
-                position: "fixed",
                 top: dropdownPosition.top,
                 left: dropdownPosition.left,
                 width: dropdownPosition.width,
-                zIndex: 999999,
               }}
-              className="bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg overflow-hidden flex flex-col"
+              className="select-dropdown-portal fixed z-[999999] bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-xl shadow-lg overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Search Input */}
@@ -281,7 +253,6 @@ const Select = ({
                 <div
                   className="p-2 border-b border-[rgb(var(--color-border-primary))]"
                   onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <div className="relative">
                     <Search
@@ -293,13 +264,7 @@ const Select = ({
                       placeholder="Search options..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                      }}
+                      onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => {
                         e.stopPropagation();
                         if (e.key === "Escape") {
@@ -309,19 +274,17 @@ const Select = ({
                         }
                       }}
                       className={`w-full pl-10 pr-3 ${size === "sm" ? "py-2 text-xs" : size === "lg" ? "py-3 text-base" : "py-2 text-sm"} border border-[rgb(var(--color-border-primary))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))]`}
-                      style={{ color: "rgb(var(--color-text-primary))" }}
                     />
                   </div>
                 </div>
               )}
 
               {/* Options List */}
-              <div className="flex flex-col" style={{ maxHeight: "240px" }}>
+              <div className="flex flex-col max-h-[240px]">
                 {/* Scrollable Regular Options */}
                 <div
                   className="flex-1 overflow-y-auto min-h-0"
                   onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   {regularOptions.length > 0 ? (
                     regularOptions.map((option, index) => {
@@ -337,28 +300,14 @@ const Select = ({
                             ? "bg-blue-500 bg-opacity-10"
                             : ""
                             } hover:bg-blue-500 hover:bg-opacity-10`}
-                          style={{
-                            backgroundColor:
-                              isHighlighted || isSelected
-                                ? "rgba(59, 130, 246, 0.1)"
-                                : "transparent",
-                          }}
                           onClick={() => handleSelect(option)}
                           onMouseEnter={() => setHighlightedIndex(index)}
                           onMouseLeave={() => setHighlightedIndex(-1)}
                         >
                           <span
                             className={
-                              isHighlighted || isSelected ? "text-blue-500" : ""
+                              isHighlighted || isSelected ? "text-blue-500" : "text-[rgb(var(--color-text-primary))]"
                             }
-                            style={{
-                              color:
-                                isHighlighted || isSelected
-                                  ? "#3b82f6"
-                                  : "rgb(var(--color-text-primary))",
-                              fontSize: "inherit",
-                              fontWeight: "inherit",
-                            }}
                           >
                             {option.label}
                           </span>
@@ -369,10 +318,7 @@ const Select = ({
                       );
                     })
                   ) : (
-                    <div
-                      className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center"
-                      style={{ color: "rgb(var(--color-text-secondary))" }}
-                    >
+                    <div className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))] text-center">
                       No options found
                     </div>
                   )}
@@ -383,7 +329,6 @@ const Select = ({
                   <div
                     className="flex-shrink-0 border-t border-[rgb(var(--color-border-primary))] bg-[rgb(var(--color-bg-primary))] sticky bottom-0 z-10"
                     onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
                   >
                     {addOptions.map((option, index) => {
                       const addOptionIndex = regularOptions.length + index;
@@ -394,25 +339,13 @@ const Select = ({
                           key={option.value || `add-option-${index}`}
                           className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${isHighlighted ? "bg-blue-500 bg-opacity-10" : ""
                             } hover:bg-blue-500 hover:bg-opacity-10`}
-                          style={{
-                            backgroundColor: isHighlighted
-                              ? "rgba(59, 130, 246, 0.1)"
-                              : "transparent",
-                          }}
                           onClick={() => handleSelect(option)}
                           onMouseEnter={() =>
                             setHighlightedIndex(addOptionIndex)
                           }
                           onMouseLeave={() => setHighlightedIndex(-1)}
                         >
-                          <span
-                            className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary))] text-sm"
-                            style={{
-                              color: "rgb(var(--color-primary))",
-                              fontSize: "inherit",
-                              fontWeight: "inherit",
-                            }}
-                          >
+                          <span className="text-[rgb(var(--color-primary))] text-sm">
                             {option.label}
                           </span>
                         </div>

@@ -85,7 +85,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
     onPrint: canRead ? handlePrint : undefined,
     onDownload: canRead ? () => handleDownloadPDF(invoiceData, invoiceId) : undefined,
     onEdit: canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined,
-    onNew: canCreate ? () => router.push("/dashboard/invoices/add") : undefined,
+    onNew: canCreate ? () => router.push("/dashboard/invoices/create") : undefined,
     onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
     onBack: () => router.push("/dashboard/invoices"),
   });

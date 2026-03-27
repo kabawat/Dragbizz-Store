@@ -11,7 +11,7 @@ const InvoiceEmptyState = () => {
     const { error } = useAppSelector((state) => state.invoices);
 
     const handleAddInvoice = () => {
-        router.push("/dashboard/invoices/add");
+        router.push("/dashboard/invoices/create");
     };
 
     return (
