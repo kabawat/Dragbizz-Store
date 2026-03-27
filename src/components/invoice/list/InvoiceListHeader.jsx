@@ -14,7 +14,7 @@ const InvoiceListHeader = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    
+
     // Permission Management
     const { can, loading } = useModulePermissions("invoice");
     const canCreate = can("create");
@@ -50,7 +50,7 @@ const InvoiceListHeader = () => {
     };
 
     const handleAddInvoice = () => {
-        router.push("/dashboard/invoices/add");
+        router.push("/dashboard/invoices/create");
     };
 
     const handleViewModeChange = (mode) => {

@@ -43,7 +43,7 @@ const InvoiceViewHeader = ({
                     </Button>
                 )}
                 {canCreate && (
-                    <Link href="/dashboard/invoices/add">
+                    <Link href="/dashboard/invoices/create">
                         <Button variant="primary" leftIcon={Plus} className="h-9">
                             {t("invoice.createNewInvoice") || "Create New Invoice"}
                         </Button>

@@ -13,7 +13,7 @@ export const getQuickActions = (t) => [
         icon: PackagePlus,
         path: "/dashboard/products/create",
     },
-    { title: t("dashboard.newInvoice"), icon: FileText, path: "/dashboard/invoices/add" },
+    { title: t("dashboard.newInvoice"), icon: FileText, path: "/dashboard/invoices/create" },
     {
         title: t("dashboard.addSupplier"),
         icon: Building,
