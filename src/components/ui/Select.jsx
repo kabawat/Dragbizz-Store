@@ -159,7 +159,7 @@ const Select = ({
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
           <span className="flex items-center gap-2">
             <span>{label}</span>
-            {required && <span className="text-red-500">*</span>}
+            {required && <span className="text-[rgb(var(--color-danger))]">*</span>}
           </span>
         </label>
       )}
@@ -168,14 +168,14 @@ const Select = ({
       <div
         ref={selectRef}
         className={`relative cursor-pointer border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent ${error
-          ? "border-red-500 bg-red-50"
+          ? "border-[rgb(var(--color-danger))] bg-[rgba(var(--color-danger)/0.05)] focus:ring-[rgb(var(--color-danger"
           : "border-[rgb(var(--color-border-primary))]"
           } ${error
-            ? "border-red-500 focus:ring-red-500"
+            ? "border-[rgb(var(--color-danger))] focus:ring-[rgb(var(--color-danger))]"
             : isOpen
               ? "border-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
               : "border-[rgb(var(--color-border-primary))] focus:ring-[rgb(var(--color-primary))]"
-          } ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))]"}`}
+          } ${disabled ? "bg-[rgb(var(--color-bg-tertiary))] cursor-not-allowed" : "bg-[rgb(var(--color-bg-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? -1 : 0}
@@ -194,7 +194,7 @@ const Select = ({
                   selectedOption.map((option) => (
                     <span
                       key={option.value}
-                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgb(var(--color-primary))] bg-opacity-10 text-[rgb(var(--color-primary))]"
+                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[rgba(var(--color-primary)/0.08)] text-[rgb(var(--color-primary))]"
                     >
                       {option.label}
                     </span>
@@ -296,23 +296,21 @@ const Select = ({
                       return (
                         <div
                           key={`${String(option.value)}-${index}`}
-                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${isHighlighted || isSelected
-                            ? "bg-blue-500 bg-opacity-10"
+                          className={`group px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${isHighlighted || isSelected
+                            ? "bg-[rgba(var(--color-primary)/0.12)]"
                             : ""
-                            } hover:bg-blue-500 hover:bg-opacity-10`}
+                            } hover:bg-[rgba(var(--color-primary)/0.12)]`}
                           onClick={() => handleSelect(option)}
                           onMouseEnter={() => setHighlightedIndex(index)}
                           onMouseLeave={() => setHighlightedIndex(-1)}
                         >
                           <span
-                            className={
-                              isHighlighted || isSelected ? "text-blue-500" : "text-[rgb(var(--color-text-primary))]"
-                            }
+                            className={`${isHighlighted || isSelected ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-primary))]"} group-hover:text-[rgb(var(--color-primary))] transition-colors duration-150`}
                           >
                             {option.label}
                           </span>
                           {(isHighlighted || isSelected) && (
-                            <Check className="w-4 h-4 text-blue-500" />
+                            <Check className="w-4 h-4 text-[rgb(var(--color-primary))] transition-transform duration-200" />
                           )}
                         </div>
                       );
@@ -337,15 +335,15 @@ const Select = ({
                       return (
                         <div
                           key={option.value || `add-option-${index}`}
-                          className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${isHighlighted ? "bg-blue-500 bg-opacity-10" : ""
-                            } hover:bg-blue-500 hover:bg-opacity-10`}
+                          className={`group px-4 py-2 cursor-pointer transition-colors duration-150 ${isHighlighted ? "bg-[rgba(var(--color-primary)/0.12)]" : ""
+                            } hover:bg-[rgba(var(--color-primary)/0.12)]`}
                           onClick={() => handleSelect(option)}
                           onMouseEnter={() =>
                             setHighlightedIndex(addOptionIndex)
                           }
                           onMouseLeave={() => setHighlightedIndex(-1)}
                         >
-                          <span className="text-[rgb(var(--color-primary))] text-sm">
+                          <span className="text-[rgb(var(--color-primary))] group-hover:text-[rgb(var(--color-primary))] text-sm transition-colors duration-150">
                             {option.label}
                           </span>
                         </div>
@@ -363,7 +361,7 @@ const Select = ({
       {(helperText || errorMessage) && (
         <div className="mt-2">
           {error && errorMessage && (
-            <p className="text-sm text-red-600 animate-fade-in">
+            <p className="text-sm text-[rgb(var(--color-danger))] animate-fade-in">
               {errorMessage}
             </p>
           )}

@@ -3,7 +3,7 @@
     max-width: 100% !important;
     margin: 0 auto !important;
     background: white !important;
-    font-family: 'Roboto Mono', 'Consolas', monospace, sans-serif !important;
+    font-family: var(--font-primary) !important;
     color: #2c3e50 !important;
 }
 
@@ -16,7 +16,7 @@
     align-items: center !important;
 
     h1 {
-        font-family: 'Arial', sans-serif !important;
+        font-family: var(--font-primary) !important;
         font-size: 36px !important;
         font-weight: 700 !important;
         margin: 0 !important;
@@ -30,7 +30,7 @@
     font-size: 12px !important;
 
     h2 {
-        font-family: 'Arial', sans-serif !important;
+        font-family: var(--font-primary) !important;
         font-size: 20px !important;
         margin: 0 !important;
         font-weight: 400 !important;
@@ -68,7 +68,7 @@
 
 .detailsBlock {
     width: 48% !important;
-    font-family: 'Arial', sans-serif !important;
+    font-family: var(--font-primary) !important;
 
     .label {
         font-size: 11px !important;
@@ -123,14 +123,14 @@
 
 .productName {
     font-weight: 500 !important;
-    font-family: 'Arial', sans-serif !important;
+    font-family: var(--font-primary) !important;
     color: #333 !important;
 }
 
 .productSku {
     font-size: 11px !important;
     color: #999 !important;
-    font-family: 'Arial', sans-serif !important;
+    font-family: var(--font-primary) !important;
 }
 
 .totalsContainer {
@@ -152,7 +152,7 @@
 
     .totalLabel {
         color: #555 !important;
-        font-family: 'Arial', sans-serif !important;
+        font-family: var(--font-primary) !important;
     }
 
     .amount {
@@ -168,7 +168,7 @@
     justify-content: space-between !important;
     font-size: 24px !important;
     font-weight: 700 !important;
-    font-family: 'Arial', sans-serif !important;
+    font-family: var(--font-primary) !important;
 }
 
 .footer {
