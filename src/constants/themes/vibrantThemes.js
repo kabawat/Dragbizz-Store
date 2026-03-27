@@ -26,11 +26,11 @@ class VibrantThemes {
             {
                 primary: "#f59e0b",
                 secondary: "#fbbf24",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -49,11 +49,11 @@ class VibrantThemes {
             {
                 primary: "#ef4444",
                 secondary: "#f87171",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -72,11 +72,11 @@ class VibrantThemes {
             {
                 primary: "#ec4899",
                 secondary: "#f472b6",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }

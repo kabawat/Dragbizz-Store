@@ -26,11 +26,11 @@ class GreenThemes {
             {
                 primary: "#10b981",
                 secondary: "#34d399",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -49,11 +49,11 @@ class GreenThemes {
             {
                 primary: "#16a34a",
                 secondary: "#22c55e",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -72,11 +72,11 @@ class GreenThemes {
             {
                 primary: "#14b8a6",
                 secondary: "#0f766e",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -95,11 +95,11 @@ class GreenThemes {
             {
                 primary: "#84cc16",
                 secondary: "#a3e635",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }
