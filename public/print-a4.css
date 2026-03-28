@@ -1,0 +1,59 @@
+/* public/print-a4.css */
+@media print {
+  .no-print,
+  nav,
+  header,
+  .sidebar,
+  .header,
+  button,
+  .btn,
+  .action-buttons,
+  .right-sidebar,
+  .template-selector {
+    display: none;
+  }
+
+  body {
+    margin: 0;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #invoice-area,
+  .preview-container,
+  .vintage-invoice,
+  .invoice-wrapper {
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: none;
+    background: white;
+  }
+
+  /* page size */
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  img {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+  }
+
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+@media screen {
+  /* nothing special here */
+}
