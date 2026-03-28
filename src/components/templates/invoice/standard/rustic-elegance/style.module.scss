@@ -3,7 +3,7 @@
     max-width: 100% !important;
     margin: 0 auto !important;
     background: white !important;
-    font-family: 'Playfair Display', serif !important;
+    font-family: var(--font-primary) !important;
     color: #4e342e !important;
 }
 
@@ -45,7 +45,7 @@
     padding: 10px 0 !important;
 
     .title {
-        font-family: 'Lato', sans-serif !important;
+        font-family: var(--font-primary) !important;
         font-size: 11px !important;
         text-transform: uppercase !important;
         font-weight: 700 !important;
@@ -83,7 +83,7 @@
     }
 
     th {
-        font-family: 'Lato', sans-serif !important;
+        font-family: var(--font-primary) !important;
         text-align: left !important;
         font-size: 12px !important;
         text-transform: uppercase !important;

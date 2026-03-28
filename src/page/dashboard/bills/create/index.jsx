@@ -6,13 +6,14 @@ import { useState } from "react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
-import BillItemsSection from "@/components/bill/create/BillItemsSection";
-import BillSidebar from "@/components/bill/create/BillSidebar";
+import BillItemsSection from "@/components/bills/create/BillItemsSection";
+import BillSidebar from "@/components/bills/create/BillSidebar";
 
 const formInit = {
   supplier: "",
@@ -29,16 +30,11 @@ const CreateBill = () => {
   const searchParams = useSearchParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState(formInit);
   const [errors, setErrors] = useState({});
 
-  const {
-    handleApiError,
-    handleApiResult,
-    QuotaModal,
-    showError,
-  } = useErrorHandling();
+  const { showError } = useGlobalToast();
+  const { execute, loading: isSubmitting } = useApiResponse();
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -102,43 +98,33 @@ const CreateBill = () => {
   const handleSubmit = async (isDraft = false) => {
     if (!validateForm() && !isDraft) return;
 
-    try {
-      setIsCreating(true);
-      const billData = {
-        store: selectedStore.storeId,
-        supplier: formData.supplier,
-        purchaseOrder: formData.purchaseOrder || undefined,
-        goodsReceived: !!formData.goodsReceived,
-        items: formData.items.map((item) => ({
-          product: item.product,
-          quantity: parseInt(item.quantity, 10),
-          purchasePrice: parseFloat(item.purchasePrice),
-        })),
-        dueDate: formData.dueDate || undefined,
-        notes: formData.notes || undefined,
-      };
+    const billData = {
+      store: selectedStore.storeId,
+      supplier: formData.supplier,
+      purchaseOrder: formData.purchaseOrder || undefined,
+      goodsReceived: !!formData.goodsReceived,
+      items: formData.items.map((item) => ({
+        product: item.product,
+        quantity: parseInt(item.quantity, 10),
+        purchasePrice: parseFloat(item.purchasePrice),
+      })),
+      dueDate: formData.dueDate || undefined,
+      notes: formData.notes || undefined,
+    };
 
-      const result = await billService.createBill(billData);
-      const handled = handleApiResult(
-        result,
-        t("success.createdSuccessfully", { item: t("common.bill") }),
-        "bill-creation"
-      );
+    const result = await execute(
+      billService.createBill(billData),
+      { message: t("success.createdSuccessfully", { item: t("common.bill") }) }
+    );
 
-      if (handled.type === "success") {
-        setTimeout(() => {
-          const billId = result.data?.id || result.data?._id;
-          if (billId) router.push(`/dashboard/bills/${billId}`);
-          else router.push("/dashboard/bills");
-        }, 1500);
-      } else if (handled.type === "field") {
-        setErrors(handled.fieldErrors);
-      }
-    } catch (error) {
-      const handled = handleApiError(error, "bill-creation");
-      if (handled.type === "field") setErrors(handled.fieldErrors);
-    } finally {
-      setIsCreating(false);
+    if (result?.success) {
+      setTimeout(() => {
+        const billId = result.data?.id || result.data?._id;
+        if (billId) router.push(`/dashboard/bills/${billId}`);
+        else router.push("/dashboard/bills");
+      }, 1500);
+    } else if (result?.fieldErrors) {
+      setErrors(result.fieldErrors);
     }
   };
 
@@ -161,7 +147,7 @@ const CreateBill = () => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="h-screen w-full flex flex-col">
         <Header
           title={t("bills.createBill")}
           description={
@@ -170,8 +156,8 @@ const CreateBill = () => {
               : t("bills.createBillDescription")
           }
         />
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             <div className="mb-4">
               <Link
                 href="/dashboard/bills"
@@ -182,9 +168,9 @@ const CreateBill = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 h-full">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
                   <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
                     <BillItemsSection
                       t={t}
@@ -204,14 +190,13 @@ const CreateBill = () => {
                 handleInputChange={handleInputChange}
                 setFormData={setFormData}
                 errors={errors}
-                isCreating={isCreating}
+                isCreating={isSubmitting}
                 handleSubmit={handleSubmit}
               />
             </div>
           </div>
         </div>
       </div>
-      {QuotaModal}
     </div>
   );
 };

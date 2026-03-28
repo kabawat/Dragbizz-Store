@@ -1,7 +1,7 @@
 "use client";
 import { Save, User } from "lucide-react";
 import { FormDrawer } from "@/components/common";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import authService from "@/service/auth/auth.service";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
@@ -26,7 +26,7 @@ const ProfileSettings = ({ user }) => {
     handleCancel,
   } = useProfileData(user);
 
-  const { showSuccess, showError } = useErrorHandling();
+  const { showSuccess, showError } = useGlobalToast();
 
   const handleSave = async () => {
     try {

@@ -1,98 +1,45 @@
 "use client";
+import { useRef } from "react";
 import { Receipt, Save } from "lucide-react";
-import { useState } from "react";
 import { ExpenseForm } from "@/components/expenses";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
+import { addExpense } from "@/store/slices/expenses/expenseSlice";
+import useApiResponse from "@/hooks/useApiResponse";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { createExpense } from "@/store/slices/expensesSlice";
+import { expenseService } from "@/service/retailer";
 
 const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { isCreating, error: expenseError } = useAppSelector(
-    (state) => state.expenses
-  );
+  const { execute, loading } = useApiResponse();
 
-  const [loading, setLoading] = useState(false);
-  const {
-    handleApiError,
-    handleApiResult,
-    QuotaModal,
-    showSuccess,
-    setQuotaErrorManually,
-  } = useErrorHandling();
-
-  // Get quota information (for validation only, not displayed)
-  const { quota, isLoading: quotaLoading } =
-    useUsageQuota("expense_management");
-
-  // Check if quota is available (validation only)
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true;
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
+  const formRef = useRef(null);
 
   const handleExpenseSubmit = async (formData) => {
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message:
-          quota.remaining === 0
-            ? t("expenses.dailyLimitReached", { limit: quota.limit })
-            : t("quota.quotaExceeded"),
-        quota: quotaData,
-        resetTime:
-          quota.usageType === "DAILY_FIXED"
-            ? "tomorrow"
-            : quota.usageType === "MONTHLY_TOTAL"
-              ? "next month"
-              : null,
-        canUpgrade: true,
-      });
-      return;
+    const expenseData = {
+      ...formData,
+      store: selectedStore?.storeId,
+    };
+
+    const result = await execute(expenseService.createExpense(expenseData), {
+      message: t("expenses.createSuccess"),
+    });
+
+    if (result?.success && result?.data) {
+      const addedExpense = result.data.expense || result.data;
+      dispatch(addExpense(addedExpense));
+      onClose();
+      if (onSuccess) onSuccess(addedExpense);
     }
-
-    try {
-      setLoading(true);
-      const expenseData = {
-        ...formData,
-        store: selectedStore?.storeId,
-      };
-
-      const result = await dispatch(createExpense(expenseData));
-      const handled = handleApiResult(
-        result.payload || result,
-        t("expenses.createSuccess"),
-        "expense-creation"
-      );
-
-      if (handled.type === "success") {
-        onClose();
-        if (onSuccess) {
-          onSuccess(result.payload?.data || result.data);
-        }
-      }
-    } catch (error) {
-      handleApiError(error, "expense-creation");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    onClose();
   };
 
   return (
     <>
       <SideDrawer
         isOpen={isOpen}
-        onClose={handleClose}
+        onClose={() => onClose()}
         title={t("expenses.addNewExpense")}
         icon={Receipt}
         description={t("expenses.recordNewExpense")}
@@ -103,10 +50,9 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
             {/* Main Content Area */}
             <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 min-h-0 pb-4">
               <ExpenseForm
+                formRef={formRef}
                 onSubmit={handleExpenseSubmit}
-                onCancel={handleClose}
-                isLoading={loading || isCreating}
-                error={expenseError}
+                error={null}
                 mode="drawer"
               />
             </div>
@@ -115,12 +61,9 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
             <div className="flex-shrink-0 bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 -mb-3 sm:-mb-4 md:-mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3">
               <Button
                 variant="success"
-                onClick={() => {
-                  const form = document.querySelector("form");
-                  if (form) form.requestSubmit();
-                }}
-                disabled={loading || isCreating}
-                loading={loading || isCreating}
+                onClick={() => formRef.current?.requestSubmit()}
+                disabled={loading}
+                loading={loading}
                 leftIcon={Save}
                 className="w-full sm:w-auto"
                 size="sm"
@@ -129,8 +72,8 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
               </Button>
               <Button
                 variant="outline"
-                onClick={handleClose}
-                disabled={loading || isCreating}
+                onClick={() => onClose()}
+                disabled={loading}
                 className="w-full sm:w-auto"
                 size="sm"
               >
@@ -140,8 +83,6 @@ const AddExpenseDrawer = ({ isOpen, onClose, onSuccess }) => {
           </div>
         </div>
       </SideDrawer>
-
-      {QuotaModal}
     </>
   );
 };

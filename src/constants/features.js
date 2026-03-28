@@ -46,7 +46,7 @@ export const FEATURE_ROUTES = {
   product_management: {
     routes: [
       "/dashboard/products",
-      "/dashboard/products/add",
+      "/dashboard/products/create",
       "/dashboard/products/edit",
     ],
     menuItems: ["Product & Stock"],
@@ -60,11 +60,11 @@ export const FEATURE_ROUTES = {
     menuItems: ["Product & Stock"],
   },
   invoice_management: {
-    routes: ["/dashboard/invoices", "/dashboard/invoices/add"],
+    routes: ["/dashboard/invoices", "/dashboard/invoices/create"],
     menuItems: ["Invoices"],
   },
   customer_management: {
-    routes: ["/dashboard/customers", "/dashboard/customers/add"],
+    routes: ["/dashboard/customers"],
     menuItems: ["Customers"],
   },
   expense_management: {

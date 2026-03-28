@@ -32,7 +32,7 @@ import { Button, Card } from "@/components/ui";
 import { useAnalyticsReportPrint } from "@/hooks/print/useAnalyticsReportPrint";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getSupplierAnalytics } from "@/store/slices/suppliersSlice";
+import { getSupplierAnalytics } from "@/store/slices/supplier/analyticsSlice";
 
 const formatNumber = (num) => (num || 0).toLocaleString("en-IN");
 
@@ -40,7 +40,7 @@ const SupplierAnalytics = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { analytics, isLoading } = useAppSelector((state) => state.suppliers);
+  const { analytics, isLoading } = useAppSelector((state) => state.supplierAnalytics);
   const hasFetchedRef = React.useRef({ storeId: null, fetched: false });
 
   useEffect(() => {

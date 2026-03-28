@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
@@ -10,8 +10,10 @@ import InvoiceViewHeader from "@/components/invoice/view/InvoiceViewHeader";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import useApiResponse from "@/hooks/useApiResponse";
 import { invoiceService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { useInvoicePrint } from "@/hooks/print/invoice/useInvoicePrint";
 import { useMiniInvoicePrint } from "@/hooks/print/invoice/useMiniInvoicePrint";
 import {
@@ -27,10 +29,22 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
-  const [invoiceData, setInvoiceData] = useState(null);
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canRead = can("read");
+  const canEdit = can("edit");
+  const canCreate = can("create");
+
+  useEffect(() => {
+    if (!permissionLoading && !canRead) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canRead, permissionLoading, router]);
+
+  const { execute, data: invoiceData, loading: fetching } = useApiResponse();
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const hasFetched = useRef(false);
 
   const isMiniTemplate = selectedTemplate?.startsWith("thermal");
 
@@ -44,17 +58,20 @@ const ViewInvoicePage = ({ invoiceId }) => {
   const calculatedSubtotal = invoiceData ? calculateSubtotal(invoiceData, calculatedGstAmount, itemsWithGst) : 0;
 
   // Fetch invoice data
-  const fetchInvoiceData = useCallback(async () => {
+  const fetchInvoiceData = useCallback(async (forceRefetch = false) => {
     if (!invoiceId || !storeId) return;
-    try {
-      setFetching(true);
-      const result = await invoiceService.getInvoices({ id: invoiceId, store: storeId });
-      if (result.success && result.data) setInvoiceData(result.data);
-      else showError(result.message || t("errors.failedToFetchData", { item: t("common.invoice") }));
-    } catch (_error) {
-      showError(t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") }));
-    } finally { setFetching(false); }
-  }, [invoiceId, storeId, showError, t]);
+    if (!forceRefetch && hasFetched.current) return;
+    hasFetched.current = true;
+
+    const result = await execute(
+      invoiceService.getInvoices({ id: invoiceId, store: storeId }),
+      { showToast: false }
+    );
+
+    if (!result?.success) {
+      showError(result?.message || t("errors.failedToFetchData", { item: t("common.invoice") }));
+    }
+  }, [invoiceId, storeId, execute, showError, t]);
 
   useEffect(() => { fetchInvoiceData(); }, [fetchInvoiceData]);
 
@@ -65,15 +82,17 @@ const ViewInvoicePage = ({ invoiceId }) => {
 
   // Global actions for this page
   useCommonHotkeys({
-    onPrint: handlePrint,
-    onDownload: () => handleDownloadPDF(invoiceData, invoiceId),
-    onEdit: () => router.push(`/dashboard/invoices/edit/${invoiceId}`),
-    onNew: () => router.push("/dashboard/invoices/add"),
+    onPrint: canRead ? handlePrint : undefined,
+    onDownload: canRead ? () => handleDownloadPDF(invoiceData, invoiceId) : undefined,
+    onEdit: canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined,
+    onNew: canCreate ? () => router.push("/dashboard/invoices/create") : undefined,
     onClose: () => { if (showPaymentStatusModal) setShowPaymentStatusModal(false); },
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  if (fetching) return <InvoiceLoadingState t={t} />;
+  if (fetching || permissionLoading) return <InvoiceLoadingState t={t} />;
+
+  if (!canRead) return null;
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
@@ -85,8 +104,9 @@ const ViewInvoicePage = ({ invoiceId }) => {
             <InvoiceViewHeader
               invoiceData={invoiceData}
               invoiceId={invoiceId}
-              onUpdatePaymentStatus={() => setShowPaymentStatusModal(true)}
-              onDownloadPDF={handleDownloadPDF}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onDownloadPDF={canRead ? handleDownloadPDF : undefined}
+              canCreate={canCreate}
               t={t}
             />
             <InvoicePageLayout
@@ -97,9 +117,9 @@ const ViewInvoicePage = ({ invoiceId }) => {
               itemsWithGst={itemsWithGst}
               calculatedSubtotal={calculatedSubtotal}
               calculatedGstAmount={calculatedGstAmount}
-              onEdit={() => router.push(`/dashboard/invoices/edit/${invoiceId}`)}
-              onUpdatePaymentStatus={() => setShowPaymentStatusModal(true)}
-              onPrint={handlePrint}
+              onEdit={canEdit ? () => router.push(`/dashboard/invoices/${invoiceId}/edit`) : undefined}
+              onUpdatePaymentStatus={canEdit ? () => setShowPaymentStatusModal(true) : undefined}
+              onPrint={canRead ? handlePrint : undefined}
             />
           </div>
         </div>
@@ -110,7 +130,7 @@ const ViewInvoicePage = ({ invoiceId }) => {
           onClose={() => setShowPaymentStatusModal(false)}
           onSuccess={() => {
             showSuccess(t("invoice.paymentStatusUpdated"));
-            fetchInvoiceData();
+            fetchInvoiceData(true);
             setShowPaymentStatusModal(false);
           }}
           invoice={invoiceData}

@@ -1,132 +1,35 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class ExpenseService {
+class ExpenseService extends BaseService {
   constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
+    super();
+    this.endpoint = API_CONFIG?.RETAILER?.EXPENSE;
   }
 
-  // Create a new expense
-  async createExpense(expenseData) {
-    try {
-      const response = await authAxios.post(
-        API_CONFIG?.RETAILER?.EXPENSE,
-        expenseData
-      );
-      return handleApiSuccess(response?.data, "Expense created successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-creation");
-    }
+  createExpense(expenseData) {
+    return this.post(this.endpoint, expenseData);
   }
 
-  // Update an existing expense
-  async updateExpense(expenseId, expenseData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/${expenseId}`;
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-      const response = await authAxios.put(url, expenseData);
-      return handleApiSuccess(response?.data, "Expense updated successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-updation");
-    }
+  updateExpense(expenseId, expenseData, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, expenseId, storeId);
+    return this.put(url, expenseData);
   }
 
-  // Get expenses - supports both list and single item by ID
-  async getExpenses(params = {}) {
-    try {
-      // Build URL with all query parameters including id
-      const url = attachQueryParams(API_CONFIG?.RETAILER?.EXPENSE, params);
-
-      // Call the API
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        params.id
-          ? "Expense fetched successfully"
-          : "Expenses fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "expenses-list");
-    }
+  // Get expenses — list or single by ID (pass { id, store, ... } as params)
+  getExpenses(params = {}) {
+    return this.get(this.endpoint, params);
   }
 
-  // Delete an expense by ID
-  async deleteExpense(expenseId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/${expenseId}`;
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-      const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, "Expense deleted successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-deletion");
-    }
+  deleteExpense(expenseId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, expenseId, storeId);
+    return this.delete(url);
   }
 
-  // Search expenses by title, bill number, or vendor
-  async searchExpenses(searchTerm, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/search`;
-      const params = { q: searchTerm };
-      if (storeId) {
-        params.store = storeId;
-      }
-      url = attachQueryParams(url, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, "Expenses searched successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-search");
-    }
-  }
-
-  // Get expense statistics
-  async getExpenseStats(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.EXPENSE}/stats`;
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Expense statistics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-stats");
-    }
-  }
-
-  // Get expense analytics
-  async getExpenseAnalytics(storeId = null, period = "30") {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.ANALYTICS}/expenses`;
-      const params = {};
-      if (storeId) {
-        params.store = storeId;
-      }
-      if (period) {
-        params.period = period;
-      }
-      url = attachQueryParams(url, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Expense analytics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "expense-analytics");
-    }
+  getExpenseStats(storeId = null) {
+    return this.get(`${this.endpoint}/stats`, storeId ? { store: storeId } : {});
   }
 }
 
-// Create and export a singleton instance
-const expenseService = new ExpenseService();
+export const expenseService = new ExpenseService();
 export default expenseService;

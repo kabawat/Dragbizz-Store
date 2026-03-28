@@ -3,6 +3,7 @@
   "description": "Manage purchase orders",
   "createPO": "Create PO",
   "createPODescription": "Add a new purchase order for suppliers",
+  "viewPODescription": "View detailed information about this purchase order",
   "editPO": "Edit Purchase Order",
   "deletePO": "Delete Purchase Order",
   "poNumber": "PO Number",

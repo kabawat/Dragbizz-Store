@@ -54,6 +54,8 @@ const API_CONFIG = {
     SALES_ORDER: "/retailer/sales-order",
     SIGNATURE: "/retailer/signature",
     SUGGESTION: "/retailer/suggestion",
+    STAFF: "/retailer/staff",
+    SUBSCRIPTION: "/retailer/subscription",
   },
 
   // Utility Service Endpoints
@@ -72,11 +74,9 @@ const API_CONFIG = {
   // Subscription Service Endpoints
   SUBSCRIPTION: {
     PACKAGES: "/plans/packages",
-    SUBSCRIPTIONS: "/plans/subscriptions",
     CHECKOUT: "/plans/checkout",
     PAYMENT: "/plans/payment",
     WEBHOOKS: "/plans/webhooks",
-    USAGE: "/plans/usage",
   },
 
   // External Services

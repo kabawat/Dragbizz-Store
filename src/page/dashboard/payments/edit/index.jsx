@@ -19,6 +19,8 @@ import {
   supplierService,
 } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import { INITIAL_PAYMENT_METHOD } from "./constants";
 import { transformApiMethodsToForm } from "./utils";
 import { PaymentTipsSidebar } from "./components/PaymentTipsSidebar";
@@ -31,17 +33,30 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
   const params = useParams();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("billing");
+  const canEdit = can("edit");
+
+  useEffect(() => {
+    if (!permissionLoading && !canEdit) {
+      router.replace("/dashboard/payments");
+    }
+  }, [canEdit, permissionLoading, router]);
+
   // Derived State
   const paymentId = propPaymentId || params?.id;
 
   // States
   const [suppliers, setSuppliers] = useState([]);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [bills, setBills] = useState([]);
-  const [billsLoading, setBillsLoading] = useState(false);
 
-  const [status, setStatus] = useState({ updating: false, fetching: true });
+  const [status, setStatus] = useState({ fetching: true });
   const [errors, setErrors] = useState({ fetch: null, update: null, form: {} });
+
+  const { execute: executeFetchPayment } = useApiResponse();
+  const { execute: executeUpdate, loading: updating } = useApiResponse();
+  const { execute: executeBills, loading: billsLoading } = useApiResponse();
+  const { execute: executeSuppliers, loading: suppliersLoading } = useApiResponse();
 
   const [formData, setFormData] = useState({
     supplierId: "",
@@ -60,42 +75,33 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
       setBills([]);
       return;
     }
-    try {
-      setBillsLoading(true);
-      const result = await billService.getBills({
-        store: selectedStore.storeId,
-        supplier: supplierId,
-        lightweight: true,
-        limit: 100,
-      });
-      if (result.success) {
-        setBills(result.data?.data || result.data || []);
-      } else {
-        setBills([]);
-      }
-    } catch {
+    const result = await executeBills(billService.getBills({
+      store: selectedStore.storeId,
+      supplier: supplierId,
+      lightweight: true,
+      limit: 100,
+    }), { showToast: false });
+    
+    if (result?.success) {
+      setBills(result.data?.data || result.data || []);
+    } else {
       setBills([]);
-    } finally {
-      setBillsLoading(false);
     }
-  }, [selectedStore]);
+  }, [selectedStore, executeBills]);
 
   const fetchSuppliers = useCallback(async () => {
     if (!selectedStore?.storeId) return;
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: selectedStore.storeId,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } finally {
-      setSuppliersLoading(false);
+    
+    const result = await executeSuppliers(supplierService.getSuppliers({
+      limit: 100,
+      lightweight: true,
+      store: selectedStore.storeId,
+    }), { showToast: false });
+    
+    if (result?.success) {
+      setSuppliers(result.data?.data || result.data || []);
     }
-  }, [selectedStore]);
+  }, [selectedStore, executeSuppliers]);
 
   useEffect(() => {
     const fetchPaymentData = async () => {
@@ -106,12 +112,12 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
         setStatus(prev => ({ ...prev, fetching: true }));
         setErrors(prev => ({ ...prev, fetch: null }));
 
-        const result = await paymentService.getPayments({
+        const result = await executeFetchPayment(paymentService.getPayments({
           store: selectedStore.storeId,
           id: paymentId,
-        });
+        }), { showToast: false });
 
-        if (result.success && result.data) {
+        if (result?.success && result.data) {
           const data = result.data;
           const supplierId = data.supplier?._id || data.supplier?.id || data.supplier || "";
           const billId = data.paymentType === "BILL_PAYMENT" ? (data.bill?._id || data.bill?.id || data.bill || "") : "";
@@ -126,10 +132,11 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
 
           if (supplierId) fetchBills(supplierId);
         } else {
-          setErrors(prev => ({ ...prev, fetch: result.message || "Failed to fetch payment" }));
+          setErrors(prev => ({ ...prev, fetch: result?.message || "Failed to fetch payment" }));
         }
-      } catch {
-        setErrors(prev => ({ ...prev, fetch: "Failed to fetch payment data" }));
+      } catch (error) {
+        console.error("Fetch payment error:", error);
+        setErrors(prev => ({ ...prev, fetch: "An error occurred while fetching payment data" }));
       } finally {
         setStatus(prev => ({ ...prev, fetching: false }));
       }
@@ -234,24 +241,20 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    try {
-      setStatus(prev => ({ ...prev, updating: true }));
-      setErrors(prev => ({ ...prev, update: null, form: {} }));
+    setErrors(prev => ({ ...prev, update: null, form: {} }));
 
-      const dataToSubmit = { ...formData, store: selectedStore?.storeId };
-      const transformedData = paymentService.transformPaymentData(dataToSubmit);
+    const dataToSubmit = { ...formData, store: selectedStore?.storeId };
+    const transformedData = paymentService.transformPaymentData(dataToSubmit);
 
-      const result = await paymentService.updatePayment(paymentId, transformedData, selectedStore?.storeId);
+    const result = await executeUpdate(
+      paymentService.updatePayment(paymentId, transformedData, selectedStore?.storeId)
+    );
 
-      if (result.success) {
-        setShowSuccessModal(true);
-      } else {
-        setErrors(prev => ({ ...prev, update: result.message || t("errors.failedToUpdate") }));
-      }
-    } catch {
-      setErrors(prev => ({ ...prev, update: t("errors.failedToUpdateTryAgain") }));
-    } finally {
-      setStatus(prev => ({ ...prev, updating: false }));
+    if (result?.success) {
+      // Redux slice update happens optimistically via component dispatches normally, but here we just show modal
+      setShowSuccessModal(true);
+    } else {
+      setErrors(prev => ({ ...prev, update: result?.message || t("errors.failedToUpdate") }));
     }
   };
 
@@ -341,8 +344,8 @@ const EditPayment = ({ paymentId: propPaymentId }) => {
                 </div>
 
                 <div className="mt-6 flex justify-end space-x-3 bg-[rgb(var(--color-bg-primary))] pt-4 border-t">
-                  <Button variant="outline" onClick={() => router.push("/dashboard/payments")} disabled={status.updating}>Cancel</Button>
-                  <Button variant="success" onClick={handleSubmit} disabled={status.updating} loading={status.updating} leftIcon={Save}>Update Payment</Button>
+                  <Button variant="outline" onClick={() => router.push("/dashboard/payments")} disabled={updating}>Cancel</Button>
+                  <Button variant="success" onClick={handleSubmit} disabled={updating} loading={updating} leftIcon={Save}>Update Payment</Button>
                 </div>
               </div>
 

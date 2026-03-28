@@ -1,6 +1,7 @@
 import moment from "moment";
 import { Eye, Printer, Clock, CheckCircle, Package, XCircle, MoreVertical, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const StatusBadge = ({ status }) => {
@@ -51,8 +52,9 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => {
+const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint, canEdit = false }) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const [openMenuId, setOpenMenuId] = useState(null);
     const [hoveredRow, setHoveredRow] = useState(null);
     const menuRefs = useRef({});
@@ -102,10 +104,10 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                             <th className="w-1/4 px-4 py-2 text-left">
                                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">{t("common.orderId")}</span>
                             </th>
-                            <th className="w-1/5 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.customer")}</th>
                             <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.date")}</th>
+                            <th className="w-1/5 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.customer")}</th>
+                            <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.amount")}</th>
                             <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.delivery")}</th>
-                            <th className="w-1/6 px-4 py-2 text-right font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.amount")}</th>
                             <th className="w-1/6 px-4 py-2 text-left font-semibold text-[rgb(var(--color-text-primary))] text-sm uppercase tracking-wider">{t("common.payment")}</th>
                             <th className="w-24 px-4 py-2 text-center">
                                 <MoreVertical className="w-4 h-4 mx-auto" />
@@ -129,7 +131,11 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                     onMouseEnter={() => setHoveredRow(index)}
                                     onMouseLeave={() => setHoveredRow(null)}
                                 >
-                                    <td className="w-1/4 px-4 py-2 relative">
+                                    <td
+                                        className="w-1/4 px-4 py-2 relative cursor-pointer transition-colors "
+                                        onClick={() => onViewDetails?.(orderId)}
+                                        title={t("common.viewDetails")}
+                                    >
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center border border-[rgb(var(--color-primary))]/20">
                                                 <Package className="w-6 h-6 text-[rgb(var(--color-primary))]" />
@@ -146,16 +152,6 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="w-1/5 px-4 py-2">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] truncate">
-                                                {order.customer?.name || t("common.guest")}
-                                            </span>
-                                            <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
-                                                {order.customer?.phone || order.customer?.email || ""}
-                                            </span>
-                                        </div>
-                                    </td>
                                     <td className="w-1/6 px-4 py-2">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
@@ -166,16 +162,37 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="w-1/6 px-4 py-2">
-                                        <StatusBadge status={order.status} />
+                                    <td
+                                        className={`w-1/5 px-4 py-2 relative transition-colors cursor-pointer`}
+                                        onClick={(e) => {
+                                            if (order.customer?.id) {
+                                                e.stopPropagation();
+                                                router.push(`/dashboard/customers/${order.customer.id}`);
+                                            }
+                                        }}
+                                        title={order.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className={`text-sm font-semibold truncate`}>
+                                                {order.customer?.name || t("common.guest")}
+                                            </span>
+                                            <span className="text-xs text-[rgb(var(--color-text-secondary))] truncate">
+                                                {order.customer?.phone || order.customer?.email || ""}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td className="w-1/6 px-4 py-2 text-right">
-                                        <div className="flex flex-col items-end">
+
+                                    <td className="w-1/6 px-4 py-2 text-left">
+                                        <div className="flex flex-col items-start">
                                             <span className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
                                                 ₹{(order.financials?.totalAmount || order.totalAmount || 0).toLocaleString()}
                                             </span>
                                         </div>
                                     </td>
+                                    <td className="w-1/6 px-4 py-2">
+                                        <StatusBadge status={order.status} />
+                                    </td>
+
                                     <td className="w-1/6 px-4 py-2">
                                         <StatusBadge status={order.paymentStatus} />
                                     </td>
@@ -203,7 +220,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                         {t("common.viewDetails")}
                                                     </button>
 
-                                                    {order.status === "PROCESSING" && (
+                                                    {canEdit && order.status === "PROCESSING" && (
                                                         <>
                                                             <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
                                                             <button
@@ -216,7 +233,7 @@ const SalesOrderTable = ({ orders, onViewDetails, onUpdateStatus, onPrint }) => 
                                                         </>
                                                     )}
 
-                                                    {(order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
+                                                    {canEdit && (order.status === "SHIPPED" || order.status === "IN_TRANSIT" || order.status === "OUT_FOR_DELIVERY" || order.status === "DELIVERED") && order.paymentStatus !== "PAID" && (
                                                         <>
                                                             <div className="h-px bg-[rgb(var(--color-border-primary))] my-1"></div>
                                                             <button

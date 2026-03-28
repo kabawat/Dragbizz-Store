@@ -3,7 +3,7 @@
     width: 100%;
     height: 100%;
     background: white;
-    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-family: var(--font-primary) !important;
     color: #34495e;
     font-size: 14px;
     box-sizing: border-box;

@@ -1,4 +1,5 @@
 {
+  "payment": "Payment",
   "title": "Payments",
   "description": "Payments ko manage karo",
   "manageUpiIds": "UPI IDs Manage karein",
@@ -19,6 +20,7 @@
   "backToPayments": "Payments par wapas jao",
   "basicDetails": "Basic Details",
   "paymentType": "Payment Type",
+  "type": "Type",
   "supplier": "Supplier",
   "selectSupplier": "Supplier select karo",
   "loadingSuppliers": "Suppliers load ho rahe hain...",

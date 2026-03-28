@@ -10,6 +10,9 @@ import { billService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { formatCurrency } from "@/utils/currencyFormatter";
 import { formatDate, formatDateTime } from "@/utils/dateFormatter";
+import { useApiResponse } from "@/hooks/useApiResponse";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import BillActions from "./components/BillActions";
 import BillBatches from "./components/BillBatches";
 import BillHeader from "./components/BillHeader";
@@ -23,51 +26,47 @@ import LoadingState from "./components/LoadingState";
 import { useBillDetailsPrint } from "./hooks/useBillDetailsPrint";
 
 const ViewBillPage = ({ billId }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
+  const { can } = useModulePermissions("billing");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+  const canRead = can("read");
+
   const [error, setError] = useState(null);
   const [billData, setBillData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [deletedBillNumber, setDeletedBillNumber] = useState("");
   const hasFetched = useRef(false);
+
+  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
   const { handleDownloadPDF } = useBillDetailsPrint(fetching, billData);
 
   useEffect(() => {
     const fetchBillData = async () => {
       if (!billId || !storeId || hasFetched.current) return;
-
       hasFetched.current = true;
-      try {
-        setFetching(true);
-        setError(null);
 
-        const params = {
-          store: storeId,
-          id: billId,
-        };
-        const result = await billService.getBills(params);
+      const result = await executeFetch(
+        billService.getBills({ store: storeId, id: billId }),
+        { showToast: false }
+      );
 
-        if (result.success && result.data) {
-          setBillData(result.data);
-        } else {
-          setError(result.message || "Failed to fetch bill data");
-        }
-      } catch (_error) {
-        setError("Failed to fetch bill data. Please try again.");
-      } finally {
-        setFetching(false);
+      if (result?.success && result.data) {
+        setBillData(result.data);
+      } else {
+        setError(result?.message || "Failed to fetch bill data");
       }
     };
 
     fetchBillData();
-  }, [billId, storeId]);
+  }, [billId, storeId, executeFetch]);
 
   const handleEditBill = () => {
     router.push(`/dashboard/bills/${billId}/edit`);
@@ -80,23 +79,18 @@ const ViewBillPage = ({ billId }) => {
   const handleConfirmDelete = async () => {
     if (!billId || !storeId) return;
 
-    setIsDeleting(true);
-    try {
-      const result = await billService.deleteBill(billId, storeId);
+    const result = await executeDelete(
+      billService.deleteBill(billId, storeId),
+      { message: billData?.billNumber ? `${billData.billNumber} deleted successfully` : "Bill deleted successfully" }
+    );
 
-      if (result.success) {
-        setDeletedBillNumber(billData?.billNumber || "Bill");
-        setShowDeleteSuccessModal(true);
-        setShowDeleteModal(false);
-      } else {
-        setError(result.message || "Failed to delete bill");
-        setShowDeleteModal(false);
-      }
-    } catch (_error) {
-      setError("Failed to delete bill. Please try again.");
+    if (result?.success) {
+      setDeletedBillNumber(billData?.billNumber || "Bill");
+      setShowDeleteSuccessModal(true);
       setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
+    } else {
+      setError(result?.message || "Failed to delete bill");
+      setShowDeleteModal(false);
     }
   };
 
@@ -117,7 +111,10 @@ const ViewBillPage = ({ billId }) => {
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
       <div className="h-screen w-full flex flex-col overflow-hidden">
-        <Header title="View Bill" description="Bill information and details" />
+        <Header
+          title={t("bills.viewBill")}
+          description={t("bills.viewBillDescription")}
+        />
         <div className="flex-1 p-6 overflow-hidden">
           <div className="">
             <div className="mb-6">
@@ -126,7 +123,7 @@ const ViewBillPage = ({ billId }) => {
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Bills</span>
+                <span className="text-sm font-medium">{t("bills.backToBills", { defaultValue: "Back to Bills" })}</span>
               </Link>
             </div>
 
@@ -181,9 +178,9 @@ const ViewBillPage = ({ billId }) => {
                   <div className="lg:col-span-1 h-full overflow-y-auto px-1">
                     <BillActions
                       billData={billData}
-                      onEditBill={handleEditBill}
-                      onDeleteBill={handleDeleteBill}
-                      onDownloadPDF={handleDownloadPDF}
+                      onEditBill={canEdit ? handleEditBill : undefined}
+                      onDeleteBill={canDelete ? handleDeleteBill : undefined}
+                      onDownloadPDF={canRead ? handleDownloadPDF : undefined}
                       formatCurrency={formatCurrency}
                       formatDate={formatDate}
                       formatDateTime={formatDateTime}

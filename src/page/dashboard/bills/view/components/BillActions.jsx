@@ -1,6 +1,7 @@
 "use client";
 import { Download, Edit, Receipt, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const BillActions = ({
   billData,
@@ -11,6 +12,7 @@ const BillActions = ({
   formatDate,
   formatDateTime,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]/60 overflow-hidden">
@@ -25,35 +27,41 @@ const BillActions = ({
         </div>
 
         <div className="p-5 flex flex-row items-center gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
-            onClick={onEditBill}
-            leftIcon={Edit}
-            size="sm"
-          >
-            Edit
-          </Button>
+          {onEditBill && (
+            <Button
+              variant="outline"
+              className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+              onClick={onEditBill}
+              leftIcon={Edit}
+              size="sm"
+            >
+              {t("common.edit")}
+            </Button>
+          )}
 
-          <Button
-            variant="outline"
-            className="flex-1 h-8 text-red-600 border-red-600/10 hover:bg-red-600/5 font-bold text-[10px] uppercase px-2"
-            onClick={onDeleteBill}
-            leftIcon={Trash2}
-            size="sm"
-          >
-            Delete
-          </Button>
+          {onDeleteBill && (
+            <Button
+              variant="outline"
+              className="flex-1 h-8 text-red-600 border-red-600/10 hover:bg-red-600/5 font-bold text-[10px] uppercase px-2"
+              onClick={onDeleteBill}
+              leftIcon={Trash2}
+              size="sm"
+            >
+              {t("common.delete")}
+            </Button>
+          )}
 
-          <Button
-            variant="primary"
-            className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
-            onClick={() => onDownloadPDF?.(billData)}
-            leftIcon={Download}
-            size="sm"
-          >
-            PDF
-          </Button>
+          {onDownloadPDF && (
+            <Button
+              variant="primary"
+              className="flex-1 h-8 font-bold text-[10px] uppercase px-2"
+              onClick={() => onDownloadPDF?.(billData)}
+              leftIcon={Download}
+              size="sm"
+            >
+              PDF
+            </Button>
+          )}
         </div>
 
         {/* Financial Summary Card */}

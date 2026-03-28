@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 
+// On Mac, Cmd (metaKey) acts as Ctrl for app shortcuts
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
+
 // Modifier bit masks
 const MODIFIERS = {
     ctrl: 1,
@@ -30,13 +33,12 @@ const ALIASES = {
     f12: 'f12',
 };
 
-// Helper to confirm which modifiers are active
+// Active modifier detection — on Mac, Cmd (meta) is treated as Ctrl
 const getActiveModifiers = (event) => {
     let modifiers = 0;
-    if (event.ctrlKey) modifiers |= MODIFIERS.ctrl;
+    if (event.ctrlKey || (isMac && event.metaKey)) modifiers |= MODIFIERS.ctrl;
     if (event.altKey) modifiers |= MODIFIERS.alt;
     if (event.shiftKey) modifiers |= MODIFIERS.shift;
-    if (event.metaKey) modifiers |= MODIFIERS.meta;
     return modifiers;
 };
 
@@ -65,14 +67,18 @@ export const useHotkeys = (keyMap, inputs = []) => {
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            const tagName = event.target.tagName.toLowerCase();
-            if ((tagName === 'input' || tagName === 'textarea' || event.target.isContentEditable) &&
-                event.key.toLowerCase() !== 'escape') {
+            if (!event || !event.key) return; // Safeguard against missing event data
+
+            const tagName = event.target?.tagName?.toLowerCase() || '';
+            const pressedKeyStr = event.key.toLowerCase();
+
+            if ((tagName === 'input' || tagName === 'textarea' || event.target?.isContentEditable) &&
+                pressedKeyStr !== 'escape') {
                 return;
             }
 
             const activeModifiers = getActiveModifiers(event);
-            const pressedKey = event.key.toLowerCase();
+            const pressedKey = pressedKeyStr;
 
             // Loop through all defined hotkeys
             Object.entries(handlersRef.current).forEach(([combo, handler]) => {

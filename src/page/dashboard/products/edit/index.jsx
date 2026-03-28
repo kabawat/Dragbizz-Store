@@ -13,18 +13,34 @@ import {
 } from "@/components/product";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { productService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const UpdateProductPage = ({ productId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
 
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const { can, loading: permissionsLoading } = useModulePermissions("product");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("edit")) {
+      router.push("/dashboard/products");
+    }
+  }, [can, permissionsLoading, router]);
+
+  // Separate hooks: one for fetching, one for saving
+  const { execute: executeFetch, loading: initialLoading } = useApiResponse();
+  const {
+    execute: executeSave,
+    loading,
+    fieldErrors,
+    setFieldErrors,
+  } = useApiResponse();
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [updatedProductName, setUpdatedProductName] = useState("");
@@ -68,18 +84,16 @@ const UpdateProductPage = ({ productId }) => {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [fieldErrors, setFieldErrors] = useState({});
 
   // Fetch product data on component mount
   useEffect(() => {
     const fetchProductData = async () => {
-      try {
-        setInitialLoading(true);
-        const params = {
-          store: storeId,
-          id: productId,
-        };
-        const result = await productService.getProducts(params);
+      const result = await executeFetch(
+        productService.getProducts({ store: storeId, id: productId }),
+        { showToast: false }
+      );
+
+      if (result?.success) {
         const product = result.data;
 
         // Transform API data to form data structure based on the actual response format
@@ -87,11 +101,7 @@ const UpdateProductPage = ({ productId }) => {
           store: storeId,
           name: product?.name || "",
           brand: product?.brand || "",
-          category:
-            product?.category?._id ||
-            product?.category?.id ||
-            product?.category ||
-            "",
+          category: product?.category?._id || product?.category?.id || (typeof product?.category === "string" ? product?.category : "") || "",
           barcode: product?.barcode || "",
           sku: product?.sku || "",
           // Pricing data - directly from API response
@@ -132,17 +142,15 @@ const UpdateProductPage = ({ productId }) => {
         };
 
         setFormData(transformedData);
-      } catch (_error) {
-
+      } else {
         setProductNotFound(true);
-      } finally {
-        setInitialLoading(false);
       }
     };
+
     if (productId && storeId) {
       fetchProductData();
     }
-  }, [productId, storeId]);
+  }, [productId, storeId, executeFetch]);
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -195,58 +203,39 @@ const UpdateProductPage = ({ productId }) => {
 
   // Handle save and update
   const handleSaveAndUpdate = async () => {
-    try {
-      setLoading(true);
-      setFieldErrors({});
+    setFieldErrors({});
 
-      // Calculate discount percentage based on MRP and sellingPrice
-      const mrp = parseFloat(formData.mrp) || 0;
-      const sellingPrice = parseFloat(formData.sellingPrice) || 0;
-      let discountPercentage = "0";
+    // Calculate discount percentage based on MRP and sellingPrice
+    const mrp = parseFloat(formData.mrp) || 0;
+    const sellingPrice = parseFloat(formData.sellingPrice) || 0;
+    let discountPercentage = "0";
 
-      if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
-        discountPercentage = String(
-          Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100
-        ); // Round to 2 decimal places
-      }
-
-      const updateData = {
-        ...formData,
-        pricing: {
-          basePrice: formData.basePrice,
-          mrp: formData.mrp,
-          sellingPrice: formData.sellingPrice,
-          discount: discountPercentage,
-          currency: formData.currency,
-          uom: formData.uom,
-        },
-      };
-
-      const result = await productService.updateProduct(
-        productId,
-        updateData,
-        storeId
+    if (mrp > 0 && sellingPrice > 0 && mrp > sellingPrice) {
+      discountPercentage = String(
+        Math.round(((mrp - sellingPrice) / mrp) * 100 * 100) / 100
       );
+    }
 
-      if (result.success) {
-        // Show success modal instead of direct redirect
-        setUpdatedProductName(formData.name || "Product");
-        setShowSuccessModal(true);
-      } else {
-        if (result?.error?.data) {
-          setFieldErrors(result?.error?.data?.fields || {});
-        }
-      }
-    } catch (error) {
-      // Handle API error response
-      if (error.response?.data) {
-        const errorData = error.response.data;
-        if (errorData.data?.fields) {
-          setFieldErrors(errorData.data.fields);
-        }
-      }
-    } finally {
-      setLoading(false);
+    const updateData = {
+      ...formData,
+      pricing: {
+        basePrice: formData.basePrice,
+        mrp: formData.mrp,
+        sellingPrice: formData.sellingPrice,
+        discount: discountPercentage,
+        currency: formData.currency,
+        uom: formData.uom,
+      },
+    };
+
+    const result = await executeSave(
+      productService.updateProduct(productId, updateData, storeId),
+      { message: t("products.updateSuccess") }
+    );
+
+    if (result?.success) {
+      setUpdatedProductName(formData.name || "Product");
+      setShowSuccessModal(true);
     }
   };
 
@@ -262,7 +251,7 @@ const UpdateProductPage = ({ productId }) => {
   };
 
   // Loading state
-  if (initialLoading) {
+  if (initialLoading || permissionsLoading) {
     return (
       <div className="flex h-screen relative overflow-hidden">
         <Sidebar />

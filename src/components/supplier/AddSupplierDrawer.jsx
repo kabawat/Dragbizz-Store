@@ -3,25 +3,18 @@ import SupplierForm from "./SupplierForm";
 import { Building2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button, SideDrawer } from "@/components/ui";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGstVerification } from "@/hooks/form/useGstVerification";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId || "";
 
-  const {
-    handleApiError,
-    handleApiResult,
-    fieldErrors,
-    setFieldErrors,
-    QuotaModal,
-    clearFieldErrors,
-  } = useErrorHandling();
+  const { execute, loading, clearAll, fieldErrors, setFieldErrors } = useApiResponse();
 
   // Initial form data
   const getInitialFormData = useCallback(() => ({
@@ -35,7 +28,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
   }), [storeId]);
 
   const [formData, setFormData] = useState(getInitialFormData());
-  const [loading, setLoading] = useState(false);
 
   // GST Verification Hook
   const gstVerification = useGstVerification({
@@ -53,13 +45,12 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
     },
   });
 
-  // Reset form when drawer opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData(getInitialFormData());
-      clearFieldErrors();
+      clearAll();
     }
-  }, [isOpen, clearFieldErrors, getInitialFormData]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update store ID when selectedStore changes
   useEffect(() => {
@@ -94,45 +85,32 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
 
   // Handle save and publish
   const handleSaveAndPublish = async () => {
-    try {
-      setLoading(true);
-      clearFieldErrors();
+    clearAll();
 
-      if (!formData.phone && !formData.email) {
-        const errorMsg = t("suppliers.phoneOrEmailRequired");
-        setFieldErrors({
-          phone: errorMsg,
-          email: errorMsg,
-        });
-        setLoading(false);
-        return;
-      }
+    if (!formData.phone && !formData.email) {
+      const errorMsg = t("suppliers.phoneOrEmailRequired");
+      setFieldErrors({ phone: errorMsg, email: errorMsg });
+      return;
+    }
 
-      const result = await supplierService.createSupplier(formData);
-      const handled = handleApiResult(
-        result,
-        t("suppliers.addSuccess"),
-        "supplier-creation"
-      );
+    const result = await execute(
+      supplierService.createSupplier(formData),
+      { message: t("suppliers.addSuccess") }
+    );
 
-      if (handled.type === "success") {
-        setFormData(getInitialFormData());
-        clearFieldErrors();
-        onClose();
-        if (onSuccess) {
-          onSuccess(result.data);
-        }
-      }
-    } catch (error) {
-      handleApiError(error, "supplier-creation");
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      setFormData(getInitialFormData());
+      clearAll();
+      onClose();
+      onSuccess?.(result.data);
+    } else if (result?.fieldErrors) {
+      setFieldErrors(result.fieldErrors);
     }
   };
 
   const handleClose = () => {
     setFormData(getInitialFormData());
-    setFieldErrors({});
+    clearAll();
     onClose();
   };
 
@@ -186,7 +164,6 @@ const AddSupplierDrawer = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </SideDrawer>
 
-      {QuotaModal}
     </>
   );
 };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
@@ -21,7 +22,7 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { execute, loading: isDownloading } = useApiResponse();
 
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
   const [customStartDate, setCustomStartDate] = useState("");
@@ -150,7 +151,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    setIsDownloading(true);
     try {
       const params = buildDownloadParams(
         storeId,
@@ -159,26 +159,27 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         selectedFields
       );
 
-      const result = await customerService.getCustomers(params);
+      const result = await execute(
+        customerService.getCustomers(params),
+        { showToast: false }
+      );
 
-      if (result.success && result.data) {
+      if (result?.success && result.data) {
         const customersData = result.data?.data || result.data || [];
 
         if (customersData.length === 0) {
           showError(t("customers.noCustomersFoundToDownload"));
-          setIsDownloading(false);
           return;
         }
 
         await downloadCustomersFile(customersData);
         showSuccess(t("customers.customersDownloadedSuccessfully"));
       } else {
-        showError(result.message || t("customers.failedToDownloadCustomers"));
+        showError(result?.message || t("customers.failedToDownloadCustomers"));
       }
     } catch (_error) {
       showError(t("customers.errorDownloadingCustomers"));
     } finally {
-      setIsDownloading(false);
       handleClose();
     }
   };
@@ -207,7 +208,6 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    setIsDownloading(true);
     try {
       const params = buildDownloadParams(
         storeId,
@@ -216,26 +216,27 @@ const CustomerDownloadDrawer = ({ isOpen, onClose }) => {
         selectedFields
       );
 
-      const result = await customerService.getCustomers(params);
+      const result = await execute(
+        customerService.getCustomers(params),
+        { showToast: false }
+      );
 
-      if (result.success && result.data) {
+      if (result?.success && result.data) {
         const customersData = result.data?.data || result.data || [];
 
         if (customersData.length === 0) {
           showError(t("customers.noCustomersFoundToDownload"));
-          setIsDownloading(false);
           return;
         }
 
         await downloadCustomersFile(customersData);
         showSuccess(t("customers.customersDownloadedSuccessfully"));
       } else {
-        showError(result.message || t("customers.failedToDownloadCustomers"));
+        showError(result?.message || t("customers.failedToDownloadCustomers"));
       }
     } catch (_error) {
       showError(t("customers.errorDownloadingCustomers"));
     } finally {
-      setIsDownloading(false);
       handleClose();
     }
   };

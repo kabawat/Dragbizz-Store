@@ -1,18 +1,16 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class PaymentService {
+class PaymentService extends BaseService {
   constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
+    super();
+    this.endpoint = API_CONFIG.RETAILER.PAYMENT;
   }
 
   // Transform payment data to match API structure
   transformPaymentData(formData) {
     const paymentMethods = [];
 
-    // Process each payment method
     formData.paymentMethods.forEach((method) => {
       const paymentMethod = {
         amount: parseFloat(method.amount) || 0,
@@ -20,7 +18,6 @@ class PaymentService {
         reference: method.reference || "",
       };
 
-      // Add method-specific details
       switch (method.method) {
         case "bank_transfer":
           paymentMethod.bankDetails = {
@@ -30,14 +27,12 @@ class PaymentService {
             holderName: method.holderName || "",
           };
           break;
-
         case "upi":
           paymentMethod.upiDetails = {
             upiId: method.upiId || "",
             transactionId: method.transactionId || "",
           };
           break;
-
         case "cheque":
           paymentMethod.chequeDetails = {
             chequeNumber: method.chequeNumber || "",
@@ -46,7 +41,6 @@ class PaymentService {
             branchName: method.chequeBranchName || "",
           };
           break;
-
         case "cash":
         case "credit":
           break;
@@ -55,7 +49,6 @@ class PaymentService {
       paymentMethods.push(paymentMethod);
     });
 
-    // Build the API payload
     const apiPayload = {
       supplier: formData.supplierId,
       paymentType: formData.paymentType || "BILL_PAYMENT",
@@ -64,12 +57,10 @@ class PaymentService {
       store: formData.store || "",
     };
 
-    // Add bill ID only for BILL_PAYMENT type
     if (formData.paymentType === "BILL_PAYMENT" && formData.billId) {
       apiPayload.bill = formData.billId;
     }
 
-    // Add purchaseOrder ID if provided (optional for all payment types)
     if (formData.purchaseOrder) {
       apiPayload.purchaseOrder = formData.purchaseOrder;
     }
@@ -86,75 +77,32 @@ class PaymentService {
       cheque: "CHEQUE",
       credit: "CREDIT",
     };
-
     return methodMap[frontendMethod] || "CASH";
   }
 
   // Create a new payment
-  async createPayment(paymentData) {
-    try {
-      // Transform the data to match the API documentation structure
-      const apiPayload = this.transformPaymentData(paymentData);
-
-      const response = await authAxios.post(
-        API_CONFIG?.RETAILER?.PAYMENT,
-        apiPayload
-      );
-      return handleApiSuccess(response?.data, "Payment created successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "payment-creation");
-    }
+  createPayment(paymentData) {
+    const apiPayload = this.transformPaymentData(paymentData);
+    return this.post(this.endpoint, apiPayload);
   }
 
   // Update an existing payment
-  async updatePayment(paymentId, paymentData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await authAxios.put(url, paymentData);
-      return handleApiSuccess(response?.data, "Payment updated successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "payment-updation");
-    }
+  updatePayment(paymentId, paymentData, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, paymentId, storeId);
+    return this.put(url, paymentData);
   }
 
   // Get all payments with query parameters
-  async getPayments(params = {}) {
-    try {
-      // Build URL with query parameters
-      const url = attachQueryParams(API_CONFIG?.RETAILER?.PAYMENT, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, "Payments fetched successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "payments-list");
-    }
+  getPayments(params = {}) {
+    return this.get(this.endpoint, params);
   }
 
   // Delete a payment by ID
-  async deletePayment(paymentId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.PAYMENT}/${paymentId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, "Payment deleted successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "payment-deletion");
-    }
+  deletePayment(paymentId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, paymentId, storeId);
+    return this.delete(url);
   }
 }
 
-// Create and export a singleton instance
-const paymentService = new PaymentService();
+export const paymentService = new PaymentService();
 export default paymentService;

@@ -24,66 +24,61 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import InventoryDetailsTemplate from "@/components/templates/inventory/InventoryDetailsTemplate";
 import { Button } from "@/components/ui";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import inventoryService from "@/service/retailer/inventory.service";
 import { useAppSelector } from "@/store/hooks";
-import logger from "@/utils/logger";
 import { useInventoryDetailsPrint } from "./hooks/useInventoryDetailsPrint";
 
 const ViewInventoryPage = ({ inventoryId }) => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId || "";
+  const storeId = selectedStore?.storeId || "";
 
   const [inventory, setInventory] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { can, edit: canEdit, loading: permissionsLoading } = useModulePermissions("inventory");
 
-  const { handleDownloadPDF } = useInventoryDetailsPrint(loading, inventory);
+  const { execute, loading: apiLoading } = useApiResponse();
+  const loading = apiLoading || permissionsLoading;
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("read")) {
+      router.push("/dashboard/stock");
+    }
+  }, [can, permissionsLoading, router]);
+
+  const { handleDownloadPDF } = useInventoryDetailsPrint(apiLoading, inventory);
 
   // Fetch inventory details
   useEffect(() => {
     const fetchInventory = async () => {
       if (!inventoryId || !storeId) return;
 
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await inventoryService.getInventoryById(
-          inventoryId,
-          storeId
-        );
+      setError(null);
+      const result = await execute(
+        inventoryService.getInventoryById(inventoryId, storeId),
+        { showToast: false }
+      );
 
-        if (response.success) {
-          const data =
-            response.data?.data?.inventory ||
-            response.data?.inventory ||
-            response.data;
-          if (data) {
-            setInventory(data);
-            setError(null);
-          } else {
-            setError("Stock not found");
-          }
+      if (result?.success) {
+        const data =
+          result.data?.data?.inventory ||
+          result.data?.inventory ||
+          result.data;
+
+        if (data) {
+          setInventory(data);
         } else {
-          setError(response.message || "Failed to fetch inventory details");
-          setInventory(null);
+          setError("Stock not found");
         }
-      } catch (error) {
-        logger.error("Error fetching inventory:", error);
-        setError("Error loading inventory details");
-        setInventory(null);
-      } finally {
-        setLoading(false);
+      } else {
+        setError(result?.message || "Error loading inventory details");
       }
     };
 
     fetchInventory();
   }, [inventoryId, storeId]);
-
-  const handleEdit = () => {
-    router.push(`/dashboard/stock/edit/${inventoryId}`);
-  };
 
   const handleAddStock = () => {
     router.push(`/dashboard/stock/add?productId=${inventory?.product?.id}`);
@@ -202,19 +197,10 @@ const ViewInventoryPage = ({ inventoryId }) => {
                   />
                 </div>
 
-                <div
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                  style={{ height: "calc(100vh - 300px)" }}
-                >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-300px)]">
                   {/* Left Side - Stock Info */}
                   <div className="lg:col-span-2 flex flex-col h-full">
-                    <div
-                      className="overflow-y-auto pe-3 space-y-6"
-                      style={{
-                        height: "calc(100vh - 200px)",
-                        maxHeight: "calc(100vh - 200px)",
-                      }}
-                    >
+                    <div className="overflow-y-auto pe-3 space-y-6 h-[calc(100vh-200px)] max-h-[calc(100vh-200px)]">
                       {/* Stats Cards */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Available Stock */}
@@ -718,23 +704,16 @@ const ViewInventoryPage = ({ inventoryId }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="primary"
-                            className="flex-1"
-                            onClick={handleEdit}
-                            leftIcon={Edit}
-                          >
-                            Edit
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            className="flex-1"
-                            onClick={handleAddStock}
-                            leftIcon={TrendingUp}
-                          >
-                            Add Stock
-                          </Button>
+                          {canEdit && (
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={handleAddStock}
+                              leftIcon={TrendingUp}
+                            >
+                              Add Stock
+                            </Button>
+                          )}
 
                           <Button
                             variant="outline"

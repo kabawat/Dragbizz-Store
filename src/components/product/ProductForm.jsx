@@ -2,7 +2,7 @@
 
 // Import drag and drop
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
-import { arrayMove,  SortableContext,  sortableKeyboardCoordinates,  useSortable,  verticalListSortingStrategy,  } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy, } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Eye, GripVertical, IndianRupee, Info, Package, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,7 +23,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 import { categoryService } from "@/service/retailer";
-import logger from "@/utils/logger";
+import useApiResponse from "@/hooks/useApiResponse";
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
 // Import sections
 import BasicInfoSection from "./BasicInfoSection";
@@ -203,10 +203,13 @@ const ProductForm = ({
     },
   });
   const [apiCategories, setApiCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Ref to prevent duplicate API calls
   const hasFetchedCategories = useRef(false);
+
+  // useApiResponse instances — one for GET, one for CREATE
+  const { execute: executeGet, loading: categoriesLoading } = useApiResponse();
+  const { execute: executeCreate, loading: addCategoryLoading } = useApiResponse();
 
   const [sections, setSections] = useState([
     {
@@ -313,28 +316,27 @@ const ProductForm = ({
     if (!storeId || hasFetchedCategories.current) return;
     hasFetchedCategories.current = true;
 
-    try {
-      setCategoriesLoading(true);
-      const response = await categoryService.getCategories({
+    const result = await executeGet(
+      categoryService.getCategories({
         limit: 100,
         store: storeId,
         lightweight: true,
-      });
-      if (response.success) {
-        const categories = response.data?.data || response.data || [];
-        const formattedCategories = categories.map((category) => ({
-          value: category.id || category._id,
-          label: category.name,
-          hasExpiryDate: category.hasExpiryDate,
-        }));
-        setApiCategories(formattedCategories);
-      }
-    } catch (_error) {
-      hasFetchedCategories.current = false; // Reset on error
-    } finally {
-      setCategoriesLoading(false);
+      }),
+      { showToast: false }
+    );
+
+    if (result) {
+      const categories = result.data || [];
+      const formattedCategories = categories.map((category) => ({
+        value: category.id || category._id,
+        label: category.name,
+        hasExpiryDate: category.hasExpiryDate,
+      }));
+      setApiCategories(formattedCategories);
+    } else {
+      hasFetchedCategories.current = false; // Reset on error to allow retry
     }
-  }, [storeId]);
+  }, [storeId, executeGet]);
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -353,6 +355,7 @@ const ProductForm = ({
     setNewCategoryData({
       name: "",
       description: "",
+      hasExpiryDate: false,
       metadata: {
         icon: null,
         tags: [],
@@ -361,57 +364,42 @@ const ProductForm = ({
   };
 
   // Close category drawer and reset data
-  const handleCloseCategoryDrawer = () => {
+  const handleCloseCategoryDrawer = useCallback(() => {
     setShowAddCategoryDrawer(false);
     resetCategoryData();
-  };
+  }, []);
 
   const handleAddCategory = async () => {
-    if (newCategoryData.name.trim()) {
-      try {
-        // Create API payload
-        const apiPayload = {
-          name: newCategoryData.name.trim(),
-          description: newCategoryData.description.trim(),
-          hasExpiryDate: newCategoryData.hasExpiryDate === true,
-          metadata: null,
-        };
+    if (!newCategoryData.name.trim()) return;
 
-        // Call the category service
-        const response = await categoryService.createCategory(
-          apiPayload,
-          storeId
-        );
+    const apiPayload = {
+      name: newCategoryData.name.trim(),
+      description: newCategoryData.description.trim(),
+      hasExpiryDate: newCategoryData.hasExpiryDate === true,
+      metadata: null,
+    };
 
-        if (response.success) {
-          // Create dropdown option for immediate use
-          const newCategory = {
-            value:
-              response.data.id ||
-              `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, "-")}`,
-            label: newCategoryData.name.trim(),
-          };
+    const result = await executeCreate(
+      categoryService.createCategory(apiPayload, storeId)
+    );
 
-          // Refresh categories list from API
-          hasFetchedCategories.current = false; // Reset to allow refetch
-          await fetchCategories();
+    if (result) {
+      const body = result.data?.data || result.data;
+      const newCategory = {
+        value:
+          body?.id || body?._id ||
+          `custom-${newCategoryData.name.toLowerCase().replace(/\s+/g, "-")}`,
+        label: newCategoryData.name.trim(),
+      };
 
-          // Set as selected category
-          onChange("category", newCategory.value);
+      // Refresh categories list from API
+      hasFetchedCategories.current = false;
+      await fetchCategories();
 
-          // Reset form and close drawer
-          resetCategoryData();
-          setShowAddCategoryDrawer(false);
-        } else {
-          logger.error(
-            "Failed to create category:",
-            response.message || "Unknown error"
-          );
-        }
-      } catch (error) {
-        logger.error("Error creating category:", error);
-        hasFetchedCategories.current = false;
-      }
+      // Set as selected category and close drawer
+      onChange("category", newCategory.value);
+      resetCategoryData();
+      setShowAddCategoryDrawer(false);
     }
   };
 
@@ -756,9 +744,10 @@ const ProductForm = ({
                   <Button
                     type="button"
                     onClick={handleAddCategory}
-                    disabled={!newCategoryData.name.trim()}
+                    disabled={!newCategoryData.name.trim() || addCategoryLoading}
+                    loading={addCategoryLoading}
                   >
-                    {t("products.addCategory")}
+                    {addCategoryLoading ? t("common.saving") : t("products.addCategory")}
                   </Button>
                   <Button
                     type="button"

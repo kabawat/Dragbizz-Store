@@ -1,4 +1,5 @@
 {
+  "payment": "ચુકવણી",
   "title": "ચુકવણીઓ",
   "description": "ચુકવણીઓનું સંચાલન કરો",
   "manageUpiIds": "UPI ID નું સંચાલન કરો",
@@ -19,6 +20,7 @@
   "backToPayments": "ચુકવણીઓ પર પાછળ જાઓ",
   "basicDetails": "મૂળભૂત વિગતો",
   "paymentType": "ચુકવણી પ્રકાર",
+  "type": "પ્રકાર",
   "supplier": "સપ્લાયર",
   "selectSupplier": "સપ્લાયર પસંદ કરો",
   "loadingSuppliers": "સપ્લાયરો લોડ થઈ રહ્યા છે...",

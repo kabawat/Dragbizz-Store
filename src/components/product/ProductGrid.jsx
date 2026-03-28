@@ -16,10 +16,6 @@ const ProductGrid = ({
   loading = false,
   emptyMessage,
   className = "",
-  // Infinite scroll props
-  hasMore = false,
-  onLoadMore,
-  isLoadingMore = false,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -132,20 +128,6 @@ const ProductGrid = ({
           </div>
         ))}
       </div>
-
-      {/* Infinite Scroll Loading */}
-      {isLoadingMore && (
-        <div className="bg-[rgb(var(--color-bg-primary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-4">
-          <div className="flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-primary))]"></div>
-              <span className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {t("products.loadingMoreProducts")}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

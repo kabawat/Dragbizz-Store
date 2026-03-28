@@ -1,10 +1,10 @@
 "use client";
 import { ArrowUp, Calculator, Package, Truck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import UpgradeModal from "@/components/ui/UpgradeModal";
 import { FEATURE_DISPLAY_NAMES, FEATURES } from "@/constants/features";
 import { useFeatureAccess } from "@/hooks/auth/useFeatureAccess";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { supplierService } from "@/service/retailer";
 import { Input, Select } from "../ui";
 
@@ -19,16 +19,11 @@ const OpeningQuantitySection = ({
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { execute } = useApiResponse();
 
   // Ref to prevent duplicate API calls
   const hasFetchedSuppliers = useRef(false);
-
-  // Check if supplier_management feature is available
-  const { checkFeatureAccess, isLoading: featuresLoading } = useFeatureAccess();
-  const hasSupplierManagement = checkFeatureAccess(
-    FEATURES.SUPPLIER_MANAGEMENT
-  );
+  const { isLoading: featuresLoading } = useFeatureAccess();
 
   const handleFieldChange = (field, value) => {
     onChange(field, value);
@@ -36,34 +31,33 @@ const OpeningQuantitySection = ({
 
   // Fetch suppliers from API
   const fetchSuppliers = useCallback(async () => {
-    if (!storeId || hasFetchedSuppliers.current || !hasSupplierManagement)
-      return;
-
+    if (!storeId || hasFetchedSuppliers.current) return;
     hasFetchedSuppliers.current = true;
 
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
+    setSuppliersLoading(true);
+    const result = await execute(
+      supplierService.getSuppliers({
         limit: 100,
         lightweight: true,
         store: storeId,
-      });
-      if (result.success) {
-        setSuppliers(result.data?.data || result.data || []);
-      }
-    } catch (_error) {
-      hasFetchedSuppliers.current = false; // Reset on error
-    } finally {
-      setSuppliersLoading(false);
+      }),
+      { showToast: false }
+    );
+    setSuppliersLoading(false);
+
+    if (result?.success) {
+      setSuppliers(result.data || []);
+    } else {
+      hasFetchedSuppliers.current = false; // Reset on error so it can retry
     }
-  }, [storeId, hasSupplierManagement]);
+  }, [storeId, execute]);
 
   // Fetch suppliers on component mount and when storeId or feature access changes
   useEffect(() => {
-    if (storeId && hasSupplierManagement && !featuresLoading) {
+    if (storeId && !featuresLoading) {
       fetchSuppliers();
     }
-  }, [storeId, fetchSuppliers, hasSupplierManagement, featuresLoading]);
+  }, [storeId, fetchSuppliers, featuresLoading]);
 
   // Format supplier options for dropdown
   const supplierOptions = [
@@ -136,7 +130,6 @@ const OpeningQuantitySection = ({
           </div>
         </div>
 
-        {/* Supplier Selection - Enabled only if supplier_management feature is available */}
         <div className="mb-6 relative">
           <Select
             label={t("products.supplier")}
@@ -153,32 +146,10 @@ const OpeningQuantitySection = ({
             errorMessage={errors.supplier}
             leftIcon={Truck}
             searchable={true}
-            options={hasSupplierManagement ? supplierOptions : []}
-            disabled={
-              !hasSupplierManagement || suppliersLoading || featuresLoading
-            }
-            helperText={
-              !hasSupplierManagement
-                ? t("products.enableSupplierManagement")
-                : t("products.selectSupplierHelperText")
-            }
+            options={supplierOptions}
+            disabled={suppliersLoading || featuresLoading}
+            helperText={t("products.selectSupplierHelperText")}
           />
-
-          {/* Upgrade Button - Right Side */}
-          {!hasSupplierManagement && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowUpgradeModal(true);
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-600 hover:bg-[rgb(var(--color-bg-secondary))] rounded-md transition-colors duration-200 border-0 shadow-none"
-              title={t("products.upgradeToEnableSupplier")}
-            >
-              <ArrowUp className="w-3.5 h-3.5" />
-              <span>{t("common.upgrade")}</span>
-            </button>
-          )}
         </div>
 
         {/* Expiry Date - only when store/category has hasExpiryDate */}
@@ -201,7 +172,7 @@ const OpeningQuantitySection = ({
 
         {/* Opening Stock Summary */}
         {formData.openingStock?.quantity ||
-        formData.openingStock?.purchasePrice ? (
+          formData.openingStock?.purchasePrice ? (
           <div className="p-6 bg-gradient-to-r from-[rgb(var(--color-bg-secondary))] to-[rgb(var(--color-bg-tertiary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] flex items-center">
@@ -260,16 +231,6 @@ const OpeningQuantitySection = ({
         )}
       </div>
 
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        featureName={t("products.supplierManagement")}
-        requiredFeature={
-          FEATURE_DISPLAY_NAMES[FEATURES.SUPPLIER_MANAGEMENT] ||
-          t("products.supplierManagement")
-        }
-      />
     </>
   );
 };

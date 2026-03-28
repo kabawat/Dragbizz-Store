@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Button from "./Button";
+import { redirectToMainDomain } from "@/utils/helper/domain";
 
 const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
   const router = useRouter();
 
   const handleUpgrade = () => {
     onClose();
-    router.push("/packages?upgrade=true");
+    redirectToMainDomain("/packages?upgrade=true");
   };
 
   const benefits = [
@@ -61,7 +62,7 @@ const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Close Button */}
+        {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--color-border-primary))]">
           <h2 className="text-2xl font-bold text-[rgb(var(--color-text-primary))]">
             Upgrade Required
@@ -165,7 +166,7 @@ const UpgradeModal = ({ isOpen, onClose, featureName, requiredFeature }) => {
     </div>
   );
 
-  // Render modal using portal to ensure it's on top of everything and centered on page
+  // Render portal to body
   return createPortal(modalContent, document.body);
 };
 

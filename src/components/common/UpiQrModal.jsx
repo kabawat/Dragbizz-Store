@@ -10,11 +10,7 @@ const DEFAULT_LOGO_URL = "/icons/UPI.webp";
 const QR_SIZE = 400;
 const LOGO_RATIO = 0.22; // ~22% of QR - safe for ecc=H (30% recovery)
 
-/**
- * Builds UPI payment URI for QR code.
- * Format: upi://pay?pa=UPI_ID&pn=PAYEE_NAME&cu=INR
- * Customer can enter amount when scanning.
- */
+// Builds UPI payment URI for QR code.
 const buildUpiUri = (upiId, payeeName) => {
   const params = new URLSearchParams();
   params.set("pa", upiId.trim().toLowerCase());
@@ -23,9 +19,7 @@ const buildUpiUri = (upiId, payeeName) => {
   return `upi://pay?${params.toString()}`;
 };
 
-/**
- * Composes QR code with logo in center. Uses ecc=H (30% error correction) so QR remains scannable.
- */
+// Composes QR code with logo in center. Uses ecc=H (30% error correction) so QR remains scannable.
 const composeQrWithLogo = async (qrImageUrl, logoUrl = DEFAULT_LOGO_URL) => {
   const [qrImg, logoImg] = await Promise.all([
     loadImage(qrImageUrl),
@@ -174,7 +168,7 @@ const UpiQrModal = ({ isOpen, onClose, upiId, label, storeName, logoUrl }) => {
       doc.save(`upi-qr-${upiId.replace(/[@.]/g, "-")}.pdf`);
       showSuccess(t("settings.upi.qrDownloaded"));
     } catch (error) {
-      
+
       showError(t("settings.upi.qrDownloadFailed"));
     }
   };

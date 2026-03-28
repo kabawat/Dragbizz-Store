@@ -58,11 +58,11 @@ const AnimatedBackground = ({ variant = "default" }) => {
         <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gradient-to-r from-teal-300 to-green-300 rounded-full opacity-15 animate-drift-slow blur-lg"></div>
       </div>
     ),
-
     success: (
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <>
+
         {/* Enhanced Success celebration animations */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full opacity-25 animate-float"></div>
+        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full opacity-25 animate-float" ></div>
         <div className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full opacity-30 animate-float-reverse"></div>
         <div className="absolute bottom-40 left-20 w-24 h-24 bg-gradient-to-r from-green-300 to-emerald-300 rounded-full opacity-25 animate-drift"></div>
         <div className="absolute bottom-20 right-10 w-12 h-12 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-35 animate-drift-slow"></div>
@@ -120,6 +120,32 @@ const AnimatedBackground = ({ variant = "default" }) => {
           className="absolute bottom-1/3 right-1/3 w-1 h-1 bg-purple-300 rounded-full opacity-60 animate-pulse-glow"
           style={{ animationDelay: "2.1s" }}
         ></div>
+      </>
+    ),
+    illustrations: (
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating 3D Illustrations */}
+        <img src="/assets/illustrations/3d_1.png" className="absolute top-20 left-10 w-24 h-24 opacity-40 animate-float object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_2.png" className="absolute top-30 right-20 w-20 h-20 opacity-50 animate-float-reverse object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_3.png" className="absolute bottom-40 left-20 w-32 h-32 opacity-30 animate-drift object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_4.png" className="absolute bottom-20 right-10 w-16 h-16 opacity-40 animate-drift-slow object-contain drop-shadow-xl" alt="" />
+
+        <img src="/assets/illustrations/3d_5.png" className="absolute top-60 left-1/3 w-20 h-20 opacity-35 animate-float-no-rotate object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_6.png" className="absolute bottom-60 right-1/3 w-28 h-28 opacity-25 animate-drift-no-rotate object-contain drop-shadow-xl" alt="" />
+
+        <img src="/assets/illustrations/3d_7.png" className="absolute top-60 left-1/4 w-16 h-16 opacity-30 animate-pulse-glow object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_8.png" className="absolute top-80 right-1/3 w-12 h-12 opacity-40 animate-float-reverse-no-rotate object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_9.png" className="absolute bottom-60 left-1/3 w-20 h-20 opacity-35 animate-drift-no-rotate object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_10.png" className="absolute top-1/2 right-1/4 w-24 h-24 opacity-40 animate-float-no-rotate object-contain drop-shadow-xl" alt="" />
+
+        <img src="/assets/illustrations/3d_11.png" className="absolute bottom-1/3 left-1/5 w-16 h-16 opacity-30 animate-float-reverse-no-rotate object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_12.png" className="absolute top-1/4 right-1/2 w-14 h-14 opacity-40 animate-drift-slow-no-rotate object-contain drop-shadow-xl" alt="" />
+        <img src="/assets/illustrations/3d_13.png" className="absolute bottom-1/4 left-1/2 w-20 h-20 opacity-45 animate-float-reverse object-contain drop-shadow-xl" alt="" />
+
+        {/* Enhanced celebration gradient orbs slightly behind the images for depth */}
+        <div className="absolute top-1/4 left-1/2 w-48 h-48 bg-[rgb(var(--color-primary))]/20 rounded-full animate-pulse-glow blur-3xl mix-blend-screen"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-36 h-36 bg-[rgb(var(--color-secondary))]/20 rounded-full animate-drift-slow blur-2xl mix-blend-screen"></div>
+        <div className="absolute top-1/2 right-1/3 w-40 h-40 bg-[rgb(var(--color-primary))]/15 rounded-full animate-pulse-glow blur-2xl mix-blend-screen"></div>
       </div>
     ),
   };

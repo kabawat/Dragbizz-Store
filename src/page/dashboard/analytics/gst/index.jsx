@@ -35,9 +35,9 @@ import {
   getGstMismatches,
   getGstExport,
   getGstHealthScore,
-  syncGstStats,
 } from "@/store/slices/gstSlice";
 import { gstService } from "@/service/retailer";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import GstGuard from "@/components/auth/GstGuard";
 
 const formatCurrency = (amount) =>
@@ -57,7 +57,6 @@ const GstAnalyticsContent = () => {
     isLoading,
     isLoadingMismatches,
     isLoadingHealthScore,
-    isSyncing,
   } = useAppSelector((state) => state.gst);
 
   const [period, setPeriod] = useState({
@@ -134,17 +133,27 @@ const GstAnalyticsContent = () => {
     dispatch(getGstHealthScore({ storeId, params: { year: period.year } }));
   }, [dispatch, storeId, period.month, period.quarter, period.year]);
 
+  const { execute: executeExport } = useApiResponse();
+
   const handleExport = async (exportPeriod) => {
-    const result = await gstService.getGstExport(storeId, exportPeriod);
-    return result;
+    // Return wrapped result to GstExportDrawer
+    return await executeExport(gstService.getGstExport(storeId, exportPeriod), { showToast: false });
   };
 
-  const handleSync = () => {
+  const { execute: executeSync, loading: isSyncing } = useApiResponse();
+
+  const handleSync = async () => {
     if (!storeId || !period.year || !period.month) return;
-    dispatch(syncGstStats({
-      storeId,
-      params: { year: period.year, month: period.month }
-    }));
+    const params = { year: period.year, month: period.month };
+    
+    const result = await executeSync(gstService.syncGstStats(storeId, params));
+    
+    if (result?.success) {
+      // Re-fetch data upon successful sync
+      dispatch(getGstSummary({ storeId, params }));
+      dispatch(getGstHealthScore({ storeId, params: { year: period.year } }));
+      dispatch(getGstMismatches({ storeId, params: { limit: 20 } }));
+    }
   };
 
   const outward = summary?.outward ?? {};

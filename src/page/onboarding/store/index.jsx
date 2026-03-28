@@ -239,6 +239,7 @@ export default function StoreCreation() {
           if (subdomain) {
             const { host, protocol } = window.location;
             window.location.href = `${protocol}//${subdomain}.${host}/dashboard`;
+            // Intentionally not setting isSubmitting=false so the loader spins until navigation completes
             return;
           }
         } catch (refreshError) {
@@ -246,6 +247,7 @@ export default function StoreCreation() {
         }
 
         setShowSuccessScreen(true);
+        setIsSubmitting(false); // Can set it to false here because we're showing a different screen
       } else {
         if (result?.error?.data?.fields) {
           setFieldErrors(result.error.data.fields);
@@ -255,12 +257,12 @@ export default function StoreCreation() {
             general: result?.message || result?.error?.message || "Failed to create store",
           });
         }
+        setIsSubmitting(false);
       }
     } catch (_error) {
       setErrors({
         general: "An error occurred while creating store. Please try again.",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };

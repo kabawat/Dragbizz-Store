@@ -3,6 +3,7 @@
   "description": "Purchase orders ko manage karo",
   "createPO": "PO create karo",
   "createPODescription": "Suppliers ke liye naya purchase order add karo",
+  "viewPODescription": "Is purchase order ki details yahan dekhein",
   "noPurchaseOrders": "Koi purchase orders nahi mile",
   "advancePaid": "Advance Paid",
   "purchaseOrderDetails": "Purchase Order Details",
