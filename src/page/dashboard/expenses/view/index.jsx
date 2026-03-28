@@ -71,8 +71,8 @@ const ViewExpensePage = ({ expenseId }) => {
         { showToast: false }
       );
 
-      if (result) {
-        const data = result.data?.data || result.data;
+      if (result?.success) {
+        const data = result.data || null;
         setExpenseData(data || null);
         if (!data) setError("Expense not found");
       } else {

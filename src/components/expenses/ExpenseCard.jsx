@@ -63,13 +63,13 @@ const ExpenseCard = ({
   const handleAction = (e, action) => {
     e.stopPropagation();
     setOpenMenu(false);
-    if (action === "view") onView?.(expense);
-    if (action === "edit") onEdit?.(expense);
-    if (action === "delete") onDelete?.(expense);
+    if (action === "view") onView?.(expense.id);
+    if (action === "edit") onEdit?.(expense.id);
+    if (action === "delete") onDelete?.(expense.id);
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer" onClick={() => onView?.(expense)}
+    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer" onClick={() => onView?.(expense.id)}
     >
       {/* Header with Gradient */}
       <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 relative flex items-center justify-center">
