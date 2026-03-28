@@ -15,7 +15,7 @@
 }
 
 :global(body) {
-  font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif !important;
+  font-family: var(--font-primary) !important;
   font-size: 13px !important;
   line-height: 1.6 !important;
   color: #333333 !important;

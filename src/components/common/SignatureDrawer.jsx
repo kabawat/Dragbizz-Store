@@ -8,6 +8,7 @@ import { signatureService } from "@/service/retailer";
 import uploadService from "@/service/auth/upload.service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppSelector } from "@/store/hooks";
+import useApiResponse from "@/hooks/useApiResponse";
 
 // Signature Fonts for Typed Signature
 import { SIGNATURE_FONTS } from "@/constants/signatureFonts";
@@ -31,6 +32,7 @@ const SignatureDrawer = ({
     const [isVerifying, setIsVerifying] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
     const [isSigning, setIsSigning] = useState(false);
+    const { execute: executeCreate } = useApiResponse();
     const [previewUrl, setPreviewUrl] = useState("");
     const [isMounted, setIsMounted] = useState(false);
     const [drawnSignature, setDrawnSignature] = useState(null);
@@ -182,19 +184,22 @@ const SignatureDrawer = ({
                 signatureConfig = { idVerified: true };
             }
 
-            const response = await signatureService.createSignature({
-                method: activeTab,
-                content: signatureContent,
-                config: signatureConfig,
-                agencyId: agencyId
-            });
+            const result = await executeCreate(
+                signatureService.createSignature({
+                    method: activeTab,
+                    content: signatureContent,
+                    config: signatureConfig,
+                    agencyId: agencyId
+                }),
+                { showToast: false }
+            );
 
-            if (response.success) {
+            if (result?.success) {
                 showToast("Signature saved successfully!", "success");
-                onSuccess && onSuccess(response.data);
+                onSuccess && onSuccess(result.data);
                 onClose();
             } else {
-                showToast("Failed to save signature: " + response.message, "error");
+                showToast(result?.message || "Failed to save signature", "error");
             }
         } catch (error) {
             

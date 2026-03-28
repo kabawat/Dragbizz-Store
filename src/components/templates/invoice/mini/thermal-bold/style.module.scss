@@ -1,7 +1,7 @@
 .thermalInvoice {
     width: 80mm;
     margin: 0 auto;
-    font-family: 'Arial Black', sans-serif;
+    font-family: var(--font-primary) !important;
     padding: 2mm;
     background: white;
     color: #000;
@@ -22,7 +22,7 @@
     }
 
     .info {
-        font-family: sans-serif;
+        font-family: var(--font-primary) !important;
         font-weight: bold;
         font-size: 9pt;
         margin-bottom: 3mm;
@@ -50,7 +50,7 @@
             .priceRow {
                 display: flex;
                 justify-content: space-between;
-                font-family: sans-serif;
+                font-family: var(--font-primary) !important;
                 font-size: 10pt;
             }
         }

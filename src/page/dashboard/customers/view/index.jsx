@@ -6,13 +6,18 @@ import Sidebar from "@/components/dashboard/sidebar";
 import CustomerDetailsTemplate from "@/components/templates/customer/CustomerDetailsTemplate";
 import CustomerViewHeader from "@/components/customer/view/CustomerViewHeader";
 import CustomerViewLayout from "@/components/customer/view/CustomerViewLayout";
-import ErrorState from "./components/ErrorState";
-import LoadingState from "./components/LoadingState";
+import ErrorState from "@/components/customer/view/components/ErrorState";
+import LoadingState from "@/components/customer/view/components/LoadingState";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { customerService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useCustomerDetailsPrint } from "./hooks/useCustomerDetailsPrint";
+import useApiResponse from "@/hooks/useApiResponse";
+import { SideDrawer } from "@/components/ui";
+import { EditCustomer } from "@/components/customer";
+import { Users } from "lucide-react";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewCustomerPage = ({ customerId }) => {
   const { t } = useTranslation();
@@ -20,39 +25,52 @@ const ViewCustomerPage = ({ customerId }) => {
   const { selectedStore } = useAppSelector((state) => state.profile);
   const storeId = selectedStore?.storeId;
 
-  const [fetching, setFetching] = useState(true);
+  const customerPerm = useModulePermissions("customer");
+  const canEdit = customerPerm.edit;
+
+  const { execute, data: customerData, loading } = useApiResponse();
   const [error, setError] = useState(null);
-  const [customerData, setCustomerData] = useState(null);
   const hasFetched = useRef(false);
 
-  const { handleDownloadPDF } = useCustomerDetailsPrint(fetching, customerData);
+  // Edit drawer state
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+
+  const { handleDownloadPDF } = useCustomerDetailsPrint(loading || (!customerData && !error), customerData);
+
+  const fetchCustomerData = async (forceRefetch = false) => {
+    if (!customerId || !storeId) return;
+    if (!forceRefetch && hasFetched.current) return;
+    hasFetched.current = true;
+
+    const result = await execute(
+      customerService.getCustomers({ id: customerId, store: storeId }),
+      { showToast: false }
+    );
+
+    if (!result?.success) {
+      setError(result?.message || t("errors.failedToFetchData", { item: t("common.customer") }));
+    }
+  };
 
   useEffect(() => {
-    const fetchCustomerData = async () => {
-      if (!customerId || !storeId || hasFetched.current) return;
-      hasFetched.current = true;
-      try {
-        setFetching(true);
-        setError(null);
-        const result = await customerService.getCustomers({ id: customerId, store: storeId });
-        if (result.success && result.data) setCustomerData(result.data);
-        else setError(result.message || t("errors.failedToFetchData", { item: t("common.customer") }));
-      } catch (_error) {
-        setError(t("errors.failedToFetchDataTryAgain", { item: t("common.customer") }));
-      } finally { setFetching(false); }
-    };
     fetchCustomerData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId, storeId, t]);
+
+  const handleEditSuccess = (updatedData) => {
+    setIsEditDrawerOpen(false);
+    fetchCustomerData(true); // Refetch customer data after edit
+  };
 
   // Page-level Shortcuts
   useCommonHotkeys({
-    onEdit: () => router.push(`/dashboard/customers/edit/${customerId}`),
+    onEdit: canEdit ? () => setIsEditDrawerOpen(true) : undefined,
     onDownload: () => handleDownloadPDF(customerData),
     onBack: () => router.push("/dashboard/customers"),
-    // onClose is handled in Child Layout for Delete Modal
+    onClose: () => setIsEditDrawerOpen(false),
   });
 
-  if (fetching) return <LoadingState />;
+  if (loading && !customerData) return <LoadingState />;
 
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
@@ -80,7 +98,7 @@ const ViewCustomerPage = ({ customerId }) => {
                 customerData={customerData}
                 customerId={customerId}
                 storeId={storeId}
-                onEdit={() => router.push(`/dashboard/customers/edit/${customerId}`)}
+                onEdit={canEdit ? () => setIsEditDrawerOpen(true) : undefined}
                 onDownloadPDF={handleDownloadPDF}
                 t={t}
               />
@@ -88,6 +106,27 @@ const ViewCustomerPage = ({ customerId }) => {
           )}
         </div>
       </div>
+
+      {/* Edit Customer Drawer */}
+      <SideDrawer
+        isOpen={isEditDrawerOpen}
+        onClose={() => setIsEditDrawerOpen(false)}
+        title={t("customers.editCustomer") || "Edit Customer"}
+        icon={Users}
+        width="w-full md:w-2/3 lg:w-1/2"
+      >
+        <div className="p-6 h-full">
+          {isEditDrawerOpen && (
+            <EditCustomer
+              customerId={customerId}
+              onSuccess={handleEditSuccess}
+              onCancel={() => setIsEditDrawerOpen(false)}
+              showCancelButton={true}
+              mode="drawer"
+            />
+          )}
+        </div>
+      </SideDrawer>
     </div>
   );
 };

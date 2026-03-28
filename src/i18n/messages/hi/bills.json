@@ -1,7 +1,11 @@
 {
   "title": "बिल",
   "description": "अपने बिल प्रबंधित करें",
+  "backToBills": "बिल पर वापस जाएं",
+  "viewBill": "बिल देखें",
+  "viewBillDescription": "बिल की जानकारी और विवरण",
   "createBill": "बिल बनाएं",
+  "updateBill": "बिल अपडेट करें",
   "createBillDescription": "इन्वेंटरी खरीदारी को ट्रैक करने के लिए नया खरीद बिल जोड़ें",
   "billForPO": "खरीद आदेश #{poNumber} के लिए बिल",
   "editBill": "बिल संपादित करें",

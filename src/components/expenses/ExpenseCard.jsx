@@ -63,13 +63,13 @@ const ExpenseCard = ({
   const handleAction = (e, action) => {
     e.stopPropagation();
     setOpenMenu(false);
-    if (action === "view") onView?.(expense);
-    if (action === "edit") onEdit?.(expense);
-    if (action === "delete") onDelete?.(expense);
+    if (action === "view") onView?.(expense.id);
+    if (action === "edit") onEdit?.(expense.id);
+    if (action === "delete") onDelete?.(expense.id);
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer" onClick={() => onView?.(expense)}
+    <div className="w-full max-w-sm mx-auto rounded-xl border border-[rgb(var(--color-border-primary))] transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer" onClick={() => onView?.(expense.id)}
     >
       {/* Header with Gradient */}
       <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 to-[rgb(var(--color-primary))]/20 relative flex items-center justify-center">
@@ -92,21 +92,27 @@ const ExpenseCard = ({
                 <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
                 {t("common.viewDetails")}
               </button>
-              <button
-                onClick={(e) => handleAction(e, "edit")}
-                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200"
-              >
-                <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                {t("common.edit")}
-              </button>
-              <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-              <button
-                onClick={(e) => handleAction(e, "delete")}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200"
-              >
-                <Trash2 className="w-4 h-4 text-red-500" />
-                {t("common.delete")}
-              </button>
+              {onEdit && (
+                <button
+                  onClick={(e) => handleAction(e, "edit")}
+                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200"
+                >
+                  <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                  {t("common.edit")}
+                </button>
+              )}
+              {onDelete && (
+                <>
+                  <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                  <button
+                    onClick={(e) => handleAction(e, "delete")}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                    {t("common.delete")}
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -126,7 +132,7 @@ const ExpenseCard = ({
           </h3>
           <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 opacity-70" />
-            <span className="truncate">{vendor?.name || vendor || "No Vendor"}</span>
+            <span className="truncate">{vendor?.name || (typeof vendor === "string" ? vendor : "") || "No Vendor"}</span>
           </p>
         </div>
 

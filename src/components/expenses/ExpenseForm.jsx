@@ -17,8 +17,6 @@ const GST_RATE_OPTIONS = EXPENSE_GST_RATES.map((r) => ({
 
 const ExpenseForm = ({
   onSubmit = null,
-  onCancel = null,
-  isLoading = false,
   error = null,
   expense = null,
   formRef = null,
@@ -74,10 +72,10 @@ const ExpenseForm = ({
           ? new Date(expense.date).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
         category:
-          expense.category?.name || expense.category || "office-supplies",
+          expense.category?.name || (typeof expense.category === "string" ? expense.category : "") || "office-supplies",
         amount: expense.amount || "",
         paymentMethod: expense.paymentMethod || "CASH",
-        vendor: expense.vendor?.name || expense.vendor || "",
+        vendor: expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "",
         status: expense.status || "PAID",
         description: expense.description || "",
         // GST fields
@@ -277,8 +275,8 @@ const ExpenseForm = ({
                 <div
                   onClick={() => handleCheckbox("gstIncluded")}
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${formData.gstIncluded
-                      ? "bg-[rgb(var(--color-primary))] border-[rgb(var(--color-primary))]"
-                      : "border-[rgb(var(--color-border-primary))] bg-transparent"
+                    ? "bg-[rgb(var(--color-primary))] border-[rgb(var(--color-primary))]"
+                    : "border-[rgb(var(--color-border-primary))] bg-transparent"
                     }`}
                 >
                   {formData.gstIncluded && (
@@ -305,8 +303,8 @@ const ExpenseForm = ({
               <div
                 onClick={() => handleCheckbox("isRcm")}
                 className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${formData.isRcm
-                    ? "bg-orange-500 border-orange-500"
-                    : "border-[rgb(var(--color-border-primary))] bg-transparent"
+                  ? "bg-orange-500 border-orange-500"
+                  : "border-[rgb(var(--color-border-primary))] bg-transparent"
                   }`}
               >
                 {formData.isRcm && (

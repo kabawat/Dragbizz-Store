@@ -78,7 +78,7 @@ const InvoicePageLayout = ({
                     onClose={() => setShowReleaseModal(false)}
                     onSuccess={() => {
                         showSuccess(t("invoice.releasedSuccessfully"));
-                        fetchInvoiceData();
+                        fetchInvoiceData(true);
                         setShowReleaseModal(false);
                     }}
                     invoice={invoiceData}

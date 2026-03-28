@@ -20,9 +20,12 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { customerService, voiceAIService } from "@/service";
 import { getErrorMessage } from "@/utils/errorHandling";
 import logger from "@/utils/logger";
+import { useAppSelector } from "@/store/hooks";
 
-const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
+const VoiceAICustomer = ({ onSuccess }) => {
   const { t } = useTranslation();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId || "";
   const { currentVariant } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -382,19 +385,18 @@ const VoiceAICustomer = ({ storeId, onSuccess, onCancel }) => {
               className={`flex flex-col gap-1 max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}
             >
               <div
-                className={`rounded-2xl px-4 py-3 shadow-sm ${
-                  message.type === "user"
-                    ? "bg-[rgb(var(--color-primary))] text-white rounded-br-sm"
-                    : message.isError
+                className={`rounded-2xl px-4 py-3 shadow-sm ${message.type === "user"
+                  ? "bg-[rgb(var(--color-primary))] text-white rounded-br-sm"
+                  : message.isError
+                    ? currentVariant === "dark"
+                      ? "bg-red-900/30 text-red-200 border border-red-800 rounded-bl-sm"
+                      : "bg-red-50 text-red-800 border border-red-200 rounded-bl-sm"
+                    : message.isSuccess
                       ? currentVariant === "dark"
-                        ? "bg-red-900/30 text-red-200 border border-red-800 rounded-bl-sm"
-                        : "bg-red-50 text-red-800 border border-red-200 rounded-bl-sm"
-                      : message.isSuccess
-                        ? currentVariant === "dark"
-                          ? "bg-green-900/30 text-green-200 border-2 border-green-700 rounded-bl-sm"
-                          : "bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm"
-                        : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] border border-[rgb(var(--color-border-primary))] rounded-bl-sm"
-                }`}
+                        ? "bg-green-900/30 text-green-200 border-2 border-green-700 rounded-bl-sm"
+                        : "bg-green-50 text-green-800 border-2 border-green-300 rounded-bl-sm"
+                      : "bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] border border-[rgb(var(--color-border-primary))] rounded-bl-sm"
+                  }`}
               >
                 {message.isSuccess && (
                   <div className="flex items-center gap-2 mb-2">

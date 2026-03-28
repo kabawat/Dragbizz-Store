@@ -11,9 +11,9 @@ export const handleApiSuccess = (
   const result = {
     success: true,
     data: response?.data?.data || response?.data || response,
-    token: response?.data?.token,
-    message: response?.data?.message || defaultMessage,
-    meta: response?.data?.meta,
+    token: response?.data?.token || response?.token,
+    message: response?.data?.message || response?.message || defaultMessage,
+    meta: response?.data?.meta || response?.meta,
   };
 
   if (response?.nextCursor) {

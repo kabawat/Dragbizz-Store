@@ -17,20 +17,20 @@ class VibrantThemes {
             {
                 primary: "#f59e0b",
                 secondary: "#fbbf24",
-                background: "#fffbeb",
-                surface: "#fef3c7",
-                text: "#78350f",
-                textSecondary: "#92400e",
-                border: "#fde68a",
+                background: "#fffdf0",
+                surface: "#fffbeb",
+                text: "#451a03",
+                textSecondary: "#78350f",
+                border: "#fef3c7",
             },
             {
                 primary: "#f59e0b",
                 secondary: "#fbbf24",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -40,20 +40,20 @@ class VibrantThemes {
             {
                 primary: "#ef4444",
                 secondary: "#f87171",
-                background: "#fff1f2",
-                surface: "#ffe4e6",
-                text: "#991b1b",
-                textSecondary: "#b91c1c",
-                border: "#fecdd3",
+                background: "#fff9f9",
+                surface: "#fff1f2",
+                text: "#450a0a",
+                textSecondary: "#991b1b",
+                border: "#fee2e2",
             },
             {
                 primary: "#ef4444",
                 secondary: "#f87171",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
 
@@ -63,20 +63,20 @@ class VibrantThemes {
             {
                 primary: "#ec4899",
                 secondary: "#f472b6",
-                background: "#fdf2f8",
-                surface: "#fce7f3",
-                text: "#9f1239",
-                textSecondary: "#be185d",
-                border: "#fbcfe8",
+                background: "#fff9fc",
+                surface: "#fdf2f8",
+                text: "#500724",
+                textSecondary: "#9f1239",
+                border: "#fce7f3",
             },
             {
                 primary: "#ec4899",
                 secondary: "#f472b6",
-                background: "#111827",
-                surface: "#1f2937",
+                background: "#09090b",
+                surface: "#121212",
                 text: "#f9fafb",
                 textSecondary: "#d1d5db",
-                border: "#374151",
+                border: "#1e1e20",
             }
         );
     }

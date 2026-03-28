@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Building,
   Calendar,
-  CheckCircle,
   CreditCard,
   Download,
   Edit,
@@ -14,11 +13,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import useApiResponse from "@/hooks/useApiResponse";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import ExpenseDetailsTemplate from "@/components/templates/expense/ExpenseDetailsTemplate";
-import { Badge, Button } from "@/components/ui";
+import ExpenseDeleteModal from "@/components/expenses/list/ExpenseDeleteModal";
+import { Badge, Button, Loading } from "@/components/ui";
 import {
   getCategoryLabel,
   getPaymentMethodIcon,
@@ -27,124 +28,75 @@ import {
 } from "@/data/constants/expenses";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { expenseService } from "@/service";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useExpenseDetailsPrint } from "./hooks/useExpenseDetailsPrint";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const ViewExpensePage = ({ expenseId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const storeId =
-    selectedStore?.storeId;
+  const storeId = selectedStore?.storeId;
+  const dispatch = useAppDispatch();
 
-  const [fetching, setFetching] = useState(true);
+  const { execute, loading: fetching } = useApiResponse();
   const [error, setError] = useState(null);
   const [expenseData, setExpenseData] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
-  const [deletedExpenseName, setDeletedExpenseName] = useState("");
 
-  const { handleDownloadPDF } = useExpenseDetailsPrint(
-    fetching,
-    expenseData
-  );
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("expense");
+  const canRead = can("read");
+  const canEdit = can("edit");
+  const canDelete = can("delete");
+
+  useEffect(() => {
+    if (!permissionLoading && !canRead) {
+      router.replace("/dashboard/expenses");
+    }
+  }, [canRead, permissionLoading, router]);
+
+  const deleteModalRef = useRef(null);
+
+  const { handleDownloadPDF } = useExpenseDetailsPrint(fetching, expenseData);
 
   // Fetch expense data on component mount
   useEffect(() => {
+    if (!expenseId || !storeId) return;
+
     const fetchExpenseData = async () => {
-      if (!expenseId || !storeId) {
-        setFetching(false);
-        return;
-      }
+      setError(null);
+      const result = await execute(
+        expenseService.getExpenses({ id: expenseId, store: storeId }),
+        { showToast: false }
+      );
 
-      try {
-        setFetching(true);
-        setError(null);
-
-        const result = await expenseService.getExpenses({
-          id: expenseId,
-          store: storeId,
-        });
-
-        if (result.success) {
-          const data = result.data?.data || result.data;
-          if (data) {
-            setExpenseData(data);
-            setError(null);
-          } else {
-            setError("Expense not found");
-          }
-        } else {
-          setError(result.message || "Failed to fetch expense data");
-          setExpenseData(null);
-        }
-      } catch (_error) {
-        setError("Failed to fetch expense data. Please try again.");
-      } finally {
-        setFetching(false);
+      if (result?.success) {
+        const data = result.data || null;
+        setExpenseData(data || null);
+        if (!data) setError("Expense not found");
+      } else {
+        setError("Failed to fetch expense data");
       }
     };
 
     fetchExpenseData();
   }, [expenseId, storeId]);
 
-  // Handle edit expense
   const handleEditExpense = () => {
-    router.push(`/dashboard/expenses/edit/${expenseId}`);
+    router.push(`/dashboard/expenses/${expenseId}/edit`);
   };
 
-  // Handle delete expense
   const handleDeleteExpense = () => {
-    setShowDeleteModal(true);
-  };
-
-  // Handle confirm delete
-  const handleConfirmDelete = async () => {
-    if (!expenseId || !storeId) return;
-
-    setIsDeleting(true);
-    try {
-      const result = await expenseService.deleteExpense(expenseId, storeId);
-
-      if (result.success) {
-        setDeletedExpenseName(expenseData?.title || "Expense");
-        setShowDeleteSuccessModal(true);
-        setShowDeleteModal(false);
-      } else {
-        setError(result.message || "Failed to delete expense");
-        setShowDeleteModal(false);
-      }
-    } catch (_error) {
-      setError("Failed to delete expense. Please try again.");
-      setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  // Handle cancel delete
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-  };
-
-  // Handle delete success
-  const handleDeleteSuccess = () => {
-    setShowDeleteSuccessModal(false);
-    router.push("/dashboard/expenses");
+    deleteModalRef.current?.open(expenseId);
   };
 
   // Shortcuts
   useCommonHotkeys({
-    onEdit: handleEditExpense,
-    onDelete: handleDeleteExpense,
-    onDownload: () => handleDownloadPDF(expenseData),
+    onEdit: canEdit ? handleEditExpense : undefined,
+    onDelete: canDelete ? handleDeleteExpense : undefined,
+    onDownload: canRead ? () => handleDownloadPDF(expenseData) : undefined,
     onBack: () => router.push("/dashboard/expenses"),
-    onClose: () => {
-      if (showDeleteModal) setShowDeleteModal(false);
-      if (showDeleteSuccessModal) handleDeleteSuccess();
-    },
   });
 
   const formatDate = (dateString) => {
@@ -162,33 +114,21 @@ const ViewExpensePage = ({ expenseId }) => {
   };
 
   // Loading state while fetching expense data
-  if (fetching) {
+  if (fetching || permissionLoading) {
     return (
       <div className="flex w-full h-screen relative overflow-hidden">
         <Sidebar />
-
         <div className="min-h-screen w-full flex flex-col">
           <Header
-            title="View Expense"
-            description="Expense information and details"
+            title={t("expenses.viewExpense") || "View Expense"}
+            description={t("expenses.viewExpenseDescription") || "Expense information and details"}
           />
-
-          <div className="flex-1 p-6">
-            <div className="max-w-8xl mx-auto w-full">
-              <div className="bg-[rgb(var(--color-bg-primary))] p-8">
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                      Loading Expense Data...
-                    </h2>
-                    <p className="text-[rgb(var(--color-text-secondary))]">
-                      Please wait while we fetch the expense information
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex-1 flex items-center justify-center">
+            <Loading
+              size="xl"
+              text="Loading Expense Data..."
+              color="blue"
+            />
           </div>
         </div>
       </div>
@@ -204,8 +144,8 @@ const ViewExpensePage = ({ expenseId }) => {
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <Header
-          title="View Expense"
-          description="Expense information and details"
+          title={t("expenses.viewExpense") || "View Expense"}
+          description={t("expenses.viewExpenseDescription") || "Expense information and details"}
         />
 
         {/* Main Content */}
@@ -275,7 +215,7 @@ const ViewExpensePage = ({ expenseId }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: "calc(100vh - 300px)" }} >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ height: "calc(100vh - 300px)" }}>
                   {/* Left Side - Expense Info */}
                   <div className="lg:col-span-2 flex flex-col h-full">
                     <div
@@ -412,9 +352,7 @@ const ViewExpensePage = ({ expenseId }) => {
                                 Vendor
                               </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {expenseData.vendor?.name ||
-                                  expenseData.vendor ||
-                                  "N/A"}
+                                {expenseData.vendor?.name || (typeof expenseData.vendor === "string" ? expenseData.vendor : "") || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -501,23 +439,27 @@ const ViewExpensePage = ({ expenseId }) => {
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button
-                          variant="primary"
-                          className="flex-1"
-                          onClick={handleEditExpense}
-                          leftIcon={Edit}
-                        >
-                          Edit
-                        </Button>
+                        {canEdit && (
+                          <Button
+                            variant="primary"
+                            className="flex-1"
+                            onClick={handleEditExpense}
+                            leftIcon={Edit}
+                          >
+                            Edit
+                          </Button>
+                        )}
 
-                        <Button
-                          variant="danger"
-                          className="flex-1"
-                          onClick={handleDeleteExpense}
-                          leftIcon={Trash2}
-                        >
-                          Delete
-                        </Button>
+                        {canDelete && (
+                          <Button
+                            variant="danger"
+                            className="flex-1"
+                            onClick={handleDeleteExpense}
+                            leftIcon={Trash2}
+                          >
+                            Delete
+                          </Button>
+                        )}
 
                         <Button
                           variant="outline"
@@ -525,13 +467,12 @@ const ViewExpensePage = ({ expenseId }) => {
                           onClick={() => handleDownloadPDF(expenseData)}
                           leftIcon={Download}
                         >
-                          <span className="hidden sm:inline">Download</span>
-                          <span className="sm:hidden">Download</span>
+                          Download
                         </Button>
                       </div>
 
                       {/* Expense Summary */}
-                      <div className="p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
+                      <div className="mt-6 p-4 bg-[rgb(var(--color-bg-primary))]/20 rounded-lg border border-[rgb(var(--color-border-primary))]/30">
                         <h4 className="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">
                           Expense Summary
                         </h4>
@@ -581,60 +522,8 @@ const ViewExpensePage = ({ expenseId }) => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-20 z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4 transform transition-all duration-300">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-              Delete Expense
-            </h3>
-            <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Are you sure you want to delete "{expenseData?.title || "Expense"}
-              "? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleConfirmDelete}
-                loading={isDeleting}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Delete Success Modal */}
-      {showDeleteSuccessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-20 z-[9999]">
-          <div className="bg-[rgb(var(--color-bg-primary))] rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-                {t("modals.deletedSuccessfully", { item: t("common.expense") })}
-              </h3>
-              <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-                {t("common.hasBeenRemovedFromList", {
-                  name: deletedExpenseName,
-                  item: t("common.expenses"),
-                })}
-              </p>
-              <Button variant="primary" onClick={handleDeleteSuccess}>
-                Back to Expenses
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ExpenseDeleteModal ref={deleteModalRef} />
     </div>
   );
 };

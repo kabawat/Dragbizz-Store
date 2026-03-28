@@ -4,16 +4,16 @@ import { useState } from "react";
 import { Button, Checkbox, Select, SideDrawer } from "@/components/ui";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import useApiResponse from "@/hooks/useApiResponse";
 import { supplierService } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { exportData } from "@/utils/exportUtils";
-import logger from "@/utils/logger";
 
 const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { showError, showSuccess } = useGlobalToast();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { execute, loading: isDownloading } = useApiResponse();
 
   const [selectedDownloadPeriod, setSelectedDownloadPeriod] = useState("");
   const [customStartDate, setCustomStartDate] = useState("");
@@ -181,112 +181,60 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
     };
   };
 
-  const handlePredefinedDownload = async () => {
+  const handleDownload = async () => {
+    const isCustom = selectedDownloadPeriod === "custom";
+
     if (!selectedDownloadPeriod) {
       showError(t("suppliers.pleaseSelectTimePeriod"));
       return;
     }
 
-    const dateRange = getDateRangePreview(selectedDownloadPeriod);
+    if (isCustom) {
+      if (!customStartDate || !customEndDate) {
+        showError(t("suppliers.pleaseSelectBothDates"));
+        return;
+      }
+      if (new Date(customEndDate) < new Date(customStartDate)) {
+        showError(t("suppliers.endDateMustBeAfterStart"));
+        return;
+      }
+    }
+
+    const dateRange = isCustom
+      ? getCustomDateRangePreview()
+      : getDateRangePreview(selectedDownloadPeriod);
+
     if (!dateRange) {
       showError(t("suppliers.invalidDateRange"));
       return;
     }
 
-    const storeId =
-      selectedStore?.storeId;
+    const storeId = selectedStore?.storeId;
     if (!storeId) {
       showError(t("suppliers.storeIdMissing"));
       return;
     }
 
-    setIsDownloading(true);
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+    const params = buildDownloadParams(storeId, dateRange.startDate, dateRange.endDate);
 
-      const result = await supplierService.getSuppliers(params);
+    const result = await execute(
+      supplierService.getSuppliers(params),
+      { showToast: false }
+    );
 
-      if (result.success && result.data) {
-        const suppliersData = result.data?.data || result.data || [];
+    if (result?.success && result?.data) {
+      const suppliersData = result.data?.data || result.data || [];
 
-        if (suppliersData.length === 0) {
-          showError(t("suppliers.noSuppliersFoundToDownload"));
-          setIsDownloading(false);
-          return;
-        }
-
-        await downloadSuppliersFile(suppliersData);
-        showSuccess(t("suppliers.downloadedSuccessfully"));
-      } else {
-        showError(result.message || t("suppliers.failedToDownload"));
+      if (suppliersData.length === 0) {
+        showError(t("suppliers.noSuppliersFoundToDownload"));
+        return;
       }
-    } catch (error) {
-      logger.error("Download suppliers error:", error);
-      showError(t("suppliers.errorDownloadingSuppliers"));
-    } finally {
-      setIsDownloading(false);
+
+      await downloadSuppliersFile(suppliersData);
+      showSuccess(t("suppliers.downloadedSuccessfully"));
       handleClose();
-    }
-  };
-
-  const handleCustomRangeDownload = async () => {
-    if (!customStartDate || !customEndDate) {
-      showError(t("suppliers.pleaseSelectBothDates"));
-      return;
-    }
-
-    if (new Date(customEndDate) < new Date(customStartDate)) {
-      showError(t("suppliers.endDateMustBeAfterStart"));
-      return;
-    }
-
-    const dateRange = getCustomDateRangePreview();
-    if (!dateRange) {
-      showError(t("suppliers.invalidDateRange"));
-      return;
-    }
-
-    const storeId =
-      selectedStore?.storeId;
-    if (!storeId) {
-      showError(t("suppliers.storeIdMissing"));
-      return;
-    }
-
-    setIsDownloading(true);
-    try {
-      const params = buildDownloadParams(
-        storeId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
-
-      const result = await supplierService.getSuppliers(params);
-
-      if (result.success && result.data) {
-        const suppliersData = result.data?.data || result.data || [];
-
-        if (suppliersData.length === 0) {
-          showError(t("suppliers.noSuppliersFoundToDownload"));
-          setIsDownloading(false);
-          return;
-        }
-
-        await downloadSuppliersFile(suppliersData);
-        showSuccess(t("suppliers.downloadedSuccessfully"));
-      } else {
-        showError(result.message || t("suppliers.failedToDownload"));
-      }
-    } catch (error) {
-      logger.error("Download suppliers error:", error);
-      showError(t("suppliers.errorDownloadingSuppliers"));
-    } finally {
-      setIsDownloading(false);
-      handleClose();
+    } else {
+      showError(result?.message || t("suppliers.failedToDownload"));
     }
   };
 
@@ -657,29 +605,19 @@ const SupplierDownloadDrawer = ({ isOpen, onClose }) => {
 
           {selectedDownloadPeriod && (
             <div className="pt-2 flex justify-start">
-              {selectedDownloadPeriod === "custom" ? (
-                <Button
-                  variant="primary"
-                  onClick={handleCustomRangeDownload}
-                  disabled={!customStartDate || !customEndDate || isDownloading}
-                  loading={isDownloading}
-                >
-                  {isDownloading
-                    ? t("suppliers.downloading")
-                    : t("suppliers.downloadButton")}
-                </Button>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={handlePredefinedDownload}
-                  disabled={isDownloading}
-                  loading={isDownloading}
-                >
-                  {isDownloading
-                    ? t("suppliers.downloading")
-                    : t("suppliers.downloadButton")}
-                </Button>
-              )}
+              <Button
+                variant="primary"
+                onClick={handleDownload}
+                disabled={
+                  isDownloading ||
+                  (selectedDownloadPeriod === "custom" && (!customStartDate || !customEndDate))
+                }
+                loading={isDownloading}
+              >
+                {isDownloading
+                  ? t("suppliers.downloading")
+                  : t("suppliers.downloadButton")}
+              </Button>
             </div>
           )}
         </div>

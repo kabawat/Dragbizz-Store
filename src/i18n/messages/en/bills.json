@@ -1,7 +1,11 @@
 {
   "title": "Bills",
   "description": "Manage your bills",
+  "backToBills": "Back to Bills",
+  "viewBill": "View Bill",
+  "viewBillDescription": "Bill information and details",
   "createBill": "Create Bill",
+  "updateBill": "Update Bill",
   "createBillDescription": "Add a new purchase bill to track inventory purchases",
   "billForPO": "Bill for Purchase Order #{poNumber}",
   "editBill": "Edit Bill",

@@ -35,7 +35,7 @@ const InvoiceSidebar = ({
             price: item.price || 0,
             quantity: item.quantity || 1,
             gstRate: item.gstRate || item.gst?.rate || 0,
-            isInclusive: item.isInclusive ?? item.gst?.isInclusive ?? false,
+            isInclusive: item.isInclusive !== undefined ? item.isInclusive : (item.gst && item.gst.isInclusive !== undefined ? item.gst.isInclusive : false),
         }));
 
         return calculateInvoiceGST({

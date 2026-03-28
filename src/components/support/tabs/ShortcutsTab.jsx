@@ -1,16 +1,34 @@
-import { Keyboard, Plus, Zap } from "lucide-react";
+"use client";
+
+import { Keyboard, Zap } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useMemo } from "react";
 import { getShortcutCategories } from "@/data/constants/supportData";
+import ShortcutCard from "@/components/support/ShortcutCard";
+
+const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
 const ShortcutsTab = () => {
     const { t } = useTranslation();
 
-    const shortcutCategories = useMemo(() => getShortcutCategories(t), [t]);
+    const shortcutCategories = useMemo(() => getShortcutCategories(t, isMac), [t]);
+
+    const [expandedCards, setExpandedCards] = useState(() =>
+        shortcutCategories.map(() => true)
+    );
+
+    const toggleCard = (idx) => {
+        setExpandedCards((prev) => prev.map((open, i) => (i === idx ? !open : open)));
+    };
+
+    // Split for independent columns (no cross-column height effect)
+    const leftCards = shortcutCategories.map((cat, idx) => ({ cat, idx })).filter(({ idx }) => idx % 2 === 0);
+    const rightCards = shortcutCategories.map((cat, idx) => ({ cat, idx })).filter(({ idx }) => idx % 2 === 1);
 
     return (
         <div className="space-y-8 max-h-full overflow-y-auto pr-2 pb-10">
-            {/* Header Pro Tip */}
+
+            {/* Pro Tip Banner */}
             <div className="bg-gradient-to-r from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-transparent border border-[rgb(var(--color-primary))]/20 rounded-2xl p-6">
                 <div className="flex items-start gap-5">
                     <div className="w-12 h-12 bg-[rgb(var(--color-bg-primary))] rounded-xl flex items-center justify-center text-[rgb(var(--color-primary))] flex-shrink-0 animate-pulse">
@@ -27,53 +45,28 @@ const ShortcutsTab = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {shortcutCategories.map((category, idx) => {
-                    const CategoryIcon = category.icon;
-                    return (
-                        <div
-                            key={idx}
-                            className="bg-[rgb(var(--color-bg-primary))] rounded-2xl border border-[rgb(var(--color-border-primary))] overflow-hidden flex flex-col"
-                        >
-                            <div className="bg-[rgb(var(--color-bg-secondary))]/30 px-6 py-5 border-b border-[rgb(var(--color-border-primary))] flex items-center gap-4">
-                                <div className="p-2.5 bg-[rgb(var(--color-bg-primary))] rounded-xl text-[rgb(var(--color-primary))] border border-[rgb(var(--color-border-primary))]/50">
-                                    <CategoryIcon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-[rgb(var(--color-text-primary))]">
-                                        {category.title}
-                                    </h3>
-                                    <p className="text-xs text-[rgb(var(--color-text-tertiary))] font-medium">
-                                        {category.description}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="divide-y divide-[rgb(var(--color-border-primary))]/50 h-full">
-                                {category.items.map((item, i) => (
-                                    <div key={i} className="px-6 py-3.5 flex items-center justify-between hover:bg-[rgb(var(--color-bg-secondary))]/40 transition-colors group">
-                                        <span className="text-[rgb(var(--color-text-secondary))] text-sm font-medium">
-                                            {item.action}
-                                        </span>
-                                        <div className="flex items-center translate-y-[1px]">
-                                            {item.keys.map((key, k) => (
-                                                <div key={k} className="flex items-center">
-                                                    <span className="px-2 py-1 min-w-[34px] text-center bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded text-[10px] font-black text-[rgb(var(--color-text-primary))] uppercase group-hover:border-[rgb(var(--color-primary))]/30 transition-colors">
-                                                        {key}
-                                                    </span>
-                                                    {k < item.keys.length - 1 && (
-                                                        <Plus className="mx-1.5 w-2.5 h-2.5 text-[rgb(var(--color-text-tertiary))]" strokeWidth={3} />
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
+            {/* Desktop: two columns */}
+            <div className="hidden xl:flex gap-8 items-start">
+                <div className="flex-1 flex flex-col gap-8">
+                    {leftCards.map(({ cat, idx }) => (
+                        <ShortcutCard key={idx} category={cat} isOpen={expandedCards[idx]} onToggle={() => toggleCard(idx)} />
+                    ))}
+                </div>
+                <div className="flex-1 flex flex-col gap-8">
+                    {rightCards.map(({ cat, idx }) => (
+                        <ShortcutCard key={idx} category={cat} isOpen={expandedCards[idx]} onToggle={() => toggleCard(idx)} />
+                    ))}
+                </div>
             </div>
 
+            {/* Mobile: single column */}
+            <div className="flex xl:hidden flex-col gap-8">
+                {shortcutCategories.map((cat, idx) => (
+                    <ShortcutCard key={idx} category={cat} isOpen={expandedCards[idx]} onToggle={() => toggleCard(idx)} />
+                ))}
+            </div>
+
+            {/* Footer */}
             <div className="flex justify-center pt-4">
                 <div className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-full text-xs text-[rgb(var(--color-text-tertiary))] font-medium">
                     <Keyboard className="w-3.5 h-3.5" />

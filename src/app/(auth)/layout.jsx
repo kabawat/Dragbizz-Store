@@ -1,5 +1,5 @@
 "use client";
-import updateSubdomain from "@/utils/helper/domain";
+import { updateSubdomain } from "@/utils/helper/domain";
 import { useEffect } from "react";
 import GuestGuard from "@/components/auth/GuestGuard";
 

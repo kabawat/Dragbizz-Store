@@ -17,12 +17,15 @@ import {
 } from "@/service";
 import { useAppSelector } from "@/store/hooks";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import useApiResponse from "@/hooks/useApiResponse";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const EditInvoicePage = ({ invoiceId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
   const { showError } = useGlobalToast();
+  const { execute } = useApiResponse();
 
   // Local loading state for invoice update
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -30,13 +33,23 @@ const EditInvoicePage = ({ invoiceId }) => {
   // Local state for products and customers
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [_productsLoading, setProductsLoading] = useState(false);
+  const [, setProductsLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // Refs to prevent duplicate API calls
   const hasFetchedProducts = useRef(false);
   const hasFetchedCustomers = useRef(false);
   const hasFetchedInvoice = useRef(false);
+
+  // Permission Management
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canEdit = can("edit");
+
+  useEffect(() => {
+    if (!permissionLoading && !canEdit) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canEdit, permissionLoading, router]);
 
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
@@ -54,56 +67,57 @@ const EditInvoicePage = ({ invoiceId }) => {
     if (!selectedStore?.storeId || hasFetchedProducts.current) return;
     hasFetchedProducts.current = true;
 
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
+    setProductsLoading(true);
+    const result = await execute(
+      productService.getProducts({
         limit: 100,
         lightweight: true,
         store: selectedStore.storeId,
-      });
-      if (result.success) {
-        setProducts(result?.data || []);
-      }
-    } catch (_error) {
-      hasFetchedProducts.current = false; // Reset on error
-    } finally {
-      setProductsLoading(false);
+      }),
+      { showToast: false }
+    );
+    if (result?.success) {
+      setProducts(result?.data || []);
+    } else {
+      hasFetchedProducts.current = false;
     }
-  }, [selectedStore?.storeId]);
+    setProductsLoading(false);
+  }, [selectedStore?.storeId, execute]);
 
   // Fetch customers from API
   const fetchCustomers = useCallback(async () => {
     if (hasFetchedCustomers.current) return;
 
     hasFetchedCustomers.current = true;
+    setCustomersLoading(true);
 
-    try {
-      setCustomersLoading(true);
-      const params = {
-        limit: 100,
-        lightweight: true,
-      };
-      if (selectedStore?.storeId) {
-        params.store = selectedStore.storeId;
-      }
-
-      const result = await customerService.getCustomers(params);
-      if (result.success) {
-        const serializedOptions = [
-          { value: "", label: t("dashboard.walkInCustomer") },
-          ...(result.data || []).map((customer) => ({
-            value: customer.id || customer._id,
-            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
-          })),
-        ];
-        setCustomers(serializedOptions);
-      }
-    } catch (_error) {
-      hasFetchedCustomers.current = false; // Reset on error
-    } finally {
-      setCustomersLoading(false);
+    const params = {
+      limit: 100,
+      lightweight: true,
+    };
+    if (selectedStore?.storeId) {
+      params.store = selectedStore.storeId;
     }
-  }, [selectedStore?.storeId, t]);
+
+    const result = await execute(
+      customerService.getCustomers(params),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      const serializedOptions = [
+        { value: "", label: t("dashboard.walkInCustomer") },
+        ...(result.data || []).map((customer) => ({
+          value: customer.id || customer._id,
+          label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+        })),
+      ];
+      setCustomers(serializedOptions);
+    } else {
+      hasFetchedCustomers.current = false;
+    }
+    setCustomersLoading(false);
+  }, [selectedStore?.storeId, t, execute]);
 
   // Fetch invoice data
   const fetchInvoiceData = useCallback(async () => {
@@ -111,61 +125,58 @@ const EditInvoicePage = ({ invoiceId }) => {
       return;
     hasFetchedInvoice.current = true;
 
-    try {
-      setFetching(true);
-      setError(null);
+    setFetching(true);
+    setError(null);
 
-      const result = await invoiceService.getInvoices({
+    const result = await execute(
+      invoiceService.getInvoices({
         id: invoiceId,
         store: selectedStore.storeId,
-      });
-      if (result.success && result.data) {
-        const inv = result.data;
+      }),
+      { showToast: false }
+    );
 
-        if (inv.invoiceStatus !== "DRAFT") {
-          setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
-          setFetching(false);
-          return;
-        }
+    if (result?.success && result.data) {
+      const inv = result.data;
 
-        // Transform invoice data to match form structure
-        const transformedItems = inv.items?.map((item) => {
-          const productObj = typeof item.product === 'object' ? item.product : {};
-          const productId = productObj.id || productObj._id || item.product;
-
-          return {
-            product: productId,
-            productName: productObj.name || "",
-            quantity: item.quantity || 1,
-            price: item.price || productObj.sellingPrice || productObj.price || 0,
-            total: item.total || 0,
-            gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
-            isInclusive: productObj.gstInfo?.isGstIncluded ?? item.isInclusive ?? false,
-            uom: productObj.uom || item.uom || "Unit",
-          };
-        }) || [];
-
-        setFormData({
-          customer: inv.customer?.id || inv.customer?._id || "",
-          totalDiscount: inv.totalDiscount || 0,
-          discountMode: inv.discountMode || "POST_TOTAL",
-          items: transformedItems,
-          orderSource: inv.orderSource || "POS",
-        });
-      } else {
-        setError(
-          result.message ||
-          t("errors.failedToFetchData", { item: t("common.invoice") })
-        );
+      if (inv.invoiceStatus !== "DRAFT") {
+        setError(t("invoice.cannotEditNonDraft") || "Only draft invoices can be edited. This invoice is already " + (inv.invoiceStatus || "processed") + " and cannot be modified.");
+        setFetching(false);
+        return;
       }
-    } catch (_err) {
+
+      // Transform invoice data to match form structure
+      const transformedItems = inv.items?.map((item) => {
+        const productObj = typeof item.product === 'object' ? item.product : {};
+        const productId = productObj.id || productObj._id || item.product;
+
+        return {
+          product: productId,
+          productName: productObj.name || "",
+          quantity: item.quantity || 1,
+          price: item.price || productObj.sellingPrice || productObj.price || 0,
+          total: item.total || 0,
+          gstRate: productObj.gstInfo?.gstRate || item.gstRate || 0,
+          isInclusive: productObj.gstInfo && productObj.gstInfo.isGstIncluded !== undefined ? productObj.gstInfo.isGstIncluded : (item.isInclusive !== undefined ? item.isInclusive : false),
+          uom: productObj.uom || item.uom || "Unit",
+        };
+      }) || [];
+
+      setFormData({
+        customer: inv.customer?.id || inv.customer?._id || "",
+        totalDiscount: inv.totalDiscount || 0,
+        discountMode: inv.discountMode || "POST_TOTAL",
+        items: transformedItems,
+        orderSource: inv.orderSource || "POS",
+      });
+    } else {
       setError(
-        t("errors.failedToFetchDataTryAgain", { item: t("common.invoice") })
+        result?.message ||
+        t("errors.failedToFetchData", { item: t("common.invoice") })
       );
-    } finally {
-      setFetching(false);
     }
-  }, [invoiceId, selectedStore?.storeId, t]);
+    setFetching(false);
+  }, [invoiceId, selectedStore?.storeId, t, execute]);
 
   // Load products, customers, and invoice data on component mount
   useEffect(() => {
@@ -206,23 +217,19 @@ const EditInvoicePage = ({ invoiceId }) => {
       orderSource: formData.orderSource || "POS",
     };
 
-    try {
-      setInvoiceLoading(true);
-      const result = await invoiceService.updateDraftInvoice(
-        invoiceId,
-        invoiceData
-      );
-      if (result.success) {
-        // Redirect to the updated invoice view page
-        router.push(`/dashboard/invoices/view/${invoiceId}`);
-      } else {
-        showError(t("invoice.updateError"));
-      }
-    } catch (_error) {
-      showError(t("invoice.updateError"));
-    } finally {
-      setInvoiceLoading(false);
+    setInvoiceLoading(true);
+    const result = await execute(
+      invoiceService.updateDraftInvoice(invoiceId, invoiceData),
+      { message: t("invoice.updateSuccess") }
+    );
+
+    if (result?.success) {
+      // Redirect to the updated invoice view page
+      router.push(`/dashboard/invoices/${invoiceId}`);
+    } else {
+      showError(result?.message || t("invoice.updateError"));
     }
+    setInvoiceLoading(false);
   };
 
   useCommonHotkeys({
@@ -230,8 +237,8 @@ const EditInvoicePage = ({ invoiceId }) => {
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  // Show loading if store is not available yet
-  if (!selectedStore?.storeId) {
+  // Show loading if store or permissions are not available yet
+  if (!selectedStore?.storeId || permissionLoading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -239,15 +246,22 @@ const EditInvoicePage = ({ invoiceId }) => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("common.loadingStoreData")}
+              {permissionLoading
+                ? t("invoice.verifyingPermissions") || "Checking permissions..."
+                : t("common.loadingStoreData")}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
-              {t("common.pleaseWaitWhileWeFetch", { item: t("common.store") })}
+              {t("invoice.pleaseWaitStoreInfo") || "Almost there..."}
             </p>
           </div>
         </div>
       </div>
     );
+  }
+
+  // Pre-render guard for non-staff/restricted users
+  if (!canEdit) {
+    return null;
   }
 
   if (fetching) {

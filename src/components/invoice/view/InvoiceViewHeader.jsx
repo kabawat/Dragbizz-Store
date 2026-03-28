@@ -9,6 +9,7 @@ const InvoiceViewHeader = ({
     showPaymentStatusModal,
     onUpdatePaymentStatus,
     onDownloadPDF,
+    canCreate,
     t,
 }) => {
     return (
@@ -41,11 +42,13 @@ const InvoiceViewHeader = ({
                         {t("invoice.downloadPDF")}
                     </Button>
                 )}
-                <Link href="/dashboard/invoices/add">
-                    <Button variant="primary" leftIcon={Plus} className="h-9">
-                        Create New Invoice
-                    </Button>
-                </Link>
+                {canCreate && (
+                    <Link href="/dashboard/invoices/create">
+                        <Button variant="primary" leftIcon={Plus} className="h-9">
+                            {t("invoice.createNewInvoice") || "Create New Invoice"}
+                        </Button>
+                    </Link>
+                )}
             </div>
         </div>
     );

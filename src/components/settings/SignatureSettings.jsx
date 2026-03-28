@@ -9,6 +9,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchSignatures, addSignature, removeSignature } from "@/store/slices/signaturesSlice";
 import { signatureService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 
 import SignatureDeleteModal from "./SignatureDeleteModal";
 
@@ -23,7 +24,7 @@ const SignatureSettings = () => {
 
     const [showDrawer, setShowDrawer] = useState(false);
     const [signatureToDelete, setSignatureToDelete] = useState(null);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const { execute: executeDelete, loading: isDeleting } = useApiResponse();
 
     // Derive agencyId
     const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
@@ -48,21 +49,17 @@ const SignatureSettings = () => {
         if (!signatureToDelete) return;
         const id = signatureToDelete.id || signatureToDelete._id;
 
-        try {
-            setIsDeleting(true);
-            const res = await signatureService.deleteSignature(id);
-            if (res.success) {
-                dispatch(removeSignature(id));
-                showToast(t("settings.signatureDeleted") || "Signature deleted successfully", "success");
-                setSignatureToDelete(null);
-            } else {
-                showToast(res.message || "Failed to delete signature", "error");
-            }
-        } catch (error) {
-            
-            showToast("Failed to delete signature", "error");
-        } finally {
-            setIsDeleting(false);
+        const result = await executeDelete(
+            signatureService.deleteSignature(id),
+            { showToast: false }
+        );
+
+        if (result?.success) {
+            dispatch(removeSignature(id));
+            showToast(t("settings.signatureDeleted") || "Signature deleted successfully", "success");
+            setSignatureToDelete(null);
+        } else {
+            showToast(result?.message || "Failed to delete signature", "error");
         }
     };
 

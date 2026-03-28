@@ -293,6 +293,16 @@ class AuthService {
     }
   }
 
+  // Update password for the logged-in user
+  async updatePassword(passwordData) {
+    try {
+      const response = await authAxios.put("/auth/password", passwordData);
+      return handleApiSuccess(response, "Password updated successfully");
+    } catch (error) {
+      return handleApiErrorResponse(error, "update-password");
+    }
+  }
+
   // Logout method
   async logout() {
     try {

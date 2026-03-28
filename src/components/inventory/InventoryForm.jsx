@@ -8,7 +8,7 @@ import InventoryDetailsSection from "./InventoryDetailsSection";
 
 const InventoryForm = ({
   formData = {},
-  onChange = () => {},
+  onChange = () => { },
   fieldErrors = {},
   className = "",
   ...props
@@ -50,16 +50,12 @@ const InventoryForm = ({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <Card className={`${glassStyles.card} h-full`}>
-        <CardBody className={`${glassStyles.body} overflow-y-auto max-h-full`}>
-          <InventoryDetailsSection
-            formData={formData}
-            onChange={handleFormDataChange}
-            errors={fieldErrors}
-          />
-        </CardBody>
-      </Card>
+    <div className={`space-y-6 px-2 ${className}`}>
+      <InventoryDetailsSection
+        formData={formData}
+        onChange={handleFormDataChange}
+        errors={fieldErrors}
+      />
     </div>
   );
 };

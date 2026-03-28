@@ -3,7 +3,7 @@ import { AlertTriangle, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-export default function LogoutModal({ onClose, onConfirm }) {
+export default function LogoutModal({ onClose, onConfirm, isLoggingOut }) {
   const { t } = useTranslation();
   const modalContent = (
     <div
@@ -56,7 +56,11 @@ export default function LogoutModal({ onClose, onConfirm }) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center transition-colors"
+            disabled={isLoggingOut}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isLoggingOut
+                ? 'bg-[rgb(var(--color-bg-secondary))] opacity-50 cursor-not-allowed'
+                : 'bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] cursor-pointer'
+              }`}
           >
             <X className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
           </button>
@@ -77,15 +81,33 @@ export default function LogoutModal({ onClose, onConfirm }) {
           <div className="flex space-x-3">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-[rgb(var(--color-bg-tertiary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors"
+              disabled={isLoggingOut}
+              className={`flex-1 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] rounded-lg font-medium transition-colors ${isLoggingOut
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-[rgb(var(--color-bg-tertiary))] cursor-pointer'
+                }`}
             >
               {t("common.cancel")}
             </button>
             <button
               onClick={onConfirm}
-              className="flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/90 text-white rounded-lg font-medium transition-colors"
+              disabled={isLoggingOut}
+              className={`flex-1 px-4 py-2.5 bg-[rgb(var(--color-danger))] text-white rounded-lg font-medium transition-colors flex items-center justify-center ${isLoggingOut
+                  ? 'opacity-70 cursor-not-allowed'
+                  : 'hover:bg-[rgb(var(--color-danger))]/90 cursor-pointer'
+                }`}
             >
-              {t("header.signOut")}
+              {isLoggingOut ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {t("header.signOut") || "Signing out..."}
+                </>
+              ) : (
+                t("header.signOut")
+              )}
             </button>
           </div>
         </div>

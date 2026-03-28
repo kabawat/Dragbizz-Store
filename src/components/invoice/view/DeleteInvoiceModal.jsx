@@ -1,11 +1,10 @@
 "use client";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useGlobalToast } from "@/contexts/ToastContext";
 import { invoiceService } from "@/service";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const DeleteInvoiceModal = ({
   isOpen,
@@ -15,37 +14,22 @@ const DeleteInvoiceModal = ({
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { showSuccess, showError } = useGlobalToast();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { execute, loading: isDeleting } = useApiResponse();
 
   if (!isOpen) return null;
 
   const handleConfirm = async () => {
     if (!invoiceId) return;
 
-    setIsDeleting(true);
-    try {
-      const result = await invoiceService.deleteInvoice(invoiceId);
+    const result = await execute(
+      invoiceService.deleteInvoice(invoiceId),
+      { message: t("success.deletedSuccessfully", { item: t("common.invoice") }) }
+    );
 
-      if (result.success) {
-        showSuccess(
-          t("success.deletedSuccessfully", { item: t("common.invoice") })
-        );
-        setTimeout(() => {
-          router.push("/dashboard/invoices");
-        }, 1000);
-      } else {
-        showError(
-          result.message ||
-          t("errors.failedToDelete", { item: t("common.invoice") })
-        );
-      }
-    } catch (_error) {
-      showError(
-        t("errors.failedToDeleteTryAgain", { item: t("common.invoice") })
-      );
-    } finally {
-      setIsDeleting(false);
+    if (result?.success) {
+      setTimeout(() => {
+        router.push("/dashboard/invoices");
+      }, 1000);
     }
   };
 

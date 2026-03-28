@@ -3,6 +3,8 @@ import { Package, CheckCircle, Clock, Truck, MapPin, Phone, MessageSquare, Downl
 import { useState, useEffect } from 'react';
 import moment from 'moment';
 import publicSalesOrderService from "@/service/public/salesOrder.service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const getStatusIcon = (status) => {
     switch (status) {
@@ -74,15 +76,18 @@ export default function OrderTracking({ orderId }) {
                 return;
             }
 
+            setLoading(true);
             try {
                 const response = await publicSalesOrderService.getOrder(orderId);
-                if (response.success && response.data) {
-                    setOrder(response.data);
+                const result = handleSuccess(response);
+                if (result.success && result.data) {
+                    setOrder(result.data);
                 } else {
-                    setError(response.message || "Failed to fetch order details");
+                    setError("Failed to fetch order details");
                 }
-            } catch (err) {
-                setError("An error occurred while fetching order details");
+            } catch (error) {
+                const errResult = handleError(error);
+                setError(errResult.message || "An error occurred while fetching order details");
             } finally {
                 setLoading(false);
             }

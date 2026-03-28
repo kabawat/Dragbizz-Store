@@ -1,18 +1,12 @@
 "use client";
 import { Users } from "lucide-react";
 import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppSelector } from "@/store/hooks";
 
-const CustomerEmptyState = ({
-    isLoading,
-    customersCount,
-    error,
-    searchValue,
-    onClearSearch,
-    onAddCustomer,
-    t,
-}) => {
-    if (isLoading || customersCount > 0) return null;
-
+const CustomerEmptyState = ({ onClearSearch }) => {
+    const { t } = useTranslation();
+    const { error, searchValue } = useAppSelector((state) => state.customers);
     return (
         <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
             <div className="flex flex-col items-center justify-center py-16">
@@ -30,14 +24,11 @@ const CustomerEmptyState = ({
                             : t("customers.description")}
                 </p>
                 <div className="pt-4 flex gap-3">
-                    {searchValue && (
+                    {searchValue && onClearSearch && (
                         <Button variant="outline" onClick={onClearSearch}>
                             {t("common.clear")}
                         </Button>
                     )}
-                    <Button variant="primary" onClick={onAddCustomer}>
-                        {t("customers.addCustomer")}
-                    </Button>
                 </div>
             </div>
         </div>

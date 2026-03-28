@@ -7,10 +7,10 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useAppSelector } from "@/store/hooks";
 import { ArrowLeft, } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 // Sub-components
 import AdvancePaymentCard from "@/components/purchaseOrders/create/AdvancePaymentCard";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
 import SaveDraftModal from "@/components/purchaseOrders/create/SaveDraftModal";
 import BasicInfoCard from "@/components/purchaseOrders/create/BasicInfoCard";
 import ItemsSection from "@/components/purchaseOrders/create/ItemsSection";
@@ -18,6 +18,8 @@ import AddressCard from "@/components/purchaseOrders/create/AddressCard";
 import POActions from "@/components/purchaseOrders/create/POActions";
 import Sidebar from "@/components/dashboard/sidebar";
 import Header from "@/components/dashboard/header";
+
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const formInit = {
   supplier: "",
@@ -36,12 +38,18 @@ const CreatePurchaseOrder = () => {
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
+  const { can, loading: permissionsLoading } = useModulePermissions("purchase_order");
+
+  useEffect(() => {
+    if (!permissionsLoading && !can("create")) {
+      router.push("/dashboard/purchase-orders");
+    }
+  }, [can, permissionsLoading, router]);
+
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
-
-  const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
 
   const [formData, setFormData] = useState(formInit);
@@ -49,7 +57,9 @@ const CreatePurchaseOrder = () => {
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [showAddSupplierDrawer, setShowAddSupplierDrawer] = useState(false);
 
-  const { showSuccess } = useErrorHandling();
+  const { execute: executeFetchSuppliers } = useApiResponse();
+  const { execute: executeFetchProducts } = useApiResponse();
+  const { execute: executeCreate, loading: isCreating } = useApiResponse();
 
   // Refs to prevent duplicate API calls
   const suppliersFetchedRef = useRef({ storeId: null, fetched: false });
@@ -62,58 +72,42 @@ const CreatePurchaseOrder = () => {
   // Fetch suppliers
   const fetchSuppliers = useCallback(async () => {
     if (!storeId) return;
-
-    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) {
-      return;
-    }
-
+    if (suppliersFetchedRef.current.storeId === storeId && suppliersFetchedRef.current.fetched) return;
     if (suppliersLoading) return;
-
     suppliersFetchedRef.current = { storeId, fetched: true };
 
-    try {
-      setSuppliersLoading(true);
-      const result = await supplierService.getSuppliers({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        const data = result.data?.data || result.data || [];
-        setSuppliers(data);
-      }
-    } finally {
-      setSuppliersLoading(false);
+    setSuppliersLoading(true);
+    const result = await executeFetchSuppliers(
+      supplierService.getSuppliers({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setSuppliersLoading(false);
+    if (result?.success) {
+      setSuppliers(result.data?.data || result.data || []);
+    } else {
+      suppliersFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [storeId, suppliersLoading]);
+  }, [storeId, suppliersLoading, executeFetchSuppliers]);
 
   // Fetch products
   const fetchProducts = useCallback(async () => {
     if (!storeId) return;
-
-    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) {
-      return;
-    }
-
+    if (productsFetchedRef.current.storeId === storeId && productsFetchedRef.current.fetched) return;
     if (productsLoading) return;
-
     productsFetchedRef.current = { storeId, fetched: true };
 
-    try {
-      setProductsLoading(true);
-      const result = await productService.getProducts({
-        limit: 100,
-        lightweight: true,
-        store: storeId,
-      });
-      if (result.success) {
-        const data = result.data?.data || result.data || [];
-        setProducts(data);
-      }
-    } finally {
-      setProductsLoading(false);
+    setProductsLoading(true);
+    const result = await executeFetchProducts(
+      productService.getProducts({ limit: 100, lightweight: true, store: storeId }),
+      { showToast: false }
+    );
+    setProductsLoading(false);
+    if (result?.success) {
+      setProducts(result.data?.data || result.data || []);
+    } else {
+      productsFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [storeId, productsLoading]);
+  }, [storeId, productsLoading, executeFetchProducts]);
 
   // Reset refs when storeId changes
   useEffect(() => {
@@ -176,47 +170,42 @@ const CreatePurchaseOrder = () => {
 
   const handleSubmit = async (isDraft = false) => {
     if (!validateForm() && !isDraft) return;
-    try {
-      setIsCreating(true);
-      setCreateError(null);
+    setCreateError(null);
 
-      const poPayload = {
-        store: selectedStore.storeId,
-        supplier: formData.supplier,
-        products: formData.products.map((item) => ({
-          product: item.product,
-          quantity: parseInt(item.quantity, 10),
-        })),
-        payment: formData.payment,
-        paymentBy: formData.paymentBy,
-        reference: formData.reference || undefined,
-        note: formData.note || undefined,
-        expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
-      };
+    const poPayload = {
+      store: selectedStore.storeId,
+      supplier: formData.supplier,
+      products: formData.products.map((item) => ({
+        product: item.product,
+        quantity: parseInt(item.quantity, 10),
+      })),
+      payment: formData.payment,
+      paymentBy: formData.paymentBy,
+      reference: formData.reference || undefined,
+      note: formData.note || undefined,
+      expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
+    };
 
-      const billingPayload = formatAddressPayload(formData.billingAddress);
-      if (billingPayload) poPayload.billingAddress = billingPayload;
+    const billingPayload = formatAddressPayload(formData.billingAddress);
+    if (billingPayload) poPayload.billingAddress = billingPayload;
 
-      const shippingPayload = formatAddressPayload(formData.shippingAddress);
-      if (shippingPayload) poPayload.deliveryAddress = shippingPayload;
+    const shippingPayload = formatAddressPayload(formData.shippingAddress);
+    if (shippingPayload) poPayload.deliveryAddress = shippingPayload;
 
-      const result = await purchaseOrderService.createPurchaseOrder(poPayload);
-      if (result.success) {
-        const poNumber = result.data?.poNumber || `PO-${Date.now()}`;
-        const poId = result.data?.id || result.data?._id || "";
-        showSuccess(`${poNumber} has been created successfully!`);
-        setTimeout(() => {
-          setFormData(formInit);
-          if (poId) router.push(`/dashboard/purchase-orders/${poId}`);
-          else router.push("/dashboard/purchase-orders");
-        }, 1500);
-      } else {
-        setCreateError(result.message || t("purchaseOrders.failedToCreatePO"));
-      }
-    } catch (_error) {
-      setCreateError(t("purchaseOrders.unexpectedErrorCreatingPO"));
-    } finally {
-      setIsCreating(false);
+    const result = await executeCreate(
+      purchaseOrderService.createPurchaseOrder(poPayload),
+      { message: t("purchaseOrders.poCreatedSuccessfully") }
+    );
+
+    if (result?.success) {
+      const poId = result.data?.id || result.data?._id || "";
+      setTimeout(() => {
+        setFormData(formInit);
+        if (poId) router.push(`/dashboard/purchase-orders/${poId}`);
+        else router.push("/dashboard/purchase-orders");
+      }, 1500);
+    } else {
+      setCreateError(result?.message || t("purchaseOrders.failedToCreatePO"));
     }
   };
 

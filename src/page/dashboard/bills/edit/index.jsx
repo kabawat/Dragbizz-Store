@@ -5,24 +5,23 @@ import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui";
 
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { billService } from "@/service/retailer";
 import { useAppSelector } from "@/store/hooks";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
-import BillItemsSection from "@/components/bill/create/BillItemsSection";
-import BillSidebar from "@/components/bill/create/BillSidebar";
+import BillItemsSection from "@/components/bills/create/BillItemsSection";
+import BillSidebar from "@/components/bills/create/BillSidebar";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Receipt } from "lucide-react";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { selectedStore } = useAppSelector((state) => state.profile);
 
-  const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const [formData, setFormData] = useState({
     supplier: "",
@@ -36,7 +35,9 @@ const EditBill = ({ billId }) => {
   const [errors, setErrors] = useState({});
   const hasFetched = useRef(false);
 
-  const { handleApiError, handleApiResult, QuotaModal, showError, } = useErrorHandling();
+  const { showError } = useGlobalToast();
+  const { execute: executeFetch, loading: fetching } = useApiResponse();
+  const { execute: executeUpdate, loading: isUpdating } = useApiResponse();
 
   // Fetch existing bill data
   useEffect(() => {
@@ -44,43 +45,46 @@ const EditBill = ({ billId }) => {
       if (!billId || !selectedStore?.storeId || hasFetched.current) return;
       hasFetched.current = true;
 
-      try {
-        setFetching(true);
-        const result = await billService.getBills({
-          store: selectedStore.storeId,
-          id: billId,
+      const result = await executeFetch(
+        billService.getBills({ store: selectedStore.storeId, id: billId }),
+        { showToast: false }
+      );
+
+      if (result?.success && result.data) {
+        const billData = result.data;
+        setFormData({
+          supplier: billData.supplier?._id || "",
+          purchaseOrder: billData.purchaseOrder?._id || "",
+          dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split("T")[0] : "",
+          notes: billData.notes || "",
+          goodsReceived: billData.goodsReceived ?? true,
+          items: (billData.items || []).map(item => ({
+            product: item.product,
+            productName: item.productName || "",
+            quantity: item.quantity || 1,
+            purchasePrice: item.unitPrice || 0,
+          })),
         });
-
-        if (result.success && result.data) {
-          const billData = result.data;
-
-          setFormData({
-            supplier: billData.supplier?._id || billData.supplier?.id || "",
-            purchaseOrder: billData.purchaseOrder?._id || billData.purchaseOrder?.id || "",
-            dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split("T")[0] : "",
-            notes: billData.notes || "",
-            goodsReceived: billData.goodsReceived ?? true,
-            items: (billData.items || []).map(item => ({
-              product: item.product?._id || item.product || "",
-              quantity: item.quantity || 1,
-              purchasePrice: item.unitPrice || item.purchasePrice || 0,
-            })),
-          });
-        } else {
-          setFetchError(result.message || t("errors.failedToFetchData", { item: t("common.bill") }));
-        }
-      } catch (error) {
-        setFetchError(t("errors.failedToFetchDataTryAgain", { item: t("common.bill") }));
-      } finally {
-        setFetching(false);
+      } else {
+        setFetchError(result?.message || t("errors.failedToFetchData", { item: t("common.bill") }));
       }
     };
 
     fetchBillData();
-  }, [billId, selectedStore?.storeId, t]);
+  }, [billId, selectedStore?.storeId, t, executeFetch]);
 
   // Handle input changes
   const handleInputChange = useCallback((field, value) => {
+    if (value === "add-new-supplier") {
+      router.push("/dashboard/suppliers/add");
+      return;
+    }
+
+    if (value === "add-new-purchase-order") {
+      router.push("/dashboard/purchase-orders/create");
+      return;
+    }
+
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
       if (field === "supplier") newData.purchaseOrder = "";
@@ -90,7 +94,7 @@ const EditBill = ({ billId }) => {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }, [errors]);
+  }, [errors, router]);
 
   // Validate form
   const validateForm = useCallback(() => {
@@ -129,43 +133,33 @@ const EditBill = ({ billId }) => {
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
 
-    try {
-      setIsUpdating(true);
-      const billData = {
-        store: selectedStore.storeId,
-        supplier: formData.supplier,
-        purchaseOrder: formData.purchaseOrder || undefined,
-        goodsReceived: !!formData.goodsReceived,
-        items: formData.items.map((item) => ({
-          product: item.product,
-          quantity: parseInt(item.quantity, 10),
-          purchasePrice: parseFloat(item.purchasePrice),
-        })),
-        dueDate: formData.dueDate || undefined,
-        notes: formData.notes || undefined,
-      };
+    const billData = {
+      store: selectedStore.storeId,
+      supplier: formData.supplier,
+      purchaseOrder: formData.purchaseOrder || undefined,
+      goodsReceived: !!formData.goodsReceived,
+      items: formData.items.map((item) => ({
+        product: item.product,
+        quantity: parseInt(item.quantity, 10),
+        purchasePrice: parseFloat(item.purchasePrice),
+      })),
+      dueDate: formData.dueDate || undefined,
+      notes: formData.notes || undefined,
+    };
 
-      const result = await billService.updateBill(billId, billData, selectedStore.storeId);
-      const handled = handleApiResult(
-        result,
-        t("success.updatedSuccessfully", { item: t("common.bill") }),
-        "bill-update"
-      );
+    const result = await executeUpdate(
+      billService.updateBill(billId, billData, selectedStore.storeId),
+      { message: t("success.updatedSuccessfully", { item: t("common.bill") }) }
+    );
 
-      if (handled.type === "success") {
-        setTimeout(() => {
-          router.push(`/dashboard/bills/${billId}`);
-        }, 1500);
-      } else if (handled.type === "field") {
-        setErrors(handled.fieldErrors);
-      }
-    } catch (error) {
-      const handled = handleApiError(error, "bill-update");
-      if (handled.type === "field") setErrors(handled.fieldErrors);
-    } finally {
-      setIsUpdating(false);
+    if (result?.success) {
+      setTimeout(() => {
+        router.push(`/dashboard/bills/${billId}`);
+      }, 1500);
+    } else if (result?.fieldErrors) {
+      setErrors(result.fieldErrors);
     }
-  }, [billId, formData, selectedStore?.storeId, validateForm, t, handleApiResult, handleApiError, router]);
+  }, [billId, formData, selectedStore?.storeId, validateForm, t, executeUpdate, router]);
 
   const memoizedBillItemsSection = useMemo(() => (
     <BillItemsSection
@@ -187,6 +181,7 @@ const EditBill = ({ billId }) => {
       errors={errors}
       isCreating={isUpdating}
       handleSubmit={handleSubmit}
+      isEditing={true}
     />
   ), [errors, formData, handleInputChange, handleSubmit, isUpdating, setFormData, t]);
 
@@ -226,11 +221,11 @@ const EditBill = ({ billId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="h-screen w-full flex flex-col">
         <Header title={t("bills.editBill")} description={t("bills.updateBillInformationAndDetails")} />
 
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             <div className="mb-4">
               <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
@@ -238,9 +233,9 @@ const EditBill = ({ billId }) => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 pe-3 h-full">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 pe-3 min-h-0">
                   <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
                     {memoizedBillItemsSection}
                   </form>
@@ -252,7 +247,6 @@ const EditBill = ({ billId }) => {
           </div>
         </div>
       </div>
-      {QuotaModal}
     </div>
   );
 };
