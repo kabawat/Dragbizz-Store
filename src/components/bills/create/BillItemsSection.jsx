@@ -85,7 +85,7 @@ const BillItemsSection = ({
     };
 
     return (
-        <Card className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
+        <Card padding="none" className="!border-[rgb(var(--color-border-primary))]/30 h-full flex flex-col overflow-hidden">
             <div className="p-4 flex flex-col h-full overflow-hidden">
                 <div className="mb-4 flex-shrink-0">
                     {/* Add Item Section */}
@@ -233,7 +233,7 @@ const BillItemsSection = ({
                                                 </div>
                                             </div>
 
-                                             <button
+                                            <button
                                                 type="button"
                                                 onClick={() => handleRemoveItem(index)}
                                                 className="ml-4 opacity-0 group-hover:opacity-100 flex items-center justify-center w-8 h-8 cursor-pointer text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 rounded-lg transition-all duration-200"

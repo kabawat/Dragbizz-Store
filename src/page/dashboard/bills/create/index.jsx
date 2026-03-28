@@ -147,7 +147,7 @@ const CreateBill = () => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="h-screen w-full flex flex-col">
         <Header
           title={t("bills.createBill")}
           description={
@@ -156,8 +156,8 @@ const CreateBill = () => {
               : t("bills.createBillDescription")
           }
         />
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             <div className="mb-4">
               <Link
                 href="/dashboard/bills"
@@ -168,9 +168,9 @@ const CreateBill = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 h-full">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
                   <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
                     <BillItemsSection
                       t={t}

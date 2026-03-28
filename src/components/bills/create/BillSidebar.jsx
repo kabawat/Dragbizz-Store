@@ -16,6 +16,7 @@ const BillSidebar = ({
     isCreating,
     handleSubmit,
     setFormData,
+    isEditing = false,
 }) => {
     const searchParams = useSearchParams();
     const { selectedStore } = useAppSelector((state) => state.profile);
@@ -247,7 +248,7 @@ const BillSidebar = ({
                                     className="w-full"
                                     leftIcon={FileText}
                                 >
-                                    {t("bills.createBill")}
+                                    {isEditing ? t("bills.updateBill") : t("bills.createBill")}
                                 </Button>
                             </div>
                         </Card>
