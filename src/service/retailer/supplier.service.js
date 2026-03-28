@@ -1,116 +1,65 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class SupplierService {
+class SupplierService extends BaseService {
   constructor() {
-    this.baseURL = API_CONFIG.BASE.URL;
+    super();
+    this.endpoint = API_CONFIG?.RETAILER?.SUPPLIER;
   }
 
   // Create a new supplier
-  async createSupplier(supplierData) {
-    try {
-      const response = await authAxios.post(
-        API_CONFIG?.RETAILER?.SUPPLIER,
-        supplierData
-      );
-      return handleApiSuccess(response?.data, "Supplier created successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "supplier-creation");
-    }
+  createSupplier(supplierData) {
+    return this.post(this.endpoint, supplierData);
   }
 
   // Update an existing supplier
-  async updateSupplier(supplierId, supplierData, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.SUPPLIER}/${supplierId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await authAxios.put(url, supplierData);
-      return handleApiSuccess(response?.data, "Supplier updated successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "supplier-updation");
-    }
+  updateSupplier(supplierId, supplierData, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, supplierId, storeId);
+    return this.put(url, supplierData);
   }
 
   // Get all suppliers with query parameters
-  async getSuppliers(params = {}) {
-    try {
-      // Build URL with query parameters
-      const url = attachQueryParams(API_CONFIG?.RETAILER?.SUPPLIER, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(response?.data, "Suppliers fetched successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "suppliers-list");
-    }
+  getSuppliers(params = {}) {
+    return this.get(this.endpoint, params);
   }
 
   // Delete a supplier by ID
-  async deleteSupplier(supplierId, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.SUPPLIER}/${supplierId}`;
-
-      // Add storeId as query parameter if provided
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
-
-      const response = await authAxios.delete(url);
-      return handleApiSuccess(response?.data, "Supplier deleted successfully");
-    } catch (error) {
-      return handleApiErrorResponse(error, "supplier-deletion");
-    }
+  deleteSupplier(supplierId, storeId = null) {
+    const url = this.buildResourceUrl(this.endpoint, supplierId, storeId);
+    return this.delete(url);
   }
 
   // Search suppliers by name, phone, or email
-  async searchSuppliers(searchTerm, storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.SUPPLIER}/search`;
+  searchSuppliers(searchTerm, storeId = null) {
+    let url = `${this.endpoint}/search`;
+    const params = { q: searchTerm };
 
-      const params = { q: searchTerm };
-      if (storeId) {
-        params.store = storeId;
-      }
-
-      url = attachQueryParams(url, params);
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Suppliers searched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "supplier-search");
+    if (storeId) {
+      params.store = storeId;
     }
+
+    return this.get(url, params);
   }
 
   // Get supplier statistics
-  async getSupplierStats(storeId = null) {
-    try {
-      let url = `${API_CONFIG?.RETAILER?.SUPPLIER}/stats`;
+  getSupplierStats(storeId = null) {
+    let url = `${this.endpoint}/stats`;
+    const params = storeId ? { store: storeId } : {};
 
-      if (storeId) {
-        const params = { store: storeId };
-        url = attachQueryParams(url, params);
-      }
+    return this.get(url, params);
+  }
 
-      const response = await authAxios.get(url);
-      return handleApiSuccess(
-        response?.data,
-        "Supplier statistics fetched successfully"
-      );
-    } catch (error) {
-      return handleApiErrorResponse(error, "supplier-stats");
-    }
+  // Bulk upload suppliers
+  bulkUploadSuppliers(file, storeId) {
+    const url = `${this.endpoint}/bulk`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("store", storeId);
+
+    return this.uploadAxios.post(url, formData);
   }
 }
 
 // Create and export a singleton instance
-const supplierService = new SupplierService();
+export const supplierService = new SupplierService();
 export default supplierService;

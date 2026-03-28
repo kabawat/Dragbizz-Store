@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { signatureService } from "@/service";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 // Define async thunk for fetching signatures
 export const fetchSignatures = createAsyncThunk(
@@ -7,20 +9,12 @@ export const fetchSignatures = createAsyncThunk(
     async (params, { rejectWithValue }) => {
         try {
             const response = await signatureService.getSignatures(params);
-            if (response.success) {
-                return response.data;
-            }
-            return rejectWithValue(response.message || "Failed to fetch signatures");
+            return handleSuccess(response);
         } catch (error) {
-            return rejectWithValue(
-                error.message || "An error occurred while fetching signatures"
-            );
+            return rejectWithValue(handleError(error).message);
         }
     }
 );
-
-// Define async thunk for creating a signature (optional, but good practice)
-
 
 const initialState = {
     items: [],
@@ -58,7 +52,7 @@ const signaturesSlice = createSlice({
             })
             .addCase(fetchSignatures.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items = action.payload || [];
+                state.items = action.payload.data || [];
                 state.lastFetched = Date.now();
             })
             .addCase(fetchSignatures.rejected, (state, action) => {

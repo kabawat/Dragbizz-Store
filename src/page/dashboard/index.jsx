@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { dashboardService } from "@/service/retailer";
+import useApiResponse from "@/hooks/useApiResponse";
 import { useAppSelector } from "@/store/hooks";
 import logger from "@/utils/logger";
 
@@ -63,7 +64,7 @@ export default function Dashboard() {
     (state) => state.profile
   );
 
-  const [loading, setLoading] = useState(true);
+  const { execute, loading } = useApiResponse();
   const [metrics, setMetrics] = useState([
     { id: "revenue", title: t("dashboard.totalRevenue"), value: "₹0", change: "0%", changeType: "up", icon: IndianRupee, iconColor: "bg-green-500" },
     { id: "customers", title: t("dashboard.totalCustomers"), value: "0", change: "0%", changeType: "up", icon: Users, iconColor: "bg-blue-500" },
@@ -86,71 +87,62 @@ export default function Dashboard() {
   );
 
   const loadDashboardMetrics = useCallback(async (storeId) => {
-    try {
-      const response = await dashboardService.getDashboard({ period: 30, storeId });
-      if (response.success && response.data) {
-        const dashboardData = response.data;
-        const updatedMetrics = [
-          {
-            id: "revenue",
-            title: t("dashboard.totalRevenue"),
-            value: `₹${dashboardData.metrics.revenue.value.toLocaleString("en-IN")}`,
-            change: formatPercentChange(dashboardData.metrics.revenue.change),
-            changeType: dashboardData.metrics.revenue.changeType,
-            icon: IndianRupee,
-            iconColor: "bg-green-500",
-          },
-          {
-            id: "customers",
-            title: t("dashboard.totalCustomers"),
-            value: dashboardData.metrics.customers.value.toLocaleString("en-IN"),
-            change: formatPercentChange(dashboardData.metrics.customers.change),
-            changeType: dashboardData.metrics.customers.changeType,
-            icon: Users,
-            iconColor: "bg-blue-500",
-          },
-          {
-            id: "products",
-            title: t("dashboard.productsInStock"),
-            value: dashboardData.metrics.products.value.toLocaleString("en-IN"),
-            change: formatPercentChange(dashboardData.metrics.products.change),
-            changeType: dashboardData.metrics.products.changeType,
-            icon: Package,
-            iconColor: "bg-purple-500",
-          },
-          {
-            id: "suppliers",
-            title: t("dashboard.suppliers"),
-            value: dashboardData.metrics.suppliers.value.toLocaleString("en-IN"),
-            change: formatPercentChange(dashboardData.metrics.suppliers.change),
-            changeType: dashboardData.metrics.suppliers.changeType,
-            icon: Building2,
-            iconColor: "bg-orange-500",
-          },
-        ];
-        setMetrics(prev => {
-          // preserve order if saved
-          const metricsMap = new Map(updatedMetrics.map(m => [m.id, m]));
-          return prev.map(m => metricsMap.get(m.id) || m);
-        });
-      }
-    } catch (error) {
-      logger.error("Failed to load dashboard metrics:", error);
+    const result = await execute(
+      dashboardService.getDashboard({ period: 30, storeId }),
+      { showToast: false }
+    );
+
+    if (result?.success && result?.data) {
+      const dashboardData = result.data;
+      const updatedMetrics = [
+        {
+          id: "revenue",
+          title: t("dashboard.totalRevenue"),
+          value: `₹${dashboardData.metrics.revenue.value.toLocaleString("en-IN")}`,
+          change: formatPercentChange(dashboardData.metrics.revenue.change),
+          changeType: dashboardData.metrics.revenue.changeType,
+          icon: IndianRupee,
+          iconColor: "bg-green-500",
+        },
+        {
+          id: "customers",
+          title: t("dashboard.totalCustomers"),
+          value: dashboardData.metrics.customers.value.toLocaleString("en-IN"),
+          change: formatPercentChange(dashboardData.metrics.customers.change),
+          changeType: dashboardData.metrics.customers.changeType,
+          icon: Users,
+          iconColor: "bg-blue-500",
+        },
+        {
+          id: "products",
+          title: t("dashboard.productsInStock"),
+          value: dashboardData.metrics.products.value.toLocaleString("en-IN"),
+          change: formatPercentChange(dashboardData.metrics.products.change),
+          changeType: dashboardData.metrics.products.changeType,
+          icon: Package,
+          iconColor: "bg-purple-500",
+        },
+        {
+          id: "suppliers",
+          title: t("dashboard.suppliers"),
+          value: dashboardData.metrics.suppliers.value.toLocaleString("en-IN"),
+          change: formatPercentChange(dashboardData.metrics.suppliers.change),
+          changeType: dashboardData.metrics.suppliers.changeType,
+          icon: Building2,
+          iconColor: "bg-orange-500",
+        },
+      ];
+      setMetrics(prev => {
+        const metricsMap = new Map(updatedMetrics.map(m => [m.id, m]));
+        return prev.map(m => metricsMap.get(m.id) || m);
+      });
     }
-  }, [t]);
+  }, [t, execute]);
 
   useEffect(() => {
     const storeId = storeFromRedux?._id || storeFromRedux?.id || storeFromRedux?.storeId;
-    if (!storeId) {
-      setLoading(false);
-      return;
-    }
-    const fetchData = async () => {
-      setLoading(true);
-      await loadDashboardMetrics(storeId);
-      setLoading(false);
-    };
-    fetchData();
+    if (!storeId) return;
+    loadDashboardMetrics(storeId);
   }, [storeFromRedux?._id, storeFromRedux?.id, storeFromRedux?.storeId, loadDashboardMetrics]);
 
   // Load saved layout

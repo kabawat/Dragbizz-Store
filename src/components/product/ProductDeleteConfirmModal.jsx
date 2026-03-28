@@ -1,21 +1,54 @@
 "use client";
 import { AlertTriangle, Trash2, X } from "lucide-react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { removeProduct } from "@/store/slices/products/productSlice";
+import { productService } from "@/service/retailer";
+import useApiResponse from "@/hooks/useApiResponse";
 
+// Product delete confirmation modal
 const ProductDeleteConfirmModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  productName = "Product",
-  isLoading = false,
+  productToDelete,  // { id, name } | null
+  onClose,          // () => void
+  onSuccess,        // (productName: string) => void
 }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const { selectedStore } = useAppSelector((state) => state.profile);
+  const storeId = selectedStore?.storeId || "";
+
+  const isOpen = Boolean(productToDelete);
+  const { execute, loading: isDeleting } = useApiResponse();
+
+  const handleConfirm = useCallback(async () => {
+    if (!productToDelete) return;
+
+    const result = await execute(
+      productService.deleteProduct(productToDelete.id, storeId),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      // Update state locally
+      dispatch(removeProduct(productToDelete.id));
+      onSuccess?.(productToDelete.name);
+      onClose?.();
+    }
+  }, [productToDelete, storeId, dispatch, onClose, onSuccess, execute]);
+
+  const handleClose = useCallback(() => {
+    if (isDeleting) return;
+    onClose?.();
+  }, [isDeleting, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 backdrop-blur-[2px] bg-black/10 flex items-center justify-center z-[9999] transition-all duration-300">
       <div className="bg-gradient-to-br from-[rgb(var(--color-bg-primary))] to-[rgb(var(--color-bg-secondary))] rounded-2xl border border-[rgb(var(--color-border-primary))] shadow-2xl max-w-md w-full mx-4 transform transition-all duration-500">
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-[rgb(var(--color-border-primary))]">
           <div className="flex items-center justify-between">
@@ -33,9 +66,9 @@ const ProductDeleteConfirmModal = ({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-[rgb(var(--color-bg-tertiary))] rounded-lg transition-colors duration-200"
-              disabled={isLoading}
+              disabled={isDeleting}
             >
               <X className="w-5 h-5 text-[rgb(var(--color-text-secondary))]" />
             </button>
@@ -50,7 +83,7 @@ const ProductDeleteConfirmModal = ({
             </p>
             <div className="bg-[rgb(var(--color-bg-tertiary))] rounded-lg p-3 border border-[rgb(var(--color-border-primary))]">
               <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                "{productName}"
+                &ldquo;{productToDelete?.name}&rdquo;
               </p>
               <p className="text-xs text-[rgb(var(--color-text-secondary))] mt-1">
                 {t("modals.deleteConfirmMessage")}
@@ -62,22 +95,22 @@ const ProductDeleteConfirmModal = ({
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 h-10 text-sm font-semibold border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))]"
-              disabled={isLoading}
+              disabled={isDeleting}
             >
               {t("common.cancel")}
             </Button>
 
             <Button
               variant="danger"
-              onClick={onConfirm}
+              onClick={handleConfirm}
               className="flex-1 h-10 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white"
               leftIcon={Trash2}
-              loading={isLoading}
-              disabled={isLoading}
+              loading={isDeleting}
+              disabled={isDeleting}
             >
-              {isLoading ? t("common.loading") : t("products.deleteProduct")}
+              {isDeleting ? t("common.loading") : t("products.deleteProduct")}
             </Button>
           </div>
         </div>
@@ -88,6 +121,7 @@ const ProductDeleteConfirmModal = ({
             {t("products.deletePermanentlyWarning")}
           </p>
         </div>
+
       </div>
     </div>
   );

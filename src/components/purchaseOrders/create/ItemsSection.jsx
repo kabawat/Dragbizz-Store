@@ -97,7 +97,7 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                                 value={tempProduct}
                                 onChange={(value) => {
                                     if (value === "__add_new_product__") {
-                                        router.push("/dashboard/products/add");
+                                        router.push("/dashboard/products/create");
                                         return;
                                     }
                                     setTempProduct(value);
@@ -197,7 +197,7 @@ const ItemsSection = ({ t, formData, setFormData, products, productsLoading, err
                                         <button
                                             type="button"
                                             onClick={() => removeItem(index)}
-                                            className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:text-[rgb(var(--color-danger))] hover:bg-[rgba(var(--color-danger),0.1)] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                            className="flex-shrink-0 p-2 cursor-pointer text-[rgb(var(--color-danger))] hover:bg-[rgb(var(--color-danger))]/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                                             title={t("purchaseOrders.removeItem")}
                                         >
                                             <Trash2 className="w-4 h-4" />

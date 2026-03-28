@@ -107,20 +107,15 @@ const SettingsPanel = () => {
       {/* Main Settings Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-[rgb(var(--color-primary))] text-white h-14 w-14 pl-5 pr-2 rounded-l-2xl transition-all duration-300 group cursor-pointer flex items-center justify-center"
+        className="bg-[rgb(var(--color-primary))] text-white h-14 w-14 pl-5 pr-2 rounded-l-2xl transition-all duration-300 group cursor-pointer flex items-center justify-center active:scale-95"
         title={t("settings.title")}
       >
-        <Settings
-          className={`w-6 h-6 transition-transform transition-all hover:scale-110 hover:text-white duration-300 ${isOpen ? "rotate-180" : ""}`}
-        />
+        <Settings className={`w-6 h-6 transition-all duration-300 ${isOpen ? "rotate-180" : "group-hover:rotate-45"}`} />
       </button>
 
       {/* Right Drawer */}
       {isOpen && (
-        <div
-          data-drawer
-          className="fixed inset-y-0 right-0 w-full max-w-full sm:max-w-md md:w-[30.5rem] bg-[rgb(var(--color-bg-primary))] border-l border-[rgb(var(--color-border-primary))] shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col isolate"
-        >
+        <div data-drawer className="fixed inset-y-0 right-0 w-full max-w-full sm:max-w-md md:w-[30.5rem] bg-[rgb(var(--color-bg-primary))]/95 backdrop-blur-xl border-l border-[rgb(var(--color-border-primary))] shadow-[-20px_0_50px_-12px_rgba(0,0,0,0.25)] z-[9999] transform transition-all duration-500 ease-in-out flex flex-col isolate animate-in slide-in-from-right">
           {/* Header */}
           <div className="bg-[rgb(var(--color-bg-secondary))] px-6 py-4 border-b border-[rgb(var(--color-border-primary))] flex-shrink-0 relative z-10">
             <div className="flex items-center justify-between">
@@ -167,15 +162,17 @@ const SettingsPanel = () => {
             {activeTab === "appearance" && (
               <div className="space-y-6">
                 {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-[rgb(var(--color-bg-secondary))] rounded-xl border border-[rgb(var(--color-border-primary))]/50 transition-all duration-300 group/card">
                   <div className="flex items-center gap-3">
-                    {currentVariant === "light" ? (
-                      <Sun className="w-5 h-5 text-yellow-500" />
-                    ) : (
-                      <Moon className="w-5 h-5 text-blue-500" />
-                    )}
+                    <div className="p-2 rounded-lg bg-[rgb(var(--color-bg-primary))] group-hover/card:scale-110 transition-transform duration-300">
+                      {currentVariant === "light" ? (
+                        <Sun className="w-5 h-5 text-yellow-500" />
+                      ) : (
+                        <Moon className="w-5 h-5 text-blue-500" />
+                      )}
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                      <p className="text-sm font-bold text-[rgb(var(--color-text-primary))]">
                         {t("settings.darkMode")}
                       </p>
                       <p className="text-xs text-[rgb(var(--color-text-secondary))]">
@@ -187,13 +184,13 @@ const SettingsPanel = () => {
                   </div>
                   <button
                     onClick={handleVariantToggle}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${currentVariant === "dark"
-                      ? "bg-[rgb(var(--color-primary))]"
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 ${currentVariant === "dark"
+                      ? "bg-[rgb(var(--color-primary))] shadow-[0_0_10px_rgba(var(--color-primary),0.4)]"
                       : "bg-[rgb(var(--color-border-primary))]"
                       }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentVariant === "dark"
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${currentVariant === "dark"
                         ? "translate-x-6"
                         : "translate-x-1"
                         }`}
@@ -210,21 +207,28 @@ const SettingsPanel = () => {
                       <button
                         key={themeKey}
                         onClick={() => handleThemeChange(themeKey)}
-                        className={`relative p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${currentTheme === themeKey
-                          ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-10"
-                          : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+                        className={`relative p-3 rounded-xl border-1 transition-all duration-300 cursor-pointer overflow-hidden group/theme ${currentTheme === themeKey
+                          ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/10"
+                          : "border-[rgb(var(--color-border-primary))]/50 hover:border-[rgb(var(--color-primary))]/50 hover:bg-[rgb(var(--color-bg-secondary))]"
                           }`}
                       >
+                        {/* Selected Indicator */}
+                        {currentTheme === themeKey && (
+                          <div className="absolute top-0 right-0 w-8 h-8 bg-[rgb(var(--color-primary))] flex items-center justify-center rounded-bl-xl shadow-sm">
+                            <RefreshCw className="w-3 h-3 text-white animate-spin-slow" />
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-2 mb-2">
                           <div
-                            className="w-3 h-3 rounded-full"
+                            className="w-4 h-4 rounded-full border border-white/20 shadow-inner group-hover/theme:scale-110 transition-transform duration-300"
                             style={{
                               backgroundColor: theme.colors.light.primary,
                             }}
                           />
                           <span
-                            className={`text-xs font-medium ${currentTheme === themeKey
-                              ? "text-white"
+                            className={`text-xs font-bold transition-colors ${currentTheme === themeKey
+                              ? "text-[rgb(var(--color-primary))]"
                               : "text-[rgb(var(--color-text-primary))]"
                               }`}
                           >
@@ -232,8 +236,8 @@ const SettingsPanel = () => {
                           </span>
                         </div>
                         <p
-                          className={`text-xs text-left ${currentTheme === themeKey
-                            ? "text-white/80"
+                          className={`text-[10px] leading-tight text-left transition-colors font-medium ${currentTheme === themeKey
+                            ? "text-[rgb(var(--color-text-primary))]"
                             : "text-[rgb(var(--color-text-secondary))]"
                             }`}
                         >

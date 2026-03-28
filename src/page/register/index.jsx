@@ -26,7 +26,6 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-
   const updateFormData = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -39,10 +38,14 @@ export default function Register() {
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = t("auth.firstNameRequired");
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = t("auth.nameTooShort", "First name must be at least 2 characters");
     }
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = t("auth.lastNameRequired");
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = t("auth.nameTooShort", "Last name must be at least 2 characters");
     }
 
     if (!formData.contact.trim()) {
@@ -67,10 +70,6 @@ export default function Register() {
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleGetStarted = () => {
-    setCurrentState("basic-info");
   };
 
   const handleBasicInfoNext = () => {
@@ -112,29 +111,12 @@ export default function Register() {
     }
   };
 
-  const handleVerificationComplete = () => {
-    setCurrentState("success");
-  };
-
-  const handleBackToWelcome = () => {
-    setCurrentState("welcome");
-  };
-
-  const handleBackToBasicInfo = () => {
-    setCurrentState("basic-info");
-  };
-
-  const handleChangeContact = () => {
-    setCurrentState("basic-info");
-  };
-
   const handleSuccessContinue = () => {
-    // Redirect to agency creation instead of showing complete state
     window.location.href = "/onboarding/agency";
   };
 
   if (currentState === "welcome") {
-    return <WelcomeScreen onGetStarted={handleGetStarted} />;
+    return <WelcomeScreen onGetStarted={() => setCurrentState("basic-info")} />;
   }
 
   if (currentState === "success") {
@@ -146,39 +128,8 @@ export default function Register() {
     );
   }
 
-  if (currentState === "complete") {
-    return (
-      <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 flex items-center justify-center p-4">
-        <AnimatedBackground variant="success" />
-        <div className="relative bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto text-center">
-          <div className="w-20 h-20 bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-white text-2xl font-bold">🚀</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-4">
-            Dashboard
-          </h1>
-          <p className="text-sm sm:text-base text-[rgb(var(--color-text-secondary))] mb-6">
-            Welcome to your new account, {formData.firstName}! Start exploring
-            all the amazing features we have to offer.
-          </p>
-          <div className="flex flex-col gap-3">
-            <button className="w-full bg-[rgb(var(--color-primary))] text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-500 ease-in-out cursor-pointer">
-              Explore Features
-            </button>
-            <button className="w-full border-2 border-[rgb(var(--color-border-primary))] text-[rgb(var(--color-text-primary))] py-3 px-6 rounded-xl font-semibold bg-transparent hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-500 ease-in-out cursor-pointer">
-              Complete Profile
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden"
-      data-register-page
-    >
+    <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden" data-register-page>
       {currentState === "basic-info" && (
         <BasicInfoStep
           firstName={formData.firstName}
@@ -187,7 +138,7 @@ export default function Register() {
           contactType={formData.contactType}
           onUpdate={updateFormData}
           onNext={handleBasicInfoNext}
-          onBack={handleBackToWelcome}
+          onBack={() => setCurrentState("welcome")}
           errors={errors}
         />
       )}
@@ -197,7 +148,7 @@ export default function Register() {
           password={formData.password}
           onUpdate={updateFormData}
           onNext={handlePasswordNext}
-          onBack={handleBackToBasicInfo}
+          onBack={() => setCurrentState("basic-info")}
           firstName={formData.firstName}
           isLoading={isLoading}
           errors={errors}
@@ -209,8 +160,8 @@ export default function Register() {
           contactType={formData.contactType}
           contact={formData.contact}
           firstName={formData.firstName}
-          onVerificationComplete={handleVerificationComplete}
-          onChangeContact={handleChangeContact}
+          onVerificationComplete={() => setCurrentState("success")}
+          onChangeContact={() => setCurrentState("basic-info")}
           registrationData={formData}
         />
       )}

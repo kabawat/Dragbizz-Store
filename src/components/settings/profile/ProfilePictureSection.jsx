@@ -2,7 +2,7 @@
 import { Camera, User, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
 import { uploadService, authService } from "@/service";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
 
@@ -16,7 +16,7 @@ const ProfilePictureSection = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  const { showSuccess, showError } = useErrorHandling();
+  const { showSuccess, showError } = useGlobalToast();
   const dispatch = useAppDispatch();
 
   const handleCameraClick = () => {

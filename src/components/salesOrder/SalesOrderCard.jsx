@@ -1,6 +1,7 @@
 import moment from "moment";
 import { Eye, Printer, Clock, CheckCircle, Package, XCircle, Calendar, CreditCard, User, AlertCircle, RotateCcw, Truck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { IconButton } from "../ui";
 
@@ -52,8 +53,9 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
+const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint, canEdit = false }) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const [openMenuId, setOpenMenuId] = useState(null);
     const menuRef = useRef(null);
 
@@ -77,7 +79,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     ];
 
     // Quick Workflow Actions
-    if (order.status === "PROCESSING") {
+    if (canEdit && order.status === "PROCESSING") {
         _actionMenuItems.push(
             {
                 value: "ship",
@@ -89,7 +91,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
         );
     }
 
-    if (["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
+    if (canEdit && ["SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status) && order.paymentStatus !== "PAID") {
         _actionMenuItems.push({
             value: "mark_paid",
             label: t("salesOrder.markAsPaid"),
@@ -116,9 +118,18 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
     };
 
     return (
-        <div className="w-full rounded-xl border border-[rgb(var(--color-border-primary))]/50 transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))]">
+        <div
+            className="w-full rounded-xl border border-[rgb(var(--color-border-primary))]/50 transition-all duration-300 ease-out group overflow-hidden bg-[rgb(var(--color-bg-primary))] cursor-pointer hover:border-[rgb(var(--color-primary))]/30 shadow-none hover:shadow-md"
+            onClick={(e) => {
+                // Prevent routing if clicking on action menu, badge, or customer section
+                if (e.target.closest('.action-menu-container') || e.target.closest('.status-badge-container') || e.target.closest('.customer-section')) return;
+                onViewDetails?.(order.id || order._id);
+            }}
+            title={t("common.viewDetails")}
+        >
             {/* Header Section with Gradient */}
-            <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative">
+            <div className="w-full h-32 bg-gradient-to-br from-[rgb(var(--color-primary))]/10 via-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-bg-secondary))] relative"
+                onClick={() => onViewDetails?.(order.id || order._id)}>
                 <div className="w-full h-full flex items-center justify-center">
                     <div className="w-16 h-16 bg-gradient-to-br from-[rgb(var(--color-primary))]/20 to-[rgb(var(--color-primary))]/10 rounded-full flex items-center justify-center border-2 border-[rgb(var(--color-primary))]/20 shadow-lg bg-[rgb(var(--color-bg-primary))]">
                         <Package className="w-8 h-8 text-[rgb(var(--color-primary))]" />
@@ -126,12 +137,12 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                 </div>
 
                 {/* Status Overlay */}
-                <div className="absolute bottom-3 left-3">
+                <div className="absolute bottom-3 left-3 status-badge-container">
                     <StatusBadge status={order.status} />
                 </div>
 
                 {/* Action Menu */}
-                <div className="absolute top-3 right-3" ref={menuRef}>
+                <div className="absolute top-3 right-3 action-menu-container" ref={menuRef}>
                     <IconButton
                         onClick={() => handleMenuToggle(order.id || order._id)}
                         title={t("common.actions")}
@@ -168,12 +179,21 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                 </div>
 
                 {/* Customer Info */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))]">
+                <div
+                    className={`customer-section truncate flex items-center gap-3 p-3 rounded-lg bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] ${order.customer?.id ? 'cursor-pointer hover:bg-[rgb(var(--color-bg-tertiary))] transition-colors' : ''}`}
+                    onClick={(e) => {
+                        if (order.customer?.id) {
+                            e.stopPropagation();
+                            router.push(`/dashboard/customers/${order.customer.id}`);
+                        }
+                    }}
+                    title={order.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+                >
                     <div className="w-10 h-10 rounded-full bg-[rgb(var(--color-bg-primary))] flex items-center justify-center border border-[rgb(var(--color-border-primary))] flex-shrink-0">
                         <User size={18} className="text-[rgb(var(--color-primary))]" />
                     </div>
                     <div className="min-w-0">
-                        <p className="text-sm font-bold text-[rgb(var(--color-text-primary))] truncate">{order.customer?.name || t("common.guest")}</p>
+                        <p className={`text-sm font-bold truncate ${order.customer?.id ? 'text-[rgb(var(--color-primary))] group-hover:underline' : 'text-[rgb(var(--color-text-primary))]'}`}>{order.customer?.name || t("common.guest")}</p>
                         <p className="text-xs text-[rgb(var(--color-text-secondary))] truncate">{order.customer?.phone || order.customer?.email || ""}</p>
                     </div>
                 </div>
@@ -196,7 +216,7 @@ const SalesOrderCard = ({ order, onViewDetails, onUpdateStatus, onPrint }) => {
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 };
 

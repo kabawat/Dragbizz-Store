@@ -13,36 +13,29 @@ import PurchaseOrderDetails from "@/components/purchaseOrders/PurchaseOrderDetai
 import { SideDrawer } from "@/components/ui";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { purchaseOrderService } from "@/service/retailer";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { getStatusBadge as getCommonStatusBadge } from "@/utils/statusBadge";
 
 const ViewPurchaseOrder = ({ purchaseOrderId }) => {
-  const [purchaseOrder, setPurchaseOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [hasAttempted, setHasAttempted] = useState(false);
+  const { execute, data: purchaseOrder, loading } = useApiResponse();
 
   useEffect(() => {
     const fetchPurchaseOrder = async () => {
-      try {
-        setLoading(true);
-        const result =
-          await purchaseOrderService.getPublicPurchaseOrder(purchaseOrderId);
-        if (result.success) {
-          setPurchaseOrder(result.data);
-        } else {
-          setError("Purchase order not found");
+      if (purchaseOrderId) {
+        try {
+          await execute(
+            purchaseOrderService.getPublicPurchaseOrder(purchaseOrderId),
+            { showToast: false }
+          );
+        } finally {
+          setHasAttempted(true);
         }
-      } catch (_err) {
-        setError("Failed to load purchase order");
-      } finally {
-        setLoading(false);
       }
     };
-
-    if (purchaseOrderId) {
-      fetchPurchaseOrder();
-    }
-  }, [purchaseOrderId]);
+    fetchPurchaseOrder();
+  }, [purchaseOrderId, execute]);
 
   const _formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -115,7 +108,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
     setIsDrawerOpen(false);
   };
 
-  if (loading) {
+  if (loading || (!hasAttempted && purchaseOrderId)) {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] flex items-center justify-center">
         <div className="text-center">
@@ -131,7 +124,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
     );
   }
 
-  if (error || !purchaseOrder) {
+  if (hasAttempted && !purchaseOrder) {
     return (
       <div className="min-h-screen bg-[rgb(var(--color-bg-primary))] flex items-center justify-center">
         <div className="text-center">
@@ -142,7 +135,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
             Purchase Order Not Found
           </h2>
           <p className="text-[rgb(var(--color-text-secondary))]">
-            {error || "The purchase order you are looking for does not exist."}
+            The purchase order you are looking for does not exist.
           </p>
         </div>
       </div>
@@ -269,7 +262,7 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
                     <span className="text-[rgb(var(--color-text-primary))] font-semibold">
                       {formatDate(
                         purchaseOrder.expectedDeliveryDate ||
-                          purchaseOrder.dueDate
+                        purchaseOrder.dueDate
                       )}
                     </span>
                   </div>
@@ -347,21 +340,21 @@ const ViewPurchaseOrder = ({ purchaseOrderId }) => {
           </div>
 
           {/* Promotional Banner */}
-          <div className="bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-secondary))] rounded-2xl p-8 max-w-4xl w-full text-white text-center shadow-lg">
+          <div className="bg-[rgb(var(--color-bg-secondary))] border border-[rgb(var(--color-border-primary))] rounded-2xl p-8 max-w-4xl w-full text-center shadow-sm">
             <div className="flex items-center justify-center mb-6">
-              <div className="bg-white bg-opacity-30 rounded-lg px-6 py-3 border-2 border-white border-opacity-50 shadow-lg backdrop-blur-sm">
-                <span className="text-xl font-bold text-[#000] tracking-wide">
+              <div className="bg-[rgb(var(--color-primary))] bg-opacity-10 dark:bg-opacity-20 rounded-lg px-6 py-3 border border-[rgb(var(--color-primary))] border-opacity-20 shadow-sm backdrop-blur-sm">
+                <span className="text-xl font-bold text-[rgb(var(--color-primary))] tracking-wide">
                   DragBizz
                 </span>
               </div>
             </div>
-            <h3 className="text-2xl font-bold mb-3 text-white">
+            <h3 className="text-2xl font-bold mb-3 text-[rgb(var(--color-text-primary))]">
               Easily manage purchase orders in 10 seconds 😉
             </h3>
-            <p className="text-white text-opacity-90 mb-6 text-lg">
+            <p className="text-[rgb(var(--color-text-secondary))] mb-6 text-lg">
               and share them with your suppliers!
             </p>
-            <button className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg transition-colors text-lg shadow-lg">
+            <button className="bg-[rgb(var(--color-primary))] hover:opacity-90 text-white font-bold py-3 px-8 rounded-lg transition-all text-lg shadow-md hover:shadow-lg hover:-translate-y-0.5">
               Try now for free 🚀
             </button>
           </div>

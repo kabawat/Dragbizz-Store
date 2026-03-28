@@ -10,7 +10,7 @@ import LogoutModal from "@/components/ui/LogoutModal";
 const UserProfile = () => {
     const { t } = useTranslation();
     const router = useRouter();
-    const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen } = useLogout();
+    const { showLogoutModal, hideLogoutModal, confirmLogout, isModalOpen, isLoggingOut } = useLogout();
 
     const { user, authProfile } = useAppSelector((state) => state.profile);
 
@@ -147,6 +147,7 @@ const UserProfile = () => {
                     isOpen={isModalOpen}
                     onClose={hideLogoutModal}
                     onConfirm={confirmLogout}
+                    isLoggingOut={isLoggingOut}
                 />
             )}
         </>

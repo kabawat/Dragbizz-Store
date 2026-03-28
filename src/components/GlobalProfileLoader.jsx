@@ -7,8 +7,10 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   getAuthProfile,
   getRetailerDetails,
+  getStaffProfileDetails,
   setInitialized,
 } from "@/store/slices/profileSlice";
+import ForcePasswordModal from "@/components/auth/ForcePasswordModal";
 
 const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
 
@@ -20,7 +22,7 @@ function isAuthPath(pathname) {
 export default function GlobalProfileLoader() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { authProfile, user, agency, stores, isLoading, error } = useAppSelector(
+  const { authProfile, staffProfile, user, agency, stores, isLoading, error } = useAppSelector(
     (state) => state.profile
   );
 
@@ -28,6 +30,7 @@ export default function GlobalProfileLoader() {
   const refreshSucceededRef = useRef(false);
   const hasFetchedAuthRef = useRef(false);
   const hasFetchedRetailerRef = useRef(false);
+  const hasFetchedStaffRef = useRef(false);
 
   useEffect(() => {
     const isAuth = isAuthPath(pathname);
@@ -67,9 +70,7 @@ export default function GlobalProfileLoader() {
 
   // Retailer profile: after we have authProfile
   useEffect(() => {
-    // If no auth profile or agency_id is null, it means user needs onboarding.
-    // In this case, we definitely should NOT call retailer profile API.
-    if (!authProfile || !authProfile.agency_id) return;
+    if (!authProfile || !authProfile.agencyId) return;
 
     const isAuth = isAuthPath(pathname);
     const hasSessionCookie = typeof document !== 'undefined' && document.cookie.includes('logged_in=true');
@@ -82,5 +83,21 @@ export default function GlobalProfileLoader() {
     dispatch(getRetailerDetails());
   }, [pathname, authProfile, user, agency, stores, dispatch]);
 
-  return null;
+  // Staff profile: after we have authProfile and role is "store_staff"
+  useEffect(() => {
+    if (!authProfile || authProfile.role !== 'store_staff') return;
+
+    if (staffProfile || hasFetchedStaffRef.current) return;
+
+    hasFetchedStaffRef.current = true;
+    dispatch(getStaffProfileDetails());
+  }, [authProfile, staffProfile, dispatch]);
+
+  const shouldShowModal = !!authProfile && authProfile.ispwds === false;
+
+  return (
+    <>
+      <ForcePasswordModal isOpen={shouldShowModal} />
+    </>
+  );
 }

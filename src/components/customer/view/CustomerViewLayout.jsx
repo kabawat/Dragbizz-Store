@@ -1,15 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import CustomerBasicInfo from "@/page/dashboard/customers/view/components/CustomerBasicInfo";
-import CompanyDetails from "@/page/dashboard/customers/view/components/CompanyDetails";
-import AccountDetails from "@/page/dashboard/customers/view/components/AccountDetails";
-import Addresses from "@/page/dashboard/customers/view/components/Addresses";
-import CustomerActions from "@/page/dashboard/customers/view/components/CustomerActions";
-import DeleteModal from "@/page/dashboard/customers/view/components/DeleteModal";
+import CustomerBasicInfo from "@/components/customer/view/components/CustomerBasicInfo";
+import CompanyDetails from "@/components/customer/view/components/CompanyDetails";
+import AccountDetails from "@/components/customer/view/components/AccountDetails";
+import Addresses from "@/components/customer/view/components/Addresses";
+import CustomerActions from "@/components/customer/view/components/CustomerActions";
+import DeleteModal from "@/components/customer/view/components/DeleteModal";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
 import { customerService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useRouter } from "next/navigation";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 
 const CustomerViewLayout = ({
     customerData,
@@ -23,6 +24,13 @@ const CustomerViewLayout = ({
     const [isDeleting, setIsDeleting] = useState(false);
     const { showSuccess, showError } = useGlobalToast();
     const router = useRouter();
+    // Module permissions (hide/disable actions accordingly)
+    const { can } = useModulePermissions("customer");
+    const canEdit = can("edit");
+    const canDelete = can("delete");
+
+    const handleEdit = canEdit ? onEdit : undefined;
+    const handleDelete = canDelete ? () => setShowDeleteModal(true) : undefined;
 
     const handleConfirmDelete = async () => {
         if (!customerId || !storeId) return;
@@ -44,7 +52,7 @@ const CustomerViewLayout = ({
     };
 
     useCommonHotkeys({
-        onDelete: () => setShowDeleteModal(true),
+        onDelete: canDelete ? () => setShowDeleteModal(true) : undefined,
         onClose: () => {
             if (showDeleteModal) setShowDeleteModal(false);
         }
@@ -53,18 +61,9 @@ const CustomerViewLayout = ({
     if (!customerData) return null;
 
     return (
-        <div
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-            style={{ height: "calc(100vh - 300px)" }}
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-300px)]">
             <div className="lg:col-span-2 flex flex-col h-full">
-                <div
-                    className="overflow-y-auto pe-3 space-y-6"
-                    style={{
-                        height: "calc(100vh - 200px)",
-                        maxHeight: "calc(100vh - 200px)",
-                    }}
-                >
+                <div className="overflow-y-auto pe-3 space-y-6 h-[calc(100vh-200px)] max-h-[calc(100vh-200px)]">
                     <CustomerBasicInfo customerData={customerData} />
                     <CompanyDetails companyDetails={customerData.companyDetails} />
                     <AccountDetails account={customerData.account} />
@@ -74,8 +73,10 @@ const CustomerViewLayout = ({
 
             <CustomerActions
                 customerData={customerData}
-                onEdit={onEdit}
-                onDelete={() => setShowDeleteModal(true)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
                 onDownloadPDF={onDownloadPDF}
             />
 

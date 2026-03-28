@@ -1,5 +1,6 @@
 {
   "loading": "Loading...",
+  "loadingMore": "Loading more...",
   "error": "Error",
   "somethingWentWrong": "Something went wrong",
   "success": "Success",
@@ -110,9 +111,9 @@
   "newest": "Newest",
   "oldest": "Oldest",
   "gridView": "Grid View",
-  "tableView": "Table View",
+  "tableView": "",
   "listView": "List View",
-  "cardView": "Card View",
+  "cardView": "",
   "upgrade": "Upgrade",
   "send": "Send",
   "whatsapp": "WhatsApp",
@@ -153,5 +154,6 @@
   "addNew": "Add New",
   "createNow": "Create Now",
   "confirmDelete": "Are you sure you want to delete this item?",
-  "gst": "GST"
+  "gst": "GST",
+  "scrollToLoadMore": "Scroll to load more"
 }

@@ -7,16 +7,17 @@ import { useTranslation } from "@/hooks/ui/useTranslation";
 import { invoiceService } from "@/service";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getInvoices } from "@/store/slices/invoicesSlice";
+import { useApiResponse } from "@/hooks/useApiResponse";
 
 const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showError, showSuccess } = useGlobalToast();
+  const { showError } = useGlobalToast();
+  const { execute, loading } = useApiResponse();
   const [paymentStatus, setPaymentStatus] = useState("UNPAID");
   const [paidAmount, setPaidAmount] = useState("");
   const [errors, setErrors] = useState({});
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const totalAmount = invoice?.totalAmount || 0;
   const currentPaymentStatus = invoice?.paymentStatus || "UNPAID";
@@ -85,54 +86,39 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
 
     if (!invoice) return;
 
-    setIsUpdating(true);
-    try {
-      const invoiceId = invoice.id || invoice._id;
-      const storeId =
-        selectedStore?.storeId;
+    const invoiceId = invoice.id || invoice._id;
+    const storeId = selectedStore?.storeId;
 
-      if (!storeId) {
-        showError("Store ID is missing. Please select a store.");
-        setIsUpdating(false);
-        return;
-      }
+    if (!storeId) {
+      showError("Store ID is missing. Please select a store.");
+      return;
+    }
 
-      // Use new payment status update API (only for RELEASED invoices)
-      const result = await invoiceService.updatePaymentStatus(
+    const result = await execute(
+      invoiceService.updatePaymentStatus(
         invoiceId,
         paymentStatus,
         null, // paymentMode (optional)
         storeId, // storeId (required for middleware)
         paidAmount ? parseFloat(paidAmount) : null // paidAmount (optional, for PARTIAL)
-      );
+      ),
+      { message: "Payment status updated successfully" }
+    );
 
-      if (result.success) {
-        showSuccess("Payment status updated successfully");
+    if (result?.success) {
+      // Refresh the invoices list
+      const refreshParams = {
+        store: storeId,
+        limit: 20,
+        cursor: null,
+        isFreshLoad: true,
+      };
+      await dispatch(getInvoices(refreshParams));
 
-        // Refresh the invoices list
-        const refreshParams = {
-          store: storeId,
-          limit: 20,
-          cursor: null,
-          isFreshLoad: true,
-        };
-        await dispatch(getInvoices(refreshParams));
-
-        if (onSuccess) {
-          onSuccess(result.data || invoiceId);
-        }
-        onClose();
-      } else {
-        showError(
-          result.message || "Failed to update payment status. Please try again."
-        );
+      if (onSuccess) {
+        onSuccess(result.data || invoiceId);
       }
-    } catch (_error) {
-      showError(
-        "An error occurred while updating payment status. Please try again."
-      );
-    } finally {
-      setIsUpdating(false);
+      onClose();
     }
   };
 
@@ -227,17 +213,17 @@ const UpdatePaymentStatusModal = ({ onClose, invoice, onSuccess }) => {
             onClick={onClose}
             variant="outline"
             className="flex-1"
-            disabled={isUpdating}
+            disabled={loading}
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             className="flex-1"
-            disabled={isUpdating}
-            loading={isUpdating}
+            disabled={loading}
+            loading={loading}
           >
-            {isUpdating
+            {loading
               ? t("common.updating")
               : t("invoice.updatePaymentStatus")}
           </Button>

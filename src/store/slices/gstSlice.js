@@ -1,22 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { gstService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 export const getGstSummary = createAsyncThunk(
   "gst/getGstSummary",
   async ({ storeId, params = {} }, { rejectWithValue }) => {
     try {
-      const result = await gstService.getGstSummary(storeId, params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch GST summary",
-        });
-      }
-      const data = result.data?.data ?? result.data;
-      return { success: true, data, message: "GST summary fetched successfully" };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch GST summary. Please try again.",
-      });
+      const response = await gstService.getGstSummary(storeId, params);
+      return handleSuccess(response);
+    } catch (error) {
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -25,18 +19,10 @@ export const getGstMismatches = createAsyncThunk(
   "gst/getGstMismatches",
   async ({ storeId, params = {} }, { rejectWithValue }) => {
     try {
-      const result = await gstService.getGstMismatches(storeId, params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch GST mismatches",
-        });
-      }
-      const data = result.data?.data ?? result.data;
-      return { success: true, data, message: "GST mismatches fetched successfully" };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch GST mismatches. Please try again.",
-      });
+      const response = await gstService.getGstMismatches(storeId, params);
+      return handleSuccess(response);
+    } catch (error) {
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -45,41 +31,10 @@ export const getGstHealthScore = createAsyncThunk(
   "gst/getGstHealthScore",
   async ({ storeId, params = {} }, { rejectWithValue }) => {
     try {
-      const result = await gstService.getGstHealthScore(storeId, params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to fetch GST health score",
-        });
-      }
-      const data = result.data?.data ?? result.data;
-      return { success: true, data, message: "GST health score fetched successfully" };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to fetch GST health score. Please try again.",
-      });
-    }
-  }
-);
-
-export const syncGstStats = createAsyncThunk(
-  "gst/syncGstStats",
-  async ({ storeId, params = {} }, { dispatch, rejectWithValue }) => {
-    try {
-      const result = await gstService.syncGstStats(storeId, params);
-      if (!result.success) {
-        return rejectWithValue({
-          message: result.message || "Failed to sync GST stats",
-        });
-      }
-      // Refresh data after sync
-      dispatch(getGstSummary({ storeId, params }));
-      dispatch(getGstHealthScore({ storeId, params: { year: params.year } }));
-
-      return { success: true, message: "GST statistics synced successfully" };
-    } catch (_error) {
-      return rejectWithValue({
-        message: "Failed to sync GST stats. Please try again.",
-      });
+      const response = await gstService.getGstHealthScore(storeId, params);
+      return handleSuccess(response);
+    } catch (error) {
+      return rejectWithValue(handleError(error).message);
     }
   }
 );
@@ -91,7 +46,6 @@ const initialState = {
   isLoading: false,
   isLoadingMismatches: false,
   isLoadingHealthScore: false,
-  isSyncing: false,
   error: null,
 };
 
@@ -116,7 +70,7 @@ const gstSlice = createSlice({
       })
       .addCase(getGstSummary.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch GST summary";
+        state.error = action.payload || "Failed to fetch GST summary";
       })
       .addCase(getGstMismatches.pending, (state) => {
         state.isLoadingMismatches = true;
@@ -137,16 +91,6 @@ const gstSlice = createSlice({
       })
       .addCase(getGstHealthScore.rejected, (state) => {
         state.isLoadingHealthScore = false;
-      })
-      .addCase(syncGstStats.pending, (state) => {
-        state.isSyncing = true;
-      })
-      .addCase(syncGstStats.fulfilled, (state) => {
-        state.isSyncing = false;
-      })
-      .addCase(syncGstStats.rejected, (state, action) => {
-        state.isSyncing = false;
-        state.error = action.payload?.message || "Failed to sync GST stats";
       });
   },
 });

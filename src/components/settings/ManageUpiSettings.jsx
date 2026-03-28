@@ -3,25 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import storeService from "@/service/retailer/store.service";
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { getStoreUpi } from "@/store/slices/storeUpiSlice";
-import {
-  UpiHeader,
-  UpiList,
-  UpiAddDrawer,
-  UpiEditDrawer,
-  UpiDeleteModal,
-} from "@/components/settings/upi";
+import { UpiHeader, UpiList, UpiAddDrawer, UpiEditDrawer, UpiDeleteModal, } from "@/components/settings/upi";
 
-/**
- * Payment tab - shows all agency UPI IDs (not store-specific)
- */
+// Payment tab - shows all agency UPI IDs (not store-specific)
 const ManageUpiSettings = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { showError, showSuccess } = useErrorHandling();
+  const { showError, showSuccess } = useGlobalToast();
   const { stores: reduxStores } = useAppSelector((state) => state.profile);
 
   const [stores, setStores] = useState([]);
@@ -72,8 +64,8 @@ const ManageUpiSettings = () => {
       } else {
         showError(
           error?.response?.data?.message ||
-            error?.message ||
-            "Failed to fetch stores"
+          error?.message ||
+          "Failed to fetch stores"
         );
         setStores([]);
       }

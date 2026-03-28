@@ -1,0 +1,112 @@
+/* Base Styles & Global Resets */
+body {
+  font-family: var(--font-primary) !important;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.4;
+
+  /* Theme-aware background */
+  background-color: rgb(var(--color-bg-primary));
+  color: rgb(var(--color-text-primary));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Form Defaults */
+input,
+textarea,
+select {
+  border: 1px solid rgb(var(--color-border-primary));
+  background-color: rgb(var(--color-bg-primary));
+  color: rgb(var(--color-text-primary));
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: rgb(var(--color-primary));
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
+}
+
+/* Autofill Overrides */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgb(var(--color-bg-primary)) inset !important;
+  -webkit-text-fill-color: rgb(var(--color-text-primary)) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-bg-secondary));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border-secondary));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-text-tertiary));
+}
+
+/* Utilities */
+.glass {
+  background: rgba(var(--color-bg-primary), 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(var(--color-border-primary), 0.18);
+}
+
+.shadow-soft {
+  box-shadow: 0 2px 15px -3px rgba(var(--color-shadow), 0.07), 0 10px 20px -2px rgba(var(--color-shadow), 0.04);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-secondary)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .mobile-optimized {
+    padding: 0.75rem;
+  }
+}
+
+/* Responsive Font Scaling */
+@media (max-width: 1440px) {
+  html {
+    font-size: 87.5%;
+  }
+}
+
+@media (max-width: 1366px) {
+  html {
+    font-size: 81.25%;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Status Badge Visibility Fix */
+[data-variant="dark"] [style*="color: rgb(var(--color-success))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-warning))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-danger))"],
+[data-variant="dark"] [style*="color: rgb(var(--color-primary))"] {
+  opacity: 1 !important;
+}

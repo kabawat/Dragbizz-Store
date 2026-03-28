@@ -1,31 +1,22 @@
 import { API_CONFIG } from "@/config";
-import { authAxios } from "@/service/config/axiosConfig";
-import { handleApiErrorResponse, handleApiSuccess } from "@/utils/errorHandler";
-import { attachQueryParams } from "@/utils/queryParams";
+import { BaseService } from "@/service/base/BaseService";
 
-class SalesOrderService {
-    // Get Sales Orders (List/Single)
-    async getSalesOrders(params = {}) {
-        try {
-            const url = attachQueryParams(API_CONFIG.RETAILER.SALES_ORDER, params);
-            const response = await authAxios.get(url);
-            return handleApiSuccess(response.data, "Sales orders fetched successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "sales-orders-list");
-        }
-    }
+class SalesOrderService extends BaseService {
+  constructor() {
+    super();
+    this.endpoint = API_CONFIG.RETAILER.SALES_ORDER;
+  }
 
-    // Update Status
-    async updateStatus(id, payload, params = {}) {
-        try {
-            const url = attachQueryParams(`${API_CONFIG.RETAILER.SALES_ORDER}/status/${id}`, params);
-            const response = await authAxios.put(url, payload);
-            return handleApiSuccess(response.data, "Order updated successfully");
-        } catch (error) {
-            return handleApiErrorResponse(error, "sales-order-status-update");
-        }
-    }
+  // Get Sales Orders (List/Single)
+  getSalesOrders(params = {}) {
+    return this.get(this.endpoint, params);
+  }
+
+  // Update Status
+  updateStatus(id, payload, params = {}) {
+    return this.put(`${this.endpoint}/status/${id}`, payload, params);
+  }
 }
 
-const salesOrderService = new SalesOrderService();
+export const salesOrderService = new SalesOrderService();
 export default salesOrderService;

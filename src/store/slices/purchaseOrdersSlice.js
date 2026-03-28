@@ -1,97 +1,111 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { purchaseOrderService } from "@/service/retailer";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
+
+const initialState = {
+  list: [],
+  isLoading: false,
+  isFetchingMore: false,
+  error: null,
+  pagination: { hasNextPage: false, nextCursor: null, total: 0 },
+  viewMode: "table",
+};
 
 export const getPurchaseOrders = createAsyncThunk(
   "purchaseOrders/getPurchaseOrders",
   async (params, { rejectWithValue }) => {
     try {
-      const result = await purchaseOrderService.getPurchaseOrders(params);
-      if (result?.success) {
-        return {
-          data: result.data || [],
-          pagination: result.data?.pagination || {},
-        };
-      }
-      return rejectWithValue(
-        result?.message || "Failed to fetch purchase orders"
-      );
-    } catch (_e) {
-      return rejectWithValue("Failed to fetch purchase orders");
+      const response = await purchaseOrderService.getPurchaseOrders(params);
+      return handleSuccess(response);
+    } catch (error) {
+      const result = handleError(error);
+      return rejectWithValue(result.message);
     }
+  },
+  {
+    condition: (params, { getState }) => {
+      const { isLoading, isFetchingMore } = getState().purchaseOrders;
+      if (params?.isFreshLoad && isLoading) return false;
+      if (!params?.isFreshLoad && isFetchingMore) return false;
+      return true;
+    },
   }
 );
-
-
-
-export const deletePurchaseOrder = createAsyncThunk(
-  "purchaseOrders/deletePurchaseOrder",
-  async ({ id, store }, { rejectWithValue }) => {
-    try {
-      const result = await purchaseOrderService.deletePurchaseOrder(id, store);
-      if (result?.success) {
-        const payload = result?.data || {};
-        return {
-          id,
-          jobId: payload.jobId,
-          poNumber: payload.poNumber,
-          status: payload.status,
-          message: result?.message,
-        };
-      }
-      return rejectWithValue(result?.message || "Failed to delete");
-    } catch (_e) {
-      return rejectWithValue("Failed to delete");
-    }
-  }
-);
-
-const initialState = {
-  list: [],
-  isLoading: false,
-  error: null,
-  pagination: { hasNextPage: false, nextCursor: null },
-};
 
 const purchaseOrdersSlice = createSlice({
   name: "purchaseOrders",
   initialState,
   reducers: {
-    addMorePurchaseOrders(state, action) {
-      state.list = [...state.list, ...action.payload];
+    setViewMode: (state, action) => {
+      state.viewMode = action.payload;
     },
-    resetPurchaseOrders(state) {
-      state.list = [];
-      state.pagination = { hasNextPage: false, nextCursor: null };
-      state.error = null;
+    removePurchaseOrder: (state, action) => {
+      state.list = state.list.filter((po) => po.id !== action.payload);
+      if (state.pagination.total > 0) state.pagination.total -= 1;
+    },
+    updatePurchaseOrder: (state, action) => {
+      const index = state.list.findIndex(
+        (po) => po.id === (action.payload.id || action.payload._id)
+      );
+      if (index !== -1) {
+        state.list[index] = {
+          ...state.list[index],
+          ...action.payload,
+          id: action.payload.id || action.payload._id,
+        };
+      }
+    },
+    addPurchaseOrder: (state, action) => {
+      const newPO = { ...action.payload, id: action.payload.id || action.payload._id };
+      state.list.unshift(newPO);
+      state.pagination.total += 1;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getPurchaseOrders.pending, (state) => {
-        state.isLoading = true;
+      .addCase(getPurchaseOrders.pending, (state, action) => {
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = true;
+        else state.isFetchingMore = true;
         state.error = null;
       })
       .addCase(getPurchaseOrders.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.list = action.payload.data;
-        const page = action.payload.pagination || {};
-        state.pagination = {
-          hasNextPage: !!page.hasNextPage,
-          nextCursor: page.nextCursor || null,
-        };
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
+        state.error = null;
+
+        const { data, pagination } = action.payload;
+
+        const raw = Array.isArray(data) ? data : (data?.data ?? data ?? []);
+        const normalize = (po) => ({ ...po, id: po.id || po._id });
+
+        if (isFreshLoad) {
+          state.list = raw.map(normalize);
+        } else {
+          const existingIds = new Set(state.list.map((po) => po.id));
+          const newPOs = raw.map(normalize).filter((po) => !existingIds.has(po.id));
+          state.list = [...state.list, ...newPOs];
+        }
+
+        if (pagination) {
+          state.pagination = {
+            hasNextPage: pagination.hasNextPage || false,
+            nextCursor: pagination.nextCursor || null,
+            limit: pagination.limit || 20,
+            total: pagination.total ?? (isFreshLoad ? raw.length : state.pagination.total + raw.length),
+          };
+        }
       })
       .addCase(getPurchaseOrders.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || "Failed to fetch purchase orders";
-      })
-
-      .addCase(deletePurchaseOrder.fulfilled, (state, action) => {
-        const { id } = action.payload;
-        state.list = state.list.filter((po) => (po.id || po._id) !== id);
+        const isFreshLoad = action.meta?.arg?.isFreshLoad ?? false;
+        if (isFreshLoad) state.isLoading = false;
+        else state.isFetchingMore = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { addMorePurchaseOrders, resetPurchaseOrders } =
-  purchaseOrdersSlice.actions;
+export const { setViewMode, removePurchaseOrder, updatePurchaseOrder, addPurchaseOrder } = purchaseOrdersSlice.actions;
 export default purchaseOrdersSlice.reducer;

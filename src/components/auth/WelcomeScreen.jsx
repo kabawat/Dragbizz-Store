@@ -6,22 +6,25 @@ import { AnimatedBackground, AnimatedGridPattern } from "../ui";
 
 const WelcomeScreen = ({ onGetStarted }) => {
   const { t } = useTranslation();
+
   return (
     <div
       className="min-h-screen bg-[rgb(var(--color-bg-primary))] text-[rgb(var(--color-text-primary))] transition-colors duration-300 relative overflow-hidden"
       data-register-page
     >
-      {/* Animated Background */}
       <AnimatedBackground variant="register" />
       <AnimatedGridPattern opacity={30} blur={1} gridSize={80} />
 
-      {/* Full width wrapper */}
+      {/* Background overlay separated properly so it doesn't block interactions below */}
+      <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-white/5 dark:bg-black/5 pointer-events-none"></div>
+
+      {/* Full width wrapper matching Login page exactly */}
       <div className="w-full min-h-screen flex relative z-10">
-        {/* Left Side - Welcome Content */}
+
+        {/* Left Side - Welcome Content (Matching LoginWelcomeSection exactly) */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center">
-          {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center relative z-10 pl-4 sm:pl-6 lg:pl-8 xl:pl-10">
-            {/* Content */}
+
             <div className="flex flex-col justify-center xl:pl-35 pr-8 xl:pr-22 py-12 w-full max-w-full">
               <div className="mb-8">
                 <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mb-6 border border-indigo-300/30">
@@ -87,17 +90,20 @@ const WelcomeScreen = ({ onGetStarted }) => {
                 </p>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* Right Side - Registration Form */}
+        {/* Right Side - Action Form Wrapper (Matching Login Page exactly) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10">
-          {/* Container with max-width 1200px for content */}
           <div className="w-full max-w-[1200px] mx-auto h-full flex items-center justify-center pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8 xl:pt-10 xl:pb-10 pr-4 sm:pr-6 lg:pr-8 xl:pr-10">
-            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] shadow-lg p-8 sm:p-10">
-              {/* Mobile Logo */}
+
+            {/* The Actual Card (Matching LoginForm exactly) */}
+            <div className="w-full max-w-xl bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))] p-8 sm:p-10">
+
+              {/* Mobile Box/Logo matching LoginForm approach */}
               <div className="lg:hidden text-center mb-8">
-                <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
+                <div className="w-16 h-16 bg-[rgb(var(--color-primary))] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Rocket className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[rgb(var(--color-text-primary))] mb-2">
@@ -105,7 +111,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
                 </h1>
               </div>
 
-              {/* Header */}
+              {/* Header inside Card */}
               <div className="text-center mb-6 sm:mb-8">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[rgb(var(--color-primary))] rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
                   <Rocket className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
@@ -118,20 +124,23 @@ const WelcomeScreen = ({ onGetStarted }) => {
                 </p>
               </div>
 
-              {/* CTA Button */}
-              <button
-                onClick={onGetStarted}
-                className="w-full bg-[rgb(var(--color-primary))] text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base hover:brightness-[1.01] transition-all duration-200 shadow-md hover:shadow-lg mb-3 sm:mb-4"
-              >
-                {t("auth.getStarted")}
-              </button>
+              {/* Form Content / Button mapping */}
+              <div className="space-y-3 sm:space-y-4 pt-2">
+                <button onClick={onGetStarted} className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-[rgb(var(--color-primary))] text-white hover:opacity-90 cursor-pointer mb-2"
+                >
+                  <span className="text-sm sm:text-base">
+                    {t("auth.getStarted")}
+                  </span>
+                </button>
+              </div>
 
-              <p className="text-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] mb-4 sm:mb-6">
-                {t("auth.noSpamEver")}
-              </p>
+              <div className="text-center mt-3">
+                <p className="text-center text-xs sm:text-sm text-[rgb(var(--color-text-secondary))] mb-6">
+                  {t("auth.noSpamEver")}
+                </p>
+              </div>
 
-              {/* Login Link */}
-              <div className="text-center">
+              <div className="text-center mt-4 sm:mt-6">
                 <p className="text-xs sm:text-sm text-[rgb(var(--color-text-secondary))]">
                   {t("auth.alreadyHaveAccount")}{" "}
                   <Link
@@ -142,7 +151,9 @@ const WelcomeScreen = ({ onGetStarted }) => {
                   </Link>
                 </p>
               </div>
+
             </div>
+
           </div>
         </div>
       </div>

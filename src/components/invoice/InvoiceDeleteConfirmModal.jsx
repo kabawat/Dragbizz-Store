@@ -1,16 +1,17 @@
 "use client";
 import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { deleteInvoice } from "@/store/slices/invoicesSlice";
+import { removeInvoice } from "@/store/slices/invoicesSlice";
+import { invoiceService } from "@/service";
+import { useApiResponse } from "@/hooks/useApiResponse";
 import { Button } from "../ui";
 
 const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
   const dispatch = useAppDispatch();
   const { selectedStore } = useAppSelector((state) => state.profile);
-  const { showError, showSuccess } = useGlobalToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { showError } = useGlobalToast();
+  const { execute, loading } = useApiResponse();
 
   if (!invoice) return null;
 
@@ -22,40 +23,22 @@ const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
   const handleConfirmDelete = async () => {
     if (!invoice) return;
 
-    setIsLoading(true);
-    try {
-      const invoiceId = invoice.id || invoice._id;
-      const storeId =
-        selectedStore?.storeId;
+    const invoiceId = invoice.id || invoice._id;
+    const storeId = selectedStore?.storeId;
 
-      if (!storeId) {
-        showError("Store ID is missing. Please select a store.");
-        setIsLoading(false);
-        return;
-      }
+    if (!storeId) {
+      showError("Store ID is missing. Please select a store.");
+      return;
+    }
 
-      const result = await dispatch(
-        deleteInvoice({
-          invoiceId: invoiceId,
-          storeId: storeId,
-        })
-      );
+    const result = await execute(
+      invoiceService.deleteInvoice(invoiceId, storeId),
+      { message: "Invoice deleted successfully" }
+    );
 
-      if (result.payload?.success) {
-        showSuccess("Invoice deleted successfully");
-        onClose();
-      } else {
-        showError(
-          result.payload?.message ||
-          "Failed to delete invoice. Please try again."
-        );
-      }
-    } catch (_error) {
-      showError(
-        "An error occurred while deleting the invoice. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
+    if (result?.success) {
+      dispatch(removeInvoice(invoiceId));
+      onClose();
     }
   };
 
@@ -83,13 +66,13 @@ const InvoiceDeleteConfirmModal = ({ onClose, invoice }) => {
             )}
           </p>
           <div className="flex gap-3 justify-center">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button variant="outline" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
             <Button
               variant="danger"
               onClick={handleConfirmDelete}
-              loading={isLoading}
+              loading={loading}
             >
               Delete
             </Button>

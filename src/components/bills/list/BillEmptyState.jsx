@@ -1,0 +1,37 @@
+"use client";
+import { Plus, Receipt } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui";
+import { useTranslation } from "@/hooks/ui/useTranslation";
+
+const BillEmptyState = () => {
+  const { t } = useTranslation();
+  const router = useRouter();
+
+  return (
+    <div className="bg-[rgb(var(--color-bg-primary))] rounded-xl border border-[rgb(var(--color-border-primary))]">
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="w-16 h-16 bg-[rgb(var(--color-bg-tertiary))] rounded-full flex items-center justify-center mb-4">
+          <Receipt className="w-8 h-8 text-[rgb(var(--color-text-tertiary))]" />
+        </div>
+        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-2">
+          {t("bills.noBills")}
+        </h3>
+        <p className="text-[rgb(var(--color-text-secondary))] text-center max-w-md">
+          {t("common.noData")}
+        </p>
+        <div className="pt-4">
+          <Button
+            variant="primary"
+            onClick={() => router.push("/dashboard/bills/create")}
+          >
+            <Plus className="w-4 h-4 mr-2 text-white" />
+            {t("bills.createBill")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BillEmptyState;

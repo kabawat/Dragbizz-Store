@@ -13,6 +13,8 @@ import {
 import { clearCart } from "@/store/slices/publicCartSlice";
 import publicSalesOrderService from "@/service/public/salesOrder.service";
 import { useToast } from "@/hooks/ui/useToast";
+import { handleSuccess } from "@/utils/responseHandler/success";
+import { handleError } from "@/utils/responseHandler/error";
 
 const initialFormData = {
   name: "",
@@ -41,6 +43,7 @@ export default function CheckoutPage() {
   const [otp, setOtp] = useState("");
   const [secret, setSecret] = useState(null);
   const [orderResult, setOrderResult] = useState(null);
+
   const [formData, setFormData] = useState(initialFormData);
 
   const subtotal = items.reduce(
@@ -79,16 +82,18 @@ export default function CheckoutPage() {
       };
 
       const response = await publicSalesOrderService.createOrder(payload);
+      const result = handleSuccess(response);
 
-      if (response.success) {
-        setSecret(response.data?.secret);
+      if (result.success && result.data) {
+        setSecret(result.data.secret);
         setStep(2);
         toast.showSuccess("OTP sent successfully!");
       } else {
-        setError(response.message || "Failed to initiate order");
+        setError(result.message || "Failed to initiate order");
       }
-    } catch (err) {
-      setError(err.message || "Something went wrong");
+    } catch (error) {
+      const errResult = handleError(error);
+      setError(errResult.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -103,17 +108,19 @@ export default function CheckoutPage() {
       setError(null);
 
       const response = await publicSalesOrderService.verifyOtp({ secret, otp });
+      const result = handleSuccess(response);
 
-      if (response.success) {
-        setOrderResult(response.data);
+      if (result.success && result.data) {
+        setOrderResult(result.data);
         dispatch(clearCart());
         setStep(3);
         toast.showSuccess("Order placed successfully!");
       } else {
-        setError(response.message || "Invalid OTP");
+        setError(result.message || "Invalid OTP or Error");
       }
-    } catch (err) {
-      setError(err.message || "Verification failed");
+    } catch (error) {
+      const errResult = handleError(error);
+      setError(errResult.message || "Verification failed");
     } finally {
       setLoading(false);
     }

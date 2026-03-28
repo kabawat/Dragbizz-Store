@@ -16,6 +16,7 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AddActionButton } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useGlobalToast } from "@/contexts/ToastContext";
@@ -40,6 +41,7 @@ const InvoicesListTable = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const { showSuccess, showError } = useGlobalToast();
   const [openMenuId, setOpenMenuId] = useState(null);
   const [openSendMenuId, setOpenSendMenuId] = useState(null);
@@ -179,31 +181,31 @@ const InvoicesListTable = ({
       <table className="w-full">
         <thead className="bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.invoiceNumber")}
             </th>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.customer")}
             </th>
-            <th className="px-4 py-2 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-left text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.date")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.subtotal")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.gst")}
             </th>
-            <th className="px-4 py-2 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-right text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.amount")}
             </th>
-            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.status")}
             </th>
-            <th className="px-4 py-2 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-[10px] font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("invoice.payment")}
             </th>
-            <th className="px-4 py-2 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+            <th className="px-4 py-4 text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
               {t("common.actions")}
             </th>
           </tr>
@@ -216,15 +218,28 @@ const InvoicesListTable = ({
 
             return (
               <tr key={invoiceId} className="transition-colors">
-                <td className="px-4 py-2 cursor-pointer" onClick={() => onViewDetails?.(invoiceId)}>
+                <td
+                  className="px-4 py-2 cursor-pointer transition-colors hover:bg-[rgb(var(--color-bg-secondary))]"
+                  onClick={() => onViewDetails?.(invoiceId)}
+                  title={t("common.viewDetails")}
+                >
                   <div className="font-medium text-[rgb(var(--color-text-primary))]">
                     {invoice.invoiceNumber || `INV-${invoiceId?.slice(-6)}`}
                   </div>
                 </td>
-                <td className="px-4 py-2">
+                <td
+                  className={`px-4 py-2 ${invoice?.customer?.id && 'cursor-pointer'} `}
+                  onClick={(e) => {
+                    if (invoice.customer?.id) {
+                      e.stopPropagation();
+                      router.push(`/dashboard/customers/${invoice.customer.id}`);
+                    }
+                  }}
+                  title={invoice.customer?.id ? t("customers.viewDetails", { defaultValue: "View Customer Details" }) : ""}
+                >
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-[rgb(var(--color-text-tertiary))]" />
-                    <span className="text-sm text-[rgb(var(--color-text-primary))]">
+                    <User className={`w-4 h-4`} />
+                    <span className={`text-sm truncate`}>
                       {invoice.customer?.name || t("invoice.walkInCustomer")}
                     </span>
                   </div>
@@ -336,79 +351,89 @@ const InvoicesListTable = ({
                       </button>
                       {isMenuOpen && (
                         <div className={`absolute right-0 ${isLastItems ? 'bottom-full mb-2' : 'top-full mt-2'} w-48 bg-[rgb(var(--color-bg-primary))] border border-[rgb(var(--color-border-primary))] rounded-lg shadow-lg z-50`}>
-                          <div className="py-1">
-                            <button
-                              onClick={() => {
-                                onViewDetails?.(invoiceId);
-                                setOpenMenuId(null);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                              {t("common.viewDetails")}
-                            </button>
-                            {invoice.invoiceStatus === "DRAFT" && (
-                              <>
+                            <div className="py-1">
+                              {onViewDetails && (
                                 <button
                                   onClick={() => {
-                                    onEdit?.(invoiceId);
+                                    onViewDetails?.(invoiceId);
                                     setOpenMenuId(null);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                 >
-                                  <Edit className="w-4 h-4" />
-                                  {t("common.edit")}
+                                  <Eye className="w-4 h-4" />
+                                  {t("common.viewDetails")}
                                 </button>
+                              )}
+                              {invoice.invoiceStatus === "DRAFT" && (
+                                <>
+                                  {onEdit && (
+                                    <button
+                                      onClick={() => {
+                                        onEdit?.(invoiceId);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                      {t("common.edit")}
+                                    </button>
+                                  )}
+                                  {onRelease && (
+                                    <button
+                                      onClick={() => {
+                                        onRelease?.(invoice);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                    >
+                                      <CheckCircle className="w-4 h-4" />
+                                      {t("invoice.release")}
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                              {invoice.invoiceStatus === "RELEASED" &&
+                                invoice.paymentStatus !== "PAID" &&
+                                onUpdatePaymentStatus && (
+                                  <button
+                                    onClick={() => {
+                                      onUpdatePaymentStatus?.(invoiceId, invoice);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                  >
+                                    <CreditCard className="w-4 h-4" />
+                                    {t("invoice.paymentStatus")}
+                                  </button>
+                                )}
+                              {onPrint && (
                                 <button
                                   onClick={() => {
-                                    onRelease?.(invoice);
+                                    onPrint?.(invoiceId);
                                     setOpenMenuId(null);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
                                 >
-                                  <CheckCircle className="w-4 h-4" />
-                                  {t("invoice.release")}
+                                  <Printer className="w-4 h-4" />
+                                  {t("common.print")}
                                 </button>
-                              </>
-                            )}
-                            {invoice.invoiceStatus === "RELEASED" && invoice.paymentStatus !== "PAID" && (
-                              <button
-                                onClick={() => {
-                                  onUpdatePaymentStatus?.(invoiceId, invoice);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                              >
-                                <CreditCard className="w-4 h-4" />
-                                {t("invoice.paymentStatus")}
-                              </button>
-                            )}
-                            <button
-                              onClick={() => {
-                                onPrint?.(invoiceId);
-                                setOpenMenuId(null);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                            >
-                              <Printer className="w-4 h-4" />
-                              {t("common.print")}
-                            </button>
-                            {invoice.invoiceStatus === "DRAFT" && (
-                              <>
-                                <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
-                                <button
-                                  onClick={() => {
-                                    onDelete?.(invoice);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  {t("common.delete")}
-                                </button>
-                              </>
-                            )}
-                          </div>
+                              )}
+                              {invoice.invoiceStatus === "DRAFT" && onDelete && (
+                                <>
+                                  <div className="my-1 border-t border-[rgb(var(--color-border-primary))]" />
+                                  <button
+                                    onClick={() => {
+                                      onDelete?.(invoice);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-2 cursor-pointer transition-colors duration-200"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    {t("common.delete")}
+                                  </button>
+                                </>
+                              )}
+                            </div>
                         </div>
                       )}
                     </div>

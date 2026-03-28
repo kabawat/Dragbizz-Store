@@ -3,8 +3,30 @@ import { Clock, CheckCircle, XCircle, RefreshCw, Truck, CheckSquare } from "luci
 import { Button } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 
-const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus }) => {
+const OrderActions = ({ order, statusList, updatingStatus, onUpdateStatus, canEdit = false }) => {
     const { t } = useTranslation();
+
+    if (!canEdit) {
+        return (
+            <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-xl border border-[rgb(var(--color-primary)/0.1)] p-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-[rgb(var(--color-primary))]/20 rounded-lg flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-[rgb(var(--color-primary))]" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{t("salesOrder.quickActions")}</h3>
+                        <p className="text-sm text-[rgb(var(--color-text-secondary))]">{t("salesOrder.manageWorkflow")}</p>
+                    </div>
+                </div>
+                <div className="p-4 bg-[rgb(var(--color-bg-secondary))]/50 rounded-lg border border-dashed border-[rgb(var(--color-border-primary)/0.5)] text-center">
+                    <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))] italic">
+                        {t("common.noPermissionToEdit", "You do not have permission to manage this order.")}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-gradient-to-br from-[rgb(var(--color-primary))]/5 to-[rgb(var(--color-primary))]/10 backdrop-blur-md rounded-xl border border-[rgb(var(--color-primary)/0.1)] p-6">
             <div className="flex items-center gap-3 mb-6">

@@ -95,11 +95,6 @@ export const LazyUpgradeModal = createLazyComponent(
   { ssr: false }
 );
 
-export const LazyQuotaExceededModal = createLazyComponent(
-  () => import("@/components/common/QuotaExceededModal"),
-  { ssr: false }
-);
-
 export const LazyRichTextEditor = createLazyComponent(
   () => import("@/components/ui/RichTextEditor"),
   { ssr: false }

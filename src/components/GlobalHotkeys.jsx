@@ -75,6 +75,19 @@ const GlobalHotkeys = () => {
             e.preventDefault();
             router.push("/dashboard/support");
         },
+        // --- Management Navigation ---
+        "alt+f": (e) => { // Staff
+            e.preventDefault();
+            router.push("/dashboard/management/staff");
+        },
+        "alt+m": (e) => { // Subscription (Management)
+            e.preventDefault();
+            router.push("/dashboard/management/subscription");
+        },
+        "alt+l": (e) => { // Limits
+            e.preventDefault();
+            router.push("/dashboard/management/limits");
+        },
 
         // --- Global Control ---
         "shift+backspace": (e) => { // Global "Back"

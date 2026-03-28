@@ -11,6 +11,8 @@ const SupplierTable = ({
   onDuplicate,
   onViewDetails,
   onPrint,
+  canEdit = true,
+  canDelete = true,
   loading = false,
   emptyMessage,
   className = "",
@@ -135,24 +137,24 @@ const SupplierTable = ({
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[rgb(var(--color-bg-tertiary))] to-[rgb(var(--color-bg-secondary))] border-b border-[rgb(var(--color-border-primary))] sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-4 text-left">
                 <span className="text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                   Supplier
                 </span>
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Account
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Total Bills
               </th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
+              <th className="px-4 py-4 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))] uppercase tracking-wider">
                 Status
               </th>
-              <th className="w-24 px-4 py-2 text-center">
+              <th className="w-24 px-4 py-4 text-center">
                 <MoreVertical className="w-4 h-4 mx-auto" />
               </th>
             </tr>
@@ -301,25 +303,31 @@ const SupplierTable = ({
                               {t("common.print")}
                             </button>
                           )}
-                          <button
-                            onClick={() =>
-                              handleMenuAction(supplier.id, "edit")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                          >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.edit")}
-                          </button>
-                          <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
-                          <button
-                            onClick={() =>
-                              handleMenuAction(supplier.id, "delete")
-                            }
-                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                            Delete
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(supplier.id, "edit")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
+                            >
+                              <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              {t("common.edit")}
+                            </button>
+                          )}
+                          {canEdit && canDelete && (
+                            <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                          )}
+                          {canDelete && (
+                            <button
+                              onClick={() =>
+                                handleMenuAction(supplier.id, "delete")
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                              Delete
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

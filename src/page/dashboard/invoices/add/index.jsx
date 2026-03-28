@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { CreateCustomer } from "@/components/customer";
 import { SideDrawer } from "@/components/ui";
 import { useTranslation } from "@/hooks/ui/useTranslation";
-import { useUsageQuota } from "@/hooks/ui/useUsageQuota";
 import { customerService, invoiceService, productService } from "@/service";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-
-import useErrorHandling from "@/hooks/error/useErrorHandling";
+import { useAppSelector } from "@/store/hooks";
+import { useGlobalToast } from "@/contexts/ToastContext";
+import useApiResponse from "@/hooks/useApiResponse";
 import { useCommonHotkeys } from "@/hooks/keyboard/useCommonHotkeys";
+import { useModulePermissions } from "@/hooks/permissions/useModulePermissions";
 import InvoiceItemsSection from "@/components/invoice/create/InvoiceItemsSection";
 
 import InvoiceSidebar from "@/components/invoice/create/InvoiceSidebar";
@@ -30,9 +30,8 @@ const CreateInvoicePage = () => {
   // 1. Core Hooks & Selectors
   const router = useRouter();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   // Combine selectors for profile
-  const { selectedStore, agency: profileAgency } = useAppSelector((state) => state.profile);
+  const { selectedStore } = useAppSelector((state) => state.profile);
 
   // 2. Local State
   const [invoiceLoading, setInvoiceLoading] = useState(false);
@@ -42,32 +41,26 @@ const CreateInvoicePage = () => {
   const [showCustomerDrawer, setShowCustomerDrawer] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
-  // 3. Refs
+  // Permission Guard: Ensure user can create invoices
+  const { can, loading: permissionLoading } = useModulePermissions("invoice");
+  const canCreate = can("create");
 
+  useEffect(() => {
+    if (!permissionLoading && !canCreate) {
+      router.replace("/dashboard/invoices");
+    }
+  }, [canCreate, permissionLoading, router]);
+
+  // 3. Refs
   const productsFetchedRef = useRef({ storeId: null, fetched: false });
   const customersFetchedRef = useRef({ storeId: null, fetched: false });
 
   // 4. Custom Hooks
-  const { quota, isLoading: quotaLoading } = useUsageQuota("invoice_management");
-  const {
-    handleApiError,
-    handleApiResult,
-    QuotaModal,
-    showError,
-    setQuotaErrorManually,
-  } = useErrorHandling();
+  const { showError } = useGlobalToast();
+  const { execute } = useApiResponse();
 
   // 5. Derived Values
   const storeId = selectedStore?.storeId;
-  const agencyId = profileAgency?.agencyId || profileAgency?._id || selectedStore?.agency || selectedStore?.agencyId;
-
-  const isQuotaAvailable = () => {
-    if (!quota || quotaLoading) return true;
-    if (quota.remaining === -1 || quota.limit === -1) return true;
-    return quota.remaining > 0 && quota.hasAccess !== false;
-  };
-
-  const quotaExceeded = !isQuotaAvailable();
 
   // 6. Data Fetching Callbacks
   const fetchProducts = useCallback(async () => {
@@ -77,19 +70,21 @@ const CreateInvoicePage = () => {
     }
 
     productsFetchedRef.current = { storeId, fetched: true };
-    try {
-      const result = await productService.getProducts({
+    const result = await execute(
+      productService.getProducts({
         limit: 100,
         lightweight: true,
         store: storeId,
-      });
-      if (result.success) {
-        setProducts(result?.data || []);
-      }
-    } catch (_error) {
+      }),
+      { showToast: false }
+    );
+
+    if (result?.success) {
+      setProducts(result?.data || []);
+    } else {
       productsFetchedRef.current = { storeId: null, fetched: false };
     }
-  }, [storeId]);
+  }, [storeId, execute]);
 
   const fetchCustomers = useCallback(async () => {
     if (!storeId) return;
@@ -98,33 +93,33 @@ const CreateInvoicePage = () => {
     }
 
     customersFetchedRef.current = { storeId, fetched: true };
+    setCustomersLoading(true);
 
-    try {
-      setCustomersLoading(true);
-      const params = { limit: 100, lightweight: true, store: storeId };
-      const result = await customerService.getCustomers(params);
+    const params = { limit: 100, lightweight: true, store: storeId };
+    const result = await execute(
+      customerService.getCustomers(params),
+      { showToast: false }
+    );
 
-      if (result.success) {
-        const serializedOptions = [
-          { value: "", label: t("invoice.walkInCustomer") },
-          ...(result.data || []).map((customer) => ({
-            value: customer._id,
-            label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
-          })),
-          {
-            value: "add-new-customer",
-            label: t("invoice.addNewCustomer"),
-            isAddOption: true,
-          },
-        ];
-        setCustomers(serializedOptions);
-      }
-    } catch (_error) {
+    if (result?.success) {
+      const serializedOptions = [
+        { value: "", label: t("invoice.walkInCustomer") },
+        ...(result.data || []).map((customer) => ({
+          value: customer._id || customer.id,
+          label: `${customer.name || t("errors.unknown")} - ${customer.phone || t("errors.noPhone")}${customer.email ? ` - ${customer.email}` : ""}`,
+        })),
+        {
+          value: "add-new-customer",
+          label: t("invoice.addNewCustomer"),
+          isAddOption: true,
+        },
+      ];
+      setCustomers(serializedOptions);
+    } else {
       customersFetchedRef.current = { storeId: null, fetched: false };
-    } finally {
-      setCustomersLoading(false);
     }
-  }, [storeId, t]);
+    setCustomersLoading(false);
+  }, [storeId, t, execute]);
 
   // 7. Effects
   useEffect(() => {
@@ -170,19 +165,6 @@ const CreateInvoicePage = () => {
       return;
     }
 
-    if (!isQuotaAvailable()) {
-      const quotaData = quota || {};
-      setQuotaErrorManually({
-        message: quota.remaining === 0
-          ? t("invoice.dailyLimitReached", { limit: quota.limit })
-          : t("invoice.quotaExceededMessage"),
-        quota: quotaData,
-        resetTime: quota.usageType === "DAILY_FIXED" ? "tomorrow" : quota.usageType === "MONTHLY_TOTAL" ? "next month" : null,
-        canUpgrade: true,
-      });
-      return;
-    }
-
     const invoiceData = {
       customer: formData.customer || null,
       isWalkin: true,
@@ -196,25 +178,24 @@ const CreateInvoicePage = () => {
       orderSource: formData.orderSource || "POS",
     };
 
-    try {
-      setInvoiceLoading(true);
-      const result = await invoiceService.createDraftInvoice(invoiceData);
-      const handled = handleApiResult(result, t("invoice.invoiceCreatedSuccess"), "invoice-creation");
+    setInvoiceLoading(true);
+    const result = await execute(
+      invoiceService.createDraftInvoice(invoiceData),
+      { message: t("invoice.invoiceCreatedSuccess") || "Invoice created successfully" }
+    );
 
-      if (handled.type === "success") {
-        const invoiceId = result?.data?.id || null;
+    if (result?.success) {
+      const createdId = result?.data?.id || null;
 
-        router.push(
-          invoiceId
-            ? `/dashboard/invoices/view/${invoiceId}`
-            : "/dashboard/invoices"
-        );
-      }
-    } catch (error) {
-      handleApiError(error, "invoice-creation");
-    } finally {
-      setInvoiceLoading(false);
+      router.push(
+        createdId
+          ? `/dashboard/invoices/${createdId}`
+          : "/dashboard/invoices"
+      );
+    } else {
+      showError(result?.message || t("errors.unknown") || "Failed to create invoice");
     }
+    setInvoiceLoading(false);
   };
 
   // 9. Shortcuts
@@ -223,8 +204,8 @@ const CreateInvoicePage = () => {
     onBack: () => router.push("/dashboard/invoices"),
   });
 
-  // Show loading if store is not available yet
-  if (!selectedStore?.storeId) {
+  // Show loading if store or permissions are not available yet
+  if (!selectedStore?.storeId || permissionLoading) {
     return (
       <div className="flex w-full h-screen bg-[rgb(var(--color-bg-secondary))] relative overflow-hidden">
         <Sidebar />
@@ -232,7 +213,9 @@ const CreateInvoicePage = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h2 className="text-base font-semibold text-[rgb(var(--color-text-primary))] mb-2">
-              {t("invoice.loadingStoreData")}
+            {permissionLoading
+                ? t("invoice.verifyingPermissions") || "Checking permissions..."
+                : t("invoice.loadingStoreData")}
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))]">
               {t("invoice.pleaseWaitStoreInfo")}
@@ -243,20 +226,25 @@ const CreateInvoicePage = () => {
     );
   }
 
+  // Pre-render guard for non-staff/restricted users
+  if (!canCreate) {
+    return null;
+  }
+
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
 
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="min-h-0 h-screen w-full flex flex-col">
         <Header
           title={t("invoice.createInvoice")}
           description={t("invoice.createInvoiceDescription")}
         />
 
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             {/* Back Button with Quota Progress Bar */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex-shrink-0 flex items-center justify-between">
               <Link
                 href="/dashboard/invoices"
                 className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
@@ -271,10 +259,10 @@ const CreateInvoicePage = () => {
 
             {/* Form Container - Two Column Layout */}
             <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-150px)]"
+              className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 h-full">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
                   <form onSubmit={handleSubmit} className="h-full">
                     <InvoiceItemsSection
                       t={t}
@@ -295,8 +283,6 @@ const CreateInvoicePage = () => {
                 handleCustomerChange={handleCustomerChange}
                 customers={customers}
                 customersLoading={customersLoading}
-                quotaExceeded={quotaExceeded}
-                quotaLoading={quotaLoading}
                 invoiceLoading={invoiceLoading}
                 handleSubmit={handleSubmit}
               />
@@ -304,8 +290,6 @@ const CreateInvoicePage = () => {
           </div>
         </div>
       </div>
-
-      {QuotaModal}
 
       <SideDrawer
         isOpen={showCustomerDrawer}
