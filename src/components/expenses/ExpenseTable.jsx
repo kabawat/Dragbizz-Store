@@ -356,123 +356,125 @@ const ExpenseTable = ({
       <div>
         <table className="w-full min-w-[900px] table-fixed">
           <tbody className="divide-y divide-[rgb(var(--color-border-primary))]">
-            {expenses.map((expense) => (
-              <tr
-                key={expense.id}
-                className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
-              >
-                {/* Title + Bill Number */}
-                <td
-                  className="w-[22%] px-6 py-4 cursor-pointer group/cell"
-                  onClick={() => onView?.(expense?.id)}
+            {expenses.map((expense) => {
+              return (
+                <tr
+                  key={expense.id}
+                  className="group transition-all duration-200 hover:bg-[rgb(var(--color-bg-tertiary))] border-b border-[rgb(var(--color-border-primary))]"
                 >
-                  <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
-                    {expense.title}
-                  </div>
-                  <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
-                    {expense.billNumber || t("expenses.noBillNumber")}
-                  </div>
-                </td>
-
-                {/* Date */}
-                <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
-                    <span>{formatDate(expense.date)}</span>
-                  </div>
-                </td>
-
-                {/* Category */}
-                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
-                  {getCategoryLabel(expense.category?.name || expense.category)}
-                </td>
-
-                {/* Amount */}
-                <td className="w-[12%] px-6 py-4 text-right">
-                  <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
-                    ₹{formatCurrency(expense.amount)}
-                  </div>
-                </td>
-
-                {/* Payment Method */}
-                <td className="w-[16%] px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm shrink-0">
-                      {getPaymentMethodIcon(expense.paymentMethod)}
-                    </span>
-                    <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">
-                      {getPaymentMethodLabel(expense.paymentMethod)}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Vendor */}
-                <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
-                  {expense.vendor?.name || expense.vendor || "-"}
-                </td>
-
-                {/* Status */}
-                <td className="w-[10%] px-6 py-4 text-center">
-                  <div className="inline-flex">
-                    {renderStatusBadge(expense.status, "general")}
-                  </div>
-                </td>
-
-                {/* Actions */}
-                <td className="w-24 px-6 py-4 text-center">
-                  <div
-                    className="relative inline-block"
-                    ref={(el) => (menuRefs.current[expense.id] = el)}
+                  {/* Title + Bill Number */}
+                  <td
+                    className="w-[22%] px-6 py-4 cursor-pointer group/cell"
+                    onClick={() => onView?.(expense?.id)}
                   >
-                    <button
-                      onClick={() =>
-                        setOpenMenuId(
-                          openMenuId === expense.id ? null : expense.id
-                        )
-                      }
-                      className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
-                      title={t("common.actions")}
-                    >
-                      <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
-                    </button>
+                    <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
+                      {expense.title}
+                    </div>
+                    <div className="text-[10px] text-[rgb(var(--color-text-tertiary))] font-medium mt-0.5 leading-tight">
+                      {expense.billNumber || t("expenses.noBillNumber")}
+                    </div>
+                  </td>
 
-                    {/* Popup Menu */}
-                    {openMenuId === expense.id && (
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
-                        <button
-                          onClick={() => handleMenuAction(expense.id, "view")}
-                          className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
-                        >
-                          <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                          {t("common.viewDetails")}
-                        </button>
-                        {onEdit && (
+                  {/* Date */}
+                  <td className="w-[12%] px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-[rgb(var(--color-text-tertiary))] shrink-0" />
+                      <span>{formatDate(expense.date)}</span>
+                    </div>
+                  </td>
+
+                  {/* Category */}
+                  <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))]">
+                    {getCategoryLabel(expense.category?.name || expense.category)}
+                  </td>
+
+                  {/* Amount */}
+                  <td className="w-[12%] px-6 py-4 text-right">
+                    <div className="font-bold text-sm text-[rgb(var(--color-text-primary))]">
+                      ₹{formatCurrency(expense.amount)}
+                    </div>
+                  </td>
+
+                  {/* Payment Method */}
+                  <td className="w-[16%] px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm shrink-0">
+                        {getPaymentMethodIcon(expense.paymentMethod)}
+                      </span>
+                      <span className="text-sm text-[rgb(var(--color-text-primary))] truncate">
+                        {getPaymentMethodLabel(expense.paymentMethod)}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Vendor */}
+                  <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
+                    {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
+                  </td>
+
+                  {/* Status */}
+                  <td className="w-[10%] px-6 py-4 text-center">
+                    <div className="inline-flex">
+                      {renderStatusBadge(expense.status, "general")}
+                    </div>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="w-24 px-6 py-4 text-center">
+                    <div
+                      className="relative inline-block"
+                      ref={(el) => (menuRefs.current[expense.id] = el)}
+                    >
+                      <button
+                        onClick={() =>
+                          setOpenMenuId(
+                            openMenuId === expense.id ? null : expense.id
+                          )
+                        }
+                        className="p-2 hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors duration-200 group/btn cursor-pointer"
+                        title={t("common.actions")}
+                      >
+                        <MoreVertical className="w-4 h-4 text-[rgb(var(--color-text-secondary))] group-hover/btn:text-[rgb(var(--color-primary))]" />
+                      </button>
+
+                      {/* Popup Menu */}
+                      {openMenuId === expense.id && (
+                        <div className="absolute right-0 top-full mt-1 w-48 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-lg border border-[rgb(var(--color-border-primary))] py-1 z-50">
                           <button
-                            onClick={() => handleMenuAction(expense.id, "edit")}
+                            onClick={() => handleMenuAction(expense.id, "view")}
                             className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                           >
-                            <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
-                            {t("common.edit")}
+                            <Eye className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                            {t("common.viewDetails")}
                           </button>
-                        )}
-                        {onDelete && (
-                          <>
-                            <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                          {onEdit && (
                             <button
-                              onClick={() => handleMenuAction(expense.id, "delete")}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                              onClick={() => handleMenuAction(expense.id, "edit")}
+                              className="w-full px-4 py-2 text-left text-sm text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-[rgb(var(--color-bg-secondary))]"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" />
-                              {t("common.delete")}
+                              <Edit className="w-4 h-4 text-[rgb(var(--color-text-secondary))]" />
+                              {t("common.edit")}
                             </button>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                          )}
+                          {onDelete && (
+                            <>
+                              <div className="border-t border-[rgb(var(--color-border-primary))] my-1"></div>
+                              <button
+                                onClick={() => handleMenuAction(expense.id, "delete")}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-3 transition-colors duration-200 cursor-pointer focus:outline-none focus:bg-red-500/10"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                                {t("common.delete")}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
