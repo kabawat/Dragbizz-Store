@@ -72,10 +72,10 @@ const ExpenseForm = ({
           ? new Date(expense.date).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
         category:
-          expense.category?.name || expense.category || "office-supplies",
+          expense.category?.name || (typeof expense.category === "string" ? expense.category : "") || "office-supplies",
         amount: expense.amount || "",
         paymentMethod: expense.paymentMethod || "CASH",
-        vendor: expense.vendor?.name || expense.vendor || "",
+        vendor: expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "",
         status: expense.status || "PAID",
         description: expense.description || "",
         // GST fields
