@@ -71,7 +71,6 @@ const CartPanel = ({ cart, setCart, onCheckout, checkoutRef }) => {
 
     const handleCheckout = async () => {
         if (cart.length === 0) return;
-
         const storeId = selectedStore?.storeId;
         if (!storeId) {
             showError("Store not found. Please select a store.");

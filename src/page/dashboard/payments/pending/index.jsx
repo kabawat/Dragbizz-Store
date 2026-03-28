@@ -22,29 +22,27 @@ import { getPayments } from "@/store/slices/paymentsSlice";
 const PendingPayments = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { pendingPayments, stats, isLoading, error } = useAppSelector(
-    (state) => state.payments
-  );
+  const { pendingPayments, stats, isLoading, error } = useAppSelector((state) => state.payments);
   const { selectedStore } = useAppSelector((state) => state.profile);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
   const [dateRange, setDateRange] = useState("all");
-
+  const storeId = selectedStore?.storeId;
   // Fetch pending payments and stats on component mount
   useEffect(() => {
-    if (selectedStore?.id) {
+    if (storeId) {
       dispatch(
         getPayments({
-          store: selectedStore.id,
+          store: storeId,
           status: "pending",
           limit: 20,
           page: 1,
         })
       );
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, storeId]);
 
   // Handle search
   const handleSearch = (value) => {
