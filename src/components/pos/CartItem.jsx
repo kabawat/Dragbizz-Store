@@ -1,4 +1,4 @@
-import { Plus, Minus, X, Tag } from "lucide-react";
+import { Plus, Minus, X, Tag, Trash2 } from "lucide-react";
 
 const fmt = (n) => `₹${Number(n).toFixed(2)}`;
 
