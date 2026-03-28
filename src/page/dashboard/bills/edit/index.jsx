@@ -14,7 +14,7 @@ import { useApiResponse } from "@/hooks/useApiResponse";
 import BillItemsSection from "@/components/bills/create/BillItemsSection";
 import BillSidebar from "@/components/bills/create/BillSidebar";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Receipt } from "lucide-react";
 
 const EditBill = ({ billId }) => {
   const { t } = useTranslation();
@@ -53,15 +53,16 @@ const EditBill = ({ billId }) => {
       if (result?.success && result.data) {
         const billData = result.data;
         setFormData({
-          supplier: billData.supplier?._id || billData.supplier?.id || "",
-          purchaseOrder: billData.purchaseOrder?._id || billData.purchaseOrder?.id || "",
+          supplier: billData.supplier?._id || "",
+          purchaseOrder: billData.purchaseOrder?._id || "",
           dueDate: billData.dueDate ? new Date(billData.dueDate).toISOString().split("T")[0] : "",
           notes: billData.notes || "",
           goodsReceived: billData.goodsReceived ?? true,
           items: (billData.items || []).map(item => ({
-            product: item.product?._id || item.product || "",
+            product: item.product,
+            productName: item.productName || "",
             quantity: item.quantity || 1,
-            purchasePrice: item.unitPrice || item.purchasePrice || 0,
+            purchasePrice: item.unitPrice || 0,
           })),
         });
       } else {
@@ -74,6 +75,16 @@ const EditBill = ({ billId }) => {
 
   // Handle input changes
   const handleInputChange = useCallback((field, value) => {
+    if (value === "add-new-supplier") {
+      router.push("/dashboard/suppliers/add");
+      return;
+    }
+
+    if (value === "add-new-purchase-order") {
+      router.push("/dashboard/purchase-orders/create");
+      return;
+    }
+
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
       if (field === "supplier") newData.purchaseOrder = "";
@@ -83,7 +94,7 @@ const EditBill = ({ billId }) => {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }, [errors]);
+  }, [errors, router]);
 
   // Validate form
   const validateForm = useCallback(() => {
@@ -170,6 +181,7 @@ const EditBill = ({ billId }) => {
       errors={errors}
       isCreating={isUpdating}
       handleSubmit={handleSubmit}
+      isEditing={true}
     />
   ), [errors, formData, handleInputChange, handleSubmit, isUpdating, setFormData, t]);
 
@@ -209,11 +221,11 @@ const EditBill = ({ billId }) => {
   return (
     <div className="flex h-screen relative w-full overflow-hidden">
       <Sidebar />
-      <div className="min-h-screen w-full flex flex-col">
+      <div className="h-screen w-full flex flex-col">
         <Header title={t("bills.editBill")} description={t("bills.updateBillInformationAndDetails")} />
 
-        <div className="flex-1 p-6">
-          <div className="max-w-8xl mx-auto w-full">
+        <div className="flex-1 min-h-0 p-6 overflow-hidden">
+          <div className="max-w-8xl mx-auto w-full h-full flex flex-col">
             <div className="mb-4">
               <Link href="/dashboard/bills" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
@@ -221,9 +233,9 @@ const EditBill = ({ billId }) => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "calc(100vh - 150px)" }}>
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="flex-1 pe-3 h-full">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 flex flex-col min-h-0">
+                <div className="flex-1 pe-3 min-h-0">
                   <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="h-full">
                     {memoizedBillItemsSection}
                   </form>

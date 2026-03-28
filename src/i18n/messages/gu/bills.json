@@ -5,6 +5,7 @@
   "viewBill": "બિલ જુઓ",
   "viewBillDescription": "બિલની માહિતી અને વિગતો",
   "createBill": "બિલ બનાવો",
+  "updateBill": "બિલ અપડેટ કરો",
   "createBillDescription": "ઇન્વેન્ટરી ખરીદી ટ્રેક કરવા માટે નવું ખરીદી બિલ ઉમેરો",
   "billForPO": "પર્ચેઝ ઓર્ડર #{poNumber} માટે બિલ",
   "editBill": "બિલ સંપાદિત કરો",

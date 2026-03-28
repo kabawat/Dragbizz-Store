@@ -5,6 +5,7 @@
   "viewBill": "Bill dekhein",
   "viewBillDescription": "Bill information aur details",
   "createBill": "Bill create karo",
+  "updateBill": "Bill update karo",
   "createBillDescription": "Inventory purchases track karne ke liye naya purchase bill add karo",
   "billForPO": "Purchase Order #{poNumber} ke liye Bill",
   "editBill": "Bill edit karo",
