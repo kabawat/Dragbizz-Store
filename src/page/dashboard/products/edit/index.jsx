@@ -101,11 +101,7 @@ const UpdateProductPage = ({ productId }) => {
           store: storeId,
           name: product?.name || "",
           brand: product?.brand || "",
-          category:
-            product?.category?._id ||
-            product?.category?.id ||
-            product?.category ||
-            "",
+          category: product?.category?._id || product?.category?.id || (typeof product?.category === "string" ? product?.category : "") || "",
           barcode: product?.barcode || "",
           sku: product?.sku || "",
           // Pricing data - directly from API response

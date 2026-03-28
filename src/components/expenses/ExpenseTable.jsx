@@ -163,7 +163,7 @@ const ExpenseTable = ({
             >
               <td
                 className="w-[22%] px-6 py-4 cursor-pointer group/cell"
-                onClick={() => onView?.(expense)}
+                onClick={() => onView?.(expense?.id)}
               >
                 <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
                   {expense.title}
@@ -191,7 +191,7 @@ const ExpenseTable = ({
                 </div>
               </td>
               <td className="w-[14%] px-6 py-4 text-sm text-[rgb(var(--color-text-primary))] truncate">
-                {expense.vendor?.name || expense.vendor || "-"}
+                {expense.vendor?.name || (typeof expense.vendor === "string" ? expense.vendor : "") || "-"}
               </td>
               <td className="w-[10%] px-6 py-4 text-center">
                 <div className="inline-flex">{renderStatusBadge(expense.status, "general")}</div>
@@ -364,7 +364,7 @@ const ExpenseTable = ({
                 {/* Title + Bill Number */}
                 <td
                   className="w-[22%] px-6 py-4 cursor-pointer group/cell"
-                  onClick={() => onView?.(expense)}
+                  onClick={() => onView?.(expense?.id)}
                 >
                   <div className="font-semibold text-sm text-[rgb(var(--color-text-primary))] group-hover/cell:text-[rgb(var(--color-primary))] transition-colors duration-200 truncate">
                     {expense.title}

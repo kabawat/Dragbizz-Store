@@ -352,9 +352,7 @@ const ViewExpensePage = ({ expenseId }) => {
                                 Vendor
                               </p>
                               <p className="text-base font-semibold text-[rgb(var(--color-text-primary))]">
-                                {expenseData.vendor?.name ||
-                                  expenseData.vendor ||
-                                  "N/A"}
+                                {expenseData.vendor?.name || (typeof expenseData.vendor === "string" ? expenseData.vendor : "") || "N/A"}
                               </p>
                             </div>
                           </div>

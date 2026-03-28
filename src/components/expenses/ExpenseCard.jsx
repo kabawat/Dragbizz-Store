@@ -132,7 +132,7 @@ const ExpenseCard = ({
           </h3>
           <p className="text-sm font-medium text-[rgb(var(--color-text-secondary))] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 opacity-70" />
-            <span className="truncate">{vendor?.name || vendor || "No Vendor"}</span>
+            <span className="truncate">{vendor?.name || (typeof vendor === "string" ? vendor : "") || "No Vendor"}</span>
           </p>
         </div>
 
