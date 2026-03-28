@@ -8,7 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/ui/useTranslation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Badge, IconButton } from "../ui";
