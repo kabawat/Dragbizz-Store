@@ -124,7 +124,6 @@ export default function VerifyInvitation() {
                             Redirecting automatically...
                         </p>
                     )}
-
                 </div>
             </div>
         </div>
