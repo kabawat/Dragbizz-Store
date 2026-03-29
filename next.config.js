@@ -3,6 +3,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
+  assetPrefix: '/_store_assets',
   reactStrictMode: true,
   compiler: {
     removeConsole:
