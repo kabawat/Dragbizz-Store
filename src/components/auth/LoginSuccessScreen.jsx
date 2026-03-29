@@ -9,7 +9,7 @@ const LoginSuccessScreen = ({
   firstName,
   redirectUrl = "/dashboard",
 }) => {
-  const [countdown, setCountdown] = useState(4000);
+  const [countdown, setCountdown] = useState(5);
   const [_showConfetti, setShowConfetti] = useState(true);
   const { triggerConfetti } = useConfetti();
 
