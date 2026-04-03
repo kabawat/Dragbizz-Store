@@ -54,7 +54,7 @@ import Table, {
 import Tabs, { TabPanel } from "./Tabs";
 import TagInput from "./TagInput";
 import Textarea from "./Textarea";
-import SettingsPanel from "./ThemeSelector";
+import SettingsPanel, { SettingsButton, SettingsDrawer } from "./ThemeSelector";
 import Toast from "./Toast";
 import ToastContainer from "./ToastContainer";
 import Toggle, { ViewToggle } from "./Toggle";
@@ -102,6 +102,8 @@ export {
   AnimatedGridPattern,
   SVGBackground,
   SettingsPanel,
+  SettingsButton,
+  SettingsDrawer,
   Dropdown,
   Pagination,
   Toggle,
@@ -171,6 +173,8 @@ export default {
   AnimatedGridPattern,
   SVGBackground,
   SettingsPanel,
+  SettingsButton,
+  SettingsDrawer,
   Dropdown,
   Pagination,
   Toggle,

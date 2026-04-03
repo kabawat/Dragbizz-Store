@@ -1,4 +1,5 @@
 "use client";
+import { SettingsButton } from "@/components/ui";
 import HeaderTitle from "./HeaderTitle";
 import NotificationBell from "./NotificationBell";
 import UserProfile from "./UserProfile";
@@ -12,6 +13,7 @@ const Header = ({ title, description }) => {
 
         {/* Right side - User Actions */}
         <div className="flex items-center space-x-3">
+          <SettingsButton />
           <NotificationBell />
           <UserProfile />
         </div>
