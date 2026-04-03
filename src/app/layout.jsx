@@ -2,7 +2,7 @@ import "@/app/globals.css";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import GlobalProfileLoader from "@/components/GlobalProfileLoader";
 import ToastInitializer from "@/components/ToastInitializer";
-import { SettingsPanel } from "@/components/ui";
+import { SettingsDrawer } from "@/components/ui";
 import GlobalToastContainer from "@/components/ui/GlobalToastContainer";
 import NetworkError from "@/components/ui/NetworkError";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
                         {children}
                         <GlobalToastContainer />
                         <NetworkError />
-                        <SettingsPanel />
+                        <SettingsDrawer />
                       </LocationProvider>
                     </ErrorBoundary>
                   </SocketNotificationProvider>
