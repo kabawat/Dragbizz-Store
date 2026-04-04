@@ -5,7 +5,9 @@ export { default as AIProductExtract } from "./AIProductExtract";
 export { default as BasicInfoSection } from "./BasicInfoSection";
 export { default as PricingGSTSection } from "./PricingGSTSection";
 // Product Modals
+export { default as MediaSection } from "./MediaSection";
 export { default as ProductAddSuccessModal } from "./ProductAddSuccessModal";
+
 export { default as ProductCard } from "./ProductCard";
 export { default as ProductDeleteConfirmModal } from "./ProductDeleteConfirmModal";
 export { default as ProductDeleteSuccessModal } from "./ProductDeleteSuccessModal";

@@ -58,7 +58,9 @@ const UpdateProductPage = ({ productId }) => {
     discount: "",
     currency: "",
     uom: "",
+    images: [],
     status: "",
+
     showInCatalog: true,
     featured: false,
     bestSeller: false,
@@ -111,8 +113,10 @@ const UpdateProductPage = ({ productId }) => {
           discount: product?.discount || "",
           currency: product?.currency || "",
           uom: product?.uom || "",
+          images: Array.isArray(product?.images) ? product.images : (product?.image ? [product.image] : []),
           // Status and catalog
           status: product?.status || "",
+
           showInCatalog: product?.showInCatalog !== false,
           featured: product?.featured || false,
           bestSeller: product?.bestSeller || false,
@@ -328,20 +332,14 @@ const UpdateProductPage = ({ productId }) => {
       {/* Main Content */}
       <div className="flex-1 min-h-screen flex flex-col">
         {/* Header */}
-        <Header
-          title={t("products.editProduct")}
-          description={t("products.editProductDescription")}
-        />
+        <Header title={t("products.editProduct")} description={t("products.editProductDescription")} />
 
         {/* Main Content */}
         <div className="flex-1 p-6">
           <div className="max-w-8xl mx-auto">
             {/* Back Button */}
             <div className="mb-6">
-              <Link
-                href="/dashboard/products"
-                className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-              >
+              <Link href="/dashboard/products" className="inline-flex items-center space-x-2 px-3 py-2 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Products</span>
               </Link>
@@ -371,20 +369,10 @@ const UpdateProductPage = ({ productId }) => {
                   </Button>
 
                   <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={loading}
-                    >
+                    <Button variant="outline" onClick={handleCancel} disabled={loading} >
                       Cancel
                     </Button>
-                    <Button
-                      variant="success"
-                      onClick={() => handleSaveAndUpdate(formData)}
-                      disabled={loading}
-                      loading={loading}
-                      leftIcon={Save}
-                    >
+                    <Button variant="success" onClick={() => handleSaveAndUpdate(formData)} disabled={loading} loading={loading} leftIcon={Save} >
                       Update Product
                     </Button>
                   </div>

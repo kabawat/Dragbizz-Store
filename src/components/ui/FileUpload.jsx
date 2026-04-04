@@ -16,6 +16,7 @@ const FileUpload = ({
   helperText,
   dropZoneLabel,
   sizeLimitLabel,
+  showFileList = true,
   disabled = false,
   required = false,
   className = "",
@@ -151,32 +152,33 @@ const FileUpload = ({
         </label>
       )}
 
-      {/* Upload Area - Only show when no files */}
-      {value.length === 0 && (
-        <div
-          className={`
-            relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
-            ${isDragOver
-              ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
-              : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
-            }
-            ${error ? "border-red-500" : ""}
-            ${disabled ? "opacity-50 cursor-not-allowed" : ""}
-          `}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={openFileDialog}
-        >
-          <div className="p-6 text-center">
-            <Upload
-              className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
-            />
-            <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
-              {isDragOver
-                ? "Drop files here"
-                : dropZoneLabel || "Click to upload or drag and drop"}
-            </p>
+      {/* Upload Area */}
+      <div
+        className={`
+          relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
+          ${isDragOver
+            ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
+            : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+          }
+          ${error ? "border-red-500" : ""}
+          ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+          ${value.length > 0 ? "mb-4 p-4" : "p-6"}
+        `}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={openFileDialog}
+      >
+        <div className="text-center">
+          <Upload
+            className={`mx-auto mb-2 ${value.length > 0 ? "w-6 h-6" : "w-8 h-8"} ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+          />
+          <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
+            {isDragOver
+              ? "Drop files here"
+              : dropZoneLabel || (value.length > 0 ? "Add more images" : "Click to upload or drag and drop")}
+          </p>
+          {!value.length && (
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
               {sizeLimitLabel || (
                 <>
@@ -186,24 +188,24 @@ const FileUpload = ({
                 </>
               )}
             </p>
-          </div>
-
-          {/* Hidden File Input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={accept}
-            multiple={multiple}
-            onChange={handleFileInputChange}
-            className="hidden"
-            disabled={disabled}
-            {...props}
-          />
+          )}
         </div>
-      )}
+
+        {/* Hidden File Input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          onChange={handleFileInputChange}
+          className="hidden"
+          disabled={disabled}
+          {...props}
+        />
+      </div>
 
       {/* File List */}
-      {value.length > 0 && (
+      {showFileList && value.length > 0 && (
         <div className="space-y-2">
           {value.map((file, index) => (
             <div
