@@ -2,6 +2,7 @@
 import { AlertCircle, File, Image as ImageIcon, Upload, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useTranslation } from "@/hooks/ui/useTranslation";
 
 const FileUpload = ({
   label,
@@ -19,9 +20,11 @@ const FileUpload = ({
   showFileList = true,
   disabled = false,
   required = false,
+  variant = "default", // "default" or "compact"
   className = "",
   ...props
 }) => {
+  const { t } = useTranslation();
   const { currentVariant } = useTheme();
   const [isDragOver, setIsDragOver] = useState(false);
   const [_uploading, _setUploading] = useState(false);
@@ -144,8 +147,8 @@ const FileUpload = ({
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Label */}
-      {label && (
+      {/* Label - Only in default variant */}
+      {variant !== "compact" && label && (
         <label className="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -155,39 +158,59 @@ const FileUpload = ({
       {/* Upload Area */}
       <div
         className={`
-          relative border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer
+          relative border-2 border-dashed rounded-xl transition-all duration-300 cursor-pointer
           ${isDragOver
-            ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))] bg-opacity-5"
-            : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))]"
+            ? "border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary)/0.1)] scale-[0.98]"
+            : "border-[rgb(var(--color-border-primary))] hover:border-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-bg-secondary))] hover:shadow-md"
           }
-          ${error ? "border-red-500" : ""}
+          ${error ? "border-red-500 bg-red-50/50" : ""}
           ${disabled ? "opacity-50 cursor-not-allowed" : ""}
-          ${value.length > 0 ? "mb-4 p-4" : "p-6"}
+          ${variant === "compact" ? "aspect-square flex items-center justify-center p-2" : (value.length > 0 ? "mb-4 p-4" : "p-8")}
+          ${className}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={openFileDialog}
       >
-        <div className="text-center">
-          <Upload
-            className={`mx-auto mb-2 ${value.length > 0 ? "w-6 h-6" : "w-8 h-8"} ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
-          />
-          <p className="text-sm text-[rgb(var(--color-text-primary))] mb-1">
-            {isDragOver
-              ? "Drop files here"
-              : dropZoneLabel || (value.length > 0 ? "Add more images" : "Click to upload or drag and drop")}
-          </p>
-          {!value.length && (
-            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              {sizeLimitLabel || (
-                <>
-                  {accept.includes("image") ? "Images" : "Files"} up to{" "}
-                  {maxSize / (1024 * 1024)}MB
-                  {multiple && ` (max ${maxFiles} files)`}
-                </>
+        <div className="text-center w-full">
+          {variant === "compact" ? (
+            <div className="flex flex-col items-center justify-center space-y-1">
+              <div className={`p-2 rounded-full transition-colors ${isDragOver ? "bg-[rgb(var(--color-primary))]/20" : "bg-[rgb(var(--color-bg-tertiary))]"}`}>
+                <Upload
+                  className={`w-5 h-5 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+                />
+              </div>
+              <span className="text-[11px] font-medium text-[rgb(var(--color-text-secondary))] truncate px-1">
+                {t("common.add") || "Add More"}
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <div className={`p-4 rounded-full mb-3 mb-4 transition-transform duration-300 ${isDragOver ? "bg-[rgb(var(--color-primary))]/20 scale-110" : "bg-[rgb(var(--color-bg-tertiary))]"}`}>
+                <Upload
+                  className={`w-8 h-8 ${isDragOver ? "text-[rgb(var(--color-primary))]" : "text-[rgb(var(--color-text-tertiary))]"}`}
+                />
+              </div>
+              <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] mb-1">
+                {isDragOver
+                  ? t("common.dropFilesHere") || "Drop files here"
+                  : dropZoneLabel || (value.length > 0 ? t("common.addMoreImages") || "Add more images" : t("common.clickToUploadOrDrag") || "Click to upload or drag and drop")}
+              </p>
+              {!value.length && (
+                <p className="text-xs text-[rgb(var(--color-text-tertiary))]">
+                  {sizeLimitLabel || (
+                    <>
+                      {accept.includes("image") ? "Images" : "Files"} up to{" "}
+                      <span className="font-medium text-[rgb(var(--color-text-secondary))]">
+                        {maxSize / (1024 * 1024)}MB
+                      </span>
+                      {multiple && ` • Max ${maxFiles} files`}
+                    </>
+                  )}
+                </p>
               )}
-            </p>
+            </div>
           )}
         </div>
 
@@ -263,8 +286,8 @@ const FileUpload = ({
         </div>
       )}
 
-      {/* Helper Text / Error Message */}
-      {(helperText || errorMessage) && (
+      {/* Helper Text / Error Message - Only in default variant */}
+      {variant !== "compact" && (helperText || errorMessage) && (
         <div className="mt-2">
           {error && errorMessage && (
             <div className="flex items-center space-x-1">
