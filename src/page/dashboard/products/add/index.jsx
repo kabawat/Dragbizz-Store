@@ -44,7 +44,9 @@ const AddProductPage = () => {
     brand: "",
     category: "",
     barcode: "",
+    images: [],
     basePrice: "",
+
     mrp: "",
     sellingPrice: "",
     currency: "INR",
@@ -330,20 +332,10 @@ const AddProductPage = () => {
                 <div className="bg-[rgb(var(--color-bg-tertiary))] border-t border-[rgb(var(--color-border-primary))] px-6 py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 ml-auto">
-                      <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={loading}
-                      >
+                      <Button variant="outline" onClick={handleCancel} disabled={loading} >
                         {t("common.cancel")}
                       </Button>
-                      <Button
-                        variant="success"
-                        onClick={handleSaveAndPublish}
-                        disabled={loading}
-                        loading={loading}
-                        leftIcon={Save}
-                      >
+                      <Button variant="success" onClick={handleSaveAndPublish} disabled={loading} loading={loading} leftIcon={Save} >
                         {t("products.saveAndPublish")}
                       </Button>
                     </div>

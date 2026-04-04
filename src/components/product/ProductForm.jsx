@@ -4,7 +4,8 @@
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy, } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Eye, GripVertical, IndianRupee, Info, Package, X } from "lucide-react";
+import { Eye, GripVertical, Image as ImageIcon, IndianRupee, Info, Package, X } from "lucide-react";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -27,7 +28,9 @@ import useApiResponse from "@/hooks/useApiResponse";
 import AdditionalDetailsSection from "./AdditionalDetailsSection";
 // Import sections
 import BasicInfoSection from "./BasicInfoSection";
+import MediaSection from "./MediaSection";
 import OpeningQuantitySection from "./OpeningQuantitySection";
+
 import PricingGSTSection from "./PricingGSTSection";
 
 // Sortable Section Component
@@ -220,6 +223,14 @@ const ProductForm = ({
       component: BasicInfoSection,
     },
     {
+      id: "media",
+      title: t("products.media") || "Media & Images",
+      subtitle: t("products.mediaSubtitle") || "Upload product images and videos",
+      icon: ImageIcon,
+      component: MediaSection,
+    },
+
+    {
       id: "pricing-gst",
       title: t("products.pricingInformation"),
       subtitle: t("products.pricingInformationSubtitle"),
@@ -255,6 +266,17 @@ const ProductForm = ({
       ],
       tips: t("products.basicInfoTips"),
     },
+    media: {
+      title: t("products.media") || "Media & Images",
+      description: t("products.mediaDescription") || "Visual representation of your product for the catalog.",
+      details: [
+        t("products.mediaDetail1") || "Product cover image",
+        t("products.mediaDetail2") || "Supports JPG, PNG, WebP",
+        t("products.mediaDetail3") || "Recommended size: 1000x1000px",
+      ],
+      tips: t("products.mediaTips") || "Bright, clear images on a white background convert best.",
+    },
+
     "pricing-gst": {
       title: t("products.pricingInformation"),
       description: t("products.pricingInformationDescription"),
@@ -522,10 +544,7 @@ const ProductForm = ({
                 <h3 className="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
                   {currentInfoSection.title}
                 </h3>
-                <button
-                  onClick={() => setShowInfoModal(false)}
-                  className="p-2  cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors"
-                >
+                <button onClick={() => setShowInfoModal(false)} className="p-2  cursor-pointer hover:bg-[rgb(var(--color-bg-secondary))] rounded-lg transition-colors">
                   <svg
                     className="w-5 h-5 text-[rgb(var(--color-text-secondary))]"
                     fill="none"
@@ -579,43 +598,27 @@ const ProductForm = ({
       {showAddCategoryDrawer && (
         <>
           {/* Backdrop */}
-          <div
-            className={`fixed inset-0 ${drawerStyles.backdrop} z-[9999] animate-in fade-in duration-300`}
-            onClick={handleCloseCategoryDrawer}
-          />
+          <div onClick={handleCloseCategoryDrawer} className={`fixed inset-0 ${drawerStyles.backdrop} z-[9999] animate-in fade-in duration-300`} />
 
           {/* Full Page Drawer - slides from right edge of viewport */}
-          <div
-            className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}
-          >
+          <div className={`fixed top-0 right-0 h-screen w-[600px] ${drawerStyles.drawer} shadow-2xl z-[9999] transform transition-transform duration-300 ease-out`}>
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div
-                className={`flex items-center justify-between p-4 ${drawerStyles.header}`}
-              >
-                <h2
-                  className={`text-base font-semibold ${drawerStyles.text.primary}`}
-                >
+              <div className={`flex items-center justify-between p-4 ${drawerStyles.header}`}>
+                <h2 className={`text-base font-semibold ${drawerStyles.text.primary}`}>
                   {t("products.addNewCategory")}
                 </h2>
-                <button
-                  onClick={handleCloseCategoryDrawer}
-                  className={`p-2 ${drawerStyles.button.hover} rounded-lg transition-colors cursor-pointer`}
-                >
+                <button onClick={handleCloseCategoryDrawer} className={`p-2 ${drawerStyles.button.hover} rounded-lg transition-colors cursor-pointer`}>
                   <X className={`w-5 h-5 ${drawerStyles.text.primary}`} />
                 </button>
               </div>
 
               {/* Content */}
-              <div
-                className={`flex-1 p-6 overflow-y-auto ${drawerStyles.content}`}
-              >
+              <div className={`flex-1 p-6 overflow-y-auto ${drawerStyles.content}`}>
                 <div className="space-y-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h3
-                      className={`text-lg font-medium ${drawerStyles.text.primary}`}
-                    >
+                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>
                       {t("products.basicInformation")}
                     </h3>
 
@@ -623,9 +626,7 @@ const ProductForm = ({
                       label={t("products.categoryName")}
                       placeholder={t("products.categoryNamePlaceholder")}
                       value={newCategoryData.name}
-                      onChange={(value) =>
-                        setNewCategoryData((prev) => ({ ...prev, name: value }))
-                      }
+                      onChange={(value) => setNewCategoryData((prev) => ({ ...prev, name: value }))}
                       required
                     />
 
@@ -633,32 +634,20 @@ const ProductForm = ({
                       label={t("common.description")}
                       placeholder={t("products.enterCategoryDescription")}
                       value={newCategoryData.description}
-                      onChange={(value) =>
-                        setNewCategoryData((prev) => ({
-                          ...prev,
-                          description: value,
-                        }))
-                      }
+                      onChange={(value) => setNewCategoryData((prev) => ({ ...prev, description: value }))}
                       rows={3}
                     />
 
                     <Checkbox
                       label={t("products.categoryRequiresExpiryDate")}
                       checked={newCategoryData.hasExpiryDate === true}
-                      onChange={(checked) =>
-                        setNewCategoryData((prev) => ({
-                          ...prev,
-                          hasExpiryDate: checked,
-                        }))
-                      }
+                      onChange={(checked) => setNewCategoryData((prev) => ({ ...prev, hasExpiryDate: checked }))}
                     />
                   </div>
 
                   {/* Metadata */}
                   <div className="space-y-4">
-                    <h3
-                      className={`text-lg font-medium ${drawerStyles.text.primary}`}
-                    >
+                    <h3 className={`text-lg font-medium ${drawerStyles.text.primary}`}>
                       {t("products.categorySettings")}
                     </h3>
 
@@ -668,22 +657,12 @@ const ProductForm = ({
                           label={t("products.categoryIcon")}
                           accept="image/*"
                           multiple={false}
-                          value={
-                            newCategoryData.metadata.icon
-                              ? [newCategoryData.metadata.icon]
-                              : []
-                          }
+                          value={newCategoryData.metadata.icon ? [newCategoryData.metadata.icon] : []}
                           onChange={(files) => {
                             if (files && files.length > 0) {
-                              setNewCategoryData((prev) => ({
-                                ...prev,
-                                metadata: { ...prev.metadata, icon: files[0] },
-                              }));
+                              setNewCategoryData((prev) => ({ ...prev, metadata: { ...prev.metadata, icon: files[0] } }));
                             } else {
-                              setNewCategoryData((prev) => ({
-                                ...prev,
-                                metadata: { ...prev.metadata, icon: null },
-                              }));
+                              setNewCategoryData((prev) => ({ ...prev, metadata: { ...prev.metadata, icon: null } }));
                             }
                           }}
                           dropZoneLabel={t("products.clickToUpload")}
@@ -699,21 +678,12 @@ const ProductForm = ({
                       placeholder={t("products.addTagsPlaceholder")}
                       countLabel={t("products.tagCount")}
                       value={newCategoryData.metadata.tags}
-                      onChange={(value) =>
-                        setNewCategoryData((prev) => ({
-                          ...prev,
-                          metadata: { ...prev.metadata, tags: value },
-                        }))
-                      }
+                      onChange={(value) => setNewCategoryData((prev) => ({ ...prev, metadata: { ...prev.metadata, tags: value } }))}
                     />
                   </div>
 
-                  <div
-                    className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
-                  >
-                    <h3
-                      className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}
-                    >
+                  <div className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+                    <h3 className={`text-sm font-medium ${drawerStyles.text.primary} mb-2`}>
                       {t("products.aboutCategories")}
                     </h3>
                     <p className={`text-sm ${drawerStyles.text.secondary}`}>
@@ -721,17 +691,11 @@ const ProductForm = ({
                     </p>
                   </div>
 
-                  <div
-                    className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-blue-900/20" : "bg-blue-50"}`}
-                  >
-                    <h3
-                      className={`text-sm font-medium ${currentVariant === "dark" ? "text-blue-300" : "text-blue-700"} mb-2`}
-                    >
+                  <div className={`rounded-lg p-4 ${currentVariant === "dark" ? "bg-blue-900/20" : "bg-blue-50"}`}>
+                    <h3 className={`text-sm font-medium ${currentVariant === "dark" ? "text-blue-300" : "text-blue-700"} mb-2`}>
                       💡 {t("products.tip")}
                     </h3>
-                    <p
-                      className={`text-sm ${currentVariant === "dark" ? "text-blue-400" : "text-blue-600"}`}
-                    >
+                    <p className={`text-sm ${currentVariant === "dark" ? "text-blue-400" : "text-blue-600"}`}>
                       {t("products.categoryTip")}
                     </p>
                   </div>
