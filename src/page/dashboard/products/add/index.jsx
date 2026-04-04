@@ -63,12 +63,6 @@ const AddProductPage = () => {
       features: [],
       specifications: [],
     },
-    openingStock: {
-      quantity: 0,
-      purchasePrice: 0,
-      supplier: "",
-      expiryDate: "",
-    },
     showInCatalog: true,
   });
 

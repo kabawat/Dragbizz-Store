@@ -65,10 +65,6 @@ const UpdateProductPage = ({ productId }) => {
     featured: false,
     bestSeller: false,
     newArrival: false,
-    openingStock: {
-      openingQuantity: 0,
-      openingPurchasePrice: 0,
-    },
     stockQuantity: 0,
     gstInfo: {
       gstRate: "",
@@ -121,12 +117,6 @@ const UpdateProductPage = ({ productId }) => {
           featured: product?.featured || false,
           bestSeller: product?.bestSeller || false,
           newArrival: product?.newArrival || false,
-          // Stock data
-          openingStock: {
-            openingQuantity: product?.openingStock?.openingQuantity || 0,
-            openingPurchasePrice:
-              product?.openingStock?.openingPurchasePrice || 0,
-          },
           stockQuantity: product?.stockQuantity || 0,
           // GST info from nested gstInfo object
           gstInfo: {
