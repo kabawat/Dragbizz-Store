@@ -20,11 +20,9 @@ const transformProductData = (apiProduct) => {
     uom: apiProduct.pricing?.uom || "PCS",
 
     // GST information
-    gst:
-      apiProduct.gstInfo?.gstRate || apiProduct.gst || apiProduct.gstRate || 0,
+    gst: apiProduct.gstInfo?.gstRate || apiProduct.gst || apiProduct.gstRate || 0,
     gstType: apiProduct.gstInfo?.gstType || apiProduct.gstType || "CGST_SGST",
-    hsnCode:
-      apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
+    hsnCode: apiProduct.gstInfo?.hsnCode || apiProduct.hsnCode || apiProduct.hsn || "",
     isGstIncluded: apiProduct.gstInfo?.isGstIncluded === true,
 
     // Status and catalog
@@ -41,9 +39,9 @@ const transformProductData = (apiProduct) => {
       ? formatLastUpdated(apiProduct.timestamps.updatedAt)
       : "Unknown",
 
-    // Additional fields for display
     slug: apiProduct.slug || "",
-    image: apiProduct.image || "/api/placeholder/300/300",
+    // Use first image URL from array or fallback
+    image: apiProduct.images?.[0] || "/api/placeholder/300/300",
 
     // Stock information (if available)
     stock: apiProduct.stock || 0,

@@ -10,8 +10,12 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove, onDis
     const lineTotal = price * item.qty * (1 - item.discount / 100);
     return (
         <div className="flex items-start gap-2 py-2.5 border-b border-[rgb(var(--color-border-primary))] last:border-0">
-            <div className="w-8 h-8 bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center text-base flex-shrink-0">
-                {emoji}
+            <div className="w-8 h-8 bg-[rgb(var(--color-bg-secondary))] rounded-lg flex items-center justify-center text-base flex-shrink-0 overflow-hidden">
+                {item.images?.[0] ? (
+                    <img src={item.images[0]} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                    emoji
+                )}
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[rgb(var(--color-text-primary))] truncate">{name}</p>
