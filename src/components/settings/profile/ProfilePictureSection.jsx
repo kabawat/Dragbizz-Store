@@ -1,7 +1,7 @@
 "use client";
 import { Camera, User, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
-import { uploadService, authService } from "@/service";
+import { utilityService } from "@/service";
 import { useGlobalToast } from "@/contexts/ToastContext";
 import { useAppDispatch } from "@/store/hooks";
 import { getAuthProfile } from "@/store/slices/profileSlice";
@@ -43,25 +43,18 @@ const ProfilePictureSection = ({
     try {
       setIsUploading(true);
 
-      // 1. Upload file and wait for result (async queue pattern)
-      const uploadResult = await uploadService.uploadFileAndWait(file, "profiles");
+      // 1. Upload file and updating user profile with utility service
+      const response = await utilityService.uploadProfilePicture(file);
 
-      if (uploadResult && uploadResult.url) {
-        // 2. Update user profile with the new image URL
-        const updateResult = await authService.updateProfile({
-          profile: uploadResult.url,
-        });
-
-        if (updateResult.success) {
-          showSuccess("Profile picture updated successfully");
-          // 3. Refresh profile in Redux
-          dispatch(getAuthProfile());
-        } else {
-          showError(updateResult.message || "Failed to update profile picture");
-        }
+      if (response && response.success) {
+        showSuccess("Profile picture updated successfully");
+        // 2. Refresh profile in Redux
+        dispatch(getAuthProfile());
+      } else {
+        showError(response?.message || "Failed to update profile picture");
       }
     } catch (error) {
-      
+
       showError(error.message || "An unexpected error occurred during upload");
     } finally {
       setIsUploading(false);

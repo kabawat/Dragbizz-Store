@@ -13,6 +13,7 @@ export {
 } from "./retailer";
 export { checkoutService, packageService } from "./subscription";
 export { voiceAIService } from "./voiceAI";
+export { utilityService } from "./utility";
 
 // Default export
 import axiosConfig from "./config/axiosConfig";
